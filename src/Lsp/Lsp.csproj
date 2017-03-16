@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Capabilities\Client\Capability.cs" />
     <Compile Include="Capabilities\Client\ClientCapabilities.cs" />
     <Compile Include="Capabilities\Client\CompletionCapability.cs" />
     <Compile Include="Capabilities\Client\CompletionItemCapability.cs" />
@@ -65,6 +66,7 @@
     <Compile Include="Container.cs" />
     <Compile Include="ContainerBase.cs" />
     <Compile Include="Converters\BooleanNumberStringConverter.cs" />
+    <Compile Include="Converters\CapabilityConverter.cs" />
     <Compile Include="Converters\CompletionListConverter.cs" />
     <Compile Include="Converters\DiagnosticCodeConverter.cs" />
     <Compile Include="Converters\LocationOrLocationsConverter.cs" />

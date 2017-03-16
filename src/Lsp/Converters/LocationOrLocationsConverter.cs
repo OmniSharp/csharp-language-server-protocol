@@ -36,7 +36,7 @@ namespace Lsp.Converters
 
             return new LocationOrLocations();
         }
-        
+
         public override bool CanRead => true;
 
         public override bool CanConvert(Type objectType) => objectType == typeof(LocationOrLocations);

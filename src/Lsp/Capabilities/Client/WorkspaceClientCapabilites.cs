@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Capabilities.Client
@@ -16,23 +16,23 @@ namespace Lsp.Capabilities.Client
         /// Capabilities specific to the `workspace/didChangeConfiguration` notification.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DynamicCapability DidChangeConfiguration { get; set; }
+        public Capability<DynamicCapability> DidChangeConfiguration { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/didChangeWatchedFiles` notification.
         /// </summary>
-        public DynamicCapability DidChangeWatchedFiles { get; set; }
+        public Capability<DynamicCapability> DidChangeWatchedFiles { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/symbol` request.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DynamicCapability Symbol { get; set; }
+        public Capability<DynamicCapability> Symbol { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/executeCommand` request.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public DynamicCapability ExecuteCommand { get; set; }
+        public Capability<DynamicCapability> ExecuteCommand { get; set; }
     }
 }
