@@ -1,0 +1,8 @@
+﻿{
+    "resolveProvider": true,
+    "documentSelector": [
+        {
+            "language": "csharp"
+        }
+    ]
+}

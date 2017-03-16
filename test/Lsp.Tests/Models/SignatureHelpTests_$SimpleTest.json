@@ -1,0 +1,16 @@
+﻿{
+    "signatures": [
+        {
+            "label": "ab",
+            "documentation": "ab",
+            "parameters": [
+                {
+                    "label": "param",
+                    "documentation": "param"
+                }
+            ]
+        }
+    ],
+    "activeSignature": 2,
+    "activeParameter": 1
+}

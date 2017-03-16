@@ -1,0 +1,11 @@
+﻿[
+    {
+        "language": "csharp"
+    },
+    {
+        "pattern": "**/*.vb"
+    },
+    {
+        "scheme": "visualbasic"
+    }
+]

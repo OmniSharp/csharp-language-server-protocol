@@ -1,0 +1,10 @@
+﻿{
+    "label": "ab",
+    "documentation": "ab",
+    "parameters": [
+        {
+            "label": "param",
+            "documentation": "param"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+﻿{
+    "registrations": [
+        {
+            "id": "abc",
+            "method": "method",
+            "registerOptions": {}
+        }
+    ]
+}

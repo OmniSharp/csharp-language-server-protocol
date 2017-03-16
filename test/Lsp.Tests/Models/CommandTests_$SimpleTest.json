@@ -1,0 +1,9 @@
+﻿{
+    "title": "Cool story bro",
+    "command": "abc",
+    "arguments": [
+        1,
+        "2",
+        true
+    ]
+}

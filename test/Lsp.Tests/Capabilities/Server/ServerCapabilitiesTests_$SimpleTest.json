@@ -1,0 +1,57 @@
+﻿{
+    "textDocumentSync": {
+        "openClose": true,
+        "change": 1,
+        "willSave": true,
+        "willSaveWaitUntil": true,
+        "save": {
+            "includeText": true
+        }
+    },
+    "hoverProvider": true,
+    "completionProvider": {
+        "resolveProvider": true,
+        "triggerCharacters": [
+            "a",
+            "b",
+            "c"
+        ]
+    },
+    "signatureHelpProvider": {
+        "triggerCharacters": [
+            ";",
+            " "
+        ]
+    },
+    "definitionProvider": true,
+    "referencesProvider": true,
+    "documentHighlightProvider": true,
+    "documentSymbolProvider": true,
+    "workspaceSymbolProvider": true,
+    "codeActionProvider": true,
+    "codeLensProvider": {
+        "resolveProvider": true
+    },
+    "documentFormattingProvider": true,
+    "documentRangeFormattingProvider": true,
+    "documentOnTypeFormattingProvider": {
+        "firstTriggerCharacter": ".",
+        "moreTriggerCharacter": [
+            ";",
+            " "
+        ]
+    },
+    "renameProvider": true,
+    "documentLinkProvider": {
+        "resolveProvider": true
+    },
+    "executeCommandProvider": {
+        "commands": [
+            "command1",
+            "command2"
+        ]
+    },
+    "experimental": {
+        "abc": "123"
+    }
+}

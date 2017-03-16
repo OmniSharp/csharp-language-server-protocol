@@ -1,0 +1,25 @@
+﻿using System;
+using FluentAssertions;
+using Lsp.Models;
+using Newtonsoft.Json;
+using Xunit;
+
+namespace Lsp.Tests.Models
+{
+    public class CancelParamsTests
+    {
+        [Theory, JsonFixture]
+        public void SimpleTest(string expected)
+        {
+            var model = new CancelParams() {
+                Id = "123"
+            };
+            var result = Fixture.SerializeObject(model);
+            
+            result.Should().Be(expected);
+
+            var deresult = JsonConvert.DeserializeObject<CancelParams>(expected);
+            deresult.ShouldBeEquivalentTo(model);
+        }
+    }
+}

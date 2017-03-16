@@ -1,0 +1,20 @@
+﻿{
+    "diagnostics": [
+        {
+            "range": {
+                "start": {
+                    "line": 1,
+                    "character": 1
+                },
+                "end": {
+                    "line": 2,
+                    "character": 2
+                }
+            },
+            "severity": 1,
+            "code": "abcd",
+            "source": "csharp",
+            "message": "message"
+        }
+    ]
+}

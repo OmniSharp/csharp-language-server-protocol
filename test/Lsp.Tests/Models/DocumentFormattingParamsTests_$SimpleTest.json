@@ -1,0 +1,8 @@
+﻿{
+    "textDocument": {
+        "uri": "file:///abc123.cs"
+    },
+    "options": {
+        "abc": 1
+    }
+}

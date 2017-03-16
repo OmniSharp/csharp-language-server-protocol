@@ -1,0 +1,8 @@
+﻿{
+    "protocolVersion": "2.0",
+    "message": {
+        "code": -32099,
+        "message": "Server Error Start",
+        "data": "abcd"
+    }
+}

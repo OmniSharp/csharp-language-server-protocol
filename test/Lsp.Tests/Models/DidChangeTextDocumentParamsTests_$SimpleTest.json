@@ -1,0 +1,22 @@
+﻿{
+    "textDocument": {
+        "version": 0,
+        "uri": null
+    },
+    "contentChanges": [
+        {
+            "range": {
+                "start": {
+                    "line": 1,
+                    "character": 1
+                },
+                "end": {
+                    "line": 2,
+                    "character": 2
+                }
+            },
+            "rangeLength": 12,
+            "text": "abc"
+        }
+    ]
+}

@@ -1,0 +1,11 @@
+﻿{
+    "label": null,
+    "kind": 0,
+    "insertTextFormat": 0,
+    "additionalTextEdits": [
+        {
+            "range": null,
+            "newText": "new text"
+        }
+    ]
+}

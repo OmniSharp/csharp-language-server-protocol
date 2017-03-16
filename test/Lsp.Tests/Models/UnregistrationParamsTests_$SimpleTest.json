@@ -1,0 +1,8 @@
+﻿{
+    "unregisterations": [
+        {
+            "id": "abc",
+            "method": "ads"
+        }
+    ]
+}

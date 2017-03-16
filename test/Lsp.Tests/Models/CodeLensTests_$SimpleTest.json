@@ -1,0 +1,24 @@
+﻿{
+    "range": {
+        "start": {
+            "line": 1,
+            "character": 2
+        },
+        "end": {
+            "line": 2,
+            "character": 3
+        }
+    },
+    "command": {
+        "title": "Cool story bro",
+        "command": "abc",
+        "arguments": [
+            1,
+            "2",
+            true
+        ]
+    },
+    "data": {
+        "somethingCool": 1
+    }
+}

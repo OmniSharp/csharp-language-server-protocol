@@ -1,0 +1,15 @@
+﻿{
+    "resolveProvider": true,
+    "documentSelector": [
+        {
+            "language": "csharp",
+            "scheme": "scheme",
+            "pattern": "pattern"
+        },
+        {
+            "language": "vb",
+            "scheme": "scheme",
+            "pattern": "pattern"
+        }
+    ]
+}

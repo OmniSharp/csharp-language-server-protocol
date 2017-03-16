@@ -1,0 +1,23 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+
+namespace Lsp.Models
+{
+    /// <summary>
+    ///  General parameters to unregister a request or notification.
+    /// </summary>
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    public class Unregistration
+    {
+        /// <summary>
+        ///  The id used to unregister the request or notification. Usually an id
+        ///  provided during the register request.
+        /// </summary>
+        public string Id { get; set; }
+
+        /// <summary>
+        ///  The method to unregister for.
+        /// </summary>
+        public string Method { get; set; }
+    }
+}

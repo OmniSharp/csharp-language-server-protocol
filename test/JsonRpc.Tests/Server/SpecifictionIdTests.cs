@@ -1,0 +1,47 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using JsonRPC.Server;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Xunit;
+
+namespace JsonRPC.Tests.Server
+{
+    public class SpecifictionIdTests
+    {
+        [Theory]
+        [ClassData(typeof(SimpleTestMessages))]
+        public void ShouldParse_SimpleMessages(string message, Type outputType, object expectedResult)
+        {
+            var reciever = new Reciever();
+            var result = reciever.GetRequests(JToken.Parse(message)).Single().Request;
+
+            result.Id.Should().Be(expectedResult);
+            if (expectedResult != null)
+            {
+                result.Id.Should().BeOfType(outputType);
+            }
+        }
+
+        class SimpleTestMessages : TheoryData<string, Type, object>
+        {
+            public override IEnumerable<Tuple<string, Type, object>> GetValues()
+            {
+                yield return Tuple.Create(
+                    @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": ""canbestring"" }",
+                    typeof(string),
+                    "canbestring" as object);
+                yield return Tuple.Create(
+                    @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": 12345 }",
+                    typeof(long),
+                    12345L as object);
+                yield return Tuple.Create(
+                    @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": null }",
+                    typeof(object),
+                    (object)null);
+            }
+        }
+    }
+}

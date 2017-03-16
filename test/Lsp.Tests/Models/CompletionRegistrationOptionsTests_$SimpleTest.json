@@ -1,0 +1,11 @@
+﻿{
+    "triggerCharacters": [
+        "."
+    ],
+    "resolveProvider": true,
+    "documentSelector": [
+        {
+            "language": "csharp"
+        }
+    ]
+}

@@ -1,0 +1,12 @@
+﻿{
+    "firstTriggerCharacter": "1",
+    "moreTriggerCharacter": [
+        "1",
+        "2"
+    ],
+    "documentSelector": [
+        {
+            "language": "csharp"
+        }
+    ]
+}

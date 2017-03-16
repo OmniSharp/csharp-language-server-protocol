@@ -1,0 +1,11 @@
+﻿{
+    "triggerCharacters": [
+        "a",
+        "b"
+    ],
+    "documentSelector": [
+        {
+            "language": "csharp"
+        }
+    ]
+}

@@ -1,0 +1,9 @@
+﻿{
+    "type": 1,
+    "message": "message",
+    "actions": [
+        {
+            "title": "abc"
+        }
+    ]
+}

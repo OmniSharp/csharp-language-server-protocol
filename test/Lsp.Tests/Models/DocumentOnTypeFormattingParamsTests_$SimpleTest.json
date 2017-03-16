@@ -1,0 +1,13 @@
+﻿{
+    "textDocument": {
+        "uri": "file:///abc/123.cs"
+    },
+    "position": {
+        "line": 1,
+        "character": 2
+    },
+    "ch": "c",
+    "options": {
+        "abc": 1
+    }
+}

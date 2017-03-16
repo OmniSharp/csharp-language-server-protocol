@@ -1,0 +1,12 @@
+﻿{
+    "context": {
+        "includeDeclaration": true
+    },
+    "textDocument": {
+        "uri": "file:///abc/123.cs"
+    },
+    "position": {
+        "line": 1,
+        "character": 2
+    }
+}
