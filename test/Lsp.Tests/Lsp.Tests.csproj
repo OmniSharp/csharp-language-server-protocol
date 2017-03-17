@@ -106,14 +106,6 @@
     <Compile Include="Capabilities\Server\TextDocumentSyncKindTests.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncOptionsTests.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncTests.cs" />
-    <Compile Include="Converters\BooleanNumberStringConverterTests.cs" />
-    <Compile Include="Converters\CompletionListConverterTests.cs" />
-    <Compile Include="Converters\DiagnosticCodeConverterTests.cs" />
-    <Compile Include="Converters\DocumentSelectorConverterTests.cs" />
-    <Compile Include="Converters\LocationOrLocationsConverterTests.cs" />
-    <Compile Include="Converters\MarkedStringConverterTests.cs" />
-    <Compile Include="Converters\NumberEnumConverterTests.cs" />
-    <Compile Include="Converters\TextDocumentSyncConverterTests.cs" />
     <Compile Include="Fixture.cs" />
     <Compile Include="JsonFixtureAttribute.cs" />
     <Compile Include="Messages\ServerErrorEndTests.cs" />
