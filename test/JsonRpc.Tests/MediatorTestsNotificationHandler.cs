@@ -13,7 +13,7 @@ namespace JsonRpc.Tests
         public interface IExitHandler : INotificationHandler { }
 
         [Fact]
-        public async Task Test1()
+        public async Task ExecutesHandler()
         {
             var serviceProvider = Substitute.For<IServiceProvider>();
             var exitHandler = Substitute.For<IExitHandler>();

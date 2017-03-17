@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Xunit;
@@ -17,13 +18,6 @@ namespace JsonRpc.Tests
 
         [Method("requestresponse")]
         interface IRequestResponseHandler : IRequestHandler<Request, Response> { }
-        class RequestResponseHandler : IRequestResponseHandler
-        {
-            public Task<Response> Handle(Request request)
-            {
-                throw new NotImplementedException();
-            }
-        }
 
         [Method("notificationdata")]
         interface INotificationDataHandler : INotificationHandler<Notification> { }

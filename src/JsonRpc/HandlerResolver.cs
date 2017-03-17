@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace JsonRpc
@@ -34,7 +35,7 @@ namespace JsonRpc
             public string Method { get; }
             public Type Params { get; }
 
-            public Task Handle(object service)
+            public Task HandleNotification(object service)
             {
                 var method = HandlerInterface
                     .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
@@ -42,12 +43,28 @@ namespace JsonRpc
                 return (Task)method.Invoke(service, new object[0]);
             }
 
-            public Task Handle(object service, object @params)
+            public Task HandleNotification(object service, object @params)
             {
                 var method = HandlerInterface
                     .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
                 return (Task)method.Invoke(service, new[] { @params });
+            }
+
+            public Task HandleRequest(object service, CancellationToken token)
+            {
+                var method = HandlerInterface
+                    .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
+
+                return (Task)method.Invoke(service, new object[] { token });
+            }
+
+            public Task HandleRequest(object service, object @params, CancellationToken token)
+            {
+                var method = HandlerInterface
+                    .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
+
+                return (Task)method.Invoke(service, new[] { @params, token });
             }
         }
 

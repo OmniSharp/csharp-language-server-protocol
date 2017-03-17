@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using JsonRpc.Server;
 using JsonRpc.Server.Messages;
@@ -10,6 +12,7 @@ namespace JsonRpc
     {
         private readonly HandlerResolver _resolver;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         public Mediator(HandlerResolver resolver, IServiceProvider serviceProvider)
         {
@@ -32,47 +35,77 @@ namespace JsonRpc
             Task result;
             if (method.Params is null)
             {
-                result = method.Handle(service);
+                result = method.HandleNotification(service);
             }
             else
             {
                 var @params = notification.Params.ToObject(method.Params);
-                result = method.Handle(service, @params);
+                result = method.HandleNotification(service, @params);
             }
 
             await result;
         }
 
+        private string GetId(object id)
+        {
+            if (id is string s)
+            {
+                return s;
+            }
+
+            if (id is long l)
+            {
+                return l.ToString();
+            }
+
+            return null;
+        }
+
         public async Task<ErrorResponse> HandleRequest(Request request)
         {
             var method = _resolver.GetMethod(request.Method);
-            if (method is null) return new MethodNotFound(request.Id);
+            if (method is null)
+            {
+                return new MethodNotFound(request.Id);
+            }
 
-            var service = _serviceProvider.GetService(method.ServiceInterface);
-
-            // TODO: Try / catch for Internal Error
+            var id = GetId(request.Id);
+            var cts = new CancellationTokenSource();
+            _requests.TryAdd(id, cts);
 
             Task result;
-            if (method.Params is null)
+            // TODO: Try / catch for Internal Error
+            try
             {
-                result = method.Handle(service);
-            }
-            else
-            {
-                object @params;
-                try
+                var service = _serviceProvider.GetService(method.ServiceInterface);
+
+
+                if (method.Params is null)
                 {
-                    @params = request.Params.ToObject(method.Params);
+                    result = method.HandleRequest(service, cts.Token);
                 }
-                catch
+                else
                 {
-                    return new InvalidParams(request.Id);
+                    object @params;
+                    try
+                    {
+                        @params = request.Params.ToObject(method.Params);
+                    }
+                    catch
+                    {
+                        return new InvalidParams(request.Id);
+                    }
+
+                    result = method.HandleRequest(service, @params, cts.Token);
                 }
 
-                result = method.Handle(service, @params);
-            }
+                await result;
 
-            await result;
+            }
+            catch (TaskCanceledException)
+            {
+                return new RequestCancelled();
+            }
 
             object responseValue = null;
             if (result.GetType().GetTypeInfo().IsGenericType)
@@ -85,6 +118,14 @@ namespace JsonRpc
             }
 
             return new Response(request.Id, responseValue);
+        }
+
+        public void CancelRequest(object id)
+        {
+            if (_requests.TryGetValue(GetId(id), out var cts))
+            {
+                cts.Cancel();
+            }
         }
 
         public Task SendNotification<T>(string method, T @params)

@@ -70,6 +70,12 @@ namespace JsonRpc
                 }
             }
 
+            // All notifications
+            if (response.Count == 0)
+            {
+                return;
+            }
+
             var result = await Task.WhenAll(response.ToArray());
 
             if (result.Length == 1)

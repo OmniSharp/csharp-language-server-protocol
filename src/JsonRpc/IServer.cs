@@ -7,5 +7,6 @@ namespace JsonRpc
     {
         void HandleNotification(Notification notification);
         Task<ErrorResponse> HandleRequest(Request request);
+        void CancelRequest(object id);
     }
 }

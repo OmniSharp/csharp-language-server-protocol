@@ -22,7 +22,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task Test1()
+        public async Task ExecutesHandler()
         {
             var serviceProvider = Substitute.For<IServiceProvider>();
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
