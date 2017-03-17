@@ -1,4 +1,5 @@
 ﻿using JsonRPC;
+// ReSharper disable CheckNamespace
 
 namespace Lsp.Protocol
 {

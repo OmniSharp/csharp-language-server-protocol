@@ -53,10 +53,14 @@
   <ItemGroup>
     <Compile Include="Client\Request.cs" />
     <Compile Include="Connection.cs" />
+    <Compile Include="HandlerResolver.cs" />
+    <Compile Include="IClient.cs" />
     <Compile Include="IMediator.cs" />
+    <Compile Include="INotificationHandler.cs" />
     <Compile Include="InputHandler.cs" />
     <Compile Include="IRequestHandler.cs" />
     <Compile Include="IResponseHandler.cs" />
+    <Compile Include="IServer.cs" />
     <Compile Include="IServerNotificationHandler.cs" />
     <Compile Include="Mediator.cs" />
     <Compile Include="MethodAttribute.cs" />

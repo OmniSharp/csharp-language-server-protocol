@@ -1,10 +1,11 @@
 ﻿using System.Threading.Tasks;
 using JsonRPC;
 using Lsp.Models;
+// ReSharper disable CheckNamespace
 
 namespace Lsp.Protocol
 {
-    public static partial class ClientNotificationExtensions
+    public static class ShowMessageExtensions
     {
         public static Task ShowMessage(this IClient mediator, ShowMessageParams @params)
         {
