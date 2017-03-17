@@ -7,12 +7,12 @@ namespace JsonRPC.Server
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Request
     {
-        internal Request(object id, string method, JContainer @params) : this(id, method, @params, "2.0") { }
+        internal Request(object id, string method, JToken @params) : this(id, method, @params, "2.0") { }
 
         internal Request(
             object id,
             string method,
-            JContainer @params,
+            JToken @params,
             string protocolVersion)
         {
             Id = id;
@@ -27,6 +27,6 @@ namespace JsonRPC.Server
 
         public string Method { get; }
 
-        public JContainer Params { get; }
+        public JToken Params { get; }
     }
 }

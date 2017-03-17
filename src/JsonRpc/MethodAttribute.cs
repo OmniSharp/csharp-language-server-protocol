@@ -1,8 +1,8 @@
-using System;
+﻿using System;
 
-namespace Lsp.Protocol
+namespace JsonRPC
 {
-    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method)]
     public class MethodAttribute : Attribute
     {
         public string Method { get; }

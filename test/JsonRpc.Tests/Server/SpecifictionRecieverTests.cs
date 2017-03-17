@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -29,93 +29,115 @@ namespace JsonRPC.Tests.Server
 
         class SpecificationMessages : TheoryData<string, ErrorNotificationRequest[]>
         {
-            public override IEnumerable<Tuple<string, ErrorNotificationRequest[]>> GetValues()
+            public override IEnumerable<ValueTuple<string, ErrorNotificationRequest[]>> GetValues()
             {
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42, 23], ""id"": 1}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Request(1, "subtract", new JArray(new [] {42, 23})))
+                        new Request(1, "subtract", new JArray(new [] {42, 23}))
                     }
                 );
 
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""subtrahend"": 23, ""minuend"": 42}, ""id"": 3}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Request(3, "subtract", JObject.FromObject(new {subtrahend = 23, minuend = 42})))
+                        new Request(3, "subtract", JObject.FromObject(new {subtrahend = 23, minuend = 42}))
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""minuend"": 42, ""subtrahend"": 23 }, ""id"": 4}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Request(4, "subtract", JObject.FromObject(new {minuend = 42, subtrahend = 23})))
+                        new Request(4, "subtract", JObject.FromObject(new {minuend = 42, subtrahend = 23}))
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""update"", ""params"": [1,2,3,4,5]}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Notification("update", new JArray(new [] {1,2,3,4,5})))
+                        new Notification("update", new JArray(new [] {1,2,3,4,5}))
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar""}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Notification("foobar", null))
+                        new Notification("foobar", null)
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": 1, ""params"": ""bar""}",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new InvalidRequest("Invalid params"))
+                        new InvalidRequest("Invalid params")
                     });
 
                 // TODO: Use case should be outside reciever
-                //yield return Tuple.Create(
+                //yield return (
                 //    @"[]",
                 //    new[]
                 //    {
-                //        new ErrorNotificationRequest(new InvalidRequest("No Requests"))
+                //        new InvalidRequest("No Requests")
                 //    });
 
-                yield return Tuple.Create(
+                yield return (
                     @"[1]",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new InvalidRequest("Not an object"))
+                        new InvalidRequest("Not an object")
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"[1,2,3]",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new InvalidRequest("Not an object")),
-                        new ErrorNotificationRequest(new InvalidRequest("Not an object")),
-                        new ErrorNotificationRequest(new InvalidRequest("Not an object"))
+                        new InvalidRequest("Not an object"),
+                        new InvalidRequest("Not an object"),
+                        new InvalidRequest("Not an object")
                     });
 
-                yield return Tuple.Create(
+                yield return (
                     @"[
-	                    {""jsonrpc"": ""2.0"", ""method"": ""sum"", ""params"": [1,2,4], ""id"": ""1""},
-	                    {""jsonrpc"": ""2.0"", ""method"": ""notify_hello"", ""params"": [7]},
-	                    {""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42,23], ""id"": ""2""},
-	                    {""foo"": ""boo""},
-	                    {""jsonrpc"": ""2.0"", ""method"": ""foo.get"", ""params"": {""name"": ""myself""}, ""id"": ""5""},
-	                    {""jsonrpc"": ""2.0"", ""method"": ""get_data"", ""id"": ""9""}
+                        {""jsonrpc"": ""2.0"", ""method"": ""sum"", ""params"": [1,2,4], ""id"": ""1""},
+                        {""jsonrpc"": ""2.0"", ""method"": ""notify_hello"", ""params"": [7]},
+                        {""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42,23], ""id"": ""2""},
+                        {""foo"": ""boo""},
+                        {""jsonrpc"": ""2.0"", ""method"": ""foo.get"", ""params"": {""name"": ""myself""}, ""id"": ""5""},
+                        {""jsonrpc"": ""2.0"", ""method"": ""get_data"", ""id"": ""9""}
                     ]",
-                    new[]
+                    new ErrorNotificationRequest[]
                     {
-                        new ErrorNotificationRequest(new Request("1", "sum", new JArray(new [] {1,2,4}))),
-                        new ErrorNotificationRequest(new Notification("notify_hello", new JArray(new [] {7}))),
-                        new ErrorNotificationRequest(new Request("2", "subtract", new JArray(new [] {42,23}))),
-                        new ErrorNotificationRequest(new InvalidRequest("Unexpected protocol")),
-                        new ErrorNotificationRequest(new Request("5", "foo.get", JObject.FromObject(new {name = "myself"}))),
-                        new ErrorNotificationRequest(new Request("9", "get_data", null)),
+                        new Request("1", "sum", new JArray(new [] {1,2,4})),
+                        new Notification("notify_hello", new JArray(new [] {7})),
+                        new Request("2", "subtract", new JArray(new [] {42,23})),
+                        new InvalidRequest("Unexpected protocol"),
+                        new Request("5", "foo.get", JObject.FromObject(new {name = "myself"})),
+                        new Request("9", "get_data", null),
                     });
+            }
+        }
+
+        [Theory]
+        [ClassData(typeof(InvalidMessages))]
+        public void Should_ValidateInvalidMessages(string json, bool expected)
+        {
+            var reciever = new Reciever();
+            var result = reciever.IsValid(JToken.Parse(json));
+            result.Should().Be(expected);
+        }
+
+        class InvalidMessages : TheoryData<string, bool>
+        {
+            public override IEnumerable<ValueTuple<string, bool>> GetValues()
+            {
+                yield return (@"[]", false);
+                yield return (@"""""", false);
+                yield return (@"1", false);
+                yield return (@"true", false);
+                yield return (@"[{}]", true);
+                yield return (@"{}", true);
             }
         }
     }

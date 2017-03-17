@@ -4,28 +4,29 @@ namespace JsonRPC
 {
     /// <summary>
     /// 
-    /// Client --> -->
+    /// Server --> -->
     ///               |
-    /// Server <-- <--
+    /// Client <-- <--
     /// 
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
-    public interface IRequestHandler<TRequest, TResponse>
+    public interface IResponseHandler<TRequest, TResponse>
     {
-        Task<TResponse> Handle(TRequest request);
+        Task Handle(TResponse request);
     }
 
     /// <summary>
     /// 
-    /// Client --> -->
+    /// Server --> -->
     ///               |
-    /// Server <-- <--
+    /// Client <-- <--
     /// 
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public interface IRequestHandler<TRequest>
+    /// <typeparam name="TResponse"></typeparam>
+    public interface IResponseHandler<TRequest>
     {
-        Task Handle(TRequest request);
+        Task Handle();
     }
 }

@@ -1,4 +1,4 @@
-using JsonRPC;
+﻿using JsonRPC;
 using Lsp.Models;
 
 namespace Lsp.Protocol

@@ -35,7 +35,14 @@
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -46,14 +53,18 @@
   <ItemGroup>
     <Compile Include="Client\Request.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="INotificationHandler.cs" />
+    <Compile Include="IMediator.cs" />
     <Compile Include="InputHandler.cs" />
     <Compile Include="IRequestHandler.cs" />
-    <Compile Include="Mediater.cs" />
+    <Compile Include="IResponseHandler.cs" />
+    <Compile Include="IServerNotificationHandler.cs" />
+    <Compile Include="Mediator.cs" />
+    <Compile Include="MethodAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Responder.cs" />
     <Compile Include="Server\Error.cs" />
     <Compile Include="Server\ErrorNotificationRequest.cs" />
+    <Compile Include="Server\ErrorResponse.cs" />
     <Compile Include="Server\JsonRpcException.cs" />
     <Compile Include="Server\JsonRpcInvalidRequestException.cs" />
     <Compile Include="Server\Messages\ErrorMessage.cs" />

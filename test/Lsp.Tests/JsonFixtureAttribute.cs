@@ -9,30 +9,20 @@ namespace Lsp.Tests
 {
     class JsonFixtureAttribute : DataAttribute
     {
+        public Assembly Resources = typeof(JsonFixtureAttribute).GetTypeInfo().Assembly;
         public override IEnumerable<object[]> GetData(MethodInfo testMethod)
         {
-            // new csproj
-            // var root = @"..\..\..\";
-            // old csproj
-            var root = @"..\..\";
-            var @namespace = typeof(JsonFixtureAttribute).Namespace;
-            var folderPaths = (new[] { root })
-                .Concat(
-                    testMethod.DeclaringType.Namespace
-                    .Split('.')
-                    .Skip(@namespace.Split('.').Length)
-                ).ToArray();
-            var fixtureLocation = Path.Combine(folderPaths);
-            Console.WriteLine(fixtureLocation);
-            var fileName = $"{testMethod.DeclaringType.Name}_${testMethod.Name}.json";
-            var filePath = Path.Combine(fixtureLocation, fileName);
+            var fileName = $"{testMethod.DeclaringType.FullName}_${testMethod.Name}.json";
 
-            if (!File.Exists(filePath))
+            if (!Resources.GetManifestResourceNames().Contains(fileName))
             {
                 throw new XunitException($"Could find fixture for {testMethod.DeclaringType.Name}.${testMethod.Name}");
             }
 
-            yield return new object[] { File.ReadAllText(filePath)?.Replace("\r\n", "\n") };//?.Replace("\n", "\r\n") };
+            using (var streamReader = new StreamReader(Resources.GetManifestResourceStream(fileName)))
+            {
+                yield return new object[] { streamReader.ReadToEnd()?.Replace("\r\n", "\n") };
+            }
         }
     }
 }

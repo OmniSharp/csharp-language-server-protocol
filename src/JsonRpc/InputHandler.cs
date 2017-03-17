@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Threading;
@@ -16,10 +16,10 @@ namespace JsonRPC
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
 
         private readonly TextReader _input;
-        private readonly Action<JToken> _inputHandler;
+        private readonly Action<string> _inputHandler;
         private readonly Thread _thread;
 
-        public InputHandler(TextReader input, Action<JToken> inputHandler)
+        public InputHandler(TextReader input, Action<string> inputHandler)
         {
             _input = input;
             _inputHandler = inputHandler;
@@ -60,8 +60,8 @@ namespace JsonRPC
 
                 await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
 
-                var request = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(requestBuffer));
-                var payload = JToken.Parse(request);
+                var payload = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(requestBuffer));
+                
                 _inputHandler(payload);
             }
         }

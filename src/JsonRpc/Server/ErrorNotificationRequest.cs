@@ -31,5 +31,20 @@
 
         public bool IsError => Error != null;
         public Error Error { get; }
+
+        public static implicit operator ErrorNotificationRequest(Notification notification)
+        {
+            return new ErrorNotificationRequest(notification);
+        }
+
+        public static implicit operator ErrorNotificationRequest(Request request)
+        {
+            return new ErrorNotificationRequest(request);
+        }
+
+        public static implicit operator ErrorNotificationRequest(Error error)
+        {
+            return new ErrorNotificationRequest(error);
+        }
     }
 }

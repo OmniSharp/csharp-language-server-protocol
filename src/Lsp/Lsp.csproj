@@ -35,7 +35,14 @@
       <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.Collections.Immutable.1.3.1\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Core" />
+    <Reference Include="System.ValueTuple, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\System.ValueTuple.4.3.0\lib\netstandard1.0\System.ValueTuple.dll</HintPath>
+    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,46 +90,45 @@
     <Compile Include="Methods\DynamicRequest.cs" />
     <Compile Include="Methods\Method.cs" />
     <Compile Include="Methods\Notification.cs" />
-    <Compile Include="Protocol\IApplyEditHandler.cs" />
-    <Compile Include="Protocol\ICancelRequestHandler.cs" />
-    <Compile Include="Protocol\ICodeActionHandler.cs" />
-    <Compile Include="Protocol\ICodeLensHandler.cs" />
-    <Compile Include="Protocol\ICodeLensResolveHandler.cs" />
-    <Compile Include="Protocol\ICompletionHandler.cs" />
-    <Compile Include="Protocol\ICompletionResolveHandler.cs" />
-    <Compile Include="Protocol\IDidChangeConfigurationHandler.cs" />
-    <Compile Include="Protocol\IDidChangeTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IDidChangeWatchedFilesHandler.cs" />
-    <Compile Include="Protocol\IDidCloseTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IDidOpenTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IDidSaveTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IDocumentFormatHandler.cs" />
-    <Compile Include="Protocol\IDocumentHighlightHandler.cs" />
-    <Compile Include="Protocol\IDocumentLinkHandler.cs" />
-    <Compile Include="Protocol\IDocumentLinkResolveHandler.cs" />
-    <Compile Include="Protocol\IDocumentSymbolsHandler.cs" />
-    <Compile Include="Protocol\IExecuteCommandHandler.cs" />
-    <Compile Include="Protocol\IExitHandler.cs" />
-    <Compile Include="Protocol\IFindReferencesHandler.cs" />
-    <Compile Include="Protocol\IGotoDefinitionHandler.cs" />
-    <Compile Include="Protocol\IHoverHandler.cs" />
-    <Compile Include="Protocol\IInitializedHandler.cs" />
-    <Compile Include="Protocol\IInitializeHandler.cs" />
-    <Compile Include="Protocol\ILogMessageHandler.cs" />
-    <Compile Include="Protocol\IOnTypeFormatHandler.cs" />
-    <Compile Include="Protocol\IPublishDiagnosticsHandler.cs" />
-    <Compile Include="Protocol\IRegisterCapabilityHandler.cs" />
-    <Compile Include="Protocol\IRenameHandler.cs" />
-    <Compile Include="Protocol\IShowMessageHandler.cs" />
-    <Compile Include="Protocol\IShowMessageRequestHandler.cs" />
-    <Compile Include="Protocol\IShutdownHandler.cs" />
-    <Compile Include="Protocol\ISignatureHelpHandler.cs" />
-    <Compile Include="Protocol\ITelemetryHandler.cs" />
-    <Compile Include="Protocol\IUnregisterCapabilityHandler.cs" />
-    <Compile Include="Protocol\IWillSaveTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IWillSaveWaitUntilTextDocumentHandler.cs" />
-    <Compile Include="Protocol\IWorkspaceSymbolsHandler.cs" />
-    <Compile Include="Protocol\MethodAttribute.cs" />
+    <Compile Include="Protocol\Workspace\IApplyEditHandler.cs" />
+    <Compile Include="Protocol\General\ICancelRequestHandler.cs" />
+    <Compile Include="Protocol\Document\ICodeActionHandler.cs" />
+    <Compile Include="Protocol\Document\ICodeLensHandler.cs" />
+    <Compile Include="Protocol\Document\ICodeLensResolveHandler.cs" />
+    <Compile Include="Protocol\Document\ICompletionHandler.cs" />
+    <Compile Include="Protocol\Document\ICompletionResolveHandler.cs" />
+    <Compile Include="Protocol\Workspace\IDidChangeConfigurationHandler.cs" />
+    <Compile Include="Protocol\Document\IDidChangeTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Workspace\IDidChangeWatchedFilesHandler.cs" />
+    <Compile Include="Protocol\Document\IDidCloseTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Document\IDidOpenTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Document\IDidSaveTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentFormatHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentHighlightHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentLinkHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentLinkResolveHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentSymbolsHandler.cs" />
+    <Compile Include="Protocol\Workspace\IExecuteCommandHandler.cs" />
+    <Compile Include="Protocol\General\IExitHandler.cs" />
+    <Compile Include="Protocol\Document\IFindReferencesHandler.cs" />
+    <Compile Include="Protocol\Document\IGotoDefinitionHandler.cs" />
+    <Compile Include="Protocol\Document\IHoverHandler.cs" />
+    <Compile Include="Protocol\General\IInitializedHandler.cs" />
+    <Compile Include="Protocol\General\IInitializeHandler.cs" />
+    <Compile Include="Protocol\Window\ILogMessageHandler.cs" />
+    <Compile Include="Protocol\Document\IOnTypeFormatHandler.cs" />
+    <Compile Include="Protocol\Document\IPublishDiagnosticsHandler.cs" />
+    <Compile Include="Protocol\Client\IRegisterCapabilityHandler.cs" />
+    <Compile Include="Protocol\Document\IRenameHandler.cs" />
+    <Compile Include="Protocol\Window\IShowMessageHandler.cs" />
+    <Compile Include="Protocol\Window\IShowMessageRequestHandler.cs" />
+    <Compile Include="Protocol\General\IShutdownHandler.cs" />
+    <Compile Include="Protocol\Document\ISignatureHelpHandler.cs" />
+    <Compile Include="Protocol\Window\ITelemetryHandler.cs" />
+    <Compile Include="Protocol\Client\IUnregisterCapabilityHandler.cs" />
+    <Compile Include="Protocol\Document\IWillSaveTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Document\IWillSaveWaitUntilTextDocumentHandler.cs" />
+    <Compile Include="Protocol\Workspace\IWorkspaceSymbolsHandler.cs" />
     <Compile Include="Protocol\RegistrationAttribute.cs" />
     <Compile Include="Methods\Request.cs" />
     <Compile Include="Models\ApplyWorkspaceEditParams.cs" />
@@ -226,5 +232,6 @@
       <Name>JsonRpc</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

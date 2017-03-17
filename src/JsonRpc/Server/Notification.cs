@@ -9,7 +9,7 @@ namespace JsonRPC.Server
     {
         internal Notification(
             string method,
-            JContainer @params,
+            JToken @params,
             string protcolVersion)
         {
             ProtocolVersion = protcolVersion;
@@ -17,12 +17,12 @@ namespace JsonRPC.Server
             Params = @params;
         }
 
-        internal Notification(string method, JContainer @params) : this(method, @params, "2.0") { }
+        internal Notification(string method, JToken @params) : this(method, @params, "2.0") { }
 
         public string ProtocolVersion { get; }
 
         public string Method { get; }
 
-        public JContainer Params { get; }
+        public JToken Params { get; }
     }
 }

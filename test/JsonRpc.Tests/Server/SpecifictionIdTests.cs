@@ -27,17 +27,17 @@ namespace JsonRPC.Tests.Server
 
         class SimpleTestMessages : TheoryData<string, Type, object>
         {
-            public override IEnumerable<Tuple<string, Type, object>> GetValues()
+            public override IEnumerable<ValueTuple<string, Type, object>> GetValues()
             {
-                yield return Tuple.Create(
+                yield return (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": ""canbestring"" }",
                     typeof(string),
                     "canbestring" as object);
-                yield return Tuple.Create(
+                yield return (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": 12345 }",
                     typeof(long),
                     12345L as object);
-                yield return Tuple.Create(
+                yield return (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": null }",
                     typeof(object),
                     (object)null);
