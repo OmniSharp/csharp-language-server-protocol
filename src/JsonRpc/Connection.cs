@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Threading.Tasks;
-using JsonRPC.Server;
-using Newtonsoft.Json;
+using JsonRpc.Server;
+using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public class Connection : IDisposable
     {
@@ -18,7 +17,7 @@ namespace JsonRPC
         private readonly Reciever _reciever;
         private readonly Responder _responder;
         private InputHandler _inputHandler;
-        private Mediator _mediator;
+        private readonly Mediator _mediator;
 
         public Connection(TextReader input, TextWriter output)
         {

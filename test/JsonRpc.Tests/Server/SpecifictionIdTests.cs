@@ -2,12 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using JsonRPC.Server;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace JsonRPC.Tests.Server
+namespace JsonRpc.Tests.Server
 {
     public class SpecifictionIdTests
     {

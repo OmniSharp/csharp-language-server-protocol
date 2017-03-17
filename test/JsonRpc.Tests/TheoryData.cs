@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace JsonRPC.Tests
+namespace JsonRpc.Tests
 {
     public abstract class TheoryData : IEnumerable<object[]>
     {

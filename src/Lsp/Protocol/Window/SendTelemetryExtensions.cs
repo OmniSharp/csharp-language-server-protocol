@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
-using JsonRPC;
+using JsonRpc;
+
 // ReSharper disable CheckNamespace
 
 namespace Lsp.Protocol

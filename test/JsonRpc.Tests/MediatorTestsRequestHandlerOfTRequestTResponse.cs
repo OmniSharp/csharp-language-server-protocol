@@ -1,24 +1,23 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using JsonRPC;
-using JsonRPC.Server;
+using JsonRpc.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using Xunit;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
-    public class MediatorTests_RequestHandlerOfTRequestTResponse
+    public class MediatorTestsRequestHandlerOfTRequestTResponse
     {
         [Method("textDocument/codeAction")]
-        interface ICodeActionHandler : IRequestHandler<CodeActionParams, IEnumerable<Command>> { }
+        public interface ICodeActionHandler : IRequestHandler<CodeActionParams, IEnumerable<Command>> { }
 
         [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-        class CodeActionParams
+        public class CodeActionParams
         {
             public string TextDocument { get; set; }
             public string Range { get; set; }
@@ -26,7 +25,7 @@ namespace Lsp.Tests
         }
 
         [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-        class Command
+        public class Command
         {
             public string Title { get; set; }
             [JsonProperty("command")]
@@ -37,13 +36,19 @@ namespace Lsp.Tests
         public async Task Test1()
         {
             var serviceProvider = Substitute.For<IServiceProvider>();
+            var codeActionHandler = Substitute.For<ICodeActionHandler>();
+            serviceProvider
+                .GetService(typeof(ICodeActionHandler))
+                .Returns(codeActionHandler);
             var mediator = new Mediator(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
-            
+
             var id = Guid.NewGuid();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             var response = await mediator.HandleRequest(request);
+
+            await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>());
         }
 
     }

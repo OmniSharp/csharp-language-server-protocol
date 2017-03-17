@@ -1,11 +1,10 @@
-using System;
+﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using FluentAssertions;
-using JsonRPC;
 using Xunit;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
     public class HandlerResolverTests
     {
@@ -41,17 +40,6 @@ namespace Lsp.Tests
         {
             var handler = new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly);
             handler._methods.Keys.Should().Contain(key);
-        }
-
-        [Theory]
-        [InlineData("request", false)]
-        [InlineData("requestresponse", true)]
-        [InlineData("notificationdata", false)]
-        [InlineData("notification", false)]
-        public void Should_Indiciate_WhatIsImplemented(string key, bool expected)
-        {
-            var handler = new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly);
-            handler._methods[key].IsImplemented.Should().Be(expected);
         }
 
         [Theory]

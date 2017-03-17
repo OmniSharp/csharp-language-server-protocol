@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Runtime.Serialization;
 
-namespace JsonRPC.Server
+namespace JsonRpc.Server
 {
     public class JsonRpcException : Exception
     {

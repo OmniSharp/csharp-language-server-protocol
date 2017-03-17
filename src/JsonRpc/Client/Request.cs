@@ -1,8 +1,7 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace JsonRPC.Client
+namespace JsonRpc.Client
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Request

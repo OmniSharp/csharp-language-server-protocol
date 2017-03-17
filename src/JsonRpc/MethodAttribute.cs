@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method)]
     public class MethodAttribute : Attribute

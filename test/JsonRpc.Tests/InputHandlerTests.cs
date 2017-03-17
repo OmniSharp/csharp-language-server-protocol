@@ -1,14 +1,11 @@
 ﻿using System.IO;
-using System.Linq;
-using System.Net.Mime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using JsonRPC;
 using Xunit;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
     public class InputHandlerTests
     {

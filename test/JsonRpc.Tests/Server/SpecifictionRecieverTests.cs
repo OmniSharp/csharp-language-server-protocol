@@ -2,11 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using JsonRPC.Server;
+using JsonRpc.Server;
+using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 using Xunit;
 
-namespace JsonRPC.Tests.Server
+namespace JsonRpc.Tests.Server
 {
     public class SpecifictionRecieverTests
     {

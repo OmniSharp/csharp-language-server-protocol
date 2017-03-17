@@ -1,4 +1,4 @@
-namespace JsonRPC
+﻿namespace JsonRpc
 {
     public class Responder
     {

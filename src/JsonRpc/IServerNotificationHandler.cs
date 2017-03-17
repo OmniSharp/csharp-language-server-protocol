@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public interface INotificationHandler
     {

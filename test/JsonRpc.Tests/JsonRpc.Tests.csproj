@@ -90,10 +90,10 @@
   <ItemGroup>
     <Compile Include="InputHandlerTests.cs" />
     <Compile Include="HandlerResolverTests.cs" />
-    <Compile Include="MediatorTests_NotificationHandler.cs" />
-    <Compile Include="MediatorTests_NotificationHandlerOfT.cs" />
-    <Compile Include="MediatorTests_RequestHandlerOfTRequest.cs" />
-    <Compile Include="MediatorTests_RequestHandlerOfTRequestTResponse.cs" />
+    <Compile Include="MediatorTestsNotificationHandler.cs" />
+    <Compile Include="MediatorTestsNotificationHandlerOfT.cs" />
+    <Compile Include="MediatorTestsRequestHandlerOfTRequest.cs" />
+    <Compile Include="MediatorTestsRequestHandlerOfTRequestTResponse.cs" />
     <Compile Include="Server\SpecifictionIdTests.cs" />
     <Compile Include="Server\SpecifictionRecieverTests.cs" />
     <Compile Include="TestExtensions.cs" />

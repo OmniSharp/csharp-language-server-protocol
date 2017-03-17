@@ -1,6 +1,6 @@
-using System.Threading;
+﻿using System.Threading;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
     public static class TestExtensions
     {

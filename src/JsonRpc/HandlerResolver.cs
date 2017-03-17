@@ -1,11 +1,11 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public class HandlerResolver
     {
@@ -20,31 +20,23 @@ namespace JsonRPC
 
         public class HandlerMethod
         {
-            internal HandlerMethod(string method)
+            internal HandlerMethod(string method, Type serviceInterface, Type handlerInterface, Type @params)
             {
                 Method = method;
-                IsImplemented = false;
-            }
-
-            internal HandlerMethod(string method, Type @interface, Type handler, Type @params)
-            {
-                Method = method;
-                IsImplemented = true;
-                Interface = @interface;
-                Handler = handler;
+                HandlerInterface = handlerInterface;
+                ServiceInterface = serviceInterface;
                 Params = @params;
             }
 
-            public bool IsImplemented { get; }
-            public Type Interface { get; }
+            public Type ServiceInterface { get; }
+
+            public Type HandlerInterface { get; }
             public string Method { get; }
             public Type Params { get; }
-            public Type Handler { get; }
 
             public Task Handle(object service)
             {
-                var method = Interface
-                    .GetType()
+                var method = HandlerInterface
                     .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
                 return (Task)method.Invoke(service, new object[0]);
@@ -52,8 +44,7 @@ namespace JsonRPC
 
             public Task Handle(object service, object @params)
             {
-                var method = Interface
-                    .GetType()
+                var method = HandlerInterface
                     .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
                 return (Task)method.Invoke(service, new[] { @params });
@@ -76,28 +67,21 @@ namespace JsonRPC
                     }
                     return Enumerable.Empty<Type>();
                 })
+                .Where(x => x.GetTypeInfo().IsInterface)
                 .Where(HasHandlerInterface)
                 .ToArray();
 
             _methods = handlers
-                .GroupBy(GetMethodName)
                 .Select(x => {
-                    var implementation = x
-                        .FirstOrDefault(z => z.GetTypeInfo().IsClass);
+                    var @interface = GetHandlerInterface(x);
 
-                    if (implementation is null)
-                    {
-                        return new HandlerMethod(x.Key);
-                    }
-
-                    var @interface = GetHandlerInterface(implementation);
                     Type @params = null;
                     if (@interface.GetTypeInfo().IsGenericType)
                     {
                         @params = @interface.GetTypeInfo().GetGenericArguments()[0];
                     }
 
-                    return new HandlerMethod(x.Key, @interface, implementation, @params);
+                    return new HandlerMethod(GetMethodName(x), x, @interface, @params);
                 })
                 .ToImmutableDictionary(x => x.Method);
         }
@@ -150,7 +134,8 @@ namespace JsonRPC
 
         private Type GetHandlerInterface(Type type)
         {
-            return type.GetTypeInfo()
+            return type
+               ?.GetTypeInfo()
                 .ImplementedInterfaces
                 .First(IsValidInterface);
         }

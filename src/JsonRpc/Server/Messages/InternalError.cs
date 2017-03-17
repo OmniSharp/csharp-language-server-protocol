@@ -1,4 +1,4 @@
-namespace JsonRPC.Server
+﻿namespace JsonRpc.Server.Messages
 {
     public class InternalError : Error
     {

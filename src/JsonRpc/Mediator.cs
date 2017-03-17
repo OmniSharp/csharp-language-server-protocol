@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using JsonRPC.Server;
+using JsonRpc.Server;
+using JsonRpc.Server.Messages;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public class Mediator : IMediator
     {
@@ -21,10 +22,10 @@ namespace JsonRPC
             var method = _resolver.GetMethod(notification.Method);
 
             // Q: Should be report notification not found?
-            if (method is null || !method.IsImplemented) return;
+            if (method is null) return;
 
 
-            var service = _serviceProvider.GetService(method.Handler);
+            var service = _serviceProvider.GetService(method.ServiceInterface);
 
             // TODO: Try / catch for Internal Error
 
@@ -46,9 +47,8 @@ namespace JsonRPC
         {
             var method = _resolver.GetMethod(request.Method);
             if (method is null) return new MethodNotFound(request.Id);
-            if (!method.IsImplemented) return new InternalError(request.Id);
 
-            var service = _serviceProvider.GetService(method.Handler);
+            var service = _serviceProvider.GetService(method.ServiceInterface);
 
             // TODO: Try / catch for Internal Error
 

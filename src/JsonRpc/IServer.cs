@@ -1,7 +1,7 @@
-using System.Threading.Tasks;
-using JsonRPC.Server;
+﻿using System.Threading.Tasks;
+using JsonRpc.Server;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public interface IServer
     {

@@ -1,4 +1,5 @@
-﻿using JsonRPC.Server;
+﻿using JsonRpc.Server;
+using JsonRpc.Server.Messages;
 
 namespace Lsp.Messages
 {

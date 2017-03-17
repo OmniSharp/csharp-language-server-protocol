@@ -1,11 +1,9 @@
 ﻿using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using JsonRPC.Server;
-using Newtonsoft.Json;
+using JsonRpc.Server;
+using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 
-namespace JsonRPC
+namespace JsonRpc
 {
     public class Reciever
     {

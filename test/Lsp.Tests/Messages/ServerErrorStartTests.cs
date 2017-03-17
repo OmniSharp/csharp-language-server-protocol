@@ -1,6 +1,6 @@
 ﻿using System;
 using FluentAssertions;
-using JsonRPC.Server;
+using JsonRpc.Server;
 using Lsp.Messages;
 using Newtonsoft.Json;
 using Xunit;

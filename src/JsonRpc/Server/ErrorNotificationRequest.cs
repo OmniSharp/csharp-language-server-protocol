@@ -1,4 +1,4 @@
-﻿namespace JsonRPC.Server
+﻿namespace JsonRpc.Server
 {
     public struct ErrorNotificationRequest
     {

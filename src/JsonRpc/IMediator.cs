@@ -1,4 +1,4 @@
-﻿namespace JsonRPC
+﻿namespace JsonRpc
 {
     public interface IMediator : IClient, IServer
     {
