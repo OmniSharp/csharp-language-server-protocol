@@ -1,16 +1,16 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace JsonRpc.Server
+namespace JsonRpc.Client
 {
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Response
     {
         internal Response(object id) : this(id, null)
         {
         }
 
-        internal Response(object id, JToken result)
+        internal Response(object id, object result)
         {
             Id = id;
             Result = result;
@@ -20,6 +20,6 @@ namespace JsonRpc.Server
 
         public object Id { get; set; }
 
-        public JToken Result { get; set; }
+        public object Result { get; set; }
     }
 }

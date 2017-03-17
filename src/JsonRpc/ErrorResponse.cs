@@ -1,4 +1,6 @@
-﻿namespace JsonRpc.Server
+﻿using JsonRpc.Client;
+
+namespace JsonRpc
 {
     public struct ErrorResponse
     {

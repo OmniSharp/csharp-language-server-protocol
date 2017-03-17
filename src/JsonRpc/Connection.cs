@@ -28,7 +28,7 @@ namespace JsonRpc
             _mediator = new Mediator(new HandlerResolver(AppDomain.CurrentDomain.GetAssemblies()), null);
         }
 
-        private async Task HandleRequest(string request)
+        private async void HandleRequest(string request)
         {
             JToken payload;
             try
@@ -47,11 +47,20 @@ namespace JsonRpc
                 return;
             }
 
-            var requests = _reciever.GetRequests(payload);
-            await RespondTo(requests);
+            var (requests, hasResponse) = _reciever.GetRequests(payload);
+            if (hasResponse)
+            {
+                // TODO: Find request to respond to
+                // Deserialize and respond to task.
+                throw new NotImplementedException();
+            }
+            else
+            {
+                await RespondTo(requests);
+            }
         }
 
-        private async Task RespondTo(IEnumerable<ErrorNotificationRequest> items)
+        private async Task RespondTo(IEnumerable<Renor> items)
         {
             var response = new List<Task<ErrorResponse>>();
             foreach (var item in items)
@@ -77,7 +86,6 @@ namespace JsonRpc
             }
 
             var result = await Task.WhenAll(response.ToArray());
-
             if (result.Length == 1)
             {
 
@@ -90,7 +98,7 @@ namespace JsonRpc
 
         public void Open()
         {
-            _inputHandler = new InputHandler(_input, (payload) => HandleRequest(payload));
+            _inputHandler = new InputHandler(_input, HandleRequest);
         }
 
         public void Dispose()

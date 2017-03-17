@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using JsonRpc.Server;
 using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
@@ -23,21 +24,22 @@ namespace JsonRpc
             return false;
         }
 
-        public IEnumerable<ErrorNotificationRequest> GetRequests(JToken container)
+        public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
+            var results = new List<Renor>();
+
             if (container is JArray)
             {
-                foreach (var item in container)
-                {
-                    yield return GetErrorNotificationRequest(item);
-                }
-                yield break;
+                results.AddRange(container.Select(GetRenor));
             }
-
-            yield return GetErrorNotificationRequest(container);
+            else
+            {
+                results.Add(GetRenor(container));
+            }
+            return (results, results.Any(z => z.IsResponse));
         }
 
-        private ErrorNotificationRequest GetErrorNotificationRequest(JToken @object)
+        private Renor GetRenor(JToken @object)
         {
             if (!(@object is JObject request))
             {
@@ -57,6 +59,11 @@ namespace JsonRpc
                 var idString = id.Type == JTokenType.String ? (string)id : null;
                 var idLong = id.Type == JTokenType.Integer ? (long?)id : null;
                 requestId = idString ?? (idLong.HasValue ? (object)idLong.Value : null);
+            }
+
+            if (request.TryGetValue("result", out var response))
+            {
+                return new Response(requestId, response);
             }
 
             var method = request["method"]?.Value<string>();

@@ -13,10 +13,11 @@ namespace JsonRpc.Tests.Server
     {
         [Theory]
         [ClassData(typeof(SpecificationMessages))]
-        public void ShouldRespond_AsExpected(string json, ErrorNotificationRequest[] request)
+        public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var reciever = new Reciever();
-            var result = reciever.GetRequests(JToken.Parse(json) as JContainer).ToArray();
+            var (requests, _) = reciever.GetRequests(JToken.Parse(json));
+            var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
 
             for (var i = 0; i < request.Length; i++)
@@ -28,13 +29,13 @@ namespace JsonRpc.Tests.Server
             }
         }
 
-        class SpecificationMessages : TheoryData<string, ErrorNotificationRequest[]>
+        class SpecificationMessages : TheoryData<string, Renor[]>
         {
-            public override IEnumerable<ValueTuple<string, ErrorNotificationRequest[]>> GetValues()
+            public override IEnumerable<ValueTuple<string, Renor[]>> GetValues()
             {
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42, 23], ""id"": 1}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Request(1, "subtract", new JArray(new [] {42, 23}))
                     }
@@ -42,35 +43,35 @@ namespace JsonRpc.Tests.Server
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""subtrahend"": 23, ""minuend"": 42}, ""id"": 3}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Request(3, "subtract", JObject.FromObject(new {subtrahend = 23, minuend = 42}))
                     });
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""minuend"": 42, ""subtrahend"": 23 }, ""id"": 4}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Request(4, "subtract", JObject.FromObject(new {minuend = 42, subtrahend = 23}))
                     });
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""update"", ""params"": [1,2,3,4,5]}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Notification("update", new JArray(new [] {1,2,3,4,5}))
                     });
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar""}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Notification("foobar", null)
                     });
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": 1, ""params"": ""bar""}",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new InvalidRequest("Invalid params")
                     });
@@ -85,14 +86,14 @@ namespace JsonRpc.Tests.Server
 
                 yield return (
                     @"[1]",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new InvalidRequest("Not an object")
                     });
 
                 yield return (
                     @"[1,2,3]",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new InvalidRequest("Not an object"),
                         new InvalidRequest("Not an object"),
@@ -108,7 +109,7 @@ namespace JsonRpc.Tests.Server
                         {""jsonrpc"": ""2.0"", ""method"": ""foo.get"", ""params"": {""name"": ""myself""}, ""id"": ""5""},
                         {""jsonrpc"": ""2.0"", ""method"": ""get_data"", ""id"": ""9""}
                     ]",
-                    new ErrorNotificationRequest[]
+                    new Renor[]
                     {
                         new Request("1", "sum", new JArray(new [] {1,2,4})),
                         new Notification("notify_hello", new JArray(new [] {7})),

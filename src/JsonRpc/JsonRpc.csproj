@@ -67,9 +67,9 @@
     <Compile Include="MethodAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Responder.cs" />
-    <Compile Include="Server\Error.cs" />
-    <Compile Include="Server\ErrorNotificationRequest.cs" />
-    <Compile Include="Server\ErrorResponse.cs" />
+    <Compile Include="Error.cs" />
+    <Compile Include="Server\Renor.cs" />
+    <Compile Include="ErrorResponse.cs" />
     <Compile Include="Server\JsonRpcException.cs" />
     <Compile Include="Server\JsonRpcInvalidRequestException.cs" />
     <Compile Include="Server\Messages\ErrorMessage.cs" />
@@ -82,6 +82,7 @@
     <Compile Include="Server\Notification.cs" />
     <Compile Include="Reciever.cs" />
     <Compile Include="Server\Request.cs" />
+    <Compile Include="Client\Response.cs" />
     <Compile Include="Server\Response.cs" />
   </ItemGroup>
   <ItemGroup>

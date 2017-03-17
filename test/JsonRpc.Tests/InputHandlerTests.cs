@@ -10,7 +10,7 @@ namespace JsonRpc.Tests
     public class InputHandlerTests
     {
         [Fact]
-        public async Task Test1()
+        public void ShouldReturnSimpleRequest()
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var inputWriter = new StreamWriter(inputStream);

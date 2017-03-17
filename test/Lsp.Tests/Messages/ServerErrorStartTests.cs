@@ -1,5 +1,6 @@
 ﻿using System;
 using FluentAssertions;
+using JsonRpc;
 using JsonRpc.Server;
 using Lsp.Messages;
 using Newtonsoft.Json;
@@ -14,7 +15,7 @@ namespace Lsp.Tests.Messages
         {
             var model = new ServerErrorStart("abcd");
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<Error>(expected);

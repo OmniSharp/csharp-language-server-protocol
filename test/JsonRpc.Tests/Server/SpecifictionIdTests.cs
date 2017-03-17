@@ -14,7 +14,8 @@ namespace JsonRpc.Tests.Server
         public void ShouldParse_SimpleMessages(string message, Type outputType, object expectedResult)
         {
             var reciever = new Reciever();
-            var result = reciever.GetRequests(JToken.Parse(message)).Single().Request;
+            var (requests, _) = reciever.GetRequests(JToken.Parse(message));
+            var result = requests.Single().Request;
 
             result.Id.Should().Be(expectedResult);
             if (expectedResult != null)

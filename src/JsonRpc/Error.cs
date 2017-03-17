@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace JsonRpc.Server
+namespace JsonRpc
 {
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

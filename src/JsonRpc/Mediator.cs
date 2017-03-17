@@ -117,7 +117,7 @@ namespace JsonRpc
                 responseValue = property.GetValue(result);
             }
 
-            return new Response(request.Id, responseValue);
+            return new Client.Response(request.Id, responseValue);
         }
 
         public void CancelRequest(object id)
