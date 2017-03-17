@@ -106,6 +106,10 @@ namespace JsonRpc
             {
                 return new RequestCancelled();
             }
+            finally
+            {
+                _requests.TryRemove(GetId(id), out var _);
+            }
 
             object responseValue = null;
             if (result.GetType().GetTypeInfo().IsGenericType)
@@ -125,7 +129,6 @@ namespace JsonRpc
             if (_requests.TryGetValue(GetId(id), out var cts))
             {
                 cts.Cancel();
-                _requests.TryRemove(GetId(id), out var _);
             }
         }
 
