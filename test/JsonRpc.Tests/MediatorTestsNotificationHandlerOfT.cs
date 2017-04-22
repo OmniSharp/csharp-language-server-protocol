@@ -29,12 +29,12 @@ namespace JsonRpc.Tests
             serviceProvider
                 .GetService(typeof(ICancelRequestHandler))
                 .Returns(cancelRequestHandler);
-            var mediator = new Mediator(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            mediator.HandleNotification(notification);
+            mediator.RouteNotification(notification);
 
             await cancelRequestHandler.Received(1).Handle(Arg.Any<CancelParams>());
         }

@@ -108,6 +108,8 @@
     <Compile Include="Capabilities\Server\TextDocumentSyncTests.cs" />
     <Compile Include="Fixture.cs" />
     <Compile Include="JsonFixtureAttribute.cs" />
+    <Compile Include="MediatorTestsRequestHandlerOfTRequest.cs" />
+    <Compile Include="MediatorTestsRequestHandlerOfTRequestTResponse.cs" />
     <Compile Include="Messages\ServerErrorEndTests.cs" />
     <Compile Include="Messages\ServerErrorStartTests.cs" />
     <Compile Include="Messages\ServerNotInitializedTests.cs" />

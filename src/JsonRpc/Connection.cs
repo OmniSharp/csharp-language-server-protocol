@@ -17,7 +17,7 @@ namespace JsonRpc
         private readonly Reciever _reciever;
         private readonly Responder _responder;
         private InputHandler _inputHandler;
-        private readonly Mediator _mediator;
+        private readonly IIncomingRequestRouter _mediator;
 
         public Connection(TextReader input, TextWriter output)
         {
@@ -25,7 +25,7 @@ namespace JsonRpc
             _output = output;
             _reciever = new Reciever();
             _responder = new Responder();
-            _mediator = new Mediator(new HandlerResolver(AppDomain.CurrentDomain.GetAssemblies()), null);
+            _mediator = new IncomingRequestRouter(new HandlerResolver(AppDomain.CurrentDomain.GetAssemblies()), null);
         }
 
         private async void HandleRequest(string request)
@@ -67,11 +67,11 @@ namespace JsonRpc
             {
                 if (item.IsRequest)
                 {
-                    response.Add(_mediator.HandleRequest(item.Request));
+                    response.Add(_mediator.RouteRequest(item.Request));
                 }
                 else if (item.IsNotification)
                 {
-                    _mediator.HandleNotification(item.Notification);
+                    _mediator.RouteNotification(item.Notification);
                 }
                 else
                 {

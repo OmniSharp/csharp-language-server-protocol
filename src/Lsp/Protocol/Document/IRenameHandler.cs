@@ -5,6 +5,6 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Registration(typeof(TextDocumentRegistrationOptions))]
-    [Method("textDocument/onTypeFormatting")]
+    [Method("textDocument/rename")]
     public interface IRenameHandler : IRequestHandler<RenameParams, WorkspaceEdit> { }
 }

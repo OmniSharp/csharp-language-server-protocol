@@ -1,4 +1,7 @@
-﻿namespace JsonRpc.Server.Messages
+﻿using JsonRpc;
+using JsonRpc.Server.Messages;
+
+namespace Lsp.Messages
 {
     public class RequestCancelled : Error
     {

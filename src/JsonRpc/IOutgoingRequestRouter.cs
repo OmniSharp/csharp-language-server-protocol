@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace JsonRpc
 {
-    public interface IClient
+    public interface IOutgoingRequestRouter
     {
         Task SendNotification<T>(string method, T @params);
         Task<TResponse> SendRequest<T, TResponse>(string method, T @params);

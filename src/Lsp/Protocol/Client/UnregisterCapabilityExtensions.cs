@@ -7,7 +7,7 @@ namespace Lsp.Protocol
 {
     public static class UnregisterCapabilityExtensions
     {
-        public static Task UnregisterCapability(this IClient mediator, UnregistrationParams @params)
+        public static Task UnregisterCapability(this IOutgoingRequestRouter mediator, UnregistrationParams @params)
         {
             return mediator.SendRequest("client/unregisterCapability", @params);
         }

@@ -55,13 +55,12 @@
     <Compile Include="Client\Request.cs" />
     <Compile Include="Connection.cs" />
     <Compile Include="HandlerResolver.cs" />
-    <Compile Include="IClient.cs" />
-    <Compile Include="IMediator.cs" />
+    <Compile Include="IIncomingRequestRouter.cs" />
     <Compile Include="INotificationHandler.cs" />
     <Compile Include="InputHandler.cs" />
+    <Compile Include="IOutgoingRequestRouter.cs" />
     <Compile Include="IRequestHandler.cs" />
     <Compile Include="IResponseHandler.cs" />
-    <Compile Include="IServer.cs" />
     <Compile Include="IServerNotificationHandler.cs" />
     <Compile Include="Mediator.cs" />
     <Compile Include="MethodAttribute.cs" />
@@ -78,7 +77,6 @@
     <Compile Include="Server\Messages\InvalidRequest.cs" />
     <Compile Include="Server\Messages\MethodNotFound.cs" />
     <Compile Include="Server\Messages\ParseError.cs" />
-    <Compile Include="Server\Messages\RequestCancelled.cs" />
     <Compile Include="Server\Notification.cs" />
     <Compile Include="Reciever.cs" />
     <Compile Include="Server\Request.cs" />

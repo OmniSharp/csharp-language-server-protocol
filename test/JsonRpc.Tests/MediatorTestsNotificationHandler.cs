@@ -21,11 +21,11 @@ namespace JsonRpc.Tests
                 .GetService(typeof(IExitHandler))
                 .Returns(exitHandler);
 
-            var mediator = new Mediator(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
 
             var notification = new Notification("exit", null);
 
-            mediator.HandleNotification(notification);
+            mediator.RouteNotification(notification);
 
             await exitHandler.Received(1).Handle();
         }

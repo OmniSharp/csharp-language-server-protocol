@@ -81,6 +81,8 @@
     <Compile Include="Converters\MarkedStringConverter.cs" />
     <Compile Include="Converters\NumberEnumConverter.cs" />
     <Compile Include="Converters\TextDocumentSyncConverter.cs" />
+    <Compile Include="LspIncomingRequestRouter.cs" />
+    <Compile Include="Messages\RequestCancelled.cs" />
     <Compile Include="Messages\ServerErrorEnd.cs" />
     <Compile Include="Messages\ServerErrorStart.cs" />
     <Compile Include="Messages\ServerNotInitialized.cs" />

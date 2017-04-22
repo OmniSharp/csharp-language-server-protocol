@@ -8,19 +8,18 @@ using JsonRpc.Server.Messages;
 
 namespace JsonRpc
 {
-    public class Mediator : IMediator
+    public class IncomingRequestRouter : IIncomingRequestRouter
     {
         private readonly HandlerResolver _resolver;
         private readonly IServiceProvider _serviceProvider;
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
-        public Mediator(HandlerResolver resolver, IServiceProvider serviceProvider)
+        public IncomingRequestRouter(HandlerResolver resolver, IServiceProvider serviceProvider)
         {
             _resolver = resolver;
             _serviceProvider = serviceProvider;
         }
 
-        public async void HandleNotification(Notification notification)
+        public async void RouteNotification(Notification notification)
         {
             var method = _resolver.GetMethod(notification.Method);
 
@@ -61,7 +60,12 @@ namespace JsonRpc
             return null;
         }
 
-        public async Task<ErrorResponse> HandleRequest(Request request)
+        public Task<ErrorResponse> RouteRequest(Request request)
+        {
+            return RouteRequest(request, CancellationToken.None);
+        }
+
+        protected virtual async Task<ErrorResponse> RouteRequest(Request request, CancellationToken token)
         {
             var method = _resolver.GetMethod(request.Method);
             if (method is null)
@@ -69,47 +73,29 @@ namespace JsonRpc
                 return new MethodNotFound(request.Id);
             }
 
-            var id = GetId(request.Id);
-            var cts = new CancellationTokenSource();
-            _requests.TryAdd(id, cts);
+            var service = _serviceProvider.GetService(method.ServiceInterface);
 
             Task result;
-            // TODO: Try / catch for Internal Error
-            try
+            if (method.Params is null)
             {
-                var service = _serviceProvider.GetService(method.ServiceInterface);
-
-
-                if (method.Params is null)
+                result = method.HandleRequest(service, token);
+            }
+            else
+            {
+                object @params;
+                try
                 {
-                    result = method.HandleRequest(service, cts.Token);
+                    @params = request.Params.ToObject(method.Params);
                 }
-                else
+                catch
                 {
-                    object @params;
-                    try
-                    {
-                        @params = request.Params.ToObject(method.Params);
-                    }
-                    catch
-                    {
-                        return new InvalidParams(request.Id);
-                    }
-
-                    result = method.HandleRequest(service, @params, cts.Token);
+                    return new InvalidParams(request.Id);
                 }
 
-                await result;
+                result = method.HandleRequest(service, @params, token);
+            }
 
-            }
-            catch (TaskCanceledException)
-            {
-                return new RequestCancelled();
-            }
-            finally
-            {
-                _requests.TryRemove(GetId(id), out var _);
-            }
+            await result;
 
             object responseValue = null;
             if (result.GetType().GetTypeInfo().IsGenericType)
@@ -123,13 +109,18 @@ namespace JsonRpc
 
             return new Client.Response(request.Id, responseValue);
         }
+    }
 
-        public void CancelRequest(object id)
+    public class OutgoingRequestRouter : IOutgoingRequestRouter
+    {
+        private readonly HandlerResolver _resolver;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
+
+        public OutgoingRequestRouter(HandlerResolver resolver, IServiceProvider serviceProvider)
         {
-            if (_requests.TryGetValue(GetId(id), out var cts))
-            {
-                cts.Cancel();
-            }
+            _resolver = resolver;
+            _serviceProvider = serviceProvider;
         }
 
         public Task SendNotification<T>(string method, T @params)
