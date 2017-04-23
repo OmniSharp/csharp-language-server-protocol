@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Lsp.Converters;
 using Newtonsoft.Json;
@@ -25,6 +26,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator DocumentSelector(DocumentFilter[] items)
+        {
+            return new DocumentSelector(items);
+        }
+
+        public static implicit operator DocumentSelector(Collection<DocumentFilter> items)
+        {
+            return new DocumentSelector(items);
+        }
+
+        public static implicit operator DocumentSelector(List<DocumentFilter> items)
         {
             return new DocumentSelector(items);
         }

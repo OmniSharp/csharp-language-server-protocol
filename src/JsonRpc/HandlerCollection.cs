@@ -21,12 +21,12 @@ namespace JsonRpc
                 _disposeAction = disposeAction;
                 Handler = handler;
                 Method = method;
-                HandlerInterface = handlerInterface;
+                HandlerType = handlerInterface;
                 Params = @params;
             }
 
             public IJsonRpcHandler Handler { get; }
-            public Type HandlerInterface { get; }
+            public Type HandlerType { get; }
             public string Method { get; }
             public Type Params { get; }
 

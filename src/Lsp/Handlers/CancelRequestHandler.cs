@@ -1,6 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using JsonRpc;
 using Lsp.Capabilities.Server;
 using Lsp.Models;
@@ -21,29 +19,6 @@ namespace Lsp.Handlers
         {
             _requestRouter.CancelRequest(notification.Id);
             return Task.CompletedTask;
-        }
-    }
-
-    public class InitializeHandler : IInitializeHandler
-    {
-        private TaskCompletionSource<InitializeParams> _tcs;
-
-        public InitializeHandler()
-        {
-            _tcs = new TaskCompletionSource<InitializeParams>();
-            Params = _tcs.Task;
-        }
-
-        public Task<InitializeParams> Params { get; }
-
-        public async Task<InitializeResult> Handle(InitializeParams request, CancellationToken token)
-        {
-            //_tcs.SetResult(request);
-
-            //new ServerCapabilities() {
-                
-            //}
-            throw new NotImplementedException();
         }
     }
 }

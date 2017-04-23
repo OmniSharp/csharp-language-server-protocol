@@ -1,4 +1,4 @@
-namespace Lsp.Capabilities.Client
+﻿namespace Lsp.Capabilities.Client
 {
-    public class SignatureHelpCapability : DynamicCapability {}
+    public class SignatureHelpCapability : DynamicCapability { }
 }

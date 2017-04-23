@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator DocumentHighlightContainer(DocumentHighlight[] items)
+        {
+            return new DocumentHighlightContainer(items);
+        }
+
+        public static implicit operator DocumentHighlightContainer(Collection<DocumentHighlight> items)
+        {
+            return new DocumentHighlightContainer(items);
+        }
+
+        public static implicit operator DocumentHighlightContainer(List<DocumentHighlight> items)
         {
             return new DocumentHighlightContainer(items);
         }

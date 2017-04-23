@@ -7,7 +7,7 @@ namespace Lsp.Protocol
 {
     public static class LogMessageExtensions
     {
-        public static Task LogMessage(this IResponseRouter mediator, LogMessageParams @params)
+        public static Task LogMessage(this ILanguageServer mediator, LogMessageParams @params)
         {
             return mediator.SendNotification("window/logMessage", @params);
         }

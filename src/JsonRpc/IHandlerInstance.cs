@@ -6,7 +6,7 @@ namespace JsonRpc
     {
         string Method { get; }
         IJsonRpcHandler Handler { get; }
-        Type HandlerInterface { get; }
+        Type HandlerType { get; }
         Type Params { get; }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Lsp.Converters;
 using Newtonsoft.Json;
@@ -21,6 +22,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator MarkedStringContainer(MarkedString[] items)
+        {
+            return new MarkedStringContainer(items);
+        }
+
+        public static implicit operator MarkedStringContainer(Collection<MarkedString> items)
+        {
+            return new MarkedStringContainer(items);
+        }
+
+        public static implicit operator MarkedStringContainer(List<MarkedString> items)
         {
             return new MarkedStringContainer(items);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator SymbolInformationContainer(SymbolInformation[] items)
+        {
+            return new SymbolInformationContainer(items);
+        }
+
+        public static implicit operator SymbolInformationContainer(Collection<SymbolInformation> items)
+        {
+            return new SymbolInformationContainer(items);
+        }
+
+        public static implicit operator SymbolInformationContainer(List<SymbolInformation> items)
         {
             return new SymbolInformationContainer(items);
         }

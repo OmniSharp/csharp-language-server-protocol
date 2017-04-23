@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -7,6 +7,10 @@ namespace Lsp.Capabilities.Server
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ServerCapabilities
     {
+// TODO NEXT:
+// Create ability for server capabilties to be pulled from registered handlers
+// Create the ability to look at the client capabilities to determine what parts we need to answer now (completion for example)
+
         /// <summary>
         ///  Defines how text documents are synced. Is either a detailed structure defining each notification or
         ///  for backwards compatibility the TextDocumentSyncKind number.

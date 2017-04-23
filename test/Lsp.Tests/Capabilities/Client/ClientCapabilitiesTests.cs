@@ -21,19 +21,19 @@ namespace Lsp.Tests.Capabilities.Client
                 },
                 TextDocument = new TextDocumentClientCapabilities()
                 {
-                    CodeAction = new DynamicCapability() {  DynamicRegistration = true },
-                    CodeLens = new DynamicCapability() { DynamicRegistration = true },
-                    Definition = new DynamicCapability() { DynamicRegistration = true },
-                    DocumentHighlight = new DynamicCapability() { DynamicRegistration = true },
-                    DocumentLink = new DynamicCapability() { DynamicRegistration = true },
-                    DocumentSymbol = new DynamicCapability() { DynamicRegistration = true },
-                    Formatting = new DynamicCapability() { DynamicRegistration = true },
-                    Hover = new DynamicCapability() { DynamicRegistration = true },
-                    OnTypeFormatting = new DynamicCapability() { DynamicRegistration = true },
-                    RangeFormatting = new DynamicCapability() { DynamicRegistration = true },
-                    References = new DynamicCapability() { DynamicRegistration = true },
-                    Rename = new DynamicCapability() { DynamicRegistration = true },
-                    SignatureHelp = new DynamicCapability() { DynamicRegistration = true },
+                    CodeAction = new CodeActionCapability() {  DynamicRegistration = true },
+                    CodeLens = new CodeLensCapability() { DynamicRegistration = true },
+                    Definition = new DefinitionCapability() { DynamicRegistration = true },
+                    DocumentHighlight = new DocumentHighlightCapability() { DynamicRegistration = true },
+                    DocumentLink = new DocumentLinkCapability() { DynamicRegistration = true },
+                    DocumentSymbol = new DocumentSymbolCapability() { DynamicRegistration = true },
+                    Formatting = new DocumentFormattingCapability() { DynamicRegistration = true },
+                    Hover = new HoverCapability() { DynamicRegistration = true },
+                    OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
+                    RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
+                    References = new ReferencesCapability() { DynamicRegistration = true },
+                    Rename = new RenameCapability() { DynamicRegistration = true },
+                    SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
                     Completion = new CompletionCapability()
                     {
                         DynamicRegistration = true,
@@ -53,10 +53,10 @@ namespace Lsp.Tests.Capabilities.Client
                 Workspace = new WorkspaceClientCapabilites()
                 {
                     ApplyEdit = true,
-                    DidChangeConfiguration = new DynamicCapability() { DynamicRegistration = true },
-                    DidChangeWatchedFiles = new DynamicCapability() { DynamicRegistration = true },
-                    ExecuteCommand = new DynamicCapability() { DynamicRegistration = true },
-                    Symbol = new DynamicCapability() { DynamicRegistration = true },
+                    DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
+                    DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
+                    ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },
+                    Symbol = new WorkspaceSymbolCapability() { DynamicRegistration = true },
                 }
             };
             var result = Fixture.SerializeObject(model);

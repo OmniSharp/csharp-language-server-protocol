@@ -13,13 +13,13 @@ namespace Lsp.Tests.Capabilities.Client
         {
             var model = new WorkspaceClientCapabilites() {
                 ApplyEdit = true,
-                DidChangeConfiguration = new DynamicCapability() { DynamicRegistration = true },
-                DidChangeWatchedFiles = new DynamicCapability() { DynamicRegistration = true },
-                ExecuteCommand = new DynamicCapability() { DynamicRegistration = true },
-                Symbol = new DynamicCapability() { DynamicRegistration = true },
+                DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
+                DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
+                ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },
+                Symbol = new WorkspaceSymbolCapability() { DynamicRegistration = true },
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<WorkspaceClientCapabilites>(expected);

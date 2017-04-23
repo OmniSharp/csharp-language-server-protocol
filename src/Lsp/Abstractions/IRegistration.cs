@@ -1,7 +1,7 @@
-namespace Lsp
+﻿namespace Lsp
 {
-    public interface IRegistration<TRegistration>
+    public interface IRegistration<TOptions>
     {
-        TRegistration GetRegistration();
+        TOptions GetRegistrationOptions();
     }
 }

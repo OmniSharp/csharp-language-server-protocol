@@ -51,14 +51,33 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Capabilities\Client\Capability.cs" />
+    <Compile Include="Abstractions\ICapability.cs" />
+    <Compile Include="Capabilities\Client\Supports.cs" />
     <Compile Include="Capabilities\Client\ClientCapabilities.cs" />
+    <Compile Include="Capabilities\Client\CodeActionCapability.cs" />
+    <Compile Include="Capabilities\Client\CodeLensCapability.cs" />
     <Compile Include="Capabilities\Client\CompletionCapability.cs" />
     <Compile Include="Capabilities\Client\CompletionItemCapability.cs" />
+    <Compile Include="Capabilities\Client\DefinitionCapability.cs" />
+    <Compile Include="Capabilities\Client\DidChangeConfigurationCapability.cs" />
+    <Compile Include="Capabilities\Client\DidChangeWatchedFilesCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentHighlightCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentLinkCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentSymbolCapability.cs" />
     <Compile Include="Capabilities\Client\DynamicCapability.cs" />
+    <Compile Include="Capabilities\Client\ExecuteCommandCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentFormattingCapability.cs" />
+    <Compile Include="Capabilities\Client\HoverCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentOnTypeFormattingCapability.cs" />
+    <Compile Include="Capabilities\Client\DocumentRangeFormattingCapability.cs" />
+    <Compile Include="Capabilities\Client\ReferencesCapability.cs" />
+    <Compile Include="Capabilities\Client\RenameCapability.cs" />
+    <Compile Include="Capabilities\Client\SignatureHelpCapability.cs" />
+    <Compile Include="Capabilities\Client\WorkspaceSymbolCapability.cs" />
     <Compile Include="Capabilities\Client\SynchronizationCapability.cs" />
     <Compile Include="Capabilities\Client\TextDocumentClientCapabilities.cs" />
     <Compile Include="Capabilities\Client\WorkspaceClientCapabilites.cs" />
+    <Compile Include="Capabilities\Client\WorkspaceEdit.cs" />
     <Compile Include="Capabilities\Server\CodeLensOptions.cs" />
     <Compile Include="Capabilities\Server\CompletionOptions.cs" />
     <Compile Include="Capabilities\Server\DocumentLinkOptions.cs" />
@@ -72,10 +91,17 @@
     <Compile Include="Capabilities\Server\TextDocumentSyncOptions.cs" />
     <Compile Include="Abstractions\ILspHandlerInstance.cs" />
     <Compile Include="Handlers\CancelRequestHandler.cs" />
+    <Compile Include="Handlers\ExitEventHandler.cs" />
+    <Compile Include="Handlers\ExitHandler.cs" />
+    <Compile Include="Handlers\ShutdownEventHandler.cs" />
+    <Compile Include="Handlers\ShutdownHandler.cs" />
+    <Compile Include="LanguageServer.cs" />
+    <Compile Include="LspHelper.cs" />
+    <Compile Include="LspReciever.cs" />
     <Compile Include="Models\Container.cs" />
     <Compile Include="Models\ContainerBase.cs" />
     <Compile Include="Converters\BooleanNumberStringConverter.cs" />
-    <Compile Include="Converters\CapabilityConverter.cs" />
+    <Compile Include="Converters\SupportsConverter.cs" />
     <Compile Include="Converters\CompletionListConverter.cs" />
     <Compile Include="Converters\DiagnosticCodeConverter.cs" />
     <Compile Include="Converters\LocationOrLocationsConverter.cs" />
@@ -109,20 +135,20 @@
     <Compile Include="Protocol\Document\IDidCloseTextDocumentHandler.cs" />
     <Compile Include="Protocol\Document\IDidOpenTextDocumentHandler.cs" />
     <Compile Include="Protocol\Document\IDidSaveTextDocumentHandler.cs" />
-    <Compile Include="Protocol\Document\IDocumentFormatHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentFormattingHandler.cs" />
     <Compile Include="Protocol\Document\IDocumentHighlightHandler.cs" />
     <Compile Include="Protocol\Document\IDocumentLinkHandler.cs" />
     <Compile Include="Protocol\Document\IDocumentLinkResolveHandler.cs" />
-    <Compile Include="Protocol\Document\IDocumentSymbolsHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentSymbolHandler.cs" />
     <Compile Include="Protocol\Workspace\IExecuteCommandHandler.cs" />
     <Compile Include="Protocol\General\IExitHandler.cs" />
-    <Compile Include="Protocol\Document\IFindReferencesHandler.cs" />
-    <Compile Include="Protocol\Document\IGotoDefinitionHandler.cs" />
+    <Compile Include="Protocol\Document\IReferencesHandler.cs" />
+    <Compile Include="Protocol\Document\IDefinitionHandler.cs" />
     <Compile Include="Protocol\Document\IHoverHandler.cs" />
     <Compile Include="Protocol\General\IInitializedHandler.cs" />
     <Compile Include="Protocol\General\IInitializeHandler.cs" />
     <Compile Include="Protocol\Window\LogMessageExtensions.cs" />
-    <Compile Include="Protocol\Document\IOnTypeFormatHandler.cs" />
+    <Compile Include="Protocol\Document\IDocumentOnTypeFormatHandler.cs" />
     <Compile Include="Protocol\Document\PublishDiagnosticsExtensions.cs" />
     <Compile Include="Protocol\Client\RegisterCapabilityExtensions.cs" />
     <Compile Include="Protocol\Document\IRenameHandler.cs" />
@@ -227,6 +253,7 @@
     <Compile Include="Models\WorkspaceSymbolParams.cs" />
     <Compile Include="Models\ObjectContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RequestProcessIdentifier.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

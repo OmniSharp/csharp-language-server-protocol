@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -25,6 +25,6 @@ namespace Lsp.Models
         ///  Options necessary for the registration.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, object> RegisterOptions { get; set; } = new Dictionary<string, object>();
+        public object RegisterOptions { get; set; }
     }
 }

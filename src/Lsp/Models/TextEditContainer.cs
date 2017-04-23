@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator TextEditContainer(TextEdit[] items)
+        {
+            return new TextEditContainer(items);
+        }
+
+        public static implicit operator TextEditContainer(Collection<TextEdit> items)
+        {
+            return new TextEditContainer(items);
+        }
+
+        public static implicit operator TextEditContainer(List<TextEdit> items)
         {
             return new TextEditContainer(items);
         }

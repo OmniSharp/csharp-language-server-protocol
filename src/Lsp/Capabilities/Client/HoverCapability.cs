@@ -1,4 +1,4 @@
-namespace Lsp.Capabilities.Client
+﻿namespace Lsp.Capabilities.Client
 {
-    public class HoverCapability : DynamicCapability {}
+    public class HoverCapability : DynamicCapability { }
 }

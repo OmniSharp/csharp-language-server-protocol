@@ -5,30 +5,30 @@ using Newtonsoft.Json;
 
 namespace Lsp.Converters
 {
-    class CapabilityConverter : JsonConverter
+    class SupportsConverter : JsonConverter
     {
-        private static readonly MethodInfo OfValueMethod = typeof(Capability)
+        private static readonly MethodInfo OfValueMethod = typeof(Supports)
             .GetTypeInfo()
-            .GetMethod(nameof(Capability.OfValue), BindingFlags.Static | BindingFlags.Public);
-        private static readonly MethodInfo OfBooleanMethod = typeof(Capability)
+            .GetMethod(nameof(Supports.OfValue), BindingFlags.Static | BindingFlags.Public);
+        private static readonly MethodInfo OfBooleanMethod = typeof(Supports)
             .GetTypeInfo()
-            .GetMethod(nameof(Capability.OfBoolean), BindingFlags.Static | BindingFlags.Public);
+            .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public);
 
-        private static readonly PropertyInfo ValueProperty = typeof(Capability<>)
-            .GetProperty(nameof(Capability<object>.Value), BindingFlags.Public | BindingFlags.Instance);
+        private static readonly PropertyInfo ValueProperty = typeof(Supports<>)
+            .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance);
 
-        private static readonly PropertyInfo IsSupportedProperty = typeof(Capability<>)
-            .GetProperty(nameof(Capability<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
+        private static readonly PropertyInfo IsSupportedProperty = typeof(Supports<>)
+            .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var isSupported = value?.GetType()
-                ?.GetProperty(nameof(Capability<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
+                ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
                 ?.GetValue(value) as bool?;
             if (isSupported == true)
             {
                 serializer.Serialize(writer, value.GetType()
-                    .GetProperty(nameof(Capability<object>.Value), BindingFlags.Public | BindingFlags.Instance)
+                    .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
                     .GetValue(value));
             }
             else
@@ -56,6 +56,6 @@ namespace Lsp.Converters
 
         public override bool CanRead => true;
 
-        public override bool CanConvert(Type objectType) => objectType.GetGenericTypeDefinition() == typeof(Capability<>);
+        public override bool CanConvert(Type objectType) => objectType.GetGenericTypeDefinition() == typeof(Supports<>);
     }
 }

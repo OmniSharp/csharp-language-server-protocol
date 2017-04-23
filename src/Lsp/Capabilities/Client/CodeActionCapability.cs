@@ -1,4 +1,4 @@
-namespace Lsp.Capabilities.Client
+﻿namespace Lsp.Capabilities.Client
 {
-    public class CodeActionCapability : DynamicCapability {}
+    public class CodeActionCapability : DynamicCapability { }
 }

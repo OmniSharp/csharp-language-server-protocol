@@ -1,4 +1,4 @@
-namespace Lsp.Capabilities.Client
+﻿namespace Lsp.Capabilities.Client
 {
-    public class RenameCapability : DynamicCapability {}
+    public class RenameCapability : DynamicCapability { }
 }

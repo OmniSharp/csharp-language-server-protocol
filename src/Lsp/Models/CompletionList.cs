@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Lsp.Converters;
 using Newtonsoft.Json;
@@ -35,6 +36,16 @@ namespace Lsp.Models
         public IEnumerable<CompletionItem> Items { get; }
 
         public static implicit operator CompletionList(CompletionItem[] items)
+        {
+            return new CompletionList(items);
+        }
+
+        public static implicit operator CompletionList(Collection<CompletionItem> items)
+        {
+            return new CompletionList(items);
+        }
+
+        public static implicit operator CompletionList(List<CompletionItem> items)
         {
             return new CompletionList(items);
         }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator CodeLensContainer(CodeLens[] items)
+        {
+            return new CodeLensContainer(items);
+        }
+
+        public static implicit operator CodeLensContainer(Collection<CodeLens> items)
+        {
+            return new CodeLensContainer(items);
+        }
+
+        public static implicit operator CodeLensContainer(List<CodeLens> items)
         {
             return new CodeLensContainer(items);
         }

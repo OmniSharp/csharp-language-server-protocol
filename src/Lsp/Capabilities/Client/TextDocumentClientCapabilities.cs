@@ -6,76 +6,76 @@ namespace Lsp.Capabilities.Client
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class TextDocumentClientCapabilities
     {
-        public Capability<SynchronizationCapability> Synchronization { get; set; }
+        public Supports<SynchronizationCapability> Synchronization { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/completion`
         /// </summary>
-        public Capability<CompletionCapability> Completion { get; set; }
+        public Supports<CompletionCapability> Completion { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/hover`
         /// </summary>
-        public Capability<HoverCapability> Hover { get; set; }
+        public Supports<HoverCapability> Hover { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/signatureHelp`
         /// </summary>
-        public Capability<SignatureHelpCapability> SignatureHelp { get; set; }
+        public Supports<SignatureHelpCapability> SignatureHelp { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/references`
         /// </summary>
-        public Capability<ReferencesCapability> References { get; set; }
+        public Supports<ReferencesCapability> References { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentHighlight`
         /// </summary>
-        public Capability<DocumentHighlightCapability> DocumentHighlight { get; set; }
+        public Supports<DocumentHighlightCapability> DocumentHighlight { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentSymbol`
         /// </summary>
-        public Capability<DocumentSymbolCapability> DocumentSymbol { get; set; }
+        public Supports<DocumentSymbolCapability> DocumentSymbol { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/formatting`
         /// </summary>
-        public Capability<FormattingCapability> Formatting { get; set; }
+        public Supports<DocumentFormattingCapability> Formatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/rangeFormatting`
         /// </summary>
-        public Capability<RangeFormattingCapability> RangeFormatting { get; set; }
+        public Supports<DocumentRangeFormattingCapability> RangeFormatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/onTypeFormatting`
         /// </summary>
-        public Capability<OnTypeFormattingCapability> OnTypeFormatting { get; set; }
+        public Supports<DocumentOnTypeFormattingCapability> OnTypeFormatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/definition`
         /// </summary>
-        public Capability<DefinitionCapability> Definition { get; set; }
+        public Supports<DefinitionCapability> Definition { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/codeAction`
         /// </summary>
-        public Capability<CodeActionCapability> CodeAction { get; set; }
+        public Supports<CodeActionCapability> CodeAction { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/codeLens`
         /// </summary>
-        public Capability<CodeLensCapability> CodeLens { get; set; }
+        public Supports<CodeLensCapability> CodeLens { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentLink`
         /// </summary>
-        public Capability<DocumentLinkCapability> DocumentLink { get; set; }
+        public Supports<DocumentLinkCapability> DocumentLink { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/rename`
         /// </summary>
-        public Capability<RenameCapability> Rename { get; set; }
+        public Supports<RenameCapability> Rename { get; set; }
     }
 }

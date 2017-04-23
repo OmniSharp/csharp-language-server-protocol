@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator CommandContainer(Command[] items)
+        {
+            return new CommandContainer(items);
+        }
+
+        public static implicit operator CommandContainer(Collection<Command> items)
+        {
+            return new CommandContainer(items);
+        }
+
+        public static implicit operator CommandContainer(List<Command> items)
         {
             return new CommandContainer(items);
         }

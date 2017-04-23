@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp
@@ -18,6 +19,16 @@ namespace Lsp
         }
 
         public static implicit operator ObjectContainer(object[] items)
+        {
+            return new ObjectContainer(items);
+        }
+
+        public static implicit operator ObjectContainer(Collection<object> items)
+        {
+            return new ObjectContainer(items);
+        }
+
+        public static implicit operator ObjectContainer(List<object> items)
         {
             return new ObjectContainer(items);
         }

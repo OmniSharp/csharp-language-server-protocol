@@ -51,16 +51,16 @@ namespace Lsp.Models
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public InitializeTrace Trace { get; set; } = InitializeTrace.off;
-
-
-        // ReSharper disable InconsistentNaming
-        [JsonConverter(typeof(StringEnumConverter))]
-        public enum InitializeTrace
-        {
-            off,
-            messages,
-            verbose
-        }
-        // ReSharper restore InconsistentNaming
     }
+
+
+    // ReSharper disable InconsistentNaming
+    [JsonConverter(typeof(StringEnumConverter))]
+    public enum InitializeTrace
+    {
+        off,
+        messages,
+        verbose
+    }
+    // ReSharper restore InconsistentNaming
 }

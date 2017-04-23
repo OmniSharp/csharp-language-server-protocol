@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 
 namespace Lsp.Models
@@ -18,6 +19,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator LocationContainer(Location[] items)
+        {
+            return new LocationContainer(items);
+        }
+
+        public static implicit operator LocationContainer(Collection<Location> items)
+        {
+            return new LocationContainer(items);
+        }
+
+        public static implicit operator LocationContainer(List<Location> items)
         {
             return new LocationContainer(items);
         }

@@ -8,7 +8,7 @@ namespace JsonRpc
     {
         public static Task HandleNotification(IHandlerInstance instance)
         {
-            var method = instance.HandlerInterface
+            var method = instance.HandlerType
                 .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
             return (Task)method.Invoke(instance.Handler, new object[0]);
@@ -16,7 +16,7 @@ namespace JsonRpc
 
         public static Task HandleNotification(IHandlerInstance instance, object @params)
         {
-            var method = instance.HandlerInterface
+            var method = instance.HandlerType
                 .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
             return (Task)method.Invoke(instance.Handler, new[] { @params });
@@ -24,7 +24,7 @@ namespace JsonRpc
 
         public static Task HandleRequest(IHandlerInstance instance, CancellationToken token)
         {
-            var method = instance.HandlerInterface
+            var method = instance.HandlerType
                 .GetMethod(nameof(IRequestHandler<object>.Handle), BindingFlags.Public | BindingFlags.Instance);
 
             return (Task)method.Invoke(instance.Handler, new object[] { token });
@@ -32,7 +32,7 @@ namespace JsonRpc
 
         public static Task HandleRequest(IHandlerInstance instance, object @params, CancellationToken token)
         {
-            var method = instance.HandlerInterface
+            var method = instance.HandlerType
                 .GetMethod(nameof(IRequestHandler<object, object>.Handle), BindingFlags.Public | BindingFlags.Instance);
 
             return (Task)method.Invoke(instance.Handler, new[] { @params, token });

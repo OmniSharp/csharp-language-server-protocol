@@ -8,6 +8,8 @@ namespace Lsp
     {
         IDisposable Add(IJsonRpcHandler handler);
         void Remove(IJsonRpcHandler handler);
-        ILspHandlerInstance Get(string method);
+
+        IEnumerable<ILspHandlerInstance> Get(string method);
+        ILspHandlerInstance Get(IJsonRpcHandler handler);
     }
 }

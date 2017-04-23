@@ -1,4 +1,5 @@
 ﻿using JsonRpc;
+using Lsp.Capabilities.Client;
 using Lsp.Models;
 // ReSharper disable CheckNamespace
 

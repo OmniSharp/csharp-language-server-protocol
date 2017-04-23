@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Lsp.Converters;
 using Newtonsoft.Json;
@@ -21,6 +22,16 @@ namespace Lsp.Models
         }
 
         public static implicit operator LocationOrLocations(Location[] items)
+        {
+            return new LocationOrLocations(items);
+        }
+
+        public static implicit operator LocationOrLocations(Collection<Location> items)
+        {
+            return new LocationOrLocations(items);
+        }
+
+        public static implicit operator LocationOrLocations(List<Location> items)
         {
             return new LocationOrLocations(items);
         }
