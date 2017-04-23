@@ -7,7 +7,7 @@ namespace Lsp.Protocol
 {
     public static class ApplyEditExtensions
     {
-        public static Task<ApplyWorkspaceEditResponse> ApplyEdit(this IOutgoingRequestRouter mediator, ApplyWorkspaceEditParams @params)
+        public static Task<ApplyWorkspaceEditResponse> ApplyEdit(this IResponseRouter mediator, ApplyWorkspaceEditParams @params)
         {
             return mediator.SendRequest<ApplyWorkspaceEditParams, ApplyWorkspaceEditResponse>("workspace/applyEdit", @params);
         }

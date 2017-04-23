@@ -24,12 +24,10 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ExecutesHandler()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
-            serviceProvider
-                .GetService(typeof(ICancelRequestHandler))
-                .Returns(cancelRequestHandler);
-            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+
+            var collection = new HandlerCollection { cancelRequestHandler };
+            var mediator = new RequestRouter(collection);
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));

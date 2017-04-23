@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(CodeLensRegistrationOptions))]
     [Method("textDocument/codeLens")]
-    public interface ICodeLensHandler : IRequestHandler<CodeLensParams, CodeLensContainer> { }
+    public interface ICodeLensHandler : IRegistrableRequestHandler<CodeLensParams, CodeLensContainer, CodeLensRegistrationOptions> { }
 }

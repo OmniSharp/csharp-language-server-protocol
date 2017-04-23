@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(TextDocumentRegistrationOptions))]
     [Method("textDocument/formatting")]
-    public interface IDocumentFormatHandler : IRequestHandler<DocumentFormattingParams, TextEditContainer> { }
+    public interface IDocumentFormatHandler : IRegistrableRequestHandler<DocumentFormattingParams, TextEditContainer, TextDocumentRegistrationOptions> { }
 }

@@ -4,13 +4,13 @@ namespace JsonRpc
 {
     public struct ErrorResponse
     {
-        internal ErrorResponse(Error error)
+        public ErrorResponse(Error error)
         {
             Response = null;
             Error = error;
         }
 
-        internal ErrorResponse(Response response)
+        public ErrorResponse(Response response)
         {
             Response = response;
             Error = null;

@@ -40,12 +40,10 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ExecutesHandler()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            serviceProvider
-                .GetService(typeof(ICodeActionHandler))
-                .Returns(codeActionHandler);
-            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+
+            var collection = new HandlerCollection { codeActionHandler };
+            var mediator = new RequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };

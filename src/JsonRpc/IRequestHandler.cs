@@ -12,7 +12,7 @@ namespace JsonRpc
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
-    public interface IRequestHandler<TRequest, TResponse>
+    public interface IRequestHandler<TRequest, TResponse> : IJsonRpcHandler
     {
         Task<TResponse> Handle(TRequest request, CancellationToken token);
     }
@@ -25,7 +25,7 @@ namespace JsonRpc
     ///
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public interface IRequestHandler<TRequest>
+    public interface IRequestHandler<TRequest> : IJsonRpcHandler
     {
         Task Handle(TRequest request, CancellationToken token);
     }

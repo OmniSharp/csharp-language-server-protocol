@@ -23,7 +23,6 @@ namespace Lsp.Tests
         [Fact]
         public async Task RequestsCancellation()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>();
             executeCommandHandler
                 .Handle(Arg.Any<ExecuteCommandParams>(), Arg.Any<CancellationToken>())
@@ -31,10 +30,9 @@ namespace Lsp.Tests
                     await Task.Delay(1000, c.Arg<CancellationToken>());
                     throw new XunitException("Task was not cancelled in time!");
                 });
-            serviceProvider
-                .GetService(typeof(IExecuteCommandHandler))
-                .Returns(executeCommandHandler);
-            var mediator = new LspIncomingRequestRouter(new HandlerResolver(typeof(MediatorTestsRequestHandlerOfTRequest).GetTypeInfo().Assembly, typeof(Command).GetTypeInfo().Assembly), serviceProvider);
+
+            var collection = new HandlerCollection { executeCommandHandler };
+            var mediator = new LspRequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

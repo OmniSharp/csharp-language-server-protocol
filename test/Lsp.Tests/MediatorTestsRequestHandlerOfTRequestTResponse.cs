@@ -25,7 +25,6 @@ namespace Lsp.Tests
         [Fact]
         public async Task RequestsCancellation()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             codeActionHandler
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
@@ -35,10 +34,8 @@ namespace Lsp.Tests
                     return new CommandContainer();
                 });
 
-            serviceProvider
-                .GetService(typeof(ICodeActionHandler))
-                .Returns(codeActionHandler);
-            var mediator = new LspIncomingRequestRouter(new HandlerResolver(typeof(MediatorTestsRequestHandlerOfTRequest).GetTypeInfo().Assembly, typeof(Command).GetTypeInfo().Assembly), serviceProvider);
+            var collection = new HandlerCollection { codeActionHandler };
+            var mediator = new LspRequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {

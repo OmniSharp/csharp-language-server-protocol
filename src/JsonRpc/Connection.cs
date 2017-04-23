@@ -1,6 +1,10 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 using JsonRpc.Server;
 using JsonRpc.Server.Messages;
@@ -10,95 +14,43 @@ namespace JsonRpc
 {
     public class Connection : IDisposable
     {
-        private readonly TextReader _input;
+        private readonly IInputHandler _inputHandler;
+        private readonly IRequestRouter _requestRouter;
 
-        private readonly TextWriter _output;
-
-        private readonly Reciever _reciever;
-        private readonly Responder _responder;
-        private InputHandler _inputHandler;
-        private readonly IIncomingRequestRouter _mediator;
-
-        public Connection(TextReader input, TextWriter output)
+        public Connection(
+            TextReader input, TextWriter output,
+            IReciever reciever,
+            IRequestProcessIdentifier requestProcessIdentifier,
+            IRequestRouter requestRouter,
+            IResponseRouter responseRouter)
         {
-            _input = input;
-            _output = output;
-            _reciever = new Reciever();
-            _responder = new Responder();
-            _mediator = new IncomingRequestRouter(new HandlerResolver(AppDomain.CurrentDomain.GetAssemblies()), null);
+            _requestRouter = requestRouter;
+
+            var outputHandler = new OutputHandler(output);
+            _inputHandler = new InputHandler(
+                input,
+                outputHandler,
+                reciever,
+                requestProcessIdentifier,
+                requestRouter,
+                responseRouter
+            );
         }
 
-        private async void HandleRequest(string request)
+        public IDisposable AddHandler(IJsonRpcHandler handler)
         {
-            JToken payload;
-            try
-            {
-                payload = JToken.Parse(request);
-            }
-            catch
-            {
-                _responder.Respond(new ParseError());
-                return;
-            }
-
-            if (!_reciever.IsValid(payload))
-            {
-                _responder.Respond(new InvalidRequest());
-                return;
-            }
-
-            var (requests, hasResponse) = _reciever.GetRequests(payload);
-            if (hasResponse)
-            {
-                // TODO: Find request to respond to
-                // Deserialize and respond to task.
-                throw new NotImplementedException();
-            }
-            else
-            {
-                await RespondTo(requests);
-            }
+            return _requestRouter.Add(handler);
         }
 
-        private async Task RespondTo(IEnumerable<Renor> items)
+        public void RemoveHandler(IJsonRpcHandler handler)
         {
-            var response = new List<Task<ErrorResponse>>();
-            foreach (var item in items)
-            {
-                if (item.IsRequest)
-                {
-                    response.Add(_mediator.RouteRequest(item.Request));
-                }
-                else if (item.IsNotification)
-                {
-                    _mediator.RouteNotification(item.Notification);
-                }
-                else
-                {
-                    response.Add(Task.FromResult<ErrorResponse>(item.Error));
-                }
-            }
-
-            // All notifications
-            if (response.Count == 0)
-            {
-                return;
-            }
-
-            var result = await Task.WhenAll(response.ToArray());
-            if (result.Length == 1)
-            {
-
-            }
-            else
-            {
-
-            }
+            _requestRouter.Remove(handler);
         }
 
         public void Open()
         {
-            _inputHandler = new InputHandler(_input, HandleRequest);
+            // TODO: Throw if called twice?
+            _inputHandler.Start();
         }
 
         public void Dispose()

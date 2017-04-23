@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(CompletionRegistrationOptions))]
     [Method("textDocument/completion")]
-    public interface ICompletionHandler : IRequestHandler<TextDocumentPositionParams, CompletionList> { }
+    public interface ICompletionHandler : IRegistrableRequestHandler<TextDocumentPositionParams, CompletionList, CompletionRegistrationOptions> { }
 }

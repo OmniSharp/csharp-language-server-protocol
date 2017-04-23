@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace JsonRpc
 {
-    public class Reciever
+    public class Reciever : IReciever
     {
         public bool IsValid(JToken container)
         {

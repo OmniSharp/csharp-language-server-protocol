@@ -6,11 +6,11 @@ namespace JsonRpc.Client
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Response
     {
-        internal Response(object id) : this(id, null)
+        public Response(object id) : this(id, null)
         {
         }
 
-        internal Response(object id, object result)
+        public Response(object id, object result)
         {
             Id = id;
             Result = result;

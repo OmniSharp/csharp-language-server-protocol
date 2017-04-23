@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -52,21 +52,32 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Client\Notification.cs" />
     <Compile Include="Client\Request.cs" />
     <Compile Include="Connection.cs" />
-    <Compile Include="HandlerResolver.cs" />
-    <Compile Include="IIncomingRequestRouter.cs" />
+    <Compile Include="HandlerCollection.cs" />
+    <Compile Include="IHandlerInstance.cs" />
+    <Compile Include="IRequestRouter.cs" />
+    <Compile Include="IInputHandler.cs" />
+    <Compile Include="IResponseRouter.cs" />
+    <Compile Include="RequestRouter.cs" />
     <Compile Include="INotificationHandler.cs" />
     <Compile Include="InputHandler.cs" />
-    <Compile Include="IOutgoingRequestRouter.cs" />
+    <Compile Include="IOutputHandler.cs" />
+    <Compile Include="IReciever.cs" />
     <Compile Include="IRequestHandler.cs" />
+    <Compile Include="IRequestProcessIdentifier.cs" />
     <Compile Include="IResponseHandler.cs" />
-    <Compile Include="IServerNotificationHandler.cs" />
-    <Compile Include="Mediator.cs" />
+    <Compile Include="IJsonRpcHandler.cs" />
     <Compile Include="MethodAttribute.cs" />
+    <Compile Include="ResponseRouter.cs" />
+    <Compile Include="OutputHandler.cs" />
+    <Compile Include="ParallelRequestProcessIdentifier.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Responder.cs" />
+    <Compile Include="ReflectionRequestHandlers.cs" />
+    <Compile Include="RequestProcessType.cs" />
     <Compile Include="Error.cs" />
+    <Compile Include="SerialRequestProcessIdentifier.cs" />
     <Compile Include="Server\Renor.cs" />
     <Compile Include="ErrorResponse.cs" />
     <Compile Include="Server\JsonRpcException.cs" />

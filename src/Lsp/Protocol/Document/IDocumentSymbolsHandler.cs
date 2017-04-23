@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(TextDocumentRegistrationOptions))]
     [Method("textDocument/documentSymbol")]
-    public interface IDocumentSymbolsHandler : IRequestHandler<DocumentSymbolParams, SymbolInformationContainer> { }
+    public interface IDocumentSymbolsHandler : IRegistrableRequestHandler<DocumentSymbolParams, SymbolInformationContainer, TextDocumentRegistrationOptions> { }
 }

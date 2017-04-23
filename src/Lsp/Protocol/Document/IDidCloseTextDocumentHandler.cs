@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(TextDocumentRegistrationOptions))]
     [Method("textDocument/didClose")]
-    public interface IDidCloseTextDocumentHandler : INotificationHandler<DidCloseTextDocumentParams> { }
+    public interface IDidCloseTextDocumentHandler : IRegistrableNotificationHandler<DidCloseTextDocumentParams, TextDocumentRegistrationOptions> { }
 }

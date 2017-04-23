@@ -1,13 +1,20 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using JsonRpc.Server;
+using JsonRpc.Server.Messages;
+using Newtonsoft.Json.Linq;
 
 namespace JsonRpc
 {
-    public class InputHandler : IDisposable
+    public class InputHandler : IInputHandler
     {
+        private readonly TimeSpan _sleepTime = TimeSpan.FromMilliseconds(50);
         public const char CR = '\r';
         public const char LF = '\n';
         public static char[] CRLF = { CR, LF };
@@ -15,22 +22,64 @@ namespace JsonRpc
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
 
         private readonly TextReader _input;
-        private readonly Action<string> _inputHandler;
-        private readonly Thread _thread;
+        private readonly IOutputHandler _outputHandler;
+        private readonly IReciever _reciever;
+        private readonly IRequestProcessIdentifier _requestProcessIdentifier;
+        private readonly Thread _inputThread;
+        private readonly IRequestRouter _requestRouter;
+        private readonly IResponseRouter _responseRouter;
+        private readonly ConcurrentQueue<(RequestProcessType type, Func<Task> request)> _queue;
+        private readonly Thread _queueThread;
 
-        public InputHandler(TextReader input, Action<string> inputHandler)
+        public InputHandler(
+            TextReader input,
+            IOutputHandler outputHandler,
+            IReciever reciever,
+            IRequestProcessIdentifier requestProcessIdentifier,
+            IRequestRouter requestRouter,
+            IResponseRouter responseRouter
+            )
         {
             _input = input;
-            _inputHandler = inputHandler;
+            _outputHandler = outputHandler;
+            _reciever = reciever;
+            _requestProcessIdentifier = requestProcessIdentifier;
+            _requestRouter = requestRouter;
+            _responseRouter = responseRouter;
+            _queue = new ConcurrentQueue<(RequestProcessType type, Func<Task> request)>();
 
-            _thread = new Thread(async () => await Loop()) {
+            _inputThread = new Thread(ProcessInputStream) {
                 IsBackground = true,
                 Priority = ThreadPriority.AboveNormal
             };
-            _thread.Start();
+
+            _queueThread = new Thread(ProcessRequestQueue) {
+                IsBackground = true,
+                Priority = ThreadPriority.AboveNormal
+            };
         }
 
-        private async Task Loop()
+        internal InputHandler(
+            TextReader input,
+            IOutputHandler outputHandler,
+            IReciever reciever,
+            IRequestProcessIdentifier requestProcessIdentifier,
+            IRequestRouter requestRouter,
+            IResponseRouter responseRouter,
+            TimeSpan sleepTime
+        ) : this(input, outputHandler, reciever, requestProcessIdentifier, requestRouter, responseRouter)
+        {
+            _sleepTime = sleepTime;
+        }
+
+        public void Start()
+        {
+            _outputHandler.Start();
+            _inputThread.Start();
+            _queueThread.Start();
+        }
+
+        private async void ProcessInputStream()
         {
             while (true)
             {
@@ -60,14 +109,113 @@ namespace JsonRpc
                 await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
 
                 var payload = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(requestBuffer));
-                
-                _inputHandler(payload);
+
+                HandleRequest(payload);
+            }
+        }
+
+        private void HandleRequest(string request)
+        {
+            JToken payload;
+            try
+            {
+                payload = JToken.Parse(request);
+            }
+            catch
+            {
+                _outputHandler.Send(new ParseError());
+                return;
+            }
+
+            if (!_reciever.IsValid(payload))
+            {
+                _outputHandler.Send(new InvalidRequest());
+                return;
+            }
+
+            var (requests, hasResponse) = _reciever.GetRequests(payload);
+            if (hasResponse)
+            {
+                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
+                {
+                    long id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
+
+                    if (id < 0) continue;
+
+                    var tcs = _responseRouter.GetRequest(id);
+                    if (tcs is null) continue;
+                    
+                    tcs.SetResult(response.Result);
+                }
+            }
+            else
+            {
+                foreach (var (type, item) in requests.Select(x => (_requestProcessIdentifier.Identify(x), x)))
+                {
+                    if (item.IsRequest)
+                    {
+                        _queue.Enqueue((
+                            type,
+                            async () => {
+                                var result = await _requestRouter.RouteRequest(item.Request);
+                                _outputHandler.Send(result);
+                            }
+                        ));
+                    }
+                    else if (item.IsNotification)
+                    {
+                        _queue.Enqueue((
+                            type,
+                            () => {
+                                _requestRouter.RouteNotification(item.Notification);
+                                return Task.CompletedTask;
+                            }
+                        ));
+                    }
+                    else if (item.IsError)
+                    {
+                        // TODO:
+                        _outputHandler.Send(item.Error);
+                    }
+                }
+            }
+        }
+
+        private bool IsNextSerial()
+        {
+            return _queue.TryPeek(out var queueResult) && queueResult.type == RequestProcessType.Serial;
+        }
+
+        private async void ProcessRequestQueue()
+        {
+            while (true)
+            {
+                var items = new List<Func<Task>>();
+                while (!_queue.IsEmpty)
+                {
+                    if (IsNextSerial() && items.Count > 0)
+                    {
+                        break;
+                    }
+
+                    if (_queue.TryDequeue(out var queueResult))
+                        items.Add(queueResult.request);
+                }
+
+                await Task.WhenAll(items.Select(x => x()));
+
+                if (_queue.IsEmpty)
+                {
+                    await Task.Delay(_sleepTime);
+                }
             }
         }
 
         public void Dispose()
         {
-            _thread.Abort();
+            _outputHandler.Dispose();
+            _inputThread.Abort();
+            _queueThread.Abort();
         }
     }
 }

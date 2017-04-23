@@ -28,12 +28,10 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ExecutesHandler()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>();
-            serviceProvider
-                .GetService(typeof(IExecuteCommandHandler))
-                .Returns(executeCommandHandler);
-            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+
+            var collection = new HandlerCollection { executeCommandHandler };
+            var mediator = new RequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

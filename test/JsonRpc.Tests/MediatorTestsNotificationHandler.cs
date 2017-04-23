@@ -15,13 +15,10 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ExecutesHandler()
         {
-            var serviceProvider = Substitute.For<IServiceProvider>();
             var exitHandler = Substitute.For<IExitHandler>();
-            serviceProvider
-                .GetService(typeof(IExitHandler))
-                .Returns(exitHandler);
 
-            var mediator = new IncomingRequestRouter(new HandlerResolver(typeof(HandlerResolverTests).GetTypeInfo().Assembly), serviceProvider);
+            var collection = new HandlerCollection { exitHandler };
+            var mediator = new RequestRouter(collection);
 
             var notification = new Notification("exit", null);
 

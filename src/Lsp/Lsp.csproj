@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\Newtonsoft.Json.9.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\Newtonsoft.Json.10.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.2.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -81,7 +81,12 @@
     <Compile Include="Converters\MarkedStringConverter.cs" />
     <Compile Include="Converters\NumberEnumConverter.cs" />
     <Compile Include="Converters\TextDocumentSyncConverter.cs" />
-    <Compile Include="LspIncomingRequestRouter.cs" />
+    <Compile Include="HandlerCollection.cs" />
+    <Compile Include="IHandlerCollection.cs" />
+    <Compile Include="INotificationHandler.cs" />
+    <Compile Include="IRegistration.cs" />
+    <Compile Include="IRequestHandler.cs" />
+    <Compile Include="LspRequestRouter.cs" />
     <Compile Include="Messages\RequestCancelled.cs" />
     <Compile Include="Messages\ServerErrorEnd.cs" />
     <Compile Include="Messages\ServerErrorStart.cs" />
@@ -130,7 +135,6 @@
     <Compile Include="Protocol\Document\IWillSaveTextDocumentHandler.cs" />
     <Compile Include="Protocol\Document\IWillSaveWaitUntilTextDocumentHandler.cs" />
     <Compile Include="Protocol\Workspace\IWorkspaceSymbolsHandler.cs" />
-    <Compile Include="Protocol\RegistrationAttribute.cs" />
     <Compile Include="Methods\Request.cs" />
     <Compile Include="Models\ApplyWorkspaceEditParams.cs" />
     <Compile Include="Models\ApplyWorkspaceEditResponse.cs" />

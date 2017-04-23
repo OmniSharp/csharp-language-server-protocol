@@ -7,7 +7,7 @@ namespace Lsp.Protocol
 {
     public static class ShowMessageExtensions
     {
-        public static Task ShowMessage(this IOutgoingRequestRouter mediator, ShowMessageParams @params)
+        public static Task ShowMessage(this IResponseRouter mediator, ShowMessageParams @params)
         {
             return mediator.SendNotification("window/showMessage", @params);
         }

@@ -8,7 +8,7 @@ namespace JsonRpc.Client
     {
         public object Id { get; set; }
 
-        public string ProtocolVersion { get; set; } = "2.0";
+        public string ProtocolVersion { get; } = "2.0";
 
         public string Method { get; set; }
 

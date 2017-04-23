@@ -6,11 +6,11 @@ namespace JsonRpc.Server
 {
     public class Response
     {
-        internal Response(object id) : this(id, null)
+        public Response(object id) : this(id, null)
         {
         }
 
-        internal Response(object id, JToken result)
+        public Response(object id, JToken result)
         {
             Id = id;
             Result = result;

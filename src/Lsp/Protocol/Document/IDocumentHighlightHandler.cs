@@ -4,7 +4,6 @@ using Lsp.Models;
 
 namespace Lsp.Protocol
 {
-    [Registration(typeof(TextDocumentRegistrationOptions))]
     [Method("textDocument/documentHighlight")]
-    public interface IDocumentHighlightHandler : IRequestHandler<TextDocumentPositionParams, DocumentHighlightContainer> { }
+    public interface IDocumentHighlightHandler : IRegistrableRequestHandler<TextDocumentPositionParams, DocumentHighlightContainer, TextDocumentRegistrationOptions> { }
 }
