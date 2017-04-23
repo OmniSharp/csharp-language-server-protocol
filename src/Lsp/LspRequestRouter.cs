@@ -57,6 +57,7 @@ namespace Lsp
                     var @params = notification.Params.ToObject(handler.Params);
                     result = ReflectionRequestHandlers.HandleNotification(handler, @params);
                 }
+
                 await result;
             }
         }
@@ -125,11 +126,6 @@ namespace Lsp
         public IDisposable Add(IJsonRpcHandler handler)
         {
             return _collection.Add(handler);
-        }
-
-        public void Remove(IJsonRpcHandler handler)
-        {
-            _collection.Remove(handler);
         }
 
         public void CancelRequest(object id)

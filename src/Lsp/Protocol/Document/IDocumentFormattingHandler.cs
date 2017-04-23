@@ -7,7 +7,4 @@ namespace Lsp.Protocol
 {
     [Method("textDocument/formatting")]
     public interface IDocumentFormattingHandler : IRequestHandler<DocumentFormattingParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentFormattingCapability> { }
-
-    [Method("textDocument/rangeFormatting")]
-    public interface IDocumentRangeFormattingHandler : IRequestHandler<DocumentRangeFormattingParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentRangeFormattingCapability> { }
 }

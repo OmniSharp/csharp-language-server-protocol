@@ -7,6 +7,6 @@ namespace Lsp.Models
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class RegistrationParams
     {
-        public Container<Registration> Registrations { get; set; }
+        public RegistrationContainer Registrations { get; set; }
     }
 }

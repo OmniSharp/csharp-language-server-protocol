@@ -21,11 +21,6 @@ namespace JsonRpc
             return _collection.Add(handler);
         }
 
-        public void Remove(IJsonRpcHandler handler)
-        {
-            _collection.Remove(handler);
-        }
-
         public async void RouteNotification(Notification notification)
         {
             var handler = _collection.Get(notification.Method);

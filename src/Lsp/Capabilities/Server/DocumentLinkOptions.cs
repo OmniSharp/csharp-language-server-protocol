@@ -15,5 +15,10 @@ namespace Lsp.Capabilities.Server
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool ResolveProvider { get; set; }
+
+        public static DocumentLinkOptions Of(IDocumentLinkOptions options)
+        {
+            return new DocumentLinkOptions() { ResolveProvider = options.ResolveProvider };
+        }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using System;
 using Lsp.Capabilities.Client;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
@@ -55,12 +54,5 @@ namespace Lsp.Models
 
 
     // ReSharper disable InconsistentNaming
-    [JsonConverter(typeof(StringEnumConverter))]
-    public enum InitializeTrace
-    {
-        off,
-        messages,
-        verbose
-    }
     // ReSharper restore InconsistentNaming
 }

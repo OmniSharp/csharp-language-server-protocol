@@ -15,5 +15,10 @@ namespace Lsp.Capabilities.Server
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool ResolveProvider { get; set; }
+
+        public static CodeLensOptions Of(ICodeLensOptions options)
+        {
+            return new CodeLensOptions() { ResolveProvider = options.ResolveProvider };
+        }
     }
 }

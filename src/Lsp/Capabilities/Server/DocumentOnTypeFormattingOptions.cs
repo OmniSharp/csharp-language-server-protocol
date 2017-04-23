@@ -21,5 +21,13 @@ namespace Lsp.Capabilities.Server
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Container<string> MoreTriggerCharacter { get; set; }
+
+        public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options)
+        {
+            return new DocumentOnTypeFormattingOptions() {
+                FirstTriggerCharacter = options.FirstTriggerCharacter,
+                MoreTriggerCharacter = options.MoreTriggerCharacter
+            };
+        }
     }
 }

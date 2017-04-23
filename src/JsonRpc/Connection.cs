@@ -37,16 +37,6 @@ namespace JsonRpc
             );
         }
 
-        public IDisposable AddHandler(IJsonRpcHandler handler)
-        {
-            return _requestRouter.Add(handler);
-        }
-
-        public void RemoveHandler(IJsonRpcHandler handler)
-        {
-            _requestRouter.Remove(handler);
-        }
-
         public void Open()
         {
             // TODO: Throw if called twice?

@@ -1,4 +1,4 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
@@ -19,5 +19,13 @@ namespace Lsp.Models
         ///  The method to unregister for.
         /// </summary>
         public string Method { get; set; }
+
+        public static implicit operator Unregistration(Registration registration)
+        {
+            return new Unregistration() {
+                Id = registration.Id,
+                Method = registration.Method
+            };
+        }
     }
 }

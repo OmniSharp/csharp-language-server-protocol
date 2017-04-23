@@ -17,5 +17,10 @@ namespace Lsp.Capabilities.Server
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Container<string> TriggerCharacters { get; set; }
+
+        public static SignatureHelpOptions Of(ISignatureHelpOptions options)
+        {
+            return new SignatureHelpOptions() { TriggerCharacters = options.TriggerCharacters };
+        }
     }
 }

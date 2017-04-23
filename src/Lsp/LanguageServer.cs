@@ -16,16 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Lsp
 {
-    public interface ILanguageServer : IResponseRouter
-    {
-        IDisposable AddHandler(IJsonRpcHandler handler);
-        void RemoveHandler(IJsonRpcHandler handler);
-
-        InitializeParams Client { get; }
-        InitializeResult Server { get; }
-    }
-
-    public class LanguageServer : IInitializeHandler, ILanguageServer
+    public class LanguageServer : IInitializeHandler, ILanguageServer, IDisposable
     {
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
@@ -34,47 +25,56 @@ namespace Lsp
         private ClientVersion? _clientVersion;
         private readonly HandlerCollection _collection = new HandlerCollection();
         private readonly IResponseRouter _responseRouter;
+        private readonly LspReciever _reciever;
+        private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
+        private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public LanguageServer(TextReader input, TextWriter output)
         {
             var outputHandler = new OutputHandler(output);
             _requestRouter = new LspRequestRouter(_collection);
             _responseRouter = new ResponseRouter(outputHandler);
+            _reciever = new LspReciever();
 
             _connection = new Connection(
                 input,
                 outputHandler,
-                new Reciever(),
+                _reciever,
                 new RequestProcessIdentifier(),
                 new LspRequestRouter(_collection),
                 _responseRouter);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
-            AddHandler(this);
-            AddHandler(_shutdownHandler);
-            AddHandler(_exitHandler);
-            AddHandler(new CancelRequestHandler(_requestRouter));
+            _disposable.Add(
+                AddHandler(this),
+                AddHandler(_shutdownHandler),
+                AddHandler(_exitHandler),
+                AddHandler(new CancelRequestHandler(_requestRouter))
+            );
         }
 
         internal LanguageServer(
             TextReader input,
             IOutputHandler output,
-            IReciever reciever,
+            LspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
             IResponseRouter responseRouter
         )
         {
+            _reciever = reciever;
             _connection = new Connection(input, output, reciever, requestProcessIdentifier, requestRouter, responseRouter);
             _requestRouter = new LspRequestRouter(_collection);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
-            AddHandler(this);
-            AddHandler(_shutdownHandler);
-            AddHandler(_exitHandler);
-            AddHandler(new CancelRequestHandler(_requestRouter));
+            _disposable.Add(
+                AddHandler(this),
+                AddHandler(_shutdownHandler),
+                AddHandler(_exitHandler),
+                AddHandler(new CancelRequestHandler(_requestRouter))
+            );
         }
 
         public InitializeParams Client { get; private set; }
@@ -82,19 +82,32 @@ namespace Lsp
 
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
-            return _requestRouter.Add(handler);
-        }
+            var handlerDisposable = _collection.Add(handler);
 
-        public void RemoveHandler(IJsonRpcHandler handler)
-        {
-            _requestRouter.Remove(handler);
+            return new ImutableDisposable(
+                handlerDisposable,
+                new Disposable(() => {
+                    var handlers = _collection
+                        .Where(x => x.Handler == handler)
+                        .Where(x => x.AllowsDynamicRegistration)
+                        .Select(x => x.Registration)
+                        .Where(x => x != null)
+                        .ToArray();
+
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() { Unregisterations = handlers }));
+                }));
         }
 
         public async Task Initialize()
         {
             _connection.Open();
 
+            Server = await _initializeComplete.Task;
 
+            _reciever.Initialized();
+
+            // Small delay to let client respond
+            await Task.Delay(20);
 
             await DynamicallyRegisterHandlers();
         }
@@ -102,11 +115,6 @@ namespace Lsp
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
             Client = request;
-            //_tcs.SetResult(request);
-
-            //new ServerCapabilities() {
-
-            //}
 
             _clientVersion = request.Capabilities.GetClientVersion();
 
@@ -125,8 +133,63 @@ namespace Lsp
             }
 
             var serverCapabilities = new ServerCapabilities() {
-                CodeActionProvider
+                CodeActionProvider = HasHandler<ICodeActionHandler>(),
+                CodeLensProvider = GetOptions<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
+                CompletionProvider = GetOptions<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
+                DefinitionProvider = HasHandler<IDefinitionHandler>(),
+                DocumentFormattingProvider = HasHandler<IDocumentFormattingHandler>(),
+                DocumentHighlightProvider = HasHandler<IDocumentHighlightHandler>(),
+                DocumentLinkProvider = GetOptions<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
+                DocumentOnTypeFormattingProvider = GetOptions<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
+                DocumentRangeFormattingProvider = HasHandler<IDocumentRangeFormattingHandler>(),
+                DocumentSymbolProvider = HasHandler<IDocumentSymbolHandler>(),
+                ExecuteCommandProvider = GetOptions<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
+                HoverProvider = HasHandler<IHoverHandler>(),
+                ReferencesProvider = HasHandler<IReferencesHandler>(),
+                RenameProvider = HasHandler<IRenameHandler>(),
+                SignatureHelpProvider = GetOptions<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
+                WorkspaceSymbolProvider = HasHandler<IWorkspaceSymbolsHandler>()
+            };
+
+            var textSyncHandler = _collection
+                .Select(x => x.Handler)
+                .OfType<ITextDocumentSyncHandler>()
+                .FirstOrDefault();
+
+            if (_clientVersion == ClientVersion.Lsp2)
+            {
+                serverCapabilities.TextDocumentSync = textSyncHandler?.Options.Change ?? TextDocumentSyncKind.None;
             }
+            else
+            {
+                serverCapabilities.TextDocumentSync = textSyncHandler?.Options ?? new TextDocumentSyncOptions() {
+                    Change = TextDocumentSyncKind.None,
+                    OpenClose = false,
+                    Save = new SaveOptions() { IncludeText = false },
+                    WillSave = false,
+                    WillSaveWaitUntil = false
+                };
+            }
+
+            // TODO: Need a call back here
+            // serverCapabilities.Experimental;
+
+            var result = new InitializeResult() { Capabilities = serverCapabilities };
+            _initializeComplete.SetResult(result);
+            return result;
+        }
+
+        private bool HasHandler<T>()
+        {
+            return _collection.Any(z => z.HandlerType == typeof(T));
+        }
+
+        private T GetOptions<O, T>(Func<O, T> action)
+            where T : class
+        {
+            return _collection
+                .Select(x => x.Registration?.RegisterOptions is O cl ? action(cl) : null)
+                .FirstOrDefault(x => x != null);
         }
 
         private void ProcessCapabilties(object instance)
@@ -159,7 +222,6 @@ namespace Lsp
             var @params = new RegistrationParams() { Registrations = registrations };
 
             await this.RegisterCapability(@params);
-
         }
 
         public event ShutdownEventHandler Shutdown
@@ -192,6 +254,12 @@ namespace Lsp
         public TaskCompletionSource<JToken> GetRequest(long id)
         {
             return _responseRouter.GetRequest(id);
+        }
+
+        public void Dispose()
+        {
+            _connection?.Dispose();
+            _disposable?.Dispose();
         }
     }
 }

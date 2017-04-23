@@ -15,5 +15,10 @@ namespace Lsp.Capabilities.Server
         ///  The commands to be executed on the server
         /// </summary>
         public Container<string> Commands { get; set; }
+
+        public static ExecuteCommandOptions Of(IExecuteCommandOptions options)
+        {
+            return new ExecuteCommandOptions() { Commands = options.Commands };
+        }
     }
 }

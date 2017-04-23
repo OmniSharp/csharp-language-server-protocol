@@ -52,6 +52,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Abstractions\ICapability.cs" />
+    <Compile Include="Capabilities\Client\ClientCapabilitiesExtensions.cs" />
+    <Compile Include="Capabilities\Client\ClientVersion.cs" />
+    <Compile Include="Capabilities\Client\ISupports.cs" />
     <Compile Include="Capabilities\Client\Supports.cs" />
     <Compile Include="Capabilities\Client\ClientCapabilities.cs" />
     <Compile Include="Capabilities\Client\CodeActionCapability.cs" />
@@ -77,7 +80,7 @@
     <Compile Include="Capabilities\Client\SynchronizationCapability.cs" />
     <Compile Include="Capabilities\Client\TextDocumentClientCapabilities.cs" />
     <Compile Include="Capabilities\Client\WorkspaceClientCapabilites.cs" />
-    <Compile Include="Capabilities\Client\WorkspaceEdit.cs" />
+    <Compile Include="Capabilities\Client\WorkspaceEditCapability.cs" />
     <Compile Include="Capabilities\Server\CodeLensOptions.cs" />
     <Compile Include="Capabilities\Server\CompletionOptions.cs" />
     <Compile Include="Capabilities\Server\DocumentLinkOptions.cs" />
@@ -90,11 +93,16 @@
     <Compile Include="Capabilities\Server\TextDocumentSyncKind.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncOptions.cs" />
     <Compile Include="Abstractions\ILspHandlerInstance.cs" />
+    <Compile Include="CompositeDisposable.cs" />
+    <Compile Include="Disposable.cs" />
+    <Compile Include="HandlerInstance.cs" />
     <Compile Include="Handlers\CancelRequestHandler.cs" />
     <Compile Include="Handlers\ExitEventHandler.cs" />
     <Compile Include="Handlers\ExitHandler.cs" />
     <Compile Include="Handlers\ShutdownEventHandler.cs" />
     <Compile Include="Handlers\ShutdownHandler.cs" />
+    <Compile Include="ILanguageServer.cs" />
+    <Compile Include="ImutableDisposable.cs" />
     <Compile Include="LanguageServer.cs" />
     <Compile Include="LspHelper.cs" />
     <Compile Include="LspReciever.cs" />
@@ -122,12 +130,18 @@
     <Compile Include="Methods\DynamicRequest.cs" />
     <Compile Include="Methods\Method.cs" />
     <Compile Include="Methods\Notification.cs" />
+    <Compile Include="Models\DocumentRangeFormattingParams.cs" />
     <Compile Include="Models\ICodeLensOptions.cs" />
     <Compile Include="Models\ICompletionOptions.cs" />
-    <Compile Include="Models\IDocumentLinkRegistrationOptions.cs" />
-    <Compile Include="Models\IDocumentOnTypeFormattingRegistrationOptions.cs" />
+    <Compile Include="Models\IDocumentLinkOptions.cs" />
+    <Compile Include="Models\IDocumentOnTypeFormattingOptions.cs" />
     <Compile Include="Models\IExecuteCommandOptions.cs" />
-    <Compile Include="Models\ISignatureHelpRegistrationOptions.cs" />
+    <Compile Include="Models\InitializeTrace.cs" />
+    <Compile Include="Models\ISignatureHelpOptions.cs" />
+    <Compile Include="Models\RegistrationContainer.cs" />
+    <Compile Include="Models\UnregistrationContainer.cs" />
+    <Compile Include="Protocol\Document\IDocumentRangeFormattingHandler.cs" />
+    <Compile Include="Protocol\Document\ITextDocumentSyncHandler.cs" />
     <Compile Include="Protocol\Workspace\ApplyEditExtensions.cs" />
     <Compile Include="Protocol\General\ICancelRequestHandler.cs" />
     <Compile Include="Protocol\Document\ICodeActionHandler.cs" />

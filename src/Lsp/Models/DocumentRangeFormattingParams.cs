@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class DocumentFormattingParams
+    public class DocumentRangeFormattingParams
     {
         /// <summary>
         /// The document to format.
@@ -12,7 +12,12 @@ namespace Lsp.Models
         public TextDocumentIdentifier TextDocument { get; set; }
 
         /// <summary>
-        /// The format options.
+        /// The range to format
+        /// </summary>
+        public Range Range { get; set; }
+
+        /// <summary>
+        /// The format options
         /// </summary>
         public FormattingOptions Options { get; set; }
     }

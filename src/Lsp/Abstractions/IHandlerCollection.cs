@@ -7,7 +7,6 @@ namespace Lsp
     interface IHandlerCollection : IEnumerable<ILspHandlerInstance>
     {
         IDisposable Add(IJsonRpcHandler handler);
-        void Remove(IJsonRpcHandler handler);
 
         IEnumerable<ILspHandlerInstance> Get(string method);
         IEnumerable<ILspHandlerInstance> Get(IJsonRpcHandler handler);

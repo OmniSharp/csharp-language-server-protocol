@@ -10,6 +10,5 @@ namespace JsonRpc
         Task<ErrorResponse> RouteRequest(Request request);
 
         IDisposable Add(IJsonRpcHandler handler);
-        void Remove(IJsonRpcHandler handler);
     }
 }

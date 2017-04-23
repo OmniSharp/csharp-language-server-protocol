@@ -46,7 +46,7 @@ namespace JsonRpc
             return GetEnumerator();
         }
 
-        public void Remove(IJsonRpcHandler handler)
+        private void Remove(IJsonRpcHandler handler)
         {
             var i = _handlers.Find(instance => instance.Handler == handler);
             if (i != null) _handlers.Remove(i);

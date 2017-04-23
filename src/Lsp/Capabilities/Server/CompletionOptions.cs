@@ -23,5 +23,10 @@ namespace Lsp.Capabilities.Server
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public Container<string> TriggerCharacters { get; set; }
+
+        public static CompletionOptions Of(ICompletionOptions options)
+        {
+            return new CompletionOptions() { ResolveProvider = options.ResolveProvider, TriggerCharacters = options.TriggerCharacters };
+        }
     }
 }
