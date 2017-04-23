@@ -14,7 +14,6 @@ namespace Lsp.Capabilities.Client
         /// the end of the snippet. Placeholders with equal identifiers are linked,
         /// that is typing in one will update others too.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public bool SnippetSupport { get; set; }
     }
 }

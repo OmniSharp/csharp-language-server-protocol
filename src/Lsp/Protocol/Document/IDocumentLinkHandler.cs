@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/documentLink")]
-    public interface IDocumentLinkHandler : IRegistrableRequestHandler<DocumentLinkParams, DocumentLink, DocumentLinkRegistrationOptions> { }
+    public interface IDocumentLinkHandler : IRequestHandler<DocumentLinkParams, DocumentLink>, IRegistration<DocumentLinkRegistrationOptions> { }
 }

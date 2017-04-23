@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/onTypeFormatting")]
-    public interface IOnTypeFormatHandler : IRegistrableRequestHandler<DocumentOnTypeFormattingParams, TextEditContainer, DocumentOnTypeFormattingRegistrationOptions> { }
+    public interface IOnTypeFormatHandler : IRequestHandler<DocumentOnTypeFormattingParams, TextEditContainer>, IRegistration<DocumentOnTypeFormattingRegistrationOptions> { }
 }

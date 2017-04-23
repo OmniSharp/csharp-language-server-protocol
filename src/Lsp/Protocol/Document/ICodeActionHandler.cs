@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/codeAction")]
-    public interface ICodeActionHandler : IRegistrableRequestHandler<CodeActionParams, CommandContainer, TextDocumentRegistrationOptions> { }
+    public interface ICodeActionHandler : IRequestHandler<CodeActionParams, CommandContainer>, IRegistration<TextDocumentRegistrationOptions> { }
 }

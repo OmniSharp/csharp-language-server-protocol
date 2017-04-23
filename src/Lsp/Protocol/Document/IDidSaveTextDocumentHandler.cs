@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/didSave")]
-    public interface IDidSaveTextDocumentHandler : IRegistrableNotificationHandler<DidSaveTextDocumentParams, TextDocumentSaveRegistrationOptions> { }
+    public interface IDidSaveTextDocumentHandler : INotificationHandler<DidSaveTextDocumentParams>, IRegistration<TextDocumentSaveRegistrationOptions> { }
 }

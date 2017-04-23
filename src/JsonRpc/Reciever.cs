@@ -24,7 +24,7 @@ namespace JsonRpc
             return false;
         }
 
-        public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
+        public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
             var results = new List<Renor>();
 
@@ -39,7 +39,7 @@ namespace JsonRpc
             return (results, results.Any(z => z.IsResponse));
         }
 
-        private Renor GetRenor(JToken @object)
+        protected virtual Renor GetRenor(JToken @object)
         {
             if (!(@object is JObject request))
             {

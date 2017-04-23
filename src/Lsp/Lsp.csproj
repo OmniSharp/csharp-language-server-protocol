@@ -70,8 +70,10 @@
     <Compile Include="Capabilities\Server\TextDocumentSync.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncKind.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncOptions.cs" />
-    <Compile Include="Container.cs" />
-    <Compile Include="ContainerBase.cs" />
+    <Compile Include="Abstractions\ILspHandlerInstance.cs" />
+    <Compile Include="Handlers\CancelRequestHandler.cs" />
+    <Compile Include="Models\Container.cs" />
+    <Compile Include="Models\ContainerBase.cs" />
     <Compile Include="Converters\BooleanNumberStringConverter.cs" />
     <Compile Include="Converters\CapabilityConverter.cs" />
     <Compile Include="Converters\CompletionListConverter.cs" />
@@ -82,10 +84,8 @@
     <Compile Include="Converters\NumberEnumConverter.cs" />
     <Compile Include="Converters\TextDocumentSyncConverter.cs" />
     <Compile Include="HandlerCollection.cs" />
-    <Compile Include="IHandlerCollection.cs" />
-    <Compile Include="INotificationHandler.cs" />
-    <Compile Include="IRegistration.cs" />
-    <Compile Include="IRequestHandler.cs" />
+    <Compile Include="Abstractions\IHandlerCollection.cs" />
+    <Compile Include="Abstractions\IRegistration.cs" />
     <Compile Include="LspRequestRouter.cs" />
     <Compile Include="Messages\RequestCancelled.cs" />
     <Compile Include="Messages\ServerErrorEnd.cs" />
@@ -225,7 +225,7 @@
     <Compile Include="Models\WillSaveTextDocumentParams.cs" />
     <Compile Include="Models\WorkspaceEdit.cs" />
     <Compile Include="Models\WorkspaceSymbolParams.cs" />
-    <Compile Include="ObjectContainer.cs" />
+    <Compile Include="Models\ObjectContainer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

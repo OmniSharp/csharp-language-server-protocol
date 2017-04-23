@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("workspace/executeCommand")]
-    public interface IExecuteCommandHandler : IRegistrableRequestHandler<ExecuteCommandParams, ExecuteCommandRegistrationOptions> { }
+    public interface IExecuteCommandHandler : IRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions> { }
 }

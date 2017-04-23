@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/hover")]
-    public interface IHoverHandler : IRegistrableRequestHandler<TextDocumentPositionParams, Hover, TextDocumentRegistrationOptions> { }
+    public interface IHoverHandler : IRequestHandler<TextDocumentPositionParams, Hover>, IRegistration<TextDocumentRegistrationOptions> { }
 }

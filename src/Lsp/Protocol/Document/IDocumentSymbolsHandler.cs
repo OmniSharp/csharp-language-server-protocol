@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/documentSymbol")]
-    public interface IDocumentSymbolsHandler : IRegistrableRequestHandler<DocumentSymbolParams, SymbolInformationContainer, TextDocumentRegistrationOptions> { }
+    public interface IDocumentSymbolsHandler : IRequestHandler<DocumentSymbolParams, SymbolInformationContainer>, IRegistration<TextDocumentRegistrationOptions> { }
 }

@@ -8,11 +8,6 @@ using JsonRpc;
 
 namespace Lsp
 {
-    public interface ILspHandlerInstance : IHandlerInstance
-    {
-        Type RegistrationType { get; }
-    }
-
     class HandlerCollection : IHandlerCollection
     {
         private readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
@@ -71,7 +66,7 @@ namespace Lsp
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
             }
 
-            var h = new HandlerInstance(GetMethodName(type), handler, @interface, @params, @registration, () => Remove(handler));
+            var h = new HandlerInstance(LspHelper.GetMethodName(type), handler, @interface, @params, @registration, () => Remove(handler));
             _handlers.Add(h);
             return h;
         }
@@ -91,27 +86,6 @@ namespace Lsp
             .Add(typeof(INotificationHandler<>))
             .Add(typeof(IRequestHandler<>))
             .Add(typeof(IRequestHandler<,>));
-
-        private string GetMethodName(Type type)
-        {
-            // Custom method
-            var attribute = type.GetTypeInfo().GetCustomAttribute<MethodAttribute>();
-            if (attribute is null)
-            {
-                attribute = type.GetTypeInfo()
-                    .ImplementedInterfaces
-                    .Select(t => t.GetTypeInfo().GetCustomAttribute<MethodAttribute>())
-                    .FirstOrDefault(x => x != null);
-            }
-
-            // TODO: Log unknown method name
-            if (attribute is null)
-            {
-
-            }
-
-            return attribute.Method;
-        }
 
         private bool IsValidInterface(Type type)
         {

@@ -18,7 +18,8 @@ namespace JsonRpc
         private readonly IRequestRouter _requestRouter;
 
         public Connection(
-            TextReader input, TextWriter output,
+            TextReader input,
+            IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
@@ -26,7 +27,6 @@ namespace JsonRpc
         {
             _requestRouter = requestRouter;
 
-            var outputHandler = new OutputHandler(output);
             _inputHandler = new InputHandler(
                 input,
                 outputHandler,

@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/signatureHelp")]
-    public interface ISignatureHelpHandler : IRegistrableRequestHandler<TextDocumentPositionParams, SignatureHelp, SignatureHelpRegistrationOptions> { }
+    public interface ISignatureHelpHandler : IRequestHandler<TextDocumentPositionParams, SignatureHelp>, IRegistration<SignatureHelpRegistrationOptions> { }
 }

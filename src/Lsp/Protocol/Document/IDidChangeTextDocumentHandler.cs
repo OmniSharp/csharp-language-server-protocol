@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/didChange")]
-    public interface IDidChangeTextDocumentHandler : IRegistrableNotificationHandler<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions> { }
+    public interface IDidChangeTextDocumentHandler : INotificationHandler<DidChangeTextDocumentParams>, IRegistration<TextDocumentChangeRegistrationOptions> { }
 }

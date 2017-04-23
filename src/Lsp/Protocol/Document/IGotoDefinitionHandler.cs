@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/definition")]
-    public interface IGotoDefinitionHandler : IRegistrableRequestHandler<TextDocumentPositionParams, LocationOrLocations, TextDocumentRegistrationOptions> { }
+    public interface IGotoDefinitionHandler : IRequestHandler<TextDocumentPositionParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions> { }
 }

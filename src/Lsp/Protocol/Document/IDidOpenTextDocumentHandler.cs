@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/didOpen")]
-    public interface IDidOpenTextDocumentHandler : IRegistrableNotificationHandler<DidOpenTextDocumentParams, TextDocumentRegistrationOptions> { }
+    public interface IDidOpenTextDocumentHandler : INotificationHandler<DidOpenTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions> { }
 }

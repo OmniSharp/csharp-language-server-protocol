@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("workspace/didChangeWatchedFiles")]
-    public interface IDidChangeWatchedFilesHandler : IRegistrableNotificationHandler<DidChangeWatchedFilesParams, object> { }
+    public interface IDidChangeWatchedFilesHandler : INotificationHandler<DidChangeWatchedFilesParams>, IRegistration<object> { }
 }

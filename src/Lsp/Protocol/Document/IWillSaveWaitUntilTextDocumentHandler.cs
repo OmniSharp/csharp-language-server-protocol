@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/willSaveWaitUntil")]
-    public interface IWillSaveWaitUntilTextDocumentHandler : IRegistrableRequestHandler<WillSaveTextDocumentParams, TextDocumentRegistrationOptions> { }
+    public interface IWillSaveWaitUntilTextDocumentHandler : IRequestHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions> { }
 }

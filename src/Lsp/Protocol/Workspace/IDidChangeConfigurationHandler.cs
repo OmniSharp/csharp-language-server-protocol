@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("workspace/didChangeConfiguration")]
-    public interface IDidChangeConfigurationHandler : IRegistrableNotificationHandler<DidChangeConfigurationParams, object> { }
+    public interface IDidChangeConfigurationHandler : INotificationHandler<DidChangeConfigurationParams>, IRegistration<object> { }
 }

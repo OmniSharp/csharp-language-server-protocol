@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/rename")]
-    public interface IRenameHandler : IRegistrableRequestHandler<RenameParams, WorkspaceEdit, TextDocumentRegistrationOptions> { }
+    public interface IRenameHandler : IRequestHandler<RenameParams, WorkspaceEdit>, IRegistration<TextDocumentRegistrationOptions> { }
 }

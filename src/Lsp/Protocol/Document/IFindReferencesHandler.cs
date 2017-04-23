@@ -5,5 +5,5 @@ using Lsp.Models;
 namespace Lsp.Protocol
 {
     [Method("textDocument/references")]
-    public interface IFindReferencesHandler : IRegistrableRequestHandler<ReferenceParams, LocationContainer, TextDocumentRegistrationOptions> { }
+    public interface IFindReferencesHandler : IRequestHandler<ReferenceParams, LocationContainer>, IRegistration<TextDocumentRegistrationOptions> { }
 }
