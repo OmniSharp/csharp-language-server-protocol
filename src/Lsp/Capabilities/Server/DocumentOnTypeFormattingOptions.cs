@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -8,7 +9,7 @@ namespace Lsp.Capabilities.Server
     ///  Format document on type options
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class DocumentOnTypeFormattingOptions
+    public class DocumentOnTypeFormattingOptions : IDocumentOnTypeFormattingOptions
     {
         /// <summary>
         ///  A character on which formatting should be triggered, like `}`.

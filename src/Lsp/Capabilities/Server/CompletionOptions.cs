@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -8,7 +9,7 @@ namespace Lsp.Capabilities.Server
     ///  Completion options.
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class CompletionOptions
+    public class CompletionOptions : ICompletionOptions
     {
         /// <summary>
         ///  The server provides support to resolve additional

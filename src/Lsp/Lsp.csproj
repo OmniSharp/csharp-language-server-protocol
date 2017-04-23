@@ -122,6 +122,12 @@
     <Compile Include="Methods\DynamicRequest.cs" />
     <Compile Include="Methods\Method.cs" />
     <Compile Include="Methods\Notification.cs" />
+    <Compile Include="Models\ICodeLensOptions.cs" />
+    <Compile Include="Models\ICompletionOptions.cs" />
+    <Compile Include="Models\IDocumentLinkRegistrationOptions.cs" />
+    <Compile Include="Models\IDocumentOnTypeFormattingRegistrationOptions.cs" />
+    <Compile Include="Models\IExecuteCommandOptions.cs" />
+    <Compile Include="Models\ISignatureHelpRegistrationOptions.cs" />
     <Compile Include="Protocol\Workspace\ApplyEditExtensions.cs" />
     <Compile Include="Protocol\General\ICancelRequestHandler.cs" />
     <Compile Include="Protocol\Document\ICodeActionHandler.cs" />

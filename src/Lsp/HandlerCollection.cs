@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using JsonRpc;
+using Lsp.Capabilities.Client;
 using Lsp.Models;
 
 namespace Lsp
@@ -26,38 +27,62 @@ namespace Lsp
 
         public void Remove(IJsonRpcHandler handler)
         {
-            var i = _handlers.Find(instance => instance.Handler == handler);
-            if (i != null) _handlers.Remove(i);
+            _handlers.RemoveAll(instance => instance.Handler == handler);
         }
 
         public IDisposable Add(IJsonRpcHandler handler)
         {
             var type = handler.GetType();
-            var @interface = GetHandlerInterface(type);
-            var registration = UnwrapGenericType(typeof(IRegistration<>), type);
-            var capability = UnwrapGenericType(typeof(ICapability<>), type);
+            var interfaces = GetHandlerInterfaces(type);
 
-            Type @params = null;
-            if (@interface.GetTypeInfo().IsGenericType)
+            var handlers = new List<HandlerInstance>();
+            foreach (var @interface in interfaces)
             {
-                @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+                var registration = UnwrapGenericType(typeof(IRegistration<>), @interface);
+                var capability = UnwrapGenericType(typeof(ICapability<>), @interface);
+
+                Type @params = null;
+                if (@interface.GetTypeInfo().IsGenericType)
+                {
+                    @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+                }
+
+                var h = new HandlerInstance(
+                    LspHelper.GetMethodName(@interface),
+                    handler,
+                    @interface,
+                    @params,
+                    registration,
+                    capability,
+                    () => Remove(handler));
+
+                handlers.Add(h);
             }
 
-            var h = new HandlerInstance(
-                LspHelper.GetMethodName(type),
-                handler,
-                @interface,
-                @params,
-                registration,
-                capability,
-                () => Remove(handler));
-            _handlers.Add(h);
-            return h;
+            _handlers.AddRange(handlers);
+            return new CompositeDisposable(handlers);
         }
 
-        public ILspHandlerInstance Get(IJsonRpcHandler handler)
+        class CompositeDisposable : IDisposable
         {
-            return _handlers.Find(instance => instance.Handler == handler);
+            private readonly IEnumerable<HandlerInstance> _instances;
+
+            public CompositeDisposable(IEnumerable<HandlerInstance> instances)
+            {
+                _instances = instances;
+            }
+            public void Dispose()
+            {
+                foreach (var instance in _instances)
+                {
+                    instance.Dispose();
+                }
+            }
+        }
+
+        public IEnumerable<ILspHandlerInstance> Get(IJsonRpcHandler handler)
+        {
+            return _handlers.Where(instance => instance.Handler == handler);
         }
 
         public IEnumerable<ILspHandlerInstance> Get(string method)
@@ -80,11 +105,11 @@ namespace Lsp
             return HandlerTypes.Contains(type);
         }
 
-        private Type GetHandlerInterface(Type type)
+        private IEnumerable<Type> GetHandlerInterfaces(Type type)
         {
             return type?.GetTypeInfo()
                 .ImplementedInterfaces
-                .First(IsValidInterface);
+                .Where(IsValidInterface);
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)
@@ -150,10 +175,18 @@ namespace Lsp
                 .GetMethod(nameof(SetCapability))
                 .MakeGenericMethod(CapabilityType)
                 .Invoke(Handler, new[] { Handler, instance });
+
+            if (instance is DynamicCapability dc)
+            {
+                AllowsDynamicRegistration = dc.DynamicRegistration;
+            }
         }
 
         public string Method { get; }
         public Type Params { get; }
+
+        public bool IsDynamicCapability => typeof(DynamicCapability).IsAssignableFrom(CapabilityType);
+        public bool AllowsDynamicRegistration { get; private set; }
 
         public void Dispose()
         {

@@ -10,6 +10,6 @@ namespace Lsp
         void Remove(IJsonRpcHandler handler);
 
         IEnumerable<ILspHandlerInstance> Get(string method);
-        ILspHandlerInstance Get(IJsonRpcHandler handler);
+        IEnumerable<ILspHandlerInstance> Get(IJsonRpcHandler handler);
     }
 }

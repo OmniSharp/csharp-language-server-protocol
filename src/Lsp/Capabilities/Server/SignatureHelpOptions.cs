@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -8,7 +9,7 @@ namespace Lsp.Capabilities.Server
     ///  Signature help options.
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class SignatureHelpOptions
+    public class SignatureHelpOptions : ISignatureHelpOptions
     {
         /// <summary>
         ///  The characters that trigger signature help

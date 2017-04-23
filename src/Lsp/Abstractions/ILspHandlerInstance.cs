@@ -13,5 +13,7 @@ namespace Lsp
         bool HasCapability { get; }
         Type CapabilityType { get; }
         void SetCapability(object instance);
+        bool IsDynamicCapability { get; }
+        bool AllowsDynamicRegistration { get; }
     }
 }

@@ -1,4 +1,5 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -8,7 +9,7 @@ namespace Lsp.Capabilities.Server
     ///  Execute command options.
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ExecuteCommandOptions
+    public class ExecuteCommandOptions : IExecuteCommandOptions
     {
         /// <summary>
         ///  The commands to be executed on the server

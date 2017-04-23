@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -8,7 +8,7 @@ namespace Lsp.Models
     /// Execute command registration options.
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ExecuteCommandRegistrationOptions
+    public class ExecuteCommandRegistrationOptions : IExecuteCommandOptions
     {
         /// <summary>
         /// The commands to be executed on the server

@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JsonRpc;
 using Lsp.Capabilities.Client;
+using Lsp.Capabilities.Server;
 using Lsp.Handlers;
 using Lsp.Models;
 using Lsp.Protocol;
@@ -33,7 +34,6 @@ namespace Lsp
         private ClientVersion? _clientVersion;
         private readonly HandlerCollection _collection = new HandlerCollection();
         private readonly IResponseRouter _responseRouter;
-        private readonly ConcurrentDictionary<Type, bool> _dynamicCapabilities = new ConcurrentDictionary<Type, bool>();
 
         public LanguageServer(TextReader input, TextWriter output)
         {
@@ -50,6 +50,8 @@ namespace Lsp
                 _responseRouter);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
+
+            AddHandler(this);
             AddHandler(_shutdownHandler);
             AddHandler(_exitHandler);
             AddHandler(new CancelRequestHandler(_requestRouter));
@@ -69,6 +71,7 @@ namespace Lsp
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
+            AddHandler(this);
             AddHandler(_shutdownHandler);
             AddHandler(_exitHandler);
             AddHandler(new CancelRequestHandler(_requestRouter));
@@ -92,6 +95,8 @@ namespace Lsp
             _connection.Open();
 
 
+
+            await DynamicallyRegisterHandlers();
         }
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
@@ -110,35 +115,21 @@ namespace Lsp
                 // handle client capabilites
                 if (request.Capabilities.TextDocument != null)
                 {
-                    ProccesCapabilties(request.Capabilities.TextDocument);
+                    ProcessCapabilties(request.Capabilities.TextDocument);
                 }
 
                 if (request.Capabilities.Workspace != null)
                 {
-                    ProccesCapabilties(request.Capabilities.Workspace);
+                    ProcessCapabilties(request.Capabilities.Workspace);
                 }
-
-
-                var registrations = new List<Registration>();
-                foreach (var handlerType in _dynamicCapabilities
-                    .Where(x => x.Value)
-                    .Select(x => x.Key))
-                {
-                    foreach (var handler in _collection.Where(x => x.HandlerType == handlerType))
-                    {
-                        registrations.Add(handler.Registration);
-                    }
-                }
-
-                var @params = new RegistrationParams() {
-                    Registrations = registrations
-                };
             }
 
-            throw new NotImplementedException();
+            var serverCapabilities = new ServerCapabilities() {
+                CodeActionProvider
+            }
         }
 
-        private void ProccesCapabilties(object instance)
+        private void ProcessCapabilties(object instance)
         {
             var values = instance
                 .GetType()
@@ -153,13 +144,22 @@ namespace Lsp
                 foreach (var handler in _collection.Where(x => x.HasCapability && x.CapabilityType == value.ValueType))
                 {
                     handler.SetCapability(value.Value);
-
-                    if (value.Value is DynamicCapability dc)
-                    {
-                        _dynamicCapabilities.TryAdd(handler.HandlerType, dc.DynamicRegistration);
-                    }
                 }
             }
+        }
+
+        private async Task DynamicallyRegisterHandlers()
+        {
+            var registrations = new List<Registration>();
+            foreach (var handler in _collection.Where(x => x.AllowsDynamicRegistration))
+            {
+                registrations.Add(handler.Registration);
+            }
+
+            var @params = new RegistrationParams() { Registrations = registrations };
+
+            await this.RegisterCapability(@params);
+
         }
 
         public event ShutdownEventHandler Shutdown

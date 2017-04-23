@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class CodeLensRegistrationOptions : TextDocumentRegistrationOptions
+    public class CodeLensRegistrationOptions : TextDocumentRegistrationOptions, ICodeLensOptions
     {
         /// <summary>
         /// Code lens has a resolve provider as well.

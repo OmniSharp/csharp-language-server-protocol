@@ -1,3 +1,4 @@
+﻿using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -7,7 +8,7 @@ namespace Lsp.Capabilities.Server
     ///  Code Lens options.
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class CodeLensOptions
+    public class CodeLensOptions : ICodeLensOptions
     {
         /// <summary>
         ///  Code lens has a resolve provider as well.

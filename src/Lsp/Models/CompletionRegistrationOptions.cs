@@ -1,11 +1,11 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class CompletionRegistrationOptions : TextDocumentRegistrationOptions
+    public class CompletionRegistrationOptions : TextDocumentRegistrationOptions, ICompletionOptions
     {
         /// <summary>
         /// The characters that trigger completion automatically.
