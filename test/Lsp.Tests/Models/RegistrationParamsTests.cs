@@ -20,7 +20,7 @@ namespace Lsp.Tests.Models
                 } }
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<RegistrationParams>(expected);

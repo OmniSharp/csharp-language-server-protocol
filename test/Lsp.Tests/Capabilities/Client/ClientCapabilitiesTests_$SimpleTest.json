@@ -1,6 +1,9 @@
 ﻿{
     "workspace": {
         "applyEdit": true,
+        "workspaceEdit": {
+            "documentChanges": true
+        },
         "didChangeConfiguration": {
             "dynamicRegistration": true
         },

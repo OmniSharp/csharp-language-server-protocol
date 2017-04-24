@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class DocumentFormattingParams
+    public class DocumentFormattingParams : ITextDocumentIdentifierParams
     {
         /// <summary>
         /// The document to format.

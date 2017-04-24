@@ -1,13 +1,15 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
+    public interface ITextDocumentIdentifierParams { TextDocumentIdentifier TextDocument { get; } }
+
     /// <summary>
     /// Params for the CodeActionRequest
     /// </summary>
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class CodeActionParams
+    public class CodeActionParams : ITextDocumentIdentifierParams
     {
         /// <summary>
         /// The document in which the command was invoked.

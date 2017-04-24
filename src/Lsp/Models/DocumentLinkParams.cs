@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class DocumentLinkParams
+    public class DocumentLinkParams : ITextDocumentIdentifierParams
     {
         /// <summary>
         /// The document to provide document links for.

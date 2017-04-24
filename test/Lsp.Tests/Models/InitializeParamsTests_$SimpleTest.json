@@ -6,6 +6,7 @@
     "capabilities": {
         "workspace": {
             "applyEdit": true,
+            "workspaceEdit": false,
             "didChangeConfiguration": {
                 "dynamicRegistration": true
             },

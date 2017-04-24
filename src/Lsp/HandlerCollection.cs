@@ -1,4 +1,5 @@
 ﻿using System;
+using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -12,9 +13,9 @@ namespace Lsp
 {
     class HandlerCollection : IHandlerCollection
     {
-        private readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
+        private readonly List<HandlerDescriptor> _handlers = new List<HandlerDescriptor>();
 
-        public IEnumerator<ILspHandlerInstance> GetEnumerator()
+        public IEnumerator<ILspHandlerDescriptor> GetEnumerator()
         {
             return _handlers.GetEnumerator();
         }
@@ -26,12 +27,14 @@ namespace Lsp
 
         public IDisposable Add(IJsonRpcHandler handler)
         {
-            var type = handler.GetType();
-            var interfaces = GetHandlerInterfaces(type);
+            //var type = handler.GetType();
 
-            var handlers = new List<HandlerInstance>();
-            foreach (var @interface in interfaces)
+            var handlers = new List<HandlerDescriptor>();
+            foreach (var implementedInterface in handler.GetType().GetTypeInfo()
+                .ImplementedInterfaces
+                .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
             {
+                var @interface = GetHandlerInterface(implementedInterface);
                 var registration = UnwrapGenericType(typeof(IRegistration<>), @interface);
                 var capability = UnwrapGenericType(typeof(ICapability<>), @interface);
 
@@ -41,8 +44,8 @@ namespace Lsp
                     @params = @interface.GetTypeInfo().GetGenericArguments()[0];
                 }
 
-                var h = new HandlerInstance(
-                    LspHelper.GetMethodName(@interface),
+                var h = new HandlerDescriptor(
+                    LspHelper.GetMethodName(implementedInterface),
                     handler,
                     @interface,
                     @params,
@@ -57,12 +60,12 @@ namespace Lsp
             return new ImutableDisposable(handlers);
         }
 
-        public IEnumerable<ILspHandlerInstance> Get(IJsonRpcHandler handler)
+        public IEnumerable<ILspHandlerDescriptor> Get(IJsonRpcHandler handler)
         {
             return _handlers.Where(instance => instance.Handler == handler);
         }
 
-        public IEnumerable<ILspHandlerInstance> Get(string method)
+        public IEnumerable<ILspHandlerDescriptor> Get(string method)
         {
             return _handlers.Where(instance => instance.Method == method);
         }
@@ -82,11 +85,11 @@ namespace Lsp
             return HandlerTypes.Contains(type);
         }
 
-        private IEnumerable<Type> GetHandlerInterfaces(Type type)
+        private Type GetHandlerInterface(Type type)
         {
             return type?.GetTypeInfo()
                 .ImplementedInterfaces
-                .Where(IsValidInterface);
+                .First(IsValidInterface);
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)

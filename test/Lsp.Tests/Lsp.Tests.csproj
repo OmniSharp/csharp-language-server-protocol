@@ -115,6 +115,7 @@
     <Compile Include="Messages\UnknownErrorCodeTests.cs" />
     <Compile Include="Methods\MethodTests.cs" />
     <Compile Include="Methods\ProtocolTests.cs" />
+    <Compile Include="Minimatch\MinimatcherTests.cs" />
     <Compile Include="Models\ApplyWorkspaceEditParamsTests.cs" />
     <Compile Include="Models\ApplyWorkspaceEditResponseTests.cs" />
     <Compile Include="Models\BooleanNumberStringTests.cs" />
@@ -324,6 +325,7 @@
       <Name>Lsp</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

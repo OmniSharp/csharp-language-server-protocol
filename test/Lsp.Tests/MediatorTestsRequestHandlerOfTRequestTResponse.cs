@@ -35,7 +35,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { codeActionHandler };
-            var mediator = new LspRequestRouter(collection);
+            var mediator = new LspRequestRouter(collection, Substitute.For<ITextDocumentSyncHandler>());
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {

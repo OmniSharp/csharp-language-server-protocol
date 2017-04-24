@@ -6,11 +6,11 @@ using Lsp.Models;
 
 namespace Lsp
 {
-    class HandlerInstance : ILspHandlerInstance, IDisposable
+    class HandlerDescriptor : ILspHandlerDescriptor, IDisposable
     {
         private readonly Action _disposeAction;
 
-        public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
+        public HandlerDescriptor(string method, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
         {
             _disposeAction = disposeAction;
             Handler = handler;

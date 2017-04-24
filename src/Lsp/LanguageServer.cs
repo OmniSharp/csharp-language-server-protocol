@@ -18,6 +18,7 @@ namespace Lsp
 {
     public class LanguageServer : IInitializeHandler, ILanguageServer, IDisposable
     {
+        private readonly ITextDocumentSyncHandler _textDocumentSyncHandler;
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
         private readonly ShutdownHandler _shutdownHandler = new ShutdownHandler();
@@ -29,10 +30,11 @@ namespace Lsp
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public LanguageServer(TextReader input, TextWriter output)
+        public LanguageServer(TextReader input, TextWriter output, ITextDocumentSyncHandler textDocumentSyncHandler)
         {
+            _textDocumentSyncHandler = textDocumentSyncHandler;
             var outputHandler = new OutputHandler(output);
-            _requestRouter = new LspRequestRouter(_collection);
+            _requestRouter = new LspRequestRouter(_collection, textDocumentSyncHandler);
             _responseRouter = new ResponseRouter(outputHandler);
             _reciever = new LspReciever();
 
@@ -41,7 +43,7 @@ namespace Lsp
                 outputHandler,
                 _reciever,
                 new RequestProcessIdentifier(),
-                new LspRequestRouter(_collection),
+                _requestRouter,
                 _responseRouter);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
@@ -50,6 +52,7 @@ namespace Lsp
                 AddHandler(this),
                 AddHandler(_shutdownHandler),
                 AddHandler(_exitHandler),
+                AddHandler(_textDocumentSyncHandler),
                 AddHandler(new CancelRequestHandler(_requestRouter))
             );
         }
@@ -59,13 +62,13 @@ namespace Lsp
             IOutputHandler output,
             LspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter requestRouter,
+            LspRequestRouter requestRouter,
             IResponseRouter responseRouter
         )
         {
             _reciever = reciever;
+            _requestRouter = requestRouter;
             _connection = new Connection(input, output, reciever, requestProcessIdentifier, requestRouter, responseRouter);
-            _requestRouter = new LspRequestRouter(_collection);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 

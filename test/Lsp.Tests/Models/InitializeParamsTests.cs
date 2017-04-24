@@ -15,10 +15,7 @@ namespace Lsp.Tests.Models
         {
             var model = new InitializeParams() {
                 Capabilities = new ClientCapabilities() {
-                    Experimental = new Dictionary<string, object>()
-                {
-                    {  "abc", "test" }
-                },
+                    Experimental = new Dictionary<string, object>() { { "abc", "test" } },
                     TextDocument = new TextDocumentClientCapabilities() {
                         CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                         CodeLens = new CodeLensCapability() { DynamicRegistration = true },

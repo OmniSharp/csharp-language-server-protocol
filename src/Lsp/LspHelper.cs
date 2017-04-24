@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
@@ -26,14 +26,14 @@ namespace Lsp
             {
                 attribute = type.GetTypeInfo()
                     .ImplementedInterfaces
-                    .Select(t => IntrospectionExtensions.GetTypeInfo(t).GetCustomAttribute<MethodAttribute>())
+                    .Select(t => t.GetTypeInfo().GetCustomAttribute<MethodAttribute>())
                     .FirstOrDefault(x => x != null);
             }
 
             // TODO: Log unknown method name
             if (attribute is null)
             {
-
+                return null;
             }
 
             MethodNames.TryAdd(type, attribute.Method);

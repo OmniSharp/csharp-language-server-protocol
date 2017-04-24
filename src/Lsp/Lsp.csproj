@@ -92,10 +92,10 @@
     <Compile Include="Capabilities\Server\TextDocumentSync.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncKind.cs" />
     <Compile Include="Capabilities\Server\TextDocumentSyncOptions.cs" />
-    <Compile Include="Abstractions\ILspHandlerInstance.cs" />
+    <Compile Include="Abstractions\ILspHandlerDescriptor.cs" />
     <Compile Include="CompositeDisposable.cs" />
     <Compile Include="Disposable.cs" />
-    <Compile Include="HandlerInstance.cs" />
+    <Compile Include="HandlerDescriptor.cs" />
     <Compile Include="Handlers\CancelRequestHandler.cs" />
     <Compile Include="Handlers\ExitEventHandler.cs" />
     <Compile Include="Handlers\ExitHandler.cs" />
@@ -106,6 +106,8 @@
     <Compile Include="LanguageServer.cs" />
     <Compile Include="LspHelper.cs" />
     <Compile Include="LspReciever.cs" />
+    <Compile Include="Minimatch\Minimatcher.cs" />
+    <Compile Include="Minimatch\Options.cs" />
     <Compile Include="Models\Container.cs" />
     <Compile Include="Models\ContainerBase.cs" />
     <Compile Include="Converters\BooleanNumberStringConverter.cs" />
@@ -138,6 +140,7 @@
     <Compile Include="Models\IExecuteCommandOptions.cs" />
     <Compile Include="Models\InitializeTrace.cs" />
     <Compile Include="Models\ISignatureHelpOptions.cs" />
+    <Compile Include="Models\ITextDocumentRegistrationOptions.cs" />
     <Compile Include="Models\RegistrationContainer.cs" />
     <Compile Include="Models\UnregistrationContainer.cs" />
     <Compile Include="Protocol\Document\IDocumentRangeFormattingHandler.cs" />

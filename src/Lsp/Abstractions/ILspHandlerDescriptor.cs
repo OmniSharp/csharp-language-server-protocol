@@ -4,7 +4,7 @@ using Lsp.Models;
 
 namespace Lsp
 {
-    public interface ILspHandlerInstance : IHandlerInstance
+    public interface ILspHandlerDescriptor : IHandlerInstance
     {
         bool HasRegistration { get; }
         Type RegistrationType { get; }

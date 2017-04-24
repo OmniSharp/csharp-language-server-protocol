@@ -1,10 +1,10 @@
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TextDocumentRegistrationOptions
+    public class TextDocumentRegistrationOptions : ITextDocumentRegistrationOptions
     {
         /// <summary>
         ///  A document selector to identify the scope of the registration. If set to null

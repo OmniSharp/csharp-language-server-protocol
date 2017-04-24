@@ -11,17 +11,22 @@ using JsonRpc.Server;
 using JsonRpc.Server.Messages;
 using Lsp.Handlers;
 using Lsp.Messages;
+using Lsp.Models;
+using Lsp.Protocol;
+using Newtonsoft.Json.Linq;
 
 namespace Lsp
 {
     class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
+        private readonly ITextDocumentSyncHandler _textDocumentSyncHandler;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
-        public LspRequestRouter(IHandlerCollection collection)
+        public LspRequestRouter(IHandlerCollection collection, ITextDocumentSyncHandler textDocumentSyncHandler)
         {
             _collection = collection;
+            _textDocumentSyncHandler = textDocumentSyncHandler;
         }
 
         private string GetId(object id)
@@ -39,27 +44,60 @@ namespace Lsp
             return id?.ToString();
         }
 
+        private ILspHandlerDescriptor FindDescriptor(string method, JToken @params)
+        {
+            var descriptor = _collection.FirstOrDefault(x => x.Method == method);
+            if (descriptor is null) return null;
+
+            if (typeof(ITextDocumentIdentifierParams).IsAssignableFrom(descriptor.Params))
+            {
+                var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
+                var attributes = _textDocumentSyncHandler.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
+
+                return GetHandler(method, attributes);
+            }
+            else if (typeof(DidOpenTextDocumentParams).IsAssignableFrom(descriptor.Params))
+            {
+                var openTextDocumentParams = @params.ToObject(descriptor.Params) as DidOpenTextDocumentParams;
+                var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
+
+                return GetHandler(method, attributes);
+            }
+
+            // TODO: How to split these
+            // Do they fork and join?
+            return descriptor;
+        }
+
+        private ILspHandlerDescriptor GetHandler(string method, TextDocumentAttributes attributes)
+        {
+            foreach (var handler in _collection.Where(x => x.Method == method))
+            {
+                var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
+                if (registrationOptions.DocumentSelector.IsMatch(attributes))
+                {
+                    return handler;
+                }
+            }
+            return null;
+        }
+
         public async void RouteNotification(Notification notification)
         {
-            var handlers = _collection.Get(notification.Method);
+            var handler = FindDescriptor(notification.Method, notification.Params);
 
-            var tasks = new List<Task>();
-            // TODO: Direct to handler that supports this endpoint...
-            foreach (var handler in handlers)
+            Task result;
+            if (handler.Params is null)
             {
-                Task result;
-                if (handler.Params is null)
-                {
-                    result = ReflectionRequestHandlers.HandleNotification(handler);
-                }
-                else
-                {
-                    var @params = notification.Params.ToObject(handler.Params);
-                    result = ReflectionRequestHandlers.HandleNotification(handler, @params);
-                }
-
-                await result;
+                result = ReflectionRequestHandlers.HandleNotification(handler);
             }
+            else
+            {
+                var @params = notification.Params.ToObject(handler.Params);
+                result = ReflectionRequestHandlers.HandleNotification(handler, @params);
+            }
+
+            await result;
         }
 
         public async Task<ErrorResponse> RouteRequest(Request request)
@@ -71,8 +109,7 @@ namespace Lsp
             // TODO: Try / catch for Internal Error
             try
             {
-                var methods = _collection.Get(request.Method);
-                var method = methods.Single();
+                var method = FindDescriptor(request.Method, request.Params);
                 if (method is null)
                 {
                     return new MethodNotFound(request.Id);

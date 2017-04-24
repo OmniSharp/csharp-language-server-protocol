@@ -1,11 +1,11 @@
-using Lsp.Models;
+﻿using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TextDocumentPositionParams
+    public class TextDocumentPositionParams : ITextDocumentIdentifierParams
     {
         /// <summary>
         /// The text document.

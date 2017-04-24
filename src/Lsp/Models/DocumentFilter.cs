@@ -1,3 +1,5 @@
+﻿using Lsp.Protocol;
+using Minimatch;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
@@ -34,12 +36,56 @@ namespace Lsp.Models
         /// A glob pattern, like `*.{ts,js}`.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Pattern { get; set; }
+        public string Pattern
+        {
+            get => _pattern;
+            set {
+                _pattern = value;
+                _minimatcher = new Minimatcher(value, new Options() { MatchBase = true });
+            }
+        }
 
         /// <summary>
         /// does the document filter contains a paattern
         /// </summary>
         [JsonIgnore]
         public bool HasPattern => Pattern != null;
+
+        private string _pattern;
+        private Minimatcher _minimatcher;
+
+        public bool IsMatch(TextDocumentAttributes attributes)
+        {
+            if (HasLanguage && HasPattern && HasScheme)
+            {
+                return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
+            }
+            if (HasLanguage && HasPattern)
+            {
+                return Language == attributes.LanguageId && _minimatcher.IsMatch(attributes.Uri.ToString());
+            }
+            if (HasLanguage && HasScheme)
+            {
+                return Language == attributes.LanguageId && Scheme == attributes.Scheme;
+            }
+            if (HasPattern && HasScheme)
+            {
+                return Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
+            }
+            if (HasLanguage)
+            {
+                return Language == attributes.LanguageId;
+            }
+            if (HasScheme)
+            {
+                return Scheme == attributes.Scheme;
+            }
+            if (HasPattern)
+            {
+                return _minimatcher.IsMatch(attributes.Uri.ToString());
+            }
+
+            return false;
+        }
     }
 }

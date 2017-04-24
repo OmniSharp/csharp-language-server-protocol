@@ -12,7 +12,7 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new UnregistrationParams() {
-                Unregisterations = new Container<Unregistration>(new Unregistration() {
+                Unregisterations = new UnregistrationContainer(new Unregistration() {
                     Id = "abc",
                     Method = "ads"
                 })

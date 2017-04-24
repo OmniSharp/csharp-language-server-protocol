@@ -53,6 +53,7 @@ namespace Lsp.Tests.Capabilities.Client
                 Workspace = new WorkspaceClientCapabilites()
                 {
                     ApplyEdit = true,
+                    WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
                     DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
                     DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
                     ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },

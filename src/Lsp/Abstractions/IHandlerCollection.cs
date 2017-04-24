@@ -4,11 +4,11 @@ using JsonRpc;
 
 namespace Lsp
 {
-    interface IHandlerCollection : IEnumerable<ILspHandlerInstance>
+    interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {
         IDisposable Add(IJsonRpcHandler handler);
 
-        IEnumerable<ILspHandlerInstance> Get(string method);
-        IEnumerable<ILspHandlerInstance> Get(IJsonRpcHandler handler);
+        IEnumerable<ILspHandlerDescriptor> Get(string method);
+        IEnumerable<ILspHandlerDescriptor> Get(IJsonRpcHandler handler);
     }
 }
