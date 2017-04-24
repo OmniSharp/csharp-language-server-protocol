@@ -26,6 +26,7 @@ namespace Lsp.Tests
         public async Task RequestsCancellation()
         {
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
+            codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions());
             codeActionHandler
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(async (c) => {

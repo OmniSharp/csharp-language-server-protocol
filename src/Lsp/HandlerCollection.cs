@@ -35,8 +35,8 @@ namespace Lsp
                 .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
             {
                 var @interface = GetHandlerInterface(implementedInterface);
-                var registration = UnwrapGenericType(typeof(IRegistration<>), @interface);
-                var capability = UnwrapGenericType(typeof(ICapability<>), @interface);
+                var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
+                var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
 
                 Type @params = null;
                 if (@interface.GetTypeInfo().IsGenericType)

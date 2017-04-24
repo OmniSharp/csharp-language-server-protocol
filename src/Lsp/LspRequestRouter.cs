@@ -74,7 +74,7 @@ namespace Lsp
             foreach (var handler in _collection.Where(x => x.Method == method))
             {
                 var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
-                if (registrationOptions.DocumentSelector.IsMatch(attributes))
+                if (registrationOptions.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
                     return handler;
                 }

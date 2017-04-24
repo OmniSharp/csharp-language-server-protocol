@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Reflection;
 using JsonRpc;
 using Lsp.Capabilities.Client;
@@ -40,9 +40,9 @@ namespace Lsp
                 // TODO: Cache this
                 var options = GetType()
                     .GetTypeInfo()
-                    .GetMethod(nameof(GetRegistration))
+                    .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static)
                     .MakeGenericMethod(RegistrationType)
-                    .Invoke(Handler, new object[] { Handler });
+                    .Invoke(this, new object[] { Handler });
 
                 return _registration = new Registration() {
                     Id = Guid.NewGuid().ToString(),
@@ -57,9 +57,9 @@ namespace Lsp
             // TODO: Cache this
             GetType()
                 .GetTypeInfo()
-                .GetMethod(nameof(SetCapability))
+                .GetMethod(nameof(SetCapability), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(CapabilityType)
-                .Invoke(Handler, new[] { Handler, instance });
+                .Invoke(this, new[] { Handler, instance });
 
             if (instance is DynamicCapability dc)
             {
