@@ -18,23 +18,12 @@ namespace JsonRpc
             _outputHandler = outputHandler;
         }
 
-        public Task SendNotification<T>(string method, T @params)
+        public void SendNotification<T>(string method, T @params)
         {
-            long nextId;
-            lock (_lock)
-            {
-                nextId = _id++;
-            }
-
-            var tcs = new TaskCompletionSource<JToken>();
-            _requests.TryAdd(nextId, tcs);
-
             _outputHandler.Send(new Client.Notification() {
                 Method = method,
                 Params = @params
             });
-
-            return tcs.Task.ContinueWith(x => _requests.TryRemove(nextId, out var _));
         }
 
         public Task<TResponse> SendRequest<T, TResponse>(string method, T @params)

@@ -79,12 +79,12 @@ namespace JsonRpc
             {
                 if (_inputThread == null) return;
 
-                var buffer = new char[200];
+                var buffer = new char[300];
                 var current = await _input.ReadBlockAsync(buffer, 0, MinBuffer);
                 while (current < MinBuffer || buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
-                    current += await _input.ReadBlockAsync(buffer, 0, 1);
+                    current += await _input.ReadBlockAsync(buffer, current, 1);
                 }
 
                 var headersContent = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(buffer, 0, current));
@@ -154,7 +154,8 @@ namespace JsonRpc
                             type,
                             async () => {
                                 var result = await _requestRouter.RouteRequest(item.Request);
-                                _outputHandler.Send(result);
+                                
+                                _outputHandler.Send(result.Value);
                             }
                         ));
                     }

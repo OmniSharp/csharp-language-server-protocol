@@ -102,7 +102,7 @@ namespace JsonRpc.Tests
                         });
                 }))
             {
-                outputHandler.Received().Send(Arg.Is<object>(x => ((ErrorResponse)x).Response == response));
+                outputHandler.Received().Send(Arg.Is<object>(x => x == response));
             }
         }
 

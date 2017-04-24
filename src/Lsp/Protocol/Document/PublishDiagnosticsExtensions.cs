@@ -7,9 +7,9 @@ namespace Lsp.Protocol
 {
     public static class PublishDiagnosticsExtensions
     {
-        public static Task PublishDiagnostics(this ILanguageServer mediator, PublishDiagnosticsParams @params)
+        public static void PublishDiagnostics(this ILanguageServer mediator, PublishDiagnosticsParams @params)
         {
-            return mediator.SendNotification("textDocument/publishDiagnostics", @params);
+            mediator.SendNotification("textDocument/publishDiagnostics", @params);
         }
     }
 }

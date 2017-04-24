@@ -31,9 +31,8 @@ namespace Lsp.Tests
                     throw new XunitException("Task was not cancelled in time!");
                 });
 
-            var syncHandler = Substitute.For<ITextDocumentSyncHandler>();
             var collection = new HandlerCollection { executeCommandHandler };
-            var mediator = new LspRequestRouter(collection, syncHandler);
+            var mediator = new LspRequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

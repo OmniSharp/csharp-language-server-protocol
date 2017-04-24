@@ -18,7 +18,6 @@ namespace Lsp
 {
     public class LanguageServer : IInitializeHandler, ILanguageServer, IDisposable
     {
-        private readonly ITextDocumentSyncHandler _textDocumentSyncHandler;
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
         private readonly ShutdownHandler _shutdownHandler = new ShutdownHandler();
@@ -30,22 +29,20 @@ namespace Lsp
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public LanguageServer(TextReader input, TextWriter output, ITextDocumentSyncHandler textDocumentSyncHandler)
-            : this(input, new OutputHandler(output), textDocumentSyncHandler, new LspReciever(), new RequestProcessIdentifier())
+        public LanguageServer(TextReader input, TextWriter output)
+            : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier())
         {
         }
 
         internal LanguageServer(
             TextReader input,
             IOutputHandler output,
-            ITextDocumentSyncHandler textDocumentSyncHandler,
             LspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier
         )
         {
-            _textDocumentSyncHandler = textDocumentSyncHandler;
             _reciever = reciever;
-            _requestRouter = new LspRequestRouter(_collection, textDocumentSyncHandler);
+            _requestRouter = new LspRequestRouter(_collection);
             _responseRouter = new ResponseRouter(output);
             _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter);
 
@@ -55,7 +52,6 @@ namespace Lsp
                 AddHandler(this),
                 AddHandler(_shutdownHandler),
                 AddHandler(_exitHandler),
-                AddHandler(_textDocumentSyncHandler),
                 AddHandler(new CancelRequestHandler(_requestRouter))
             );
         }
@@ -219,9 +215,9 @@ namespace Lsp
             remove => _exitHandler.Exit -= value;
         }
 
-        public Task SendNotification<T>(string method, T @params)
+        public void SendNotification<T>(string method, T @params)
         {
-            return _responseRouter.SendNotification(method, @params);
+            _responseRouter.SendNotification(method, @params);
         }
 
         public Task<TResponse> SendRequest<T, TResponse>(string method, T @params)

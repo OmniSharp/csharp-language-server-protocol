@@ -21,6 +21,7 @@ namespace JsonRpc
 
         public bool IsError => Error != null;
         public Error Error { get; }
+        public object Value => IsResponse ? (object)Response : IsError ? Error : null;
 
         public static implicit operator ErrorResponse(Response response)
         {

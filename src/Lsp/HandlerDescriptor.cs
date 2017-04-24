@@ -35,6 +35,7 @@ namespace Lsp
         public Registration Registration
         {
             get {
+                if (!HasRegistration) return null;
                 if (_registration != null) return _registration;
 
                 // TODO: Cache this

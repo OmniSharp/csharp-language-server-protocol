@@ -20,13 +20,12 @@ namespace Lsp
     class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
-        private readonly ITextDocumentSyncHandler _textDocumentSyncHandler;
+        private ITextDocumentSyncHandler _textDocumentSyncHandler;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
-        public LspRequestRouter(IHandlerCollection collection, ITextDocumentSyncHandler textDocumentSyncHandler)
+        public LspRequestRouter(IHandlerCollection collection)
         {
             _collection = collection;
-            _textDocumentSyncHandler = textDocumentSyncHandler;
         }
 
         private string GetId(object id)
@@ -48,6 +47,8 @@ namespace Lsp
         {
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null) return null;
+
+            if (_textDocumentSyncHandler is null) return descriptor;
 
             if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
@@ -85,6 +86,7 @@ namespace Lsp
         public async void RouteNotification(Notification notification)
         {
             var handler = FindDescriptor(notification.Method, notification.Params);
+            if (handler is null) { return; }
 
             Task result;
             if (handler.Params is null)
@@ -162,7 +164,16 @@ namespace Lsp
 
         public IDisposable Add(IJsonRpcHandler handler)
         {
-            return _collection.Add(handler);
+            // ITextDocumentSyncHandler textDocumentSyncHandler
+            var result = _collection.Add(handler);
+
+            if (_textDocumentSyncHandler == null)
+            {
+                _textDocumentSyncHandler = _collection
+                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
+                    .FirstOrDefault(x => x != null);
+            }
+            return result;
         }
 
         public void CancelRequest(object id)
