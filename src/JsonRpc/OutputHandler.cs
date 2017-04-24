@@ -11,7 +11,7 @@ namespace JsonRpc
     {
         private readonly TimeSpan _sleepTime = TimeSpan.FromMilliseconds(50);
         private readonly TextWriter _output;
-        private readonly Thread _thread;
+        private Thread _thread;
         private readonly ConcurrentQueue<object> _queue;
 
         public OutputHandler(TextWriter output)
@@ -19,8 +19,7 @@ namespace JsonRpc
             _output = output;
             _queue = new ConcurrentQueue<object>();
             _thread = new Thread(ProcessOutputQueue) {
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal
+                IsBackground = true
             };
         }
 
@@ -39,11 +38,12 @@ namespace JsonRpc
         {
             _queue.Enqueue(value);
         }
-
         private void ProcessOutputQueue()
         {
             while (true)
             {
+                if (_thread == null) return;
+
                 if (_queue.TryDequeue(out var value))
                 {
                     var content = JsonConvert.SerializeObject(value);
@@ -67,7 +67,7 @@ namespace JsonRpc
         public void Dispose()
         {
             _output?.Dispose();
-            _thread?.Abort();
+            _thread = null;
         }
     }
 }

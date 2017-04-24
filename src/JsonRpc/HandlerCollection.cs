@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -78,11 +77,7 @@ namespace JsonRpc
             return _handlers.Find(instance => instance.Method == method);
         }
 
-        private static readonly ImmutableHashSet<Type> _handlerTypes = ImmutableHashSet.Create<Type>()
-            .Add(typeof(INotificationHandler))
-            .Add(typeof(INotificationHandler<>))
-            .Add(typeof(IRequestHandler<>))
-            .Add(typeof(IRequestHandler<,>));
+        private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };
 
         private string GetMethodName(Type type)
         {
@@ -109,9 +104,9 @@ namespace JsonRpc
         {
             if (type.GetTypeInfo().IsGenericType)
             {
-                return _handlerTypes.Contains(type.GetGenericTypeDefinition());
+                return HandlerTypes.Contains(type.GetGenericTypeDefinition());
             }
-            return _handlerTypes.Contains(type);
+            return HandlerTypes.Contains(type);
         }
 
         private Type GetHandlerInterface(Type type)

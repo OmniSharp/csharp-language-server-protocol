@@ -15,19 +15,21 @@ namespace Lsp.Converters
             .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public);
 
         private static readonly PropertyInfo ValueProperty = typeof(Supports<>)
+            .GetTypeInfo()
             .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance);
 
         private static readonly PropertyInfo IsSupportedProperty = typeof(Supports<>)
+            .GetTypeInfo()
             .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var isSupported = value?.GetType()
+            var isSupported = value?.GetType().GetTypeInfo()
                 ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
                 ?.GetValue(value) as bool?;
             if (isSupported == true)
             {
-                serializer.Serialize(writer, value.GetType()
+                serializer.Serialize(writer, value.GetType().GetTypeInfo()
                     .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
                     .GetValue(value));
             }
@@ -39,7 +41,7 @@ namespace Lsp.Converters
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var targetType = objectType.GetGenericArguments()[0];
+            var targetType = objectType.GetTypeInfo().GetGenericArguments()[0];
             if (reader.TokenType == JsonToken.Boolean)
             {
                 return OfBooleanMethod

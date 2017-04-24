@@ -80,7 +80,7 @@ namespace JsonRpc
             if (result.GetType().GetTypeInfo().IsGenericType)
             {
                 var property = typeof(Task<>)
-                    .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0])
+                    .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
                     .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                 responseValue = property.GetValue(result);

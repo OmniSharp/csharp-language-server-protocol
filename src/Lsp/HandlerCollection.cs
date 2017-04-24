@@ -2,7 +2,6 @@
 using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
@@ -70,11 +69,7 @@ namespace Lsp
             return _handlers.Where(instance => instance.Method == method);
         }
 
-        private static readonly ImmutableHashSet<Type> HandlerTypes = ImmutableHashSet.Create<Type>()
-            .Add(typeof(INotificationHandler))
-            .Add(typeof(INotificationHandler<>))
-            .Add(typeof(IRequestHandler<>))
-            .Add(typeof(IRequestHandler<,>));
+        private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };
 
         private bool IsValidInterface(Type type)
         {
@@ -97,6 +92,7 @@ namespace Lsp
             return type?.GetTypeInfo()
                 .ImplementedInterfaces
                 .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == genericType)
+                ?.GetTypeInfo()
                 ?.GetGenericArguments()[0];
         }
     }

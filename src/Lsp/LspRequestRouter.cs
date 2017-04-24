@@ -49,14 +49,14 @@ namespace Lsp
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null) return null;
 
-            if (typeof(ITextDocumentIdentifierParams).IsAssignableFrom(descriptor.Params))
+            if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
                 var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
                 var attributes = _textDocumentSyncHandler.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
                 return GetHandler(method, attributes);
             }
-            else if (typeof(DidOpenTextDocumentParams).IsAssignableFrom(descriptor.Params))
+            else if (typeof(DidOpenTextDocumentParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
                 var openTextDocumentParams = @params.ToObject(descriptor.Params) as DidOpenTextDocumentParams;
                 var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
@@ -142,7 +142,7 @@ namespace Lsp
                 if (result.GetType().GetTypeInfo().IsGenericType)
                 {
                     var property = typeof(Task<>)
-                        .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0])
+                        .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
                         .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                     responseValue = property.GetValue(result);

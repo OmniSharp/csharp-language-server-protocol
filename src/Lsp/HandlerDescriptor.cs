@@ -70,7 +70,7 @@ namespace Lsp
         public string Method { get; }
         public Type Params { get; }
 
-        public bool IsDynamicCapability => typeof(DynamicCapability).IsAssignableFrom(CapabilityType);
+        public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
         public bool AllowsDynamicRegistration { get; private set; }
 
         public void Dispose()

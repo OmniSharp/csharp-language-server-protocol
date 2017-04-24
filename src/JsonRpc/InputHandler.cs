@@ -25,11 +25,11 @@ namespace JsonRpc
         private readonly IOutputHandler _outputHandler;
         private readonly IReciever _reciever;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
-        private readonly Thread _inputThread;
+        private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
         private readonly ConcurrentQueue<(RequestProcessType type, Func<Task> request)> _queue;
-        private readonly Thread _queueThread;
+        private Thread _queueThread;
 
         public InputHandler(
             TextReader input,
@@ -48,15 +48,9 @@ namespace JsonRpc
             _responseRouter = responseRouter;
             _queue = new ConcurrentQueue<(RequestProcessType type, Func<Task> request)>();
 
-            _inputThread = new Thread(ProcessInputStream) {
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal
-            };
+            _inputThread = new Thread(ProcessInputStream) { IsBackground = true };
 
-            _queueThread = new Thread(ProcessRequestQueue) {
-                IsBackground = true,
-                Priority = ThreadPriority.AboveNormal
-            };
+            _queueThread = new Thread(ProcessRequestQueue) { IsBackground = true };
         }
 
         internal InputHandler(
@@ -83,6 +77,8 @@ namespace JsonRpc
         {
             while (true)
             {
+                if (_inputThread == null) return;
+
                 var buffer = new char[200];
                 var current = await _input.ReadBlockAsync(buffer, 0, MinBuffer);
                 while (current < MinBuffer || buffer[current - 4] != CR || buffer[current - 3] != LF ||
@@ -144,7 +140,7 @@ namespace JsonRpc
 
                     var tcs = _responseRouter.GetRequest(id);
                     if (tcs is null) continue;
-                    
+
                     tcs.SetResult(response.Result);
                 }
             }
@@ -190,6 +186,7 @@ namespace JsonRpc
         {
             while (true)
             {
+                if (_queueThread == null) return;
                 var items = new List<Func<Task>>();
                 while (!_queue.IsEmpty)
                 {
@@ -214,8 +211,8 @@ namespace JsonRpc
         public void Dispose()
         {
             _outputHandler.Dispose();
-            _inputThread.Abort();
-            _queueThread.Abort();
+            _inputThread = null;
+            _queueThread = null;
         }
     }
 }

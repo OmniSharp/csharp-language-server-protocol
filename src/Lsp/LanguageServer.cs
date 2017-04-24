@@ -31,20 +31,23 @@ namespace Lsp
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
         public LanguageServer(TextReader input, TextWriter output, ITextDocumentSyncHandler textDocumentSyncHandler)
+            : this(input, new OutputHandler(output), textDocumentSyncHandler, new LspReciever(), new RequestProcessIdentifier())
+        {
+        }
+
+        internal LanguageServer(
+            TextReader input,
+            IOutputHandler output,
+            ITextDocumentSyncHandler textDocumentSyncHandler,
+            LspReciever reciever,
+            IRequestProcessIdentifier requestProcessIdentifier
+        )
         {
             _textDocumentSyncHandler = textDocumentSyncHandler;
-            var outputHandler = new OutputHandler(output);
+            _reciever = reciever;
             _requestRouter = new LspRequestRouter(_collection, textDocumentSyncHandler);
-            _responseRouter = new ResponseRouter(outputHandler);
-            _reciever = new LspReciever();
-
-            _connection = new Connection(
-                input,
-                outputHandler,
-                _reciever,
-                new RequestProcessIdentifier(),
-                _requestRouter,
-                _responseRouter);
+            _responseRouter = new ResponseRouter(output);
+            _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
@@ -53,29 +56,6 @@ namespace Lsp
                 AddHandler(_shutdownHandler),
                 AddHandler(_exitHandler),
                 AddHandler(_textDocumentSyncHandler),
-                AddHandler(new CancelRequestHandler(_requestRouter))
-            );
-        }
-
-        internal LanguageServer(
-            TextReader input,
-            IOutputHandler output,
-            LspReciever reciever,
-            IRequestProcessIdentifier requestProcessIdentifier,
-            LspRequestRouter requestRouter,
-            IResponseRouter responseRouter
-        )
-        {
-            _reciever = reciever;
-            _requestRouter = requestRouter;
-            _connection = new Connection(input, output, reciever, requestProcessIdentifier, requestRouter, responseRouter);
-
-            _exitHandler = new ExitHandler(_shutdownHandler);
-
-            _disposable.Add(
-                AddHandler(this),
-                AddHandler(_shutdownHandler),
-                AddHandler(_exitHandler),
                 AddHandler(new CancelRequestHandler(_requestRouter))
             );
         }
