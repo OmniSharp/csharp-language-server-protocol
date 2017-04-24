@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Lsp
 {
-    public class LanguageServer : IInitializeHandler, ILanguageServer, IDisposable
+    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable
     {
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
@@ -81,12 +81,12 @@ namespace Lsp
         {
             _connection.Open();
 
-            Server = await _initializeComplete.Task;
+            await _initializeComplete.Task;
 
             _reciever.Initialized();
 
             // Small delay to let client respond
-            await Task.Delay(20);
+            await Task.Delay(100);
 
             await DynamicallyRegisterHandlers();
         }
@@ -153,9 +153,24 @@ namespace Lsp
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
-            var result = new InitializeResult() { Capabilities = serverCapabilities };
+            var result = Server = new InitializeResult() { Capabilities = serverCapabilities };
+
+            // TODO:
             _initializeComplete.SetResult(result);
+            if (_clientVersion == ClientVersion.Lsp2)
+            {
+            }
+
             return result;
+        }
+
+        public Task Handle()
+        {
+            if (_clientVersion == ClientVersion.Lsp3)
+            {
+                _initializeComplete.SetResult(Server);
+            }
+            return Task.CompletedTask;
         }
 
         private bool HasHandler<T>()

@@ -39,7 +39,7 @@ namespace SampleServer
         private readonly ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() { Pattern = "*.cs" }
+            new DocumentFilter() { Pattern = "*.csproj" }
         );
 
         private SynchronizationCapability _capability;
@@ -51,12 +51,12 @@ namespace SampleServer
 
         public TextDocumentSyncOptions Options { get; } = new TextDocumentSyncOptions() {
             WillSaveWaitUntil = false,
-            WillSave = false,
-            Change = TextDocumentSyncKind.None,
+            WillSave = true,
+            Change = TextDocumentSyncKind.Full,
             Save = new SaveOptions() {
-                IncludeText = false
+                IncludeText = true
             },
-            OpenClose = false
+            OpenClose = true
         };
 
         public Task Handle(DidChangeTextDocumentParams notification)
