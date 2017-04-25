@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Lsp.Capabilities.Server;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
@@ -36,7 +37,7 @@ namespace Lsp.Tests.Capabilities.Server
                 ExecuteCommandProvider = new ExecuteCommandOptions() {
                     Commands = new string[] { "command1", "command2" }
                 },
-                Experimental = new Dictionary<string, object>() {
+                Experimental = new Dictionary<string, JToken>() {
                     { "abc", "123" }
                 },
                 HoverProvider = true,

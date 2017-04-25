@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Capabilities.Server
@@ -101,6 +102,6 @@ namespace Lsp.Capabilities.Server
         ///  Experimental server capabilities.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public IDictionary<string, object> Experimental { get; set; } = new Dictionary<string, object>();
+        public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
     }
 }

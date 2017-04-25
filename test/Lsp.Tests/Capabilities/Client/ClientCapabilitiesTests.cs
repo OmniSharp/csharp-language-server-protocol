@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Lsp.Capabilities.Client;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Client
@@ -15,7 +16,7 @@ namespace Lsp.Tests.Capabilities.Client
         {
             var model = new ClientCapabilities()
             {
-                Experimental = new Dictionary<string, object>()
+                Experimental = new Dictionary<string, JToken>()
                 {
                     {  "abc", "test" }
                 },

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace Lsp.Capabilities.Client
@@ -20,6 +21,6 @@ namespace Lsp.Capabilities.Client
         /// <summary>
         /// Experimental client capabilities.
         /// </summary>
-        public IDictionary<string, object> Experimental { get; set; } = new Dictionary<string, object>();
+        public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
     }
 }

@@ -4,6 +4,7 @@ using FluentAssertions;
 using Lsp.Capabilities.Client;
 using Lsp.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -15,7 +16,7 @@ namespace Lsp.Tests.Models
         {
             var model = new InitializeParams() {
                 Capabilities = new ClientCapabilities() {
-                    Experimental = new Dictionary<string, object>() { { "abc", "test" } },
+                    Experimental = new Dictionary<string, JToken>() { { "abc", "test" } },
                     TextDocument = new TextDocumentClientCapabilities() {
                         CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                         CodeLens = new CodeLensCapability() { DynamicRegistration = true },

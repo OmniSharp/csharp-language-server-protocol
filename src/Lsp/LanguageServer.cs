@@ -255,5 +255,7 @@ namespace Lsp
             _connection?.Dispose();
             _disposable?.Dispose();
         }
+
+        public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
     }
 }

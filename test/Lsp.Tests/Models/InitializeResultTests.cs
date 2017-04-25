@@ -4,6 +4,7 @@ using FluentAssertions;
 using Lsp.Capabilities.Server;
 using Lsp.Models;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -38,7 +39,7 @@ namespace Lsp.Tests.Models
                     ExecuteCommandProvider = new ExecuteCommandOptions() {
                         Commands = new string[] { "command1", "command2" }
                     },
-                    Experimental = new Dictionary<string, object>() {
+                    Experimental = new Dictionary<string, JToken>() {
                     { "abc", "123" }
                 },
                     HoverProvider = true,
