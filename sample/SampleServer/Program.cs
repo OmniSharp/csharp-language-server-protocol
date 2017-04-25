@@ -19,10 +19,10 @@ namespace SampleServer
 
         static async Task MainAsync(string[] args)
         {
-            while (!System.Diagnostics.Debugger.IsAttached)
-            {
-                await Task.Delay(100);
-            }
+            //while (!System.Diagnostics.Debugger.IsAttached)
+            //{
+            //    await Task.Delay(100);
+            //}
 
             var server = new LanguageServer(Console.In, Console.Out);
 
