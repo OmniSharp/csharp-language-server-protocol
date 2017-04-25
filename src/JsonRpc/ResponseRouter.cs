@@ -26,7 +26,7 @@ namespace JsonRpc
             });
         }
 
-        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
+        public async Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
         {
             long nextId;
             lock (_lock)
@@ -43,14 +43,18 @@ namespace JsonRpc
                 Id = nextId
             });
 
-            return tcs.Task
-                .ContinueWith(x => {
-                    _requests.TryRemove(nextId, out var _);
-                    return x.Result.ToObject<TResponse>();
-                });
+            try
+            {
+                var result = await tcs.Task;
+                return result.ToObject<TResponse>();
+            }
+            finally
+            {
+                _requests.TryRemove(nextId, out var _);
+            }
         }
 
-        public Task SendRequest<T>(string method, T @params)
+        public async Task SendRequest<T>(string method, T @params)
         {
             long nextId;
             lock (_lock)
@@ -67,7 +71,14 @@ namespace JsonRpc
                 Id = nextId
             });
 
-            return tcs.Task.ContinueWith(x => _requests.TryRemove(nextId, out var _));
+            try
+            {
+                await tcs.Task;
+            }
+            finally
+            {
+                _requests.TryRemove(nextId, out var _);
+            }
         }
 
         public TaskCompletionSource<JToken> GetRequest(long id)

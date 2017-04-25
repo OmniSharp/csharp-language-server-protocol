@@ -88,5 +88,19 @@ namespace Lsp
         {
             capability.SetCapability(instance);
         }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is HandlerDescriptor handler)
+            {
+                return handler.HandlerType == HandlerType;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HandlerType.GetHashCode();
+        }
     }
 }

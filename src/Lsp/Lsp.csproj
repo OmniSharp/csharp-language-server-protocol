@@ -11,4 +11,3 @@
     <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
   </ItemGroup>
 </Project>
-

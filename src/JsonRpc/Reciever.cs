@@ -61,9 +61,14 @@ namespace JsonRpc
                 requestId = idString ?? (idLong.HasValue ? (object)idLong.Value : null);
             }
 
-            if (request.TryGetValue("result", out var response))
+            if (hasRequestId && request.TryGetValue("result", out var response))
             {
                 return new Response(requestId, response);
+            }
+
+            if (hasRequestId && request.TryGetValue("error", out var errorResponse))
+            {
+                return new Response(requestId, errorResponse.ToString());
             }
 
             var method = request["method"]?.Value<string>();

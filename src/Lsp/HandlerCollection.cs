@@ -12,7 +12,7 @@ namespace Lsp
 {
     class HandlerCollection : IHandlerCollection
     {
-        private readonly List<HandlerDescriptor> _handlers = new List<HandlerDescriptor>();
+        internal readonly HashSet<HandlerDescriptor> _handlers = new HashSet<HandlerDescriptor>();
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator()
         {
@@ -50,12 +50,14 @@ namespace Lsp
                     @params,
                     registration,
                     capability,
-                    () => _handlers.RemoveAll(instance => instance.Handler == handler));
+                    () => _handlers.RemoveWhere(instance => instance.Handler == handler));
 
                 handlers.Add(h);
             }
 
-            _handlers.AddRange(handlers);
+            foreach (var a in handlers)
+                _handlers.Add(a);
+
             return new ImutableDisposable(handlers);
         }
 

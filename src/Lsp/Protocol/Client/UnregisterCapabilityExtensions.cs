@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using JsonRpc;
 using Lsp.Models;
 // ReSharper disable CheckNamespace
@@ -7,9 +8,17 @@ namespace Lsp.Protocol
 {
     public static class UnregisterCapabilityExtensions
     {
-        public static Task UnregisterCapability(this ILanguageServer mediator, UnregistrationParams @params)
+        public static async Task UnregisterCapability(this ILanguageServer mediator, UnregistrationParams @params)
         {
-            return mediator.SendRequest("client/unregisterCapability", @params);
+            try
+            {
+                await mediator.SendRequest("client/unregisterCapability", @params);
+            }
+            catch (Exception e)
+            {
+                // VsCode today does not implement LSP properly.
+                await mediator.SendRequest("client/unregisterFeature", @params);
+            }
         }
     }
 }

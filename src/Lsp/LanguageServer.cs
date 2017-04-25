@@ -83,8 +83,6 @@ namespace Lsp
 
             await _initializeComplete.Task;
 
-            _reciever.Initialized();
-
             // Small delay to let client respond
             await Task.Delay(100);
 
@@ -150,15 +148,17 @@ namespace Lsp
                 };
             }
 
+            _reciever.Initialized();
+
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
             var result = Server = new InitializeResult() { Capabilities = serverCapabilities };
 
             // TODO:
-            _initializeComplete.SetResult(result);
             if (_clientVersion == ClientVersion.Lsp2)
             {
+                _initializeComplete.SetResult(result);
             }
 
             return result;

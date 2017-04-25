@@ -39,7 +39,10 @@ namespace SampleServer
         private readonly ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() { Pattern = "*.csproj" }
+            new DocumentFilter() {
+                //Pattern = "*.csproj",
+                Language = "xml"
+            }
         );
 
         private SynchronizationCapability _capability;

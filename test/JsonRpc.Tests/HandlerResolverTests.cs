@@ -43,6 +43,7 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IRequestResponseHandler), "requestresponse", typeof(Request))]
         [InlineData(typeof(INotificationDataHandler), "notificationdata", null)]
         [InlineData(typeof(IInlineNotificationHandler), "notification", null)]
+        [InlineData(typeof(IInlineNotificationHandler), "notification", null)]
         public void Should_Have_CorrectParams(Type requestHandler, string key, Type expected)
         {
             var handler = new HandlerCollection();

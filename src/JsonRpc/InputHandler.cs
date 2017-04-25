@@ -134,46 +134,52 @@ namespace JsonRpc
             {
                 foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
                 {
-                    long id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
-
+                    var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
                     if (id < 0) continue;
 
                     var tcs = _responseRouter.GetRequest(id);
                     if (tcs is null) continue;
 
-                    tcs.SetResult(response.Result);
+                    if (response.Error is null)
+                    {
+                        tcs.SetResult(response.Result);
+                    }
+                    else
+                    {
+                        tcs.SetException(new Exception(response.Error));
+                    }
                 }
+
+                return;
             }
-            else
+
+            foreach (var (type, item) in requests.Select(x => (_requestProcessIdentifier.Identify(x), x)))
             {
-                foreach (var (type, item) in requests.Select(x => (_requestProcessIdentifier.Identify(x), x)))
+                if (item.IsRequest)
                 {
-                    if (item.IsRequest)
-                    {
-                        _queue.Enqueue((
-                            type,
-                            async () => {
-                                var result = await _requestRouter.RouteRequest(item.Request);
-                                
-                                _outputHandler.Send(result.Value);
-                            }
-                        ));
-                    }
-                    else if (item.IsNotification)
-                    {
-                        _queue.Enqueue((
-                            type,
-                            () => {
-                                _requestRouter.RouteNotification(item.Notification);
-                                return Task.CompletedTask;
-                            }
-                        ));
-                    }
-                    else if (item.IsError)
-                    {
-                        // TODO:
-                        _outputHandler.Send(item.Error);
-                    }
+                    _queue.Enqueue((
+                        type,
+                        async () => {
+                            var result = await _requestRouter.RouteRequest(item.Request);
+
+                            _outputHandler.Send(result.Value);
+                        }
+                    ));
+                }
+                else if (item.IsNotification)
+                {
+                    _queue.Enqueue((
+                        type,
+                        () => {
+                            _requestRouter.RouteNotification(item.Notification);
+                            return Task.CompletedTask;
+                        }
+                    ));
+                }
+                else if (item.IsError)
+                {
+                    // TODO:
+                    _outputHandler.Send(item.Error);
                 }
             }
         }
