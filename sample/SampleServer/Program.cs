@@ -40,7 +40,7 @@ namespace SampleServer
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter() {
-                //Pattern = "*.csproj",
+                Pattern = "**/*.csproj",
                 Language = "xml"
             }
         );
