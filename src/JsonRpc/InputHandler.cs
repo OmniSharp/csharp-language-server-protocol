@@ -87,7 +87,7 @@ namespace JsonRpc
                     current += await _input.ReadBlockAsync(buffer, current, 1);
                 }
 
-                var headersContent = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(buffer, 0, current));
+                var headersContent = new string(buffer, 0, current);
                 var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
                 long length = 0;
                 for (var i = 0; i < headers.Length; i += 2)
@@ -104,7 +104,7 @@ namespace JsonRpc
 
                 await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
 
-                var payload = Encoding.ASCII.GetString(Encoding.ASCII.GetBytes(requestBuffer));
+                var payload = new string(requestBuffer);
 
                 HandleRequest(payload);
             }
