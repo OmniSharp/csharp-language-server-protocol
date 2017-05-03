@@ -1,3 +1,7 @@
+#tool "nuget:?package=GitVersion.CommandLine"
+#tool "nuget:?package=xunit.runner.console"
+
+
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
 var artifacts = "./artifacts";
@@ -27,6 +31,7 @@ Task("Test")
     .IsDependentOn("Build")
     .Does(() =>
 {
+
 });
 
 Task("Default")
