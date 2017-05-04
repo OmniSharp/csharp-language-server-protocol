@@ -1,7 +1,7 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #tool "nuget:?package=OpenCover"
-#tool "nuget:?package=coveralls.io"
+#tool "nuget:?package=coveralls.net"
 #addin "Cake.Coveralls";
 
 var target = Argument("target", "Default");
