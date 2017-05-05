@@ -172,6 +172,13 @@ namespace JsonRpc
             }
         }
 
+        private Task Start(Func<Task> request)
+        {
+            var t = request();
+            t.Start();
+            return t;
+        }
+
         private async void ProcessRequestQueue()
         {
             // see https://github.com/OmniSharp/csharp-language-server-protocol/issues/4
@@ -183,18 +190,15 @@ namespace JsonRpc
                 if (_queue.TryTake(out var item, Timeout.Infinite, token))
                 {
                     var (type, request) = item;
-                    var task = request();
                     if (type == RequestProcessType.Serial)
                     {
                         await Task.WhenAll(waitables);
                         waitables.Clear();
-                        task.Start();
-                        await task;
+                        await Start(request);
                     }
                     else if (type == RequestProcessType.Parallel)
                     {
-                        task.Start();
-                        waitables.Add(task);
+                        waitables.Add(Start(request));
                     }
                     else
                         throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
