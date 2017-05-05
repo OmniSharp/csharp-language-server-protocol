@@ -1,8 +1,7 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
 #tool "nuget:?package=JetBrains.dotCover.CommandLineTools"
-#tool "nuget:?package=coveralls.io.dotcover"
-#addin "Cake.Coveralls";
+#load "tasks/variables.cake";
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -28,7 +27,8 @@ Task("Build")
     foreach (var project in GetFiles("src/*/*.csproj").Concat(GetFiles("test/*/*.csproj")))
         DotNetCoreBuild(project.FullPath, new DotNetCoreBuildSettings
         {
-            Configuration = configuration
+            Configuration = configuration,
+            EnvironmentVariables = GitVersionEnvironmentVariables,
         });
 });
 
@@ -42,6 +42,7 @@ Task("Test")
     foreach (var testProject in GetFiles("test/*/*.csproj")) {
         StartProcess("dotnet", new ProcessSettings() {
             WorkingDirectory = testProject.GetDirectory(),
+            EnvironmentVariables = GitVersionEnvironmentVariables,
             Arguments = new ProcessArgumentBuilder()
                 .Append("xunit")
                 .Append("-noshadow")
@@ -72,9 +73,11 @@ Task("Coverage")
                 // });
                 tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
                     WorkingDirectory = testProject.GetDirectory(),
+                    EnvironmentVariables = GitVersionEnvironmentVariables,
                     Arguments = new ProcessArgumentBuilder()
                         .Append("xunit")
                         .Append("-noshadow")
+                        .Append("-noautoreporters")
                         .AppendSwitch("-configuration", configuration)
                         .AppendSwitch("-framework", "net46")
                         .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
@@ -117,50 +120,15 @@ Task("Coverage")
     );
 });
 
-Task("Coveralls [AppVeyor]")
-    .IsDependentOn("Coverage")
-    .WithCriteria(AppVeyor.IsRunningOnAppVeyor)
+Task("GitVersion")
     .Does(() => {
-        CoverallsNet(artifacts + "/coverage/coverage.opencover", CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-        {
-            RepoToken = EnvironmentVariable("coveralls_repo_token"),
-            UseRelativePaths = true,
-            ServiceName = "Appveyor",
-            CommitId = EnvironmentVariable("APPVEYOR_REPO_COMMIT"),
-            CommitBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH"),
-            CommitAuthor = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR"),
-            CommitEmail = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL"),
-            CommitMessage = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") + (EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED") ?? string.Empty),
-        });
+
     });
-
-Task("Coveralls [TravisCI]")
-    .IsDependentOn("Coverage")
-    .WithCriteria(TravisCI.IsRunningOnTravisCI)
-    .Does(() => {
-        CoverallsNet(artifacts + "/coverage/coverage.opencover", CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-        {
-            RepoToken = EnvironmentVariable("coveralls_repo_token"),
-            UseRelativePaths = true,
-            ServiceName = "TravisCI",
-            // CommitId = EnvironmentVariable("APPVEYOR_REPO_COMMIT"),
-            // CommitBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH"),
-            // CommitAuthor = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR"),
-            // CommitEmail = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL"),
-            // CommitMessage = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") + (EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED") ?? string.Empty),
-        });
-    });
-
-Task("Coveralls")
-    .IsDependentOn("Coverage")
-    .IsDependentOn("Coveralls [TravisCI]")
-    .IsDependentOn("Coveralls [AppVeyor]");
-
 
 Task("Default")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Coveralls");
+    .IsDependentOn("Coverage");
 
 RunTarget(target);
