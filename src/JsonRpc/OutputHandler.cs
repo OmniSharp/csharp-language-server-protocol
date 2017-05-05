@@ -40,7 +40,7 @@ namespace JsonRpc
             while (true)
             {
                 if (_thread == null) return;
-                if (_queue.TryTake(out var value, -1, token))
+                if (_queue.TryTake(out var value, Timeout.Infinite, token))
                 {
                     var content = JsonConvert.SerializeObject(value);
 
