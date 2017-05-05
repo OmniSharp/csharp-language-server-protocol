@@ -1,7 +1,7 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
-#tool "nuget:?package=OpenCover"
-#tool "nuget:?package=coveralls.net"
+#tool "nuget:?package=JetBrains.dotCover.CommandLineTools"
+#tool "nuget:?package=coveralls.io.dotcover"
 #addin "Cake.Coveralls";
 
 var target = Argument("target", "Default");
@@ -26,7 +26,10 @@ Task("Build")
     .Does(() =>
 {
     foreach (var project in GetFiles("src/*/*.csproj").Concat(GetFiles("test/*/*.csproj")))
-        DotNetCoreBuild(project.FullPath);
+        DotNetCoreBuild(project.FullPath, new DotNetCoreBuildSettings
+        {
+            Configuration = configuration
+        });
 });
 
 Task("Test")
@@ -42,6 +45,7 @@ Task("Test")
             Arguments = new ProcessArgumentBuilder()
                 .Append("xunit")
                 .Append("-noshadow")
+                .AppendSwitch("-configuration", configuration)
                 .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
                 .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
         });
@@ -49,34 +53,68 @@ Task("Test")
 });
 
 Task("Coverage")
-    .IsDependentOn("Build")
+    //.IsDependentOn("Build")
     .Does(() =>
 {
+    CleanDirectory(artifacts + "/coverage");
     EnsureDirectoryExists(artifacts + "/coverage");
 
     foreach (var testProject in GetFiles("test/*/*.csproj")) {
-        OpenCover(tool => {
+        DotCoverCover(tool => {
+            // tool.XUnit2()
+                // tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
+                //     WorkingDirectory = testProject.GetDirectory(),
+                //     Arguments = new ProcessArgumentBuilder()
+                //         .Append("test")
+                //         .AppendSwitch("-c", configuration)
+                //         .Append("--no-build")
+                //         .Append("-f net46")
+                // });
                 tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
                     WorkingDirectory = testProject.GetDirectory(),
                     Arguments = new ProcessArgumentBuilder()
-                        .Append("test")
-                        .Append("--no-build")
-                        .Append("-f net46")
-
+                        .Append("xunit")
+                        .Append("-noshadow")
+                        .AppendSwitch("-configuration", configuration)
+                        .AppendSwitch("-framework", "net46")
+                        .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
+                        .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
                 });
             },
-            artifacts + "/coverage/coverage.opencover",
-            new OpenCoverSettings() {
-                    Register = "user",
-                    MergeOutput = true,
-                    OldStyle = true,
+            artifacts + "/coverage/coverage-"+ testProject.GetFilenameWithoutExtension() + ".dcvr",
+            new DotCoverCoverSettings() {
+                    // Register = "user",
+                    // MergeOutput = true,
+                    // OldStyle = true,
+                    TargetWorkingDir = testProject.GetDirectory(),
                     WorkingDirectory = testProject.GetDirectory(),
+                    // ReportType = DotCoverReportType.XML
                 }
-                .WithFilter("+[JsonRpc*]*")
-                .WithFilter("+[Lsp*]*")
-                .WithFilter("-[*.Tests]*")
+                .WithFilter("+:JsonRpc")
+                .WithFilter("+:Lsp")
         );
     }
+
+    DotCoverMerge(
+        GetFiles(artifacts + "/coverage/*.dcvr"),
+        artifacts + "/coverage/coverage.dcvr"
+    );
+
+    DotCoverReport(
+        artifacts + "/coverage/coverage.dcvr",
+        new FilePath(artifacts + "/coverage/coverage.html"),
+        new DotCoverReportSettings {
+            ReportType = DotCoverReportType.HTML
+        }
+    );
+
+    DotCoverReport(
+        artifacts + "/coverage/coverage.dcvr",
+        new FilePath(artifacts + "/coverage/coverage.xml"),
+        new DotCoverReportSettings {
+            ReportType = DotCoverReportType.DetailedXML
+        }
+    );
 });
 
 Task("Coveralls [AppVeyor]")

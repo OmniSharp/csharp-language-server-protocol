@@ -40,18 +40,22 @@ namespace JsonRpc
             while (true)
             {
                 if (_thread == null) return;
-                if (_queue.TryTake(out var value, -1, token))
+                try
                 {
-                    var content = JsonConvert.SerializeObject(value);
+                    if (_queue.TryTake(out var value, Timeout.Infinite, token))
+                    {
+                        var content = JsonConvert.SerializeObject(value);
 
-                    // TODO: Is this lsp specific??
-                    var sb = new StringBuilder();
-                    sb.Append($"Content-Length: {content.Length}\r\n");
-                    sb.Append($"\r\n");
-                    sb.Append(content);
+                        // TODO: Is this lsp specific??
+                        var sb = new StringBuilder();
+                        sb.Append($"Content-Length: {content.Length}\r\n");
+                        sb.Append($"\r\n");
+                        sb.Append(content);
 
-                    _output.Write(sb.ToString());
+                        _output.Write(sb.ToString());
+                    }
                 }
+                catch (OperationCanceledException) { }
             }
         }
 
