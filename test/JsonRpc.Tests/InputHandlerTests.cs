@@ -38,8 +38,7 @@ namespace JsonRpc.Tests
                 reciever,
                 requestProcessIdentifier,
                 requestRouter,
-                responseRouter,
-                TimeSpan.Zero);
+                responseRouter);
             handler.Start();
             cts.Wait();
             return handler;
