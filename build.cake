@@ -118,6 +118,9 @@ Task("Coverage")
             ReportType = DotCoverReportType.DetailedXML
         }
     );
+
+    var withBom = System.IO.File.ReadAllText(artifacts + "/coverage/coverage.xml");
+    System.IO.File.WriteAllText(artifacts + "/coverage/coverage.xml", withBom.Replace(_byteOrderMarkUtf8, ""));
 });
 
 Task("GitVersion")

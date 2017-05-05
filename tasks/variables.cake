@@ -31,3 +31,4 @@ Dictionary<string, string> GitVersionEnvironmentVariables { get {
         { "GitVersion_CommitDate", gv.CommitDate },
     };
 } }
+var _byteOrderMarkUtf8 = Encoding.UTF8.GetString(Encoding.UTF8.GetPreamble());
