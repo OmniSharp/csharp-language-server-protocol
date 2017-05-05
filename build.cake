@@ -123,15 +123,33 @@ Task("Coverage")
     System.IO.File.WriteAllText(artifacts + "/coverage/coverage.xml", withBom.Replace(_byteOrderMarkUtf8, ""));
 });
 
+Task("Pack")
+    .IsDependentOn("Build")
+    .Does(() => {
+        EnsureDirectoryExists(artifacts + "/nuget");
+        foreach (var project in GetFiles("src/*/*.csproj"))
+            DotNetCorePack(project.FullPath, new DotNetCorePackSettings
+            {
+                NoBuild = true,
+                Configuration = configuration,
+                EnvironmentVariables = GitVersionEnvironmentVariables,
+                OutputDirectory = artifacts + "/nuget"
+            });
+    });
+
 Task("GitVersion")
     .Does(() => {
-
+        GitVersion(new GitVersionSettings() {
+            OutputType = GitVersionOutput.BuildServer
+        });
     });
 
 Task("Default")
+    .IsDependentOn("GitVersion")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Coverage");
+    .IsDependentOn("Coverage")
+    .IsDependentOn("Pack");
 
 RunTarget(target);
