@@ -9,24 +9,19 @@ namespace JsonRpc
 {
     public class OutputHandler : IOutputHandler
     {
-        private readonly TimeSpan _sleepTime = TimeSpan.FromMilliseconds(50);
         private readonly TextWriter _output;
         private Thread _thread;
-        private readonly ConcurrentQueue<object> _queue;
+        private readonly BlockingCollection<object> _queue;
+        private readonly CancellationTokenSource _cancel;
 
         public OutputHandler(TextWriter output)
         {
             _output = output;
-            _queue = new ConcurrentQueue<object>();
+            _queue = new BlockingCollection<object>();
+            _cancel = new CancellationTokenSource();
             _thread = new Thread(ProcessOutputQueue) {
                 IsBackground = true
             };
-        }
-
-        internal OutputHandler(TextWriter output, TimeSpan sleepTime)
-            : this(output)
-        {
-            _sleepTime = sleepTime;
         }
 
         public void Start()
@@ -36,15 +31,16 @@ namespace JsonRpc
 
         public void Send(object value)
         {
-            _queue.Enqueue(value);
+            _queue.Add(value);
         }
+
         private void ProcessOutputQueue()
         {
+            var token = _cancel.Token;
             while (true)
             {
                 if (_thread == null) return;
-
-                if (_queue.TryDequeue(out var value))
+                if (_queue.TryTake(out var value, -1, token))
                 {
                     var content = JsonConvert.SerializeObject(value);
 
@@ -56,11 +52,6 @@ namespace JsonRpc
 
                     _output.Write(sb.ToString());
                 }
-
-                if (_queue.IsEmpty)
-                {
-                    Thread.Sleep(_sleepTime);
-                }
             }
         }
 
@@ -68,6 +59,7 @@ namespace JsonRpc
         {
             _output?.Dispose();
             _thread = null;
+            _cancel.Cancel();
         }
     }
 }

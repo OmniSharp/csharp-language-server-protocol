@@ -15,7 +15,7 @@ namespace JsonRpc.Tests
                 cts.CancelAfter(TimeSpan.FromSeconds(5));
             action(cts);
 
-            var handler = new OutputHandler(textWriter, TimeSpan.Zero);
+            var handler = new OutputHandler(textWriter);
             handler.Start();
             return (handler, () => cts.Wait());
         }
