@@ -23,7 +23,7 @@ namespace JsonRpc
         private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
-        private readonly ProcessScheduler _scheduler;
+        private readonly IScheduler _scheduler;
 
         public InputHandler(
             TextReader input,

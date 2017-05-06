@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace JsonRpc
 {
-    public class ProcessScheduler : IDisposable
+    public class ProcessScheduler : IScheduler
     {
         private readonly BlockingCollection<(RequestProcessType type, Func<Task> request)> _queue;
         private readonly CancellationTokenSource _cancel;
