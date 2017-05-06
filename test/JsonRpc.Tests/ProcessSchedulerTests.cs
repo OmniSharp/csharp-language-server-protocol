@@ -16,9 +16,8 @@ namespace JsonRpc.Tests
         {
             public override IEnumerator<object[]> GetEnumerator()
             {
-                var values = (object[])Enum.GetValues(typeof(RequestProcessType));
-                var qy = from v in values select new object[] { v };
-                return qy.GetEnumerator();
+                yield return new object[] { RequestProcessType.Serial };
+                yield return new object[] { RequestProcessType.Parallel };
             }
         }
 
