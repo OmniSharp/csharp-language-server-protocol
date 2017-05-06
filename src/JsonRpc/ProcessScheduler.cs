@@ -29,7 +29,8 @@ namespace JsonRpc
         private Task Start(Func<Task> request)
         {
             var t = request();
-            t.Start();
+            if (!t.IsCompleted)
+                t.Start();
             return t;
         }
 
