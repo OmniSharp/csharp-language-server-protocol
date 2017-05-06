@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc.Server;
 using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 
@@ -27,9 +23,7 @@ namespace JsonRpc
         private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
-        private readonly BlockingCollection<(RequestProcessType type, Func<Task> request)> _queue;
-        private readonly CancellationTokenSource _cancelQueue;
-        private Thread _queueThread;
+        private readonly ProcessScheduler _scheduler;
 
         public InputHandler(
             TextReader input,
@@ -46,19 +40,16 @@ namespace JsonRpc
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
-            _queue = new BlockingCollection<(RequestProcessType type, Func<Task> request)>();
-            _cancelQueue = new CancellationTokenSource();
 
+            _scheduler = new ProcessScheduler();
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true };
-
-            _queueThread = new Thread(ProcessRequestQueue) { IsBackground = true };
         }
 
         public void Start()
         {
             _outputHandler.Start();
             _inputThread.Start();
-            _queueThread.Start();
+            _scheduler.Start();
         }
 
         private async void ProcessInputStream()
@@ -145,24 +136,24 @@ namespace JsonRpc
             {
                 if (item.IsRequest)
                 {
-                    _queue.Add((
+                    _scheduler.Add(
                         type,
                         async () => {
                             var result = await _requestRouter.RouteRequest(item.Request);
 
                             _outputHandler.Send(result.Value);
                         }
-                    ));
+                    );
                 }
                 else if (item.IsNotification)
                 {
-                    _queue.Add((
+                    _scheduler.Add(
                         type,
                         () => {
                             _requestRouter.RouteNotification(item.Notification);
                             return Task.CompletedTask;
                         }
-                    ));
+                    );
                 }
                 else if (item.IsError)
                 {
@@ -172,46 +163,12 @@ namespace JsonRpc
             }
         }
 
-        private Task Start(Func<Task> request)
-        {
-            var t = request();
-            t.Start();
-            return t;
-        }
-
-        private async void ProcessRequestQueue()
-        {
-            // see https://github.com/OmniSharp/csharp-language-server-protocol/issues/4
-            var token = _cancelQueue.Token;
-            var waitables = new List<Task>();
-            while(true)
-            {
-                if (_queueThread == null) return;
-                if (_queue.TryTake(out var item, Timeout.Infinite, token))
-                {
-                    var (type, request) = item;
-                    if (type == RequestProcessType.Serial)
-                    {
-                        await Task.WhenAll(waitables);
-                        waitables.Clear();
-                        await Start(request);
-                    }
-                    else if (type == RequestProcessType.Parallel)
-                    {
-                        waitables.Add(Start(request));
-                    }
-                    else
-                        throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
-                }
-            }
-        }
 
         public void Dispose()
         {
             _outputHandler.Dispose();
             _inputThread = null;
-            _queueThread = null;
-            _cancelQueue.Cancel();
+            _scheduler?.Dispose();
         }
     }
 }
