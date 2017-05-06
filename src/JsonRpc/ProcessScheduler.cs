@@ -10,7 +10,7 @@ namespace JsonRpc
     {
         private readonly BlockingCollection<(RequestProcessType type, Func<Task> request)> _queue;
         private readonly CancellationTokenSource _cancel;
-        private Thread _queueThread;
+        private readonly Thread _queueThread;
 
         public ProcessScheduler()
         {
@@ -47,7 +47,6 @@ namespace JsonRpc
             {
                 while (true)
                 {
-                    if (_queueThread == null) return;
                     if (_queue.TryTake(out var item, Timeout.Infinite, token))
                     {
                         var (type, request) = item;
@@ -84,9 +83,8 @@ namespace JsonRpc
 
         public void Dispose()
         {
-            if (_queueThread == null) return;
-            _queueThread = null;
             _cancel.Cancel();
+            _queueThread.Join();
             _cancel.Dispose();
         }
     }
