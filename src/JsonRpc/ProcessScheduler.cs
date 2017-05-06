@@ -12,24 +12,27 @@ namespace JsonRpc
         private readonly CancellationTokenSource _cancel;
         private Thread _queueThread;
 
-        public ProcessScheduler() {
+        public ProcessScheduler()
+        {
             _queue = new BlockingCollection<(RequestProcessType type, Func<Task> request)>();
             _cancel = new CancellationTokenSource();
             _queueThread = new Thread(ProcessRequestQueue) { IsBackground = true };
         }
 
-        public void Start() {
+        public void Start()
+        {
             _queueThread.Start();
         }
 
-        public void Add(RequestProcessType type, Func<Task> request) {
+        public void Add(RequestProcessType type, Func<Task> request)
+        {
             _queue.Add((type, request));
         }
 
         private Task Start(Func<Task> request)
         {
             var t = request();
-            if (!t.IsCompleted)
+            if (t.Status == TaskStatus.WaitingToRun)
                 t.Start();
             return t;
         }
@@ -40,11 +43,11 @@ namespace JsonRpc
             // no need to be async, because this thing already allocated a thread on it's own.
             var token = _cancel.Token;
             var waitables = new List<Task>();
-            while(true)
+            try
             {
-                if (_queueThread == null) return;
-                try
+                while (true)
                 {
+                    if (_queueThread == null) return;
                     if (_queue.TryTake(out var item, Timeout.Infinite, token))
                     {
                         var (type, request) = item;
@@ -62,12 +65,12 @@ namespace JsonRpc
                             throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
                     }
                 }
-                catch (OperationCanceledException ex)
-                {
-                    // ignore. Ex because we were disposed. See 
-                    // https://docs.microsoft.com/en-us/dotnet/api/system.collections.concurrent.blockingcollection-1.trytake?view=netframework-4.7#System_Collections_Concurrent_BlockingCollection_1_TryTake__0__System_Int32_System_Threading_CancellationToken_
-                    // Exceptions: OperationCanceledException - The CancellationToken has been canceled.
-                }
+            }
+            catch (OperationCanceledException ex)
+            {
+                if (ex.CancellationToken != token)
+                    throw;
+                // else ignore. OperationCanceledException - The CancellationToken has been canceled.
             }
         }
 
@@ -79,4 +82,3 @@ namespace JsonRpc
         }
     }
 }
- 

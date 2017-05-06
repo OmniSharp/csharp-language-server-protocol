@@ -10,7 +10,8 @@ namespace JsonRpc.Tests
 {
     public class ProcessSchedulerTests
     {
-        private const int SLEEPTIME_MS = 50;
+        private const int SLEEPTIME_MS = 20;
+        private const int ALONGTIME_MS = 500;
 
         class AllRequestProcessTypes : TheoryData
         {
@@ -42,12 +43,24 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler())
             {
-                var done = false;
+                var done = new CountdownEvent(1);
                 s.Start();
                 s.Add(RequestProcessType.Serial, async () => {
-                    done = true;
                     await Task.Yield();
+                    done.Signal();
                 });
+                done.Wait(ALONGTIME_MS).Should().Be(true);
+            }
+        }
+
+        [Theory, ClassData(typeof(AllRequestProcessTypes))]
+        public void ShouldScheduleConstructedTask(RequestProcessType type)
+        {
+            using (IScheduler s = new ProcessScheduler())
+            {
+                var done = false;
+                s.Start();
+                s.Add(RequestProcessType.Serial, () => new Task(() => done = true));
                 Thread.Sleep(SLEEPTIME_MS);
                 done.Should().Be(true);
             }
@@ -58,27 +71,25 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler())
             {
-                var done = 0;
+                var done = new CountdownEvent(3); // 3x s.Add
+                var running = 0;
                 var peek = 0;
-                var peekWasMoreThanOne = 0;
 
-                Func<Task> HandlePeek = async () => {
-                    Interlocked.Increment(ref done); // record that I was called
-                    var p = Interlocked.Increment(ref peek);
-                    if (p > 1)
-                        Interlocked.Increment(ref peekWasMoreThanOne);
+                Func<Task> HandlePeek = async () => {                    
+                    var p = Interlocked.Increment(ref running);
+                    lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref peek);
+                    Interlocked.Decrement(ref running);
+                    done.Signal();
                 };
 
                 s.Start();
-                s.Add(RequestProcessType.Serial, HandlePeek);
-                s.Add(RequestProcessType.Serial, HandlePeek);
+                for (var i = 0; i < done.CurrentCount; i++)
+                    s.Add(RequestProcessType.Serial, HandlePeek);
 
-                Thread.Sleep(SLEEPTIME_MS * 3);
-                done.Should().Be(2);
-                peek.Should().Be(0);
-                peekWasMoreThanOne.Should().Be(0);
+                done.Wait(ALONGTIME_MS).Should().Be(true);
+                running.Should().Be(0);
+                peek.Should().Be(1);
             }
         }
 
@@ -87,17 +98,43 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler())
             {
-                var done = 0;
+                var done = new CountdownEvent(8); // 8x s.Add
+                var running = 0;
                 var peek = 0;
-                var peekWasMoreThanOne = 0;
 
                 Func<Task> HandlePeek = async () => {
-                    Interlocked.Increment(ref done); // record that I was called
-                    var p = Interlocked.Increment(ref peek);
-                    if (p > 1)
-                        Interlocked.Increment(ref peekWasMoreThanOne);
+                    var p = Interlocked.Increment(ref running);
+                    lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref peek);
+                    Interlocked.Decrement(ref running);
+                    done.Signal();
+                };
+
+                s.Start();
+                for (var i = 0; i<done.CurrentCount; i++)
+                    s.Add(RequestProcessType.Parallel, HandlePeek);
+
+                done.Wait(ALONGTIME_MS).Should().Be(true);
+                running.Should().Be(0);
+                peek.Should().BeGreaterThan(3);
+            }
+        }
+
+        [Fact]
+        public void ShouldScheduleMixed()
+        {
+            using (IScheduler s = new ProcessScheduler())
+            {
+                var done = new CountdownEvent(8); // 8x s.Add
+                var running = 0;
+                var peek = 0;
+
+                Func<Task> HandlePeek = async () => {
+                    var p = Interlocked.Increment(ref running);
+                    lock (this) peek = Math.Max(peek, p);
+                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
+                    Interlocked.Decrement(ref running);
+                    done.Signal();
                 };
 
                 s.Start();
@@ -105,11 +142,14 @@ namespace JsonRpc.Tests
                 s.Add(RequestProcessType.Parallel, HandlePeek);
                 s.Add(RequestProcessType.Parallel, HandlePeek);
                 s.Add(RequestProcessType.Parallel, HandlePeek);
+                s.Add(RequestProcessType.Serial, HandlePeek);
+                s.Add(RequestProcessType.Parallel, HandlePeek);
+                s.Add(RequestProcessType.Parallel, HandlePeek);
+                s.Add(RequestProcessType.Serial, HandlePeek);
 
-                Thread.Sleep(SLEEPTIME_MS * 2);
-                done.Should().Be(4);
-                peek.Should().Be(0);
-                peekWasMoreThanOne.Should().BeGreaterThan(0);
+                done.Wait(ALONGTIME_MS).Should().Be(true);
+                running.Should().Be(0);
+                peek.Should().BeGreaterThan(2);
             }
         }
     }
