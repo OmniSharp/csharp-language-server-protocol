@@ -43,21 +43,30 @@ namespace JsonRpc
             while(true)
             {
                 if (_queueThread == null) return;
-                if (_queue.TryTake(out var item, Timeout.Infinite, token))
+                try
                 {
-                    var (type, request) = item;
-                    if (type == RequestProcessType.Serial)
+                    if (_queue.TryTake(out var item, Timeout.Infinite, token))
                     {
-                        Task.WaitAll(waitables.ToArray(), token);
-                        waitables.Clear();
-                        Start(request).Wait(token);
+                        var (type, request) = item;
+                        if (type == RequestProcessType.Serial)
+                        {
+                            Task.WaitAll(waitables.ToArray(), token);
+                            waitables.Clear();
+                            Start(request).Wait(token);
+                        }
+                        else if (type == RequestProcessType.Parallel)
+                        {
+                            waitables.Add(Start(request));
+                        }
+                        else
+                            throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
                     }
-                    else if (type == RequestProcessType.Parallel)
-                    {
-                        waitables.Add(Start(request));
-                    }
-                    else
-                        throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
+                }
+                catch (OperationCanceledException ex)
+                {
+                    // ignore. Ex because we were disposed. See 
+                    // https://docs.microsoft.com/en-us/dotnet/api/system.collections.concurrent.blockingcollection-1.trytake?view=netframework-4.7#System_Collections_Concurrent_BlockingCollection_1_TryTake__0__System_Int32_System_Threading_CancellationToken_
+                    // Exceptions: OperationCanceledException - The CancellationToken has been canceled.
                 }
             }
         }
@@ -66,6 +75,8 @@ namespace JsonRpc
         {
             _queueThread = null;
             _cancel.Cancel();
+            _cancel.Dispose();
         }
     }
 }
+ 
