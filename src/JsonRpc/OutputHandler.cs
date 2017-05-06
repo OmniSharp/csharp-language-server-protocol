@@ -19,7 +19,8 @@ namespace JsonRpc
             _output = output;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
-            _thread = new Thread(ProcessOutputQueue) {
+            _thread = new Thread(ProcessOutputQueue)
+            {
                 IsBackground = true
             };
         }
@@ -37,11 +38,11 @@ namespace JsonRpc
         private void ProcessOutputQueue()
         {
             var token = _cancel.Token;
-            while (true)
+            try
             {
-                if (_thread == null) return;
-                try
+                while (true)
                 {
+                    if (_thread == null) return;
                     if (_queue.TryTake(out var value, Timeout.Infinite, token))
                     {
                         var content = JsonConvert.SerializeObject(value);
@@ -55,8 +56,14 @@ namespace JsonRpc
                         _output.Write(sb.ToString());
                     }
                 }
-                catch (OperationCanceledException) { }
             }
+            catch (OperationCanceledException ex)
+            {
+                if (ex.CancellationToken != token)
+                    throw;
+                // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
+            }
+            finally { _cancel.Dispose(); }
         }
 
         public void Dispose()
