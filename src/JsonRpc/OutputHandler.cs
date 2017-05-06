@@ -9,19 +9,24 @@ namespace JsonRpc
 {
     public class OutputHandler : IOutputHandler
     {
+        private readonly TimeSpan _sleepTime = TimeSpan.FromMilliseconds(50);
         private readonly TextWriter _output;
         private Thread _thread;
-        private readonly BlockingCollection<object> _queue;
-        private readonly CancellationTokenSource _cancel;
+        private readonly ConcurrentQueue<object> _queue;
 
         public OutputHandler(TextWriter output)
         {
             _output = output;
-            _queue = new BlockingCollection<object>();
-            _cancel = new CancellationTokenSource();
+            _queue = new ConcurrentQueue<object>();
             _thread = new Thread(ProcessOutputQueue) {
                 IsBackground = true
             };
+        }
+
+        internal OutputHandler(TextWriter output, TimeSpan sleepTime)
+            : this(output)
+        {
+            _sleepTime = sleepTime;
         }
 
         public void Start()
@@ -31,31 +36,31 @@ namespace JsonRpc
 
         public void Send(object value)
         {
-            _queue.Add(value);
+            _queue.Enqueue(value);
         }
-
         private void ProcessOutputQueue()
         {
-            var token = _cancel.Token;
             while (true)
             {
                 if (_thread == null) return;
-                try
+
+                if (_queue.TryDequeue(out var value))
                 {
-                    if (_queue.TryTake(out var value, Timeout.Infinite, token))
-                    {
-                        var content = JsonConvert.SerializeObject(value);
+                    var content = JsonConvert.SerializeObject(value);
 
-                        // TODO: Is this lsp specific??
-                        var sb = new StringBuilder();
-                        sb.Append($"Content-Length: {content.Length}\r\n");
-                        sb.Append($"\r\n");
-                        sb.Append(content);
+                    // TODO: Is this lsp specific??
+                    var sb = new StringBuilder();
+                    sb.Append($"Content-Length: {content.Length}\r\n");
+                    sb.Append($"\r\n");
+                    sb.Append(content);
 
-                        _output.Write(sb.ToString());
-                    }
+                    _output.Write(sb.ToString());
                 }
-                catch (OperationCanceledException) { }
+
+                if (_queue.IsEmpty)
+                {
+                    Thread.Sleep(_sleepTime);
+                }
             }
         }
 
@@ -63,7 +68,6 @@ namespace JsonRpc
         {
             _output?.Dispose();
             _thread = null;
-            _cancel.Cancel();
         }
     }
 }

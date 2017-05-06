@@ -12,7 +12,7 @@ namespace JsonRpc.Tests
         {
             var cts = new CancellationTokenSource();
             if (!System.Diagnostics.Debugger.IsAttached)
-                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                cts.CancelAfter(TimeSpan.FromSeconds(60));
             action(cts);
 
             var handler = new OutputHandler(textWriter);
