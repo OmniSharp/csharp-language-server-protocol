@@ -54,6 +54,7 @@ namespace JsonRpc.Tests
             }
         }
 
+        [Fact]
         public void ShouldScheduleSerialInOrder()
         {
             using (IScheduler s = new ProcessScheduler())
@@ -82,6 +83,7 @@ namespace JsonRpc.Tests
             }
         }
 
+        [Fact]
         public void ShouldScheduleParallelInParallel()
         {
             using (IScheduler s = new ProcessScheduler())
