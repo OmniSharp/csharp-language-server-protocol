@@ -42,6 +42,7 @@ namespace JsonRpc.Tests
                 TimeSpan.Zero);
             handler.Start();
             cts.Wait();
+            Task.Delay(10).Wait();
             return handler;
         }
 
