@@ -19,9 +19,7 @@ namespace JsonRpc
             _output = output;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
-            _thread = new Thread(ProcessOutputQueue) {
-                IsBackground = true
-            };
+            _thread = new Thread(ProcessOutputQueue) { IsBackground = true, Name = "ProcessOutputQueue" };
         }
 
         public void Start()

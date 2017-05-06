@@ -42,8 +42,8 @@ namespace JsonRpc
             _responseRouter = responseRouter;
 
             _scheduler = new ProcessScheduler();
-            _inputThread = new Thread(ProcessInputStream) { IsBackground = true };
-        }
+            _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
+            }
 
         public void Start()
         {
@@ -60,10 +60,14 @@ namespace JsonRpc
 
                 var buffer = new char[300];
                 var current = await _input.ReadBlockAsync(buffer, 0, MinBuffer);
+                if (current == 0) return; // no more _input
+
                 while (current < MinBuffer || buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
-                    current += await _input.ReadBlockAsync(buffer, current, 1);
+                    var n = await _input.ReadBlockAsync(buffer, current, 1);
+                    if (n == 0) return; // no more _input, mitigates endless loop here.
+                    current += n;
                 }
 
                 var headersContent = new string(buffer, 0, current);
@@ -75,17 +79,28 @@ namespace JsonRpc
                     var value = headers[i + 1].Trim();
                     if (header.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
                     {
-                        length = long.Parse(value);
+                        length = 0;
+                        long.TryParse(value, out length);
                     }
                 }
 
-                var requestBuffer = new char[length];
-
-                await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
-
-                var payload = new string(requestBuffer);
-
-                HandleRequest(payload);
+                if (length == 0 || length >= int.MaxValue)
+                {
+                    HandleRequest(string.Empty);
+                }
+                else
+                {
+                    var requestBuffer = new char[length];
+                    var received = 0;
+                    while (received < length)
+                    {
+                        var n = await _input.ReadBlockAsync(requestBuffer, received, requestBuffer.Length - received);
+                        if (n == 0) return; // no more _input
+                        received += n;
+                    }
+                    var payload = new string(requestBuffer);
+                    HandleRequest(payload);
+                }
             }
         }
 
@@ -140,7 +155,6 @@ namespace JsonRpc
                         type,
                         async () => {
                             var result = await _requestRouter.RouteRequest(item.Request);
-
                             _outputHandler.Send(result.Value);
                         }
                     );
@@ -168,7 +182,7 @@ namespace JsonRpc
         {
             _outputHandler.Dispose();
             _inputThread = null;
-            _scheduler?.Dispose();
+            _scheduler.Dispose();
         }
     }
 }
