@@ -10,7 +10,7 @@ namespace JsonRpc
     public class OutputHandler : IOutputHandler
     {
         private readonly TextWriter _output;
-        private Thread _thread;
+        private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
 
@@ -41,7 +41,6 @@ namespace JsonRpc
             {
                 while (true)
                 {
-                    if (_thread == null) return;
                     if (_queue.TryTake(out var value, Timeout.Infinite, token))
                     {
                         var content = JsonConvert.SerializeObject(value);
@@ -51,7 +50,6 @@ namespace JsonRpc
                         sb.Append($"Content-Length: {content.Length}\r\n");
                         sb.Append($"\r\n");
                         sb.Append(content);
-
                         _output.Write(sb.ToString());
                     }
                 }
@@ -62,14 +60,14 @@ namespace JsonRpc
                     throw;
                 // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
-            finally { _cancel.Dispose(); }
         }
 
         public void Dispose()
         {
-            _output?.Dispose();
-            _thread = null;
             _cancel.Cancel();
+            _thread.Join();
+            _cancel.Dispose();
+            _output.Dispose();
         }
     }
 }
