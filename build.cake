@@ -1,8 +1,7 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
-#tool "nuget:?package=OpenCover"
-#tool "nuget:?package=coveralls.net"
-#addin "Cake.Coveralls";
+#tool "nuget:?package=JetBrains.dotCover.CommandLineTools"
+#load "tasks/variables.cake";
 
 var target = Argument("target", "Default");
 var configuration = Argument("configuration", "Release");
@@ -26,7 +25,11 @@ Task("Build")
     .Does(() =>
 {
     foreach (var project in GetFiles("src/*/*.csproj").Concat(GetFiles("test/*/*.csproj")))
-        DotNetCoreBuild(project.FullPath);
+        DotNetCoreBuild(project.FullPath, new DotNetCoreBuildSettings
+        {
+            Configuration = configuration,
+            EnvironmentVariables = GitVersionEnvironmentVariables,
+        });
 });
 
 Task("Test")
@@ -39,9 +42,11 @@ Task("Test")
     foreach (var testProject in GetFiles("test/*/*.csproj")) {
         StartProcess("dotnet", new ProcessSettings() {
             WorkingDirectory = testProject.GetDirectory(),
+            EnvironmentVariables = GitVersionEnvironmentVariables,
             Arguments = new ProcessArgumentBuilder()
                 .Append("xunit")
                 .Append("-noshadow")
+                .AppendSwitch("-configuration", configuration)
                 .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
                 .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
         });
@@ -49,80 +54,103 @@ Task("Test")
 });
 
 Task("Coverage")
-    .IsDependentOn("Build")
+    //.IsDependentOn("Build")
     .Does(() =>
 {
+    CleanDirectory(artifacts + "/coverage");
     EnsureDirectoryExists(artifacts + "/coverage");
 
     foreach (var testProject in GetFiles("test/*/*.csproj")) {
-        OpenCover(tool => {
+        DotCoverCover(tool => {
+            // tool.XUnit2()
+                // tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
+                //     WorkingDirectory = testProject.GetDirectory(),
+                //     Arguments = new ProcessArgumentBuilder()
+                //         .Append("test")
+                //         .AppendSwitch("-c", configuration)
+                //         .Append("--no-build")
+                //         .Append("-f net46")
+                // });
                 tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
                     WorkingDirectory = testProject.GetDirectory(),
+                    EnvironmentVariables = GitVersionEnvironmentVariables,
                     Arguments = new ProcessArgumentBuilder()
-                        .Append("test")
-                        .Append("--no-build")
-                        .Append("-f net46")
-
+                        .Append("xunit")
+                        .Append("-noshadow")
+                        .Append("-noautoreporters")
+                        // .AppendSwitch("-maxthreads", "1")
+                        .AppendSwitch("-configuration", configuration)
+                        .AppendSwitch("-framework", "net46")
+                        .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
+                        .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
                 });
             },
-            artifacts + "/coverage/coverage.opencover",
-            new OpenCoverSettings() {
-                    Register = "user",
-                    MergeOutput = true,
-                    OldStyle = true,
+            artifacts + "/coverage/coverage-"+ testProject.GetFilenameWithoutExtension() + ".dcvr",
+            new DotCoverCoverSettings() {
+                    // Register = "user",
+                    // MergeOutput = true,
+                    // OldStyle = true,
+                    TargetWorkingDir = testProject.GetDirectory(),
                     WorkingDirectory = testProject.GetDirectory(),
+                    // ReportType = DotCoverReportType.XML
                 }
-                .WithFilter("+[JsonRpc*]*")
-                .WithFilter("+[Lsp*]*")
-                .WithFilter("-[*.Tests]*")
+                .WithFilter("+:JsonRpc")
+                .WithFilter("+:Lsp")
         );
     }
+
+    DotCoverMerge(
+        GetFiles(artifacts + "/coverage/*.dcvr"),
+        artifacts + "/coverage/coverage.dcvr"
+    );
+
+    DotCoverReport(
+        artifacts + "/coverage/coverage.dcvr",
+        new FilePath(artifacts + "/coverage/coverage.html"),
+        new DotCoverReportSettings {
+            ReportType = DotCoverReportType.HTML
+        }
+    );
+
+    DotCoverReport(
+        artifacts + "/coverage/coverage.dcvr",
+        new FilePath(artifacts + "/coverage/coverage.xml"),
+        new DotCoverReportSettings {
+            ReportType = DotCoverReportType.DetailedXML
+        }
+    );
+
+    var withBom = System.IO.File.ReadAllText(artifacts + "/coverage/coverage.xml");
+    System.IO.File.WriteAllText(artifacts + "/coverage/coverage.xml", withBom.Replace(_byteOrderMarkUtf8, ""));
 });
 
-Task("Coveralls [AppVeyor]")
-    .IsDependentOn("Coverage")
-    .WithCriteria(AppVeyor.IsRunningOnAppVeyor)
+Task("Pack")
+    .IsDependentOn("Build")
     .Does(() => {
-        CoverallsNet(artifacts + "/coverage/coverage.opencover", CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-        {
-            RepoToken = EnvironmentVariable("coveralls_repo_token"),
-            UseRelativePaths = true,
-            ServiceName = "Appveyor",
-            CommitId = EnvironmentVariable("APPVEYOR_REPO_COMMIT"),
-            CommitBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH"),
-            CommitAuthor = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR"),
-            CommitEmail = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL"),
-            CommitMessage = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") + (EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED") ?? string.Empty),
-        });
+        EnsureDirectoryExists(artifacts + "/nuget");
+        foreach (var project in GetFiles("src/*/*.csproj"))
+            DotNetCorePack(project.FullPath, new DotNetCorePackSettings
+            {
+                NoBuild = true,
+                Configuration = configuration,
+                EnvironmentVariables = GitVersionEnvironmentVariables,
+                OutputDirectory = artifacts + "/nuget"
+            });
     });
 
-Task("Coveralls [TravisCI]")
-    .IsDependentOn("Coverage")
-    .WithCriteria(TravisCI.IsRunningOnTravisCI)
+Task("GitVersion")
     .Does(() => {
-        CoverallsNet(artifacts + "/coverage/coverage.opencover", CoverallsNetReportType.OpenCover, new CoverallsNetSettings()
-        {
-            RepoToken = EnvironmentVariable("coveralls_repo_token"),
-            UseRelativePaths = true,
-            ServiceName = "TravisCI",
-            // CommitId = EnvironmentVariable("APPVEYOR_REPO_COMMIT"),
-            // CommitBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH"),
-            // CommitAuthor = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR"),
-            // CommitEmail = EnvironmentVariable("APPVEYOR_REPO_COMMIT_AUTHOR_EMAIL"),
-            // CommitMessage = EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE") + (EnvironmentVariable("APPVEYOR_REPO_COMMIT_MESSAGE_EXTENDED") ?? string.Empty),
+        GitVersion(new GitVersionSettings() {
+            OutputType = GitVersionOutput.BuildServer
         });
     });
-
-Task("Coveralls")
-    .IsDependentOn("Coverage")
-    .IsDependentOn("Coveralls [TravisCI]")
-    .IsDependentOn("Coveralls [AppVeyor]");
-
 
 Task("Default")
+    .IsDependentOn("GitVersion")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Coveralls");
+    .IsDependentOn("Coverage")
+    .IsDependentOn("Pack");
 
 RunTarget(target);

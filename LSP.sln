@@ -9,7 +9,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2F323ED5-E
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D7807-6F78-428C-A0D9-914BA583A104}"
 	ProjectSection(SolutionItems) = preProject
+		.appveyor.yml = .appveyor.yml
+		.coveralls.yml = .coveralls.yml
 		.editorconfig = .editorconfig
+		.gitattributes = .gitattributes
+		.gitignore = .gitignore
+		build.cake = build.cake
+		build.ps1 = build.ps1
+		build.sh = build.sh
+		nuget.config = nuget.config
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonRpc", "src\JsonRpc\JsonRpc.csproj", "{9AF43FA2-EF35-435E-B59E-724877E44DDA}"

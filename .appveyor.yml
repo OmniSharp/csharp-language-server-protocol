@@ -1,7 +1,10 @@
 image: Visual Studio 2017
 build_script:
-- ps: .\build.ps1
+  - ps: .\build.ps1
 test: off
-environment:
-  coveralls_repo_token:
-    secure: 8AAVbI/45PFVPmrdybK6jSt1I5Yt4nJithGWK4ARTBJZHf6pozIK7ucWMOkwG/4d
+after_build:
+  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;%PATH%"
+  - pip install codecov
+  - codecov -f "./artifacts/coverage/coverage.xml"
+artifacts:
+  - path: ./artifacts/nuget/*.nupkg
