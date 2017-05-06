@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 using NSubstitute;
 using Xunit;
 
@@ -8,20 +9,23 @@ namespace JsonRpc.Tests
 {
     public class OutputHandlerTests
     {
-        private static (OutputHandler handler, Action wait) NewHandler(TextWriter textWriter,Action<CancellationTokenSource> action)
+        private static (OutputHandler handler, Func<Task> wait) NewHandler(TextWriter textWriter,Action<CancellationTokenSource> action)
         {
             var cts = new CancellationTokenSource();
             if (!System.Diagnostics.Debugger.IsAttached)
-                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                cts.CancelAfter(TimeSpan.FromSeconds(120));
             action(cts);
 
             var handler = new OutputHandler(textWriter);
             handler.Start();
-            return (handler, () => cts.Wait());
+            return (handler, () => {
+                cts.Wait();
+                return Task.Delay(50);
+            });
         }
 
         [Fact]
-        public void ShouldSerializeValues()
+        public async Task ShouldSerializeValues()
         {
             var tw = Substitute.For<TextWriter>();
 
@@ -35,7 +39,7 @@ namespace JsonRpc.Tests
             {
 
                 handler.Send(value);
-                wait();
+                await wait();
 
                 tw.Received().Write("Content-Length: 46\r\n\r\n{\"protocolVersion\":\"2.0\",\"id\":1,\"result\":null}");
             }
