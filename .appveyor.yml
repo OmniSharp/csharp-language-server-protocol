@@ -8,3 +8,6 @@ after_build:
   - codecov -f "./artifacts/coverage/coverage.xml"
 artifacts:
   - path: ./artifacts/nuget/*.nupkg
+nuget:
+  account_feed: true
+  project_feed: true
