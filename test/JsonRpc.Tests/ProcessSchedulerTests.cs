@@ -27,14 +27,13 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler())
             {
-                var done = false;
+                var done = new CountdownEvent(1);
                 s.Start();
                 s.Add(type, () => {
-                    done = true;
+                    done.Signal();
                     return Task.CompletedTask;
                 });
-                Thread.Sleep(SLEEPTIME_MS);
-                done.Should().Be(true);
+                done.Wait(ALONGTIME_MS).Should().Be(true);
             }
         }
 
@@ -58,11 +57,14 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler())
             {
-                var done = false;
+                var done = new CountdownEvent(1);
                 s.Start();
-                s.Add(RequestProcessType.Serial, () => new Task(() => done = true));
-                Thread.Sleep(SLEEPTIME_MS);
-                done.Should().Be(true);
+                s.Add(RequestProcessType.Serial, () => {
+                    return new Task(() => {
+                        done.Signal();
+                    });
+                });
+                done.Wait(ALONGTIME_MS).Should().Be(true);
             }
         }
 

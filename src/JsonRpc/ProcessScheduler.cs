@@ -32,7 +32,7 @@ namespace JsonRpc
         private Task Start(Func<Task> request)
         {
             var t = request();
-            if (t.Status == TaskStatus.WaitingToRun)
+            if (t.Status == TaskStatus.Created) // || t.Status = TaskStatus.WaitingForActivation ?
                 t.Start();
             return t;
         }
@@ -70,12 +70,21 @@ namespace JsonRpc
             {
                 if (ex.CancellationToken != token)
                     throw;
-                // else ignore. OperationCanceledException - The CancellationToken has been canceled.
+                // OperationCanceledException - The CancellationToken has been canceled.
+                Task.WaitAll(waitables.ToArray(), TimeSpan.FromMilliseconds(1000));
+                waitables.ForEach((t) =>
+                {
+                    if (!t.IsCompleted) {
+                        // TODO: There is no way to abort a Task. As we don't construct the tasks, we can do nothing here
+                        // Option is: change the task factory "Func<Task> request" to a "Func<CancellationToken, Task> request"
+                    }
+                });
             }
         }
 
         public void Dispose()
         {
+            if (_queueThread == null) return;
             _queueThread = null;
             _cancel.Cancel();
             _cancel.Dispose();
