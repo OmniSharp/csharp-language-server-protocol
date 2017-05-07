@@ -10,26 +10,29 @@ namespace JsonRpc
     {
         private readonly BlockingCollection<(RequestProcessType type, Func<Task> request)> _queue;
         private readonly CancellationTokenSource _cancel;
-        private Thread _queueThread;
+        private readonly Thread _thread;
 
-        public ProcessScheduler() {
+        public ProcessScheduler()
+        {
             _queue = new BlockingCollection<(RequestProcessType type, Func<Task> request)>();
             _cancel = new CancellationTokenSource();
-            _queueThread = new Thread(ProcessRequestQueue) { IsBackground = true };
+            _thread = new Thread(ProcessRequestQueue) { IsBackground = true, Name = "ProcessRequestQueue" };
         }
 
-        public void Start() {
-            _queueThread.Start();
+        public void Start()
+        {
+            _thread.Start();
         }
 
-        public void Add(RequestProcessType type, Func<Task> request) {
+        public void Add(RequestProcessType type, Func<Task> request)
+        {
             _queue.Add((type, request));
         }
 
         private Task Start(Func<Task> request)
         {
             var t = request();
-            if (!t.IsCompleted)
+            if (t.Status == TaskStatus.Created) // || t.Status = TaskStatus.WaitingForActivation ?
                 t.Start();
             return t;
         }
@@ -60,32 +63,49 @@ namespace JsonRpc
             // no need to be async, because this thing already allocated a thread on it's own.
             var token = _cancel.Token;
             var waitables = new List<Task>();
-            while(true)
+            try
             {
-                if (_queueThread == null) return;
-                if (_queue.TryTake(out var item, Timeout.Infinite, token))
+                while (true)
                 {
-                    var (type, request) = item;
-                    if (type == RequestProcessType.Serial)
+                    if (_queue.TryTake(out var item, Timeout.Infinite, token))
                     {
-                        Task.WaitAll(waitables.ToArray(), token);
-                        Start(request).Wait(token);
+                        var (type, request) = item;
+                        if (type == RequestProcessType.Serial)
+                        {
+                            Task.WaitAll(waitables.ToArray(), token);
+                            Start(request).Wait(token);
+                        }
+                        else if (type == RequestProcessType.Parallel)
+                        {
+                            waitables.Add(Start(request));
+                        }
+                        else
+                            throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
+                        waitables = RemoveCompleteTasks(waitables);
                     }
-                    else if (type == RequestProcessType.Parallel)
-                    {
-                        waitables.Add(Start(request));
-                    }
-                    else
-                        throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
-                    waitables = RemoveCompleteTasks(waitables);
                 }
+            }
+            catch (OperationCanceledException ex)
+            {
+                if (ex.CancellationToken != token)
+                    throw;
+                // OperationCanceledException - The CancellationToken has been canceled.
+                Task.WaitAll(waitables.ToArray(), TimeSpan.FromMilliseconds(1000));
+                waitables.ForEach((t) =>
+                {
+                    if (!t.IsCompleted) {
+                        // TODO: There is no way to abort a Task. As we don't construct the tasks, we can do nothing here
+                        // Option is: change the task factory "Func<Task> request" to a "Func<CancellationToken, Task> request"
+                    }
+                });
             }
         }
 
         public void Dispose()
         {
-            _queueThread = null;
             _cancel.Cancel();
+            _thread.Join();
+            _cancel.Dispose();
         }
     }
 }

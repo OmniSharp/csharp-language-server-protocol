@@ -10,7 +10,7 @@ namespace JsonRpc
     public class OutputHandler : IOutputHandler
     {
         private readonly TextWriter _output;
-        private Thread _thread;
+        private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
 
@@ -19,9 +19,7 @@ namespace JsonRpc
             _output = output;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
-            _thread = new Thread(ProcessOutputQueue) {
-                IsBackground = true
-            };
+            _thread = new Thread(ProcessOutputQueue) { IsBackground = true, Name = "ProcessOutputQueue" };
         }
 
         public void Start()
@@ -37,29 +35,37 @@ namespace JsonRpc
         private void ProcessOutputQueue()
         {
             var token = _cancel.Token;
-            while (true)
+            try
             {
-                if (_thread == null) return;
-                if (_queue.TryTake(out var value, Timeout.Infinite, token))
+                while (true)
                 {
-                    var content = JsonConvert.SerializeObject(value);
+                    if (_queue.TryTake(out var value, Timeout.Infinite, token))
+                    {
+                        var content = JsonConvert.SerializeObject(value);
 
-                    // TODO: Is this lsp specific??
-                    var sb = new StringBuilder();
-                    sb.Append($"Content-Length: {content.Length}\r\n");
-                    sb.Append($"\r\n");
-                    sb.Append(content);
-
-                    _output.Write(sb.ToString());
+                        // TODO: Is this lsp specific??
+                        var sb = new StringBuilder();
+                        sb.Append($"Content-Length: {content.Length}\r\n");
+                        sb.Append($"\r\n");
+                        sb.Append(content);
+                        _output.Write(sb.ToString());
+                    }
                 }
+            }
+            catch (OperationCanceledException ex)
+            {
+                if (ex.CancellationToken != token)
+                    throw;
+                // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
         }
 
         public void Dispose()
         {
-            _output?.Dispose();
-            _thread = null;
             _cancel.Cancel();
+            _thread.Join();
+            _cancel.Dispose();
+            _output.Dispose();
         }
     }
 }
