@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
                     done.Signal();
                     return Task.CompletedTask;
                 });
-                done.Wait(ALONGTIME_MS).Should().Be(true);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
             }
         }
 
@@ -48,7 +48,7 @@ namespace JsonRpc.Tests
                     await Task.Yield();
                     done.Signal();
                 });
-                done.Wait(ALONGTIME_MS).Should().Be(true);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
             }
         }
 
@@ -64,7 +64,7 @@ namespace JsonRpc.Tests
                         done.Signal();
                     });
                 });
-                done.Wait(ALONGTIME_MS).Should().Be(true);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
             }
         }
 
@@ -89,9 +89,11 @@ namespace JsonRpc.Tests
                 for (var i = 0; i < done.CurrentCount; i++)
                     s.Add(RequestProcessType.Serial, HandlePeek);
 
-                done.Wait(ALONGTIME_MS).Should().Be(true);
-                running.Should().Be(0);
-                peek.Should().Be(1);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
+                running.Should().Be(0, because: "all tasks have to run normally");
+                peek.Should().Be(1, because: "all tasks must not overlap");
+                s.Dispose();
+                Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
         }
 
@@ -116,9 +118,11 @@ namespace JsonRpc.Tests
                 for (var i = 0; i<done.CurrentCount; i++)
                     s.Add(RequestProcessType.Parallel, HandlePeek);
 
-                done.Wait(ALONGTIME_MS).Should().Be(true);
-                running.Should().Be(0);
-                peek.Should().BeGreaterThan(3);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because:"all tasks have to run");
+                running.Should().Be(0, because:"all tasks have to run normally");
+                peek.Should().BeGreaterThan(3, because:"a lot of tasks should overlap");
+                s.Dispose();
+                Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
         }
 
@@ -149,9 +153,11 @@ namespace JsonRpc.Tests
                 s.Add(RequestProcessType.Parallel, HandlePeek);
                 s.Add(RequestProcessType.Serial, HandlePeek);
 
-                done.Wait(ALONGTIME_MS).Should().Be(true);
-                running.Should().Be(0);
-                peek.Should().BeGreaterThan(2);
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
+                running.Should().Be(0, because: "all tasks have to run normally");
+                peek.Should().BeGreaterThan(2, because: "some tasks should overlap");
+                s.Dispose();
+                Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
         }
     }

@@ -56,7 +56,7 @@ namespace JsonRpc
             return result;
         }
 
-
+        public long _TestOnly_NonCompleteTaskCount = 0;
         private void ProcessRequestQueue()
         {
             // see https://github.com/OmniSharp/csharp-language-server-protocol/issues/4
@@ -82,6 +82,7 @@ namespace JsonRpc
                         else
                             throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
                         waitables = RemoveCompleteTasks(waitables);
+                        Interlocked.Exchange(ref _TestOnly_NonCompleteTaskCount, waitables.Count);
                     }
                 }
             }
@@ -91,18 +92,21 @@ namespace JsonRpc
                     throw;
                 // OperationCanceledException - The CancellationToken has been canceled.
                 Task.WaitAll(waitables.ToArray(), TimeSpan.FromMilliseconds(1000));
-                waitables.ForEach((t) =>
+                var keeponrunning = RemoveCompleteTasks(waitables);
+                Interlocked.Exchange(ref _TestOnly_NonCompleteTaskCount, keeponrunning.Count);
+                keeponrunning.ForEach((t) =>
                 {
-                    if (!t.IsCompleted) {
-                        // TODO: There is no way to abort a Task. As we don't construct the tasks, we can do nothing here
-                        // Option is: change the task factory "Func<Task> request" to a "Func<CancellationToken, Task> request"
-                    }
+                    // TODO: There is no way to abort a Task. As we don't construct the tasks, we can do nothing here
+                    // Option is: change the task factory "Func<Task> request" to a "Func<CancellationToken, Task> request"
                 });
             }
         }
 
+        private bool _disposed = false;
         public void Dispose()
         {
+            if (_disposed) return;
+            _disposed = true;
             _cancel.Cancel();
             _thread.Join();
             _cancel.Dispose();
