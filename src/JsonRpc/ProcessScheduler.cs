@@ -34,6 +34,26 @@ namespace JsonRpc
             return t;
         }
 
+        private List<Task> RemoveCompleteTasks(List<Task> list)
+        {
+            if (list.Count == 0) return list;
+
+            var result = new List<Task>();
+            foreach(var t in list)
+            {
+                if (t.IsFaulted)
+                {
+                    // TODO: Handle Fault
+                }
+                else if (!t.IsCompleted)
+                {
+                    result.Add(t);
+                }
+            }
+            return result;
+        }
+
+
         private void ProcessRequestQueue()
         {
             // see https://github.com/OmniSharp/csharp-language-server-protocol/issues/4
@@ -49,7 +69,6 @@ namespace JsonRpc
                     if (type == RequestProcessType.Serial)
                     {
                         Task.WaitAll(waitables.ToArray(), token);
-                        waitables.Clear();
                         Start(request).Wait(token);
                     }
                     else if (type == RequestProcessType.Parallel)
@@ -58,6 +77,7 @@ namespace JsonRpc
                     }
                     else
                         throw new NotImplementedException("Only Serial and Parallel execution types can be handled currently");
+                    waitables = RemoveCompleteTasks(waitables);
                 }
             }
         }
