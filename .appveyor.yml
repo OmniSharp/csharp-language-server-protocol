@@ -9,5 +9,4 @@ after_build:
 artifacts:
   - path: ./artifacts/nuget/*.nupkg
 nuget:
-  account_feed: true
   project_feed: true
