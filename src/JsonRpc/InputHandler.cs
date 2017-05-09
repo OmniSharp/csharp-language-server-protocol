@@ -90,10 +90,11 @@ namespace JsonRpc
                 var headersContent = new string(buffer, 0, current);
                 var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
                 long length = 0;
-                for (var i = 0; i < headers.Length; i += 2)
+                for (var i = 1; i < headers.Length; i += 2)
                 {
-                    var header = headers[0];
-                    var value = headers[i + 1].Trim();
+                    // starting at i = 1 instead of 0 won't throw, if we have uneven headers' length
+                    var header = headers[i - 1];
+                    var value = headers[i].Trim();
                     if (header.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
                     {
                         length = long.Parse(value);
