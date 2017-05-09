@@ -19,7 +19,7 @@ namespace JsonRpc.Tests
     public class InputHandlerTests
     {
         private static InputHandler NewHandler(
-            TextReader inputStream,
+            Stream inputStream,
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
@@ -54,7 +54,7 @@ namespace JsonRpc.Tests
             var reciever = Substitute.For<IReciever>();
 
             using (NewHandler(
-                new StreamReader(inputStream),
+                inputStream,
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
@@ -68,6 +68,32 @@ namespace JsonRpc.Tests
                 }))
             {
                 reciever.Received().IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+            }
+        }
+
+        [Fact]
+        public void ShouldPassInUtf8EncodedRequests()
+        {
+            // Note: an ä (&auml;) is encoded by two bytes, so string-length is 13 and byte-length is 14
+            var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("Content-Length: 14\r\n\r\n{\"utf8\": \"ä\"}"));
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var reciever = Substitute.For<IReciever>();
+
+            using (NewHandler(
+                inputStream,
+                outputHandler,
+                reciever,
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter>(),
+                Substitute.For<IResponseRouter>(),
+                cts => {
+                    reciever.When(x => x.IsValid(Arg.Any<JToken>()))
+                        .Do(x => {
+                            cts.Cancel();
+                        });
+                }))
+            {
+                reciever.Received().IsValid(Arg.Is<JToken>(x => x["utf8"].ToString() == "ä"));
             }
         }
 
@@ -90,7 +116,7 @@ namespace JsonRpc.Tests
                 .Returns(response);
 
             using (NewHandler(
-                new StreamReader(inputStream),
+                inputStream,
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
@@ -122,7 +148,7 @@ namespace JsonRpc.Tests
 
 
             using (NewHandler(
-                new StreamReader(inputStream),
+                inputStream,
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
@@ -153,7 +179,7 @@ namespace JsonRpc.Tests
                 .Returns(c => (new Renor[] { notification }, false));
 
             using (NewHandler(
-                new StreamReader(inputStream),
+                inputStream,
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
@@ -187,7 +213,7 @@ namespace JsonRpc.Tests
             responseRouter.GetRequest(1L).Returns(tcs);
 
             using (NewHandler(
-                new StreamReader(inputStream),
+                inputStream,
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),

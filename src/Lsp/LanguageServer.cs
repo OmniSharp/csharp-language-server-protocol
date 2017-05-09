@@ -29,13 +29,13 @@ namespace Lsp
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public LanguageServer(TextReader input, TextWriter output)
+        public LanguageServer(Stream input, Stream output)
             : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier())
         {
         }
 
         internal LanguageServer(
-            TextReader input,
+            Stream input,
             IOutputHandler output,
             LspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier

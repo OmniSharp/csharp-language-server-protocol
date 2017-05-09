@@ -21,7 +21,7 @@ namespace JsonRpc
         public static char[] HeaderKeys = { CR, LF, ':' };
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
 
-        private readonly TextReader _input;
+        private readonly Stream _input;
         private readonly IOutputHandler _outputHandler;
         private readonly IReciever _reciever;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
@@ -32,7 +32,7 @@ namespace JsonRpc
         private Thread _queueThread;
 
         public InputHandler(
-            TextReader input,
+            Stream input,
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
@@ -40,6 +40,7 @@ namespace JsonRpc
             IResponseRouter responseRouter
             )
         {
+            if (!input.CanRead) throw new ArgumentException($"must provide a readable stream for {nameof(input)}", nameof(input));
             _input = input;
             _outputHandler = outputHandler;
             _reciever = reciever;
@@ -54,7 +55,7 @@ namespace JsonRpc
         }
 
         internal InputHandler(
-            TextReader input,
+            Stream input,
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
@@ -75,19 +76,23 @@ namespace JsonRpc
 
         private async void ProcessInputStream()
         {
+            // header is encoded in ASCII
+            // "Content-Length: 0" counts bytes for the following content
+            // content is encoded in UTF-8
             while (true)
             {
                 if (_inputThread == null) return;
 
-                var buffer = new char[300];
-                var current = await _input.ReadBlockAsync(buffer, 0, MinBuffer);
-                while (current < MinBuffer || buffer[current - 4] != CR || buffer[current - 3] != LF ||
+                var buffer = new byte[300];
+                var current = await _input.ReadAsync(buffer, 0, MinBuffer);
+                while (current < MinBuffer || 
+                       buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
-                    current += await _input.ReadBlockAsync(buffer, current, 1);
+                    current += await _input.ReadAsync(buffer, current, 1);
                 }
 
-                var headersContent = new string(buffer, 0, current);
+                var headersContent = System.Text.Encoding.ASCII.GetString(buffer, 0, current);
                 var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
                 long length = 0;
                 for (var i = 0; i < headers.Length; i += 2)
@@ -100,11 +105,11 @@ namespace JsonRpc
                     }
                 }
 
-                var requestBuffer = new char[length];
+                var requestBuffer = new byte[length];
 
-                await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
+                await _input.ReadAsync(requestBuffer, 0, requestBuffer.Length);
 
-                var payload = new string(requestBuffer);
+                var payload = System.Text.Encoding.UTF8.GetString(requestBuffer);
 
                 HandleRequest(payload);
             }
