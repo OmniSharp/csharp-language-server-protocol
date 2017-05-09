@@ -41,6 +41,7 @@ namespace JsonRpc.Tests
                 responseRouter);
             handler.Start();
             cts.Wait();
+            Task.Delay(10).Wait();
             return handler;
         }
 
