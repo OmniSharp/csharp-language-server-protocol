@@ -29,8 +29,7 @@ namespace SampleServer
             server.AddHandler(new TextDocumentHandler(server));
 
             await server.Initialize();
-
-            await new TaskCompletionSource<object>().Task;
+            await server.WasShutDown;
         }
     }
 
