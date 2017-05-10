@@ -38,8 +38,7 @@ namespace JsonRpc.Tests
                 reciever,
                 requestProcessIdentifier,
                 requestRouter,
-                responseRouter,
-                TimeSpan.Zero);
+                responseRouter);
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();
@@ -160,7 +159,7 @@ namespace JsonRpc.Tests
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
                 cts => {
-                    outputHandler.When(x => x.Send(Arg.Any<object>()))
+                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<JsonRpc.Server.Notification>()))
                         .Do(x => {
                             cts.Cancel();
                         });

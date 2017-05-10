@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc.Server;
 using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 
@@ -14,7 +10,6 @@ namespace JsonRpc
 {
     public class InputHandler : IInputHandler
     {
-        private readonly TimeSpan _sleepTime = TimeSpan.FromMilliseconds(50);
         public const char CR = '\r';
         public const char LF = '\n';
         public static char[] CRLF = { CR, LF };
@@ -28,8 +23,7 @@ namespace JsonRpc
         private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
-        private readonly ConcurrentQueue<(RequestProcessType type, Func<Task> request)> _queue;
-        private Thread _queueThread;
+        private readonly IScheduler _scheduler;
 
         public InputHandler(
             TextReader input,
@@ -46,31 +40,16 @@ namespace JsonRpc
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
-            _queue = new ConcurrentQueue<(RequestProcessType type, Func<Task> request)>();
 
-            _inputThread = new Thread(ProcessInputStream) { IsBackground = true };
-
-            _queueThread = new Thread(ProcessRequestQueue) { IsBackground = true };
-        }
-
-        internal InputHandler(
-            TextReader input,
-            IOutputHandler outputHandler,
-            IReciever reciever,
-            IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter requestRouter,
-            IResponseRouter responseRouter,
-            TimeSpan sleepTime
-        ) : this(input, outputHandler, reciever, requestProcessIdentifier, requestRouter, responseRouter)
-        {
-            _sleepTime = sleepTime;
-        }
+            _scheduler = new ProcessScheduler();
+            _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
+            }
 
         public void Start()
         {
             _outputHandler.Start();
             _inputThread.Start();
-            _queueThread.Start();
+            _scheduler.Start();
         }
 
         private async void ProcessInputStream()
@@ -81,10 +60,14 @@ namespace JsonRpc
 
                 var buffer = new char[300];
                 var current = await _input.ReadBlockAsync(buffer, 0, MinBuffer);
+                if (current == 0) return; // no more _input
+
                 while (current < MinBuffer || buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
-                    current += await _input.ReadBlockAsync(buffer, current, 1);
+                    var n = await _input.ReadBlockAsync(buffer, current, 1);
+                    if (n == 0) return; // no more _input, mitigates endless loop here.
+                    current += n;
                 }
 
                 var headersContent = new string(buffer, 0, current);
@@ -97,17 +80,28 @@ namespace JsonRpc
                     var value = headers[i].Trim();
                     if (header.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
                     {
-                        length = long.Parse(value);
+                        length = 0;
+                        long.TryParse(value, out length);
                     }
                 }
 
-                var requestBuffer = new char[length];
-
-                await _input.ReadBlockAsync(requestBuffer, 0, requestBuffer.Length);
-
-                var payload = new string(requestBuffer);
-
-                HandleRequest(payload);
+                if (length == 0 || length >= int.MaxValue)
+                {
+                    HandleRequest(string.Empty);
+                }
+                else
+                {
+                    var requestBuffer = new char[length];
+                    var received = 0;
+                    while (received < length)
+                    {
+                        var n = await _input.ReadBlockAsync(requestBuffer, received, requestBuffer.Length - received);
+                        if (n == 0) return; // no more _input
+                        received += n;
+                    }
+                    var payload = new string(requestBuffer);
+                    HandleRequest(payload);
+                }
             }
         }
 
@@ -158,24 +152,23 @@ namespace JsonRpc
             {
                 if (item.IsRequest)
                 {
-                    _queue.Enqueue((
+                    _scheduler.Add(
                         type,
                         async () => {
                             var result = await _requestRouter.RouteRequest(item.Request);
-
                             _outputHandler.Send(result.Value);
                         }
-                    ));
+                    );
                 }
                 else if (item.IsNotification)
                 {
-                    _queue.Enqueue((
+                    _scheduler.Add(
                         type,
                         () => {
                             _requestRouter.RouteNotification(item.Notification);
                             return Task.CompletedTask;
                         }
-                    ));
+                    );
                 }
                 else if (item.IsError)
                 {
@@ -185,42 +178,12 @@ namespace JsonRpc
             }
         }
 
-        private bool IsNextSerial()
-        {
-            return _queue.TryPeek(out var queueResult) && queueResult.type == RequestProcessType.Serial;
-        }
-
-        private async void ProcessRequestQueue()
-        {
-            while (true)
-            {
-                if (_queueThread == null) return;
-                var items = new List<Func<Task>>();
-                while (!_queue.IsEmpty)
-                {
-                    if (IsNextSerial() && items.Count > 0)
-                    {
-                        break;
-                    }
-
-                    if (_queue.TryDequeue(out var queueResult))
-                        items.Add(queueResult.request);
-                }
-
-                await Task.WhenAll(items.Select(x => x()));
-
-                if (_queue.IsEmpty)
-                {
-                    await Task.Delay(_sleepTime);
-                }
-            }
-        }
 
         public void Dispose()
         {
             _outputHandler.Dispose();
             _inputThread = null;
-            _queueThread = null;
+            _scheduler.Dispose();
         }
     }
 }
