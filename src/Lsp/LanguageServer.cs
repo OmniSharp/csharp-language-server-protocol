@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace Lsp
 {
-    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable
+    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
     {
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
@@ -249,6 +249,8 @@ namespace Lsp
         {
             return _responseRouter.GetRequest(id);
         }
+
+        public Task WasShutDown => ((IAwaitableTermination)_shutdownHandler).WasShutDown;
 
         public void Dispose()
         {
