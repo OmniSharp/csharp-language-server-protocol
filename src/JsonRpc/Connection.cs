@@ -18,7 +18,7 @@ namespace JsonRpc
         private readonly IRequestRouter _requestRouter;
 
         public Connection(
-            TextReader input,
+            Stream input,
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
