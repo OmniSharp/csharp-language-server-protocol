@@ -71,6 +71,34 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
+        public void ShouldHaveAThreadName()
+        {
+            var threadName = "(untouched)";
+            var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
+            var reciever = Substitute.For<IReciever>();
+
+            using (NewHandler(
+                inputStream,
+                Substitute.For<IOutputHandler>(),
+                reciever,
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter>(),
+                Substitute.For<IResponseRouter>(),
+                cts => {
+                    reciever.When(x => x.IsValid(Arg.Any<JToken>()))
+                        .Do(x => {
+                            threadName = System.Threading.Thread.CurrentThread.Name;
+                            cts.Cancel();
+                        });
+                }))
+            {
+                reciever.Received();
+                threadName.Should().Be("ProcessInputStream", because: "it is easier to find it in the Threads pane by it's name");
+            }
+
+        }
+
+        [Fact]
         public void ShouldPassInUtf8EncodedRequests()
         {
             // Note: an ä (&auml;) is encoded by two bytes, so string-length is 13 and byte-length is 14
