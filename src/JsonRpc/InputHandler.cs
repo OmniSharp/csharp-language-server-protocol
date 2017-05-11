@@ -53,8 +53,12 @@ namespace JsonRpc
             _scheduler.Start();
         }
 
-        private async void ProcessInputStream()
+        // don't be async: We already allocated a seperate thread for this.
+        private void ProcessInputStream()
         {
+            // some time to attach a debugger
+            // System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5)); 
+
             // header is encoded in ASCII
             // "Content-Length: 0" counts bytes for the following content
             // content is encoded in UTF-8
@@ -63,13 +67,13 @@ namespace JsonRpc
                 if (_inputThread == null) return;
 
                 var buffer = new byte[300];
-                var current = await _input.ReadAsync(buffer, 0, MinBuffer);
+                var current = _input.Read(buffer, 0, MinBuffer);
                 if (current == 0) return; // no more _input
                 while (current < MinBuffer || 
                        buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
-                    var n = await _input.ReadAsync(buffer, current, 1);
+                    var n = _input.Read(buffer, current, 1);
                     if (n == 0) return; // no more _input, mitigates endless loop here.
                     current += n;
                 }
@@ -99,7 +103,7 @@ namespace JsonRpc
                     var received = 0;
                     while (received < length)
                     {
-                        var n = await _input.ReadAsync(requestBuffer, received, requestBuffer.Length - received);
+                        var n = _input.Read(requestBuffer, received, requestBuffer.Length - received);
                         if (n == 0) return; // no more _input
                         received += n;
                     }
