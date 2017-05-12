@@ -5,13 +5,8 @@ using Newtonsoft.Json.Serialization;
 namespace Lsp.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class TextDocumentItem
+    public class TextDocumentItem : TextDocumentIdentifier
     {
-        /// <summary>
-        /// The text document's URI.
-        /// </summary>
-        public Uri Uri { get; set; }
-
         /// <summary>
         /// The text document's language identifier.
         /// </summary>
