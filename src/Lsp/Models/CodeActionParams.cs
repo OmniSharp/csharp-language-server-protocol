@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     public interface ITextDocumentIdentifierParams { TextDocumentIdentifier TextDocument { get; } }
 

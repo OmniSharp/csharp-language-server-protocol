@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
-using Lsp.Handlers;
-using Lsp.Messages;
-using Lsp.Models;
-using Lsp.Protocol;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
+using OmniSharp.Extensions.LanguageServerProtocol.Abstractions;
+using OmniSharp.Extensions.LanguageServerProtocol.Messages;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServerProtocol.Protocol.Document;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServerProtocol
 {
     class LspRequestRouter : IRequestRouter
     {

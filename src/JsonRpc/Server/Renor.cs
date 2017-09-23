@@ -1,4 +1,4 @@
-﻿namespace JsonRpc.Server
+﻿namespace OmniSharp.Extensions.JsonRpc.Server
 {
     /// <summary>
     /// Request, Error, Notification or Response

@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Lsp.Converters;
-using Lsp.Protocol;
-using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Protocol.Document;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     /// <summary>
     /// A collection of document filters used to identify valid documents

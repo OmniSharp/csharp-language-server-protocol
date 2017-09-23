@@ -5,18 +5,18 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using JsonRpc;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
-using Lsp.Messages;
-using Lsp.Models;
 using Lsp.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.LanguageServerProtocol;
+using OmniSharp.Extensions.LanguageServerProtocol.Messages;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 using Xunit;
 using Xunit.Sdk;
+using HandlerCollection = OmniSharp.Extensions.LanguageServerProtocol.HandlerCollection;
 
 namespace Lsp.Tests
 {

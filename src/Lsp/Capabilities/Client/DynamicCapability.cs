@@ -1,8 +1,7 @@
-﻿using Lsp.Converters;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Lsp.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DynamicCapability

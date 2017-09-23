@@ -2,7 +2,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     /// <summary>
     /// Value-object describing what options formatting should use.

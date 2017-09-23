@@ -1,7 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IResponseRouter
     {

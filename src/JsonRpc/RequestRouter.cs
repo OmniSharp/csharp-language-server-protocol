@@ -2,10 +2,10 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     class RequestRouter : IRequestRouter
     {

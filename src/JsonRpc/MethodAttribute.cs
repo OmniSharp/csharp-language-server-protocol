@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface | AttributeTargets.Method)]
     public class MethodAttribute : Attribute

@@ -1,10 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     [JsonConverter(typeof(LocationOrLocationsConverter))]
     public class LocationOrLocations : ContainerBase<Location>

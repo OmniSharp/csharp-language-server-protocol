@@ -1,6 +1,6 @@
-﻿using JsonRpc.Client;
+﻿using OmniSharp.Extensions.JsonRpc.Client;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public struct ErrorResponse
     {

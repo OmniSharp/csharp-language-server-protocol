@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
     /// <summary>
     /// A simple marker interface to use for storing handlings (which will be cast out later)

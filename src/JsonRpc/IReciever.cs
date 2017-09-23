@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using JsonRpc.Server;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Server;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IReciever
     {

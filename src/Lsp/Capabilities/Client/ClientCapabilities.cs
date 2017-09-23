@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace Lsp.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ClientCapabilities

@@ -2,6 +2,8 @@
     <PropertyGroup>
         <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.JsonRpc</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

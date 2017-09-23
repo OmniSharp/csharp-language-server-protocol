@@ -1,20 +1,21 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc;
-using Lsp.Capabilities.Client;
-using Lsp.Capabilities.Server;
-using Lsp.Handlers;
-using Lsp.Models;
 using Lsp.Protocol;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServerProtocol.Abstractions;
+using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client;
+using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServerProtocol.Handlers;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServerProtocol.Protocol.Document;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServerProtocol
 {
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
     {

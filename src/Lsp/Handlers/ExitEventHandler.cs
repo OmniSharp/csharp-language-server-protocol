@@ -1,4 +1,4 @@
-namespace Lsp.Handlers
+namespace OmniSharp.Extensions.LanguageServerProtocol.Handlers
 {
     public delegate void ExitEventHandler(int exitCode);
 }

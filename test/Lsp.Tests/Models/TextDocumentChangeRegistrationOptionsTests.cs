@@ -1,8 +1,8 @@
 ﻿using System;
 using FluentAssertions;
-using Lsp.Capabilities.Server;
-using Lsp.Models;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models

@@ -1,7 +1,7 @@
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     /// <summary>
     /// Defines whether the insert text in a completion item should be interpreted as

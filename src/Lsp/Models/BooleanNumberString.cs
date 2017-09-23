@@ -1,8 +1,7 @@
-using System;
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     [JsonConverter(typeof(BooleanNumberStringConverter))]
     public struct BooleanNumberString

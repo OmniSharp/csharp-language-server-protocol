@@ -1,7 +1,7 @@
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     /// <summary>
     /// A document highlight kind.

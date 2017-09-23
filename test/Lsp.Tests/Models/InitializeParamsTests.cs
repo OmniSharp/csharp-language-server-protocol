@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using FluentAssertions;
-using Lsp.Capabilities.Client;
-using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models

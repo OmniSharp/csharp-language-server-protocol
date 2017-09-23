@@ -1,4 +1,4 @@
-﻿namespace Lsp.Models
+﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     public interface IDocumentOnTypeFormattingOptions
     {

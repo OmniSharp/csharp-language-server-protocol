@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServerProtocol
 {
     class ImutableDisposable : IDisposable
     {

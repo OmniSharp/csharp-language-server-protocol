@@ -1,4 +1,4 @@
-﻿namespace Lsp
+﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Abstractions
 {
     public interface IAwaitableTermination
     {

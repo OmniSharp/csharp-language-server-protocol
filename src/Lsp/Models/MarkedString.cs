@@ -1,7 +1,7 @@
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     /// <summary>
     /// MarkedString can be used to render human readable text. It is either a markdown string

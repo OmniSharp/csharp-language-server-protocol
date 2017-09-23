@@ -1,10 +1,8 @@
 ﻿using System.Threading.Tasks;
-using JsonRpc;
-using Lsp.Capabilities.Server;
-using Lsp.Models;
 using Lsp.Protocol;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 
-namespace Lsp.Handlers
+namespace OmniSharp.Extensions.LanguageServerProtocol.Handlers
 {
     public class CancelRequestHandler : ICancelRequestHandler
     {

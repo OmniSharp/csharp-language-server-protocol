@@ -2,9 +2,9 @@
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
-using JsonRpc;
+using OmniSharp.Extensions.JsonRpc;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServerProtocol
 {
     public static class LspHelper
     {

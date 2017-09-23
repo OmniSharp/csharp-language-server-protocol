@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
 using System.Collections.Generic;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace JsonRpc.Tests
 {

@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Reflection;
 using System.Threading.Tasks;
-using JsonRpc.Server;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 
 namespace JsonRpc.Tests

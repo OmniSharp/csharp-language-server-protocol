@@ -2,7 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServerProtocol.Models
 {
     public class ObjectContainer : ContainerBase<object>
     {

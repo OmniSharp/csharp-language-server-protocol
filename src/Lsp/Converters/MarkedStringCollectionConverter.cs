@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 
-namespace Lsp.Converters
+namespace OmniSharp.Extensions.LanguageServerProtocol.Converters
 {
     class MarkedStringCollectionConverter : JsonConverter
     {

@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace Lsp.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server
 {
     /// <summary>
     ///  Save options.

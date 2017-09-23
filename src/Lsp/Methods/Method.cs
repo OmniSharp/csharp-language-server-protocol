@@ -1,4 +1,4 @@
-namespace Lsp.Methods
+namespace OmniSharp.Extensions.LanguageServerProtocol.Methods
 {
     public class Request<TParams> : Request
     {

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Lsp.Capabilities.Client
+﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client
 {
     public class SynchronizationCapability : DynamicCapability
     {

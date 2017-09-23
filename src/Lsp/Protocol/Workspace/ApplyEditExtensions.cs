@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
-using JsonRpc;
-using Lsp.Models;
+using OmniSharp.Extensions.LanguageServerProtocol;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
+
 // ReSharper disable CheckNamespace
 
 namespace Lsp.Protocol

@@ -1,9 +1,8 @@
-﻿using System.Collections.Generic;
-using Lsp.Models;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServerProtocol.Models;
 
-namespace Lsp.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server
 {
     /// <summary>
     ///  Signature help options.

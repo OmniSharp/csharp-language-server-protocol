@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class InputHandler : IInputHandler
     {

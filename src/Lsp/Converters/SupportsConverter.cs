@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Reflection;
-using Lsp.Capabilities.Client;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client;
 
-namespace Lsp.Converters
+namespace OmniSharp.Extensions.LanguageServerProtocol.Converters
 {
     class SupportsConverter : JsonConverter
     {

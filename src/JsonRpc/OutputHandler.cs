@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading;
 using Newtonsoft.Json;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class OutputHandler : IOutputHandler
     {

@@ -1,7 +1,7 @@
 using System;
 using FluentAssertions;
-using Lsp.Messages;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServerProtocol.Messages;
 using Xunit;
 
 namespace Lsp.Tests.Messages
