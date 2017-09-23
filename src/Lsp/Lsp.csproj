@@ -2,12 +2,10 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <!-- Needed for Microsoft.Composition -->
-    <AssetTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(AssetTargetFallback);dotnet5.4;portable-net45+win8</AssetTargetFallback>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
   </ItemGroup>
 </Project>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,8 +37,8 @@ namespace JsonRpc.Tests
             }
         }
 
-        [Theory, ClassData(typeof(AllRequestProcessTypes))]
-        public void ShouldScheduleAwaitableTask(RequestProcessType type)
+        [Fact]
+        public void ShouldScheduleAwaitableTask()
         {
             using (IScheduler s = new ProcessScheduler())
             {
@@ -52,8 +52,8 @@ namespace JsonRpc.Tests
             }
         }
 
-        [Theory, ClassData(typeof(AllRequestProcessTypes))]
-        public void ShouldScheduleConstructedTask(RequestProcessType type)
+        [Fact]
+        public void ShouldScheduleConstructedTask()
         {
             using (IScheduler s = new ProcessScheduler())
             {
@@ -77,7 +77,7 @@ namespace JsonRpc.Tests
                 var running = 0;
                 var peek = 0;
 
-                Func<Task> HandlePeek = async () => {                    
+                Func<Task> HandlePeek = async () => {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run

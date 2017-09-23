@@ -32,33 +32,36 @@ Task("Build")
         });
 });
 
-Task("Test")
-    .IsDependentOn("Build")
-    .Does(() =>
-{
-    EnsureDirectoryExists(artifacts + "/tests");
-    EnsureDirectoryExists(artifacts + "/coverage");
+Task("TestSetup")
+    .Does(() => {
+        CleanDirectory(artifacts + "/tests");
+        CleanDirectory(artifacts + "/coverage");
+        EnsureDirectoryExists(artifacts + "/tests");
+        EnsureDirectoryExists(artifacts + "/coverage");
+    });
 
-    foreach (var testProject in GetFiles("test/*/*.csproj")) {
-        StartProcess("dotnet", new ProcessSettings() {
-            WorkingDirectory = testProject.GetDirectory(),
+Task("TestWithoutCoverage")
+    .WithCriteria(IsRunningOnUnix)
+    .IsDependentOn("TestSetup")
+    .IsDependentOn("Build")
+    .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
+{
+    DotNetCoreTool(
+        testProject.GetDirectory().FullPath,
+        "xunit",
+        new ProcessArgumentBuilder()
+            .AppendSwitchQuoted("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
+            .AppendSwitch("-configuration", configuration)
+            .Append("-noshadow"),
+        new DotNetCoreToolSettings() {
             EnvironmentVariables = GitVersionEnvironmentVariables,
-            Arguments = new ProcessArgumentBuilder()
-                .Append("xunit")
-                .Append("-noshadow")
-                .AppendSwitch("-configuration", configuration)
-                .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
-                .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
-        });
-    }
+    });
 });
 
-Task("Coverage")
-    //.IsDependentOn("Build")
-    .Does(() => {
-        CleanDirectory(artifacts + "/coverage");
-        EnsureDirectoryExists(artifacts + "/coverage");
-    })
+Task("TestWithCoverage")
+    .WithCriteria(IsRunningOnWindows)
+    .IsDependentOn("TestSetup")
+    .IsDependentOn("Build")
     .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
 {
     DotCoverCover(tool => {
@@ -109,6 +112,10 @@ Task("Coverage")
     System.IO.File.WriteAllText(artifacts + "/coverage/coverage.xml", withBom.Replace(_byteOrderMarkUtf8, ""));
 });
 
+Task("Test")
+    .IsDependentOn("TestWithCoverage")
+    .IsDependentOn("TestWithoutCoverage");
+
 Task("Pack")
     .IsDependentOn("Build")
     .Does(() => EnsureDirectoryExists(artifacts + "/nuget"))
@@ -134,7 +141,6 @@ Task("Default")
     .IsDependentOn("Clean")
     .IsDependentOn("Build")
     .IsDependentOn("Test")
-    .IsDependentOn("Coverage")
     .IsDependentOn("Pack");
 
 RunTarget(target);
