@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     /// <summary>
     ///  Descibe options to be used when registered for text document change events.

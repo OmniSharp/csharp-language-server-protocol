@@ -1,8 +1,8 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServer.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Server
 {
     /// <summary>
     ///  Code Lens options.

@@ -2,9 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Converters;
+using OmniSharp.Extensions.LanguageServer.Converters;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     [JsonConverter(typeof(LocationOrLocationsConverter))]
     public class LocationOrLocations : ContainerBase<Location>

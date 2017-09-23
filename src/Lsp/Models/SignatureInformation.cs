@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     /// <summary>
     /// Represents the signature of something callable. A signature

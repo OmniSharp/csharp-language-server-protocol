@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol
+namespace OmniSharp.Extensions.LanguageServer
 {
     public static class LspHelper
     {

@@ -2,7 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server

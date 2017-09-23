@@ -1,8 +1,8 @@
 ﻿using System;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServer.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Abstractions
+namespace OmniSharp.Extensions.LanguageServer.Abstractions
 {
     public interface ILspHandlerDescriptor : IHandlerInstance
     {

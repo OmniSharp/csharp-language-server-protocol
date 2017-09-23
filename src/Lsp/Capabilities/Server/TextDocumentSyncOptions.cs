@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Server
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class TextDocumentSyncOptions

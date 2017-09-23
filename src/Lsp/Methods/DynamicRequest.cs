@@ -1,6 +1,6 @@
 using System;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Methods
+namespace OmniSharp.Extensions.LanguageServer.Methods
 {
     public class DynamicRequest
     {

@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
@@ -15,7 +15,7 @@ namespace Lsp.Tests.Capabilities.Server
                 TriggerCharacters = new[] { "1", "2" }
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<SignatureHelpOptions>(expected);

@@ -17,20 +17,22 @@ Task("Clean")
 Task("Restore")
     .Does(() =>
 {
-    DotNetCoreRestore();
+    DotNetBuild("./LSP.sln", settings =>
+        settings
+            .SetConfiguration(configuration)
+            .WithTarget("Restore"));
+    // DotNetCoreRestore();
 });
 
 Task("Build")
     .IsDependentOn("Restore")
-    .Does(() =>
-{
-    foreach (var project in GetFiles("src/*/*.csproj").Concat(GetFiles("test/*/*.csproj")))
-        DotNetCoreBuild(project.FullPath, new DotNetCoreBuildSettings
-        {
-            Configuration = configuration,
-            EnvironmentVariables = GitVersionEnvironmentVariables,
-        });
-});
+    .DoesForEach(GetFiles("src/**/*.csproj").Concat(GetFiles("test/**/*.csproj")), (project) =>
+    {
+        DotNetBuild(project, settings =>
+            settings
+                .SetConfiguration(configuration)
+                .WithTarget("Build"));
+    });
 
 Task("TestSetup")
     .Does(() => {

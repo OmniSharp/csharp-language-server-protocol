@@ -2,7 +2,7 @@
 
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     [Method("exit")]
     public interface IExitHandler : INotificationHandler { }

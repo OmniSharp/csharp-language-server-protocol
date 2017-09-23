@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     [JsonArray(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public abstract class ContainerBase<T> : IEnumerable<T>

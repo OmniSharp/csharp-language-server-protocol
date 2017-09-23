@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Models
+﻿namespace OmniSharp.Extensions.LanguageServer.Models
 {
     public interface IExecuteCommandOptions
     {

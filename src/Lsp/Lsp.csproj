@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.LanguageServerProtocol</AssemblyName>
-        <RootNamespace>OmniSharp.Extensions.LanguageServerProtocol</RootNamespace>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />

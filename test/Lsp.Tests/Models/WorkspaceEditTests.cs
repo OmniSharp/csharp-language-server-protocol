@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -29,7 +29,7 @@ namespace Lsp.Tests.Models
                     }
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<WorkspaceEdit>(expected);

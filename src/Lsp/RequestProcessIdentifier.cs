@@ -1,7 +1,7 @@
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol
+namespace OmniSharp.Extensions.LanguageServer
 {
     class RequestProcessIdentifier : IRequestProcessIdentifier
     {

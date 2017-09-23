@@ -1,9 +1,9 @@
 ﻿using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Converters
+namespace OmniSharp.Extensions.LanguageServer.Converters
 {
     class TextDocumentSyncConverter : JsonConverter
     {

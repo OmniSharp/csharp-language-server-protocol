@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models

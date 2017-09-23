@@ -2,7 +2,7 @@
 using FluentAssertions;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServerProtocol.Messages;
+using OmniSharp.Extensions.LanguageServer.Messages;
 using Xunit;
 
 namespace Lsp.Tests.Messages

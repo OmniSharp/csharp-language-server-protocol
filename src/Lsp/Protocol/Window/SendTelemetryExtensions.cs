@@ -1,8 +1,8 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol;
+﻿using OmniSharp.Extensions.LanguageServer;
 
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class SendTelemetryExtensions
     {

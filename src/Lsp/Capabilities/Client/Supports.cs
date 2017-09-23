@@ -1,8 +1,8 @@
 ﻿using System;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Converters;
+using OmniSharp.Extensions.LanguageServer.Converters;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
     [JsonConverter(typeof(SupportsConverter))]
     public struct Supports<T> : ISupports

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.JsonRpc</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>

@@ -4,12 +4,12 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Lsp.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServerProtocol.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using Xunit;
-using HandlerCollection = OmniSharp.Extensions.LanguageServerProtocol.HandlerCollection;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 
 namespace Lsp.Tests
 {

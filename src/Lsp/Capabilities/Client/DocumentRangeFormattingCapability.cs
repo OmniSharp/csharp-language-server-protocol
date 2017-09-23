@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
     public class DocumentRangeFormattingCapability : DynamicCapability { }
 }

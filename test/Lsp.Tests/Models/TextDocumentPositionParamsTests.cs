@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentAssertions;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServerProtocol.Models;
+using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -16,7 +16,7 @@ namespace Lsp.Tests.Models
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<TextDocumentPositionParams>(expected);

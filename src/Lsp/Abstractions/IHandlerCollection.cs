@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Abstractions
+namespace OmniSharp.Extensions.LanguageServer.Abstractions
 {
     interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {

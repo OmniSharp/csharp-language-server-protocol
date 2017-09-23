@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
-using Lsp.Protocol;
-using OmniSharp.Extensions.LanguageServerProtocol.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Handlers
 {
     public class ShutdownHandler : IShutdownHandler, IAwaitableTermination
     {

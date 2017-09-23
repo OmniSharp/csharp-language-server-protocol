@@ -1,8 +1,8 @@
 ﻿using System;
-using Lsp.Protocol;
-using OmniSharp.Extensions.LanguageServerProtocol.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Protocol.Document
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
     public interface ITextDocumentSyncHandler : IDidChangeTextDocumentHandler, IDidOpenTextDocumentHandler, IDidCloseTextDocumentHandler, IDidSaveTextDocumentHandler
     {

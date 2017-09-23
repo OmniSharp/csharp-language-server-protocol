@@ -1,7 +1,7 @@
 ﻿using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Messages
+namespace OmniSharp.Extensions.LanguageServer.Messages
 {
     public class UnknownErrorCode : Error
     {
