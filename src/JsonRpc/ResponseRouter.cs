@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Threading;
+﻿using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class ResponseRouter : IResponseRouter
     {

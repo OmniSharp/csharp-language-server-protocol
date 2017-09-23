@@ -1,9 +1,9 @@
 ﻿using System;
-using Lsp.Capabilities.Client;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class InitializeParams

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace JsonRpc.Server.Messages
+namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
     public class ErrorMessage: ErrorMessage<object>
     {

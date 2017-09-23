@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+﻿using Newtonsoft.Json.Linq;
 
-namespace JsonRpc.Server
+namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class Response
     {

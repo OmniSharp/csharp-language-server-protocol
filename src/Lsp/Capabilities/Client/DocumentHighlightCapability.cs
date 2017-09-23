@@ -1,4 +1,4 @@
-﻿namespace Lsp.Capabilities.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
     public class DocumentHighlightCapability : DynamicCapability { }
 }

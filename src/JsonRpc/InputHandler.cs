@@ -3,10 +3,10 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class InputHandler : IInputHandler
     {
@@ -44,7 +44,7 @@ namespace JsonRpc
 
             _scheduler = new ProcessScheduler();
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
-            }
+        }
 
         public void Start()
         {
@@ -57,7 +57,7 @@ namespace JsonRpc
         private void ProcessInputStream()
         {
             // some time to attach a debugger
-            // System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5)); 
+            // System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
 
             // header is encoded in ASCII
             // "Content-Length: 0" counts bytes for the following content
@@ -69,7 +69,7 @@ namespace JsonRpc
                 var buffer = new byte[300];
                 var current = _input.Read(buffer, 0, MinBuffer);
                 if (current == 0) return; // no more _input
-                while (current < MinBuffer || 
+                while (current < MinBuffer ||
                        buffer[current - 4] != CR || buffer[current - 3] != LF ||
                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                 {
@@ -108,7 +108,7 @@ namespace JsonRpc
                         received += n;
                     }
                     // TODO sometimes: encoding should be based on the respective header (including the wrong "utf8" value)
-                    var payload = System.Text.Encoding.UTF8.GetString(requestBuffer); 
+                    var payload = System.Text.Encoding.UTF8.GetString(requestBuffer);
                     HandleRequest(payload);
                 }
             }
@@ -157,7 +157,7 @@ namespace JsonRpc
                 return;
             }
 
-            foreach (var (type, item) in requests.Select(x => (_requestProcessIdentifier.Identify(x), x)))
+            foreach (var (type, item) in requests.Select(x => (type: _requestProcessIdentifier.Identify(x), item: x)))
             {
                 if (item.IsRequest)
                 {

@@ -1,7 +1,7 @@
 using System;
 using FluentAssertions;
-using Lsp.Models;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -13,7 +13,7 @@ namespace Lsp.Tests.Models
         {
             var model = new FileChangeType();
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<FileChangeType>(expected);

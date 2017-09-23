@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum InitializeTrace

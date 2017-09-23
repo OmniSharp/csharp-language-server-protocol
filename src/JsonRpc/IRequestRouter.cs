@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IRequestRouter
     {

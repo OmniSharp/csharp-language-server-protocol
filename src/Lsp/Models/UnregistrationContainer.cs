@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     public class UnregistrationContainer : Container<Unregistration>
     {

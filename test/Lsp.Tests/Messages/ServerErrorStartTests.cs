@@ -1,9 +1,8 @@
 ﻿using System;
 using FluentAssertions;
-using JsonRpc;
-using JsonRpc.Server;
-using Lsp.Messages;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Messages;
 using Xunit;
 
 namespace Lsp.Tests.Messages

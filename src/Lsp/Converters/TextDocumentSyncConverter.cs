@@ -1,11 +1,9 @@
 ﻿using System;
-using System.IO;
-using System.Text;
-using Lsp.Capabilities.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 
-namespace Lsp.Converters
+namespace OmniSharp.Extensions.LanguageServer.Converters
 {
     class TextDocumentSyncConverter : JsonConverter
     {

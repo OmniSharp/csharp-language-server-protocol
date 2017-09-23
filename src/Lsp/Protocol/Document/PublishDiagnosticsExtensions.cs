@@ -1,9 +1,9 @@
-﻿using System.Threading.Tasks;
-using JsonRpc;
-using Lsp.Models;
+﻿using OmniSharp.Extensions.LanguageServer;
+using OmniSharp.Extensions.LanguageServer.Models;
+
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class PublishDiagnosticsExtensions
     {

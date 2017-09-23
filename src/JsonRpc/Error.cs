@@ -1,8 +1,8 @@
-﻿using JsonRpc.Server.Messages;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]

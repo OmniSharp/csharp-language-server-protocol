@@ -1,35 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net46;netcoreapp1.1</TargetFrameworks>
-    <WarningsAsErrors>true</WarningsAsErrors>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.4;portable-net45+win8</PackageTargetFallback>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Remove="**\*.json" />
-    <EmbeddedResource Include="**\*.json" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\..\src\Lsp\Lsp.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-      <PackageReference Include="FluentAssertions" Version="4.19.2" />
-      <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-      <PackageReference Include="NSubstitute" Version="2.0.2" />
-      <PackageReference Include="xunit" Version="2.3.0-beta1-build3642" />
-    <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta1-build1309" />
-    <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta1-build3642" />
-      <PackageReference Include="Microsoft.CodeCoverage" Version="1.0.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Properties\" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net461;netcoreapp2.0</TargetFrameworks>
+        <WarningsAsErrors>true</WarningsAsErrors>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Remove="**\*.json" />
+        <EmbeddedResource Include="**\*.json" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\Lsp\Lsp.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FluentAssertions" Version="4.19.4" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
+        <PackageReference Include="NSubstitute" Version="2.0.3" />
+        <PackageReference Include="xunit" Version="2.3.0-beta5-build3769" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.3.0-beta5-build3769" />
+        <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.0-beta5-build3769" />
+    </ItemGroup>
 </Project>

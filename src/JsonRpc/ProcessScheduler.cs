@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class ProcessScheduler : IScheduler
     {

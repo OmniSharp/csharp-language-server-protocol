@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JsonRpc.Server
+namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class JsonRpcException : Exception
     {

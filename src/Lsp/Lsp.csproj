@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <!-- Needed for Microsoft.Composition -->
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dotnet5.4;portable-net45+win8</PackageTargetFallback>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-    <PackageReference Include="System.ValueTuple" Version="4.3.0" />
-    <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.LanguageServerProtocol</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
+    </ItemGroup>
 </Project>

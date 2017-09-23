@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServer
 {
     class CompositeDisposable : IDisposable
     {

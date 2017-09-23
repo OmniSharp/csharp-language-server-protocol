@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace Lsp.Capabilities.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
     public class CompletionCapability : DynamicCapability
     {

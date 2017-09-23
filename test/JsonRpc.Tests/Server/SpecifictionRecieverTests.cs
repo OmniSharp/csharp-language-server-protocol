@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 
 namespace JsonRpc.Tests.Server

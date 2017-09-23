@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IScheduler : IDisposable
     {

@@ -1,6 +1,5 @@
 using System;
 using FluentAssertions;
-using Lsp.Methods;
 using Newtonsoft.Json;
 using Xunit;
 

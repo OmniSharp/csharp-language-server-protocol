@@ -1,9 +1,9 @@
 ﻿using System;
-using Lsp.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Models;
 
-namespace Lsp.Converters
+namespace OmniSharp.Extensions.LanguageServer.Converters
 {
     class BooleanNumberStringConverter : JsonConverter
     {

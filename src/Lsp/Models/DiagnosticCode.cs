@@ -1,7 +1,7 @@
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Converters;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     [JsonConverter(typeof(DiagnosticCodeConverter))]
     public struct DiagnosticCode

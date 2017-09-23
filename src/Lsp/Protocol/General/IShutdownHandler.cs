@@ -1,8 +1,8 @@
-﻿using JsonRpc;
+﻿using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     [Method("shutdown")]
     public interface IShutdownHandler : INotificationHandler { }

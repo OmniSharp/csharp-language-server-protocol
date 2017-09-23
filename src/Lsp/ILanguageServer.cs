@@ -1,8 +1,8 @@
 using System;
-using JsonRpc;
-using Lsp.Models;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Models;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServer
 {
     public interface ILanguageServer : IResponseRouter
     {

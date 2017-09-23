@@ -1,8 +1,9 @@
-﻿using JsonRpc;
-using Lsp.Models;
+﻿using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Models;
+
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     [Method("completionItem/resolve")]
     public interface ICompletionResolveHandler : IRequestHandler<CompletionItem, CompletionItem> { }

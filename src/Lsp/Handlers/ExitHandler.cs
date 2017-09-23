@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using Lsp.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
-namespace Lsp.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Handlers
 {
     public class ExitHandler : IExitHandler
     {

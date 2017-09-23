@@ -4,6 +4,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using FluentAssertions;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using Xunit;
 
 namespace JsonRpc.Tests
@@ -39,7 +41,7 @@ namespace JsonRpc.Tests
                         cts.Cancel();
                     });
             });
-            var value = new JsonRpc.Client.Response(1);
+            var value = new Response(1);
 
             using (handler)
             {

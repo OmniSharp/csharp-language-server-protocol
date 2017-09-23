@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentAssertions;
-using Lsp.Capabilities.Server;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
@@ -13,7 +13,7 @@ namespace Lsp.Tests.Capabilities.Server
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.Full);
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<TextDocumentSync>(expected);
@@ -25,7 +25,7 @@ namespace Lsp.Tests.Capabilities.Server
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.Incremental);
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<TextDocumentSync>(expected);
@@ -37,7 +37,7 @@ namespace Lsp.Tests.Capabilities.Server
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.None);
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<TextDocumentSync>(expected);
@@ -59,7 +59,7 @@ namespace Lsp.Tests.Capabilities.Server
                 WillSaveWaitUntil = true
             });
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<TextDocumentSync>(expected);

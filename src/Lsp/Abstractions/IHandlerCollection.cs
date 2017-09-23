@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using JsonRpc;
+using OmniSharp.Extensions.JsonRpc;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServer.Abstractions
 {
     interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {

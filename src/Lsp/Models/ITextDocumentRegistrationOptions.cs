@@ -1,4 +1,4 @@
-﻿namespace Lsp.Models
+﻿namespace OmniSharp.Extensions.LanguageServer.Models
 {
     public interface ITextDocumentRegistrationOptions
     {

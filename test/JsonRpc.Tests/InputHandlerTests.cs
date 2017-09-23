@@ -6,13 +6,14 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using JsonRpc.Client;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
-using Request = JsonRpc.Server.Request;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
+using Response = OmniSharp.Extensions.JsonRpc.Client.Response;
 
 namespace JsonRpc.Tests
 {
@@ -137,7 +138,7 @@ namespace JsonRpc.Tests
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { req }, false));
 
-            var response = new Client.Response(1);
+            var response = new Response(1);
 
             incomingRequestRouter.RouteRequest(req)
                 .Returns(response);
@@ -200,7 +201,7 @@ namespace JsonRpc.Tests
             var reciever = Substitute.For<IReciever>();
             var incomingRequestRouter = Substitute.For<IRequestRouter>();
 
-            var notification = new JsonRpc.Server.Notification("abc", null);
+            var notification = new Notification("abc", null);
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { notification }, false));
@@ -213,7 +214,7 @@ namespace JsonRpc.Tests
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
                 cts => {
-                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<JsonRpc.Server.Notification>()))
+                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<Notification>()))
                         .Do(x => {
                             cts.Cancel();
                         });
@@ -231,7 +232,7 @@ namespace JsonRpc.Tests
             var reciever = Substitute.For<IReciever>();
             var responseRouter = Substitute.For<IResponseRouter>();
 
-            var response = new JsonRpc.Server.Response(1L, JToken.Parse("{}"));
+            var response = new OmniSharp.Extensions.JsonRpc.Server.Response(1L, JToken.Parse("{}"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { response }, true));

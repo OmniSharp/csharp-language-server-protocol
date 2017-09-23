@@ -1,14 +1,12 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
-using System.Threading;
-using JsonRpc;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServer
 {
     class HandlerCollection : IHandlerCollection
     {

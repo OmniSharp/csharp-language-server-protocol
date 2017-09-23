@@ -1,9 +1,8 @@
-﻿using System.Threading.Tasks;
-using JsonRpc;
+﻿using OmniSharp.Extensions.LanguageServer;
 
 // ReSharper disable CheckNamespace
 
-namespace Lsp.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class SendTelemetryExtensions
     {

@@ -1,4 +1,4 @@
-﻿namespace JsonRpc.Server.Messages
+﻿namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
     public class ParseError : Error
     {

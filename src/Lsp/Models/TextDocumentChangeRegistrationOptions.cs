@@ -1,8 +1,8 @@
-using Lsp.Capabilities.Server;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     /// <summary>
     ///  Descibe options to be used when registered for text document change events.

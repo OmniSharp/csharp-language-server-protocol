@@ -1,6 +1,4 @@
-using System.Collections.Generic;
-
-namespace Lsp.Models
+namespace OmniSharp.Extensions.LanguageServer.Models
 {
     public class TextDocument
     {

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IOutputHandler : IDisposable
     {

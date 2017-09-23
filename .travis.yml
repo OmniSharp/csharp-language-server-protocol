@@ -1,0 +1,15 @@
+language: csharp
+sudo: required
+dist: trusty
+mono: latest
+dotnet: 2.0.0
+os:
+  - linux
+cache:
+  directories:
+    - tools
+git:
+  depth: 1000
+script:
+  - chmod 755 ./build.sh
+  - ./build.sh

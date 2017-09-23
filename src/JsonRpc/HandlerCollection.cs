@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     class HandlerCollection : IEnumerable<IHandlerInstance>
     {

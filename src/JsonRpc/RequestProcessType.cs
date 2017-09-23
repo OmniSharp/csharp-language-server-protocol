@@ -1,4 +1,4 @@
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public enum RequestProcessType
     {

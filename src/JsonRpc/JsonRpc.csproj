@@ -1,18 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
+        <TargetFrameworks>net461;netstandard1.6</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <LangVersion>Latest</LangVersion>
-        <!-- Needed for Microsoft.Composition -->
-        <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(PackageTargetFallback);dotnet5.4;portable-net45+win8</PackageTargetFallback>
-        <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
-        <AssemblyVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyVersion>
-        <FileVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</FileVersion>
-        <InformationalVersion Condition="'$(GitVersion_InformationalVersion)' != ''">$(GitVersion_InformationalVersion)</InformationalVersion>
+        <AssemblyName>OmniSharp.Extensions.JsonRpc</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="10.0.2" />
-        <PackageReference Include="System.ValueTuple" Version="4.3.0" />
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
     </ItemGroup>
     <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
         <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />

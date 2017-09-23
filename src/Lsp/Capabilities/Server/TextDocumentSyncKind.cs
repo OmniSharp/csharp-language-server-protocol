@@ -1,7 +1,7 @@
-using Lsp.Converters;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Converters;
 
-namespace Lsp.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Server
 {
     /// <summary>
     ///  Defines how the host (editor) should sync document changes to the language server.

@@ -1,7 +1,7 @@
 ﻿using System;
 using FluentAssertions;
-using Lsp.Models;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -12,10 +12,10 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new ExecuteCommandRegistrationOptions() {
-                Commands = new [] { "1", "2" }                
+                Commands = new [] { "1", "2" }
             };
             var result = Fixture.SerializeObject(model);
-            
+
             result.Should().Be(expected);
 
             var deresult = JsonConvert.DeserializeObject<ExecuteCommandRegistrationOptions>(expected);

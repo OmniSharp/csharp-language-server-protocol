@@ -1,0 +1,10 @@
+<Project>
+    <PropertyGroup>
+        <AssetTargetFallback Condition=" '$(TargetFramework)' == 'netstandard1.6' ">$(AssetTargetFallback);dotnet5.4;portable-net45+win8</AssetTargetFallback>
+        <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
+        <AssemblyVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</AssemblyVersion>
+        <FileVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</FileVersion>
+        <InformationalVersion Condition="'$(GitVersion_InformationalVersion)' != ''">$(GitVersion_InformationalVersion)</InformationalVersion>
+        <LangVersion>Latest</LangVersion>
+    </PropertyGroup>
+</Project>

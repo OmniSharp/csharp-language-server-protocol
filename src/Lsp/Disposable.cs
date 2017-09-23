@@ -1,6 +1,6 @@
 using System;
 
-namespace Lsp
+namespace OmniSharp.Extensions.LanguageServer
 {
     class Disposable : IDisposable
     {

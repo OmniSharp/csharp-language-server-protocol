@@ -1,8 +1,7 @@
-﻿using JsonRpc;
-using JsonRpc.Server;
-using JsonRpc.Server.Messages;
+﻿using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace Lsp.Messages
+namespace OmniSharp.Extensions.LanguageServer.Messages
 {
     public class UnknownErrorCode : Error
     {

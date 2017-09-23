@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace JsonRpc
+namespace OmniSharp.Extensions.JsonRpc
 {
     public static class ReflectionRequestHandlers
     {

@@ -1,6 +1,6 @@
 using System;
 
-namespace Lsp.Methods
+namespace OmniSharp.Extensions.LanguageServer.Methods
 {
     public class Notification
     {
