@@ -60,6 +60,7 @@ Task("Test (No Coverage)")
         testProject.GetDirectory().FullPath,
         new DotNetCoreTestSettings() {
             NoBuild = true,
+            Framework = "netcoreapp2.0",
             EnvironmentVariables = GitVersionEnvironmentVariables,
     });
 });
