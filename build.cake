@@ -17,7 +17,7 @@ Task("Clean")
 Task("Restore")
     .Does(() =>
 {
-    DotNetBuild("./LSP.sln", settings =>
+    MSBuild("./LSP.sln", settings =>
         settings
             .SetConfiguration(configuration)
             .WithTarget("Restore"));
@@ -28,7 +28,7 @@ Task("Build")
     .IsDependentOn("Restore")
     .DoesForEach(GetFiles("src/**/*.csproj").Concat(GetFiles("test/**/*.csproj")), (project) =>
     {
-        DotNetBuild(project, settings =>
+        MSBuild(project, settings =>
             settings
                 .SetConfiguration(configuration)
                 .WithTarget("Build"));
