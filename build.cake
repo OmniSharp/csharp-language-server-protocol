@@ -40,7 +40,7 @@ Task("TestSetup")
         EnsureDirectoryExists(artifacts + "/coverage");
     });
 
-Task("TestWithoutCoverage")
+Task("Test (No Coverage)")
     .WithCriteria(IsRunningOnUnix)
     .IsDependentOn("TestSetup")
     .IsDependentOn("Build")
@@ -58,7 +58,7 @@ Task("TestWithoutCoverage")
     });
 });
 
-Task("TestWithCoverage")
+Task("Test (Coverage)")
     .WithCriteria(IsRunningOnWindows)
     .IsDependentOn("TestSetup")
     .IsDependentOn("Build")
@@ -113,8 +113,8 @@ Task("TestWithCoverage")
 });
 
 Task("Test")
-    .IsDependentOn("TestWithCoverage")
-    .IsDependentOn("TestWithoutCoverage");
+    .IsDependentOn("Test (Coverage)")
+    .IsDependentOn("Test (No Coverage)");
 
 Task("Pack")
     .IsDependentOn("Build")
