@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
@@ -212,6 +212,9 @@ namespace Lsp
             {
                 registrations.Add(handler.Registration);
             }
+
+            if (registrations.Count == 0)
+                return; // No dynamic registrations supported by client.
 
             var @params = new RegistrationParams() { Registrations = registrations };
 
