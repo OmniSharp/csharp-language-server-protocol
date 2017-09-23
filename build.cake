@@ -52,6 +52,7 @@ Task("TestSetup")
 
 Task("Test (No Coverage)")
     .WithCriteria(IsRunningOnUnix)
+    .WithCriteria(false) // TODO: Make work on travis
     .IsDependentOn("TestSetup")
     .IsDependentOn("Build")
     .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
@@ -124,6 +125,7 @@ Task("Test")
     .IsDependentOn("Test (No Coverage)");
 
 Task("Pack")
+    .WithCriteria(IsRunningOnWindows) // TODO: Make work on travis
     .IsDependentOn("Build")
     .Does(() => EnsureDirectoryExists(artifacts + "/nuget"))
     .DoesForEach(GetFiles("src/*/*.csproj"), (project) => {
