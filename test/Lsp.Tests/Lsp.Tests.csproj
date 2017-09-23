@@ -4,7 +4,6 @@
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-        <AssetTargetFallback>$(AssetTargetFallback);dotnet5.4;portable-net45+win8</AssetTargetFallback>
     </PropertyGroup>
     <ItemGroup>
         <None Remove="**\*.json" />
