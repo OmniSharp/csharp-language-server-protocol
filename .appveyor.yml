@@ -13,6 +13,8 @@ after_build:
   - codecov -f "./artifacts/coverage/coverage.xml"
 artifacts:
   - path: ./artifacts/nuget/*.nupkg
+cache:
+  - tools -> tools/packages.config
 nuget:
   project_feed: true
 deploy:
