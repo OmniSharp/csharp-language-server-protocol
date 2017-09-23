@@ -26,6 +26,13 @@ deploy:
     artifact: /.*\.nupkg/
     on:
       branch: master
+  - provider: NuGet
+    server: https://www.myget.org/F/omnisharp/api/v2/package
+    api_key:
+      secure: eoBrSWDtOXSxyUOoCSTyQCeDkvU18W67pE3w26viEUBRi1K4Tru0cTjUtDUB7l9V
+    skip_symbols: true
+    artifact: /.*\.nupkg/
+    on:
       appveyor_repo_tag: true
   - provider: NuGet
     api_key:
@@ -34,4 +41,3 @@ deploy:
     artifact: /.*\.nupkg/
     on:
       appveyor_repo_tag: true
-
