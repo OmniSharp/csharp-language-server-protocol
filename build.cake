@@ -14,15 +14,23 @@ Task("Clean")
     CleanDirectory(artifacts);
 });
 
-Task("Restore")
+Task("Restore (Unix)")
+    .WithCriteria(IsRunningOnUnix)
     .Does(() =>
 {
-    MSBuild("./LSP.sln", settings =>
-        settings
-            .SetConfiguration(configuration)
-            .WithTarget("Restore"));
-    // DotNetCoreRestore();
+    MSBuild("./LSP.sln", settings => settings.SetConfiguration(configuration).WithTarget("Restore"));
 });
+
+Task("Restore (Windows)")
+    .WithCriteria(IsRunningOnWindows)
+    .Does(() =>
+{
+    DotNetCoreRestore();
+});
+
+Task("Restore")
+.IsDependentOn("Restore (Unix)")
+.IsDependentOn("Restore (Windows)");
 
 Task("Build")
     .IsDependentOn("Restore")
@@ -48,14 +56,10 @@ Task("Test (No Coverage)")
     .IsDependentOn("Build")
     .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
 {
-    DotNetCoreTool(
+    DotNetCoreTest(
         testProject.GetDirectory().FullPath,
-        "xunit",
-        new ProcessArgumentBuilder()
-            .AppendSwitchQuoted("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
-            .AppendSwitch("-configuration", configuration)
-            .Append("-noshadow"),
-        new DotNetCoreToolSettings() {
+        new DotNetCoreTestSettings() {
+            NoBuild = true,
             EnvironmentVariables = GitVersionEnvironmentVariables,
     });
 });
