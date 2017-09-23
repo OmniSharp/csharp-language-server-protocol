@@ -55,50 +55,35 @@ Task("Test")
 
 Task("Coverage")
     //.IsDependentOn("Build")
-    .Does(() =>
+    .Does(() => {
+        CleanDirectory(artifacts + "/coverage");
+        EnsureDirectoryExists(artifacts + "/coverage");
+    })
+    .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
 {
-    CleanDirectory(artifacts + "/coverage");
-    EnsureDirectoryExists(artifacts + "/coverage");
-
-    foreach (var testProject in GetFiles("test/*/*.csproj")) {
-        DotCoverCover(tool => {
-            // tool.XUnit2()
-                // tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
-                //     WorkingDirectory = testProject.GetDirectory(),
-                //     Arguments = new ProcessArgumentBuilder()
-                //         .Append("test")
-                //         .AppendSwitch("-c", configuration)
-                //         .Append("--no-build")
-                //         .Append("-f net46")
-                // });
-                tool.StartProcess(Context.Tools.Resolve("dotnet.exe"), new ProcessSettings() {
-                    WorkingDirectory = testProject.GetDirectory(),
-                    EnvironmentVariables = GitVersionEnvironmentVariables,
-                    Arguments = new ProcessArgumentBuilder()
-                        .Append("xunit")
-                        .Append("-noshadow")
-                        .Append("-noautoreporters")
-                        // .AppendSwitch("-maxthreads", "1")
-                        .AppendSwitch("-configuration", configuration)
-                        .AppendSwitch("-framework", "net46")
-                        .AppendSwitchQuotedSecret("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
-                        .AppendSwitchQuotedSecret("-html", string.Format("{0}/tests/{1}.html", artifacts, testProject.GetFilenameWithoutExtension()))
-                });
-            },
-            artifacts + "/coverage/coverage-"+ testProject.GetFilenameWithoutExtension() + ".dcvr",
-            new DotCoverCoverSettings() {
-                    // Register = "user",
-                    // MergeOutput = true,
-                    // OldStyle = true,
-                    TargetWorkingDir = testProject.GetDirectory(),
-                    WorkingDirectory = testProject.GetDirectory(),
-                    // ReportType = DotCoverReportType.XML
-                }
-                .WithFilter("+:JsonRpc")
-                .WithFilter("+:Lsp")
-        );
-    }
-
+    DotCoverCover(tool => {
+        tool.DotNetCoreTool(
+            testProject.GetDirectory().FullPath,
+            "xunit",
+            new ProcessArgumentBuilder()
+                .AppendSwitchQuoted("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
+                .AppendSwitch("-configuration", configuration)
+                .Append("-noshadow"),
+            new DotNetCoreToolSettings() {
+                EnvironmentVariables = GitVersionEnvironmentVariables,
+            });
+        },
+        artifacts + "/coverage/coverage-"+ testProject.GetFilenameWithoutExtension() + ".dcvr",
+        new DotCoverCoverSettings() {
+                TargetWorkingDir = testProject.GetDirectory(),
+                WorkingDirectory = testProject.GetDirectory(),
+                EnvironmentVariables = GitVersionEnvironmentVariables,
+            }
+            .WithFilter("+:JsonRpc")
+            .WithFilter("+:Lsp")
+    );
+})
+.Finally(() => {
     DotCoverMerge(
         GetFiles(artifacts + "/coverage/*.dcvr"),
         artifacts + "/coverage/coverage.dcvr"
@@ -126,16 +111,15 @@ Task("Coverage")
 
 Task("Pack")
     .IsDependentOn("Build")
-    .Does(() => {
-        EnsureDirectoryExists(artifacts + "/nuget");
-        foreach (var project in GetFiles("src/*/*.csproj"))
-            DotNetCorePack(project.FullPath, new DotNetCorePackSettings
-            {
-                NoBuild = true,
-                Configuration = configuration,
-                EnvironmentVariables = GitVersionEnvironmentVariables,
-                OutputDirectory = artifacts + "/nuget"
-            });
+    .Does(() => EnsureDirectoryExists(artifacts + "/nuget"))
+    .DoesForEach(GetFiles("src/*/*.csproj"), (project) => {
+        DotNetCorePack(project.FullPath, new DotNetCorePackSettings
+        {
+            NoBuild = true,
+            Configuration = configuration,
+            EnvironmentVariables = GitVersionEnvironmentVariables,
+            OutputDirectory = artifacts + "/nuget"
+        });
     });
 
 Task("GitVersion")
