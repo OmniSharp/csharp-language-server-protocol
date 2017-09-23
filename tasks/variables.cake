@@ -12,7 +12,7 @@ Dictionary<string, string> GitVersionEnvironmentVariables { get {
         { "GitVersion_PreReleaseTag", gv.PreReleaseTag },
         { "GitVersion_PreReleaseTagWithDash", gv.PreReleaseTagWithDash },
         { "GitVersion_PreReleaseLabel", gv.PreReleaseLabel },
-        { "GitVersion_PreReleaseNumber", gv.PreReleaseNumber },
+        { "GitVersion_PreReleaseNumber", gv.PreReleaseNumber.ToString() },
         { "GitVersion_BuildMetaData", gv.BuildMetaData },
         { "GitVersion_BuildMetaDataPadded", gv.BuildMetaDataPadded },
         { "GitVersion_FullBuildMetaData", gv.FullBuildMetaData },
@@ -26,7 +26,7 @@ Dictionary<string, string> GitVersionEnvironmentVariables { get {
         { "GitVersion_BranchName", gv.BranchName },
         { "GitVersion_Sha", gv.Sha },
         { "GitVersion_NuGetVersion", gv.NuGetVersion },
-        { "GitVersion_CommitsSinceVersionSource", gv.CommitsSinceVersionSource },
+        { "GitVersion_CommitsSinceVersionSource", gv.CommitsSinceVersionSource.ToString() },
         { "GitVersion_CommitsSinceVersionSourcePadded", gv.CommitsSinceVersionSourcePadded },
         { "GitVersion_CommitDate", gv.CommitDate },
     };
