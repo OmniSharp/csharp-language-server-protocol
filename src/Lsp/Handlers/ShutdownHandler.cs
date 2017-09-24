@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
 
@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Handlers
 
         public bool ShutdownRequested { get; private set; }
 
-        private TaskCompletionSource<bool> shutdownSource = new TaskCompletionSource<bool>(TaskContinuationOptions.LongRunning);
+        private readonly TaskCompletionSource<bool> shutdownSource = new TaskCompletionSource<bool>(TaskContinuationOptions.LongRunning);
         Task IAwaitableTermination.WasShutDown => shutdownSource.Task;
     }
 }

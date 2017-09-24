@@ -12,24 +12,25 @@ import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, T
 export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
-    let serverExe = context.asAbsolutePath('../sample/SampleServer/bin/Debug/netcoreapp1.1/win7-x64/SampleServer.exe');
+    let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
+    // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
-    let debugOptions = { execArgv: ["--nolazy", "--debug=6009"] };
+    // let debugOptions = { execArgv: ['-lsp', '-d' };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
-        run : { command: serverExe },
-        debug: { command: serverExe, options: debugOptions }
+        run : { command: serverExe, args: ['-lsp'] },
+        debug: { command: serverExe, args: ['-lsp', '-d'] }
     }
 
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
         // Register the server for plain text documents
-        documentSelector: [{
-            language: 'xml',
-            pattern: '*.csproj'
-        }],
+        // documentSelector: [{
+        //     language: 'xml',
+        //     pattern: '*.csproj'
+        // }],
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: 'languageServerExample',
@@ -39,7 +40,8 @@ export function activate(context: ExtensionContext) {
     }
 
     // Create the language client and start the client.
-    let disposable = new LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions).start();
+    const client = new LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions);
+    let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the
     // client can be deactivated on extension deactivation

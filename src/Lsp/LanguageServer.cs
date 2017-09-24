@@ -17,11 +17,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
+    public delegate Task InitializeDelegate(InitializeParams request);
+
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
     {
         private readonly Connection _connection;
         private readonly LspRequestRouter _requestRouter;
         private readonly ShutdownHandler _shutdownHandler = new ShutdownHandler();
+        private readonly List<InitializeDelegate> _initializeDelegates = new List<InitializeDelegate>();
         private readonly ExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
         private readonly HandlerCollection _collection = new HandlerCollection();
@@ -94,6 +97,8 @@ namespace OmniSharp.Extensions.LanguageServer
         {
             Client = request;
 
+            await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
+
             _clientVersion = request.Capabilities.GetClientVersion();
 
             if (_clientVersion == ClientVersion.Lsp3)
@@ -163,6 +168,12 @@ namespace OmniSharp.Extensions.LanguageServer
             }
 
             return result;
+        }
+
+        public LanguageServer OnInitialize(InitializeDelegate @delegate)
+        {
+            _initializeDelegates.Add(@delegate);
+            return this;
         }
 
         public Task Handle()
