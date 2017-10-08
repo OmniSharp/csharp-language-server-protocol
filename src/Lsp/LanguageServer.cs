@@ -63,6 +63,8 @@ namespace OmniSharp.Extensions.LanguageServer
         public InitializeParams Client { get; private set; }
         public InitializeResult Server { get; private set; }
 
+        public string Key => nameof(ILanguageServer);
+
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
             var handlerDisposable = _collection.Add(handler);

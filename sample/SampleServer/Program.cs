@@ -39,7 +39,8 @@ namespace SampleServer
         private readonly ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() {
+            new DocumentFilter()
+            {
                 Pattern = "**/*.csproj",
                 Language = "xml"
             }
@@ -52,19 +53,24 @@ namespace SampleServer
             _router = router;
         }
 
-        public TextDocumentSyncOptions Options { get; } = new TextDocumentSyncOptions() {
+        public TextDocumentSyncOptions Options { get; } = new TextDocumentSyncOptions()
+        {
             WillSaveWaitUntil = false,
             WillSave = true,
             Change = TextDocumentSyncKind.Full,
-            Save = new SaveOptions() {
+            Save = new SaveOptions()
+            {
                 IncludeText = true
             },
             OpenClose = true
         };
 
+        public string Key => (string)_documentSelector;
+
         public Task Handle(DidChangeTextDocumentParams notification)
         {
-            _router.LogMessage(new LogMessageParams() {
+            _router.LogMessage(new LogMessageParams()
+            {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
@@ -73,7 +79,8 @@ namespace SampleServer
 
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentChangeRegistrationOptions() {
+            return new TextDocumentChangeRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 SyncKind = Options.Change
             };
@@ -86,7 +93,8 @@ namespace SampleServer
 
         public async Task Handle(DidOpenTextDocumentParams notification)
         {
-            _router.LogMessage(new LogMessageParams() {
+            _router.LogMessage(new LogMessageParams()
+            {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
@@ -94,7 +102,8 @@ namespace SampleServer
 
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions() {
+            return new TextDocumentRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
             };
         }
@@ -111,7 +120,8 @@ namespace SampleServer
 
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentSaveRegistrationOptions() {
+            return new TextDocumentSaveRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 IncludeText = Options.Save.IncludeText
             };

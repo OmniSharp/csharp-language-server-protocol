@@ -1,4 +1,6 @@
-﻿using Minimatch;
+﻿using System.Collections.Generic;
+using System.Text;
+using Minimatch;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -39,7 +41,8 @@ namespace OmniSharp.Extensions.LanguageServer.Models
         public string Pattern
         {
             get => _pattern;
-            set {
+            set
+            {
                 _pattern = value;
                 _minimatcher = new Minimatcher(value, new Options() { MatchBase = true });
             }
@@ -53,6 +56,21 @@ namespace OmniSharp.Extensions.LanguageServer.Models
 
         private string _pattern;
         private Minimatcher _minimatcher;
+
+        public static explicit operator string(DocumentFilter documentFilter)
+        {
+            var items = new List<string>();
+            if (documentFilter.HasLanguage) {
+                items.Add(documentFilter.Language);
+            }
+            if (documentFilter.HasScheme) {
+                items.Add(documentFilter.Scheme);
+            }
+            if (documentFilter.HasPattern) {
+                items.Add(documentFilter.Pattern);
+            }
+            return $"[{string.Join(", ", items)}]";
+        }
 
         public bool IsMatch(TextDocumentAttributes attributes)
         {
