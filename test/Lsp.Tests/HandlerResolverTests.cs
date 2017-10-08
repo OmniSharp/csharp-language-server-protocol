@@ -19,10 +19,10 @@ namespace Lsp.Tests
         [Theory]
         [InlineData(typeof(IInitializeHandler), "initialize", 1)]
         [InlineData(typeof(IInitializedHandler), "initialized", 1)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didOpen", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didChange", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didClose", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didSave", 4)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didOpen", 5)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didChange", 5)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didClose", 5)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didSave", 5)]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key, int count)
         {
             var handler = new HandlerCollection();

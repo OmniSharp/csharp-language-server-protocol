@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer
     class HandlerDescriptor : ILspHandlerDescriptor, IDisposable
     {
         private readonly Action _disposeAction;
+        private readonly Guid _id = Guid.NewGuid();
 
         public HandlerDescriptor(string method, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
         {
@@ -94,14 +95,14 @@ namespace OmniSharp.Extensions.LanguageServer
         {
             if (obj is HandlerDescriptor handler)
             {
-                return handler.HandlerType == HandlerType;
+                return handler._id == _id;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return HandlerType.GetHashCode();
+            return _id.GetHashCode();
         }
     }
 }

@@ -32,6 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer
                 .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
             {
                 var @interface = GetHandlerInterface(implementedInterface);
+                if (@interface == null) continue;
                 var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
                 var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
 
@@ -50,11 +51,8 @@ namespace OmniSharp.Extensions.LanguageServer
                     capability,
                     () => _handlers.RemoveWhere(instance => instance.Handler == handler));
 
-                handlers.Add(h);
+                _handlers.Add(h);
             }
-
-            foreach (var a in handlers)
-                _handlers.Add(a);
 
             return new ImutableDisposable(handlers);
         }
