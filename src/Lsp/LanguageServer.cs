@@ -63,21 +63,35 @@ namespace OmniSharp.Extensions.LanguageServer
         public InitializeParams Client { get; private set; }
         public InitializeResult Server { get; private set; }
 
+        public string Key => nameof(ILanguageServer);
+
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
-            var handlerDisposable = _collection.Add(handler);
+            return AddHandler(handler);
+        }
+
+        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
+        {
+            return AddHandlers(handlers.AsEnumerable());
+        }
+
+        public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
+        {
+            var handlerDisposable = _collection.Add(handlers);
 
             return new ImutableDisposable(
                 handlerDisposable,
-                new Disposable(() => {
-                    var handlers = _collection
-                        .Where(x => x.Handler == handler)
+                new Disposable(() =>
+                {
+                    var foundItems = handlers
+                    .SelectMany(handler => _collection
+                        .Where(x => handler == x.Handler)
                         .Where(x => x.AllowsDynamicRegistration)
                         .Select(x => x.Registration)
-                        .Where(x => x != null)
-                        .ToArray();
+                        .Where(x => x != null))
+                    .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() { Unregisterations = handlers }));
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() { Unregisterations = foundItems }));
                 }));
         }
 
@@ -115,7 +129,8 @@ namespace OmniSharp.Extensions.LanguageServer
                 }
             }
 
-            var serverCapabilities = new ServerCapabilities() {
+            var serverCapabilities = new ServerCapabilities()
+            {
                 CodeActionProvider = HasHandler<ICodeActionHandler>(),
                 CodeLensProvider = GetOptions<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = GetOptions<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
@@ -145,7 +160,8 @@ namespace OmniSharp.Extensions.LanguageServer
             }
             else
             {
-                serverCapabilities.TextDocumentSync = textSyncHandler?.Options ?? new TextDocumentSyncOptions() {
+                serverCapabilities.TextDocumentSync = textSyncHandler?.Options ?? new TextDocumentSyncOptions()
+                {
                     Change = TextDocumentSyncKind.None,
                     OpenClose = false,
                     Save = new SaveOptions() { IncludeText = false },

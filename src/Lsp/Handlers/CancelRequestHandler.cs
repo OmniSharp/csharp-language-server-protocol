@@ -13,6 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Handlers
             _requestRouter = requestRouter;
         }
 
+        public string Key => nameof(ICancelRequestHandler);
+
         public Task Handle(CancelParams notification)
         {
             _requestRouter.CancelRequest(notification.Id);

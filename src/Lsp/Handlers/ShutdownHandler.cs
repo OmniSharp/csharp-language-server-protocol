@@ -6,6 +6,8 @@ namespace OmniSharp.Extensions.LanguageServer.Handlers
 {
     public class ShutdownHandler : IShutdownHandler, IAwaitableTermination
     {
+        public string Key => nameof(IShutdownHandler);
+
         public Task Handle()
         {
             ShutdownRequested = true;

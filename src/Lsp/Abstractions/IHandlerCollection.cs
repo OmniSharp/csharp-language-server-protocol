@@ -6,9 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Abstractions
 {
     interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {
-        IDisposable Add(IJsonRpcHandler handler);
-
-        IEnumerable<ILspHandlerDescriptor> Get(string method);
-        IEnumerable<ILspHandlerDescriptor> Get(IJsonRpcHandler handler);
+        IDisposable Add(params IJsonRpcHandler[] handlers);
+        IDisposable Add(IEnumerable<IJsonRpcHandler> handlers);
     }
 }

@@ -94,14 +94,15 @@ namespace OmniSharp.Extensions.LanguageServer
         {
             if (obj is HandlerDescriptor handler)
             {
-                return handler.HandlerType == HandlerType;
+                return handler.HandlerType == HandlerType && handler.Handler.Key == Handler.Key;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            return HandlerType.GetHashCode();
+            if (string.IsNullOrWhiteSpace(Handler.Key)) return HandlerType.GetHashCode();
+            return Tuple.Create(HandlerType, Handler.Key).GetHashCode();
         }
     }
 }

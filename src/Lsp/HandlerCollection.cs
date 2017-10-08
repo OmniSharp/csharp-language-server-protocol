@@ -22,51 +22,45 @@ namespace OmniSharp.Extensions.LanguageServer
             return GetEnumerator();
         }
 
-        public IDisposable Add(IJsonRpcHandler handler)
+        public IDisposable Add(params IJsonRpcHandler[] handlers)
         {
-            //var type = handler.GetType();
+            return Add(handlers.AsEnumerable());
+        }
 
-            var handlers = new List<HandlerDescriptor>();
-            foreach (var implementedInterface in handler.GetType().GetTypeInfo()
-                .ImplementedInterfaces
-                .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
+        public IDisposable Add(IEnumerable<IJsonRpcHandler> handlers)
+        {
+            var descriptors = new List<HandlerDescriptor>();
+            foreach (var handler in handlers)
             {
-                var @interface = GetHandlerInterface(implementedInterface);
-                var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
-                var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
-
-                Type @params = null;
-                if (@interface.GetTypeInfo().IsGenericType)
+                foreach (var implementedInterface in handler.GetType().GetTypeInfo()
+                    .ImplementedInterfaces
+                    .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
                 {
-                    @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+                    var @interface = GetHandlerInterface(implementedInterface);
+                    var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
+                    var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
+
+                    Type @params = null;
+                    if (@interface.GetTypeInfo().IsGenericType)
+                    {
+                        @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+                    }
+
+                    var h = new HandlerDescriptor(
+                        LspHelper.GetMethodName(implementedInterface),
+                        handler,
+                        @interface,
+                        @params,
+                        registration,
+                        capability,
+                        () => _handlers.RemoveWhere(instance => instance.Handler == handler));
+
+                    descriptors.Add(h);
+                    _handlers.Add(h);
                 }
-
-                var h = new HandlerDescriptor(
-                    LspHelper.GetMethodName(implementedInterface),
-                    handler,
-                    @interface,
-                    @params,
-                    registration,
-                    capability,
-                    () => _handlers.RemoveWhere(instance => instance.Handler == handler));
-
-                handlers.Add(h);
             }
 
-            foreach (var a in handlers)
-                _handlers.Add(a);
-
-            return new ImutableDisposable(handlers);
-        }
-
-        public IEnumerable<ILspHandlerDescriptor> Get(IJsonRpcHandler handler)
-        {
-            return _handlers.Where(instance => instance.Handler == handler);
-        }
-
-        public IEnumerable<ILspHandlerDescriptor> Get(string method)
-        {
-            return _handlers.Where(instance => instance.Method == method);
+            return new ImutableDisposable(descriptors);
         }
 
         private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };

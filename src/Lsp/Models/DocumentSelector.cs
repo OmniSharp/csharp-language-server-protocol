@@ -38,6 +38,11 @@ namespace OmniSharp.Extensions.LanguageServer.Models
             return new DocumentSelector(items);
         }
 
+        public static explicit operator string(DocumentSelector documentSelector)
+        {
+            return string.Join(", ", documentSelector.Select(x => (string)x));
+        }
+
         public bool IsMatch(TextDocumentAttributes attributes)
         {
             return this.Any(z => z.IsMatch(attributes));
