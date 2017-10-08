@@ -60,13 +60,16 @@ namespace OmniSharp.Extensions.LanguageServer.Models
         public static explicit operator string(DocumentFilter documentFilter)
         {
             var items = new List<string>();
-            if (documentFilter.HasLanguage) {
+            if (documentFilter.HasLanguage)
+            {
                 items.Add(documentFilter.Language);
             }
-            if (documentFilter.HasScheme) {
+            if (documentFilter.HasScheme)
+            {
                 items.Add(documentFilter.Scheme);
             }
-            if (documentFilter.HasPattern) {
+            if (documentFilter.HasPattern)
+            {
                 items.Add(documentFilter.Pattern);
             }
             return $"[{string.Join(", ", items)}]";
