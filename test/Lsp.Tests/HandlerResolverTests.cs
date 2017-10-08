@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -10,6 +10,8 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
+using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 
 namespace Lsp.Tests
 {
@@ -27,26 +29,39 @@ namespace Lsp.Tests
         {
             var handler = new HandlerCollection();
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]);
-            sub.Key.Returns("abcd");
+            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions()
+                    .Returns(new TextDocumentRegistrationOptions());
+
             handler.Add(sub);
             handler._handlers.Should().Contain(x => x.Method == key);
             handler._handlers.Count.Should().Be(count);
         }
 
         [Theory]
-        [InlineData(typeof(IInitializeHandler), "initialize", 2)]
-        [InlineData(typeof(IInitializedHandler), "initialized", 2)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didOpen", 8)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didChange", 8)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didClose", 8)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didSave", 8)]
-        public void Should_Contain_AllDefinedMethods_ForDifferentKeys(Type requestHandler, string key, int count)
+        [InlineData("textDocument/didOpen", 8)]
+        [InlineData("textDocument/didChange", 8)]
+        [InlineData("textDocument/didClose", 8)]
+        [InlineData("textDocument/didSave", 8)]
+        public void Should_Contain_AllDefinedMethods_ForDifferentKeys(string key, int count)
         {
             var handler = new HandlerCollection();
-            var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]);
-            sub.Key.Returns("abcd");
-            var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]);
-            sub2.Key.Returns("efgh");
+            var sub = Substitute.For<ITextDocumentSyncHandler>();
+            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions()
+                .Returns(new TextDocumentRegistrationOptions() {
+                    DocumentSelector = new DocumentSelector(new DocumentFilter() {
+                        Pattern = "**/*.cs"
+                    })
+                });
+
+            var sub2 = Substitute.For<ITextDocumentSyncHandler>();
+            if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
+                reg2.GetRegistrationOptions()
+                .Returns(new TextDocumentRegistrationOptions() {
+                    DocumentSelector = new DocumentSelector(new DocumentFilter() { Pattern = "**/*.cake" })
+                });
+
             handler.Add(sub);
             handler.Add(sub2);
             handler._handlers.Should().Contain(x => x.Method == key);
@@ -59,7 +74,11 @@ namespace Lsp.Tests
         {
             var handler = new HandlerCollection();
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
-            sub.Key.Returns("abd3");
+            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions()
+                    .Returns(new TextDocumentRegistrationOptions() {
+                        DocumentSelector = new DocumentSelector()
+                    });
             handler.Add(sub);
             handler._handlers.Should().Contain(x => x.Method == key);
             handler._handlers.Should().Contain(x => x.Method == key2);
@@ -67,14 +86,22 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData(typeof(IInitializeHandler), typeof(IInitializedHandler), "initialize", "initialized", 4)]
+        [InlineData(typeof(IInitializeHandler), typeof(IInitializedHandler), "initialize", "initialized", 2)]
         public void Should_Contain_AllDefinedMethods_OnLanguageServer_WithDifferentKeys(Type requestHandler, Type type2, string key, string key2, int count)
         {
             var handler = new HandlerCollection();
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
-            sub.Key.Returns("abd3");
+            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions()
+                    .Returns(new TextDocumentRegistrationOptions() {
+                        DocumentSelector = new DocumentSelector()
+                    });
             var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
-            sub2.Key.Returns("efgh");
+            if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
+                reg2.GetRegistrationOptions()
+                    .Returns(new TextDocumentRegistrationOptions() {
+                        DocumentSelector = new DocumentSelector()
+                    });
             handler.Add(sub);
             handler.Add(sub2);
             handler._handlers.Should().Contain(x => x.Method == key);

@@ -12,8 +12,8 @@ import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, T
 export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
-    let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
-    // let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
+    // let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
+    let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
     // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
     // let debugOptions = { execArgv: ['-lsp', '-d' };5
@@ -28,13 +28,13 @@ export function activate(context: ExtensionContext) {
     // Options to control the language client
     let clientOptions: LanguageClientOptions = {
         // Register the server for plain text documents
-        // documentSelector: [
-        //     {
-        //         pattern: '**/*.cs',
-        //     }, {
-        //         pattern: '**/*.cake',
-        //     },
-        // ],
+        documentSelector: [
+            {
+                pattern: '**/*.cs',
+            }, {
+                pattern: '**/*.cake',
+            },
+        ],
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: 'languageServerExample',

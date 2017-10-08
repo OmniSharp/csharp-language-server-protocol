@@ -65,8 +65,6 @@ namespace SampleServer
             OpenClose = true
         };
 
-        public string Key => (string)_documentSelector;
-
         public Task Handle(DidChangeTextDocumentParams notification)
         {
             _router.LogMessage(new LogMessageParams()

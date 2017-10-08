@@ -46,6 +46,13 @@ namespace OmniSharp.Extensions.LanguageServer
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null) return null;
 
+            if (_textDocumentSyncHandler == null)
+            {
+                _textDocumentSyncHandler = _collection
+                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
+                    .FirstOrDefault(x => x != null);
+            }
+
             if (_textDocumentSyncHandler is null) return descriptor;
 
             if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
@@ -158,20 +165,6 @@ namespace OmniSharp.Extensions.LanguageServer
             {
                 _requests.TryRemove(id, out var _);
             }
-        }
-
-        public IDisposable Add(IJsonRpcHandler handler)
-        {
-            // ITextDocumentSyncHandler textDocumentSyncHandler
-            var result = _collection.Add(handler);
-
-            if (_textDocumentSyncHandler == null)
-            {
-                _textDocumentSyncHandler = _collection
-                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
-                    .FirstOrDefault(x => x != null);
-            }
-            return result;
         }
 
         public void CancelRequest(object id)

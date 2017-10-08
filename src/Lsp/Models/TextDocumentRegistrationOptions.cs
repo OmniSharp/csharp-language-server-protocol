@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Models
@@ -10,6 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Models
         ///  A document selector to identify the scope of the registration. If set to null
         ///  the document selector provided on the client side will be used.
         /// </summary>
-        public DocumentSelector DocumentSelector { get; set; }
+        public DocumentSelector DocumentSelector { get; set; } = new DocumentSelector();
     }
 }

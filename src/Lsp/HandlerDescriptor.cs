@@ -11,11 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer
     {
         private readonly Action _disposeAction;
 
-        public HandlerDescriptor(string method, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
+        public HandlerDescriptor(string method, string key, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
         {
             _disposeAction = disposeAction;
             Handler = handler;
             Method = method;
+            Key = key;
             HandlerType = handlerType;
             Params = @params;
             RegistrationType = registrationType;
@@ -70,6 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer
         }
 
         public string Method { get; }
+        public string Key { get; }
         public Type Params { get; }
 
         public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
@@ -94,15 +96,14 @@ namespace OmniSharp.Extensions.LanguageServer
         {
             if (obj is HandlerDescriptor handler)
             {
-                return handler.HandlerType == HandlerType && handler.Handler.Key == Handler.Key;
+                return handler.HandlerType == HandlerType && handler.Key == Key;
             }
             return false;
         }
 
         public override int GetHashCode()
         {
-            if (string.IsNullOrWhiteSpace(Handler.Key)) return HandlerType.GetHashCode();
-            return Tuple.Create(HandlerType, Handler.Key).GetHashCode();
+            return Tuple.Create(HandlerType, Key).GetHashCode();
         }
     }
 }

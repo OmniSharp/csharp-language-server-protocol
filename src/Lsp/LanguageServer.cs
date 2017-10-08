@@ -38,12 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer
         {
         }
 
-        internal LanguageServer(
-            Stream input,
-            IOutputHandler output,
-            LspReciever reciever,
-            IRequestProcessIdentifier requestProcessIdentifier
-        )
+        internal LanguageServer(Stream input, IOutputHandler output, LspReciever reciever, IRequestProcessIdentifier requestProcessIdentifier)
         {
             _reciever = reciever;
             _requestRouter = new LspRequestRouter(_collection);
@@ -53,17 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer
             _exitHandler = new ExitHandler(_shutdownHandler);
 
             _disposable.Add(
-                AddHandler(this),
-                AddHandler(_shutdownHandler),
-                AddHandler(_exitHandler),
-                AddHandler(new CancelRequestHandler(_requestRouter))
+                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
             );
         }
 
         public InitializeParams Client { get; private set; }
         public InitializeResult Server { get; private set; }
-
-        public string Key => nameof(ILanguageServer);
 
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
@@ -91,7 +81,10 @@ namespace OmniSharp.Extensions.LanguageServer
                         .Where(x => x != null))
                     .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() { Unregisterations = foundItems }));
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
+                    {
+                        Unregisterations = foundItems
+                    }));
                 }));
         }
 

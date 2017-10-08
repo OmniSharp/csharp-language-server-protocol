@@ -12,8 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Handlers
             _shutdownHandler = shutdownHandler;
         }
 
-        public string Key => nameof(IExitHandler);
-
         public Task Handle()
         {
             Exit?.Invoke(_shutdownHandler.ShutdownRequested ? 0 : 1);

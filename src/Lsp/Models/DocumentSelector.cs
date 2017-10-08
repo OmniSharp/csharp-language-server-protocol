@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Models
             return new DocumentSelector(items);
         }
 
-        public static explicit operator string(DocumentSelector documentSelector)
+        public static implicit operator string(DocumentSelector documentSelector)
         {
             return string.Join(", ", documentSelector.Select(x => (string)x));
         }

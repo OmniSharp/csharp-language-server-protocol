@@ -8,7 +8,5 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         void RouteNotification(Notification notification);
         Task<ErrorResponse> RouteRequest(Request request);
-
-        IDisposable Add(IJsonRpcHandler handler);
     }
 }

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
@@ -46,8 +47,16 @@ namespace OmniSharp.Extensions.LanguageServer
                         @params = @interface.GetTypeInfo().GetGenericArguments()[0];
                     }
 
+                    var key = "default";
+                    if (handler is IRegistration<TextDocumentRegistrationOptions> textDocumentRegistration)
+                    {
+                        var options = textDocumentRegistration.GetRegistrationOptions();
+                        key = options.DocumentSelector;
+                    }
+
                     var h = new HandlerDescriptor(
                         LspHelper.GetMethodName(implementedInterface),
+                        key,
                         handler,
                         @interface,
                         @params,
