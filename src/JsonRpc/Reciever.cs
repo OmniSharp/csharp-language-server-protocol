@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             object requestId = null;
             bool hasRequestId;
-            if (hasRequestId = request.TryGetValue("id", out var id) && requestId != null)
+            if (hasRequestId = request.TryGetValue("id", out var id))
             {
                 var idString = id.Type == JTokenType.String ? (string)id : null;
                 var idLong = id.Type == JTokenType.Integer ? (long?)id : null;
@@ -77,8 +77,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new InvalidRequest(requestId, "Method not set");
             }
 
-            var hasParams = request.TryGetValue("params", out var @params) && @params != null;
-            if (hasParams && @params.Type != JTokenType.Array && @params.Type != JTokenType.Object)
+            var hasParams = request.TryGetValue("params", out var @params);
+            if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object)
             {
                 return new InvalidRequest(requestId, "Invalid params");
             }
