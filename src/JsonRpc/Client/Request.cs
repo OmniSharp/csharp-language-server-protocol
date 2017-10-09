@@ -12,6 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc.Client
 
         public string Method { get; set; }
 
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Params { get; set; }
     }
 }
