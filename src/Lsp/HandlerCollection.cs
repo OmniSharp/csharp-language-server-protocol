@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer
                     .ImplementedInterfaces
                     .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
                 {
-                    var @interface = GetHandlerInterface(implementedInterface);
+                    var @interface = HandlerTypeHelpers.GetHandlerInterface(implementedInterface);
                     var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
                     var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
 
@@ -70,24 +70,6 @@ namespace OmniSharp.Extensions.LanguageServer
             }
 
             return new ImutableDisposable(descriptors);
-        }
-
-        private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };
-
-        private bool IsValidInterface(Type type)
-        {
-            if (type.GetTypeInfo().IsGenericType)
-            {
-                return HandlerTypes.Contains(type.GetGenericTypeDefinition());
-            }
-            return HandlerTypes.Contains(type);
-        }
-
-        private Type GetHandlerInterface(Type type)
-        {
-            return type?.GetTypeInfo()
-                .ImplementedInterfaces
-                .First(IsValidInterface);
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)

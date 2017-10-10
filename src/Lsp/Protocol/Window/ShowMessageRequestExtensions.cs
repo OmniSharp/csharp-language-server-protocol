@@ -12,5 +12,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             return mediator.SendRequest<ShowMessageRequestParams, MessageActionItem>("window/showMessageRequest", @params);
         }
+
+        public static Task<MessageActionItem> Show(this ILanguageServer mediator, ShowMessageRequestParams @params)
+        {
+            return mediator.ShowMessage(@params);
+        }
+
+        public static Task<MessageActionItem> Request(this ILanguageServer mediator, ShowMessageRequestParams @params)
+        {
+            return mediator.ShowMessage(@params);
+        }
     }
 }

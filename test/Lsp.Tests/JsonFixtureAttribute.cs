@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace Lsp.Tests
 
             using (var streamReader = new StreamReader(Resources.GetManifestResourceStream(fileName)))
             {
-                yield return new object[] { streamReader.ReadToEnd()?.Replace("\r\n", "\n") };
+                yield return new object[] { streamReader.ReadToEnd()?.Replace("\r\n", "\n")?.TrimEnd() };
             }
         }
     }

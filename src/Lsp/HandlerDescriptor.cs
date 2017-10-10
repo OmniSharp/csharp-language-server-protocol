@@ -36,7 +36,8 @@ namespace OmniSharp.Extensions.LanguageServer
 
         public Registration Registration
         {
-            get {
+            get
+            {
                 if (!HasRegistration) return null;
                 if (_registration != null) return _registration;
 
@@ -47,7 +48,8 @@ namespace OmniSharp.Extensions.LanguageServer
                     .MakeGenericMethod(RegistrationType)
                     .Invoke(this, new object[] { Handler });
 
-                return _registration = new Registration() {
+                return _registration = new Registration()
+                {
                     Id = Guid.NewGuid().ToString(),
                     Method = Method,
                     RegisterOptions = options
