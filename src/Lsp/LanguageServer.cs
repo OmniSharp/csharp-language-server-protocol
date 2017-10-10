@@ -122,24 +122,27 @@ namespace OmniSharp.Extensions.LanguageServer
                 }
             }
 
+            var textDocumentCapabilities = Client.Capabilities.TextDocument;
+            var workspaceCapabilities = Client.Capabilities.Workspace;
+
             var serverCapabilities = new ServerCapabilities()
             {
-                CodeActionProvider = HasHandler<ICodeActionHandler>(),
-                CodeLensProvider = GetOptions<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
-                CompletionProvider = GetOptions<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
-                DefinitionProvider = HasHandler<IDefinitionHandler>(),
-                DocumentFormattingProvider = HasHandler<IDocumentFormattingHandler>(),
-                DocumentHighlightProvider = HasHandler<IDocumentHighlightHandler>(),
-                DocumentLinkProvider = GetOptions<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
-                DocumentOnTypeFormattingProvider = GetOptions<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
-                DocumentRangeFormattingProvider = HasHandler<IDocumentRangeFormattingHandler>(),
-                DocumentSymbolProvider = HasHandler<IDocumentSymbolHandler>(),
-                ExecuteCommandProvider = GetOptions<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
-                HoverProvider = HasHandler<IHoverHandler>(),
-                ReferencesProvider = HasHandler<IReferencesHandler>(),
-                RenameProvider = HasHandler<IRenameHandler>(),
-                SignatureHelpProvider = GetOptions<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = HasHandler<IWorkspaceSymbolsHandler>()
+                CodeActionProvider = HasHandler<ICodeActionHandler>(textDocumentCapabilities.CodeAction),
+                CodeLensProvider = GetOptions<ICodeLensOptions, CodeLensOptions>(textDocumentCapabilities.CodeLens, CodeLensOptions.Of),
+                CompletionProvider = GetOptions<ICompletionOptions, CompletionOptions>(textDocumentCapabilities.Completion, CompletionOptions.Of),
+                DefinitionProvider = HasHandler<IDefinitionHandler>(textDocumentCapabilities.Definition),
+                DocumentFormattingProvider = HasHandler<IDocumentFormattingHandler>(textDocumentCapabilities.Formatting),
+                DocumentHighlightProvider = HasHandler<IDocumentHighlightHandler>(textDocumentCapabilities.DocumentHighlight),
+                DocumentLinkProvider = GetOptions<IDocumentLinkOptions, DocumentLinkOptions>(textDocumentCapabilities.DocumentLink, DocumentLinkOptions.Of),
+                DocumentOnTypeFormattingProvider = GetOptions<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(textDocumentCapabilities.OnTypeFormatting, DocumentOnTypeFormattingOptions.Of),
+                DocumentRangeFormattingProvider = HasHandler<IDocumentRangeFormattingHandler>(textDocumentCapabilities.RangeFormatting),
+                DocumentSymbolProvider = HasHandler<IDocumentSymbolHandler>(textDocumentCapabilities.DocumentSymbol),
+                ExecuteCommandProvider = GetOptions<IExecuteCommandOptions, ExecuteCommandOptions>(workspaceCapabilities.ExecuteCommand, ExecuteCommandOptions.Of),
+                HoverProvider = HasHandler<IHoverHandler>(textDocumentCapabilities.Hover),
+                ReferencesProvider = HasHandler<IReferencesHandler>(textDocumentCapabilities.References),
+                RenameProvider = HasHandler<IRenameHandler>(textDocumentCapabilities.Rename),
+                SignatureHelpProvider = GetOptions<ISignatureHelpOptions, SignatureHelpOptions>(textDocumentCapabilities.SignatureHelp, SignatureHelpOptions.Of),
+                WorkspaceSymbolProvider = HasHandler<IWorkspaceSymbolsHandler>(workspaceCapabilities.Symbol)
             };
 
             var textSyncHandler = _collection
@@ -194,17 +197,32 @@ namespace OmniSharp.Extensions.LanguageServer
             return Task.CompletedTask;
         }
 
-        private bool HasHandler<T>()
+        private bool HasHandler<T>(DynamicCapability capability)
         {
-            return _collection.Any(z => z.Handler is T);
+            return capability.DynamicRegistration ? false : _collection.Any(z => z.Handler is T);
         }
 
-        private T GetOptions<O, T>(Func<O, T> action)
+        private bool HasHandler<T>(Supports<DynamicCapability> capability)
+        {
+            if (!capability.IsSupported) return false;
+            return HasHandler<T>(capability.Value);
+        }
+
+        private T GetOptions<O, T>(DynamicCapability capability, Func<O, T> action)
             where T : class
         {
+            if (capability.DynamicRegistration) return null;
+
             return _collection
                 .Select(x => x.Registration?.RegisterOptions is O cl ? action(cl) : null)
                 .FirstOrDefault(x => x != null);
+        }
+
+        private T GetOptions<O, T>(Supports<DynamicCapability> capability, Func<O, T> action)
+            where T : class
+        {
+            if (!capability.IsSupported) return null;
+            return GetOptions<O, T>(capability.Value, action);
         }
 
         private void ProcessCapabilties(object instance)
