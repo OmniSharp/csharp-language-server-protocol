@@ -196,7 +196,7 @@ namespace OmniSharp.Extensions.LanguageServer
 
         private bool HasHandler<T>()
         {
-            return _collection.Any(z => z.HandlerType == typeof(T));
+            return _collection.Any(z => z.Handler is T);
         }
 
         private T GetOptions<O, T>(Func<O, T> action)
