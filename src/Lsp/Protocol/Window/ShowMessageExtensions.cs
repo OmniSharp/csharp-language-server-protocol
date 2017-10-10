@@ -14,25 +14,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public static void Show(this ILanguageServer mediator, ShowMessageParams @params)
         {
-            mediator.SendNotification("window/showMessage", @params);
+            mediator.ShowMessage(@params);
         }
 
-        public static void LogError(this ILanguageServer mediator, string message)
+        public static void ShowError(this ILanguageServer mediator, string message)
         {
             mediator.ShowMessage(new ShowMessageParams() { Type = MessageType.Error, Message = message });
         }
 
-        public static void Log(this ILanguageServer mediator, string message)
+        public static void Show(this ILanguageServer mediator, string message)
         {
             mediator.ShowMessage(new ShowMessageParams() { Type = MessageType.Log, Message = message });
         }
 
-        public static void LogWarning(this ILanguageServer mediator, string message)
+        public static void ShowWarning(this ILanguageServer mediator, string message)
         {
             mediator.ShowMessage(new ShowMessageParams() { Type = MessageType.Warning, Message = message });
         }
 
-        public static void LogInfo(this ILanguageServer mediator, string message)
+        public static void ShowInfo(this ILanguageServer mediator, string message)
         {
             mediator.ShowMessage(new ShowMessageParams() { Type = MessageType.Info, Message = message });
         }

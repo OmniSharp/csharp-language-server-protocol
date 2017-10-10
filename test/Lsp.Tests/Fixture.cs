@@ -32,7 +32,7 @@ namespace Lsp.Tests
                 jsonSerializer.Serialize(jsonWriter, value, type);
             }
 
-            return sw.ToString()?.Replace("\r\n", "\n");//?.Replace("\n", "\r\n");
+            return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd();//?.Replace("\n", "\r\n");
         }
     }
 }

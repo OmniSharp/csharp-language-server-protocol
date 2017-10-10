@@ -11,8 +11,10 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItem() {
-                AdditionalTextEdits = new [] {
+            var model = new CompletionItem()
+            {
+                CommitCharacters = new[] { ";", "/", "." },
+                AdditionalTextEdits = new[] {
                     new TextEdit() {
                         NewText = "new text"
                     }

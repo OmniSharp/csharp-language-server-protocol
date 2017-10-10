@@ -1,0 +1,74 @@
+{
+    "edit": {
+        "documentChanges": [
+            {
+                "textDocument": {
+                    "version": 1,
+                    "uri": "file:///abc/123/d.cs"
+                },
+                "edits": [
+                    {
+                        "range": {
+                            "start": {
+                                "line": 1,
+                                "character": 1
+                            },
+                            "end": {
+                                "line": 2,
+                                "character": 2
+                            }
+                        },
+                        "newText": "new text"
+                    },
+                    {
+                        "range": {
+                            "start": {
+                                "line": 3,
+                                "character": 3
+                            },
+                            "end": {
+                                "line": 4,
+                                "character": 4
+                            }
+                        },
+                        "newText": "new text2"
+                    }
+                ]
+            },
+            {
+                "textDocument": {
+                    "version": 1,
+                    "uri": "file:///abc/123/b.cs"
+                },
+                "edits": [
+                    {
+                        "range": {
+                            "start": {
+                                "line": 1,
+                                "character": 1
+                            },
+                            "end": {
+                                "line": 2,
+                                "character": 2
+                            }
+                        },
+                        "newText": "new text2"
+                    },
+                    {
+                        "range": {
+                            "start": {
+                                "line": 3,
+                                "character": 3
+                            },
+                            "end": {
+                                "line": 4,
+                                "character": 4
+                            }
+                        },
+                        "newText": "new text3"
+                    }
+                ]
+            }
+        ]
+    }
+}

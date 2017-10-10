@@ -1,4 +1,4 @@
-﻿{
+{
     "label": null,
     "kind": 0,
     "insertTextFormat": 0,
@@ -7,5 +7,10 @@
             "range": null,
             "newText": "new text"
         }
+    ],
+    "commitCharacters": [
+        ";",
+        "/",
+        "."
     ]
 }

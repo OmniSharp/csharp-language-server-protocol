@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public static void Log(this ILanguageServer mediator, LogMessageParams @params)
         {
-            mediator.SendNotification("window/logMessage", @params);
+            mediator.LogMessage(@params);
         }
 
         public static void LogError(this ILanguageServer mediator, string message)
