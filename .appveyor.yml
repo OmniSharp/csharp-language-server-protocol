@@ -22,7 +22,8 @@ deploy:
     server: https://www.myget.org/F/omnisharp/api/v2/package
     api_key:
       secure: eoBrSWDtOXSxyUOoCSTyQCeDkvU18W67pE3w26viEUBRi1K4Tru0cTjUtDUB7l9V
-    skip_symbols: true
+    skip_symbols: false
+    symbol_server: https://www.myget.org/F/omnisharp/symbols/api/v2/package
     artifact: /.*\.nupkg/
     on:
       branch: master
@@ -30,7 +31,8 @@ deploy:
     server: https://www.myget.org/F/omnisharp/api/v2/package
     api_key:
       secure: eoBrSWDtOXSxyUOoCSTyQCeDkvU18W67pE3w26viEUBRi1K4Tru0cTjUtDUB7l9V
-    skip_symbols: true
+    skip_symbols: false
+    symbol_server: https://www.myget.org/F/omnisharp/symbols/api/v2/package
     artifact: /.*\.nupkg/
     on:
       appveyor_repo_tag: true
