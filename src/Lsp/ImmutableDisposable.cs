@@ -3,16 +3,16 @@ using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
-    class ImutableDisposable : IDisposable
+    class ImmutableDisposable : IDisposable
     {
         private readonly IEnumerable<IDisposable> _instances;
 
-        public ImutableDisposable(IEnumerable<IDisposable> instances)
+        public ImmutableDisposable(IEnumerable<IDisposable> instances)
         {
             _instances = instances;
         }
 
-        public ImutableDisposable(params IDisposable[] instances)
+        public ImmutableDisposable(params IDisposable[] instances)
         {
             _instances = instances;
         }

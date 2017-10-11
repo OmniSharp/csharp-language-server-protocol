@@ -23,14 +23,14 @@ namespace OmniSharp.Extensions.LanguageServer
             return GetEnumerator();
         }
 
-        public IDisposable Add(params IJsonRpcHandler[] handlers)
-        {
-            return Add(handlers.AsEnumerable());
-        }
-
         public IDisposable Add(IEnumerable<IJsonRpcHandler> handlers)
         {
-            var descriptors = new List<HandlerDescriptor>();
+            return Add(handlers.ToArray());
+        }
+
+        public IDisposable Add(params IJsonRpcHandler[] handlers)
+        {
+            var descriptors = new HashSet<HandlerDescriptor>();
             foreach (var handler in handlers)
             {
                 foreach (var implementedInterface in handler.GetType().GetTypeInfo()
@@ -65,11 +65,15 @@ namespace OmniSharp.Extensions.LanguageServer
                         () => _handlers.RemoveWhere(instance => instance.Handler == handler));
 
                     descriptors.Add(h);
-                    _handlers.Add(h);
                 }
             }
 
-            return new ImutableDisposable(descriptors);
+            foreach (var handler in descriptors)
+            {
+                _handlers.Add(handler);
+            }
+
+            return new ImmutableDisposable(descriptors);
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)
