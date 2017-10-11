@@ -60,16 +60,16 @@ namespace OmniSharp.Extensions.LanguageServer
             return AddHandler(handler);
         }
 
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
+        public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
         {
-            return AddHandlers(handlers.AsEnumerable());
+            return AddHandlers(handlers.ToArray());
         }
 
-        public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
+        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
         {
             var handlerDisposable = _collection.Add(handlers);
 
-            return new ImutableDisposable(
+            return new ImmutableDisposable(
                 handlerDisposable,
                 new Disposable(() =>
                 {
