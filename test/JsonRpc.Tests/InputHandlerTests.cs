@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -39,7 +40,8 @@ namespace JsonRpc.Tests
                 reciever,
                 requestProcessIdentifier,
                 requestRouter,
-                responseRouter);
+                responseRouter,
+                Substitute.For<ILoggerFactory>());
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();
@@ -60,9 +62,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter>(),
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     reciever.When(x => x.IsValid(Arg.Any<JToken>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.Cancel();
                         });
                 }))
@@ -85,9 +89,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter>(),
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     reciever.When(x => x.IsValid(Arg.Any<JToken>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             threadName = System.Threading.Thread.CurrentThread.Name;
                             cts.Cancel();
                         });
@@ -114,9 +120,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter>(),
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     reciever.When(x => x.IsValid(Arg.Any<JToken>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.Cancel();
                         });
                 }))
@@ -150,9 +158,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     outputHandler.When(x => x.Send(Arg.Any<object>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.Cancel();
                         });
                 }))
@@ -182,9 +192,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     outputHandler.When(x => x.Send(Arg.Any<object>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.Cancel();
                         });
                 }))
@@ -213,9 +225,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
-                cts => {
+                cts =>
+                {
                     incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<Notification>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.Cancel();
                         });
                 }))
@@ -247,9 +261,11 @@ namespace JsonRpc.Tests
                 Substitute.For<IRequestProcessIdentifier>(),
                 Substitute.For<IRequestRouter>(),
                 responseRouter,
-                cts => {
+                cts =>
+                {
                     responseRouter.When(x => x.GetRequest(Arg.Any<long>()))
-                        .Do(x => {
+                        .Do(x =>
+                        {
                             cts.CancelAfter(1);
                         });
                 }))

@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
@@ -25,7 +26,7 @@ namespace SampleServer
             //    await Task.Delay(100);
             //}
 
-            var server = new LanguageServer(Console.OpenStandardInput(), Console.OpenStandardOutput());
+            var server = new LanguageServer(Console.OpenStandardInput(), Console.OpenStandardOutput(), new LoggerFactory());
 
             server.AddHandler(new TextDocumentHandler(server));
 

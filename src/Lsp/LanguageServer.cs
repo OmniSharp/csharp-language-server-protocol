@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using OmniSharp.Extensions.LanguageServer.Handlers;
 using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
@@ -30,20 +31,25 @@ namespace OmniSharp.Extensions.LanguageServer
         private readonly HandlerCollection _collection = new HandlerCollection();
         private readonly IResponseRouter _responseRouter;
         private readonly LspReciever _reciever;
+        private readonly ILoggerFactory _loggerFactory;
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public LanguageServer(Stream input, Stream output)
-            : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier())
+        public LanguageServer(Stream input, Stream output, ILoggerFactory loggerFactory)
+            : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier(), loggerFactory)
         {
         }
 
-        internal LanguageServer(Stream input, IOutputHandler output, LspReciever reciever, IRequestProcessIdentifier requestProcessIdentifier)
+        internal LanguageServer(Stream input, IOutputHandler output, LspReciever reciever, IRequestProcessIdentifier requestProcessIdentifier, ILoggerFactory loggerFactory)
         {
+            // TODO: This might not be the best
+            loggerFactory.AddProvider(new LanguageServerLoggerProvider(this));
+
             _reciever = reciever;
+            _loggerFactory = loggerFactory;
             _requestRouter = new LspRequestRouter(_collection);
             _responseRouter = new ResponseRouter(output);
-            _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter);
+            _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
