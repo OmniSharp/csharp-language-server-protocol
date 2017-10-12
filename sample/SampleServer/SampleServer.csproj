@@ -8,6 +8,7 @@
 
     <ItemGroup>
         <ProjectReference Include="../../src/Lsp/Lsp.csproj" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
     </ItemGroup>
 
 </Project>

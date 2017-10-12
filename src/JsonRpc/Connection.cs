@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -14,7 +15,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
-            IResponseRouter responseRouter)
+            IResponseRouter responseRouter,
+            ILoggerFactory loggerFactory)
         {
             _requestRouter = requestRouter;
 
@@ -24,7 +26,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 reciever,
                 requestProcessIdentifier,
                 requestRouter,
-                responseRouter
+                responseRouter,
+                loggerFactory
             );
         }
 

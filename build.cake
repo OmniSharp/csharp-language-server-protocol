@@ -132,6 +132,7 @@ Task("Pack")
         DotNetCorePack(project.FullPath, new DotNetCorePackSettings
         {
             NoBuild = true,
+            IncludeSymbols = true,
             Configuration = configuration,
             EnvironmentVariables = GitVersionEnvironmentVariables,
             OutputDirectory = artifacts + "/nuget"

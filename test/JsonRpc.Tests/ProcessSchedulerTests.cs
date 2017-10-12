@@ -6,13 +6,20 @@ using Xunit;
 using FluentAssertions;
 using System.Collections.Generic;
 using OmniSharp.Extensions.JsonRpc;
+using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
     public class ProcessSchedulerTests
     {
+        public ProcessSchedulerTests(ITestOutputHelper testOutputHelper)
+        {
+            _testOutputHelper = testOutputHelper;
+        }
+
         private const int SLEEPTIME_MS = 20;
         private const int ALONGTIME_MS = 500;
+        private readonly ITestOutputHelper _testOutputHelper;
 
         class AllRequestProcessTypes : TheoryData
         {
@@ -26,11 +33,12 @@ namespace JsonRpc.Tests
         [Theory, ClassData(typeof(AllRequestProcessTypes))]
         public void ShouldScheduleCompletedTask(RequestProcessType type)
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(1);
                 s.Start();
-                s.Add(type, () => {
+                s.Add(type, "bogus", () =>
+                {
                     done.Signal();
                     return Task.CompletedTask;
                 });
@@ -41,11 +49,12 @@ namespace JsonRpc.Tests
         [Fact]
         public void ShouldScheduleAwaitableTask()
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(1);
                 s.Start();
-                s.Add(RequestProcessType.Serial, async () => {
+                s.Add(RequestProcessType.Serial, "bogus", async () =>
+                {
                     await Task.Yield();
                     done.Signal();
                 });
@@ -56,12 +65,14 @@ namespace JsonRpc.Tests
         [Fact]
         public void ShouldScheduleConstructedTask()
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(1);
                 s.Start();
-                s.Add(RequestProcessType.Serial, () => {
-                    return new Task(() => {
+                s.Add(RequestProcessType.Serial, "bogus", () =>
+                {
+                    return new Task(() =>
+                    {
                         done.Signal();
                     });
                 });
@@ -72,13 +83,14 @@ namespace JsonRpc.Tests
         [Fact]
         public void ShouldScheduleSerialInOrder()
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(3); // 3x s.Add
                 var running = 0;
                 var peek = 0;
 
-                Func<Task> HandlePeek = async () => {
+                Func<Task> HandlePeek = async () =>
+                {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
@@ -88,7 +100,7 @@ namespace JsonRpc.Tests
 
                 s.Start();
                 for (var i = 0; i < done.CurrentCount; i++)
-                    s.Add(RequestProcessType.Serial, HandlePeek);
+                    s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
 
                 done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
                 running.Should().Be(0, because: "all tasks have to run normally");
@@ -101,13 +113,14 @@ namespace JsonRpc.Tests
         [Fact]
         public void ShouldScheduleParallelInParallel()
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(8); // 8x s.Add
                 var running = 0;
                 var peek = 0;
 
-                Func<Task> HandlePeek = async () => {
+                Func<Task> HandlePeek = async () =>
+                {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
@@ -116,12 +129,12 @@ namespace JsonRpc.Tests
                 };
 
                 s.Start();
-                for (var i = 0; i<done.CurrentCount; i++)
-                    s.Add(RequestProcessType.Parallel, HandlePeek);
+                for (var i = 0; i < done.CurrentCount; i++)
+                    s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
 
-                done.Wait(ALONGTIME_MS).Should().Be(true, because:"all tasks have to run");
-                running.Should().Be(0, because:"all tasks have to run normally");
-                peek.Should().BeGreaterThan(3, because:"a lot of tasks should overlap");
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
+                running.Should().Be(0, because: "all tasks have to run normally");
+                peek.Should().BeGreaterThan(3, because: "a lot of tasks should overlap");
                 s.Dispose();
                 Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
@@ -130,13 +143,14 @@ namespace JsonRpc.Tests
         [Fact]
         public void ShouldScheduleMixed()
         {
-            using (IScheduler s = new ProcessScheduler())
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
             {
                 var done = new CountdownEvent(8); // 8x s.Add
                 var running = 0;
                 var peek = 0;
 
-                Func<Task> HandlePeek = async () => {
+                Func<Task> HandlePeek = async () =>
+                {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
                     await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
@@ -145,14 +159,14 @@ namespace JsonRpc.Tests
                 };
 
                 s.Start();
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Serial, HandlePeek);
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Parallel, HandlePeek);
-                s.Add(RequestProcessType.Serial, HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
 
                 done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
                 running.Should().Be(0, because: "all tasks have to run normally");

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -23,6 +24,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
+        private readonly ILogger<InputHandler> _logger;
         private readonly IScheduler _scheduler;
 
         public InputHandler(
@@ -31,7 +33,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
-            IResponseRouter responseRouter
+            IResponseRouter responseRouter,
+            ILoggerFactory loggerFactory
             )
         {
             if (!input.CanRead) throw new ArgumentException($"must provide a readable stream for {nameof(input)}", nameof(input));
@@ -41,8 +44,8 @@ namespace OmniSharp.Extensions.JsonRpc
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
-
-            _scheduler = new ProcessScheduler();
+            _logger = loggerFactory.CreateLogger<InputHandler>();
+            _scheduler = new ProcessScheduler(loggerFactory);
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
         }
 
@@ -163,6 +166,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     _scheduler.Add(
                         type,
+                        item.Request.Method,
                         async () => {
                             var result = await _requestRouter.RouteRequest(item.Request);
                             _outputHandler.Send(result.Value);
@@ -173,6 +177,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     _scheduler.Add(
                         type,
+                        item.Notification.Method,
                         () => {
                             _requestRouter.RouteNotification(item.Notification);
                             return Task.CompletedTask;
