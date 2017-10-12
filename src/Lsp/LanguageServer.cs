@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer
 
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
-            return AddHandler(handler);
+            return AddHandlers(handler);
         }
 
         public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
