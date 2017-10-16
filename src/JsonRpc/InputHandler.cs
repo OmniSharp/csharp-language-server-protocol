@@ -167,9 +167,20 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Request.Method,
-                        async () => {
-                            var result = await _requestRouter.RouteRequest(item.Request);
-                            _outputHandler.Send(result.Value);
+                        async () =>
+                        {
+                            try
+                            {
+                                var result = await _requestRouter.RouteRequest(item.Request);
+                                _outputHandler.Send(result.Value);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogCritical(Events.UnhandledRequest, e, "Unhandled exception executing request {Method}@{Id}", item.Request.Method, item.Request.Id);
+                                // TODO: Should we rethrow or swallow?
+                                // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
+                                throw;
+                            }
                         }
                     );
                 }
@@ -178,8 +189,19 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
-                        () => {
-                            _requestRouter.RouteNotification(item.Notification);
+                        () =>
+                        {
+                            try
+                            {
+                                _requestRouter.RouteNotification(item.Notification);
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogCritical(Events.UnhandledNotification, e, "Unhandled exception executing notification {Method}@{Id}", item.Notification.Method);
+                                // TODO: Should we rethrow or swallow?
+                                // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
+                                throw;
+                            }
                             return Task.CompletedTask;
                         }
                     );

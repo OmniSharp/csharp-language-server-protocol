@@ -95,16 +95,16 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                         catch (Exception e)
                         {
-                            // TODO: Create proper event ids
-                            _logger.LogCritical(Events.UnhandledRequest, e, "Unhandled exception executing request {Name}", name);
+                            // TODO: Should we rethrow or swallow?
+                            // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
+                            _logger.LogCritical(Events.UnhandledException, e, "Unhandled exception executing request {Name}", name);
+                            throw;
                         }
                     }
                 }
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException ex) when (ex.CancellationToken == token)
             {
-                if (ex.CancellationToken != token)
-                    throw;
                 // OperationCanceledException - The CancellationToken has been canceled.
                 Task.WaitAll(waitables.ToArray(), TimeSpan.FromMilliseconds(1000));
                 var keeponrunning = RemoveCompleteTasks(waitables);
@@ -130,6 +130,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
     static class Events
     {
-        public static EventId UnhandledRequest = new EventId(1337_100);
+        public static EventId UnhandledException = new EventId(1337_100);
+        public static EventId UnhandledRequest = new EventId(1337_101);
+        public static EventId UnhandledNotification = new EventId(1337_102);
     }
 }
