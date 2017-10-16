@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -18,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer
     class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
-        private ITextDocumentSyncHandler _textDocumentSyncHandler;
+        private ITextDocumentSyncHandler[] _textDocumentSyncHandlers;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
         public LspRequestRouter(IHandlerCollection collection)
@@ -46,19 +47,20 @@ namespace OmniSharp.Extensions.LanguageServer
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null) return null;
 
-            if (_textDocumentSyncHandler == null)
+            if (_textDocumentSyncHandlers == null)
             {
-                _textDocumentSyncHandler = _collection
+                _textDocumentSyncHandlers = _collection
                     .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
-                    .FirstOrDefault(x => x != null);
+                    .Where(x => x != null)
+                    .ToArray();
             }
-
-            if (_textDocumentSyncHandler is null) return descriptor;
 
             if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
                 var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
-                var attributes = _textDocumentSyncHandler.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
+                var attributes = _textDocumentSyncHandlers
+                    .Select(x => x.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri))
+                    .Where(x => x != null);
 
                 return GetHandler(method, attributes);
             }
@@ -73,6 +75,13 @@ namespace OmniSharp.Extensions.LanguageServer
             // TODO: How to split these
             // Do they fork and join?
             return descriptor;
+        }
+
+        private ILspHandlerDescriptor GetHandler(string method, IEnumerable<TextDocumentAttributes> attributes)
+        {
+            return attributes
+                .Select(x => GetHandler(method, x))
+                .FirstOrDefault(x => x != null);
         }
 
         private ILspHandlerDescriptor GetHandler(string method, TextDocumentAttributes attributes)

@@ -7,13 +7,14 @@
 import * as path from 'path';
 
 import { workspace, Disposable, ExtensionContext } from 'vscode';
-import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind } from 'vscode-languageclient';
+import { LanguageClient, LanguageClientOptions, SettingMonitor, ServerOptions, TransportKind, InitializeParams } from 'vscode-languageclient';
+import { Trace } from 'vscode-jsonrpc';
 
 export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
-    // let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
-    let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
+    let serverExe = 'C:/other/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
+    // let serverExe = 'C:/other/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
     // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
     // let debugOptions = { execArgv: ['-lsp', '-d' };5
@@ -40,11 +41,12 @@ export function activate(context: ExtensionContext) {
             configurationSection: 'languageServerExample',
             // Notify the server about file changes to '.clientrc files contain in the workspace
             fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
-        }
+        },
     }
 
     // Create the language client and start the client.
     const client = new LanguageClient('languageServerExample', 'Language Server Example', serverOptions, clientOptions);
+    client.trace = Trace.Verbose;
     let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the
