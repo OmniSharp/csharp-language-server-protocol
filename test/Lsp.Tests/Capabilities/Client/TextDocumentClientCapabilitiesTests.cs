@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
@@ -38,6 +38,18 @@ namespace Lsp.Tests.Capabilities.Client
                     WillSaveWaitUntil = true
                 }
             };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = JsonConvert.DeserializeObject<TextDocumentClientCapabilities>(expected);
+            deresult.ShouldBeEquivalentTo(model);
+        }
+
+        [Theory, JsonFixture]
+        public void EmptyTest(string expected)
+        {
+            var model = new TextDocumentClientCapabilities();
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

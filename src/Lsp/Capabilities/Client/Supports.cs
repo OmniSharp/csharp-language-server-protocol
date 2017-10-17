@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Converters;
 
@@ -38,8 +38,9 @@ namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
     public static class Supports
     {
         public static Supports<T> OfValue<T>(T value)
+            where T : class
         {
-            return new Supports<T>(true, value);
+            return new Supports<T>(value != null, value);
         }
 
         public static Supports<T> OfBoolean<T>(bool isSupported)

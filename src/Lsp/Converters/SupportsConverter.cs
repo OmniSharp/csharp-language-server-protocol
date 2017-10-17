@@ -44,6 +44,10 @@ namespace OmniSharp.Extensions.LanguageServer.Converters
             var targetType = objectType.GetTypeInfo().GetGenericArguments()[0];
             if (reader.TokenType == JsonToken.Boolean)
             {
+                if (targetType == typeof(bool))
+                {
+                    return new Supports<bool>(true, (bool)reader.Value);
+                }
                 return OfBooleanMethod
                     .MakeGenericMethod(targetType)
                     .Invoke(null, new [] { reader.Value });
