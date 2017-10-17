@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -50,6 +50,7 @@ namespace Lsp.Tests.Models
                         DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
                         ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },
                         Symbol = new WorkspaceSymbolCapability() { DynamicRegistration = true },
+
                     }
                 },
                 InitializationOptions = null,

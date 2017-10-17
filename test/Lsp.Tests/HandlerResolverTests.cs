@@ -21,10 +21,6 @@ namespace Lsp.Tests
         [Theory]
         [InlineData(typeof(IInitializeHandler), "initialize", 1)]
         [InlineData(typeof(IInitializedHandler), "initialized", 1)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didOpen", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didChange", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didClose", 4)]
-        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didSave", 4)]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key, int count)
         {
             var handler = new HandlerCollection();
@@ -39,6 +35,21 @@ namespace Lsp.Tests
         }
 
         [Theory]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didOpen", 4)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didChange", 4)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didClose", 4)]
+        [InlineData(typeof(ITextDocumentSyncHandler), "textDocument/didSave", 4)]
+        public void Should_Contain_AllDefinedTextDocumentSyncMethods(Type requestHandler, string key, int count)
+        {
+            var handler = new HandlerCollection();
+            var sub = (IJsonRpcHandler)TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.something"));
+
+            handler.Add(sub);
+            handler._handlers.Should().Contain(x => x.Method == key);
+            handler._handlers.Count.Should().Be(count);
+        }
+
+        [Theory]
         [InlineData("textDocument/didOpen", 8)]
         [InlineData("textDocument/didChange", 8)]
         [InlineData("textDocument/didClose", 8)]
@@ -46,21 +57,9 @@ namespace Lsp.Tests
         public void Should_Contain_AllDefinedMethods_ForDifferentKeys(string key, int count)
         {
             var handler = new HandlerCollection();
-            var sub = Substitute.For<ITextDocumentSyncHandler>();
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
-                .Returns(new TextDocumentRegistrationOptions() {
-                    DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                        Pattern = "**/*.cs"
-                    })
-                });
+            var sub = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
-            var sub2 = Substitute.For<ITextDocumentSyncHandler>();
-            if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
-                reg2.GetRegistrationOptions()
-                .Returns(new TextDocumentRegistrationOptions() {
-                    DocumentSelector = new DocumentSelector(new DocumentFilter() { Pattern = "**/*.cake" })
-                });
+            var sub2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
 
             handler.Add(sub);
             handler.Add(sub2);

@@ -1,13 +1,8 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Models
 {
-    public interface ITextDocumentIdentifierParams
-    {
-        TextDocumentIdentifier TextDocument { get; }
-    }
-
     /// <summary>
     /// Params for the CodeActionRequest
     /// </summary>

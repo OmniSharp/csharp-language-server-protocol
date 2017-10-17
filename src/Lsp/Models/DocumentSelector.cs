@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -46,6 +46,21 @@ namespace OmniSharp.Extensions.LanguageServer.Models
         public bool IsMatch(TextDocumentAttributes attributes)
         {
             return this.Any(z => z.IsMatch(attributes));
+        }
+
+        public static DocumentSelector ForPattern(params string[] wildcards)
+        {
+            return new DocumentSelector(wildcards.Select(DocumentFilter.ForPattern));
+        }
+
+        public static DocumentSelector ForLanguage(params string[] languages)
+        {
+            return new DocumentSelector(languages.Select(DocumentFilter.ForLanguage));
+        }
+
+        public static DocumentSelector ForScheme(params string[] schemes)
+        {
+            return new DocumentSelector(schemes.Select(DocumentFilter.ForScheme));
         }
     }
 }
