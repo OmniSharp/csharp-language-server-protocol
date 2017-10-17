@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,9 +48,11 @@ namespace OmniSharp.Extensions.LanguageServer
                     }
 
                     var key = "default";
-                    if (handler is IRegistration<TextDocumentRegistrationOptions> textDocumentRegistration)
+                    if (handler is IRegistration<TextDocumentRegistrationOptions>)
                     {
-                        var options = textDocumentRegistration.GetRegistrationOptions();
+                        var options = GetTextDocumentRegistrationOptionsMethod
+                            .MakeGenericMethod(registration)
+                            .Invoke(handler, new object[] { handler }) as TextDocumentRegistrationOptions;
                         key = options.DocumentSelector;
                     }
 
@@ -74,6 +76,15 @@ namespace OmniSharp.Extensions.LanguageServer
             }
 
             return new ImmutableDisposable(descriptors);
+        }
+
+        private static readonly MethodInfo GetTextDocumentRegistrationOptionsMethod = typeof(HandlerCollection).GetTypeInfo()
+            .GetMethod(nameof(GetTextDocumentRegistrationOptions), BindingFlags.Static | BindingFlags.NonPublic);
+
+        private static TextDocumentRegistrationOptions GetTextDocumentRegistrationOptions<T>(IRegistration<T> instance)
+            where T : TextDocumentRegistrationOptions
+        {
+            return instance.GetRegistrationOptions();
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)

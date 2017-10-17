@@ -1,33 +1,18 @@
-﻿using System;
+using System;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
     public interface ITextDocumentSyncHandler : IDidChangeTextDocumentHandler, IDidOpenTextDocumentHandler, IDidCloseTextDocumentHandler, IDidSaveTextDocumentHandler
     {
         TextDocumentSyncOptions Options { get; }
+        /// <summary>
+        /// Returns the attributes for the document at the given URI.  This can return null.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         TextDocumentAttributes GetTextDocumentAttributes(Uri uri);
-    }
-
-    public class TextDocumentAttributes
-    {
-        public TextDocumentAttributes(Uri uri, string languageId)
-        {
-            Uri = uri;
-            Scheme = uri.Scheme;
-            LanguageId = languageId;
-        }
-
-        public TextDocumentAttributes(Uri uri, string scheme, string languageId)
-        {
-            Uri = uri;
-            Scheme = scheme;
-            LanguageId = languageId;
-        }
-
-        public Uri Uri { get; }
-        public string Scheme { get; }
-        public string LanguageId { get; }
     }
 }

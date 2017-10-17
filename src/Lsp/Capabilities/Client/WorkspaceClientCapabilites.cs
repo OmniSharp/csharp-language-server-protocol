@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
@@ -13,6 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
         public bool ApplyEdit { get; set; }
 
         public Supports<WorkspaceEditCapability> WorkspaceEdit { get; set; }
+
+        private bool ShouldSerializeWorkspaceEdit() => WorkspaceEdit.IsSupported;
 
         /// <summary>
         /// Capabilities specific to the `workspace/didChangeConfiguration` notification.

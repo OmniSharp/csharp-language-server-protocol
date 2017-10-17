@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Converters
             }
             else
             {
-                serializer.Serialize(writer, false);
+                serializer.Serialize(writer, null);
             }
         }
 

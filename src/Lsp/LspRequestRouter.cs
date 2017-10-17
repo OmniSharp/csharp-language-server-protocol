@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer
 
         private ILspHandlerDescriptor FindDescriptor(string method, JToken @params)
         {
-            var descriptor = _collection.FirstOrDefault(x => x.Method == method);
+            var descriptor = _collection.FirstOrDefault(x => x.Method.Equals(method, StringComparison.OrdinalIgnoreCase));
             if (descriptor is null) return null;
 
             if (_textDocumentSyncHandlers == null)

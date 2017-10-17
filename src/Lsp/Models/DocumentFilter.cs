@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Minimatch;
 using Newtonsoft.Json;
@@ -107,6 +108,21 @@ namespace OmniSharp.Extensions.LanguageServer.Models
             }
 
             return false;
+        }
+
+        public static DocumentFilter ForPattern(string wildcard)
+        {
+            return new DocumentFilter() { Pattern = wildcard };
+        }
+
+        public static DocumentFilter ForLanguage(string language)
+        {
+            return new DocumentFilter() { Language = language };
+        }
+
+        public static DocumentFilter ForScheme(string scheme)
+        {
+            return new DocumentFilter() { Scheme = scheme };
         }
     }
 }

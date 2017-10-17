@@ -18,8 +18,6 @@ using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
-    public delegate Task InitializeDelegate(InitializeParams request);
-
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
     {
         private readonly Connection _connection;

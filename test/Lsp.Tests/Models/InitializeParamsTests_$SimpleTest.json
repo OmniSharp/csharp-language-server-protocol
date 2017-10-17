@@ -1,4 +1,4 @@
-﻿{
+{
     "processId": 1234,
     "rootPath": "/file/abc/12.cs",
     "rootUri": "file:///file/abc/12.cs",
@@ -6,7 +6,7 @@
     "capabilities": {
         "workspace": {
             "applyEdit": true,
-            "workspaceEdit": false,
+            "workspaceEdit": null,
             "didChangeConfiguration": {
                 "dynamicRegistration": true
             },
