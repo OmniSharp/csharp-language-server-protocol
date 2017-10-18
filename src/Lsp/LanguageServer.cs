@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
