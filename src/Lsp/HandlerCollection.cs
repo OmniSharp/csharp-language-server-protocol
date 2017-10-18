@@ -50,10 +50,10 @@ namespace OmniSharp.Extensions.LanguageServer
                     var key = "default";
                     if (handler is IRegistration<TextDocumentRegistrationOptions>)
                     {
-                        var options = GetTextDocumentRegistrationOptionsMethod
+                        if (GetTextDocumentRegistrationOptionsMethod
                             .MakeGenericMethod(registration)
-                            .Invoke(handler, new object[] { handler }) as TextDocumentRegistrationOptions;
-                        key = options.DocumentSelector;
+                            .Invoke(handler, new object[] { handler }) is TextDocumentRegistrationOptions options)
+                            key = options.DocumentSelector;
                     }
 
                     var h = new HandlerDescriptor(

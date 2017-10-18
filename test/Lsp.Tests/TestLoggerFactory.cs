@@ -1,5 +1,6 @@
 using System;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 using Serilog;
 using Serilog.Extensions.Logging;
 using Xunit.Abstractions;

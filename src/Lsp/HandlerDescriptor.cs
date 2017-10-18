@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
@@ -59,17 +59,17 @@ namespace OmniSharp.Extensions.LanguageServer
 
         public void SetCapability(object instance)
         {
+            if (instance is DynamicCapability dc)
+            {
+                AllowsDynamicRegistration = dc.DynamicRegistration;
+            }
+
             // TODO: Cache this
             GetType()
                 .GetTypeInfo()
                 .GetMethod(nameof(SetCapability), BindingFlags.NonPublic | BindingFlags.Static)
                 .MakeGenericMethod(CapabilityType)
                 .Invoke(this, new[] { Handler, instance });
-
-            if (instance is DynamicCapability dc)
-            {
-                AllowsDynamicRegistration = dc.DynamicRegistration;
-            }
         }
 
         public string Method { get; }

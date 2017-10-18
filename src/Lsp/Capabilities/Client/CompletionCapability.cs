@@ -1,6 +1,8 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+using OmniSharp.Extensions.LanguageServer.Protocol;
+
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
-    public class CompletionCapability : DynamicCapability
+    public class CompletionCapability : DynamicCapability, ConnectedCapability<ICompletionHandler>
     {
         /// <summary>
         /// The client supports the following `CompletionItem` specific
