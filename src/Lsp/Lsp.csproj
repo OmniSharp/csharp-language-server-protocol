@@ -10,4 +10,9 @@
         <PackageReference Include="System.ValueTuple" Version="4.4.0" />
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <Reference Include="FluentAssertions">
+        <HintPath>..\..\..\..\Users\ddriscoll\.nuget\packages\fluentassertions\4.19.4\lib\net45\FluentAssertions.dll</HintPath>
+      </Reference>
+    </ItemGroup>
 </Project>

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -75,8 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer
 
             return new ImmutableDisposable(
                 handlerDisposable,
-                new Disposable(() =>
-                {
+                new Disposable(() => {
                     var foundItems = handlers
                     .SelectMany(handler => _collection
                         .Where(x => handler == x.Handler)
@@ -85,8 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer
                         .Where(x => x != null))
                     .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
-                    {
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() {
                         Unregisterations = foundItems
                     }));
                 }));
@@ -129,39 +128,49 @@ namespace OmniSharp.Extensions.LanguageServer
             var textDocumentCapabilities = Client.Capabilities.TextDocument;
             var workspaceCapabilities = Client.Capabilities.Workspace;
 
-            var serverCapabilities = new ServerCapabilities()
-            {
-                CodeActionProvider = HasHandler<ICodeActionHandler>(textDocumentCapabilities.CodeAction),
-                CodeLensProvider = GetOptions<ICodeLensOptions, CodeLensOptions>(textDocumentCapabilities.CodeLens, CodeLensOptions.Of),
-                CompletionProvider = GetOptions<ICompletionOptions, CompletionOptions>(textDocumentCapabilities.Completion, CompletionOptions.Of),
-                DefinitionProvider = HasHandler<IDefinitionHandler>(textDocumentCapabilities.Definition),
-                DocumentFormattingProvider = HasHandler<IDocumentFormattingHandler>(textDocumentCapabilities.Formatting),
-                DocumentHighlightProvider = HasHandler<IDocumentHighlightHandler>(textDocumentCapabilities.DocumentHighlight),
-                DocumentLinkProvider = GetOptions<IDocumentLinkOptions, DocumentLinkOptions>(textDocumentCapabilities.DocumentLink, DocumentLinkOptions.Of),
-                DocumentOnTypeFormattingProvider = GetOptions<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(textDocumentCapabilities.OnTypeFormatting, DocumentOnTypeFormattingOptions.Of),
-                DocumentRangeFormattingProvider = HasHandler<IDocumentRangeFormattingHandler>(textDocumentCapabilities.RangeFormatting),
-                DocumentSymbolProvider = HasHandler<IDocumentSymbolHandler>(textDocumentCapabilities.DocumentSymbol),
-                ExecuteCommandProvider = GetOptions<IExecuteCommandOptions, ExecuteCommandOptions>(workspaceCapabilities.ExecuteCommand, ExecuteCommandOptions.Of),
-                HoverProvider = HasHandler<IHoverHandler>(textDocumentCapabilities.Hover),
-                ReferencesProvider = HasHandler<IReferencesHandler>(textDocumentCapabilities.References),
-                RenameProvider = HasHandler<IRenameHandler>(textDocumentCapabilities.Rename),
-                SignatureHelpProvider = GetOptions<ISignatureHelpOptions, SignatureHelpOptions>(textDocumentCapabilities.SignatureHelp, SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = HasHandler<IWorkspaceSymbolsHandler>(workspaceCapabilities.Symbol)
+            var ccp = new ClientCapabilityProvider(_collection);
+
+            var serverCapabilities = new ServerCapabilities() {
+                CodeActionProvider = ccp.HasHandler(textDocumentCapabilities.CodeAction),
+                CodeLensProvider = ccp.GetOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
+                CompletionProvider = ccp.GetOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
+                DefinitionProvider = ccp.HasHandler(textDocumentCapabilities.Definition),
+                DocumentFormattingProvider = ccp.HasHandler(textDocumentCapabilities.Formatting),
+                DocumentHighlightProvider = ccp.HasHandler(textDocumentCapabilities.DocumentHighlight),
+                DocumentLinkProvider = ccp.GetOptions(textDocumentCapabilities.DocumentLink).Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
+                DocumentOnTypeFormattingProvider = ccp.GetOptions(textDocumentCapabilities.OnTypeFormatting).Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
+                DocumentRangeFormattingProvider = ccp.HasHandler(textDocumentCapabilities.RangeFormatting),
+                DocumentSymbolProvider = ccp.HasHandler(textDocumentCapabilities.DocumentSymbol),
+                ExecuteCommandProvider = ccp.GetOptions(workspaceCapabilities.ExecuteCommand).Get<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
+                HoverProvider = ccp.HasHandler(textDocumentCapabilities.Hover),
+                ReferencesProvider = ccp.HasHandler(textDocumentCapabilities.References),
+                RenameProvider = ccp.HasHandler(textDocumentCapabilities.Rename),
+                SignatureHelpProvider = ccp.GetOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
+                WorkspaceSymbolProvider = ccp.HasHandler(workspaceCapabilities.Symbol)
             };
 
-            var textSyncHandler = _collection
+            var textSyncHandlers = _collection
                 .Select(x => x.Handler)
                 .OfType<ITextDocumentSyncHandler>()
-                .FirstOrDefault();
+                .ToArray();
 
             if (_clientVersion == ClientVersion.Lsp2)
             {
-                serverCapabilities.TextDocumentSync = textSyncHandler?.Options.Change ?? TextDocumentSyncKind.None;
+                if (textSyncHandlers.Any())
+                {
+                    serverCapabilities.TextDocumentSync = textSyncHandlers
+                        .Where(x => x.Options.Change != TextDocumentSyncKind.None)
+                        .Min(z => z.Options.Change);
+                }
+                else
+                {
+                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
+                }
             }
             else
             {
-                serverCapabilities.TextDocumentSync = textSyncHandler?.Options ?? new TextDocumentSyncOptions()
-                {
+                // TODO: Merge options
+                serverCapabilities.TextDocumentSync = textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
                     Change = TextDocumentSyncKind.None,
                     OpenClose = false,
                     Save = new SaveOptions() { IncludeText = false },
@@ -201,34 +210,6 @@ namespace OmniSharp.Extensions.LanguageServer
             return Task.CompletedTask;
         }
 
-        private bool HasHandler<T>(DynamicCapability capability)
-        {
-            return capability.DynamicRegistration ? false : _collection.Any(z => z.Handler is T);
-        }
-
-        private bool HasHandler<T>(Supports<DynamicCapability> capability)
-        {
-            if (!capability.IsSupported) return false;
-            return HasHandler<T>(capability.Value);
-        }
-
-        private T GetOptions<O, T>(DynamicCapability capability, Func<O, T> action)
-            where T : class
-        {
-            if (capability.DynamicRegistration) return null;
-
-            return _collection
-                .Select(x => x.Registration?.RegisterOptions is O cl ? action(cl) : null)
-                .FirstOrDefault(x => x != null);
-        }
-
-        private T GetOptions<O, T>(Supports<DynamicCapability> capability, Func<O, T> action)
-            where T : class
-        {
-            if (!capability.IsSupported) return null;
-            return GetOptions<O, T>(capability.Value, action);
-        }
-
         private void ProcessCapabilties(object instance)
         {
             var values = instance
@@ -250,11 +231,10 @@ namespace OmniSharp.Extensions.LanguageServer
 
         private async Task DynamicallyRegisterHandlers()
         {
-            var registrations = new List<Registration>();
-            foreach (var handler in _collection.Where(x => x.AllowsDynamicRegistration))
-            {
-                registrations.Add(handler.Registration);
-            }
+            var registrations = _collection
+                .Where(x => x.AllowsDynamicRegistration)
+                .Select(handler => handler.Registration)
+                .ToList();
 
             if (registrations.Count == 0)
                 return; // No dynamic registrations supported by client.
