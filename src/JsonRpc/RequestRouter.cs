@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async void RouteNotification(Notification notification)
         {
-            var handler = _collection.Get(notification.Method);
+            var handler = _collection.FirstOrDefault(x => x.Method == notification.Method);
 
             Task result;
             if (handler.Params is null)
@@ -46,16 +47,14 @@ namespace OmniSharp.Extensions.JsonRpc
 
         protected virtual async Task<ErrorResponse> RouteRequest(Request request, CancellationToken token)
         {
-            var handler = _collection.Get(request.Method);
-
-            var method = _collection.Get(request.Method);
-            if (method is null)
+            var handler = _collection.FirstOrDefault(x => x.Method == request.Method);
+            if (request.Method is null)
             {
-                return new MethodNotFound(request.Id);
+                return new MethodNotFound(request.Id, request.Method);
             }
 
             Task result;
-            if (method.Params is null)
+            if (handler.Params is null)
             {
                 result = ReflectionRequestHandlers.HandleRequest(handler, token);
             }
@@ -64,7 +63,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 object @params;
                 try
                 {
-                    @params = request.Params.ToObject(method.Params);
+                    @params = request.Params.ToObject(handler.Params);
                 }
                 catch
                 {

@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Messages;
 using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
+using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 
@@ -22,6 +23,13 @@ namespace Lsp.Tests
 {
     public class MediatorTestsRequestHandlerOfTRequestTResponse
     {
+        private readonly TestLoggerFactory _testLoggerFactory;
+
+        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper)
+        {
+            _testLoggerFactory = new TestLoggerFactory(testOutputHelper);
+        }
+
         [Fact]
         public async Task RequestsCancellation()
         {
@@ -39,7 +47,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {

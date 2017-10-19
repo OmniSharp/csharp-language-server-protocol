@@ -17,20 +17,10 @@ namespace OmniSharp.Extensions.JsonRpc.Client
             Result = result;
         }
 
-        public Response(object id, RpcError result)
-        {
-            Id = id;
-            Result = result;
-        }
-
         public string ProtocolVersion { get; set; } = "2.0";
 
         public object Id { get; set; }
 
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public object Result { get; set; }
-
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
-        public RpcError Error { get; set; }
     }
 }

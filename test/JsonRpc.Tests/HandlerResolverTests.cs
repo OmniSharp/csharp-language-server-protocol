@@ -1,8 +1,10 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using FluentAssertions.Common;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
@@ -48,7 +50,7 @@ namespace JsonRpc.Tests
         {
             var handler = new HandlerCollection();
             handler.Add((IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]));
-            handler.Get(key).Params.Should().Equals(expected);
+            handler.First(x => x.Method == key).Params.Should().IsSameOrEqualTo(expected);
         }
     }
 }

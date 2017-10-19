@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             Response = null;
         }
 
-        internal Renor(Response response)
+        internal Renor(ResponseBase response)
         {
             Notification = null;
             Request = null;
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         public RpcError Error { get; }
 
         public bool IsResponse => Response != null;
-        public Response Response { get; }
+        public ResponseBase Response { get; }
 
         public static implicit operator Renor(Notification notification)
         {
@@ -65,7 +65,12 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             return new Renor(error);
         }
 
-        public static implicit operator Renor(Response response)
+        public static implicit operator Renor(ServerResponse response)
+        {
+            return new Renor(response);
+        }
+
+        public static implicit operator Renor(ServerError response)
         {
             return new Renor(response);
         }

@@ -25,7 +25,6 @@ namespace OmniSharp.Extensions.JsonRpc
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Id { get; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public ErrorMessage<T> Error { get; }
     }
 

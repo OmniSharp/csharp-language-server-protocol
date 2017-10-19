@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -64,16 +64,6 @@ namespace OmniSharp.Extensions.JsonRpc
             var h = new HandlerInstance(GetMethodName(type), handler, @interface, @params, () => Remove(handler));
             _handlers.Add(h);
             return h;
-        }
-
-        public IHandlerInstance Get(IJsonRpcHandler handler)
-        {
-            return _handlers.Find(instance => instance.Handler == handler);
-        }
-
-        public IHandlerInstance Get(string method)
-        {
-            return _handlers.Find(instance => instance.Method == method);
         }
 
         private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };

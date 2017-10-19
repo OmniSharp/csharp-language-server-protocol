@@ -63,13 +63,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
             if (hasRequestId && request.TryGetValue("result", out var response))
             {
-                return new Response(requestId, response);
+                return new ServerResponse(requestId, response);
             }
 
             if (hasRequestId && request.TryGetValue("error", out var errorResponse))
             {
                 // TODO: this doesn't seem right.
-                return new RpcError(requestId, new ErrorMessage<object>(-1337, "Unknown error response", errorResponse));
+                return new ServerError(requestId, errorResponse);
             }
 
             var method = request["method"]?.Value<string>();

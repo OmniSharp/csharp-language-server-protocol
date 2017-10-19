@@ -9,7 +9,6 @@ namespace JsonRpc.Tests
 {
     public class TestLoggerFactory : ILoggerFactory
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private readonly SerilogLoggerProvider _loggerProvider;
 
         public TestLoggerFactory(ITestOutputHelper testOutputHelper)

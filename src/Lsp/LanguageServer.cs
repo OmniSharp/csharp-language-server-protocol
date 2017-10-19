@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer
 
             _reciever = reciever;
             _loggerFactory = loggerFactory;
-            _requestRouter = new LspRequestRouter(_collection);
+            _requestRouter = new LspRequestRouter(_collection, loggerFactory);
             _responseRouter = new ResponseRouter(output);
             _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory);
 
@@ -168,14 +168,17 @@ namespace OmniSharp.Extensions.LanguageServer
             }
             else
             {
-                // TODO: Merge options
-                serverCapabilities.TextDocumentSync = textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
-                    Change = TextDocumentSyncKind.None,
-                    OpenClose = false,
-                    Save = new SaveOptions() { IncludeText = false },
-                    WillSave = false,
-                    WillSaveWaitUntil = false
-                };
+                if (ccp.HasHandler(textDocumentCapabilities.Synchronization))
+                {
+                    // TODO: Merge options
+                    serverCapabilities.TextDocumentSync = textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
+                        Change = TextDocumentSyncKind.None,
+                        OpenClose = false,
+                        Save = new SaveOptions() { IncludeText = false },
+                        WillSave = false,
+                        WillSaveWaitUntil = false
+                    };
+                }
             }
 
             _reciever.Initialized();
@@ -286,3 +289,4 @@ namespace OmniSharp.Extensions.LanguageServer
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
     }
 }
+
