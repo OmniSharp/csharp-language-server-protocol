@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -179,7 +179,7 @@ namespace JsonRpc.Tests
             var reciever = Substitute.For<IReciever>();
             var incomingRequestRouter = Substitute.For<IRequestRouter>();
 
-            var error = new Error(1, new ErrorMessage(1, "abc"));
+            var error = new RpcError(1, new ErrorMessage(1, "abc"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { error }, false));
@@ -246,7 +246,7 @@ namespace JsonRpc.Tests
             var reciever = Substitute.For<IReciever>();
             var responseRouter = Substitute.For<IResponseRouter>();
 
-            var response = new OmniSharp.Extensions.JsonRpc.Server.Response(1L, JToken.Parse("{}"));
+            var response = new OmniSharp.Extensions.JsonRpc.Server.ServerResponse(1L, JToken.Parse("{}"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { response }, true));

@@ -1,6 +1,8 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+
+namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
 {
-    public class SynchronizationCapability : DynamicCapability
+    public class SynchronizationCapability : DynamicCapability, ConnectedCapability<ITextDocumentSyncHandler>
     {
         /// <summary>
         /// The client supports sending will save notifications.

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
@@ -6,8 +6,9 @@ namespace OmniSharp.Extensions.JsonRpc.Client
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Response
     {
-        public Response(object id) : this(id, null)
+        public Response(object id)
         {
+            Id = id;
         }
 
         public Response(object id, object result)

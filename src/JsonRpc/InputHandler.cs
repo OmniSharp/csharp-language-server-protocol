@@ -1,10 +1,12 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -147,13 +149,13 @@ namespace OmniSharp.Extensions.JsonRpc
                     var tcs = _responseRouter.GetRequest(id);
                     if (tcs is null) continue;
 
-                    if (response.Error is null)
+                    if (response is ServerResponse serverResponse)
                     {
-                        tcs.SetResult(response.Result);
+                        tcs.SetResult(serverResponse.Result);
                     }
-                    else
+                    else if (response is ServerError serverError)
                     {
-                        tcs.SetException(new Exception(response.Error));
+                        tcs.SetException(new Exception(JsonConvert.SerializeObject(serverError.Error)));
                     }
                 }
 
@@ -167,8 +169,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Request.Method,
-                        async () =>
-                        {
+                        async () => {
                             try
                             {
                                 var result = await _requestRouter.RouteRequest(item.Request);
@@ -189,8 +190,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
-                        () =>
-                        {
+                        () => {
                             try
                             {
                                 _requestRouter.RouteNotification(item.Notification);

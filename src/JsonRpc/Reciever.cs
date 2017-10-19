@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -63,12 +63,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
             if (hasRequestId && request.TryGetValue("result", out var response))
             {
-                return new Response(requestId, response);
+                return new ServerResponse(requestId, response);
             }
 
             if (hasRequestId && request.TryGetValue("error", out var errorResponse))
             {
-                return new Response(requestId, errorResponse.ToString());
+                // TODO: this doesn't seem right.
+                return new ServerError(requestId, errorResponse);
             }
 
             var method = request["method"]?.Value<string>();

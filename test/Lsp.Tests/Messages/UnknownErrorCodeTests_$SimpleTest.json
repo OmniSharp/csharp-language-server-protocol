@@ -1,6 +1,6 @@
-﻿{
+{
     "protocolVersion": "2.0",
-    "message": {
+    "error": {
         "code": -32602,
         "message": "Unknown Error Code"
     }

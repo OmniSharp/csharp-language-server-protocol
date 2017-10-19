@@ -48,6 +48,11 @@ namespace OmniSharp.Extensions.LanguageServer.Models
             return this.Any(z => z.IsMatch(attributes));
         }
 
+        public override string ToString()
+        {
+            return this;
+        }
+
         public static DocumentSelector ForPattern(params string[] wildcards)
         {
             return new DocumentSelector(wildcards.Select(DocumentFilter.ForPattern));

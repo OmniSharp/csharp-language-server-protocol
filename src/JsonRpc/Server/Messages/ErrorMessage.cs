@@ -3,20 +3,32 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
+    public interface IErrorMessage
+    {
+        int Code { get; }
+
+        string Message { get; }
+
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        object Data { get; }
+    }
+
     public class ErrorMessage: ErrorMessage<object>
     {
         public ErrorMessage(int code, string message) : base(code, message, null)
         {
         }
 
+        [JsonConstructor]
         public ErrorMessage(int code, string message, object data) : base(code, message, data)
         {
         }
     }
 
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class ErrorMessage<T>
+    public class ErrorMessage<T> : IErrorMessage
     {
+        [JsonConstructor]
         public ErrorMessage(int code, string message, T data)
         {
             Code = code;
@@ -30,5 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public T Data { get; }
+
+        object IErrorMessage.Data => Data;
     }
 }

@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Messages
 {
-    public class UnknownErrorCode : Error
+    public class UnknownErrorCode : RpcError
     {
         internal UnknownErrorCode() : base(null, new ErrorMessage(-32602, "Unknown Error Code")) { }
     }

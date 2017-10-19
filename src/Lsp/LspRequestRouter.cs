@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -19,12 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer
     class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
-        private ITextDocumentSyncHandler[] _textDocumentSyncHandlers;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
+        private readonly ILogger<LspRequestRouter> _logger;
 
-        public LspRequestRouter(IHandlerCollection collection)
+        public LspRequestRouter(IHandlerCollection collection, ILoggerFactory loggerFactory)
         {
             _collection = collection;
+            _logger = loggerFactory.CreateLogger<LspRequestRouter>();
         }
 
         private string GetId(object id)
@@ -44,23 +46,28 @@ namespace OmniSharp.Extensions.LanguageServer
 
         private ILspHandlerDescriptor FindDescriptor(string method, JToken @params)
         {
-            var descriptor = _collection.FirstOrDefault(x => x.Method.Equals(method, StringComparison.OrdinalIgnoreCase));
-            if (descriptor is null) return null;
-
-            if (_textDocumentSyncHandlers == null)
+            _logger.LogDebug("Finding descriptor for {Method}", method);
+            var descriptor = _collection.FirstOrDefault(x => x.Method == method);
+            if (descriptor is null)
             {
-                _textDocumentSyncHandlers = _collection
-                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
-                    .Where(x => x != null)
-                    .ToArray();
+                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method, string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler.GetType().FullName)));
+                return null;
             }
 
             if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
                 var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
-                var attributes = _textDocumentSyncHandlers
+                var textDocumentSyncHandlers = _collection
+                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
+                    .Where(x => x != null)
+                    .Distinct();
+                var attributes = textDocumentSyncHandlers
                     .Select(x => x.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri))
-                    .Where(x => x != null);
+                    .Where(x => x != null)
+                    .Distinct()
+                    .ToList();
+
+                _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
                 return GetHandler(method, attributes);
             }
@@ -68,6 +75,8 @@ namespace OmniSharp.Extensions.LanguageServer
             {
                 var openTextDocumentParams = @params.ToObject(descriptor.Params) as DidOpenTextDocumentParams;
                 var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
+
+                _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
 
                 return GetHandler(method, attributes);
             }
@@ -86,9 +95,14 @@ namespace OmniSharp.Extensions.LanguageServer
 
         private ILspHandlerDescriptor GetHandler(string method, TextDocumentAttributes attributes)
         {
+            _logger.LogTrace("Looking for handler for method {Method}", method);
             foreach (var handler in _collection.Where(x => x.Method == method))
             {
+                _logger.LogTrace("Checking handler {Method}:{Handler}", method, handler.Handler.GetType().FullName);
                 var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
+
+                _logger.LogTrace("Registration options {OptionsName}", registrationOptions.GetType().FullName);
+                _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions.DocumentSelector.ToString());
                 if (registrationOptions.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
                     return handler;
@@ -128,7 +142,7 @@ namespace OmniSharp.Extensions.LanguageServer
                 var method = FindDescriptor(request.Method, request.Params);
                 if (method is null)
                 {
-                    return new MethodNotFound(request.Id);
+                    return new MethodNotFound(request.Id, request.Method);
                 }
 
                 Task result;

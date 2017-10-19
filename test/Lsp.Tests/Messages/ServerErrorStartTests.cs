@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
@@ -17,7 +17,7 @@ namespace Lsp.Tests.Messages
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<Error>(expected);
+            var deresult = JsonConvert.DeserializeObject<RpcError>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

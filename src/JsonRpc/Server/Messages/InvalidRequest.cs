@@ -1,6 +1,6 @@
 ﻿namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
-    public class InvalidRequest : Error
+    public class InvalidRequest : RpcError
     {
 
         public InvalidRequest() : base(null, new ErrorMessage(-32600, $"Invalid Request")) { }
