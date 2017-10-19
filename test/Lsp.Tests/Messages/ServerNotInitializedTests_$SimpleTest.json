@@ -1,6 +1,6 @@
-﻿{
+{
     "protocolVersion": "2.0",
-    "message": {
+    "error": {
         "code": -32002,
         "message": "Server Not Initialized"
     }

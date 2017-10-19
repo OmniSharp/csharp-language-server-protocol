@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -153,7 +154,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                     else
                     {
-                        tcs.SetException(new Exception(response.Error));
+                        tcs.SetException(new Exception(JsonConvert.SerializeObject(response.Error)));
                     }
                 }
 

@@ -1,6 +1,7 @@
 using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Messages;
 using Xunit;
 
@@ -16,7 +17,7 @@ namespace Lsp.Tests.Messages
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<ServerNotInitialized>(expected);
+            var deresult = JsonConvert.DeserializeObject<RpcError>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -1,4 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
@@ -10,7 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             Result = result;
         }
 
-        public Response(object id, string error)
+        public Response(object id, IErrorMessage error)
         {
             Id = id;
             Error = error;
@@ -20,8 +22,10 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public object Id { get; set; }
 
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
         public JToken Result { get; set; }
 
-        public string Error { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public IErrorMessage Error { get; set; }
     }
 }
