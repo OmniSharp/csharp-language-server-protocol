@@ -90,8 +90,7 @@ Task("Test (Coverage)")
                 WorkingDirectory = testProject.GetDirectory(),
                 EnvironmentVariables = GitVersionEnvironmentVariables,
             }
-            .WithFilter("+:JsonRpc")
-            .WithFilter("+:Lsp")
+            .WithFilter("+:OmniSharp.*")
     );
 })
 .Finally(() => {
