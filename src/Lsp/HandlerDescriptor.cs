@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
@@ -7,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
-    class HandlerDescriptor : ILspHandlerDescriptor, IDisposable
+    class HandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<HandlerDescriptor>
     {
         private readonly Action _disposeAction;
 
@@ -96,16 +97,34 @@ namespace OmniSharp.Extensions.LanguageServer
 
         public override bool Equals(object obj)
         {
-            if (obj is HandlerDescriptor handler)
-            {
-                return handler.HandlerType == HandlerType && handler.Key == Key;
-            }
-            return false;
+            return Equals(obj as HandlerDescriptor);
+        }
+
+        public bool Equals(HandlerDescriptor other)
+        {
+            return other != null &&
+                   EqualityComparer<Type>.Default.Equals(HandlerType, other.HandlerType) &&
+                   Method == other.Method &&
+                   Key == other.Key;
         }
 
         public override int GetHashCode()
         {
-            return Tuple.Create(HandlerType, Key).GetHashCode();
+            var hashCode = -45133801;
+            hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(HandlerType);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Method);
+            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Key);
+            return hashCode;
+        }
+
+        public static bool operator ==(HandlerDescriptor descriptor1, HandlerDescriptor descriptor2)
+        {
+            return EqualityComparer<HandlerDescriptor>.Default.Equals(descriptor1, descriptor2);
+        }
+
+        public static bool operator !=(HandlerDescriptor descriptor1, HandlerDescriptor descriptor2)
+        {
+            return !(descriptor1 == descriptor2);
         }
     }
 }
