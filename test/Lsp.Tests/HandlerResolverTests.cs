@@ -13,6 +13,7 @@ using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Handlers;
 
 namespace Lsp.Tests
 {
@@ -21,17 +22,33 @@ namespace Lsp.Tests
         [Theory]
         [InlineData(typeof(IInitializeHandler), "initialize", 1)]
         [InlineData(typeof(IInitializedHandler), "initialized", 1)]
+        [InlineData(typeof(IShutdownHandler), "shutdown", 1)]
+        [InlineData(typeof(IExitHandler), "exit", 1)]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key, int count)
         {
             var handler = new HandlerCollection();
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]);
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions());
 
             handler.Add(sub);
             handler._handlers.Should().Contain(x => x.Method == key);
             handler._handlers.Count.Should().Be(count);
+        }
+
+        [Fact]
+        public void Should_Contain_AllConcreteDefinedMethods()
+        {
+            var handler = new HandlerCollection();
+
+            handler.Add(
+                Substitute.For<IExitHandler>(),
+                Substitute.For<IInitializeHandler>(),
+                Substitute.For<IInitializedHandler>(),
+                Substitute.For<IShutdownHandler>()
+            );
+
+            handler._handlers.Should().Contain(x => x.Method == "exit");
+            handler._handlers.Should().Contain(x => x.Method == "shutdown");
+            handler._handlers.Count.Should().Be(4);
         }
 
         [Theory]
@@ -150,23 +167,6 @@ namespace Lsp.Tests
             handler._handlers.Should().Contain(x => x.Method == key);
             handler._handlers.Should().Contain(x => x.Method == key2);
             handler._handlers.Count.Should().Be(count);
-        }
-
-        [Fact]
-        public void Should_BeAwesome()
-        {
-            var handler = new HandlerCollection();
-
-            handler.Add(
-                Substitute.For<IExitHandler>(),
-                Substitute.For<IInitializeHandler>(),
-                Substitute.For<IInitializedHandler>(),
-                Substitute.For<IShutdownHandler>()
-            );
-
-            handler._handlers.Should().Contain(x => x.Method == "exit");
-            handler._handlers.Should().Contain(x => x.Method == "shutdown");
-            handler._handlers.Count.Should().Be(4);
         }
     }
 }
