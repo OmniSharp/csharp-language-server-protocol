@@ -206,7 +206,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public void ShouldHandleNotification()
+        public async Task ShouldHandleNotification()
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
@@ -234,7 +234,7 @@ namespace JsonRpc.Tests
                         });
                 }))
             {
-                incomingRequestRouter.Received().RouteNotification(notification);
+               await incomingRequestRouter.Received().RouteNotification(notification);
             }
         }
 

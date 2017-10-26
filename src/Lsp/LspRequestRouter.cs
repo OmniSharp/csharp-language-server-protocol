@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer
             return null;
         }
 
-        public async void RouteNotification(Notification notification)
+        public async Task RouteNotification(Notification notification)
         {
             var handler = FindDescriptor(notification.Method, notification.Params);
             if (handler is null) { return; }

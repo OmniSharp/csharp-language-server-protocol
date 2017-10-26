@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            mediator.RouteNotification(notification);
+            await mediator.RouteNotification(notification);
 
             await cancelRequestHandler.Received(1).Handle(Arg.Any<CancelParams>());
         }

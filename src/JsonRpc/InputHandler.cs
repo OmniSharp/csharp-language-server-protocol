@@ -190,10 +190,10 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
-                        () => {
+                        async () => {
                             try
                             {
-                                _requestRouter.RouteNotification(item.Notification);
+                                await _requestRouter.RouteNotification(item.Notification);
                             }
                             catch (Exception e)
                             {
@@ -202,7 +202,6 @@ namespace OmniSharp.Extensions.JsonRpc
                                 // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
                                 throw;
                             }
-                            return Task.CompletedTask;
                         }
                     );
                 }
