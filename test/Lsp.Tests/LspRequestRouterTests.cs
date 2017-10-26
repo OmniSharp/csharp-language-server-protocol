@@ -30,7 +30,7 @@ namespace Lsp.Tests
         }
 
         [Fact]
-        public void ShouldRouteToCorrect_Notification()
+        public async Task ShouldRouteToCorrect_Notification()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
@@ -44,13 +44,13 @@ namespace Lsp.Tests
 
             var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            mediator.RouteNotification(request);
+            await mediator.RouteNotification(request);
 
-            textDocumentSyncHandler.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
+            await textDocumentSyncHandler.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
         }
 
         [Fact]
-        public void ShouldRouteToCorrect_Notification_WithManyHandlers()
+        public async Task ShouldRouteToCorrect_Notification_WithManyHandlers()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
@@ -66,10 +66,10 @@ namespace Lsp.Tests
 
             var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            mediator.RouteNotification(request);
+            await mediator.RouteNotification(request);
 
-            textDocumentSyncHandler.Received(0).Handle(Arg.Any<DidSaveTextDocumentParams>());
-            textDocumentSyncHandler2.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
+            await textDocumentSyncHandler.Received(0).Handle(Arg.Any<DidSaveTextDocumentParams>());
+            await textDocumentSyncHandler2.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
         }
 
         [Fact]

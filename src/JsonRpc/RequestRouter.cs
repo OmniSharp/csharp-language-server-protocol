@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return _collection.Add(handler);
         }
 
-        public async void RouteNotification(Notification notification)
+        public async Task RouteNotification(Notification notification)
         {
             var handler = _collection.FirstOrDefault(x => x.Method == notification.Method);
 

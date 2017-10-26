@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using NSubstitute;
@@ -23,7 +23,7 @@ namespace JsonRpc.Tests
 
             var notification = new Notification("exit", null);
 
-            mediator.RouteNotification(notification);
+            await mediator.RouteNotification(notification);
 
             await exitHandler.Received(1).Handle();
         }
