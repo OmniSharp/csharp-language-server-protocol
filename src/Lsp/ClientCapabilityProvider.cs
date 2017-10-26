@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer
             _collection = collection;
         }
 
-        public bool HasHandler<T>(Supports<T> capability)
+        public bool HasStaticHandler<T>(Supports<T> capability)
             where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler>
         {
             if (!capability.IsSupported) return false;
@@ -26,13 +26,16 @@ namespace OmniSharp.Extensions.LanguageServer
             var handlerType = typeof(T).GetTypeInfo().ImplementedInterfaces
                 .Single(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
                 .GetTypeInfo().GetGenericArguments()[0].GetTypeInfo();
-            return !capability.Value.DynamicRegistration && _collection.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(handlerType));
+            return !capability.Value.DynamicRegistration &&
+                _collection.Any(z =>
+                    z.HandlerType.GetTypeInfo().IsAssignableFrom(handlerType) ||
+                    z.Handler.GetType().GetTypeInfo().IsAssignableFrom(handlerType));
         }
 
-        public IOptionsGetter GetOptions<T>(Supports<T> capability)
+        public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
             where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler>
         {
-            return !HasHandler(capability) ? Null : new OptionsGetter(_collection);
+            return !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection);
         }
 
         private static readonly IOptionsGetter Null = new NullOptionsGetter();

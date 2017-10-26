@@ -130,22 +130,22 @@ namespace OmniSharp.Extensions.LanguageServer
             var ccp = new ClientCapabilityProvider(_collection);
 
             var serverCapabilities = new ServerCapabilities() {
-                CodeActionProvider = ccp.HasHandler(textDocumentCapabilities.CodeAction),
-                CodeLensProvider = ccp.GetOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
-                CompletionProvider = ccp.GetOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
-                DefinitionProvider = ccp.HasHandler(textDocumentCapabilities.Definition),
-                DocumentFormattingProvider = ccp.HasHandler(textDocumentCapabilities.Formatting),
-                DocumentHighlightProvider = ccp.HasHandler(textDocumentCapabilities.DocumentHighlight),
-                DocumentLinkProvider = ccp.GetOptions(textDocumentCapabilities.DocumentLink).Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
-                DocumentOnTypeFormattingProvider = ccp.GetOptions(textDocumentCapabilities.OnTypeFormatting).Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
-                DocumentRangeFormattingProvider = ccp.HasHandler(textDocumentCapabilities.RangeFormatting),
-                DocumentSymbolProvider = ccp.HasHandler(textDocumentCapabilities.DocumentSymbol),
-                ExecuteCommandProvider = ccp.GetOptions(workspaceCapabilities.ExecuteCommand).Get<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
-                HoverProvider = ccp.HasHandler(textDocumentCapabilities.Hover),
-                ReferencesProvider = ccp.HasHandler(textDocumentCapabilities.References),
-                RenameProvider = ccp.HasHandler(textDocumentCapabilities.Rename),
-                SignatureHelpProvider = ccp.GetOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = ccp.HasHandler(workspaceCapabilities.Symbol)
+                CodeActionProvider = ccp.HasStaticHandler(textDocumentCapabilities.CodeAction),
+                CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
+                CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
+                DefinitionProvider = ccp.HasStaticHandler(textDocumentCapabilities.Definition),
+                DocumentFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.Formatting),
+                DocumentHighlightProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentHighlight),
+                DocumentLinkProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentLink).Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
+                DocumentOnTypeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.OnTypeFormatting).Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
+                DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
+                DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
+                ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Get<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
+                HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
+                ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
+                RenameProvider = ccp.HasStaticHandler(textDocumentCapabilities.Rename),
+                SignatureHelpProvider = ccp.GetStaticOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
+                WorkspaceSymbolProvider = ccp.HasStaticHandler(workspaceCapabilities.Symbol)
             };
 
             var textSyncHandlers = _collection
@@ -168,16 +168,21 @@ namespace OmniSharp.Extensions.LanguageServer
             }
             else
             {
-                if (ccp.HasHandler(textDocumentCapabilities.Synchronization))
+                if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
                 {
                     // TODO: Merge options
-                    serverCapabilities.TextDocumentSync = textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
-                        Change = TextDocumentSyncKind.None,
-                        OpenClose = false,
-                        Save = new SaveOptions() { IncludeText = false },
-                        WillSave = false,
-                        WillSaveWaitUntil = false
-                    };
+                    serverCapabilities.TextDocumentSync =
+                        textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
+                            Change = TextDocumentSyncKind.None,
+                            OpenClose = false,
+                            Save = new SaveOptions() { IncludeText = false },
+                            WillSave = false,
+                            WillSaveWaitUntil = false
+                        };
+                }
+                else
+                {
+                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
                 }
             }
 

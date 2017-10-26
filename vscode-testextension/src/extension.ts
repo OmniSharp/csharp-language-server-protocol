@@ -13,7 +13,7 @@ import { Trace } from 'vscode-jsonrpc';
 export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
-    let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
+    let serverExe = 'C:/Other/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
     // let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
     // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
@@ -39,8 +39,7 @@ export function activate(context: ExtensionContext) {
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: 'languageServerExample',
-            // Notify the server about file changes to '.clientrc files contain in the workspace
-            fileEvents: workspace.createFileSystemWatcher('**/.clientrc')
+            fileEvents: workspace.createFileSystemWatcher('**/*.cs')
         },
     }
 

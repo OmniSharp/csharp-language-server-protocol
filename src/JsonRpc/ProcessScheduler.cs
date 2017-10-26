@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -128,7 +128,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
     }
 
-    static class Events
+    public static class Events
     {
         public static EventId UnhandledException = new EventId(1337_100);
         public static EventId UnhandledRequest = new EventId(1337_101);

@@ -111,7 +111,7 @@ namespace Lsp.Tests
         private static bool GenericHasHandler<T>(ClientCapabilityProvider provider, Supports<T> supports)
             where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler>
         {
-            return provider.HasHandler(supports);
+            return provider.HasStaticHandler(supports);
         }
 
         private static IEnumerable<object[]> GetItems<T>(IEnumerable<T> types, Func<T, IEnumerable<object>> func)

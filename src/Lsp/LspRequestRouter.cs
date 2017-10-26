@@ -57,26 +57,26 @@ namespace OmniSharp.Extensions.LanguageServer
             if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
             {
                 var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
-                var textDocumentSyncHandlers = _collection
-                    .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
-                    .Where(x => x != null)
-                    .Distinct();
-                var attributes = textDocumentSyncHandlers
-                    .Select(x => x.GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri))
-                    .Where(x => x != null)
-                    .Distinct()
-                    .ToList();
+                var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
                 _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
                 return GetHandler(method, attributes);
             }
-            else if (typeof(DidOpenTextDocumentParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
+            else if (@params?.ToObject(descriptor.Params) is DidOpenTextDocumentParams openTextDocumentParams)
             {
-                var openTextDocumentParams = @params.ToObject(descriptor.Params) as DidOpenTextDocumentParams;
                 var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
 
                 _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
+
+                return GetHandler(method, attributes);
+            }
+            else if (@params?.ToObject(descriptor.Params) is DidChangeTextDocumentParams didChangeDocumentParams)
+            {
+                // TODO: Do something with document version here?
+                var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
+
+                _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
                 return GetHandler(method, attributes);
             }
@@ -84,6 +84,19 @@ namespace OmniSharp.Extensions.LanguageServer
             // TODO: How to split these
             // Do they fork and join?
             return descriptor;
+        }
+
+        private List<TextDocumentAttributes> GetTextDocumentAttributes(Uri uri)
+        {
+            var textDocumentSyncHandlers = _collection
+                .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
+                .Where(x => x != null)
+                .Distinct();
+            return textDocumentSyncHandlers
+                .Select(x => x.GetTextDocumentAttributes(uri))
+                .Where(x => x != null)
+                .Distinct()
+                .ToList();
         }
 
         private ILspHandlerDescriptor GetHandler(string method, IEnumerable<TextDocumentAttributes> attributes)
@@ -105,6 +118,7 @@ namespace OmniSharp.Extensions.LanguageServer
                 _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions.DocumentSelector.ToString());
                 if (registrationOptions.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
+                    _logger.LogTrace("Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", handler.Handler.GetType().FullName, registrationOptions.DocumentSelector.ToString(), handler.HandlerType.GetType().FullName);
                     return handler;
                 }
             }
@@ -116,18 +130,25 @@ namespace OmniSharp.Extensions.LanguageServer
             var handler = FindDescriptor(notification.Method, notification.Params);
             if (handler is null) { return; }
 
-            Task result;
-            if (handler.Params is null)
+            try
             {
-                result = ReflectionRequestHandlers.HandleNotification(handler);
-            }
-            else
-            {
-                var @params = notification.Params.ToObject(handler.Params);
-                result = ReflectionRequestHandlers.HandleNotification(handler, @params);
-            }
+                Task result;
+                if (handler.Params is null)
+                {
+                    result = ReflectionRequestHandlers.HandleNotification(handler);
+                }
+                else
+                {
+                    var @params = notification.Params.ToObject(handler.Params);
+                    result = ReflectionRequestHandlers.HandleNotification(handler, @params);
+                }
 
-            await result;
+                await result;
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
+            }
         }
 
         public async Task<ErrorResponse> RouteRequest(Request request)
@@ -183,6 +204,11 @@ namespace OmniSharp.Extensions.LanguageServer
             catch (TaskCanceledException)
             {
                 return new RequestCancelled();
+            }
+            catch (Exception e)
+            {
+                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
+                return new InternalError(id);
             }
             finally
             {
