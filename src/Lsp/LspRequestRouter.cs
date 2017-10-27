@@ -54,31 +54,34 @@ namespace OmniSharp.Extensions.LanguageServer
                 return null;
             }
 
-            if (typeof(ITextDocumentIdentifierParams).GetTypeInfo().IsAssignableFrom(descriptor.Params))
+            if (@params != null && descriptor.Params != null)
             {
-                var textDocumentIdentifierParams = @params.ToObject(descriptor.Params) as ITextDocumentIdentifierParams;
-                var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
+                var paramsValue = @params.ToObject(descriptor.Params);
+                if (paramsValue is ITextDocumentIdentifierParams textDocumentIdentifierParams)
+                {
+                    var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
-                _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
+                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
-                return GetHandler(method, attributes);
-            }
-            else if (@params?.ToObject(descriptor.Params) is DidOpenTextDocumentParams openTextDocumentParams)
-            {
-                var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
+                    return GetHandler(method, attributes);
+                }
+                else if (paramsValue is DidOpenTextDocumentParams openTextDocumentParams)
+                {
+                    var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
 
-                _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
+                    _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
 
-                return GetHandler(method, attributes);
-            }
-            else if (@params?.ToObject(descriptor.Params) is DidChangeTextDocumentParams didChangeDocumentParams)
-            {
-                // TODO: Do something with document version here?
-                var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
+                    return GetHandler(method, attributes);
+                }
+                else if (paramsValue is DidChangeTextDocumentParams didChangeDocumentParams)
+                {
+                    // TODO: Do something with document version here?
+                    var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
 
-                _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
+                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
-                return GetHandler(method, attributes);
+                    return GetHandler(method, attributes);
+                }
             }
 
             // TODO: How to split these
