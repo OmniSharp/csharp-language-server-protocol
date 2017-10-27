@@ -39,7 +39,7 @@ deploy:
   - provider: NuGet
     api_key:
       secure: lFaEHVRMsSWTveDH/DuLl4+hv+O0i4qLkbhW3aCgzq0oCrOuV+0TSEkqe6aiHuNX
-    skip_symbols: false
+    skip_symbols: true
     artifact: /.*\.nupkg/
     on:
       appveyor_repo_tag: true
