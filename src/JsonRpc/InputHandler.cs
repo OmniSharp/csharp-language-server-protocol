@@ -197,7 +197,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             }
                             catch (Exception e)
                             {
-                                _logger.LogCritical(Events.UnhandledNotification, e, "Unhandled exception executing notification {Method}@{Id}", item.Notification.Method);
+                                _logger.LogCritical(Events.UnhandledNotification, e, "Unhandled exception executing notification {Method}", item.Notification.Method);
                                 // TODO: Should we rethrow or swallow?
                                 // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
                                 throw;
