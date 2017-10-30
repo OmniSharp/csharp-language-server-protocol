@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return _collection.Add(handler);
         }
 
-        private IHandlerDescriptor GetDescriptor(IMethodWithParams instance)
+        private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
         {
             return _collection.FirstOrDefault(x => x.Method == instance.Method);
         }
@@ -91,12 +91,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IHandlerDescriptor GetDescriptor(Notification notification)
         {
-            return GetDescriptor(notification);
+            return FindDescriptor(notification);
         }
 
         public IHandlerDescriptor GetDescriptor(Request request)
         {
-            return GetDescriptor(request);
+            return FindDescriptor(request);
         }
 
         Task IRequestRouter.RouteNotification(Notification notification)
