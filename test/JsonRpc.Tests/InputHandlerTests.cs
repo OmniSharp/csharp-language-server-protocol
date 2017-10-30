@@ -148,7 +148,7 @@ namespace JsonRpc.Tests
 
             var response = new Response(1);
 
-            incomingRequestRouter.RouteRequest(req)
+            incomingRequestRouter.RouteRequest(Arg.Any<IHandlerDescriptor>(), req)
                 .Returns(response);
 
             using (NewHandler(
@@ -227,14 +227,14 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts =>
                 {
-                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<Notification>()))
+                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<IHandlerDescriptor>(), Arg.Any<Notification>()))
                         .Do(x =>
                         {
                             cts.Cancel();
                         });
                 }))
             {
-               await incomingRequestRouter.Received().RouteNotification(notification);
+                await incomingRequestRouter.Received().RouteNotification(Arg.Any<IHandlerDescriptor>(), notification);
             }
         }
 

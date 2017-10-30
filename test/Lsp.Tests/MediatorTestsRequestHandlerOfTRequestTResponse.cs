@@ -18,6 +18,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace Lsp.Tests
 {
@@ -60,7 +61,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = mediator.RouteRequest(request);
+            var response = ((IRequestRouter)mediator).RouteRequest(request);
             mediator.CancelRequest(id);
             var result = await response;
 

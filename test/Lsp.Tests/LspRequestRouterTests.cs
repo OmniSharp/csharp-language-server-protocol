@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -17,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 
 namespace Lsp.Tests
 {
@@ -44,7 +44,7 @@ namespace Lsp.Tests
 
             var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await mediator.RouteNotification(request);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
             await textDocumentSyncHandler.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
         }
@@ -66,7 +66,7 @@ namespace Lsp.Tests
 
             var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await mediator.RouteNotification(request);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
             await textDocumentSyncHandler.Received(0).Handle(Arg.Any<DidSaveTextDocumentParams>());
             await textDocumentSyncHandler2.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>());
@@ -94,7 +94,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await mediator.RouteRequest(request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }
@@ -119,7 +119,7 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandContainer());
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler , codeActionHandler2 };
+            var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
             var mediator = new LspRequestRouter(collection, _testLoggerFactory);
 
             var id = Guid.NewGuid().ToString();
@@ -129,7 +129,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await mediator.RouteRequest(request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
             await codeActionHandler.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
             await codeActionHandler2.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());

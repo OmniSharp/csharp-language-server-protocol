@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Abstractions
 {
-    public interface ILspHandlerDescriptor : IHandlerInstance
+    public interface ILspHandlerDescriptor : IHandlerDescriptor
     {
         bool HasRegistration { get; }
         Type RegistrationType { get; }

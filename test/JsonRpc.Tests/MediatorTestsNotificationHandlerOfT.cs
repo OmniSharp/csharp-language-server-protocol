@@ -28,7 +28,7 @@ namespace JsonRpc.Tests
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
 
             var collection = new HandlerCollection { cancelRequestHandler };
-            var mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection);
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));

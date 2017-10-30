@@ -31,7 +31,7 @@ namespace JsonRpc.Tests
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>();
 
             var collection = new HandlerCollection { executeCommandHandler };
-            var mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

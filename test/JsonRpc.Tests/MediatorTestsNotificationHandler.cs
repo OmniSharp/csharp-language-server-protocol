@@ -19,7 +19,7 @@ namespace JsonRpc.Tests
             var exitHandler = Substitute.For<IExitHandler>();
 
             var collection = new HandlerCollection { exitHandler };
-            var mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection);
 
             var notification = new Notification("exit", null);
 

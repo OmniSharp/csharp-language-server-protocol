@@ -6,11 +6,11 @@ using System.Reflection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class HandlerCollection : IEnumerable<IHandlerInstance>
+    class HandlerCollection : IEnumerable<IHandlerDescriptor>
     {
         internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
 
-        internal class HandlerInstance : IHandlerInstance, IDisposable
+        internal class HandlerInstance : IHandlerDescriptor, IDisposable
         {
             private readonly Action _disposeAction;
 
@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public IEnumerator<IHandlerInstance> GetEnumerator()
+        public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
             return _handlers.GetEnumerator();
         }

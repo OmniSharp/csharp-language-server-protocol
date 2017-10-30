@@ -5,6 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Method("textDocument/rangeFormatting")]
+    [Serial, Method("textDocument/rangeFormatting")]
     public interface IDocumentRangeFormattingHandler : IRequestHandler<DocumentRangeFormattingParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentRangeFormattingCapability> { }
 }

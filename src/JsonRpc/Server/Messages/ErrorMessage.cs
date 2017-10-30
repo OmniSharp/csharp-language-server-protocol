@@ -1,18 +1,8 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
-    public interface IErrorMessage
-    {
-        int Code { get; }
-
-        string Message { get; }
-
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        object Data { get; }
-    }
-
     public class ErrorMessage: ErrorMessage<object>
     {
         public ErrorMessage(int code, string message) : base(code, message, null)
