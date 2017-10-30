@@ -162,17 +162,20 @@ namespace OmniSharp.Extensions.JsonRpc
                 return;
             }
 
-            foreach (var (type, item) in requests.Select(x => (type: _requestProcessIdentifier.Identify(x), item: x)))
+            foreach (var item in requests)
             {
                 if (item.IsRequest)
                 {
+                    var descriptor = _requestRouter.GetDescriptor(item.Request);
+                    if (descriptor is null) continue;
+                    var type = _requestProcessIdentifier.Identify(descriptor);
                     _scheduler.Add(
                         type,
                         item.Request.Method,
                         async () => {
                             try
                             {
-                                var result = await _requestRouter.RouteRequest(item.Request);
+                                var result = await _requestRouter.RouteRequest(descriptor, item.Request);
                                 _outputHandler.Send(result.Value);
                             }
                             catch (Exception e)
@@ -187,13 +190,16 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
                 else if (item.IsNotification)
                 {
+                    var descriptor = _requestRouter.GetDescriptor(item.Notification);
+                    if (descriptor is null) continue;
+                    var type = _requestProcessIdentifier.Identify(descriptor);
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
                         async () => {
                             try
                             {
-                                await _requestRouter.RouteNotification(item.Notification);
+                                await _requestRouter.RouteNotification(descriptor, item.Notification);
                             }
                             catch (Exception e)
                             {

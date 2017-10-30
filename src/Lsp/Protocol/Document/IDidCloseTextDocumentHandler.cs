@@ -1,4 +1,4 @@
-﻿using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
 using OmniSharp.Extensions.LanguageServer.Models;
@@ -7,6 +7,6 @@ using OmniSharp.Extensions.LanguageServer.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Method("textDocument/didClose")]
+    [Parallel, Method("textDocument/didClose")]
     public interface IDidCloseTextDocumentHandler : INotificationHandler<DidCloseTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

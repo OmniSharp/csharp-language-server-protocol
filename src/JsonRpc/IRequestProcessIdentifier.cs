@@ -4,6 +4,6 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IRequestProcessIdentifier
     {
-        RequestProcessType Identify(Renor renor);
+        RequestProcessType Identify(IHandlerDescriptor descriptor);
     }
 }

@@ -44,6 +44,11 @@ namespace OmniSharp.Extensions.LanguageServer
             return id?.ToString();
         }
 
+        private ILspHandlerDescriptor FindDescriptor(IMethodWithParams instance)
+        {
+            return FindDescriptor(instance.Method, instance.Params);
+        }
+
         private ILspHandlerDescriptor FindDescriptor(string method, JToken @params)
         {
             _logger.LogDebug("Finding descriptor for {Method}", method);
@@ -128,11 +133,8 @@ namespace OmniSharp.Extensions.LanguageServer
             return null;
         }
 
-        public async Task RouteNotification(Notification notification)
+        public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
         {
-            var handler = FindDescriptor(notification.Method, notification.Params);
-            if (handler is null) { return; }
-
             try
             {
                 Task result;
@@ -154,7 +156,7 @@ namespace OmniSharp.Extensions.LanguageServer
             }
         }
 
-        public async Task<ErrorResponse> RouteRequest(Request request)
+        public async Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request)
         {
             var id = GetId(request.Id);
             var cts = new CancellationTokenSource();
@@ -163,30 +165,29 @@ namespace OmniSharp.Extensions.LanguageServer
             // TODO: Try / catch for Internal Error
             try
             {
-                var method = FindDescriptor(request.Method, request.Params);
-                if (method is null)
+                if (descriptor is null)
                 {
                     return new MethodNotFound(request.Id, request.Method);
                 }
 
                 Task result;
-                if (method.Params is null)
+                if (descriptor.Params is null)
                 {
-                    result = ReflectionRequestHandlers.HandleRequest(method, cts.Token);
+                    result = ReflectionRequestHandlers.HandleRequest(descriptor, cts.Token);
                 }
                 else
                 {
                     object @params;
                     try
                     {
-                        @params = request.Params.ToObject(method.Params);
+                        @params = request.Params.ToObject(descriptor.Params);
                     }
                     catch
                     {
                         return new InvalidParams(request.Id);
                     }
 
-                    result = ReflectionRequestHandlers.HandleRequest(method, @params, cts.Token);
+                    result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
                 }
 
                 await result.ConfigureAwait(false);
@@ -225,6 +226,26 @@ namespace OmniSharp.Extensions.LanguageServer
             {
                 cts.Cancel();
             }
+        }
+
+        public IHandlerDescriptor GetDescriptor(Notification notification)
+        {
+            return FindDescriptor(notification);
+        }
+
+        public IHandlerDescriptor GetDescriptor(Request request)
+        {
+            return FindDescriptor(request);
+        }
+
+        Task IRequestRouter.RouteNotification(Notification notification)
+        {
+            return RouteNotification(FindDescriptor(notification), notification);
+        }
+
+        Task<ErrorResponse> IRequestRouter.RouteRequest(Request request)
+        {
+            return RouteRequest(FindDescriptor(request), request);
         }
     }
 }

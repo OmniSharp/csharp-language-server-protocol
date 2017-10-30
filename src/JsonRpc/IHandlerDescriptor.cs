@@ -2,7 +2,7 @@ using System;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IHandlerInstance
+    public interface IHandlerDescriptor
     {
         string Method { get; }
         IJsonRpcHandler Handler { get; }

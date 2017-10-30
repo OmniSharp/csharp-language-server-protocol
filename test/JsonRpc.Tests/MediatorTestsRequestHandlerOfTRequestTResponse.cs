@@ -43,7 +43,7 @@ namespace JsonRpc.Tests
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
 
             var collection = new HandlerCollection { codeActionHandler };
-            var mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };

@@ -23,7 +23,7 @@ namespace JsonRpc.Tests
 
             var notification = new Notification("exit", null);
 
-            await mediator.RouteNotification(notification);
+            await mediator.RouteNotification(null, notification);
 
             await exitHandler.Received(1).Handle();
         }

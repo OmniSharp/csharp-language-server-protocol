@@ -22,10 +22,13 @@ namespace OmniSharp.Extensions.JsonRpc
             return _collection.Add(handler);
         }
 
-        public async Task RouteNotification(Notification notification)
+        private IHandlerDescriptor GetDescriptor(IMethodWithParams instance)
         {
-            var handler = _collection.FirstOrDefault(x => x.Method == notification.Method);
+            return _collection.FirstOrDefault(x => x.Method == instance.Method);
+        }
 
+        public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
+        {
             Task result;
             if (handler.Params is null)
             {
@@ -39,15 +42,13 @@ namespace OmniSharp.Extensions.JsonRpc
             await result.ConfigureAwait(false);
         }
 
-
-        public Task<ErrorResponse> RouteRequest(Request request)
+        public Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request)
         {
-            return RouteRequest(request, CancellationToken.None);
+            return RouteRequest(descriptor, request, CancellationToken.None);
         }
 
-        protected virtual async Task<ErrorResponse> RouteRequest(Request request, CancellationToken token)
+        protected virtual async Task<ErrorResponse> RouteRequest(IHandlerDescriptor handler, Request request, CancellationToken token)
         {
-            var handler = _collection.FirstOrDefault(x => x.Method == request.Method);
             if (request.Method is null)
             {
                 return new MethodNotFound(request.Id, request.Method);
@@ -86,6 +87,26 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             return new Client.Response(request.Id, responseValue);
+        }
+
+        public IHandlerDescriptor GetDescriptor(Notification notification)
+        {
+            return GetDescriptor(notification);
+        }
+
+        public IHandlerDescriptor GetDescriptor(Request request)
+        {
+            return GetDescriptor(request);
+        }
+
+        Task IRequestRouter.RouteNotification(Notification notification)
+        {
+            return RouteNotification(GetDescriptor(notification), notification);
+        }
+
+        Task<ErrorResponse> IRequestRouter.RouteRequest(Request request)
+        {
+            return RouteRequest(GetDescriptor(request), request);
         }
     }
 }
