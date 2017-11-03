@@ -103,7 +103,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
         /// <summary>
         ///     The <see cref="LspDispatcher"/> used to dispatch messages to handlers.
         /// </summary>
-        public LspDispatcher _dispatcher;
+        LspDispatcher _dispatcher;
 
         /// <summary>
         ///     A <see cref="Task"/> representing the connection's receive loop.
