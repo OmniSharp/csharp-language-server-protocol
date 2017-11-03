@@ -3,6 +3,9 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
 
+    <AssemblyName>OmniSharp.Extensions.LanguageClient.Tests</AssemblyName>
+    <RootNamespace>OmniSharp.Extensions.LanguageServerProtocol.Client.Tests</RootNamespace>
+
     <IsPackable>false</IsPackable>
   </PropertyGroup>
 
