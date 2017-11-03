@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.LanguageClient</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.LanguageClient</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
+        <PackageReference Include="Serilog" Version="2.5.0" />
+        <PackageReference Include="System.Reactive" Version="3.1.1" />
+        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
+        <ProjectReference Include="..\Lsp\Lsp.csproj" />
+    </ItemGroup>
+</Project>
