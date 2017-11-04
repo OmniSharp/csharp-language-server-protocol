@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer
 {
     public interface ILanguageServer : IResponseRouter
     {
+        IDisposable AddHandler(string method, IJsonRpcHandler handler);
         IDisposable AddHandler(IJsonRpcHandler handler);
         IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers);
         IDisposable AddHandlers(params IJsonRpcHandler[] handlers);

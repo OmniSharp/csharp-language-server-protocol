@@ -23,6 +23,13 @@ namespace OmniSharp.Extensions.LanguageServer
             return GetEnumerator();
         }
 
+        public IDisposable Add(string method, IJsonRpcHandler handler)
+        {
+            var descriptor = GetDescriptor(method, handler.GetType(), handler);
+            _handlers.Add(descriptor);
+            return descriptor;
+        }
+
         public IDisposable Add(IEnumerable<IJsonRpcHandler> handlers)
         {
             return Add(handlers.ToArray());
@@ -33,40 +40,12 @@ namespace OmniSharp.Extensions.LanguageServer
             var descriptors = new HashSet<HandlerDescriptor>();
             foreach (var handler in handlers)
             {
-                foreach (var implementedInterface in handler.GetType().GetTypeInfo()
+                foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
                     .ImplementedInterfaces
-                    .Where(x => !string.IsNullOrWhiteSpace(LspHelper.GetMethodName(x))))
+                    .Select(x => (method: LspHelper.GetMethodName(x), implementedInterface: x))
+                    .Where(x => !string.IsNullOrWhiteSpace(x.method)))
                 {
-                    var @interface = HandlerTypeHelpers.GetHandlerInterface(implementedInterface);
-                    var registration = UnwrapGenericType(typeof(IRegistration<>), implementedInterface);
-                    var capability = UnwrapGenericType(typeof(ICapability<>), implementedInterface);
-
-                    Type @params = null;
-                    if (@interface.GetTypeInfo().IsGenericType)
-                    {
-                        @params = @interface.GetTypeInfo().GetGenericArguments()[0];
-                    }
-
-                    var key = "default";
-                    if (handler is IRegistration<TextDocumentRegistrationOptions>)
-                    {
-                        if (GetTextDocumentRegistrationOptionsMethod
-                            .MakeGenericMethod(registration)
-                            .Invoke(handler, new object[] { handler }) is TextDocumentRegistrationOptions options)
-                            key = options.DocumentSelector;
-                    }
-
-                    var h = new HandlerDescriptor(
-                        LspHelper.GetMethodName(implementedInterface),
-                        key,
-                        handler,
-                        @interface,
-                        @params,
-                        registration,
-                        capability,
-                        () => _handlers.RemoveWhere(instance => instance.Handler == handler));
-
-                    descriptors.Add(h);
+                    descriptors.Add(GetDescriptor(method, implementedInterface, handler));
                 }
             }
 
@@ -76,6 +55,38 @@ namespace OmniSharp.Extensions.LanguageServer
             }
 
             return new ImmutableDisposable(descriptors);
+        }
+
+        private HandlerDescriptor GetDescriptor(string method, Type implementedType, IJsonRpcHandler handler)
+        {
+            var @interface = HandlerTypeHelpers.GetHandlerInterface(implementedType);
+            var registration = UnwrapGenericType(typeof(IRegistration<>), implementedType);
+            var capability = UnwrapGenericType(typeof(ICapability<>), implementedType);
+
+            Type @params = null;
+            if (@interface.GetTypeInfo().IsGenericType)
+            {
+                @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+            }
+
+            var key = "default";
+            if (handler is IRegistration<TextDocumentRegistrationOptions>)
+            {
+                if (GetTextDocumentRegistrationOptionsMethod
+                    .MakeGenericMethod(registration)
+                    .Invoke(handler, new object[] { handler }) is TextDocumentRegistrationOptions options)
+                    key = options.DocumentSelector;
+            }
+
+            return new HandlerDescriptor(
+                method,
+                key,
+                handler,
+                @interface,
+                @params,
+                registration,
+                capability,
+                () => _handlers.RemoveWhere(instance => instance.Handler == handler));
         }
 
         private static readonly MethodInfo GetTextDocumentRegistrationOptionsMethod = typeof(HandlerCollection).GetTypeInfo()

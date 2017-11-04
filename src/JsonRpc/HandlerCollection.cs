@@ -52,6 +52,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable Add(IJsonRpcHandler handler)
         {
+            return Add(GetMethodName(handler.GetType()), handler);
+        }
+
+        public IDisposable Add(string method, IJsonRpcHandler handler)
+        {
             var type = handler.GetType();
             var @interface = GetHandlerInterface(type);
 
@@ -61,12 +66,17 @@ namespace OmniSharp.Extensions.JsonRpc
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
             }
 
-            var h = new HandlerInstance(GetMethodName(type), handler, @interface, @params, () => Remove(handler));
+            var h = new HandlerInstance(method, handler, @interface, @params, () => Remove(handler));
             _handlers.Add(h);
             return h;
         }
 
-        private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };
+        private static readonly Type[] HandlerTypes = {
+            typeof(INotificationHandler),
+            typeof(INotificationHandler<>),
+            typeof(IRequestHandler<>),
+            typeof(IRequestHandler<,>),
+        };
 
         private string GetMethodName(Type type)
         {

@@ -168,5 +168,19 @@ namespace Lsp.Tests
             handler._handlers.Should().Contain(x => x.Method == key2);
             handler._handlers.Count.Should().Be(count);
         }
+
+        [Theory]
+        [InlineData("somemethod", typeof(IRequestHandler<object, object>))]
+        public void Should_AllowSpecificHandlers_ToBeAdded(string method, Type handlerType)
+        {
+            var handler = new HandlerCollection();
+            var sub = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
+            var sub2= (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
+            handler.Add(method, sub);
+            handler.Add(method, sub2);
+            handler._handlers.Should().Contain(x => x.Method == method);
+            handler._handlers.Should().Contain(x => x.Method == method);
+            handler._handlers.Count.Should().Be(1);
+        }
     }
 }

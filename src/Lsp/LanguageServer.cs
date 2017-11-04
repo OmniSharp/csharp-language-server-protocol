@@ -59,6 +59,26 @@ namespace OmniSharp.Extensions.LanguageServer
         public InitializeParams Client { get; private set; }
         public InitializeResult Server { get; private set; }
 
+        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
+        {
+            var handlerDisposable = _collection.Add(method, handler);
+
+            return new ImmutableDisposable(
+                handlerDisposable,
+                new Disposable(() => {
+                    var foundItems = _collection
+                        .Where(x => handler == x.Handler)
+                        .Where(x => x.AllowsDynamicRegistration)
+                        .Select(x => x.Registration)
+                        .Where(x => x != null)
+                        .ToArray();
+
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() {
+                        Unregisterations = foundItems
+                    }));
+                }));
+        }
+
         public IDisposable AddHandler(IJsonRpcHandler handler)
         {
             return AddHandlers(handler);
