@@ -8,6 +8,8 @@ os:
 cache:
   directories:
     - tools
+before_cache:
+  - rm -f tools/packages.config
 git:
   depth: 1000
 script:
