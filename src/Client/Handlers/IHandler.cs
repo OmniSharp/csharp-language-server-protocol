@@ -9,10 +9,5 @@
         ///     The name of the method handled by the handler.
         /// </summary>
         string Method { get; }
-
-        /// <summary>
-        ///     The kind of handler.
-        /// </summary>
-        HandlerKind Kind { get; }
     }
 }

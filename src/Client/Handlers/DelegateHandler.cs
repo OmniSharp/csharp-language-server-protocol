@@ -26,10 +26,5 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         ///     The name of the method handled by the handler.
         /// </summary>
         public string Method { get; }
-
-        /// <summary>
-        ///     The kind of handler.
-        /// </summary>
-        public abstract HandlerKind Kind { get; }
     }
 }
