@@ -1,5 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
-using Serilog;
+﻿using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
 using System;
 using System.IO;
 using System.Threading.Tasks;
@@ -15,16 +15,17 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         /// <summary>
         ///     Create a new <see cref="ServerProcess"/>.
         /// </summary>
-        /// <param name="logger">
-        ///     The logger to use.
+        /// <param name="loggerFactory">
+        ///     The factory for loggers used by the process and its components.
         /// </param>
-        protected ServerProcess(ILogger logger)
+        protected ServerProcess(ILoggerFactory loggerFactory)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
 
-            Log = logger.ForSourceContext(
-                source: GetType()
+            LoggerFactory = loggerFactory;
+            Log = LoggerFactory.CreateLogger(
+                categoryName: GetType().FullName
             );
 
             ServerStartCompletion = new TaskCompletionSource<object>();
@@ -60,7 +61,12 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         }
 
         /// <summary>
-        ///     The launcher's logger.
+        ///     The factory for loggers used by the process and its components.
+        /// </summary>
+        protected ILoggerFactory LoggerFactory { get; }
+
+        /// <summary>
+        ///     The process's logger.
         /// </summary>
         protected ILogger Log { get; }
 

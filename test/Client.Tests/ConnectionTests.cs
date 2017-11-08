@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
 using System.Threading.Tasks;
 using Xunit;
@@ -29,15 +30,15 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         [Fact(DisplayName = "Server connection can handle empty notification from client")]
         public async Task Client_HandleEmptyNotification_Success()
         {
-            TaskCompletionSource<object> testCompletion = new TaskCompletionSource<object>();
+            var testCompletion = new TaskCompletionSource<object>();
 
             LspConnection serverConnection = await CreateServerConnection();
             LspConnection clientConnection = await CreateClientConnection();
 
-            LspDispatcher serverDispatcher = new LspDispatcher();
+            var serverDispatcher = new LspDispatcher();
             serverDispatcher.HandleEmptyNotification("test", () =>
             {
-                Log.Information("Got notification.");
+                Log.LogInformation("Got notification.");
 
                 testCompletion.SetResult(null);
             });
@@ -60,15 +61,15 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         [Fact(DisplayName = "Client connection can handle empty notification from server")]
         public async Task Server_HandleEmptyNotification_Success()
         {
-            TaskCompletionSource<object> testCompletion = new TaskCompletionSource<object>();
+            var testCompletion = new TaskCompletionSource<object>();
 
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            LspDispatcher clientDispatcher = new LspDispatcher();
+            var clientDispatcher = new LspDispatcher();
             clientDispatcher.HandleEmptyNotification("test", () =>
             {
-                Log.Information("Got notification.");
+                Log.LogInformation("Got notification.");
 
                 testCompletion.SetResult(null);
             });

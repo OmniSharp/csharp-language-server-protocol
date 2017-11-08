@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -26,14 +26,14 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         /// <summary>
         ///     Create a new <see cref="StdioServerProcess"/>.
         /// </summary>
-        /// <param name="logger">
-        ///     The logger to use.
+        /// <param name="loggerFactory">
+        ///     The factory for loggers used by the process and its components.
         /// </param>
         /// <param name="serverStartInfo">
         ///     A <see cref="ProcessStartInfo"/> that describes how to start the server.
         /// </param>
-        public StdioServerProcess(ILogger logger, ProcessStartInfo serverStartInfo)
-            : base(logger)
+        public StdioServerProcess(ILoggerFactory loggerFactory, ProcessStartInfo serverStartInfo)
+            : base(loggerFactory)
         {
             if (serverStartInfo == null)
                 throw new ArgumentNullException(nameof(serverStartInfo));
@@ -127,7 +127,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         /// </param>
         void ServerProcess_Exit(object sender, EventArgs args)
         {
-            Log.Verbose("Server process has exited.");
+            Log.LogDebug("Server process has exited.");
 
             OnExited();
             ServerExitCompletion.TrySetResult(null);

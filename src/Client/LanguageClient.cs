@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using OmniSharp.Extensions.LanguageServer.Models;
@@ -8,7 +9,6 @@ using OmniSharp.Extensions.LanguageServerProtocol.Client.Processes;
 using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
 using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
 using OmniSharp.Extensions.LanguageServerProtocol.Client.Clients;
-using Serilog;
 using System;
 using System.Diagnostics;
 using System.Threading;
@@ -56,28 +56,28 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// <summary>
         ///     Create a new <see cref="LanguageClient"/>.
         /// </summary>
-        /// <param name="logger">
-        ///     The logger to use.
+        /// <param name="loggerFactory">
+        ///     The factory for loggers used by the client and its components.
         /// </param>
         /// <param name="serverStartInfo">
         ///     A <see cref="ProcessStartInfo"/> describing how to start the server process.
         /// </param>
-        public LanguageClient(ILogger logger, ProcessStartInfo serverStartInfo)
-            : this(logger, new StdioServerProcess(logger, serverStartInfo))
+        public LanguageClient(ILoggerFactory loggerFactory, ProcessStartInfo serverStartInfo)
+            : this(loggerFactory, new StdioServerProcess(loggerFactory, serverStartInfo))
         {
         }
 
         /// <summary>
         ///     Create a new <see cref="LanguageClient"/>.
         /// </summary>
-        /// <param name="logger">
-        ///     The application logger.
+        /// <param name="loggerFactory">
+        ///     The factory for loggers used by the client and its components.
         /// </param>
         /// <param name="process">
         ///     A <see cref="ServerProcess"/> used to start or connect to the server process.
         /// </param>
-        public LanguageClient(ILogger logger, ServerProcess process)
-            : this(logger)
+        public LanguageClient(ILoggerFactory loggerFactory, ServerProcess process)
+            : this(loggerFactory)
         {
             if (process == null)
                 throw new ArgumentNullException(nameof(process));
@@ -89,15 +89,16 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// <summary>
         ///     Create a new <see cref="LanguageClient"/>.
         /// </summary>
-        /// <param name="logger">
+        /// <param name="loggerFactory">
         ///     The logger to use.
         /// </param>
-        LanguageClient(ILogger logger)
+        LanguageClient(ILoggerFactory loggerFactory)
         {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
+            if (loggerFactory == null)
+                throw new ArgumentNullException(nameof(loggerFactory));
 
-            Log = logger.ForSourceContext<LanguageClient>();
+            LoggerFactory = loggerFactory;
+            Log = LoggerFactory.CreateLogger<LanguageClient>();
             Workspace = new WorkspaceClient(this);
             Window = new WindowClient(this);
             TextDocument = new TextDocumentClient(this);
@@ -116,6 +117,11 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
             ServerProcess serverProcess = Interlocked.Exchange(ref _process, null);
             serverProcess?.Dispose();
         }
+
+        /// <summary>
+        ///     The factory for loggers used by the client and its components.
+        /// </summary>
+        ILoggerFactory LoggerFactory { get; }
 
         /// <summary>
         ///     The client's logger.
@@ -242,7 +248,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
                     InitializationOptions = initializationOptions
                 };
 
-                Log.Verbose("Sending 'initialize' message to language server...");
+                Log.LogDebug("Sending 'initialize' message to language server...");
 
                 InitializeResult result = await SendRequest<InitializeResult>("initialize", initializeParams, cancellationToken).ConfigureAwait(false);
                 if (result == null)
@@ -250,13 +256,13 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 
                 _dynamicRegistrationHandler.ServerCapabilities = result.Capabilities;
 
-                Log.Verbose("Sent 'initialize' message to language server.");
+                Log.LogDebug("Sent 'initialize' message to language server.");
 
-                Log.Verbose("Sending 'initialized' notification to language server...");
+                Log.LogDebug("Sending 'initialized' notification to language server...");
 
                 SendNotification("initialized");
 
-                Log.Verbose("Sent 'initialized' notification to language server.");
+                Log.LogDebug("Sent 'initialized' notification to language server.");
 
                 IsInitialized = true;
                 _readyCompletion.TrySetResult(null);
@@ -410,21 +416,21 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 
             if (!_process.IsRunning)
             {
-                Log.Verbose("Starting language server...");
+                Log.LogDebug("Starting language server...");
 
                 await _process.Start();
 
-                Log.Verbose("Language server is running.");
+                Log.LogDebug("Language server is running.");
             }
 
-            Log.Verbose("Opening connection to language server...");
+            Log.LogDebug("Opening connection to language server...");
 
             if (_connection == null)
-                _connection = new LspConnection(Log, input: _process.OutputStream, output: _process.InputStream);
+                _connection = new LspConnection(LoggerFactory, input: _process.OutputStream, output: _process.InputStream);
 
             _connection.Connect(_dispatcher);
 
-            Log.Verbose("Connection to language server is open.");
+            Log.LogDebug("Connection to language server is open.");
         }
 
         /// <summary>
@@ -438,7 +444,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </param>
         async void ServerProcess_Exit(object sender, EventArgs args)
         {
-            Log.Verbose("Server process has exited; language client is shutting down...");
+            Log.LogDebug("Server process has exited; language client is shutting down...");
 
             LspConnection connection = Interlocked.Exchange(ref _connection, null);
             if (connection != null)
@@ -452,7 +458,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 
             await Shutdown();
 
-            Log.Verbose("Language client shutdown complete.");
+            Log.LogDebug("Language client shutdown complete.");
         }
     }
 }

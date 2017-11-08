@@ -33,11 +33,6 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         public string Method => "client/registerCapability";
 
         /// <summary>
-        ///     The kind of handler.
-        /// </summary>
-        public HandlerKind Kind => HandlerKind.Request;
-
-        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <param name="request">

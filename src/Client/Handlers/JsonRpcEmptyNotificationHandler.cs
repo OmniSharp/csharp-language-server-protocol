@@ -34,11 +34,6 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         public INotificationHandler Handler { get; }
 
         /// <summary>
-        ///     The kind of handler.
-        /// </summary>
-        public override HandlerKind Kind => HandlerKind.EmptyNotification;
-
-        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <returns>

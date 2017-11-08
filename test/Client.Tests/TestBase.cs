@@ -1,7 +1,4 @@
-﻿using Serilog;
-using Serilog.Context;
-using Serilog.Core;
-using Serilog.Events;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Reactive.Disposables;
 using System.Reflection;
@@ -38,15 +35,11 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             TestOutput = testOutput;
 
             // Redirect component logging to Serilog.
-            Log =
-                new LoggerConfiguration()
-                    .MinimumLevel.Verbose()
-                    .Enrich.FromLogContext()
-                    .WriteTo.Debug(
-                        restrictedToMinimumLevel: LogEventLevel.Verbose
-                    )
-                    .WriteTo.TestOutput(TestOutput, LogLevelSwitch)
-                    .CreateLogger();
+            LoggerFactory = new LoggerFactory();
+            Disposal.Add(LoggerFactory);
+
+            LoggerFactory.AddDebug(LogLevel);
+            LoggerFactory.AddTestOutput(TestOutput, LogLevel);
 
             // Ugly hack to get access to the current test.
             CurrentTest = (ITest)
@@ -56,8 +49,10 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             Assert.True(CurrentTest != null, "Cannot retrieve current test from ITestOutputHelper.");
 
+            Log = LoggerFactory.CreateLogger("CurrentTest");
+
             Disposal.Add(
-                LogContext.PushProperty("TestName", CurrentTest.DisplayName)
+                Log.BeginScope("TestDisplayName='{TestName}'", CurrentTest.DisplayName)
             );
         }
 
@@ -118,11 +113,16 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     The Serilog logger for the current test.
         /// </summary>
+        protected ILoggerFactory LoggerFactory { get; }
+
+        /// <summary>
+        ///     The Serilog logger for the current test.
+        /// </summary>
         protected ILogger Log { get; }
 
         /// <summary>
-        ///     A switch to control the logging level for the current test.
+        ///     The logging level for the current test.
         /// </summary>
-        protected LoggingLevelSwitch LogLevelSwitch { get; } = new LoggingLevelSwitch();
+        protected virtual LogLevel LogLevel => LogLevel.Information;
     }
 }

@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         protected PipeServerTestBase(ITestOutputHelper testOutput)
             : base(testOutput)
         {
-            _serverProcess = new NamedPipeServerProcess(Guid.NewGuid().ToString("N"), Log);
+            _serverProcess = new NamedPipeServerProcess(Guid.NewGuid().ToString("N"), LoggerFactory);
             Disposal.Add(_serverProcess);
         }
 
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LanguageClient client = new LanguageClient(Log, _serverProcess);
+            LanguageClient client = new LanguageClient(LoggerFactory, _serverProcess);
             Disposal.Add(client);
 
             if (initialize)
@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LspConnection connection = new LspConnection(Log, input: ServerOutputStream, output: ServerInputStream);
+            LspConnection connection = new LspConnection(LoggerFactory, input: ServerOutputStream, output: ServerInputStream);
             Disposal.Add(connection);
 
             return connection;
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LspConnection connection = new LspConnection(Log, input: ClientOutputStream, output: ClientInputStream);
+            LspConnection connection = new LspConnection(LoggerFactory, input: ClientOutputStream, output: ClientInputStream);
             Disposal.Add(connection);
 
             return connection;

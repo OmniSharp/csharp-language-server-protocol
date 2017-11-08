@@ -1,4 +1,4 @@
-﻿using Serilog;
+﻿using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipes;
@@ -18,11 +18,11 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         /// <param name="baseName">
         ///     The base name (prefix) used to create the named pipes.
         /// </param>
-        /// <param name="logger">
-        ///     The logger to use.
+        /// <param name="loggerFactory">
+        ///     The factory for loggers used by the process and its components.
         /// </param>
-        public NamedPipeServerProcess(string baseName, ILogger logger)
-            : base(logger)
+        public NamedPipeServerProcess(string baseName, ILoggerFactory loggerFactory)
+            : base(loggerFactory)
         {
             BaseName = baseName;
         }
