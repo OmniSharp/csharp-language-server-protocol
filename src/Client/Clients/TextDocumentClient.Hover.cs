@@ -3,6 +3,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
 {
@@ -31,7 +32,12 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
         /// </returns>
         public Task<Hover> Hover(string filePath, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<Hover>("textDocument/hover", filePath, line, column, cancellationToken);
+            if (String.IsNullOrWhiteSpace(filePath))
+                throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'filePath'.", nameof(filePath));
+
+            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
+
+            return Hover(documentUri, line, column, cancellationToken);
         }
 
         /// <summary>

@@ -1,4 +1,5 @@
 ﻿using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +34,9 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
             if (String.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
-            return PositionalRequest<CompletionList>("textDocument/completion", filePath, line, column, cancellationToken);
+            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
+
+            return Completions(documentUri, line, column, cancellationToken);
         }
 
         /// <summary>

@@ -40,43 +40,6 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
         /// <param name="method">
         ///     The name of the operation to invoke.
         /// </param>
-        /// <param name="filePath">
-        ///     The file-system path of the target document.
-        /// </param>
-        /// <param name="line">
-        ///     The target line numer (0-based).
-        /// </param>
-        /// <param name="column">
-        ///     The target column (0-based).
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     A cancellation token that can be used to cancel the request.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="Task{TResult}"/> representing the request.
-        /// </returns>
-        Task<TResponse> PositionalRequest<TResponse>(string method, string filePath, int line, int column, CancellationToken cancellationToken)
-        {
-            if (String.IsNullOrWhiteSpace(method))
-                throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
-
-            if (String.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
-
-            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
-
-            return PositionalRequest<TResponse>(method, documentUri, line, column, cancellationToken);
-        }
-
-        /// <summary>
-        ///     Make a request to the server for the specified document position.
-        /// </summary>
-        /// <typeparam name="TResponse">
-        ///     The response payload type.
-        /// </typeparam>
-        /// <param name="method">
-        ///     The name of the operation to invoke.
-        /// </param>
         /// <param name="documentUri">
         ///     The URI of the target document.
         /// </param>
