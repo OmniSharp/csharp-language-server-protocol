@@ -842,6 +842,8 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
                 _outgoing.TryAdd(
                     new JsonRpcMessages.MethodNotFound(requestMessage.Id, requestMessage.Method)
                 );
+
+                return;
             }
 
 #pragma warning disable CS4014 // Continuation does the work we need; no need to await it as this would tie up the dispatch loop.
