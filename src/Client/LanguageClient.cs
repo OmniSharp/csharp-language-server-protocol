@@ -1,6 +1,13 @@
-﻿using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
+﻿using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Processes;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Clients;
 using Serilog;
 using System;
 using System.Diagnostics;
@@ -9,14 +16,6 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 {
-    using Clients;
-    using Dispatcher;
-    using Handlers;
-    using Logging;
-    using Newtonsoft.Json.Linq;
-    using Processes;
-    using Protocol;
-
     /// <summary>
     ///     A client for the Language Server Protocol.
     /// </summary>

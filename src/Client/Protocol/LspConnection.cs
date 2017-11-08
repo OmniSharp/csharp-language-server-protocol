@@ -1,4 +1,7 @@
 ﻿using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Serilog;
@@ -15,10 +18,6 @@ using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
 {
-    using Dispatcher;
-    using Handlers;
-    using Logging;
-
     /// <summary>
     ///     An asynchronous connection using the LSP protocol over <see cref="Stream"/>s.
     /// </summary>

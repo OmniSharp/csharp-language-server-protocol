@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
 using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
@@ -7,8 +8,6 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
 {
-    using Handlers;
-
     /// <summary>
     ///     Dispatches requests and notifications from a language server to a language client.
     /// </summary>

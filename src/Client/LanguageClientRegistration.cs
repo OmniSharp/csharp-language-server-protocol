@@ -1,10 +1,9 @@
 ﻿using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
 using System;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 {
-    using Handlers;
-
     /// <summary>
     ///     Extension methods for <see cref="LanguageClient"/> enabling various styles of handler registration.
     /// </summary>

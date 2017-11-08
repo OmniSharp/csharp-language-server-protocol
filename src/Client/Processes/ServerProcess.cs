@@ -1,12 +1,11 @@
-﻿using Serilog;
+﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
+using Serilog;
 using System;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
 {
-    using Logging;
-
     /// <summary>
     ///     A <see cref="ServerProcess"/> is responsible for launching or attaching to a language server, providing access to its input and output streams, and tracking its lifetime.
     /// </summary>

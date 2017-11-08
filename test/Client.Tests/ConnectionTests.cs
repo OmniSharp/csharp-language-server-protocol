@@ -1,12 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
+using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
-    using Dispatcher;
-    using Protocol;
-
     /// <summary>
     ///     Tests for <see cref="LspConnection"/>.
     /// </summary>

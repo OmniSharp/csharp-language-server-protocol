@@ -1,14 +1,13 @@
-﻿using System;
+﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
+using OmniSharp.Extensions.LanguageServerProtocol.Client.Processes;
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
-    using Dispatcher;
-    using Processes;
-    using Protocol;
-
     /// <summary>
     ///     The base class for test suites that use a <see cref="PipeServerProcess"/>.
     /// </summary>
@@ -63,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// </summary>
         /// <param name="initialize">
         ///     Automatically initialise the client?
-        ///     
+        ///
         ///     Default is <c>true</c>.
         /// </param>
         /// <returns>

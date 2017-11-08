@@ -3,11 +3,9 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-    
+
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
 {
-    using Utilities;
-
     /// <summary>
     ///     Client for the LSP Text Document API.
     /// </summary>
