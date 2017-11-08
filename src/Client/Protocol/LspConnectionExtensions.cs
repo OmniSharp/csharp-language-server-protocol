@@ -18,12 +18,12 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
         ///     The name of the notification method to handle.
         /// </param>
         /// <param name="handler">
-        ///     A <see cref="EmptyNotificationHandler"/> delegate that implements the handler.
+        ///     A <see cref="NotificationHandler"/> delegate that implements the handler.
         /// </param>
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the registration.
         /// </returns>
-        public static IDisposable HandleEmptyNotification(this LspConnection clientConnection, string method, EmptyNotificationHandler handler)
+        public static IDisposable HandleEmptyNotification(this LspConnection clientConnection, string method, NotificationHandler handler)
         {
             if (clientConnection == null)
                 throw new ArgumentNullException(nameof(clientConnection));

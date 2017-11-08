@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
     /// <returns>
     ///     A <see cref="Task"/> representing the operation.
     /// </returns>
-    public delegate void EmptyNotificationHandler();
+    public delegate void NotificationHandler();
 
     /// <summary>
     ///     A handler for notifications.

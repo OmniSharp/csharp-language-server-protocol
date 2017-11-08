@@ -19,12 +19,12 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         ///     The name of the notification method to handle.
         /// </param>
         /// <param name="handler">
-        ///     A <see cref="EmptyNotificationHandler"/> delegate that implements the handler.
+        ///     A <see cref="NotificationHandler"/> delegate that implements the handler.
         /// </param>
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the registration.
         /// </returns>
-        public static IDisposable HandleEmptyNotification(this LanguageClient languageClient, string method, EmptyNotificationHandler handler)
+        public static IDisposable HandleNotification(this LanguageClient languageClient, string method, NotificationHandler handler)
         {
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the registration.
         /// </returns>
-        public static IDisposable HandleEmptyNotification(this LanguageClient languageClient, string method, INotificationHandler handler)
+        public static IDisposable HandleNotification(this LanguageClient languageClient, string method, INotificationHandler handler)
         {
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));

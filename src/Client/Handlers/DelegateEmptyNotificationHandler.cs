@@ -16,9 +16,9 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         ///     The name of the method handled by the handler.
         /// </param>
         /// <param name="handler">
-        ///     The <see cref="EmptyNotificationHandler"/> delegate that implements the handler.
+        ///     The <see cref="NotificationHandler"/> delegate that implements the handler.
         /// </param>
-        public DelegateEmptyNotificationHandler(string method, EmptyNotificationHandler handler)
+        public DelegateEmptyNotificationHandler(string method, NotificationHandler handler)
             : base(method)
         {
             if (handler == null)
@@ -28,9 +28,9 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         }
 
         /// <summary>
-        ///     The <see cref="EmptyNotificationHandler"/> delegate that implements the handler.
+        ///     The <see cref="NotificationHandler"/> delegate that implements the handler.
         /// </summary>
-        public EmptyNotificationHandler Handler { get; }
+        public NotificationHandler Handler { get; }
 
         /// <summary>
         ///     The kind of handler.

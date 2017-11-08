@@ -254,7 +254,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 
                 Log.Verbose("Sending 'initialized' notification to language server...");
 
-                SendEmptyNotification("initialized");
+                SendNotification("initialized");
 
                 Log.Verbose("Sent 'initialized' notification to language server.");
 
@@ -319,7 +319,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// <param name="method">
         ///     The notification method name.
         /// </param>
-        public void SendEmptyNotification(string method)
+        public void SendNotification(string method)
         {
             LspConnection connection = _connection;
             if (connection == null || !connection.IsOpen)
