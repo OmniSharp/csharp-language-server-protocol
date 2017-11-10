@@ -11,21 +11,26 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using OmniSharp.Extensions.LanguageServer.Messages;
 using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
-    class LspRequestRouter : IRequestRouter
+    internal class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
+        private readonly IEnumerable<IHandlerMatcher> _routeMatchers;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ILogger<LspRequestRouter> _logger;
 
-        public LspRequestRouter(IHandlerCollection collection, ILoggerFactory loggerFactory)
+        public LspRequestRouter(IHandlerCollection collection,
+            ILoggerFactory loggerFactory,
+            IHandlerMatcherCollection routeMatchers)
         {
             _collection = collection;
+            _routeMatchers = routeMatchers;
             _logger = loggerFactory.CreateLogger<LspRequestRouter>();
         }
 
@@ -59,78 +64,13 @@ namespace OmniSharp.Extensions.LanguageServer
                 return null;
             }
 
-            if (@params != null && descriptor.Params != null)
-            {
-                var paramsValue = @params.ToObject(descriptor.Params);
-                if (paramsValue is ITextDocumentIdentifierParams textDocumentIdentifierParams)
-                {
-                    var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
+            if (@params == null || descriptor.Params == null) return descriptor;
 
-                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
+            var paramsValue = @params.ToObject(descriptor.Params);
 
-                    return GetHandler(method, attributes);
-                }
-                else if (paramsValue is DidOpenTextDocumentParams openTextDocumentParams)
-                {
-                    var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
+            var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-                    _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
-
-                    return GetHandler(method, attributes);
-                }
-                else if (paramsValue is DidChangeTextDocumentParams didChangeDocumentParams)
-                {
-                    // TODO: Do something with document version here?
-                    var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
-
-                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
-
-                    return GetHandler(method, attributes);
-                }
-            }
-
-            // TODO: How to split these
-            // Do they fork and join?
-            return descriptor;
-        }
-
-        private List<TextDocumentAttributes> GetTextDocumentAttributes(Uri uri)
-        {
-            var textDocumentSyncHandlers = _collection
-                .Select(x => x.Handler is ITextDocumentSyncHandler r ? r : null)
-                .Where(x => x != null)
-                .Distinct();
-            return textDocumentSyncHandlers
-                .Select(x => x.GetTextDocumentAttributes(uri))
-                .Where(x => x != null)
-                .Distinct()
-                .ToList();
-        }
-
-        private ILspHandlerDescriptor GetHandler(string method, IEnumerable<TextDocumentAttributes> attributes)
-        {
-            return attributes
-                .Select(x => GetHandler(method, x))
-                .FirstOrDefault(x => x != null);
-        }
-
-        private ILspHandlerDescriptor GetHandler(string method, TextDocumentAttributes attributes)
-        {
-            _logger.LogTrace("Looking for handler for method {Method}", method);
-            foreach (var handler in _collection.Where(x => x.Method == method))
-            {
-                _logger.LogTrace("Checking handler {Method}:{Handler}", method, handler.Handler.GetType().FullName);
-                var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
-
-                _logger.LogTrace("Registration options {OptionsName}", registrationOptions.GetType().FullName);
-                _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions.DocumentSelector.ToString());
-                if (registrationOptions.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
-                {
-                    _logger.LogTrace("Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", handler.Handler.GetType().FullName, registrationOptions.DocumentSelector.ToString(), handler.HandlerType.GetType().FullName);
-                    return handler;
-                }
-            }
-            return null;
+            return _routeMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 
         public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
@@ -191,7 +131,6 @@ namespace OmniSharp.Extensions.LanguageServer
                 }
 
                 await result.ConfigureAwait(false);
-
 
                 object responseValue = null;
                 if (result.GetType().GetTypeInfo().IsGenericType)

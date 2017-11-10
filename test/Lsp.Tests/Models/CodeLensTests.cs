@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Models;
 using Xunit;
 
@@ -14,7 +15,7 @@ namespace Lsp.Tests.Models
         {
             var model = new CodeLens() {
                 Command = new Command() {
-                    Arguments = new object[] { 1, "2", true },
+                    Arguments = new JArray { 1, "2", true },
                     Name = "abc",
                     Title = "Cool story bro"
                 },

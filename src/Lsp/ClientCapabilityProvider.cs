@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
@@ -42,13 +43,36 @@ namespace OmniSharp.Extensions.LanguageServer
 
         public interface IOptionsGetter
         {
+            /// <summary>
+            /// Gets a single option from a given interface.
+            /// </summary>
+            /// <param name="action"></param>
+            /// <typeparam name="TInterface"></typeparam>
+            /// <typeparam name="TOptions"></typeparam>
+            /// <returns></returns>
             TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
+                where TOptions : class;
+
+            /// <summary>
+            /// Reduces the options from multiple interfaces to a single option.
+            /// </summary>
+            /// <typeparam name="TInterface"></typeparam>
+            /// <typeparam name="TOptions"></typeparam>
+            /// <param name="action"></param>
+            /// <returns></returns>
+            TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
                 where TOptions : class;
         }
 
         private class NullOptionsGetter : IOptionsGetter
         {
             public TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
+                where TOptions : class
+            {
+                return null;
+            }
+
+            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
                 where TOptions : class
             {
                 return null;
@@ -70,6 +94,14 @@ namespace OmniSharp.Extensions.LanguageServer
                 return _collection
                     .Select(x => x.Registration?.RegisterOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);
+            }
+
+            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
+                where TOptions : class
+            {
+                return action(_collection
+                    .Select(x => x.Registration?.RegisterOptions is TInterface cl ? cl : default)
+                    .Where(x => x != null));
             }
         }
     }
