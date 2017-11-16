@@ -9,6 +9,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using Xunit.Abstractions;
+using System.Collections.Generic;
+using System;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -101,6 +103,86 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                     markedString => markedString.Value
                 )
             );
+        }
+
+        /// <summary>
+        ///     Ensure that the language client can successfully receive Diagnostics from the server.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully receive diagnostics")]
+        public async Task Diagnostics_Success()
+        {
+            await Connect();
+
+            string documentPath = AbsoluteDocumentPath;
+            Uri expectedDocumentUri = DocumentUri.FromFileSystemPath(documentPath);
+            List<Diagnostic> expectedDiagnostics = new List<Diagnostic>
+            {
+                new Diagnostic
+                {
+                    Source = "Test",
+                    Code = new DiagnosticCode(1234),
+                    Message = "This is a diagnostic message.",
+                    Range = new Range
+                    {
+                        Start = new Position
+                        {
+                            Line = 2,
+                            Character = 5
+                        },
+                        End = new Position
+                        {
+                            Line = 3,
+                            Character = 7
+                        }
+                    },
+                    Severity = DiagnosticSeverity.Warning
+                }
+            };
+
+            TaskCompletionSource<object> receivedDiagnosticsNotification = new TaskCompletionSource<object>();
+
+            Uri actualDocumentUri = null;
+            List<Diagnostic> actualDiagnostics = null;
+            LanguageClient.TextDocument.OnPublishDiagnostics((documentUri, diagnostics) =>
+            {
+                actualDocumentUri = documentUri;
+                actualDiagnostics = diagnostics;
+
+                receivedDiagnosticsNotification.SetResult(null);
+            });
+
+            ServerConnection.SendNotification("textDocument/publishDiagnostics", new PublishDiagnosticsParams
+            {
+                Uri = DocumentUri.FromFileSystemPath(documentPath),
+                Diagnostics = expectedDiagnostics
+            });
+
+            // Timeout.
+            Task winner = await Task.WhenAny(
+                receivedDiagnosticsNotification.Task,
+                Task.Delay(
+                    TimeSpan.FromSeconds(2)
+                )
+            );
+            Assert.Same(receivedDiagnosticsNotification.Task, winner);
+
+            Assert.NotNull(actualDocumentUri);
+            Assert.Equal(expectedDocumentUri, actualDocumentUri);
+
+            Assert.NotNull(actualDiagnostics);
+            Assert.Equal(1, actualDiagnostics.Count);
+
+            Diagnostic expectedDiagnostic = expectedDiagnostics[0];
+            Diagnostic actualDiagnostic = actualDiagnostics[0];
+
+            Assert.Equal(expectedDiagnostic.Code, actualDiagnostic.Code);
+            Assert.Equal(expectedDiagnostic.Message, actualDiagnostic.Message);
+            Assert.Equal(expectedDiagnostic.Range.Start.Line, actualDiagnostic.Range.Start.Line);
+            Assert.Equal(expectedDiagnostic.Range.Start.Character, actualDiagnostic.Range.Start.Character);
+            Assert.Equal(expectedDiagnostic.Range.End.Line, actualDiagnostic.Range.End.Line);
+            Assert.Equal(expectedDiagnostic.Range.End.Character, actualDiagnostic.Range.End.Character);
+            Assert.Equal(expectedDiagnostic.Severity, actualDiagnostic.Severity);
+            Assert.Equal(expectedDiagnostic.Source, actualDiagnostic.Source);
         }
 
         /// <summary>
