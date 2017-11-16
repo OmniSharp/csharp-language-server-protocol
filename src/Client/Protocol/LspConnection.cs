@@ -85,6 +85,11 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
         int _nextRequestId = 0;
 
         /// <summary>
+        ///     Has the connection been disposed?
+        /// </summary>
+        bool _disposed;
+
+        /// <summary>
         ///     The cancellation source for the read and write loops.
         /// </summary>
         CancellationTokenSource _cancellationSource;
@@ -158,9 +163,19 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
         /// </summary>
         public void Dispose()
         {
-            Disconnect();
+            if (_disposed)
+                return;
 
-            _cancellationSource?.Dispose();
+            try
+            {
+                Disconnect();
+
+                _cancellationSource?.Dispose();
+            }
+            finally
+            {
+                _disposed = true;
+            }
         }
 
         /// <summary>
