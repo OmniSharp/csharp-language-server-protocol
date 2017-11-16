@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Get an absolute document path for use in tests.
         /// </summary>
-        string AbsoluteDocumentPath => Path.DirectorySeparatorChar + "Foo.txt"; // Absolute path, cross-platform compatible.
+        string AbsoluteDocumentPath => IsWindows ? @"C:\Foo.txt" : "/Foo.txt";
 
         /// <summary>
         ///     The <see cref="LanguageClient"/> under test.
