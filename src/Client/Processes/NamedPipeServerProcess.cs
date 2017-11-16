@@ -91,10 +91,10 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
         {
             ServerExitCompletion = new TaskCompletionSource<object>();
 
-            ServerInputStream = new NamedPipeServerStream(BaseName + "/in", PipeDirection.Out, 2, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, inBufferSize: 1024, outBufferSize: 1024);
-            ServerOutputStream = new NamedPipeServerStream(BaseName + "/out", PipeDirection.In, 2, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, inBufferSize: 1024, outBufferSize: 1024);
-            ClientInputStream = new NamedPipeClientStream(".", BaseName + "/out", PipeDirection.Out, PipeOptions.Asynchronous);
-            ClientOutputStream = new NamedPipeClientStream(".", BaseName + "/in", PipeDirection.In, PipeOptions.Asynchronous);
+            ServerInputStream = new NamedPipeServerStream(BaseName + "_in", PipeDirection.Out, 2, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, inBufferSize: 1024, outBufferSize: 1024);
+            ServerOutputStream = new NamedPipeServerStream(BaseName + "_out", PipeDirection.In, 2, PipeTransmissionMode.Byte, PipeOptions.Asynchronous, inBufferSize: 1024, outBufferSize: 1024);
+            ClientInputStream = new NamedPipeClientStream(".", BaseName + "_out", PipeDirection.Out, PipeOptions.Asynchronous);
+            ClientOutputStream = new NamedPipeClientStream(".", BaseName + "_in", PipeDirection.In, PipeOptions.Asynchronous);
 
             // Ensure all pipes are connected before proceeding.
             await Task.WhenAll(
