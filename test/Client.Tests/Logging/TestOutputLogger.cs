@@ -113,7 +113,16 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
             if (exception != null)
                 message += "\n" + exception.ToString();
 
-            _testOutput.WriteLine(message);
+            try
+            {
+                _testOutput.WriteLine(message);
+            }
+            catch (InvalidOperationException)
+            {
+                // Test has already terminated.
+
+                System.Diagnostics.Debug.WriteLine(message);
+            }
         }
     }
 }

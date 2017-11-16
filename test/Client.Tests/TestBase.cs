@@ -2,6 +2,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
@@ -124,5 +125,15 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         ///     The logging level for the current test.
         /// </summary>
         protected virtual LogLevel LogLevel => LogLevel.Information;
+
+        /// <summary>
+        ///     Is the test running on Windows?
+        /// </summary>
+        protected virtual bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
+
+        /// <summary>
+        ///     Is the test running on a Unix-like operating system?
+        /// </summary>
+        protected virtual bool IsUnix => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }
 }
