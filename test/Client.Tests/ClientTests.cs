@@ -106,6 +106,86 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         }
 
         /// <summary>
+        ///     Ensure that the language client can successfully request Completions.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request completions")]
+        public async Task Completions_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            string expectedDocumentPath = AbsoluteDocumentPath;
+            Uri expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedCompletionItems = new CompletionItem[]
+            {
+                new CompletionItem
+                {
+                    Kind = CompletionItemKind.Class,
+                    Label = "Class1",
+                    TextEdit = new TextEdit
+                    {
+                        Range = new Range
+                        {
+                            Start = new Position
+                            {
+                                Line = line,
+                                Character = column
+                            },
+                            End = new Position
+                            {
+                                Line = line,
+                                Character = column
+                            }
+                        },
+                        NewText = "Class1",
+                    }
+                }
+            };
+
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>("textDocument/completion", (request, cancellationToken) =>
+            {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(new CompletionList(
+                    expectedCompletionItems,
+                    isIncomplete: true
+                ));
+            });
+
+            CompletionList actualCompletions = await LanguageClient.TextDocument.Completions(AbsoluteDocumentPath, line, column);
+
+            Assert.True(actualCompletions.IsIncomplete, "completions.IsIncomplete");
+            Assert.NotNull(actualCompletions.Items);
+
+            CompletionItem[] actualCompletionItems = actualCompletions.Items.ToArray();
+            Assert.Collection(actualCompletionItems, actualCompletionItem =>
+            {
+                CompletionItem expectedCompletionItem = expectedCompletionItems[0];
+
+                Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
+                Assert.Equal(expectedCompletionItem.Label, actualCompletionItem.Label);
+
+                Assert.NotNull(actualCompletionItem.TextEdit);
+                Assert.Equal(expectedCompletionItem.TextEdit.NewText, actualCompletionItem.TextEdit.NewText);
+
+                Assert.NotNull(actualCompletionItem.TextEdit.Range);
+                Assert.NotNull(actualCompletionItem.TextEdit.Range.Start);
+                Assert.NotNull(actualCompletionItem.TextEdit.Range.End);
+                Assert.Equal(expectedCompletionItem.TextEdit.Range.Start.Line, actualCompletionItem.TextEdit.Range.Start.Line);
+                Assert.Equal(expectedCompletionItem.TextEdit.Range.Start.Character, actualCompletionItem.TextEdit.Range.Start.Character);
+                Assert.Equal(expectedCompletionItem.TextEdit.Range.End.Line, actualCompletionItem.TextEdit.Range.End.Line);
+                Assert.Equal(expectedCompletionItem.TextEdit.Range.End.Character, actualCompletionItem.TextEdit.Range.End.Character);
+            });
+        }
+
+        /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully receive diagnostics")]
