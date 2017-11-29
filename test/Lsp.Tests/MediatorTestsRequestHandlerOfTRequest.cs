@@ -17,12 +17,14 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 
 namespace Lsp.Tests
 {
     public class MediatorTestsRequestHandlerOfTRequest
     {
         private readonly TestLoggerFactory _testLoggerFactory;
+        private readonly IHandlerMatcherCollection _handlerMatcherCollection = new HandlerMatcherCollection();
 
         public MediatorTestsRequestHandlerOfTRequest(ITestOutputHelper testOutputHelper)
         {
@@ -41,7 +43,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { executeCommandHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };
@@ -54,6 +56,5 @@ namespace Lsp.Tests
             result.IsError.Should().BeTrue();
             result.Error.ShouldBeEquivalentTo(new RequestCancelled());
         }
-
     }
 }

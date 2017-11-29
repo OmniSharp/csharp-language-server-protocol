@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Handlers;
 using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Matchers;
 
 namespace OmniSharp.Extensions.LanguageServer
 {
@@ -32,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer
         private readonly ILoggerFactory _loggerFactory;
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly HandlerMatcherCollection _handlerMactherCollection;
 
         public LanguageServer(Stream input, Stream output, ILoggerFactory loggerFactory)
             : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier(), loggerFactory)
@@ -45,7 +47,13 @@ namespace OmniSharp.Extensions.LanguageServer
 
             _reciever = reciever;
             _loggerFactory = loggerFactory;
-            _requestRouter = new LspRequestRouter(_collection, loggerFactory);
+            _handlerMactherCollection = new HandlerMatcherCollection
+            {
+                new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>()),
+                new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>())
+            };
+
+            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection);
             _responseRouter = new ResponseRouter(output);
             _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory);
 
@@ -110,6 +118,11 @@ namespace OmniSharp.Extensions.LanguageServer
                 }));
         }
 
+        public IDisposable AddHandlerMatcher(IHandlerMatcher handlerMatcher)
+        {
+            return _handlerMactherCollection.Add(handlerMatcher);
+        }
+
         public async Task Initialize()
         {
             _connection.Open();
@@ -160,7 +173,7 @@ namespace OmniSharp.Extensions.LanguageServer
                 DocumentOnTypeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.OnTypeFormatting).Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
                 DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
                 DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
-                ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Get<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
+                ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
                 HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
                 RenameProvider = ccp.HasStaticHandler(textDocumentCapabilities.Rename),
@@ -314,4 +327,3 @@ namespace OmniSharp.Extensions.LanguageServer
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
     }
 }
-

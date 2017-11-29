@@ -1,5 +1,6 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Models
 {

@@ -7,12 +7,38 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
+using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
 using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using Xunit;
+using static OmniSharp.Extensions.LanguageServer.ClientCapabilityProvider;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
 
 namespace Lsp.Tests
 {
+    internal class ClientCapabilityProviderFixture
+    {
+        private IExecuteCommandHandler handler;
+
+        public ClientCapabilityProvider Provider { get; set; }
+
+        public ClientCapabilityProviderFixture()
+        {
+            handler = Substitute.For<IExecuteCommandHandler>();
+            handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
+
+            var handlerCollection = new HandlerCollection { handler };
+            var capabilityProvider = new ClientCapabilityProvider(handlerCollection);
+
+            Provider = capabilityProvider;
+        }
+
+        public IOptionsGetter GetStaticOptions()
+        {
+            return Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
+        }
+    }
+
     public class ClientCapabilityProviderTests
     {
         private static readonly Type[] Capabilities = {
@@ -63,6 +89,34 @@ namespace Lsp.Tests
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeFalse();
+        }
+
+        [Fact]
+        public void Should_Invoke_Get_Delegate()
+        {
+            // Given
+            var stub = Substitute.For<Func<IExecuteCommandOptions, ExecuteCommandOptions>>();
+            var provider = new ClientCapabilityProviderFixture().GetStaticOptions();
+
+            // When
+            provider.Get(stub);
+
+            // Then
+            stub.Received().Invoke(Arg.Any<IExecuteCommandOptions>());
+        }
+
+        [Fact]
+        public void Should_Invoke_Reduce_Delegate()
+        {
+            // Given
+            var stub = Substitute.For<Func<IEnumerable<IExecuteCommandOptions>, ExecuteCommandOptions>>();
+            var provider = new ClientCapabilityProviderFixture().GetStaticOptions();
+
+            // When
+            provider.Reduce(stub);
+
+            // Then
+            stub.Received().Invoke(Arg.Any<IEnumerable<IExecuteCommandOptions>>());
         }
 
         public static IEnumerable<object[]> DisallowUnsupportedCapabilities()
