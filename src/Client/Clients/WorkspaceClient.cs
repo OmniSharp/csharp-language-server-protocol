@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
+using Newtonsoft.Json.Linq;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Workspace API.

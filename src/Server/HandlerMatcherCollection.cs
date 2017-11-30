@@ -1,12 +1,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class HandlerMatcherCollection : IHandlerMatcherCollection
     {

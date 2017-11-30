@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client
+namespace OmniSharp.Extensions.LanguageServer.Client
 {
     /// <summary>
     ///     Exception raised when a Language Server Protocol error is encountered.

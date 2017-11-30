@@ -2,7 +2,7 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyName>OmniSharp.Extensions.LanguageServer.Protocol</AssemblyName>
+    <AssemblyName>OmniSharp.Extensions.LanguageProtocol</AssemblyName>
     <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

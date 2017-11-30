@@ -3,10 +3,8 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class RequestProcessIdentifier : IRequestProcessIdentifier
     {

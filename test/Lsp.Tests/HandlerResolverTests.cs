@@ -9,11 +9,9 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
-using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
-using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Handlers;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 
 namespace Lsp.Tests
 {

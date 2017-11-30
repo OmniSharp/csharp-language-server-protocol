@@ -1,7 +1,4 @@
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-
-namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class CodeLensCapability : DynamicCapability, ConnectedCapability<ICodeLensHandler> { }
 }

@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     ///  Represents reasons why a text document is saved.

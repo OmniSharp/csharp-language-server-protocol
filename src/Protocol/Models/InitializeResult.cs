@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class InitializeResult

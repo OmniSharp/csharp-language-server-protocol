@@ -1,9 +1,9 @@
 using System;
-using OmniSharp.Extensions.LanguageServer.Models;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class LanguageServerLogger : ILogger
     {

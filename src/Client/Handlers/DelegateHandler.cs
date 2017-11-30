@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     The base class for delegate-based message handlers.

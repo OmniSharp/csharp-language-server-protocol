@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
+namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 {
     /// <summary>
     ///     Dispatches requests and notifications from a language server to a language client.

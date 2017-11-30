@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class ImmutableDisposable : IDisposable
     {

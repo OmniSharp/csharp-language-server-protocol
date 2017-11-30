@@ -1,4 +1,4 @@
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class TextDocument
     {

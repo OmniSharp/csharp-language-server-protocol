@@ -1,7 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// A document highlight is a range inside a text document which deserves

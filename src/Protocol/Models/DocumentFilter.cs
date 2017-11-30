@@ -1,12 +1,10 @@
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using Minimatch;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DocumentFilter

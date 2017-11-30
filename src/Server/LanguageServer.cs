@@ -5,19 +5,19 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Protocol;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Handlers;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Matchers;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Server.Handlers;
+using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
     {
@@ -192,7 +192,7 @@ namespace OmniSharp.Extensions.LanguageServer
                 {
                     serverCapabilities.TextDocumentSync = textSyncHandlers
                         .Where(x => x.Options.Change != TextDocumentSyncKind.None)
-                        .Min(z => z.Options.Change);
+                        .Min<ITextDocumentSyncHandler, TextDocumentSyncKind>(z => z.Options.Change);
                 }
                 else
                 {

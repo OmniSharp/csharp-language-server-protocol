@@ -10,13 +10,10 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Messages;
-using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     internal class LspRequestRouter : IRequestRouter
     {

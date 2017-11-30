@@ -1,7 +1,7 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     Represents a handler for notifications.

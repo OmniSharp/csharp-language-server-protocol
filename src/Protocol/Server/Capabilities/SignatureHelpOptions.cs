@@ -1,8 +1,8 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer.Capabilities.Server
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
     ///  Signature help options.

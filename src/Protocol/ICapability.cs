@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Abstractions
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface ICapability<TCapability>
     {

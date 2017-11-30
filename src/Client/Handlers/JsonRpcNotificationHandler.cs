@@ -1,9 +1,9 @@
-﻿using OmniSharp.Extensions.JsonRpc;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     A notification handler that invokes a JSON-RPC <see cref="INotificationHandler{TNotification}"/>.

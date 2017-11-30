@@ -1,8 +1,7 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DidOpenTextDocumentParams

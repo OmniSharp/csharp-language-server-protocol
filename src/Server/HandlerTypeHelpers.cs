@@ -3,7 +3,7 @@ using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class HandlerTypeHelpers
     {

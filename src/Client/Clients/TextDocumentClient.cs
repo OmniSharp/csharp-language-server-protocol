@@ -1,11 +1,8 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
-using System;
-using System.IO;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Text Document API.

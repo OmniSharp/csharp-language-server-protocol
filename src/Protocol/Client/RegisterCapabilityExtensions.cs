@@ -1,7 +1,7 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 // ReSharper disable CheckNamespace
 
@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class RegisterCapabilityExtensions
     {
-        public static async Task RegisterCapability(this ILanguageServer mediator,  RegistrationParams @params)
+        public static async Task RegisterCapability(this IResponseRouter mediator,  RegistrationParams @params)
         {
             try
             {

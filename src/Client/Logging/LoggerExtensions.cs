@@ -1,7 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Logging
+namespace OmniSharp.Extensions.LanguageServer.Client.Logging
 {
     /// <summary>
     ///     Extension methods for <see cref="ILogger"/>.

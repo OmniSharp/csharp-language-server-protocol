@@ -2,8 +2,8 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyName>OmniSharp.Extensions.Lsp.Server</AssemblyName>
-    <RootNamespace>OmniSharp.Extensions.Lsp.Server</RootNamespace>
+    <AssemblyName>OmniSharp.Extensions.LanguageServer</AssemblyName>
+    <RootNamespace>OmniSharp.Extensions.LanguageServer.Server</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>

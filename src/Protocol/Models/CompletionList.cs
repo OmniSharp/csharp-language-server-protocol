@@ -2,9 +2,9 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// Represents a collection of [completion items](#CompletionItem) to be presented

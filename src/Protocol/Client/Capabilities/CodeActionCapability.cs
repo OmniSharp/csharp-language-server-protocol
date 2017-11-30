@@ -1,7 +1,4 @@
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-
-namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class CodeActionCapability : DynamicCapability, ConnectedCapability<ICodeActionHandler> { }
 }

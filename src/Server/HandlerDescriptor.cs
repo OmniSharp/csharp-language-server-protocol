@@ -2,11 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class HandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<HandlerDescriptor>
     {

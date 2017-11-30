@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using OmniSharp.Extensions.JsonRpc.Server;
 
-namespace OmniSharp.Extensions.LanguageServer.Abstractions
+namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
     public interface IHandlerMatcher
     {

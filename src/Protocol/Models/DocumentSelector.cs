@@ -3,7 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
-namespace OmniSharp.Extensions.LanguageServer.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// A collection of document filters used to identify valid documents

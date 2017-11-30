@@ -1,22 +1,21 @@
-﻿using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
+using OmniSharp.Extensions.LanguageServer.Client.Logging;
 using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
     /// <summary>
     ///     An asynchronous connection using the LSP protocol over <see cref="Stream"/>s.

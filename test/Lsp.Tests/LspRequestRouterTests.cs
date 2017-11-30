@@ -10,16 +10,15 @@ using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Matchers;
-using OmniSharp.Extensions.LanguageServer.Messages;
-using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Server;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 
 namespace Lsp.Tests
 {

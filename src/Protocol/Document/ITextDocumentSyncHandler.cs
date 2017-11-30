@@ -1,7 +1,6 @@
 using System;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {

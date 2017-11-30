@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public delegate Task InitializeDelegate(InitializeParams request);
 }

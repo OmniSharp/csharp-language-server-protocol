@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CompletionItemCapability

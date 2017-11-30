@@ -1,7 +1,6 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
-using System;
+﻿using System;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Window API.

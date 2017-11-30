@@ -6,13 +6,14 @@ using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
-using static OmniSharp.Extensions.LanguageServer.ClientCapabilityProvider;
-using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
+using static OmniSharp.Extensions.LanguageServer.Server.ClientCapabilityProvider;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 
 namespace Lsp.Tests
 {

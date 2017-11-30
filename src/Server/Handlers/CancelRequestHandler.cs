@@ -1,8 +1,8 @@
 ﻿using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
     public class CancelRequestHandler : ICancelRequestHandler
     {

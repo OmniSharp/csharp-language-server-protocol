@@ -1,10 +1,10 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client
+namespace OmniSharp.Extensions.LanguageServer.Client
 {
     /// <summary>
     ///     A handler for empty notifications.

@@ -1,7 +1,7 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using System;
+﻿using System;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
+namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 {
     /// <summary>
     ///     Extension methods for <see cref="LspDispatcher"/> enabling various styles of handler registration.

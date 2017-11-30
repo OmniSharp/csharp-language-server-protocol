@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities
+namespace OmniSharp.Extensions.LanguageServer.Client.Utilities
 {
     /// <summary>
     ///     Helper methods for working with LSP document URIs.

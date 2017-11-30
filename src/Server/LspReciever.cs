@@ -1,11 +1,11 @@
 using System.Collections.Generic;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.LanguageServer.Messages;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
-namespace OmniSharp.Extensions.LanguageServer
+namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class LspReciever : Reciever
     {

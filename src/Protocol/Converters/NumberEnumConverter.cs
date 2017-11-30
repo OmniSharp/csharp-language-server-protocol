@@ -3,7 +3,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace OmniSharp.Extensions.LanguageServer.Converters
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
 {
     class NumberEnumConverter : JsonConverter
     {

@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Abstractions
+﻿namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
     public interface IAwaitableTermination
     {

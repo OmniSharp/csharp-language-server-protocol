@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Capabilities.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class DidChangeConfigurationCapability : DynamicCapability { }
 }
