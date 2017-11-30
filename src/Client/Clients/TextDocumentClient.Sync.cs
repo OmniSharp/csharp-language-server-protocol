@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
 using OmniSharp.Extensions.LanguageServer.Client.Utilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </remarks>
         public void DidOpen(string filePath, string languageId, int version = 0)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             string text = null;
@@ -58,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </param>
         public void DidOpen(string filePath, string languageId, string text, int version = 0)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
@@ -117,7 +118,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </remarks>
         public void DidChange(string filePath, string languageId, int version = 0)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             string text = null;
@@ -152,7 +153,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </remarks>
         public void DidChange(string filePath, string languageId, string text, int version = 0)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
@@ -208,7 +209,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </param>
         public void DidClose(string filePath)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             DidClose(
@@ -244,7 +245,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </param>
         public void DidSave(string filePath)
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             DidSave(

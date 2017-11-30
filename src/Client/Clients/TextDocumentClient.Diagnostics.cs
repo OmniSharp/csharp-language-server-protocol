@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
@@ -30,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
                 if (notification.Diagnostics == null)
                     return; // Invalid notification.
 
-                List<Diagnostic> diagnostics = new List<Diagnostic>();
+                var diagnostics = new List<Diagnostic>();
                 if (notification.Diagnostics != null)
                     diagnostics.AddRange(notification.Diagnostics);
 

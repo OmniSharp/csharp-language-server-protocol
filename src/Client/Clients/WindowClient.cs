@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
