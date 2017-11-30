@@ -2,13 +2,14 @@
   <PropertyGroup>
     <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
     <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyName>OmniSharp.Extensions.LanguageServerProtocol</AssemblyName>
-    <RootNamespace>OmniSharp.Extensions.LanguageServer</RootNamespace>
+    <AssemblyName>OmniSharp.Extensions.Lsp.Server</AssemblyName>
+    <RootNamespace>OmniSharp.Extensions.Lsp.Server</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.ValueTuple" Version="4.4.0" />
+    <ProjectReference Include="..\Protocol\Protocol.csproj" />
     <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
   </ItemGroup>
 </Project>

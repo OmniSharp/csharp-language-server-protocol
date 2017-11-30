@@ -3,8 +3,8 @@
   <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
-        <AssemblyName>OmniSharp.Extensions.LanguageClient</AssemblyName>
-        <RootNamespace>OmniSharp.Extensions.LanguageServerProtocol.Client</RootNamespace>
+        <AssemblyName>OmniSharp.Extensions.Lsp.Client</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.Lsp.Client</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -16,6 +16,6 @@
 
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\Lsp\Lsp.csproj" />
+        <ProjectReference Include="..\Protocol\Protocol.csproj" />
     </ItemGroup>
 </Project>
