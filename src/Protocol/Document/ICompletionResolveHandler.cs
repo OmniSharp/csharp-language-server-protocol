@@ -5,6 +5,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("completionItem/resolve")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string CompletionResolve = "completionItem/resolve";
+    }
+
+    [Serial, Method(CompletionResolve)]
     public interface ICompletionResolveHandler : IRequestHandler<CompletionItem, CompletionItem> { }
 }

@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/didChange")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DidChange = "textDocument/didChange";
+    }
+
+    [Serial, Method(DidChange)]
     public interface IDidChangeTextDocumentHandler : INotificationHandler<DidChangeTextDocumentParams>, IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

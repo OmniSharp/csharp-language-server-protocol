@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/documentHighlight")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DocumentHighlight = "textDocument/documentHighlight";
+    }
+
+    [Parallel, Method(DocumentHighlight)]
     public interface IDocumentHighlightHandler : IRequestHandler<TextDocumentPositionParams, DocumentHighlightContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentHighlightCapability> { }
 }

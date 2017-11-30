@@ -11,7 +11,6 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
@@ -51,7 +50,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
@@ -73,7 +72,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Notification("textDocument/didSave", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
@@ -101,7 +100,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
@@ -136,7 +135,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 

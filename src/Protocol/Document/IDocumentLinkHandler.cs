@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/documentLink")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DocumentLink = "textDocument/documentLink";
+    }
+
+    [Parallel, Method(DocumentLink)]
     public interface IDocumentLinkHandler : IRequestHandler<DocumentLinkParams, DocumentLink>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
 }

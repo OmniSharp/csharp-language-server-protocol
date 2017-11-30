@@ -5,6 +5,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("$/cancelRequest")]
+    using static GeneralNames;
+    public static partial class GeneralNames
+    {
+        public const string CancelRequest = "$/cancelRequest";
+    }
+
+    [Parallel, Method(CancelRequest)]
     public interface ICancelRequestHandler : INotificationHandler<CancelParams> { }
 }

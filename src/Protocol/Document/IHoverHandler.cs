@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/hover")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string Hover = "textDocument/hover";
+    }
+
+    [Parallel, Method(Hover)]
     public interface IHoverHandler : IRequestHandler<TextDocumentPositionParams, Hover>, IRegistration<TextDocumentRegistrationOptions>, ICapability<HoverCapability> { }
 }

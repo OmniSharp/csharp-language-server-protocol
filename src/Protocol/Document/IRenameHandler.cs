@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/rename")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string Rename = "textDocument/rename";
+    }
+
+    [Serial, Method(Rename)]
     public interface IRenameHandler : IRequestHandler<RenameParams, WorkspaceEdit>, IRegistration<TextDocumentRegistrationOptions>, ICapability<RenameCapability> { }
 }

@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/codeLens")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string CodeLens = "textDocument/codeLens";
+    }
+
+    [Parallel, Method(CodeLens)]
     public interface ICodeLensHandler : IRequestHandler<CodeLensParams, CodeLensContainer>, IRegistration<CodeLensRegistrationOptions>, ICapability<CodeLensCapability> { }
 }

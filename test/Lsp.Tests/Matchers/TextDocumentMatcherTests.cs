@@ -5,6 +5,7 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -67,7 +68,7 @@ namespace Lsp.Tests.Matchers
                 }
             },
                 new List<HandlerDescriptor>() {
-                    new HandlerDescriptor("textDocument/didOpen",
+                    new HandlerDescriptor(DocumentNames.DidOpen,
                         "Key",
                         textDocumentSyncHandler,
                         textDocumentSyncHandler.GetType(),
@@ -79,7 +80,7 @@ namespace Lsp.Tests.Matchers
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Method == "textDocument/didOpen");
+            result.Should().Contain(x => x.Method == DocumentNames.DidOpen);
         }
 
         [Fact]
@@ -95,7 +96,7 @@ namespace Lsp.Tests.Matchers
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 new List<HandlerDescriptor>() {
-                    new HandlerDescriptor("textDocument/didChange",
+                    new HandlerDescriptor(DocumentNames.DidChange,
                         "Key",
                         textDocumentSyncHandler,
                         textDocumentSyncHandler.GetType(),
@@ -107,7 +108,7 @@ namespace Lsp.Tests.Matchers
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Method == "textDocument/didChange");
+            result.Should().Contain(x => x.Method == DocumentNames.DidChange);
         }
 
         [Fact]
@@ -123,7 +124,7 @@ namespace Lsp.Tests.Matchers
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 new List<HandlerDescriptor>() {
-                    new HandlerDescriptor("textDocument/didSave",
+                    new HandlerDescriptor(DocumentNames.DidSave,
                         "Key",
                         textDocumentSyncHandler,
                         textDocumentSyncHandler.GetType(),
@@ -135,7 +136,7 @@ namespace Lsp.Tests.Matchers
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Method == "textDocument/didSave");
+            result.Should().Contain(x => x.Method == DocumentNames.DidSave);
         }
 
         [Fact]
@@ -151,7 +152,7 @@ namespace Lsp.Tests.Matchers
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 new List<HandlerDescriptor>() {
-                    new HandlerDescriptor("textDocument/didClose",
+                    new HandlerDescriptor(DocumentNames.DidClose,
                         "Key",
                         textDocumentSyncHandler,
                         textDocumentSyncHandler.GetType(),
@@ -163,7 +164,7 @@ namespace Lsp.Tests.Matchers
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Method == "textDocument/didClose");
+            result.Should().Contain(x => x.Method == DocumentNames.DidClose);
         }
     }
 }

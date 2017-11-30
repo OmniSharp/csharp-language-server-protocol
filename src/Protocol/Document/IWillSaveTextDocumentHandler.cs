@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/willSave")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string WillSave = "textDocument/willSave";
+    }
+
+    [Parallel, Method(WillSave)]
     public interface IWillSaveTextDocumentHandler : INotificationHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

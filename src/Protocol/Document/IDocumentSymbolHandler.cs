@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/documentSymbol")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DocumentSymbol = "textDocument/documentSymbol";
+    }
+
+    [Parallel, Method(DocumentSymbol)]
     public interface IDocumentSymbolHandler : IRequestHandler<DocumentSymbolParams, SymbolInformationContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
 }

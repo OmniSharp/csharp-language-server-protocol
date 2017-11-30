@@ -1,5 +1,6 @@
 ﻿using System;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration));
 
-            Client.SendNotification("workspace/didChangeConfiguration", new JObject(
+            Client.SendNotification(WorkspaceNames.DidChangeConfiguration, new JObject(
                 new JProperty("settings", configuration)
             ));
         }

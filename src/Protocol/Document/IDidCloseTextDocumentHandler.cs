@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/didClose")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DidClose = "textDocument/didClose";
+    }
+
+    [Parallel, Method(DidClose)]
     public interface IDidCloseTextDocumentHandler : INotificationHandler<DidCloseTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

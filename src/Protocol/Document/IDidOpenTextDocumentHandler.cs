@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/didOpen")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string DidOpen = "textDocument/didOpen";
+    }
+
+    [Serial, Method(DidOpen)]
     public interface IDidOpenTextDocumentHandler : INotificationHandler<DidOpenTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

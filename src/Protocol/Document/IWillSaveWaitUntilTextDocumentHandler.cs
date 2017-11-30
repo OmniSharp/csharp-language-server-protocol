@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/willSaveWaitUntil")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
+    }
+
+    [Serial, Method(WillSaveWaitUntil)]
     public interface IWillSaveWaitUntilTextDocumentHandler : IRequestHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

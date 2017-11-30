@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/completion")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string Completion = "textDocument/completion";
+    }
+
+    [Parallel, Method(Completion)]
     public interface ICompletionHandler : IRequestHandler<TextDocumentPositionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionCapability> { }
 }

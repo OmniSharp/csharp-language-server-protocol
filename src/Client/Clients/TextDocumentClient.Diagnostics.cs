@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
@@ -26,8 +27,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return Client.HandleNotification<PublishDiagnosticsParams>("textDocument/publishDiagnostics", notification =>
+            return Client.HandleNotification<PublishDiagnosticsParams>(DocumentNames.PublishDiagnostics, notification =>
             {
+                if (notification.Diagnostics == null)
                 if (notification.Diagnostics == null)
                     return; // Invalid notification.
 

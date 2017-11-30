@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("workspace/didChangeWatchedFiles")]
+    using static WorkspaceNames;
+    public static partial class WorkspaceNames
+    {
+        public const string DidChangeWatchedFiles = "workspace/didChangeWatchedFiles";
+    }
+
+    [Serial, Method(DidChangeWatchedFiles)]
     public interface IDidChangeWatchedFilesHandler : INotificationHandler<DidChangeWatchedFilesParams>, IRegistration<object>, ICapability<DidChangeWatchedFilesCapability> { }
 }

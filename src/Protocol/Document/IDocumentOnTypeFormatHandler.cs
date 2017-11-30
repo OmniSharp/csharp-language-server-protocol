@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/onTypeFormatting")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string OnTypeFormatting = "textDocument/onTypeFormatting";
+    }
+
+    [Serial, Method(OnTypeFormatting)]
     public interface IDocumentOnTypeFormatHandler : IRequestHandler<DocumentOnTypeFormattingParams, TextEditContainer>, IRegistration<DocumentOnTypeFormattingRegistrationOptions>, ICapability<DocumentOnTypeFormattingCapability> { }
 }

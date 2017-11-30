@@ -5,11 +5,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    public static partial class WindowNames
+    {
+        public const string ShowMessage = "window/showMessage";
+    }
+
     public static class ShowMessageExtensions
     {
         public static void ShowMessage(this IResponseRouter mediator, ShowMessageParams @params)
         {
-            mediator.SendNotification("window/showMessage", @params);
+            mediator.SendNotification(WindowNames.ShowMessage, @params);
         }
 
         public static void Show(this IResponseRouter mediator, ShowMessageParams @params)

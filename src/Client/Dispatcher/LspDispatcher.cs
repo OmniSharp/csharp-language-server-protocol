@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// </returns>
         public async Task<bool> TryHandleEmptyNotification(string method)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeEmptyNotificationHandler emptyNotificationHandler)
@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// </returns>
         public async Task<bool> TryHandleNotification(string method, JObject notification)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeNotificationHandler notificationHandler)
@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// </returns>
         public Task<object> TryHandleRequest(string method, JObject request, CancellationToken cancellationToken)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeRequestHandler requestHandler)

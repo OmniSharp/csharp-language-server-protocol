@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
+// ReSharper disable CheckNamespace
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public class TextDocumentAttributes : IEquatable<TextDocumentAttributes>
     {

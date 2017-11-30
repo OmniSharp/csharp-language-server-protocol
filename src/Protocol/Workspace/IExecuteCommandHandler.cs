@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("workspace/executeCommand")]
+    using static WorkspaceNames;
+    public static partial class WorkspaceNames
+    {
+        public const string ExecuteCommand = "workspace/executeCommand";
+    }
+
+    [Serial, Method(ExecuteCommand)]
     public interface IExecuteCommandHandler : IRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability> { }
 }

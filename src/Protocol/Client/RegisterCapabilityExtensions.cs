@@ -7,13 +7,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    public static partial class ClientNames
+    {
+        public const string RegisterCapability = "client/registerCapability";
+    }
+
     public static class RegisterCapabilityExtensions
     {
         public static async Task RegisterCapability(this IResponseRouter mediator,  RegistrationParams @params)
         {
             try
             {
-                await mediator.SendRequest("client/registerCapability", @params);
+                await mediator.SendRequest(ClientNames.RegisterCapability, @params);
             }
             catch (Exception e)
             {

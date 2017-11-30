@@ -4,6 +4,12 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("initialized")]
+    using static GeneralNames;
+    public static partial class GeneralNames
+    {
+        public const string Initialized = "initialized";
+    }
+
+    [Serial, Method(Initialized)]
     public interface IInitializedHandler : INotificationHandler { }
 }

@@ -5,11 +5,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    public static partial class WindowNames
+    {
+        public const string LogMessage = "window/logMessage";
+    }
+
     public static class LogMessageExtensions
     {
         public static void LogMessage(this IResponseRouter mediator, LogMessageParams @params)
         {
-            mediator.SendNotification("window/logMessage", @params);
+            mediator.SendNotification(WindowNames.LogMessage, @params);
         }
 
         public static void Log(this IResponseRouter mediator, LogMessageParams @params)

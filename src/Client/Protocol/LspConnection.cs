@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +13,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 using OmniSharp.Extensions.LanguageServer.Client.Logging;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
@@ -293,7 +294,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </param>
         public void SendEmptyNotification(string method)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (!IsOpen)
@@ -317,7 +318,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </param>
         public void SendNotification(string method, object notification)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (notification == null)
@@ -351,7 +352,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </returns>
         public async Task SendRequest(string method, object request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (request == null)
@@ -374,7 +375,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 {
                     _outgoing.TryAdd(new ClientMessage
                     {
-                        Method = "$/cancelRequest",
+                        Method = GeneralNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
                         )
@@ -414,7 +415,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </returns>
         public async Task<TResponse> SendRequest<TResponse>(string method, object request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (request == null)
@@ -437,7 +438,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 {
                     _outgoing.TryAdd(new ClientMessage
                     {
-                        Method = "$/cancelRequest",
+                        Method = GeneralNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
                         )
@@ -713,7 +714,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             string headers = HeaderEncoding.GetString(headerBuffer, 0, bytesRead);
             Log.LogDebug("Got raw headers: {Headers}", headers);
 
-            if (String.IsNullOrWhiteSpace(headers))
+            if (string.IsNullOrWhiteSpace(headers))
                 return null; // Stream closed.
 
             Log.LogDebug("Read response headers {Headers}.", headers);
@@ -806,7 +807,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     if (message.Id != null)
                     {
                         // Request.
-                        if (message.Method == "$/cancelRequest")
+                        if (message.Method == GeneralNames.CancelRequest)
                             CancelRequest(message);
                         else
                             DispatchRequest(message);

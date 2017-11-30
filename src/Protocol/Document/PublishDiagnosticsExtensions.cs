@@ -5,11 +5,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string PublishDiagnostics = "textDocument/publishDiagnostics";
+    }
+
     public static class PublishDiagnosticsExtensions
     {
         public static void PublishDiagnostics(this IResponseRouter mediator, PublishDiagnosticsParams @params)
         {
-            mediator.SendNotification("textDocument/publishDiagnostics", @params);
+            mediator.SendNotification(DocumentNames.PublishDiagnostics, @params);
         }
     }
 }

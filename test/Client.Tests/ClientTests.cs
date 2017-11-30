@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Client.Protocol;
 using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -64,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             const int column = 5;
             var expectedHoverContent = new MarkedStringContainer("123", "456", "789");
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>("textDocument/hover", (request, cancellationToken) =>
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) =>
             {
                 Assert.NotNull(request.TextDocument);
 
@@ -145,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>("textDocument/completion", (request, cancellationToken) =>
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(DocumentNames.Completion, (request, cancellationToken) =>
             {
                 Assert.NotNull(request.TextDocument);
 
@@ -232,7 +233,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 receivedDiagnosticsNotification.SetResult(null);
             });
 
-            ServerConnection.SendNotification("textDocument/publishDiagnostics", new PublishDiagnosticsParams
+            ServerConnection.SendNotification(DocumentNames.PublishDiagnostics, new PublishDiagnosticsParams
             {
                 Uri = DocumentUri.FromFileSystemPath(documentPath),
                 Diagnostics = expectedDiagnostics

@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("workspace/didChangeConfiguration")]
+    using static WorkspaceNames;
+    public static partial class WorkspaceNames
+    {
+        public const string DidChangeConfiguration = "workspace/didChangeConfiguration";
+    }
+
+    [Serial, Method(DidChangeConfiguration)]
     public interface IDidChangeConfigurationHandler : INotificationHandler<DidChangeConfigurationParams>, IRegistration<object>, ICapability<DidChangeConfigurationCapability> { }
 }

@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/references")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string References = "textDocument/references";
+    }
+
+    [Parallel, Method(References)]
     public interface IReferencesHandler : IRequestHandler<ReferenceParams, LocationContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ReferencesCapability> { }
 }

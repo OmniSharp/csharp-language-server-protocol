@@ -1,4 +1,5 @@
 using System;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
@@ -41,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return Client.HandleNotification<LogMessageParams>("window/logMessage",
+            return Client.HandleNotification<LogMessageParams>(WindowNames.LogMessage,
                 notification => handler(notification.Message, notification.Type)
             );
         }

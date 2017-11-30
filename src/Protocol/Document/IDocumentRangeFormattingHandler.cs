@@ -2,8 +2,16 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
+// ReSharper disable CheckNamespace
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("textDocument/rangeFormatting")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string RangeFormatting = "textDocument/rangeFormatting";
+    }
+
+    [Serial, Method(RangeFormatting)]
     public interface IDocumentRangeFormattingHandler : IRequestHandler<DocumentRangeFormattingParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentRangeFormattingCapability> { }
 }

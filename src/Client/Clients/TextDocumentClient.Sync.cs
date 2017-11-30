@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using OmniSharp.Extensions.LanguageServer.Client.Utilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
@@ -87,7 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
 
-            Client.SendNotification("textDocument/didOpen", new DidOpenTextDocumentParams
+            Client.SendNotification(DocumentNames.DidOpen, new DidOpenTextDocumentParams
             {
                 TextDocument = new TextDocumentItem
                 {
@@ -184,7 +185,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
 
-            Client.SendNotification("textDocument/didChange", new DidChangeTextDocumentParams
+            Client.SendNotification(DocumentNames.DidChange, new DidChangeTextDocumentParams
             {
                 TextDocument = new VersionedTextDocumentIdentifier
                 {
@@ -228,7 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
 
-            Client.SendNotification("textDocument/didClose", new DidCloseTextDocumentParams
+            Client.SendNotification(DocumentNames.DidClose, new DidCloseTextDocumentParams
             {
                 TextDocument = new TextDocumentItem
                 {
@@ -264,7 +265,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
 
-            Client.SendNotification("textDocument/didSave", new DidSaveTextDocumentParams
+            Client.SendNotification(DocumentNames.DidSave, new DidSaveTextDocumentParams
             {
                 TextDocument = new TextDocumentItem
                 {

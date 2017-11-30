@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -95,7 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -129,7 +129,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -163,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -200,7 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)

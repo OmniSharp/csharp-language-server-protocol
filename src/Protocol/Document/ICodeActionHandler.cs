@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/codeAction")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string CodeAction = "textDocument/codeAction";
+    }
+
+    [Parallel, Method(CodeAction)]
     public interface ICodeActionHandler : IRequestHandler<CodeActionParams, CommandContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<CodeActionCapability> { }
 }

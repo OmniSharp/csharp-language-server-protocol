@@ -2,7 +2,9 @@ using System;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
+// ReSharper disable CheckNamespace
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface ITextDocumentSyncHandler : IDidChangeTextDocumentHandler, IDidOpenTextDocumentHandler, IDidCloseTextDocumentHandler, IDidSaveTextDocumentHandler
     {

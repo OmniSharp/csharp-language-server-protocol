@@ -7,13 +7,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    public static partial class ClientNames
+    {
+        public const string UnregisterCapability = "client/unregisterCapability";
+    }
+
     public static class UnregisterCapabilityExtensions
     {
         public static async Task UnregisterCapability(this IResponseRouter mediator, UnregistrationParams @params)
         {
             try
             {
-                await mediator.SendRequest("client/unregisterCapability", @params);
+                await mediator.SendRequest(ClientNames.UnregisterCapability, @params);
             }
             catch (Exception e)
             {

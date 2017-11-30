@@ -6,6 +6,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method("textDocument/signatureHelp")]
+    using static DocumentNames;
+    public static partial class DocumentNames
+    {
+        public const string SignatureHelp = "textDocument/signatureHelp";
+    }
+
+    [Parallel, Method(SignatureHelp)]
     public interface ISignatureHelpHandler : IRequestHandler<TextDocumentPositionParams, SignatureHelp>, IRegistration<SignatureHelpRegistrationOptions>, ICapability<SignatureHelpCapability> { }
 }

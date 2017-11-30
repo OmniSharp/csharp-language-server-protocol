@@ -4,6 +4,12 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Serial, Method("exit")]
+    using static GeneralNames;
+    public static partial class GeneralNames
+    {
+        public const string Exit = "exit";
+    }
+
+    [Serial, Method(Exit)]
     public interface IExitHandler : INotificationHandler { }
 }
