@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// stack to undo the workspace edit.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Label {get;set;}
+        public string Label { get; set; }
         /// <summary>
         /// The edits to apply.
         /// </summary>
