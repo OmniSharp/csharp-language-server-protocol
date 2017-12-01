@@ -6,7 +6,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(MarkedStringCollectionConverter))]
     public class MarkedStringContainer : ContainerBase<MarkedString>
     {
         public MarkedStringContainer() : this(Enumerable.Empty<MarkedString>())
