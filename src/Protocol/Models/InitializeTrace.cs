@@ -1,13 +1,14 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(LowercaseStringEnumConverter))]
     public enum InitializeTrace
     {
-        off,
-        messages,
-        verbose
+        Off,
+        Messages,
+        Verbose
     }
 }

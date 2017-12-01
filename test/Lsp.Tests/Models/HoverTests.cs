@@ -12,7 +12,7 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new Hover() {
-                Contents = new MarkedStringContainer("abc"),
+                Contents = new MarkedStringsOrMarkupContent("abc"),
                 Range = new Range(new Position(1, 2), new Position(3, 4))
             };
             var result = Fixture.SerializeObject(model);

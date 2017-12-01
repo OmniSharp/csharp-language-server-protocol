@@ -21,6 +21,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// in the UI but can be omitted.
         /// </summary>
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public string Documentation { get; set; }
+        public StringOrMarkupContent Documentation { get; set; }
     }
 }

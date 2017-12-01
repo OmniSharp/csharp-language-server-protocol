@@ -9,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Whether completion supports dynamic registration.
         /// </summary>
-        public bool DynamicRegistration { get; set; }
+        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        public bool? DynamicRegistration { get; set; }
     }
 }

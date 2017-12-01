@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -25,7 +25,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static CompletionOptions Of(ICompletionOptions options)
         {
-            return new CompletionOptions() { ResolveProvider = options.ResolveProvider, TriggerCharacters = options.TriggerCharacters };
+            return new CompletionOptions()
+            {
+                ResolveProvider = options.ResolveProvider,
+                TriggerCharacters = options.TriggerCharacters
+            };
         }
     }
 }

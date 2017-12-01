@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The hover's content
         /// </summary>
-        public MarkedStringContainer Contents { get; set; }
+        public MarkedStringsOrMarkupContent Contents { get; set; }
 
         /// <summary>
         /// An optional range is a range inside a text document

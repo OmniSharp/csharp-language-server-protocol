@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             const int line = 5;
             const int column = 5;
-            var expectedHoverContent = new MarkedStringContainer("123", "456", "789");
+            var expectedHoverContent = new MarkedStringsOrMarkupContent("123", "456", "789");
 
             ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) =>
             {
