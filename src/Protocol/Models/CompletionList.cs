@@ -10,7 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents a collection of [completion items](#CompletionItem) to be presented
     /// in the editor.
     /// </summary>
-    [JsonConverter(typeof(CompletionListConverter))]
     public class CompletionList
     {
         public CompletionList(IEnumerable<CompletionItem> items)

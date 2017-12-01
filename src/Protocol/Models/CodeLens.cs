@@ -10,7 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A code lens is _unresolved_ when no command is associated to it. For performance
     /// reasons the creation of a code lens and resolving should be done in two stages.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CodeLens
     {
         /// <summary>
@@ -21,14 +20,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The command this code lens represents.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Command Command { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public object Data { get; set; }
     }
 }

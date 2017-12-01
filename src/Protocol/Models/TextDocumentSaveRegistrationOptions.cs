@@ -3,13 +3,12 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class TextDocumentSaveRegistrationOptions : TextDocumentRegistrationOptions
     {
         /// <summary>
         ///  The client is supposed to include the content on save.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool IncludeText { get; set; }
     }
 }

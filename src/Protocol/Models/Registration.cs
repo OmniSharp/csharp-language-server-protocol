@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     ///  General paramters to to regsiter for a capability.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Registration
     {
         /// <summary>
@@ -23,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         ///  Options necessary for the registration.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public object RegisterOptions { get; set; }
     }
 }

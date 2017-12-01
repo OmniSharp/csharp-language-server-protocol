@@ -100,11 +100,12 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             Assert.Equal(column, hover.Range.End.Character);
 
             Assert.NotNull(hover.Contents);
-            Assert.Equal(expectedHoverContent.Select(markedString => markedString.Value),
-                hover.Contents.Select(
-                    markedString => markedString.Value
-                )
-            );
+            throw new NotSupportedException();
+            // Assert.Equal(expectedHoverContent.Select(markedString => markedString.Value),
+            //     hover.Contents.Select(
+            //         markedString => markedString.Value
+            //     )
+            // );
         }
 
         /// <summary>

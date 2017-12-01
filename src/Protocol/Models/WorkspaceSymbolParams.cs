@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// The parameters of a Workspace Symbol Request.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class WorkspaceSymbolParams
     {
         /// <summary>

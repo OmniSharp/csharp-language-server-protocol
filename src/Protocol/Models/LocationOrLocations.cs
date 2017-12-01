@@ -6,7 +6,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(LocationOrLocationsConverter))]
     public class LocationOrLocations : ContainerBase<Location>
     {
         public LocationOrLocations() : this(Enumerable.Empty<Location>())

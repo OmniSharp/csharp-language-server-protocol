@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     ///  Format document on type options
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DocumentOnTypeFormattingOptions : IDocumentOnTypeFormattingOptions
     {
         /// <summary>
@@ -18,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         ///  More trigger characters.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Container<string> MoreTriggerCharacter { get; set; }
 
         public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options)

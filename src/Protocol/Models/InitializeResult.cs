@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class InitializeResult
     {
         /// <summary>

@@ -21,7 +21,6 @@ namespace JsonRpc.Tests
         [Method("textDocument/codeAction")]
         public interface ICodeActionHandler : IRequestHandler<CodeActionParams, IEnumerable<Command>> { }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class CodeActionParams
         {
             public string TextDocument { get; set; }
@@ -29,7 +28,6 @@ namespace JsonRpc.Tests
             public string Context { get; set; }
         }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class Command
         {
             public string Title { get; set; }

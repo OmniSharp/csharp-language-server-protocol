@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents a parameter of a callable-signature. A parameter can
     /// have a label and a doc-comment.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ParameterInformation
     {
         /// <summary>
@@ -20,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The human-readable doc-comment of this parameter. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public StringOrMarkupContent Documentation { get; set; }
     }
 }

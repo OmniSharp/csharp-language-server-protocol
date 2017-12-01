@@ -8,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A collection of document filters used to identify valid documents
     /// </summary>
-    // [JsonConverter(typeof(DocumentSelectorConverter))]
     public class DocumentSelector : ContainerBase<DocumentFilter>
     {
         public DocumentSelector() : this(Enumerable.Empty<DocumentFilter>())

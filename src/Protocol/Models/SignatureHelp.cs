@@ -8,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// callable. There can be multiple signature but only one
     /// active and only one active parameter.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class SignatureHelp
     {
         /// <summary>
@@ -19,13 +18,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The active signature.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public long ActiveSignature { get; set; }
 
         /// <summary>
         /// The active parameter of the active signature.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public long ActiveParameter { get; set; }
     }
 }

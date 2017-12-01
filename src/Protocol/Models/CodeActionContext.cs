@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Contains additional diagnostic information about the context in which
     /// a code action is run.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CodeActionContext
     {
         /// <summary>

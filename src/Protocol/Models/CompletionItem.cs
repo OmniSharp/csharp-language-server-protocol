@@ -3,7 +3,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CompletionItem
     {
         /// <summary>
@@ -17,27 +16,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The kind of this completion item. Based of the kind
         /// an icon is chosen by the editor.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public CompletionItemKind Kind { get; set; }
 
         /// <summary>
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string Detail { get; set; }
 
         /// <summary>
         /// A human-readable string that represents a doc-comment.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public StringOrMarkupContent Documentation { get; set; }
 
         /// <summary>
         /// A string that shoud be used when comparing this item
         /// with other items. When `falsy` the label is used.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string SortText { get; set; }
 
         /// <summary>
@@ -45,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// completion items. When `falsy` the label is used.
         /// </summary>
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string FilterText { get; set; }
 
         /// <summary>
@@ -53,14 +52,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// this completion. When `falsy` the label is used.
         /// </summary>
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string InsertText { get; set; }
 
         /// <summary>
         /// The format of the insert text. The format applies to both the `insertText` property
         /// and the `newText` property of a provided `textEdit`.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public InsertTextFormat InsertTextFormat { get; set; }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// *Note:* The range of the edit must be a single line range and it must contain the position at which completion
         /// has been requested.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public TextEdit TextEdit { get; set; }
 
         /// <summary>
@@ -78,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// selecting this completion. Edits must not overlap with the main edit
         /// nor with themselves.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public TextEditContainer AdditionalTextEdits { get; set; }
 
         /// <summary>
@@ -86,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// then type that character. *Note* that all commit characters should have `length=1` and that superfluous
         /// characters will be ignored.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Container<string> CommitCharacters { get; set; }
 
         /// <summary>
@@ -94,14 +93,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// additional modifications to the current document should be described with the
         /// additionalTextEdits-property.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Command Command { get; set; }
 
         /// <summary>
         /// An data entry field that is preserved on a completion item between
         /// a completion and a completion resolve request.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public object Data { get; set; }
     }
 }

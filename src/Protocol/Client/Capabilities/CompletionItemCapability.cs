@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CompletionItemCapability
     {
         /// <summary>
@@ -15,20 +14,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// the end of the snippet. Placeholders with equal identifiers are linked,
         /// that is typing in one will update others too.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool? SnippetSupport { get; set; }
 
         /// <summary>
         /// Client supports commit characters on a completion item.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool? CommitCharactersSupport { get; set; }
 
         /// <summary>
         /// Client supports the follow content formats for the documentation
         /// property. The order describes the preferred format of the client.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Container<MarkupKind> DocumentationFormat { get; set; }
     }
 }

@@ -4,7 +4,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    [JsonConverter(typeof(SupportsConverter))]
     public struct Supports<T> : ISupports
     {
         public Supports(bool isSupported, T value)

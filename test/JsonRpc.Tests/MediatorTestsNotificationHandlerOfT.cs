@@ -16,7 +16,6 @@ namespace JsonRpc.Tests
         [Method("$/cancelRequest")]
         public interface ICancelRequestHandler : INotificationHandler<CancelParams> { }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class CancelParams
         {
             public object Id { get; set; }

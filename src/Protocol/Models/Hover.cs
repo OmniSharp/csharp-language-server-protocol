@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// The result of a hover request.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Hover
     {
         /// <summary>
@@ -18,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// An optional range is a range inside a text document
         /// that is used to visualize a hover, e.g. by changing the background color.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Range Range { get; set; }
     }
 }

@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Execute command registration options.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ExecuteCommandRegistrationOptions : IExecuteCommandOptions
     {
         /// <summary>

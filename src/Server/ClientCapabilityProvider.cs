@@ -22,12 +22,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             if (!capability.IsSupported) return false;
             if (capability.Value == null) return false;
-            if (capability.Value.DynamicRegistration) return false;
+            if (capability.Value.DynamicRegistration == true) return false;
 
             var handlerType = typeof(T).GetTypeInfo().ImplementedInterfaces
                 .Single(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
                 .GetTypeInfo().GetGenericArguments()[0].GetTypeInfo();
-            return !capability.Value.DynamicRegistration &&
+            return !capability.Value.DynamicRegistration == true &&
                 _collection.Any(z =>
                     z.HandlerType.GetTypeInfo().IsAssignableFrom(handlerType) ||
                     z.Handler.GetType().GetTypeInfo().IsAssignableFrom(handlerType));

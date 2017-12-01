@@ -4,7 +4,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Command
     {
         /// <summary>
@@ -22,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Arguments that the command handler should be
         /// invoked with.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public JArray Arguments { get; set; }
     }
 }

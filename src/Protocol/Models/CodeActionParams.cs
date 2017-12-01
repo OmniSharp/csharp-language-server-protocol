@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Params for the CodeActionRequest
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CodeActionParams : ITextDocumentIdentifierParams
     {
         /// <summary>

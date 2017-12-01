@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// The client supports sending will save notifications.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool? WillSave { get; set; }
 
         /// <summary>
@@ -16,13 +16,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// waits for a response providing text edits which will
         /// be applied to the document before it is saved.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool? WillSaveWaitUntil { get; set; }
 
         /// <summary>
         /// The client supports did save notifications.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public bool? DidSave { get; set; }
     }
 }

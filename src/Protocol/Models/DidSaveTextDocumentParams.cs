@@ -3,7 +3,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DidSaveTextDocumentParams : ITextDocumentIdentifierParams
     {
         /// <summary>
@@ -15,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///  Optional the content when saved. Depends on the includeText value
         ///  when the save notifcation was requested.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string Text { get; set; }
     }
 }

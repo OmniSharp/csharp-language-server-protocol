@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents information about programming constructs like variables, classes,
     /// public classs etc.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class SymbolInformation
     {
         /// <summary>
@@ -28,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the symbol containing this symbol.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string ContainerName { get; set; }
     }
 }

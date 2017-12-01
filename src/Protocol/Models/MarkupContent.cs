@@ -27,7 +27,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// *Please Note* that clients might sanitize the return markdown. A client could decide to
     /// remove HTML from the markdown to avoid script execution.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class MarkupContent
     {
         /// <summary>

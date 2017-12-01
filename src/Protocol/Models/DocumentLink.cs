@@ -9,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// text document or a web site.
     /// </summary>
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DocumentLink
     {
         /// <summary>
@@ -19,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Uri Target { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    [JsonConverter(typeof(TextDocumentSyncConverter))]
     public class TextDocumentSync
     {
         public TextDocumentSync(TextDocumentSyncKind kind)

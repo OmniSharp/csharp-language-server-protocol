@@ -1,13 +1,13 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
     /// <summary>
     ///     The client-side representation of an LSP message.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ClientMessage
     {
         /// <summary>
@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The request / response Id, if the message represents a request or a response.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public object Id { get; set; }
 
         /// <summary>
@@ -30,13 +30,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The request / notification message, if the message represents a request or a notification.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public JObject Params { get; set; }
 
         /// <summary>
         ///     The response message, if the message represents a response.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public JObject Result { get; set; }
     }
 }

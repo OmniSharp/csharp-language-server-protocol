@@ -8,7 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// can have a label, like a function-name, a doc-comment, and
     /// a set of parameters.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class SignatureInformation
     {
         /// <summary>
@@ -21,13 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The human-readable doc-comment of this signature. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public StringOrMarkupContent Documentation { get; set; }
 
         /// <summary>
         /// The parameters of this signature.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Container<ParameterInformation> Parameters { get; set; }
     }
 }

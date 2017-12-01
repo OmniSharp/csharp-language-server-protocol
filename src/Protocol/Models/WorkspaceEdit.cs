@@ -5,13 +5,12 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class WorkspaceEdit
     {
         /// <summary>
         /// Holds changes to existing resources.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public IDictionary<Uri, IEnumerable<TextEdit>> Changes { get; set; }
         /// <summary>
         /// An array of `TextDocumentEdit`s to express changes to n different text documents
@@ -19,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Whether a client supports versioned document edits is expressed via
         /// `WorkspaceClientCapabilities.workspaceEdit.documentChanges`.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public Container<TextDocumentEdit> DocumentChanges { get; set; }
     }
 }

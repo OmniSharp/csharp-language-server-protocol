@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Value-object describing what options formatting should use.
     /// </summary>
-    [JsonDictionary(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    [JsonDictionary]
     public class FormattingOptions : Dictionary<string, BooleanNumberString>
     {
         /// <summary>

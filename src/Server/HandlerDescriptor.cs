@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             if (instance is DynamicCapability dc)
             {
-                AllowsDynamicRegistration = dc.DynamicRegistration;
+                AllowsDynamicRegistration = dc.DynamicRegistration == true;
             }
 
             // TODO: Cache this

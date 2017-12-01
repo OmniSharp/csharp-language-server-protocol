@@ -4,7 +4,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Notification : IMethodWithParams
     {
         internal Notification(

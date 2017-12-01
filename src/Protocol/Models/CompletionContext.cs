@@ -3,7 +3,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class CompletionContext
     {
         /// <summary>
@@ -21,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string TriggerCharacter { get; set; }
     }
 }

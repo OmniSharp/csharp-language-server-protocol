@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The client supports the following `SignatureInformation`
         /// specific properties.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public SignatureInformationCapability SignatureInformation { get; set; }
     }
 }

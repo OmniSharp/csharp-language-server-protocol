@@ -19,7 +19,6 @@ namespace JsonRpc.Tests
         [Method("workspace/executeCommand")]
         public interface IExecuteCommandHandler : IRequestHandler<ExecuteCommandParams> { }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class ExecuteCommandParams
         {
             public string Command { get; set; }

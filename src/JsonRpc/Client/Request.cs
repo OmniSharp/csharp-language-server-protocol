@@ -3,7 +3,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Request
     {
         public object Id { get; set; }
