@@ -1,7 +1,7 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using System;
+﻿using System;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
     /// <summary>
     ///     Extension methods for <see cref="LspConnection"/> enabling various styles of handler registration.
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
             if (clientConnection == null)
                 throw new ArgumentNullException(nameof(clientConnection));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
             if (clientConnection == null)
                 throw new ArgumentNullException(nameof(clientConnection));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -96,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
             if (clientConnection == null)
                 throw new ArgumentNullException(nameof(clientConnection));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)
@@ -133,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
             if (clientConnection == null)
                 throw new ArgumentNullException(nameof(clientConnection));
 
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (handler == null)

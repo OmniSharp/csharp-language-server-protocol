@@ -1,11 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
+namespace OmniSharp.Extensions.LanguageServer.Client.Processes
 {
     /// <summary>
     ///     A <see cref="StdioServerProcess"/> is a <see cref="ServerProcess"/> that launches its server as an external process and communicates with it over STDIN / STDOUT.

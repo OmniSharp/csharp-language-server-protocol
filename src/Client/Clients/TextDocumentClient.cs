@@ -1,11 +1,9 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Text Document API.
@@ -57,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
         /// </returns>
         async Task<TResponse> PositionalRequest<TResponse>(string method, Uri documentUri, int line, int column, CancellationToken cancellationToken)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (documentUri == null)

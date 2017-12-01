@@ -31,7 +31,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Client\Client.csproj" />
     <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
-    <ProjectReference Include="..\..\src\Lsp\Lsp.csproj" />
+    <ProjectReference Include="..\..\src\Server\Server.csproj" />
   </ItemGroup>
 
 </Project>

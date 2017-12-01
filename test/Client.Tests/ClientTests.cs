@@ -1,9 +1,4 @@
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -11,6 +6,13 @@ using Xunit;
 using Xunit.Abstractions;
 using System.Collections.Generic;
 using System;
+using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServer.Client.Protocol;
+using OmniSharp.Extensions.LanguageServer.Client.Utilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -63,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             const int column = 5;
             var expectedHoverContent = new MarkedStringContainer("123", "456", "789");
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>("textDocument/hover", (request, cancellationToken) =>
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) =>
             {
                 Assert.NotNull(request.TextDocument);
 
@@ -85,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 });
             });
 
-            Hover hover = await LanguageClient.TextDocument.Hover(AbsoluteDocumentPath, line, column);
+            var hover = await LanguageClient.TextDocument.Hover(AbsoluteDocumentPath, line, column);
 
             Assert.NotNull(hover.Range);
             Assert.NotNull(hover.Range.Start);
@@ -115,8 +117,8 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             const int line = 5;
             const int column = 5;
-            string expectedDocumentPath = AbsoluteDocumentPath;
-            Uri expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
 
             var expectedCompletionItems = new CompletionItem[]
             {
@@ -144,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>("textDocument/completion", (request, cancellationToken) =>
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(DocumentNames.Completion, (request, cancellationToken) =>
             {
                 Assert.NotNull(request.TextDocument);
 
@@ -159,15 +161,15 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 ));
             });
 
-            CompletionList actualCompletions = await LanguageClient.TextDocument.Completions(AbsoluteDocumentPath, line, column);
+            var actualCompletions = await LanguageClient.TextDocument.Completions(AbsoluteDocumentPath, line, column);
 
             Assert.True(actualCompletions.IsIncomplete, "completions.IsIncomplete");
             Assert.NotNull(actualCompletions.Items);
 
-            CompletionItem[] actualCompletionItems = actualCompletions.Items.ToArray();
+            var actualCompletionItems = actualCompletions.Items.ToArray();
             Assert.Collection(actualCompletionItems, actualCompletionItem =>
             {
-                CompletionItem expectedCompletionItem = expectedCompletionItems[0];
+                var expectedCompletionItem = expectedCompletionItems[0];
 
                 Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
                 Assert.Equal(expectedCompletionItem.Label, actualCompletionItem.Label);
@@ -193,9 +195,9 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         {
             await Connect();
 
-            string documentPath = AbsoluteDocumentPath;
-            Uri expectedDocumentUri = DocumentUri.FromFileSystemPath(documentPath);
-            List<Diagnostic> expectedDiagnostics = new List<Diagnostic>
+            var documentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(documentPath);
+            var expectedDiagnostics = new List<Diagnostic>
             {
                 new Diagnostic
                 {
@@ -219,7 +221,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            TaskCompletionSource<object> receivedDiagnosticsNotification = new TaskCompletionSource<object>();
+            var receivedDiagnosticsNotification = new TaskCompletionSource<object>();
 
             Uri actualDocumentUri = null;
             List<Diagnostic> actualDiagnostics = null;
@@ -231,14 +233,14 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 receivedDiagnosticsNotification.SetResult(null);
             });
 
-            ServerConnection.SendNotification("textDocument/publishDiagnostics", new PublishDiagnosticsParams
+            ServerConnection.SendNotification(DocumentNames.PublishDiagnostics, new PublishDiagnosticsParams
             {
                 Uri = DocumentUri.FromFileSystemPath(documentPath),
                 Diagnostics = expectedDiagnostics
             });
 
             // Timeout.
-            Task winner = await Task.WhenAny(
+            var winner = await Task.WhenAny(
                 receivedDiagnosticsNotification.Task,
                 Task.Delay(
                     TimeSpan.FromSeconds(2)
@@ -252,8 +254,8 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             Assert.NotNull(actualDiagnostics);
             Assert.Equal(1, actualDiagnostics.Count);
 
-            Diagnostic expectedDiagnostic = expectedDiagnostics[0];
-            Diagnostic actualDiagnostic = actualDiagnostics[0];
+            var expectedDiagnostic = expectedDiagnostics[0];
+            var actualDiagnostic = actualDiagnostics[0];
 
             Assert.Equal(expectedDiagnostic.Code, actualDiagnostic.Code);
             Assert.Equal(expectedDiagnostic.Message, actualDiagnostic.Message);

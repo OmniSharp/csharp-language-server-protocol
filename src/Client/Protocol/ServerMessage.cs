@@ -2,7 +2,7 @@
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
     /// <summary>
     ///     The server-side representation of an LSP message.

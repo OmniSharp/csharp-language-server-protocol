@@ -1,12 +1,12 @@
-﻿using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
+namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 {
     /// <summary>
     ///     Dispatches requests and notifications from a language server to a language client.
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
         /// </returns>
         public async Task<bool> TryHandleEmptyNotification(string method)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeEmptyNotificationHandler emptyNotificationHandler)
@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
         /// </returns>
         public async Task<bool> TryHandleNotification(string method, JObject notification)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeNotificationHandler notificationHandler)
@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher
         /// </returns>
         public Task<object> TryHandleRequest(string method, JObject request, CancellationToken cancellationToken)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeRequestHandler requestHandler)

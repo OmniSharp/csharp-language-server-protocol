@@ -1,9 +1,9 @@
-﻿using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Processes;
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Client.Processes;
+using OmniSharp.Extensions.LanguageServer.Client.Protocol;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LanguageClient client = new LanguageClient(LoggerFactory, _serverProcess);
+            var client = new LanguageClient(LoggerFactory, _serverProcess);
             Disposal.Add(client);
 
             if (initialize)
@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LspConnection connection = new LspConnection(LoggerFactory, input: ServerOutputStream, output: ServerInputStream);
+            var connection = new LspConnection(LoggerFactory, input: ServerOutputStream, output: ServerInputStream);
             Disposal.Add(connection);
 
             return connection;
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await _serverProcess.HasStarted;
 
-            LspConnection connection = new LspConnection(LoggerFactory, input: ClientOutputStream, output: ClientInputStream);
+            var connection = new LspConnection(LoggerFactory, input: ClientOutputStream, output: ClientInputStream);
             Disposal.Add(connection);
 
             return connection;

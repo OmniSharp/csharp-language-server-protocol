@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.IO.Pipes;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
+namespace OmniSharp.Extensions.LanguageServer.Client.Processes
 {
     /// <summary>
     ///     A <see cref="NamedPipeServerProcess"/> is a <see cref="ServerProcess"/> that creates named pipe streams to connect a language client to a language server in the same process.

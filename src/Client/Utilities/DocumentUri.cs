@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities
+namespace OmniSharp.Extensions.LanguageServer.Client.Utilities
 {
     /// <summary>
     ///     Helper methods for working with LSP document URIs.
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities
         /// </returns>
         public static Uri FromFileSystemPath(string fileSystemPath)
         {
-            if (String.IsNullOrWhiteSpace(fileSystemPath))
+            if (string.IsNullOrWhiteSpace(fileSystemPath))
                 throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'fileSystemPath'.", nameof(fileSystemPath));
 
             if (!Path.IsPathRooted(fileSystemPath))

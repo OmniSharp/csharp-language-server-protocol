@@ -1,20 +1,18 @@
-﻿using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Client;
-using OmniSharp.Extensions.LanguageServer.Capabilities.Server;
-using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Processes;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Clients;
 using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Client.Clients;
+using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServer.Client.Handlers;
+using OmniSharp.Extensions.LanguageServer.Client.Processes;
+using OmniSharp.Extensions.LanguageServer.Client.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client
+namespace OmniSharp.Extensions.LanguageServer.Client
 {
     /// <summary>
     ///     A client for the Language Server Protocol.
@@ -111,10 +109,10 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </summary>
         public void Dispose()
         {
-            LspConnection connection = Interlocked.Exchange(ref _connection, null);
+            var connection = Interlocked.Exchange(ref _connection, null);
             connection?.Dispose();
 
-            ServerProcess serverProcess = Interlocked.Exchange(ref _process, null);
+            var serverProcess = Interlocked.Exchange(ref _process, null);
             serverProcess?.Dispose();
         }
 
@@ -218,7 +216,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         ///     The workspace root.
         /// </param>
         /// <param name="initializationOptions">
-        ///     An optional <see cref="Object"/> representing additional options to send to the server.
+        ///     An optional <see cref="object"/> representing additional options to send to the server.
         /// </param>
         /// <param name="cancellationToken">
         ///     An optional <see cref="CancellationToken"/> that can be used to cancel the operation.
@@ -240,7 +238,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
             {
                 await Start();
 
-                InitializeParams initializeParams = new InitializeParams
+                var initializeParams = new InitializeParams
                 {
                     RootPath = workspaceRoot,
                     Capabilities = ClientCapabilities,
@@ -250,7 +248,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
 
                 Log.LogDebug("Sending 'initialize' message to language server...");
 
-                InitializeResult result = await SendRequest<InitializeResult>("initialize", initializeParams, cancellationToken).ConfigureAwait(false);
+                var result = await SendRequest<InitializeResult>("initialize", initializeParams, cancellationToken).ConfigureAwait(false);
                 if (result == null)
                     throw new LspException("Server replied to 'initialize' request with a null response.");
 
@@ -284,7 +282,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </returns>
         public async Task Shutdown()
         {
-            LspConnection connection = _connection;
+            var connection = _connection;
             if (connection != null)
             {
                 if (connection.IsOpen)
@@ -297,7 +295,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
                 await connection.HasHasDisconnected;
             }
 
-            ServerProcess serverProcess = _process;
+            var serverProcess = _process;
             if (serverProcess != null)
             {
                 if (serverProcess.IsRunning)
@@ -327,7 +325,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </param>
         public void SendNotification(string method)
         {
-            LspConnection connection = _connection;
+            var connection = _connection;
             if (connection == null || !connection.IsOpen)
                 throw new InvalidOperationException("Not connected to the language server.");
 
@@ -345,7 +343,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </param>
         public void SendNotification(string method, object notification)
         {
-            LspConnection connection = _connection;
+            var connection = _connection;
             if (connection == null || !connection.IsOpen)
                 throw new InvalidOperationException("Not connected to the language server.");
 
@@ -369,7 +367,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </returns>
         public Task SendRequest(string method, object request, CancellationToken cancellationToken = default(CancellationToken))
         {
-            LspConnection connection = _connection;
+            var connection = _connection;
             if (connection == null || !connection.IsOpen)
                 throw new InvalidOperationException("Not connected to the language server.");
 
@@ -396,7 +394,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         /// </returns>
         public Task<TResponse> SendRequest<TResponse>(string method, object request, CancellationToken cancellation = default(CancellationToken))
         {
-            LspConnection connection = _connection;
+            var connection = _connection;
             if (connection == null || !connection.IsOpen)
                 throw new InvalidOperationException("Not connected to the language server.");
 
@@ -446,7 +444,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         {
             Log.LogDebug("Server process has exited; language client is shutting down...");
 
-            LspConnection connection = Interlocked.Exchange(ref _connection, null);
+            var connection = Interlocked.Exchange(ref _connection, null);
             if (connection != null)
             {
                 using (connection)

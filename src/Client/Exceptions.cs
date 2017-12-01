@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client
+namespace OmniSharp.Extensions.LanguageServer.Client
 {
     /// <summary>
     ///     Exception raised when a Language Server Protocol error is encountered.
@@ -91,7 +91,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         public LspRequestException(string message, string requestId, int errorCode)
             : base(message)
         {
-            RequestId = !String.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
+            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
             ErrorCode = errorCode;
         }
 
@@ -130,7 +130,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         public LspRequestException(string message, string requestId, int errorCode, Exception inner)
             : base(message, inner)
         {
-            RequestId = !String.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
+            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
             ErrorCode = errorCode;
         }
 
@@ -202,7 +202,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client
         public LspMethodNotSupportedException(string method, string requestId)
             : base($"Method not found: '{method}'.", requestId, LspErrorCodes.MethodNotSupported)
         {
-            Method = !String.IsNullOrWhiteSpace(method) ? method : "(unknown)";
+            Method = !string.IsNullOrWhiteSpace(method) ? method : "(unknown)";
         }
 
         /// <summary>

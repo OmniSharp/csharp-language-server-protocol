@@ -1,9 +1,9 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     A delegate-based handler for requests whose responses have no payload (i.e. void return type).

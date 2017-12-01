@@ -8,12 +8,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
-using HandlerCollection = OmniSharp.Extensions.LanguageServer.HandlerCollection;
-using OmniSharp.Extensions.LanguageServer.Models;
-using OmniSharp.Extensions.LanguageServer.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Handlers;
+using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 
 namespace Lsp.Tests
 {
@@ -52,10 +49,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData("textDocument/didOpen", 4)]
-        [InlineData("textDocument/didChange", 4)]
-        [InlineData("textDocument/didClose", 4)]
-        [InlineData("textDocument/didSave", 4)]
+        [InlineData(DocumentNames.DidOpen, 4)]
+        [InlineData(DocumentNames.DidChange, 4)]
+        [InlineData(DocumentNames.DidClose, 4)]
+        [InlineData(DocumentNames.DidSave, 4)]
         public void Should_Contain_AllDefinedTextDocumentSyncMethods(string key, int count)
         {
             var handler = new HandlerCollection();
@@ -67,10 +64,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData("exit", 4)]
-        [InlineData("shutdown", 4)]
-        [InlineData("initialized", 4)]
-        [InlineData("initialize", 4)]
+        [InlineData(GeneralNames.Exit, 4)]
+        [InlineData(GeneralNames.Shutdown, 4)]
+        [InlineData(GeneralNames.Initialized, 4)]
+        [InlineData(GeneralNames.Initialize, 4)]
         public void Should_Contain_AllDefinedLanguageServerMethods(string key, int count)
         {
             var handler = new HandlerCollection();
@@ -85,10 +82,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData("exit", 4)]
-        [InlineData("shutdown", 4)]
-        [InlineData("initialized", 4)]
-        [InlineData("initialize", 4)]
+        [InlineData(GeneralNames.Exit, 4)]
+        [InlineData(GeneralNames.Shutdown, 4)]
+        [InlineData(GeneralNames.Initialized, 4)]
+        [InlineData(GeneralNames.Initialize, 4)]
         public void Should_Contain_AllDefinedLanguageServerMethods_GivenDuplicates(string key, int count)
         {
             var handler = new HandlerCollection();
@@ -111,10 +108,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData("textDocument/didOpen", 8)]
-        [InlineData("textDocument/didChange", 8)]
-        [InlineData("textDocument/didClose", 8)]
-        [InlineData("textDocument/didSave", 8)]
+        [InlineData(DocumentNames.DidOpen, 8)]
+        [InlineData(DocumentNames.DidChange, 8)]
+        [InlineData(DocumentNames.DidClose, 8)]
+        [InlineData(DocumentNames.DidSave, 8)]
         public void Should_Contain_AllDefinedMethods_ForDifferentKeys(string key, int count)
         {
             var handler = new HandlerCollection();

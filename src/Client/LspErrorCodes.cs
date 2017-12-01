@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServerProtocol.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Client
 {
     /// <summary>
     ///     Well-known LSP error codes.

@@ -1,11 +1,9 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Text Document API.
@@ -29,12 +27,13 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return Client.HandleNotification<PublishDiagnosticsParams>("textDocument/publishDiagnostics", notification =>
+            return Client.HandleNotification<PublishDiagnosticsParams>(DocumentNames.PublishDiagnostics, notification =>
             {
+                if (notification.Diagnostics == null)
                 if (notification.Diagnostics == null)
                     return; // Invalid notification.
 
-                List<Diagnostic> diagnostics = new List<Diagnostic>();
+                var diagnostics = new List<Diagnostic>();
                 if (notification.Diagnostics != null)
                     diagnostics.AddRange(notification.Diagnostics);
 

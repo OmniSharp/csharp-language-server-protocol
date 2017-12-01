@@ -1,10 +1,9 @@
-﻿using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Logging;
-using System;
+﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Processes
+namespace OmniSharp.Extensions.LanguageServer.Client.Processes
 {
     /// <summary>
     ///     A <see cref="ServerProcess"/> is responsible for launching or attaching to a language server, providing access to its input and output streams, and tracking its lifetime.

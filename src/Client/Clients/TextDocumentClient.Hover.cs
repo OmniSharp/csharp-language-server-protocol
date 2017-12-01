@@ -1,11 +1,11 @@
-﻿using OmniSharp.Extensions.LanguageServer.Models;
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Utilities;
+using OmniSharp.Extensions.LanguageServer.Client.Utilities;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
+namespace OmniSharp.Extensions.LanguageServer.Client.Clients
 {
     /// <summary>
     ///     Client for the LSP Text Document API.
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
         /// </returns>
         public Task<Hover> Hover(string filePath, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            if (String.IsNullOrWhiteSpace(filePath))
+            if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'filePath'.", nameof(filePath));
 
             Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Clients
         /// </returns>
         public Task<Hover> Hover(Uri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<Hover>("textDocument/hover", documentUri, line, column, cancellationToken);
+            return PositionalRequest<Hover>(DocumentNames.Hover, documentUri, line, column, cancellationToken);
         }
     }
 }

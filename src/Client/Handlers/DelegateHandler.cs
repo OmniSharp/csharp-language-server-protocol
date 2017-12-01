@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     The base class for delegate-based message handlers.
@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         /// </param>
         protected DelegateHandler(string method)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             Method = method;

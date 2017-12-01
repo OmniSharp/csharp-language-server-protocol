@@ -1,7 +1,7 @@
-﻿using OmniSharp.Extensions.JsonRpc;
-using System;
+﻿using System;
+using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
+namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
     ///     The base class for message handlers based on JSON-RPC <see cref="IJsonRpcHandler"/>s.
@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Handlers
         /// </param>
         protected JsonRpcHandler(string method)
         {
-            if (String.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             Method = method;

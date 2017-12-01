@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServerProtocol.Client.Protocol;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
+using OmniSharp.Extensions.LanguageServer.Client.Protocol;
 using Xunit;
 using Xunit.Abstractions;
 

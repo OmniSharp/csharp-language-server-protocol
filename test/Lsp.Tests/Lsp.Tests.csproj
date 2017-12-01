@@ -10,7 +10,7 @@
     <EmbeddedResource Include="**\*.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Lsp\Lsp.csproj" />
+      <ProjectReference Include="..\..\src\Server\Server.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="FluentAssertions" Version="4.19.4" />
