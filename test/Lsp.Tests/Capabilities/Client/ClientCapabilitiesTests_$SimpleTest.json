@@ -1,4 +1,4 @@
-﻿{
+{
     "workspace": {
         "applyEdit": true,
         "workspaceEdit": {
@@ -26,14 +26,19 @@
         },
         "completion": {
             "completionItem": {
-                "snippetSupport": true
+                "snippetSupport": true,
+                "commitCharactersSupport": false,
+                "documentationFormat": null
             },
+            "contextSupport": false,
             "dynamicRegistration": true
         },
         "hover": {
+            "contentFormat": null,
             "dynamicRegistration": true
         },
         "signatureHelp": {
+            "signatureInformation": null,
             "dynamicRegistration": true
         },
         "references": {

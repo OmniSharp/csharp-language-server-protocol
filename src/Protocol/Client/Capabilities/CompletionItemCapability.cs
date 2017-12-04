@@ -15,13 +15,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// that is typing in one will update others too.
         /// </summary>
         [Optional]
-        public bool? SnippetSupport { get; set; }
+        public bool SnippetSupport { get; set; }
 
         /// <summary>
         /// Client supports commit characters on a completion item.
         /// </summary>
         [Optional]
-        public bool? CommitCharactersSupport { get; set; }
+        public bool CommitCharactersSupport { get; set; }
 
         /// <summary>
         /// Client supports the follow content formats for the documentation

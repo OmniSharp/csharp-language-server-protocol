@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Whether completion supports dynamic registration.
         /// </summary>
         [Optional]
-        public bool? DynamicRegistration { get; set; }
+        public bool DynamicRegistration { get; set; }
     }
 }

@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 using OmniSharp.Extensions.LanguageServer.Client.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
@@ -124,6 +125,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </summary>
         Task _dispatchLoop;
 
+        private JsonSerializerSettings _jsonSerializerSettings;
+
         /// <summary>
         ///     Create a new <see cref="LspConnection"/>.
         /// </summary>
@@ -156,6 +159,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             Log = loggerFactory.CreateLogger<LspConnection>();
             _input = input;
             _output = output;
+            // What does client version do? Do we have to negotaite this?
+            _jsonSerializerSettings = Serializer.CreateSerializerSettings(ClientVersion.Lsp3);
         }
 
         /// <summary>
@@ -654,7 +659,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            string payload = JsonConvert.SerializeObject(message);
+            string payload = JsonConvert.SerializeObject(message, _jsonSerializerSettings);
             byte[] payloadBuffer = PayloadEncoding.GetBytes(payload);
 
             byte[] headerBuffer = HeaderEncoding.GetBytes(
@@ -754,7 +759,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             Log.LogDebug("Received entire payload ({ReceivedByteCount} bytes).", received);
 
             string responseBody = PayloadEncoding.GetString(requestBuffer);
-            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody);
+            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody, _jsonSerializerSettings);
 
             Log.LogDebug("Read response body {ResponseBody}.", responseBody);
 

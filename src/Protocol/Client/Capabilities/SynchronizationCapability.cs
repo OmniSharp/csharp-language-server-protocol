@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The client supports sending will save notifications.
         /// </summary>
         [Optional]
-        public bool? WillSave { get; set; }
+        public bool WillSave { get; set; }
 
         /// <summary>
         /// The client supports sending a will save request and
@@ -17,12 +17,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// be applied to the document before it is saved.
         /// </summary>
         [Optional]
-        public bool? WillSaveWaitUntil { get; set; }
+        public bool WillSaveWaitUntil { get; set; }
 
         /// <summary>
         /// The client supports did save notifications.
         /// </summary>
         [Optional]
-        public bool? DidSave { get; set; }
+        public bool DidSave { get; set; }
     }
 }

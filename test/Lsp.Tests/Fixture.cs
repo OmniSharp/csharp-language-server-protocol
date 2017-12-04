@@ -3,19 +3,21 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace Lsp.Tests
 {
     static class Fixture
     {
-        public static string SerializeObject(object value)
+        public static string SerializeObject(object value, ClientVersion version = ClientVersion.Lsp3)
         {
-            return SerializeObject(value, null, (JsonSerializerSettings)null);
+            return SerializeObject(value, null, (JsonSerializerSettings)null, version);
         }
 
-        public static string SerializeObject(object value, Type type, JsonSerializerSettings settings)
+        public static string SerializeObject(object value, Type type, JsonSerializerSettings settings, ClientVersion version = ClientVersion.Lsp3)
         {
-            var jsonSerializer = JsonSerializer.CreateDefault(settings);
+            var jsonSerializer = Serializer.CreateSerializer(version);
 
             return SerializeObjectInternal(value, type, jsonSerializer);
         }

@@ -3,6 +3,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
+    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Notification
     {
         public string ProtocolVersion { get; } = "2.0";

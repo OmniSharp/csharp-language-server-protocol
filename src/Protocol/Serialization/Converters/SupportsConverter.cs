@@ -62,6 +62,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
 
         public override bool CanRead => true;
 
-        public override bool CanConvert(Type objectType) => objectType.GetGenericTypeDefinition() == typeof(Supports<>);
+        public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Supports<>);
     }
 }

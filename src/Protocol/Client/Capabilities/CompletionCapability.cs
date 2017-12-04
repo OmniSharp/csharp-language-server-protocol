@@ -14,6 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///  The client supports to send additional context information for a `textDocument/completion` request.
         /// </summary>
         [Optional]
-        public bool? ContextSupport { get; set; }
+        public bool ContextSupport { get; set; }
     }
 }

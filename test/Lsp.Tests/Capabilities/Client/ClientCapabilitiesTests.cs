@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using Xunit;
 
@@ -65,7 +66,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<ClientCapabilities>(expected);
+            var deresult = JsonConvert.DeserializeObject<ClientCapabilities>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
             deresult.ShouldBeEquivalentTo(model);
         }
     }

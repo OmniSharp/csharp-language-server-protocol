@@ -1,0 +1,13 @@
+{
+    "label": "ab",
+    "documentation": "ab",
+    "parameters": [
+        {
+            "label": "param",
+            "documentation": {
+                "kind": 1,
+                "value": "### Value"
+            }
+        }
+    ]
+}
