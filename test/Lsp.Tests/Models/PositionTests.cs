@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<Position>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Position>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

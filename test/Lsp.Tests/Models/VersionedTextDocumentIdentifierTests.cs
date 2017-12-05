@@ -21,7 +21,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<VersionedTextDocumentIdentifier>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<VersionedTextDocumentIdentifier>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

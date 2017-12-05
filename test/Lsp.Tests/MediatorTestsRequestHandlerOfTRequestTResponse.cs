@@ -22,6 +22,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serializer;
 
 namespace Lsp.Tests
 {
@@ -63,7 +64,7 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, Serializer.CreateSerializerSettings(ClientVersion.Lsp3))));
+            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             var response = ((IRequestRouter)mediator).RouteRequest(request);
             mediator.CancelRequest(id);

@@ -20,7 +20,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<CodeLensOptions>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLensOptions>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

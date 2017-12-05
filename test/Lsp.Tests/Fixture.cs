@@ -17,12 +17,12 @@ namespace Lsp.Tests
 
         public static string SerializeObject(object value, Type type, JsonSerializerSettings settings, ClientVersion version = ClientVersion.Lsp3)
         {
-            var jsonSerializer = Serializer.CreateSerializer(version);
+            var jsonSerializer = new Serializer(version);
 
             return SerializeObjectInternal(value, type, jsonSerializer);
         }
 
-        private static string SerializeObjectInternal(object value, Type type, JsonSerializer jsonSerializer)
+        private static string SerializeObjectInternal(object value, Type type, ISerializer serializer)
         {
             var sb = new StringBuilder(256);
             var sw = new StringWriter(sb, CultureInfo.InvariantCulture);
@@ -31,7 +31,7 @@ namespace Lsp.Tests
                 jsonWriter.Formatting = Formatting.Indented;
                 jsonWriter.Indentation = 4;
 
-                jsonSerializer.Serialize(jsonWriter, value, type);
+                serializer.JsonSerializer.Serialize(jsonWriter, value, type);
             }
 
             return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd();//?.Replace("\n", "\r\n");

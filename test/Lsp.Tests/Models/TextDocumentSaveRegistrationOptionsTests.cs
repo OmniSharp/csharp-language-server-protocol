@@ -23,7 +23,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<TextDocumentSaveRegistrationOptions>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentSaveRegistrationOptions>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///  The length of the range that got replaced.
         /// </summary>
         [Optional]
-        public long RangeLength { get; set; }
+        public int RangeLength { get; set; }
 
         /// <summary>
         ///  The new text of the document.

@@ -22,7 +22,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<TextDocumentContentChangeEvent>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentContentChangeEvent>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

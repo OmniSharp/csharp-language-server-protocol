@@ -19,7 +19,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<CompletionItemCapability>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

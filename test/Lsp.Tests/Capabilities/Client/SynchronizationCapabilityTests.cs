@@ -22,7 +22,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<SynchronizationCapability>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SynchronizationCapability>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

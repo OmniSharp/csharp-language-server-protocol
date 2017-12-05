@@ -43,7 +43,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<TextDocumentClientCapabilities>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
 
@@ -55,7 +55,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<TextDocumentClientCapabilities>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -63,7 +63,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<ServerCapabilities>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

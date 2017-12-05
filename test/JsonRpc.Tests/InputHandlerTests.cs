@@ -41,7 +41,8 @@ namespace JsonRpc.Tests
                 requestProcessIdentifier,
                 requestRouter,
                 responseRouter,
-                Substitute.For<ILoggerFactory>());
+                Substitute.For<ILoggerFactory>(),
+                new Serializer());
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();

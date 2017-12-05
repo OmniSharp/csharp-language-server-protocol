@@ -20,7 +20,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<MessageActionItem>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<MessageActionItem>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

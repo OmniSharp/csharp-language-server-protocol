@@ -9,45 +9,83 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public static class Serializer
+    public class Serializer : ISerializer
     {
-        public static JsonSerializer CreateSerializer(ClientVersion version)
+        public Serializer() : this(ClientVersion.Lsp3) { }
+        public Serializer(ClientVersion clientVersion)
+        {
+            JsonSerializer = CreateSerializer(clientVersion);
+            Settings = CreateSerializerSettings(clientVersion);
+        }
+
+        private static JsonSerializer CreateSerializer(ClientVersion version)
         {
             var serializer = JsonSerializer.CreateDefault();
             serializer.ContractResolver = new ContractResolver();
-
-            serializer.Converters.Add(new SupportsConverter());
-            serializer.Converters.Add(new CompletionListConverter());
-            serializer.Converters.Add(new DiagnosticCodeConverter());
-            serializer.Converters.Add(new LocationOrLocationsConverter());
-            serializer.Converters.Add(new MarkedStringCollectionConverter());
-            serializer.Converters.Add(new MarkedStringConverter());
-            serializer.Converters.Add(new StringOrMarkupContentConverter());
-            serializer.Converters.Add(new TextDocumentSyncConverter());
-            serializer.Converters.Add(new BooleanNumberStringConverter());
-            serializer.Converters.Add(new MarkedStringsOrMarkupContentConverter());
+            AddOrReplaceConverters(serializer.Converters, version);
 
             return serializer;
         }
 
-        public static JsonSerializerSettings CreateSerializerSettings(ClientVersion version)
+        private static JsonSerializerSettings CreateSerializerSettings(ClientVersion version)
         {
             var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
-
             settings.ContractResolver = new ContractResolver();
-
-            settings.Converters.Add(new SupportsConverter());
-            settings.Converters.Add(new CompletionListConverter());
-            settings.Converters.Add(new DiagnosticCodeConverter());
-            settings.Converters.Add(new LocationOrLocationsConverter());
-            settings.Converters.Add(new MarkedStringCollectionConverter());
-            settings.Converters.Add(new MarkedStringConverter());
-            settings.Converters.Add(new StringOrMarkupContentConverter());
-            settings.Converters.Add(new TextDocumentSyncConverter());
-            settings.Converters.Add(new BooleanNumberStringConverter());
-            settings.Converters.Add(new MarkedStringsOrMarkupContentConverter());
+            AddOrReplaceConverters(settings.Converters, version);
 
             return settings;
+        }
+
+        private static void AddOrReplaceConverters(ICollection<JsonConverter> converters, ClientVersion version)
+        {
+            ReplaceConverter(converters, new SupportsConverter());
+            ReplaceConverter(converters, new CompletionListConverter());
+            ReplaceConverter(converters, new DiagnosticCodeConverter());
+            ReplaceConverter(converters, new LocationOrLocationsConverter());
+            ReplaceConverter(converters, new MarkedStringCollectionConverter());
+            ReplaceConverter(converters, new MarkedStringConverter());
+            ReplaceConverter(converters, new StringOrMarkupContentConverter());
+            ReplaceConverter(converters, new TextDocumentSyncConverter());
+            ReplaceConverter(converters, new BooleanNumberStringConverter());
+            ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
+        }
+
+        private static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
+            where T : JsonConverter
+        {
+            var existingConverters = converters.OfType<T>().ToArray();
+            if (existingConverters.Any())
+            {
+                foreach (var converter in existingConverters)
+                    converters.Remove(converter);
+            }
+            converters.Add(item);
+        }
+
+        public JsonSerializer JsonSerializer { get; }
+
+        public JsonSerializerSettings Settings { get; }
+
+        public string SerializeObject(object value)
+        {
+            return JsonConvert.SerializeObject(value, Settings);
+        }
+
+        public object DeserializeObject(string json)
+        {
+            return JsonConvert.DeserializeObject(json, Settings);
+        }
+
+        public T DeserializeObject<T>(string json)
+        {
+            return JsonConvert.DeserializeObject<T>(json, Settings);
+        }
+
+        public Serializer SetClientVersion(ClientVersion clientVersion)
+        {
+            AddOrReplaceConverters(Settings.Converters, clientVersion);
+            AddOrReplaceConverters(JsonSerializer.Converters, clientVersion);
+            return this;
         }
     }
 
@@ -87,10 +125,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             var property = base.CreateProperty(member, memberSerialization);
             //if (property.DeclaringType.Name.EndsWith("Capability")) return property;
             // if (property.PropertyType.GetTypeInfo().IsGenericType)
-                if (
-                   member.GetCustomAttributes<OptionalAttribute>().Any()
-                || property.DeclaringType.Name.EndsWith("Capabilities")
-                )
+            if (
+               member.GetCustomAttributes<OptionalAttribute>().Any()
+            || property.DeclaringType.Name.EndsWith("Capabilities")
+            )
             {
                 property.NullValueHandling = NullValueHandling.Ignore;
                 // property.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;

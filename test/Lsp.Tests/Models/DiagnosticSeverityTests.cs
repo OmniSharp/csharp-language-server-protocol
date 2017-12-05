@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<DiagnosticSeverity>(expected, Serializer.CreateSerializerSettings(ClientVersion.Lsp3));
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DiagnosticSeverity>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

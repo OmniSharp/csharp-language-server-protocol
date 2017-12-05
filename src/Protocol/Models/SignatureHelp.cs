@@ -19,12 +19,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The active signature.
         /// </summary>
         [Optional]
-        public long ActiveSignature { get; set; }
+        public int ActiveSignature { get; set; }
 
         /// <summary>
         /// The active parameter of the active signature.
         /// </summary>
         [Optional]
-        public long ActiveParameter { get; set; }
+        public int ActiveParameter { get; set; }
     }
 }

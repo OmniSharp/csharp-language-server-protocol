@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             _input = input;
             _output = output;
             // What does client version do? Do we have to negotaite this?
-            _jsonSerializerSettings = Serializer.CreateSerializerSettings(ClientVersion.Lsp3);
+            _jsonSerializerSettings = new Serializer(ClientVersion.Lsp3).Settings;
         }
 
         /// <summary>
