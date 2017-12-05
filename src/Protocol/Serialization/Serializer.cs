@@ -13,20 +13,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         public static JsonSerializer CreateSerializer(ClientVersion version)
         {
-            var serialzier = JsonSerializer.CreateDefault();
-            serialzier.ContractResolver = new ContractResolver();
+            var serializer = JsonSerializer.CreateDefault();
+            serializer.ContractResolver = new ContractResolver();
 
-            serialzier.Converters.Add(new SupportsConverter());
-            serialzier.Converters.Add(new CompletionListConverter());
-            serialzier.Converters.Add(new DiagnosticCodeConverter());
-            serialzier.Converters.Add(new LocationOrLocationsConverter());
-            serialzier.Converters.Add(new MarkedStringCollectionConverter());
-            serialzier.Converters.Add(new MarkedStringConverter());
-            serialzier.Converters.Add(new StringOrMarkupContentConverter());
-            serialzier.Converters.Add(new TextDocumentSyncConverter());
-            serialzier.Converters.Add(new BooleanNumberStringConverter());
+            serializer.Converters.Add(new SupportsConverter());
+            serializer.Converters.Add(new CompletionListConverter());
+            serializer.Converters.Add(new DiagnosticCodeConverter());
+            serializer.Converters.Add(new LocationOrLocationsConverter());
+            serializer.Converters.Add(new MarkedStringCollectionConverter());
+            serializer.Converters.Add(new MarkedStringConverter());
+            serializer.Converters.Add(new StringOrMarkupContentConverter());
+            serializer.Converters.Add(new TextDocumentSyncConverter());
+            serializer.Converters.Add(new BooleanNumberStringConverter());
+            serializer.Converters.Add(new MarkedStringsOrMarkupContentConverter());
 
-            return serialzier;
+            return serializer;
         }
 
         public static JsonSerializerSettings CreateSerializerSettings(ClientVersion version)
@@ -44,6 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             settings.Converters.Add(new StringOrMarkupContentConverter());
             settings.Converters.Add(new TextDocumentSyncConverter());
             settings.Converters.Add(new BooleanNumberStringConverter());
+            settings.Converters.Add(new MarkedStringsOrMarkupContentConverter());
 
             return settings;
         }
@@ -83,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
-            if (property.DeclaringType.Name.EndsWith("Capability")) return property;
+            //if (property.DeclaringType.Name.EndsWith("Capability")) return property;
             // if (property.PropertyType.GetTypeInfo().IsGenericType)
                 if (
                    member.GetCustomAttributes<OptionalAttribute>().Any()

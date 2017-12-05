@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -28,6 +29,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public object Data { get; set; }
+        public JObject Data { get; set; }
     }
 }

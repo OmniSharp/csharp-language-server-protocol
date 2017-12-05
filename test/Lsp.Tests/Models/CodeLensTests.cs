@@ -21,10 +21,10 @@ namespace Lsp.Tests.Models
                     Name = "abc",
                     Title = "Cool story bro"
                 },
-                Data = new Dictionary<string, object>()
+                Data = JObject.FromObject(new Dictionary<string, object>()
                 {
                     { "somethingCool" , 1 }
-                },
+                }),
                 Range = new Range(new Position(1, 2), new Position(2, 3)),
             };
             var result = Fixture.SerializeObject(model);

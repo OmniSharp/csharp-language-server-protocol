@@ -8,6 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The client supports the following `CompletionItem` specific
         /// capabilities.
         /// </summary>
+        [Optional]
         public CompletionItemCapability CompletionItem { get; set; }
 
         /// <summary>
