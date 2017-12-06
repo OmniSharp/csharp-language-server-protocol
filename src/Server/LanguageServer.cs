@@ -64,8 +64,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>())
             };
 
-            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection);
-            _responseRouter = new ResponseRouter(outputHandler);
+            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection, _serializer);
+            _responseRouter = new ResponseRouter(outputHandler, _serializer);
             _connection = new Connection(input, outputHandler, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory, serializer);
 
             _exitHandler = new ExitHandler(_shutdownHandler);

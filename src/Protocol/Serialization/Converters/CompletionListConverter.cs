@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -35,12 +35,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
-                var array = JArray.Load(reader).ToObject<IEnumerable<CompletionItem>>();
+                var array = JArray.Load(reader).ToObject<IEnumerable<CompletionItem>>(serializer);
                 return new CompletionList(array);
             }
 
             var result = JObject.Load(reader);
-            var items = result["items"].ToObject<IEnumerable<CompletionItem>>();
+            var items = result["items"].ToObject<IEnumerable<CompletionItem>>(serializer);
             return new CompletionList(items, result["isIncomplete"].Value<bool>());
         }
 

@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
@@ -50,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
             await Task.Yield();
 
             Handler(
-                notification != null ? notification.ToObject<TNotification>() : default(TNotification)
+                notification != null ? notification.ToObject<TNotification>(Serializer.Instance.JsonSerializer /* Fix me: this is ugly */) : default(TNotification)
             );
         }
     }

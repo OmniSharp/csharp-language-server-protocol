@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </summary>
         Task _dispatchLoop;
 
-        private JsonSerializerSettings _jsonSerializerSettings;
+        private readonly Serializer _serializer;
 
         /// <summary>
         ///     Create a new <see cref="LspConnection"/>.
@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             _input = input;
             _output = output;
             // What does client version do? Do we have to negotaite this?
-            _jsonSerializerSettings = new Serializer(ClientVersion.Lsp3).Settings;
+            _serializer = new Serializer(ClientVersion.Lsp3);
         }
 
         /// <summary>
@@ -336,7 +336,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 // No Id means it's a notification.
                 Method = method,
-                Params = JObject.FromObject(notification)
+                Params = JObject.FromObject(notification, _serializer.JsonSerializer)
             });
         }
 
@@ -394,7 +394,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request) : null
+                Params = request != null ? JObject.FromObject(request, _serializer.JsonSerializer) : null
             });
 
             await responseCompletion.Task;
@@ -457,13 +457,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request) : null
+                Params = request != null ? JObject.FromObject(request, _serializer.JsonSerializer) : null
             });
 
             ServerMessage response = await responseCompletion.Task;
 
             if (response.Result != null)
-                return response.Result.ToObject<TResponse>();
+                return response.Result.ToObject<TResponse>(_serializer.JsonSerializer);
             else
                 return default(TResponse);
         }
@@ -659,7 +659,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            string payload = JsonConvert.SerializeObject(message, _jsonSerializerSettings);
+            string payload = JsonConvert.SerializeObject(message, _serializer.Settings);
             byte[] payloadBuffer = PayloadEncoding.GetBytes(payload);
 
             byte[] headerBuffer = HeaderEncoding.GetBytes(
@@ -759,7 +759,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             Log.LogDebug("Received entire payload ({ReceivedByteCount} bytes).", received);
 
             string responseBody = PayloadEncoding.GetString(requestBuffer);
-            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody, _jsonSerializerSettings);
+            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody, _serializer.Settings);
 
             Log.LogDebug("Read response body {ResponseBody}.", responseBody);
 
@@ -892,7 +892,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     {
                         Id = requestMessage.Id,
                         Method = requestMessage.Method,
-                        Result = handlerTask.Result != null ? JObject.FromObject(handlerTask.Result) : null
+                        Result = handlerTask.Result != null ? JObject.FromObject(handlerTask.Result, _serializer.JsonSerializer) : null
                     });
                 }
 

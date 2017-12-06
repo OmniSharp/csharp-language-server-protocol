@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
@@ -47,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
         public Task Invoke(JObject notification) => Handler.Handle(
-            notification != null ? notification.ToObject<TNotification>() : default(TNotification)
+            notification != null ? notification.ToObject<TNotification>(Serializer.Instance.JsonSerializer /* Fix me: this is ugly */) : default(TNotification)
         );
     }
 }

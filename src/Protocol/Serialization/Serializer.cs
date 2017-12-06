@@ -11,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public class Serializer : ISerializer
     {
+        public static Serializer Instance { get; } = new Serializer();
         public Serializer() : this(ClientVersion.Lsp3) { }
         public Serializer(ClientVersion clientVersion)
         {

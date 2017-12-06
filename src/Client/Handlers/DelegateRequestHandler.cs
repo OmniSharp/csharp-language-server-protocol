@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
@@ -52,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public async Task<object> Invoke(JObject request, CancellationToken cancellationToken)
         {
             await Handler(
-                request != null ? request.ToObject<TRequest>() : default(TRequest),
+                request != null ? request.ToObject<TRequest>(Serializer.Instance.JsonSerializer /* Fix me: this is ugly */) : default(TRequest),
                 cancellationToken
             );
 

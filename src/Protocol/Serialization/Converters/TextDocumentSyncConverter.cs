@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
                 return new TextDocumentSync((TextDocumentSyncKind)Convert.ToInt32(reader.Value));
             }
 
-            return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>());
+            return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>(serializer));
         }
 
         public override bool CanRead => true;

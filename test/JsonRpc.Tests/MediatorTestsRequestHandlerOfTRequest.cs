@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,7 +30,7 @@ namespace JsonRpc.Tests
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>();
 
             var collection = new HandlerCollection { executeCommandHandler };
-            IRequestRouter mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

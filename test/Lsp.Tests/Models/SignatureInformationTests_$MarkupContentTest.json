@@ -5,7 +5,7 @@
         {
             "label": "param",
             "documentation": {
-                "kind": 1,
+                "kind": "markdown",
                 "value": "### Value"
             }
         }

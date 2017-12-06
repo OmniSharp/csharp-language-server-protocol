@@ -45,7 +45,7 @@ namespace Lsp.Tests
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
 
             var collection = new HandlerCollection { textDocumentSyncHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
@@ -67,7 +67,7 @@ namespace Lsp.Tests
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
 
             var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2 };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
@@ -94,7 +94,7 @@ namespace Lsp.Tests
                 .Returns(new CommandContainer());
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new DidSaveTextDocumentParams() {
@@ -129,7 +129,7 @@ namespace Lsp.Tests
                 .Returns(new CommandContainer());
 
             var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new DidSaveTextDocumentParams() {

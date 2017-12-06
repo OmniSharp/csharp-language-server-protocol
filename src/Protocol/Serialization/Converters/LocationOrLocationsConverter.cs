@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -25,11 +25,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
-                return new LocationOrLocations(JArray.Load(reader).ToObject<IEnumerable<Location>>());
+                return new LocationOrLocations(JArray.Load(reader).ToObject<IEnumerable<Location>>(serializer));
             }
             else if (reader.TokenType == JsonToken.StartObject)
             {
-                return new LocationOrLocations(JObject.Load(reader).ToObject<Location>());
+                return new LocationOrLocations(JObject.Load(reader).ToObject<Location>(serializer));
             }
 
             return new LocationOrLocations();

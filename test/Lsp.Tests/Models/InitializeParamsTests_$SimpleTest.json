@@ -28,8 +28,10 @@
             },
             "completion": {
                 "completionItem": {
-                    "snippetSupport": true
+                    "snippetSupport": true,
+                    "commitCharactersSupport": false
                 },
+                "contextSupport": false,
                 "dynamicRegistration": true
             },
             "hover": {

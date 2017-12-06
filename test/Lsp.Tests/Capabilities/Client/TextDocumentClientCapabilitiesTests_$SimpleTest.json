@@ -8,18 +8,15 @@
     "completion": {
         "completionItem": {
             "snippetSupport": true,
-            "commitCharactersSupport": false,
-            "documentationFormat": null
+            "commitCharactersSupport": false
         },
         "contextSupport": false,
         "dynamicRegistration": true
     },
     "hover": {
-        "contentFormat": null,
         "dynamicRegistration": true
     },
     "signatureHelp": {
-        "signatureInformation": null,
         "dynamicRegistration": true
     },
     "references": {

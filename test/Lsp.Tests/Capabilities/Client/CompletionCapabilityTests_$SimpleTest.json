@@ -1,8 +1,8 @@
 {
     "completionItem": {
-        "snippetSupport": true,
+        "snippetSupport": false,
         "commitCharactersSupport": false
     },
     "contextSupport": false,
-    "dynamicRegistration": true
+    "dynamicRegistration": false
 }

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -41,7 +41,7 @@ namespace JsonRpc.Tests
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
 
             var collection = new HandlerCollection { codeActionHandler };
-            IRequestRouter mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };

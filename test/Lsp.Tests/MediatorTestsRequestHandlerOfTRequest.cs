@@ -46,7 +46,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { executeCommandHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };

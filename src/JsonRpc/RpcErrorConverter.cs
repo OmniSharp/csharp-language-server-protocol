@@ -17,9 +17,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             var obj = JObject.Load(reader);
 
-            var messageDataType = objectType == typeof(RpcError)
-                ? typeof(object)
-                : objectType.GetTypeInfo().GetGenericArguments()[0];
+            var messageDataType = objectType.GetTypeInfo().IsGenericType
+                ? objectType.GetTypeInfo().GetGenericArguments()[0]
+                : typeof(object);
 
             object requestId = null;
             if (obj.TryGetValue("id", out var id))
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
             if (obj.TryGetValue("error", out var dataToken))
             {
                 var errorMessageType = typeof(ErrorMessage<>).MakeGenericType(messageDataType);
-                data = dataToken.ToObject(errorMessageType);
+                data = dataToken.ToObject(errorMessageType, serializer);
             }
 
             return Activator.CreateInstance(objectType, requestId, data, obj["protocolVersion"].ToString());

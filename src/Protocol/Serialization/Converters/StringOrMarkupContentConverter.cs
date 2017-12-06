@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
 {
-    public class StringOrMarkupContentConverter: JsonConverter
+    public class StringOrMarkupContentConverter : JsonConverter
     {
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
                 var result = JObject.Load(reader);
                 return new StringOrMarkupContent(
                     new MarkupContent() {
-                        Kind = result["kind"]?.Value<MarkupKind>() ?? MarkupKind.Plaintext,
+                        Kind = Enum.TryParse<MarkupKind>(result["kind"]?.Value<string>(), true, out var kind) ? kind : MarkupKind.Plaintext,
                         Value = result["value"]?.Value<string>()
                     }
                 );
