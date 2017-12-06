@@ -4,7 +4,6 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    using static WindowNames;
     public static partial class WindowNames
     {
         public const string TelemetryEvent = "telemetry/event";
@@ -14,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         public static void SendTelemetry(this IResponseRouter mediator, object @params)
         {
-            mediator.SendNotification(TelemetryEvent, @params);
+            mediator.SendNotification(WindowNames.TelemetryEvent, @params);
         }
     }
 }

@@ -11,6 +11,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Handlers;
@@ -153,7 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
 
             _clientVersion = request.Capabilities.GetClientVersion();
-            _serializer.SetClientVersion(_clientVersion.Value);
+            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
             if (_clientVersion == ClientVersion.Lsp3)
             {

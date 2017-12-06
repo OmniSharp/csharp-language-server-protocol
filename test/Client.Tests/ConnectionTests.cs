@@ -224,26 +224,4 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             await Task.WhenAll(clientConnection.HasHasDisconnected, serverConnection.HasHasDisconnected);
         }
     }
-
-    /// <summary>
-    ///     A test request.
-    /// </summary>
-    class TestRequest
-    {
-        /// <summary>
-        ///     A test value for the request.
-        /// </summary>
-        public int Value { get; set; }
-    }
-
-    /// <summary>
-    ///     A test response.
-    /// </summary>
-    class TestResponse
-    {
-        /// <summary>
-        ///     A test value for the response.
-        /// </summary>
-        public string Value { get; set; }
-    }
 }

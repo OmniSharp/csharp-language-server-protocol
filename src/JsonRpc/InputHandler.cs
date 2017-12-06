@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

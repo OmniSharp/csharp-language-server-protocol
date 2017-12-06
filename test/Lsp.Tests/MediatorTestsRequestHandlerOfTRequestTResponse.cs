@@ -22,7 +22,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
-using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serializer;
+using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace Lsp.Tests
 {

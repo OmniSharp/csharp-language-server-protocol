@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

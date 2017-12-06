@@ -5,7 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    using static DocumentNames;
     public static partial class DocumentNames
     {
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";

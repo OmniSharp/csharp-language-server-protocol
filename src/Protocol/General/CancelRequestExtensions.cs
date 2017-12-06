@@ -5,6 +5,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    public static partial class GeneralNames
+    {
+        public const string CancelRequest = "$/cancelRequest";
+    }
+
     public static class CancelRequestExtensions
     {
         public static void CancelRequest(this IResponseRouter mediator, CancelParams @params)

@@ -1,5 +1,5 @@
+using System;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -32,9 +32,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return JsonConvert.SerializeObject(value, Settings);
         }
 
-        public object DeserializeObject(string json)
+        public object DeserializeObject(string json, Type type)
         {
-            return JsonConvert.DeserializeObject(json, Settings);
+            return JsonConvert.DeserializeObject(json, type, Settings);
         }
 
         public T DeserializeObject<T>(string json)

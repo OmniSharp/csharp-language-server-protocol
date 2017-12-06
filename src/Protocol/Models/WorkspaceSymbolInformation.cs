@@ -1,13 +1,8 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    /// <summary>
-    /// Represents information about programming constructs like variables, classes,
-    /// public classs etc.
-    /// </summary>
-    public class SymbolInformation
+    public class WorkspaceSymbolInformation : ISymbolInformation
     {
         /// <summary>
         /// The name of this symbol.

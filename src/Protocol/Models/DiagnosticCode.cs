@@ -1,5 +1,4 @@
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {

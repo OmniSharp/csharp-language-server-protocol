@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(DocumentSymbol)]
-    public interface IDocumentSymbolHandler : IRequestHandler<DocumentSymbolParams, SymbolInformationContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
+    public interface IDocumentSymbolHandler : IRequestHandler<DocumentSymbolParams, DocumentSymbolInformationContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
 }

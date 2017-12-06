@@ -1,16 +1,26 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     public class Serializer : ISerializer
     {
+        private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum.GetValues(typeof(CompletionItemKind))
+            .Cast<CompletionItemKind>()
+            .Where(x => x < CompletionItemKind.Folder)
+            .ToArray();
+
+        private static readonly SymbolKind[] DefaultSymbolKinds = Enum.GetValues(typeof(SymbolKind))
+            .Cast<SymbolKind>()
+            .Where(x => x < SymbolKind.Key)
+            .ToArray();
+
         public static Serializer Instance { get; } = new Serializer();
         public Serializer() : this(ClientVersion.Lsp3) { }
         public Serializer(ClientVersion clientVersion)
@@ -22,7 +32,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static JsonSerializer CreateSerializer(ClientVersion version)
         {
             var serializer = JsonSerializer.CreateDefault();
-            serializer.ContractResolver = new ContractResolver();
+            serializer.ContractResolver = new ContractResolver(
+                DefaultCompletionItemKinds,
+                DefaultSymbolKinds,
+                DefaultSymbolKinds
+            );
             AddOrReplaceConverters(serializer.Converters, version);
 
             return serializer;
@@ -31,7 +45,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static JsonSerializerSettings CreateSerializerSettings(ClientVersion version)
         {
             var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
-            settings.ContractResolver = new ContractResolver();
+            settings.ContractResolver = new ContractResolver(
+                DefaultCompletionItemKinds,
+                DefaultSymbolKinds,
+                DefaultSymbolKinds
+            );
             AddOrReplaceConverters(settings.Converters, version);
 
             return settings;
@@ -72,9 +90,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return JsonConvert.SerializeObject(value, Settings);
         }
 
-        public object DeserializeObject(string json)
+        public object DeserializeObject(string json, Type type)
         {
-            return JsonConvert.DeserializeObject(json, Settings);
+            return JsonConvert.DeserializeObject(json, type, Settings);
         }
 
         public T DeserializeObject<T>(string json)
@@ -82,60 +100,58 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return JsonConvert.DeserializeObject<T>(json, Settings);
         }
 
-        public Serializer SetClientVersion(ClientVersion clientVersion)
+        public Serializer SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
-            AddOrReplaceConverters(Settings.Converters, clientVersion);
-            AddOrReplaceConverters(JsonSerializer.Converters, clientVersion);
-            return this;
-        }
-    }
+            var completionItemKinds = DefaultCompletionItemKinds;
+            var documentSymbolKinds = DefaultSymbolKinds;
+            var workspaceSymbolKinds = DefaultSymbolKinds;
 
-    [AttributeUsage(AttributeTargets.Property)]
-    class OptionalAttribute : Attribute { }
-
-    class ContractResolver : DefaultContractResolver
-    {
-        public ContractResolver()
-        {
-            NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
-        }
-
-        protected override JsonObjectContract CreateObjectContract(Type objectType)
-        {
-            var contract = base.CreateObjectContract(objectType);
-            if (objectType == typeof(WorkspaceClientCapabilites) ||
-                objectType == typeof(TextDocumentClientCapabilities))
+            if (clientCapabilities?.TextDocument?.Completion.IsSupported == true)
             {
-                foreach (var property in contract.Properties)
+                var completion = clientCapabilities.TextDocument.Completion.Value;
+                var valueSet = completion?.CompletionItemKind?.ValueSet;
+                if (valueSet != null && valueSet.Any())
                 {
-                    var isSupportedGetter = property.PropertyType.GetTypeInfo()
-                        .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
-                    property.NullValueHandling = NullValueHandling.Ignore;
-                    property.GetIsSpecified = o => {
-                        var propertyValue = property.ValueProvider.GetValue(o);
-                        if (propertyValue == null) return false;
-                        return isSupportedGetter.GetValue(propertyValue) as bool? == true;
-                    };
+                    completionItemKinds = valueSet.ToArray();
                 }
             }
-            return contract;
-        }
 
-        protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
-        {
-            var property = base.CreateProperty(member, memberSerialization);
-            //if (property.DeclaringType.Name.EndsWith("Capability")) return property;
-            // if (property.PropertyType.GetTypeInfo().IsGenericType)
-            if (
-               member.GetCustomAttributes<OptionalAttribute>().Any()
-            || property.DeclaringType.Name.EndsWith("Capabilities")
-            )
+            if (clientCapabilities?.TextDocument?.DocumentSymbol.IsSupported == true)
             {
-                property.NullValueHandling = NullValueHandling.Ignore;
-                // property.DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate;
+                var symbol = clientCapabilities.TextDocument.DocumentSymbol.Value;
+                var valueSet = symbol?.SymbolKind?.ValueSet;
+                if (valueSet != null && valueSet.Any())
+                {
+                    documentSymbolKinds = valueSet.ToArray();
+                }
             }
 
-            return property;
+            if (clientCapabilities?.Workspace?.Symbol.IsSupported == true)
+            {
+                var symbol = clientCapabilities.Workspace.Symbol.Value;
+                var valueSet = symbol?.SymbolKind?.ValueSet;
+                if (valueSet != null && valueSet.Any())
+                {
+                    workspaceSymbolKinds = valueSet.ToArray();
+                }
+            }
+
+
+            AddOrReplaceConverters(Settings.Converters, clientVersion);
+            Settings.ContractResolver = new ContractResolver(
+                completionItemKinds,
+                documentSymbolKinds,
+                workspaceSymbolKinds
+            );
+
+            AddOrReplaceConverters(JsonSerializer.Converters, clientVersion);
+            JsonSerializer.ContractResolver = new ContractResolver(
+                completionItemKinds,
+                documentSymbolKinds,
+                workspaceSymbolKinds
+            );
+
+            return this;
         }
     }
 }

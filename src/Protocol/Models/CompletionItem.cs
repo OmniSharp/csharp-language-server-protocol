@@ -1,5 +1,7 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -101,6 +103,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// a completion and a completion resolve request.
         /// </summary>
         [Optional]
-        public object Data { get; set; }
+        public JToken Data { get; set; }
     }
 }
