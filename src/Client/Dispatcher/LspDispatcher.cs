@@ -4,6 +4,7 @@ using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
@@ -21,9 +22,21 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// <summary>
         ///     Create a new <see cref="LspDispatcher"/>.
         /// </summary>
-        public LspDispatcher()
+        /// <param name="serializer">
+        ///     The JSON serialiser for notification / request / response payloads.
+        /// </param>
+        public LspDispatcher(ISerializer serializer)
         {
+            if (serializer == null)
+                throw new ArgumentNullException(nameof(serializer));
+
+            Serializer = serializer;
         }
+
+        /// <summary>
+        ///     The JSON serialiser to use for notification / request / response payloads.
+        /// </summary>
+        public ISerializer Serializer { get; set; }
 
         /// <summary>
         ///     Register a handler invoker.
@@ -92,7 +105,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeNotificationHandler notificationHandler)
             {
-                await notificationHandler.Invoke(notification);
+                object notificationPayload = DeserializePayload(notificationHandler.BodyType, notification);
+
+                await notificationHandler.Invoke(notificationPayload);
 
                 return true;
             }
@@ -121,9 +136,36 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeRequestHandler requestHandler)
-                return requestHandler.Invoke(request, cancellationToken);
+            {
+                object requestPayload = DeserializePayload(requestHandler.BodyType, request);
+
+                return requestHandler.Invoke(requestPayload, cancellationToken);
+            }
 
             return null;
+        }
+
+        /// <summary>
+        ///     Deserialise a notification / request payload from JSON.
+        /// </summary>
+        /// <param name="payloadType">
+        ///     The payload's CLR type.
+        /// </param>
+        /// <param name="payload">
+        ///     JSON representing the payload.
+        /// </param>
+        /// <returns>
+        ///     The deserialised payload (if one is present and expected).
+        /// </returns>
+        object DeserializePayload(Type payloadType, JObject payload)
+        {
+            if (payloadType == null)
+                throw new ArgumentNullException(nameof(payloadType));
+
+            if (payloadType == null || payload == null)
+                return null;
+
+            return payload.ToObject(payloadType, Serializer.JsonSerializer);
         }
     }
 }
