@@ -43,9 +43,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public RequestHandler<TRequest, TResponse> Handler { get; }
 
         /// <summary>
-        ///     The expected CLR type of the request body.
+        ///     The expected CLR type of the request payload.
         /// </summary>
-        public override Type BodyType => typeof(TRequest);
+        public override Type PayloadType => typeof(TRequest);
 
         /// <summary>
         ///     Invoke the handler.

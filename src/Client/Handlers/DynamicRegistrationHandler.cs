@@ -33,9 +33,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public string Method => "client/registerCapability";
 
         /// <summary>
-        ///     The expected CLR type of the request / notification body (if any; <c>null</c> if the handler does not use the request body).
+        ///     The expected CLR type of the request / notification payload (if any; <c>null</c> if the handler does not use the request payload).
         /// </summary>
-        public Type BodyType => null;
+        public Type PayloadType => null;
 
         /// <summary>
         ///     Invoke the handler.

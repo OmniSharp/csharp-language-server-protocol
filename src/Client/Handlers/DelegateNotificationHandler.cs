@@ -39,9 +39,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public NotificationHandler<TNotification> Handler { get; }
 
         /// <summary>
-        ///     The expected CLR type of the notification body.
+        ///     The expected CLR type of the notification payload.
         /// </summary>
-        public override Type BodyType => typeof(TNotification);
+        public override Type PayloadType => typeof(TNotification);
 
         /// <summary>
         ///     Invoke the handler.

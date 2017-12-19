@@ -13,8 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         string Method { get; }
 
         /// <summary>
-        ///     The expected CLR type of the request / notification body (if any; <c>null</c> if the handler does not use the request body).
+        ///     The expected CLR type of the request / notification payload (if any; <c>null</c> if the handler does not use the request body).
         /// </summary>
-        Type BodyType { get; }
+        Type PayloadType { get; }
     }
 }

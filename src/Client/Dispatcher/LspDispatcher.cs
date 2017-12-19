@@ -105,7 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeNotificationHandler notificationHandler)
             {
-                object notificationPayload = DeserializePayload(notificationHandler.BodyType, notification);
+                object notificationPayload = DeserializePayload(notificationHandler.PayloadType, notification);
 
                 await notificationHandler.Invoke(notificationPayload);
 
@@ -137,7 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
 
             if (_handlers.TryGetValue(method, out IHandler handler) && handler is IInvokeRequestHandler requestHandler)
             {
-                object requestPayload = DeserializePayload(requestHandler.BodyType, request);
+                object requestPayload = DeserializePayload(requestHandler.PayloadType, request);
 
                 return requestHandler.Invoke(requestPayload, cancellationToken);
             }
