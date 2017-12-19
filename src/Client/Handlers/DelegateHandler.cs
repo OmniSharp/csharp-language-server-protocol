@@ -26,5 +26,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         ///     The name of the method handled by the handler.
         /// </summary>
         public string Method { get; }
+
+        /// <summary>
+        ///     The expected CLR type of the request / notification body (if any; <c>null</c> if the handler does not use the request body).
+        /// </summary>
+        public abstract Type BodyType { get; }
     }
 }

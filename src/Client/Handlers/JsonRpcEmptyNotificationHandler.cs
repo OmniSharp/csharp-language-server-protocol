@@ -34,6 +34,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public INotificationHandler Handler { get; }
 
         /// <summary>
+        ///     The expected CLR type of the notification body (<c>null</c>, since the handler does not use the request body).
+        /// </summary>
+        public override Type BodyType => null;
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <returns>

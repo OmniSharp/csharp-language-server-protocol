@@ -22,6 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task{TResult}"/> representing the operation.
         /// </returns>
-        Task<object> Invoke(JObject request, CancellationToken cancellationToken);
+        Task<object> Invoke(object request, CancellationToken cancellationToken);
     }
 }

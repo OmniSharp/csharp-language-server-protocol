@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
@@ -32,6 +33,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public string Method => "client/registerCapability";
 
         /// <summary>
+        ///     The expected CLR type of the request / notification body (if any; <c>null</c> if the handler does not use the request body).
+        /// </summary>
+        public Type BodyType => null;
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <param name="request">
@@ -43,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task{TResult}"/> representing the operation.
         /// </returns>
-        public Task<object> Invoke(JObject request, CancellationToken cancellationToken)
+        public Task<object> Invoke(object request, CancellationToken cancellationToken)
         {
             // For now, we don't really support dynamic registration but OmniSharp's implementation sends a request even when dynamic registrations are not supported.
 
