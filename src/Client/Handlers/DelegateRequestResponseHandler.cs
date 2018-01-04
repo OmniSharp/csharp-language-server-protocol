@@ -43,6 +43,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public RequestHandler<TRequest, TResponse> Handler { get; }
 
         /// <summary>
+        ///     The expected CLR type of the request payload.
+        /// </summary>
+        public override Type PayloadType => typeof(TRequest);
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <param name="request">
@@ -54,10 +59,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task{TResult}"/> representing the operation.
         /// </returns>
-        public async Task<object> Invoke(JObject request, CancellationToken cancellationToken)
+        public async Task<object> Invoke(object request, CancellationToken cancellationToken)
         {
             return await Handler(
-                request != null ? request.ToObject<TRequest>(Serializer.Instance.JsonSerializer /* Fix me: this is ugly */) : default(TRequest),
+                (TRequest)request,
                 cancellationToken
             );
         }

@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Clients;
 using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
@@ -10,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Client.Processes;
 using OmniSharp.Extensions.LanguageServer.Client.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
@@ -24,9 +26,17 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         : IDisposable
     {
         /// <summary>
+        ///     The serialiser for notification / request / response bodies.
+        /// </summary>
+        /// <remarks>
+        ///     TODO: Make this injectable. And what does client version do - do we have to negotiate this?
+        /// </remarks>
+        readonly ISerializer _serializer = new Serializer(ClientVersion.Lsp3);
+
+        /// <summary>
         ///     The dispatcher for incoming requests, notifications, and responses.
         /// </summary>
-        readonly LspDispatcher _dispatcher = new LspDispatcher();
+        readonly LspDispatcher _dispatcher;
 
         /// <summary>
         ///     The handler for dynamic registration of server capabilities.
@@ -101,6 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             Window = new WindowClient(this);
             TextDocument = new TextDocumentClient(this);
 
+            _dispatcher = new LspDispatcher(_serializer);
             _dispatcher.RegisterHandler(_dynamicRegistrationHandler);
         }
 

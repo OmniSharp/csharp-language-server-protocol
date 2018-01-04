@@ -33,6 +33,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public NotificationHandler Handler { get; }
 
         /// <summary>
+        ///     The expected CLR type of the notification payload (<c>null</c>, since the handler does not use the request payload).
+        /// </summary>
+        public override Type PayloadType => null;
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <returns>

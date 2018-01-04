@@ -13,6 +13,8 @@ using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -46,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     The server-side dispatcher.
         /// </summary>
-        LspDispatcher ServerDispatcher { get; } = new LspDispatcher();
+        LspDispatcher ServerDispatcher { get; } = new LspDispatcher(new Serializer(ClientVersion.Lsp3));
 
         /// <summary>
         ///     The server-side connection.

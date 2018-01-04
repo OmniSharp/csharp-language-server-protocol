@@ -18,6 +18,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
-        Task Invoke(JObject notification);
+        Task Invoke(object notification);
     }
 }

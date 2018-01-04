@@ -126,8 +126,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// </summary>
         Task _dispatchLoop;
 
-        private readonly Serializer _serializer;
-
         /// <summary>
         ///     Create a new <see cref="LspConnection"/>.
         /// </summary>
@@ -160,8 +158,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             Log = loggerFactory.CreateLogger<LspConnection>();
             _input = input;
             _output = output;
-            // What does client version do? Do we have to negotaite this?
-            _serializer = new Serializer(ClientVersion.Lsp3);
+
+            // What does client version do? Do we have to negotiate this?
+            // The connection may change its Serializer instance once connected; this can be propagated to other components as required.
+            Serializer = new Serializer(ClientVersion.Lsp3);
         }
 
         /// <summary>
@@ -188,6 +188,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         ///     The connection's logger.
         /// </summary>
         ILogger Log { get; }
+
+        /// <summary>
+        ///     The JSON serializer used for notification, request, and response payloads.
+        /// </summary>
+        public Serializer Serializer { get; }
 
         /// <summary>
         ///     Is the connection open?
@@ -238,6 +243,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             _cancellation = _cancellationSource.Token;
 
             _dispatcher = dispatcher;
+            _dispatcher.Serializer = Serializer;
             _sendLoop = SendLoop();
             _receiveLoop = ReceiveLoop();
             _dispatchLoop = DispatchLoop();
@@ -337,7 +343,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 // No Id means it's a notification.
                 Method = method,
-                Params = JObject.FromObject(notification, _serializer.JsonSerializer)
+                Params = JObject.FromObject(notification, Serializer.JsonSerializer)
             });
         }
 
@@ -395,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request, _serializer.JsonSerializer) : null
+                Params = request != null ? JObject.FromObject(request, Serializer.JsonSerializer) : null
             });
 
             await responseCompletion.Task;
@@ -458,13 +464,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request, _serializer.JsonSerializer) : null
+                Params = request != null ? JObject.FromObject(request, Serializer.JsonSerializer) : null
             });
 
             ServerMessage response = await responseCompletion.Task;
 
             if (response.Result != null)
-                return response.Result.ToObject<TResponse>(_serializer.JsonSerializer);
+                return response.Result.ToObject<TResponse>(Serializer.JsonSerializer);
             else
                 return default(TResponse);
         }
@@ -660,7 +666,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (message == null)
                 throw new ArgumentNullException(nameof(message));
 
-            string payload = JsonConvert.SerializeObject(message, _serializer.Settings);
+            string payload = JsonConvert.SerializeObject(message, Serializer.Settings);
             byte[] payloadBuffer = PayloadEncoding.GetBytes(payload);
 
             byte[] headerBuffer = HeaderEncoding.GetBytes(
@@ -760,7 +766,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             Log.LogDebug("Received entire payload ({ReceivedByteCount} bytes).", received);
 
             string responseBody = PayloadEncoding.GetString(requestBuffer);
-            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody, _serializer.Settings);
+            ServerMessage message = JsonConvert.DeserializeObject<ServerMessage>(responseBody, Serializer.Settings);
 
             Log.LogDebug("Read response body {ResponseBody}.", responseBody);
 
@@ -893,7 +899,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     {
                         Id = requestMessage.Id,
                         Method = requestMessage.Method,
-                        Result = handlerTask.Result != null ? JObject.FromObject(handlerTask.Result, _serializer.JsonSerializer) : null
+                        Result = handlerTask.Result != null ? JObject.FromObject(handlerTask.Result, Serializer.JsonSerializer) : null
                     });
                 }
 

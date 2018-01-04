@@ -39,6 +39,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public NotificationHandler<TNotification> Handler { get; }
 
         /// <summary>
+        ///     The expected CLR type of the notification payload.
+        /// </summary>
+        public override Type PayloadType => typeof(TNotification);
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <param name="notification">
@@ -47,12 +52,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
-        public async Task Invoke(JObject notification)
+        public async Task Invoke(object notification)
         {
             await Task.Yield();
 
             Handler(
-                notification != null ? notification.ToObject<TNotification>(Serializer.Instance.JsonSerializer /* Fix me: this is ugly */) : default(TNotification)
+                (TNotification)notification
             );
         }
     }
