@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The response message, if the message represents a response.
         /// </summary>
-        [Optional]
-        public JObject Result { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore)]
+        public JToken Result { get; set; }
     }
 }
