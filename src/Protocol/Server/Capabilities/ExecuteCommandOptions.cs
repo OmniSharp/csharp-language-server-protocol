@@ -9,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     ///  Execute command options.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ExecuteCommandOptions : IExecuteCommandOptions
     {
         /// <summary>

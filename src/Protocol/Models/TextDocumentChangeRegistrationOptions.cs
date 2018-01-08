@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     ///  Descibe options to be used when registered for text document change events.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class TextDocumentChangeRegistrationOptions : TextDocumentRegistrationOptions
     {
         /// <summary>

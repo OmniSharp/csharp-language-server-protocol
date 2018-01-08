@@ -4,6 +4,8 @@ using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Protocol;
 using Xunit;
 using Xunit.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -35,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var serverDispatcher = new LspDispatcher();
+            var serverDispatcher = CreateDispatcher();
             serverDispatcher.HandleEmptyNotification("test", () =>
             {
                 Log.LogInformation("Got notification.");
@@ -44,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             serverConnection.Connect(serverDispatcher);
 
-            clientConnection.Connect(new LspDispatcher());
+            clientConnection.Connect(CreateDispatcher());
             clientConnection.SendEmptyNotification("test");
 
             await testCompletion.Task;
@@ -66,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var clientDispatcher = new LspDispatcher();
+            var clientDispatcher = CreateDispatcher();
             clientDispatcher.HandleEmptyNotification("test", () =>
             {
                 Log.LogInformation("Got notification.");
@@ -75,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             clientConnection.Connect(clientDispatcher);
 
-            serverConnection.Connect(new LspDispatcher());
+            serverConnection.Connect(CreateDispatcher());
             serverConnection.SendEmptyNotification("test");
 
             await testCompletion.Task;
@@ -95,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var clientDispatcher = new LspDispatcher();
+            var clientDispatcher = CreateDispatcher();
             clientDispatcher.HandleRequest<TestRequest, TestResponse>("test", (request, cancellationToken) =>
             {
                 Log.LogInformation("Got request: {@Request}", request);
@@ -107,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             clientConnection.Connect(clientDispatcher);
 
-            serverConnection.Connect(new LspDispatcher());
+            serverConnection.Connect(CreateDispatcher());
             TestResponse response = await serverConnection.SendRequest<TestResponse>("test", new TestRequest
             {
                 Value = 1234
@@ -132,7 +134,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var serverDispatcher = new LspDispatcher();
+            var serverDispatcher = CreateDispatcher();
             serverDispatcher.HandleRequest<TestRequest, TestResponse>("test", (request, cancellationToken) =>
             {
                 Log.LogInformation("Got request: {@Request}", request);
@@ -144,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             serverConnection.Connect(serverDispatcher);
 
-            clientConnection.Connect(new LspDispatcher());
+            clientConnection.Connect(CreateDispatcher());
             TestResponse response = await clientConnection.SendRequest<TestResponse>("test", new TestRequest
             {
                 Value = 1234
@@ -169,7 +171,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var clientDispatcher = new LspDispatcher();
+            var clientDispatcher = CreateDispatcher();
             clientDispatcher.HandleRequest<TestRequest>("test", (request, cancellationToken) =>
             {
                 Log.LogInformation("Got request: {@Request}", request);
@@ -180,7 +182,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             clientConnection.Connect(clientDispatcher);
 
-            serverConnection.Connect(new LspDispatcher());
+            serverConnection.Connect(CreateDispatcher());
             await serverConnection.SendRequest("test", new TestRequest
             {
                 Value = 1234
@@ -201,7 +203,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LspConnection clientConnection = await CreateClientConnection();
             LspConnection serverConnection = await CreateServerConnection();
 
-            var serverDispatcher = new LspDispatcher();
+            var serverDispatcher = CreateDispatcher();
             serverDispatcher.HandleRequest<TestRequest>("test", (request, cancellationToken) =>
             {
                 Log.LogInformation("Got request: {@Request}", request);
@@ -212,7 +214,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             });
             serverConnection.Connect(serverDispatcher);
 
-            clientConnection.Connect(new LspDispatcher());
+            clientConnection.Connect(CreateDispatcher());
             await clientConnection.SendRequest("test", new TestRequest
             {
                 Value = 1234
@@ -223,27 +225,13 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             await Task.WhenAll(clientConnection.HasHasDisconnected, serverConnection.HasHasDisconnected);
         }
-    }
 
-    /// <summary>
-    ///     A test request.
-    /// </summary>
-    class TestRequest
-    {
         /// <summary>
-        ///     A test value for the request.
+        ///     Create an <see cref="LspDispatcher"/> for use in tests.
         /// </summary>
-        public int Value { get; set; }
-    }
-
-    /// <summary>
-    ///     A test response.
-    /// </summary>
-    class TestResponse
-    {
-        /// <summary>
-        ///     A test value for the response.
-        /// </summary>
-        public string Value { get; set; }
+        /// <returns>
+        ///     The <see cref="LspDispatcher"/>.
+        /// </returns>
+        LspDispatcher CreateDispatcher() => new LspDispatcher(new Serializer(ClientVersion.Lsp3));
     }
 }

@@ -13,6 +13,8 @@ using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
@@ -46,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     The server-side dispatcher.
         /// </summary>
-        LspDispatcher ServerDispatcher { get; } = new LspDispatcher();
+        LspDispatcher ServerDispatcher { get; } = new LspDispatcher(new Serializer(ClientVersion.Lsp3));
 
         /// <summary>
         ///     The server-side connection.
@@ -63,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             const int line = 5;
             const int column = 5;
-            var expectedHoverContent = new MarkedStringContainer("123", "456", "789");
+            var expectedHoverContent = new MarkedStringsOrMarkupContent("123", "456", "789");
 
             ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) =>
             {
@@ -100,8 +102,10 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             Assert.Equal(column, hover.Range.End.Character);
 
             Assert.NotNull(hover.Contents);
-            Assert.Equal(expectedHoverContent.Select(markedString => markedString.Value),
-                hover.Contents.Select(
+            Assert.True(expectedHoverContent.HasMarkedStrings);
+            Assert.Equal(expectedHoverContent.MarkedStrings
+                .Select(markedString => markedString.Value),
+                hover.Contents.MarkedStrings.Select(
                     markedString => markedString.Value
                 )
             );

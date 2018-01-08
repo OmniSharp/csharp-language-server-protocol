@@ -1,3 +1,6 @@
+using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class CompletionCapability : DynamicCapability, ConnectedCapability<ICompletionHandler>
@@ -6,6 +9,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The client supports the following `CompletionItem` specific
         /// capabilities.
         /// </summary>
+        [Optional]
         public CompletionItemCapability CompletionItem { get; set; }
+
+        /// <summary>
+        /// Specific capabilities for the `CompletionItemKind` in the `textDocument/completion` request.
+        /// </summary>
+        [Optional]
+        public CompletionItemKindCapability CompletionItemKind { get; set; }
+
+        /// <summary>
+        ///  The client supports to send additional context information for a `textDocument/completion` request.
+        /// </summary>
+        [Optional]
+        public bool ContextSupport { get; set; }
     }
 }

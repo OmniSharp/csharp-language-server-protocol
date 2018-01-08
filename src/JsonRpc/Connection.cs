@@ -16,7 +16,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
             IResponseRouter responseRouter,
-            ILoggerFactory loggerFactory)
+            ILoggerFactory loggerFactory,
+            ISerializer serializer)
         {
             _requestRouter = requestRouter;
 
@@ -27,7 +28,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 requestProcessIdentifier,
                 requestRouter,
                 responseRouter,
-                loggerFactory
+                loggerFactory,
+                serializer
             );
         }
 

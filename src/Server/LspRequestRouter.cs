@@ -10,6 +10,7 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
@@ -19,15 +20,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<IHandlerMatcher> _routeMatchers;
+        private readonly ISerializer _serializer;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ILogger<LspRequestRouter> _logger;
 
         public LspRequestRouter(IHandlerCollection collection,
             ILoggerFactory loggerFactory,
-            IHandlerMatcherCollection routeMatchers)
+            IHandlerMatcherCollection routeMatchers,
+            ISerializer serializer)
         {
             _collection = collection;
             _routeMatchers = routeMatchers;
+            _serializer = serializer;
             _logger = loggerFactory.CreateLogger<LspRequestRouter>();
         }
 
@@ -63,7 +67,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (@params == null || descriptor.Params == null) return descriptor;
 
-            var paramsValue = @params.ToObject(descriptor.Params);
+            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
@@ -81,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    var @params = notification.Params.ToObject(handler.Params);
+                    var @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
                     result = ReflectionRequestHandlers.HandleNotification(handler, @params);
                 }
 
@@ -117,7 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     object @params;
                     try
                     {
-                        @params = request.Params.ToObject(descriptor.Params);
+                        @params = request.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
                     }
                     catch
                     {

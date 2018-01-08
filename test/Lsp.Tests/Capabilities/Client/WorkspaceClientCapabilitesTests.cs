@@ -1,7 +1,9 @@
 using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Client
@@ -24,7 +26,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<WorkspaceClientCapabilites>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilites>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
 
@@ -37,7 +39,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<WorkspaceClientCapabilites>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilites>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

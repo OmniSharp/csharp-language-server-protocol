@@ -1,5 +1,5 @@
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -16,7 +16,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// Note that markdown strings will be sanitized - that means html will be escaped.
     /// </summary>
-    [JsonConverter(typeof(MarkedStringConverter))]
     public class MarkedString
     {
         public MarkedString(string value)
@@ -29,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             Language = language;
         }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string Language { get; }
 
         public string Value { get; }

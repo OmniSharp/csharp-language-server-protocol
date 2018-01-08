@@ -26,6 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private Thread _inputThread;
         private readonly IRequestRouter _requestRouter;
         private readonly IResponseRouter _responseRouter;
+        private readonly ISerializer _serializer;
         private readonly ILogger<InputHandler> _logger;
         private readonly IScheduler _scheduler;
 
@@ -36,7 +37,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter requestRouter,
             IResponseRouter responseRouter,
-            ILoggerFactory loggerFactory
+            ILoggerFactory loggerFactory,
+            ISerializer serializer
             )
         {
             if (!input.CanRead) throw new ArgumentException($"must provide a readable stream for {nameof(input)}", nameof(input));
@@ -46,6 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
+            _serializer = serializer;
             _logger = loggerFactory.CreateLogger<InputHandler>();
             _scheduler = new ProcessScheduler(loggerFactory);
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
@@ -155,7 +158,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                     else if (response is ServerError serverError)
                     {
-                        tcs.SetException(new Exception(JsonConvert.SerializeObject(serverError.Error)));
+                        tcs.SetException(new Exception(_serializer.SerializeObject(serverError.Error)));
                     }
                 }
 

@@ -5,7 +5,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonArray(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public abstract class ContainerBase<T> : IEnumerable<T>
     {
         private readonly IEnumerable<T> _items;

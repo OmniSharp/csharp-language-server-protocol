@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 namespace OmniSharp.Extensions.JsonRpc
 {
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy)), JsonConverter(typeof(RpcErrorConverter))]
+    [JsonConverter(typeof(RpcErrorConverter))]
     public class RpcError<T>
     {
         public RpcError(object id, ErrorMessage<T> message) : this(id, message, "2.0")

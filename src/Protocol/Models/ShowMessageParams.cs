@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     ///  The show message notification is sent from a server to a client to ask the client to display a particular message in the user interface.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ShowMessageParams
     {
         /// <summary>

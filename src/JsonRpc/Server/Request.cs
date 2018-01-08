@@ -4,7 +4,6 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Request : IMethodWithParams
     {
         internal Request(object id, string method, JToken @params) : this(id, method, @params, "2.0") { }

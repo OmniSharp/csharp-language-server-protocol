@@ -6,40 +6,15 @@ using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
-using static OmniSharp.Extensions.LanguageServer.Server.ClientCapabilityProvider;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 
 namespace Lsp.Tests
 {
-    internal class ClientCapabilityProviderFixture
-    {
-        private IExecuteCommandHandler handler;
-
-        public ClientCapabilityProvider Provider { get; set; }
-
-        public ClientCapabilityProviderFixture()
-        {
-            handler = Substitute.For<IExecuteCommandHandler>();
-            handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
-
-            var handlerCollection = new HandlerCollection { handler };
-            var capabilityProvider = new ClientCapabilityProvider(handlerCollection);
-
-            Provider = capabilityProvider;
-        }
-
-        public IOptionsGetter GetStaticOptions()
-        {
-            return Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
-        }
-    }
-
     public class ClientCapabilityProviderTests
     {
         private static readonly Type[] Capabilities = {

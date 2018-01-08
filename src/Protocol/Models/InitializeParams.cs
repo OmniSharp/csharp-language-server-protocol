@@ -2,10 +2,10 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class InitializeParams
     {
         /// <summary>
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @deprecated in favour of rootUri.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string RootPath
         {
             get { return RootUri?.AbsolutePath; }
@@ -48,8 +48,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public InitializeTrace Trace { get; set; } = InitializeTrace.off;
+        [Optional]
+        public InitializeTrace Trace { get; set; } = InitializeTrace.Off;
     }
 
 

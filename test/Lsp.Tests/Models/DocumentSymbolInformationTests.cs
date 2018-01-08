@@ -1,17 +1,20 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Models
 {
-    public class SymbolInformationTests
+    public class DocumentSymbolInformationTests
     {
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SymbolInformation() {
+            var model = new DocumentSymbolInformation() {
                 ContainerName = "abc",
                 Kind = SymbolKind.Boolean,
                 Location = new Location() {
@@ -24,7 +27,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<SymbolInformation>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DocumentSymbolInformation>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -11,10 +11,12 @@ namespace OmniSharp.Extensions.JsonRpc
     class RequestRouter : IRequestRouter
     {
         private readonly HandlerCollection _collection;
+        private readonly ISerializer _serializer;
 
-        public RequestRouter(HandlerCollection collection)
+        public RequestRouter(HandlerCollection collection, ISerializer serializer)
         {
             _collection = collection;
+            _serializer = serializer;
         }
 
         public IDisposable Add(IJsonRpcHandler handler)
@@ -36,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
             else
             {
-                var @params = notification.Params.ToObject(handler.Params);
+                var @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
                 result = ReflectionRequestHandlers.HandleNotification(handler, @params);
             }
             await result.ConfigureAwait(false);
@@ -64,7 +66,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 object @params;
                 try
                 {
-                    @params = request.Params.ToObject(handler.Params);
+                    @params = request.Params.ToObject(handler.Params, _serializer.JsonSerializer);
                 }
                 catch
                 {

@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -16,7 +19,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be("null");
 
-            var deresult = JsonConvert.DeserializeObject<BooleanNumberString>("null");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("null");
             deresult.ShouldBeEquivalentTo(model);
         }
 
@@ -28,7 +31,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be("1");
 
-            var deresult = JsonConvert.DeserializeObject<BooleanNumberString>("1");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("1");
             deresult.ShouldBeEquivalentTo(model);
         }
 
@@ -40,7 +43,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be("true");
 
-            var deresult = JsonConvert.DeserializeObject<BooleanNumberString>("true");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("true");
             deresult.ShouldBeEquivalentTo(model);
         }
 
@@ -52,7 +55,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be("\"abc\"");
 
-            var deresult = JsonConvert.DeserializeObject<BooleanNumberString>("\"abc\"");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("\"abc\"");
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -1,13 +1,14 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
     /// <summary>
     ///     A JSON-RPC error message.
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ErrorMessage
     {
         /// <summary>
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     Optional data associated with the message.
         /// </summary>
-        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate)]
+        [Optional]
         public JToken Data { get; set; }
     }
 }

@@ -3,7 +3,7 @@ using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class SupportsConverter : JsonConverter
     {
@@ -62,6 +62,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Converters
 
         public override bool CanRead => true;
 
-        public override bool CanConvert(Type objectType) => objectType.GetGenericTypeDefinition() == typeof(Supports<>);
+        public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Supports<>);
     }
 }

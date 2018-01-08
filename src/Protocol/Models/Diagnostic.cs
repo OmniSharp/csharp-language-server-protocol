@@ -1,10 +1,10 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Diagnostic
     {
         /// <summary>
@@ -16,20 +16,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The diagnostic's severity. Can be omitted. If omitted it is up to the
         /// client to interpret diagnostics as error, warning, info or hint.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public DiagnosticSeverity? Severity { get; set; }
 
         /// <summary>
         /// The diagnostic's code. Can be omitted.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public DiagnosticCode Code { get; set; }
 
         /// <summary>
         /// A human-readable string describing the source of this
         /// diagnostic, e.g. 'typescript' or 'super lint'.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string Source { get; set; }
 
         /// <summary>

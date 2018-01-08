@@ -1,7 +1,8 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
@@ -38,6 +39,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         public INotificationHandler<TNotification> Handler { get; }
 
         /// <summary>
+        ///     The expected CLR type of the notification payload.
+        /// </summary>
+        public override Type PayloadType => typeof(TNotification);
+
+        /// <summary>
         ///     Invoke the handler.
         /// </summary>
         /// <param name="notification">
@@ -46,8 +52,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
-        public Task Invoke(JObject notification) => Handler.Handle(
-            notification != null ? notification.ToObject<TNotification>() : default(TNotification)
+        public Task Invoke(object notification) => Handler.Handle(
+            (TNotification)notification
         );
     }
 }

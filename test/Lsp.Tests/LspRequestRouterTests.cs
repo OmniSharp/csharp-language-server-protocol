@@ -11,7 +11,9 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using Xunit;
@@ -44,13 +46,13 @@ namespace Lsp.Tests
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
 
             var collection = new HandlerCollection { textDocumentSyncHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
@@ -66,13 +68,13 @@ namespace Lsp.Tests
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
 
             var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2 };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request);
 
@@ -93,14 +95,14 @@ namespace Lsp.Tests
                 .Returns(new CommandContainer());
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
@@ -128,14 +130,14 @@ namespace Lsp.Tests
                 .Returns(new CommandContainer());
 
             var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new DidSaveTextDocumentParams() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 

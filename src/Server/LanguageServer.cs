@@ -11,6 +11,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Handlers;
@@ -30,31 +31,43 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IResponseRouter _responseRouter;
         private readonly LspReciever _reciever;
         private readonly ILoggerFactory _loggerFactory;
+        private readonly Serializer _serializer;
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly HandlerMatcherCollection _handlerMactherCollection;
 
-        public LanguageServer(Stream input, Stream output, ILoggerFactory loggerFactory)
-            : this(input, new OutputHandler(output), new LspReciever(), new RequestProcessIdentifier(), loggerFactory)
+        public LanguageServer(
+            Stream input,
+            Stream output,
+            ILoggerFactory loggerFactory)
+            : this(input, output, new LspReciever(), new RequestProcessIdentifier(), loggerFactory, new Serializer())
         {
         }
 
-        internal LanguageServer(Stream input, IOutputHandler output, LspReciever reciever, IRequestProcessIdentifier requestProcessIdentifier, ILoggerFactory loggerFactory)
+        internal LanguageServer(
+            Stream input,
+            Stream output,
+            LspReciever reciever,
+            IRequestProcessIdentifier requestProcessIdentifier,
+            ILoggerFactory loggerFactory,
+            Serializer serializer)
         {
+            var outputHandler = new OutputHandler(output, serializer);
             // TODO: This might not be the best
             loggerFactory.AddProvider(new LanguageServerLoggerProvider(this));
 
             _reciever = reciever;
             _loggerFactory = loggerFactory;
+            _serializer = serializer;
             _handlerMactherCollection = new HandlerMatcherCollection
             {
                 new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>()),
                 new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>())
             };
 
-            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection);
-            _responseRouter = new ResponseRouter(output);
-            _connection = new Connection(input, output, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory);
+            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection, _serializer);
+            _responseRouter = new ResponseRouter(outputHandler, _serializer);
+            _connection = new Connection(input, outputHandler, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory, serializer);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
@@ -141,6 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
 
             _clientVersion = request.Capabilities.GetClientVersion();
+            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
             if (_clientVersion == ClientVersion.Lsp3)
             {

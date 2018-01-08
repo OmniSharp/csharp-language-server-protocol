@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -13,6 +16,7 @@ namespace Lsp.Tests.Models
         {
             var model = new CompletionItem()
             {
+                Kind = CompletionItemKind.Text,
                 CommitCharacters = new[] { ";", "/", "." },
                 AdditionalTextEdits = new[] {
                     new TextEdit() {
@@ -24,7 +28,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<CompletionItem>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItem>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

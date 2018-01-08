@@ -1,14 +1,8 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    /// <summary>
-    /// Represents information about programming constructs like variables, classes,
-    /// public classs etc.
-    /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
-    public class SymbolInformation
+    public class WorkspaceSymbolInformation : ISymbolInformation
     {
         /// <summary>
         /// The name of this symbol.
@@ -28,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the symbol containing this symbol.
         /// </summary>
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        [Optional]
         public string ContainerName { get; set; }
     }
 }

@@ -15,7 +15,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
         }
     }
 
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ErrorMessage<T> : IErrorMessage
     {
         [JsonConstructor]

@@ -17,10 +17,12 @@ using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace Lsp.Tests
 {
@@ -51,7 +53,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection);
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {
@@ -62,7 +64,7 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
+            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
             var response = ((IRequestRouter)mediator).RouteRequest(request);
             mediator.CancelRequest(id);

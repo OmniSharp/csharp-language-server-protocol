@@ -1,4 +1,4 @@
-﻿using System.Collections.Concurrent;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -7,13 +7,15 @@ namespace OmniSharp.Extensions.JsonRpc
     public class ResponseRouter : IResponseRouter
     {
         private readonly IOutputHandler _outputHandler;
+        private readonly ISerializer _serializer;
         private readonly object _lock = new object();
         private long _id = 0;
         private readonly ConcurrentDictionary<long, TaskCompletionSource<JToken>> _requests = new ConcurrentDictionary<long, TaskCompletionSource<JToken>>();
 
-        public ResponseRouter(IOutputHandler outputHandler)
+        public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer)
         {
             _outputHandler = outputHandler;
+            _serializer = serializer;
         }
 
         public void SendNotification<T>(string method, T @params)
@@ -44,7 +46,7 @@ namespace OmniSharp.Extensions.JsonRpc
             try
             {
                 var result = await tcs.Task;
-                return result.ToObject<TResponse>();
+                return result.ToObject<TResponse>(_serializer.JsonSerializer);
             }
             finally
             {

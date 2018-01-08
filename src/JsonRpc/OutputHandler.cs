@@ -1,23 +1,24 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
-using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class OutputHandler : IOutputHandler
     {
         private readonly Stream _output;
+        private readonly ISerializer _serializer;
         private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
 
-        public OutputHandler(Stream output)
+        public OutputHandler(Stream output, ISerializer serializer)
         {
             if (!output.CanWrite) throw new ArgumentException($"must provide a writable stream for {nameof(output)}", nameof(output));
             _output = output;
+            _serializer = serializer;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
             _thread = new Thread(ProcessOutputQueue) { IsBackground = true, Name = "ProcessOutputQueue" };
@@ -42,7 +43,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     if (_queue.TryTake(out var value, Timeout.Infinite, token))
                     {
-                        var content = JsonConvert.SerializeObject(value);
+                        var content = _serializer.SerializeObject(value);
                         var contentBytes = System.Text.Encoding.UTF8.GetBytes(content);
 
                         // TODO: Is this lsp specific??

@@ -2,7 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -10,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents a collection of [completion items](#CompletionItem) to be presented
     /// in the editor.
     /// </summary>
-    [JsonConverter(typeof(CompletionListConverter))]
     public class CompletionList
     {
         public CompletionList(IEnumerable<CompletionItem> items)

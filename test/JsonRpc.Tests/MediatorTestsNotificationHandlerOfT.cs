@@ -16,7 +16,6 @@ namespace JsonRpc.Tests
         [Method("$/cancelRequest")]
         public interface ICancelRequestHandler : INotificationHandler<CancelParams> { }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class CancelParams
         {
             public object Id { get; set; }
@@ -28,7 +27,7 @@ namespace JsonRpc.Tests
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
 
             var collection = new HandlerCollection { cancelRequestHandler };
-            IRequestRouter mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection, new Serializer());
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));

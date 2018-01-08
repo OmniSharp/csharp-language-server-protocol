@@ -1,7 +1,10 @@
-﻿using System;
+using System;
 using FluentAssertions;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -12,14 +15,14 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new Hover() {
-                Contents = new MarkedStringContainer("abc"),
+                Contents = new MarkedStringsOrMarkupContent("abc"),
                 Range = new Range(new Position(1, 2), new Position(3, 4))
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = JsonConvert.DeserializeObject<Hover>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Hover>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

@@ -9,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// the background color of its range.
     ///
     /// </summary>
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class DocumentHighlight
     {
         /// <summary>

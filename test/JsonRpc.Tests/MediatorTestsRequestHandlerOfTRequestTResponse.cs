@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -21,7 +21,6 @@ namespace JsonRpc.Tests
         [Method("textDocument/codeAction")]
         public interface ICodeActionHandler : IRequestHandler<CodeActionParams, IEnumerable<Command>> { }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class CodeActionParams
         {
             public string TextDocument { get; set; }
@@ -29,7 +28,6 @@ namespace JsonRpc.Tests
             public string Context { get; set; }
         }
 
-        [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
         public class Command
         {
             public string Title { get; set; }
@@ -43,7 +41,7 @@ namespace JsonRpc.Tests
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
 
             var collection = new HandlerCollection { codeActionHandler };
-            IRequestRouter mediator = new RequestRouter(collection);
+            IRequestRouter mediator = new RequestRouter(collection, new Serializer());
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
