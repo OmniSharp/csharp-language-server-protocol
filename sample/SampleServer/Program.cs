@@ -26,7 +26,7 @@ namespace SampleServer
             server.AddHandler(new TextDocumentHandler(server));
 
             await server.Initialize();
-            await server.WasShutDown;
+            await server.WaitForExit;
         }
     }
 }

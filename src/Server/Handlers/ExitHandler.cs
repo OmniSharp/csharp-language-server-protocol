@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
@@ -12,9 +13,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
             _shutdownHandler = shutdownHandler;
         }
 
+        private readonly TaskCompletionSource<int> _exitedSource = new TaskCompletionSource<int>(TaskContinuationOptions.LongRunning);
+        public Task WaitForExit => _exitedSource.Task;
+
+
         public Task Handle()
         {
-            Exit?.Invoke(_shutdownHandler.ShutdownRequested ? 0 : 1);
+            var result = _shutdownHandler.ShutdownRequested ? 0 : 1;
+            Exit?.Invoke(result);
+            _exitedSource.SetResult(result);
             return Task.CompletedTask;
         }
 

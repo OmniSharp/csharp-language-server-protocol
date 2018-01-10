@@ -5,14 +5,14 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
-    public class ShutdownHandler : IShutdownHandler, IAwaitableTermination
+    public class ShutdownHandler : IShutdownHandler
     {
         public event ShutdownEventHandler Shutdown;
 
         public bool ShutdownRequested { get; private set; }
 
         private readonly TaskCompletionSource<bool> _shutdownSource = new TaskCompletionSource<bool>(TaskContinuationOptions.LongRunning);
-        Task IAwaitableTermination.WasShutDown => _shutdownSource.Task;
+        public Task WasShutDown => _shutdownSource.Task;
         public Task Handle(object request, CancellationToken token)
         {
             ShutdownRequested = true;
