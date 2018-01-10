@@ -121,10 +121,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     object @params;
                     try
                     {
-                        @params = request.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                        @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
                     }
-                    catch
+                    catch (Exception cannotDeserializeRequestParams)
                     {
+                        _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
+
                         return new InvalidParams(request.Id);
                     }
 
