@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         ///     The request / notification message, if the message represents a request or a notification.
         /// </summary>
         [Optional]
-        public JObject Params { get; set; }
+        public JToken Params { get; set; }
 
         /// <summary>
         ///     The response message, if the message represents a response.
