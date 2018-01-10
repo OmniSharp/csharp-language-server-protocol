@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
@@ -57,6 +57,24 @@ namespace JsonRpc.Tests.Server
                     });
 
                 yield return (
+                    @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""id"": 4}",
+                    new Renor[]
+                    {
+                        new Request(4, "subtract", null)
+                    });
+
+                // http://www.jsonrpc.org/specification says:
+                //      If present, parameters for the rpc call MUST be provided as a Structured value.
+                // Some clients may serialize params as null, instead of omitting it
+                // We're going to pretend we never got the null in the first place.
+                yield return (
+                    @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": null, ""id"": 4}",
+                    new Renor[]
+                    {
+                        new Request(4, "subtract", null)
+                    });
+
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""update"", ""params"": [1,2,3,4,5]}",
                     new Renor[]
                     {
@@ -65,6 +83,17 @@ namespace JsonRpc.Tests.Server
 
                 yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar""}",
+                    new Renor[]
+                    {
+                        new Notification("foobar", null)
+                    });
+
+                // http://www.jsonrpc.org/specification says:
+                //      If present, parameters for the rpc call MUST be provided as a Structured value.
+                // Some clients may serialize params as null, instead of omitting it
+                // We're going to pretend we never got the null in the first place.
+                yield return (
+                    @"{""jsonrpc"": ""2.0"", ""method"": ""foobar"", ""params"": null}",
                     new Renor[]
                     {
                         new Notification("foobar", null)
