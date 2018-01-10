@@ -329,7 +329,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _responseRouter.GetRequest(id);
         }
 
-        public Task WasShutDown => ((IAwaitableTermination)_shutdownHandler).WasShutDown;
+        public Task WasShutDown => _shutdownHandler.WasShutDown;
+        public Task WaitForExit => _exitHandler.WaitForExit;
 
         public void Dispose()
         {
