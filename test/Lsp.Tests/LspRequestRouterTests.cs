@@ -160,10 +160,34 @@ namespace Lsp.Tests
             var collection = new HandlerCollection { shutdownHandler };
             var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
 
-            object @params = null;
+            JToken @params = JValue.CreateNull(); // If the "params" property present but null, this will be JTokenType.Null.
 
             var id = Guid.NewGuid().ToString();
-            var request = new Request(id, GeneralNames.Shutdown, JValue.CreateNull());
+            var request = new Request(id, GeneralNames.Shutdown, @params);
+
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+
+            Assert.True(wasShutDown, "WasShutDown");
+        }
+
+        [Fact]
+        public async Task ShouldHandle_Request_WithMissingParameters()
+        {
+            bool wasShutDown = false;
+
+            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            shutdownHandler.Shutdown += shutdownRequested =>
+            {
+                wasShutDown = true;
+            };
+
+            var collection = new HandlerCollection { shutdownHandler };
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+
+            JToken @params = null; // If the "params" property was missing entirely, this will be null.
+
+            var id = Guid.NewGuid().ToString();
+            var request = new Request(id, GeneralNames.Shutdown, @params);
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
