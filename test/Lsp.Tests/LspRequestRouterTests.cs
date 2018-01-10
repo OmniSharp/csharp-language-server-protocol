@@ -16,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -143,6 +144,30 @@ namespace Lsp.Tests
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
             await codeActionHandler2.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task ShouldHandle_Request_WithNullParameters()
+        {
+            bool wasShutDown = false;
+
+            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            shutdownHandler.Shutdown += shutdownRequested =>
+            {
+                wasShutDown = true;
+            };
+
+            var collection = new HandlerCollection { shutdownHandler };
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+
+            object @params = null;
+
+            var id = Guid.NewGuid().ToString();
+            var request = new Request(id, GeneralNames.Shutdown, JValue.CreateNull());
+
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+
+            Assert.True(wasShutDown, "WasShutDown");
         }
     }
 }
