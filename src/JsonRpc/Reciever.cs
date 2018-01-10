@@ -79,9 +79,16 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             var hasParams = request.TryGetValue("params", out var @params);
-            if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object)
+            if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object && @params?.Type != JTokenType.Null)
             {
                 return new InvalidRequest(requestId, "Invalid params");
+            }
+
+            // Special case params such that if we get a null value (from a non spec compliant system)
+            // that we don't fall over and throw an error.
+            if (@params?.Type == JTokenType.Null)
+            {
+                @params = null;
             }
 
             // id == request
