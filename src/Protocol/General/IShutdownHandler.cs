@@ -11,5 +11,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Shutdown)]
-    public interface IShutdownHandler : INotificationHandler { }
+    public interface IShutdownHandler : IRequestHandler<object> { }
 }
