@@ -899,7 +899,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     {
                         Id = requestMessage.Id,
                         Method = requestMessage.Method,
-                        Result = handlerTask.Result != null ? JToken.FromObject(handlerTask.Result) : null
+                        Result = handlerTask.Result != null ? JToken.FromObject(handlerTask.Result, Serializer.JsonSerializer) : null
                     });
                 }
 
