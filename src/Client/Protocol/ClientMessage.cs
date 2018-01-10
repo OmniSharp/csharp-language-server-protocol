@@ -32,12 +32,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         ///     The request / notification message, if the message represents a request or a notification.
         /// </summary>
         [Optional]
-        public JObject Params { get; set; }
+        public JToken Params { get; set; }
 
         /// <summary>
         ///     The response message, if the message represents a response.
         /// </summary>
-        [Optional]
-        public JObject Result { get; set; }
+        [JsonProperty(DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate, NullValueHandling = NullValueHandling.Ignore)]
+        public JToken Result { get; set; }
     }
 }

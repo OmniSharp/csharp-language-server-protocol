@@ -343,7 +343,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 // No Id means it's a notification.
                 Method = method,
-                Params = JObject.FromObject(notification, Serializer.JsonSerializer)
+                Params = JToken.FromObject(notification, Serializer.JsonSerializer)
             });
         }
 
@@ -401,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request, Serializer.JsonSerializer) : null
+                Params = request != null ? JToken.FromObject(request, Serializer.JsonSerializer) : null
             });
 
             await responseCompletion.Task;
@@ -464,7 +464,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             {
                 Id = requestId,
                 Method = method,
-                Params = request != null ? JObject.FromObject(request, Serializer.JsonSerializer) : null
+                Params = request != null ? JToken.FromObject(request, Serializer.JsonSerializer) : null
             });
 
             ServerMessage response = await responseCompletion.Task;
@@ -899,7 +899,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     {
                         Id = requestMessage.Id,
                         Method = requestMessage.Method,
-                        Result = handlerTask.Result != null ? JObject.FromObject(handlerTask.Result, Serializer.JsonSerializer) : null
+                        Result = handlerTask.Result != null ? JToken.FromObject(handlerTask.Result, Serializer.JsonSerializer) : null
                     });
                 }
 
