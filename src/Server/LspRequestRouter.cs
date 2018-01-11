@@ -123,11 +123,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     {
                         @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
                     }
-                    catch (Exception cannotDeserializeRequestParams)
+                    catch
                     {
-                        _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
-
-                        return new InvalidParams(request.Id);
+                            return new InvalidParams(request.Id);
                     }
 
                     result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
