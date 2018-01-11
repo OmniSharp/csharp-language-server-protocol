@@ -71,7 +71,7 @@ namespace JsonRpc.Tests.Server
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": null, ""id"": 4}",
                     new Renor[]
                     {
-                        new Request(4, "subtract", null)
+                        new Request(4, "subtract", new JObject())
                     });
 
                 yield return (
@@ -96,7 +96,7 @@ namespace JsonRpc.Tests.Server
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar"", ""params"": null}",
                     new Renor[]
                     {
-                        new Notification("foobar", null)
+                        new Notification("foobar", new JObject())
                     });
 
                 yield return (

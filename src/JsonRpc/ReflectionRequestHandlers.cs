@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -20,14 +20,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
 
             return (Task)method.Invoke(instance.Handler, new[] { @params });
-        }
-
-        public static Task HandleRequest(IHandlerDescriptor instance, CancellationToken token)
-        {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(IRequestHandler<object>.Handle), BindingFlags.Public | BindingFlags.Instance);
-
-            return (Task)method.Invoke(instance.Handler, new object[] { token });
         }
 
         public static Task HandleRequest(IHandlerDescriptor instance, object @params, CancellationToken token)

@@ -88,7 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc
             // that we don't fall over and throw an error.
             if (@params?.Type == JTokenType.Null)
             {
-                @params = null;
+                @params = new JObject();
             }
 
             // id == request
