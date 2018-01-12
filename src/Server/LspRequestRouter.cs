@@ -111,27 +111,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     return new MethodNotFound(request.Id, request.Method);
                 }
 
-                Task result;
-                if (descriptor.Params is null)
+                object @params;
+                try
                 {
-                    result = ReflectionRequestHandlers.HandleRequest(descriptor, cts.Token);
+                    @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
                 }
-                else
+                catch
                 {
-                    object @params;
-                    try
-                    {
-                        @params = request.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
-                    }
-                    catch
-                    {
-                        return new InvalidParams(request.Id);
-                    }
-
-                    result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
+                    return new InvalidParams(request.Id);
                 }
 
-                await result.ConfigureAwait(false);
+                var result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token).ConfigureAwait(false);
+                await result;
 
                 object responseValue = null;
                 if (result.GetType().GetTypeInfo().IsGenericType)
