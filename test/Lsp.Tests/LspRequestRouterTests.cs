@@ -16,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -162,6 +163,54 @@ namespace Lsp.Tests
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
             await handler.Received(1).Handle(Arg.Any<object>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
+        public async Task ShouldHandle_Request_WithNullParameters()
+        {
+            bool wasShutDown = false;
+
+            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            shutdownHandler.Shutdown += shutdownRequested =>
+            {
+                wasShutDown = true;
+            };
+
+            var collection = new HandlerCollection { shutdownHandler };
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+
+            JToken @params = JValue.CreateNull(); // If the "params" property present but null, this will be JTokenType.Null.
+
+            var id = Guid.NewGuid().ToString();
+            var request = new Request(id, GeneralNames.Shutdown, @params);
+
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+
+            Assert.True(wasShutDown, "WasShutDown");
+        }
+
+        [Fact]
+        public async Task ShouldHandle_Request_WithMissingParameters()
+        {
+            bool wasShutDown = false;
+
+            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            shutdownHandler.Shutdown += shutdownRequested =>
+            {
+                wasShutDown = true;
+            };
+
+            var collection = new HandlerCollection { shutdownHandler };
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+
+            JToken @params = null; // If the "params" property was missing entirely, this will be null.
+
+            var id = Guid.NewGuid().ToString();
+            var request = new Request(id, GeneralNames.Shutdown, @params);
+
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+
+            Assert.True(wasShutDown, "WasShutDown");
         }
     }
 }
