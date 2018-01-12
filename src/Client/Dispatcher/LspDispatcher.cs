@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// <returns>
         ///     <c>true</c>, if a notification handler was registered for specified method; otherwise, <c>false</c>.
         /// </returns>
-        public async Task<bool> TryHandleNotification(string method, JObject notification)
+        public async Task<bool> TryHandleNotification(string method, JToken notification)
         {
             if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
@@ -130,7 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// <returns>
         ///     If a registered handler was found, a <see cref="Task"/> representing the operation; otherwise, <c>null</c>.
         /// </returns>
-        public Task<object> TryHandleRequest(string method, JObject request, CancellationToken cancellationToken)
+        public Task<object> TryHandleRequest(string method, JToken request, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));
@@ -157,7 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Dispatcher
         /// <returns>
         ///     The deserialised payload (if one is present and expected).
         /// </returns>
-        object DeserializePayload(Type payloadType, JObject payload)
+        object DeserializePayload(Type payloadType, JToken payload)
         {
             if (payloadType == null)
                 throw new ArgumentNullException(nameof(payloadType));
