@@ -56,13 +56,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new MethodNotFound(request.Id, request.Method);
             }
 
-            Task result;
-            if (handler.Params is null)
-            {
-                result = ReflectionRequestHandlers.HandleRequest(handler, token);
-            }
-            else
-            {
                 object @params;
                 try
                 {
@@ -73,8 +66,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     return new InvalidParams(request.Id);
                 }
 
-                result = ReflectionRequestHandlers.HandleRequest(handler, @params, token);
-            }
+                var result = ReflectionRequestHandlers.HandleRequest(handler, @params, token);
 
             await result.ConfigureAwait(false);
 

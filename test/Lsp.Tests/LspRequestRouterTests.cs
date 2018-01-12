@@ -147,6 +147,25 @@ namespace Lsp.Tests
         }
 
         [Fact]
+        public async Task ShouldRouteTo_CorrectRequestWhenGivenNullParams()
+        {
+            var handler = Substitute.For<IShutdownHandler>();
+            handler
+                .Handle(Arg.Any<object>(), Arg.Any<CancellationToken>())
+                .Returns(Task.CompletedTask);
+
+            var collection = new HandlerCollection { handler };
+            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+
+            var id = Guid.NewGuid().ToString();
+            var request = new Request(id, GeneralNames.Shutdown, new JObject());
+
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+
+            await handler.Received(1).Handle(Arg.Any<object>(), Arg.Any<CancellationToken>());
+        }
+
+        [Fact]
         public async Task ShouldHandle_Request_WithNullParameters()
         {
             bool wasShutDown = false;
