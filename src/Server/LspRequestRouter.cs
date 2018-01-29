@@ -74,82 +74,104 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _routeMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 
-        public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
+        public async Task RouteNotification(IHandlerDescriptor descriptor, Notification notification)
         {
-            try
+            using (_logger.TimeDebug("Routing Notification {Method}", notification.Method))
             {
-                Task result;
-                if (handler.Params is null)
+                using (_logger.BeginScope(new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>( "Method", notification.Method),
+                    new KeyValuePair<string, string>( "Params", notification.Params?.ToString())
+                }))
                 {
-                    result = ReflectionRequestHandlers.HandleNotification(handler);
+                    try
+                    {
+                        if (descriptor.Params is null)
+                        {
+                            await ReflectionRequestHandlers.HandleNotification(descriptor);
+                        }
+                        else
+                        {
+                            _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
+                            var @params = notification.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                            await ReflectionRequestHandlers.HandleNotification(descriptor, @params);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
+                    }
                 }
-                else
-                {
-                    var @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
-                    result = ReflectionRequestHandlers.HandleNotification(handler, @params);
-                }
-
-                await result;
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
             }
         }
 
         public async Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request)
         {
-            var id = GetId(request.Id);
-            var cts = new CancellationTokenSource();
-            _requests.TryAdd(id, cts);
-
-            // TODO: Try / catch for Internal Error
-            try
+            using (_logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method))
             {
-                if (descriptor is null)
+                using (_logger.BeginScope(new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>( "Id", request.Id?.ToString()),
+                    new KeyValuePair<string, string>( "Method", request.Method),
+                    new KeyValuePair<string, string>( "Params", request.Params?.ToString())
+                }))
                 {
-                    return new MethodNotFound(request.Id, request.Method);
+                    var id = GetId(request.Id);
+                    var cts = new CancellationTokenSource();
+                    _requests.TryAdd(id, cts);
+
+                    // TODO: Try / catch for Internal Error
+                    try
+                    {
+                        if (descriptor is null)
+                        {
+                            _logger.LogDebug("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
+                            return new MethodNotFound(request.Id, request.Method);
+                        }
+
+                        object @params;
+                        try
+                        {
+                            _logger.LogDebug("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
+                            @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                        }
+                        catch (Exception cannotDeserializeRequestParams)
+                        {
+                            _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
+                            return new InvalidParams(request.Id);
+                        }
+
+                        var result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
+                        await result;
+
+                        _logger.LogDebug("Result was {Type}", result.GetType().FullName);
+
+                        object responseValue = null;
+                        if (result.GetType().GetTypeInfo().IsGenericType)
+                        {
+                            var property = typeof(Task<>)
+                                .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
+                                .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
+
+                            responseValue = property.GetValue(result);
+                            _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
+                        }
+
+                        return new JsonRpc.Client.Response(request.Id, responseValue);
+                    }
+                    catch (TaskCanceledException e)
+                    {
+                        _logger.LogDebug("Request {Id} was cancelled", id);
+                        return new RequestCancelled();
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
+                        return new InternalError(id);
+                    }
+                    finally
+                    {
+                        _requests.TryRemove(id, out var _);
+                    }
                 }
-
-                object @params;
-                try
-                {
-                    @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
-                }
-                catch (Exception cannotDeserializeRequestParams)
-                {
-                    _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
-
-                    return new InvalidParams(request.Id);
-                }
-
-                var result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token).ConfigureAwait(false);
-                await result;
-
-                object responseValue = null;
-                if (result.GetType().GetTypeInfo().IsGenericType)
-                {
-                    var property = typeof(Task<>)
-                        .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
-                        .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
-
-                    responseValue = property.GetValue(result);
-                }
-
-                return new JsonRpc.Client.Response(request.Id, responseValue);
-            }
-            catch (TaskCanceledException)
-            {
-                return new RequestCancelled();
-            }
-            catch (Exception e)
-            {
-                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
-                return new InternalError(id);
-            }
-            finally
-            {
-                _requests.TryRemove(id, out var _);
             }
         }
 
@@ -158,6 +180,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (_requests.TryGetValue(GetId(id), out var cts))
             {
                 cts.Cancel();
+            }
+            else
+            {
+                _logger.LogDebug("Request {Id} was not found to cancel", id);
             }
         }
 

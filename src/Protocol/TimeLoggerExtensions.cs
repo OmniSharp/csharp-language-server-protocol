@@ -3,41 +3,11 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-namespace OmniSharp.Extensions.LanguageServer.Client.Logging
+// ReSharper disable once CheckNamespace
+namespace Microsoft.Extensions.Logging
 {
-    /// <summary>
-    ///     Extension methods for <see cref="ILogger"/>.
-    /// </summary>
-    public static class LoggerExtensions
+    internal static class TimeLoggerExtensions
     {
-        /// <summary>
-        ///     <see cref="EventId"/> representing a generic error event.
-        /// </summary>
-        public static EventId GenericErrorEventId = new EventId(500);
-
-        /// <summary>
-        ///     Log an error.
-        /// </summary>
-        /// <param name="logger">
-        ///     The <see cref="ILogger"/>.
-        /// </param>
-        /// <param name="exception">
-        ///     The exception (if any) associated with the error.
-        /// </param>
-        /// <param name="message">
-        ///     The log message.
-        /// </param>
-        /// <param name="args">
-        ///     The message format arguments (if any).
-        /// </param>
-        public static void LogError(this ILogger logger, Exception exception, string message, params object[] args)
-        {
-            if (logger == null)
-                throw new ArgumentNullException(nameof(logger));
-
-            logger.LogError(GenericErrorEventId, exception, message, args);
-        }
-
         class Disposable : IDisposable
         {
             private readonly IDisposable _disposable;
@@ -67,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Logging
         /// <param name="message">The message.</param>
         /// <param name="args">The arguments.</param>
         /// <returns>IDisposable.</returns>
-        internal static IDisposable TimeTrace(this ILogger logger, string message, params object[] args)
+        public static IDisposable TimeTrace(this ILogger logger, string message, params object[] args)
         {
             var scope = logger.BeginScope(new { });
             logger.LogTrace($"Starting: {message}", args);
@@ -85,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Logging
         /// <param name="message">The message.</param>
         /// <param name="args">The arguments.</param>
         /// <returns>IDisposable.</returns>
-        internal static IDisposable TimeDebug(this ILogger logger, string message, params object[] args)
+        public static IDisposable TimeDebug(this ILogger logger, string message, params object[] args)
         {
             var scope = logger.BeginScope(new { });
             logger.LogDebug($"Starting: {message}", args);
@@ -103,7 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Logging
         /// <param name="message">The message.</param>
         /// <param name="args">The arguments.</param>
         /// <returns>IDisposable.</returns>
-        internal static IDisposable TimeInformation(this ILogger logger, string message, params object[] args)
+        public static IDisposable TimeInformation(this ILogger logger, string message, params object[] args)
         {
             var scope = logger.BeginScope(new { });
             logger.LogInformation($"Starting: {message}", args);
