@@ -13,7 +13,8 @@ import { Trace } from 'vscode-jsonrpc';
 export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
-    let serverExe = 'C:/Other/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
+    let serverExe = 'C:\\Other\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.exe';
+    // // let serverExe = 'C:/Other/omnisharp-roslyn/bin/Debug/OmniSharp.Stdio/net46/OmniSharp.exe';
     // let serverExe = 'D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe';
     // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
