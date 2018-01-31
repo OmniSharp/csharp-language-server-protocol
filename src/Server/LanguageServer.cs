@@ -40,7 +40,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Stream input,
             Stream output,
             ILoggerFactory loggerFactory)
-            : this(input, output, new LspReciever(), new RequestProcessIdentifier(), loggerFactory, new Serializer())
+            : this(input, output, loggerFactory, addDefaultLoggingProvider: true)
+        {
+        }
+
+        public LanguageServer(
+            Stream input,
+            Stream output,
+            ILoggerFactory loggerFactory,
+            bool addDefaultLoggingProvider)
+            : this(input, output, new LspReciever(), new RequestProcessIdentifier(), loggerFactory, new Serializer(), addDefaultLoggingProvider)
         {
         }
 
@@ -50,11 +59,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             LspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             ILoggerFactory loggerFactory,
-            Serializer serializer)
+            Serializer serializer,
+            bool addDefaultLoggingProvider)
         {
             var outputHandler = new OutputHandler(output, serializer);
-            // TODO: This might not be the best
-            loggerFactory.AddProvider(new LanguageServerLoggerProvider(this));
+
+            if (addDefaultLoggingProvider)
+                loggerFactory.AddProvider(new LanguageServerLoggerProvider(this));
 
             _reciever = reciever;
             _loggerFactory = loggerFactory;
