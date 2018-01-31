@@ -11,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
+using System.Collections.Generic;
 
 namespace Lsp.Tests
 {
@@ -133,7 +134,8 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions() {
+                    .Returns(new TextDocumentRegistrationOptions()
+                    {
                         DocumentSelector = new DocumentSelector()
                     });
             handler.Add(sub);
@@ -150,13 +152,15 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions() {
+                    .Returns(new TextDocumentRegistrationOptions()
+                    {
                         DocumentSelector = new DocumentSelector()
                     });
             var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
                 reg2.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions() {
+                    .Returns(new TextDocumentRegistrationOptions()
+                    {
                         DocumentSelector = new DocumentSelector()
                     });
             handler.Add(sub);
@@ -172,12 +176,31 @@ namespace Lsp.Tests
         {
             var handler = new HandlerCollection();
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
-            var sub2= (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
+            var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
             handler.Add(method, sub);
             handler.Add(method, sub2);
             handler._handlers.Should().Contain(x => x.Method == method);
             handler._handlers.Should().Contain(x => x.Method == method);
             handler._handlers.Count.Should().Be(1);
+        }
+
+        [Theory]
+        [MemberData(nameof(Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data))]
+        public void Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations(string method, IJsonRpcHandler sub)
+        {
+            var handler = new HandlerCollection();
+            handler.Add(sub);
+
+            var descriptor = handler._handlers.First(x => x.Method == method);
+            descriptor.Key.Should().Be("default");
+        }
+
+        public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
+        {
+            yield return new object[] {
+                DocumentNames.CodeLensResolve,
+                Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0])
+            };
         }
     }
 }

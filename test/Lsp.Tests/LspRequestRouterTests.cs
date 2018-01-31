@@ -170,7 +170,7 @@ namespace Lsp.Tests
         {
             bool wasShutDown = false;
 
-            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            var shutdownHandler = new ShutdownHandler();
             shutdownHandler.Shutdown += shutdownRequested =>
             {
                 wasShutDown = true;
@@ -194,7 +194,7 @@ namespace Lsp.Tests
         {
             bool wasShutDown = false;
 
-            ShutdownHandler shutdownHandler = new ShutdownHandler();
+            var shutdownHandler = new ShutdownHandler();
             shutdownHandler.Shutdown += shutdownRequested =>
             {
                 wasShutDown = true;

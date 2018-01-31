@@ -71,12 +71,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             var key = "default";
-            if (handler is IRegistration<TextDocumentRegistrationOptions>)
+            // This protects against the case where class implements many, possibly conflicting, interfaces.
+            if (registration != null &&
+                typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registration) &&
+                handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
             {
-                if (GetTextDocumentRegistrationOptionsMethod
-                    .MakeGenericMethod(registration)
-                    .Invoke(handler, new object[] { handler }) is TextDocumentRegistrationOptions options)
-                    key = options.DocumentSelector;
+                key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
             }
 
             return new HandlerDescriptor(
@@ -88,15 +88,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 registration,
                 capability,
                 () => _handlers.RemoveWhere(instance => instance.Handler == handler));
-        }
-
-        private static readonly MethodInfo GetTextDocumentRegistrationOptionsMethod = typeof(HandlerCollection).GetTypeInfo()
-            .GetMethod(nameof(GetTextDocumentRegistrationOptions), BindingFlags.Static | BindingFlags.NonPublic);
-
-        private static TextDocumentRegistrationOptions GetTextDocumentRegistrationOptions<T>(IRegistration<T> instance)
-            where T : TextDocumentRegistrationOptions
-        {
-            return instance.GetRegistrationOptions();
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)
