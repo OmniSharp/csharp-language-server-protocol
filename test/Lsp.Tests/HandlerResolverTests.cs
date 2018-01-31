@@ -134,8 +134,7 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions()
-                    {
+                    .Returns(new TextDocumentRegistrationOptions() {
                         DocumentSelector = new DocumentSelector()
                     });
             handler.Add(sub);
@@ -152,15 +151,13 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions()
-                    {
-                        DocumentSelector = new DocumentSelector()
+                    .Returns(new TextDocumentRegistrationOptions() {
+                        DocumentSelector = new DocumentSelector() { }
                     });
             var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler, type2 }, new object[0]);
             if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
                 reg2.GetRegistrationOptions()
-                    .Returns(new TextDocumentRegistrationOptions()
-                    {
+                    .Returns(new TextDocumentRegistrationOptions() {
                         DocumentSelector = new DocumentSelector()
                     });
             handler.Add(sub);
@@ -197,10 +194,29 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
-            yield return new object[] {
-                DocumentNames.CodeLensResolve,
-                Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0])
-            };
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
+            ((ICodeLensHandler)codeLensHandler).GetRegistrationOptions()
+                    .Returns(new CodeLensRegistrationOptions() {
+                        DocumentSelector = new DocumentSelector() { }
+                    });
+
+            yield return new object[] { DocumentNames.CodeLensResolve, codeLensHandler };
+
+            var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler) }, new object[0]);
+            ((IDocumentLinkHandler)documentLinkHandler).GetRegistrationOptions()
+                .Returns(new DocumentLinkRegistrationOptions() {
+                    DocumentSelector = new DocumentSelector() { }
+                });
+
+            yield return new object[] { DocumentNames.DocumentLinkResolve, documentLinkHandler };
+
+            var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler) }, new object[0]);
+            ((ICompletionHandler)completionHandler).GetRegistrationOptions()
+                .Returns(new CompletionRegistrationOptions() {
+                    DocumentSelector = new DocumentSelector() { }
+                });
+
+            yield return new object[] { DocumentNames.CompletionResolve, completionHandler };
         }
     }
 }
