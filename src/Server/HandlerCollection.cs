@@ -13,6 +13,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     class HandlerCollection : IHandlerCollection
     {
         internal readonly HashSet<HandlerDescriptor> _handlers = new HashSet<HandlerDescriptor>();
+        internal readonly HashSet<ITextDocumentSyncHandler> _documentSyncHandlers = new HashSet<ITextDocumentSyncHandler>();
+
+        public IEnumerable<ITextDocumentSyncHandler> TextDocumentSyncHandlers()
+        {
+            return _documentSyncHandlers;
+        }
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator()
         {
@@ -50,9 +56,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
             }
 
-            foreach (var handler in descriptors)
+            foreach (var descriptor in descriptors)
             {
-                _handlers.Add(handler);
+                _handlers.Add(descriptor);
+                if (descriptor.Handler is ITextDocumentSyncHandler documentSyncHandler)
+                {
+                    _documentSyncHandlers.Add(documentSyncHandler);
+                }
             }
 
             return new ImmutableDisposable(descriptors);
@@ -87,7 +97,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 @params,
                 registration,
                 capability,
-                () => _handlers.RemoveWhere(instance => instance.Handler == handler));
+                () => {
+                    _handlers.RemoveWhere(instance => instance.Handler == handler);
+                    _documentSyncHandlers.RemoveWhere(instance => instance == handler);
+                });
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)

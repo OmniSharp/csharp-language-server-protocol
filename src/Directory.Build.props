@@ -7,4 +7,8 @@
         <InformationalVersion Condition="'$(GitVersion_InformationalVersion)' != ''">$(GitVersion_InformationalVersion)</InformationalVersion>
         <LangVersion>Latest</LangVersion>
     </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="SourceLink.Create.GitHub" Version="2.7.6" PrivateAssets="All" />
+        <DotNetCliToolReference Include="dotnet-sourcelink-git" Version="2.7.6" />
+    </ItemGroup>
 </Project>
