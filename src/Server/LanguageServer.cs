@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _serializer = serializer;
             _handlerMactherCollection = new HandlerMatcherCollection
             {
-                new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>()),
+                new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>(), _collection.TextDocumentSyncHandlers),
                 new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>())
             };
 
