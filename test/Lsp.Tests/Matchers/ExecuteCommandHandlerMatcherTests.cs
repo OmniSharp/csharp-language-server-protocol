@@ -120,36 +120,73 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerMatcher = new ResolveCommandMatcher(_logger);
-            var codeLensResolveHandler = Substitute.For<ICodeLensResolveHandler>();
-            var codeLensResolveHandler2 = Substitute.For<ICodeLensResolveHandler>();
+            var resolveHandler = Substitute.For<ICodeLensResolveHandler>();
+            var resolveHandler2 = Substitute.For<ICodeLensResolveHandler>();
 
             // When
             var result = handlerMatcher.FindHandler(new CodeLens() {
-                    Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
-                },
-                new List<HandlerDescriptor> {
-                    new HandlerDescriptor(DocumentNames.CodeLensResolve,
-                        "Key",
-                        codeLensResolveHandler,
-                        codeLensResolveHandler.GetType(),
-                        typeof(CodeLens),
-                        null,
-                        null,
-                        () => { }),
-                    new HandlerDescriptor(DocumentNames.CodeLensResolve,
-                        "Key2",
-                        codeLensResolveHandler2,
-                        typeof(ICodeLensResolveHandler),
-                        typeof(CodeLens),
-                        null,
-                        null,
-                        () => { }),
-                })
+                        Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
+                    },
+                    new List<HandlerDescriptor> {
+                        new HandlerDescriptor(DocumentNames.CodeLensResolve,
+                            "Key",
+                            resolveHandler,
+                            resolveHandler.GetType(),
+                            typeof(CodeLens),
+                            null,
+                            null,
+                            () => { }),
+                        new HandlerDescriptor(DocumentNames.CodeLensResolve,
+                            "Key2",
+                            resolveHandler2,
+                            typeof(ICodeLensResolveHandler),
+                            typeof(CodeLens),
+                            null,
+                            null,
+                            () => { }),
+                    })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == codeLensResolveHandler2);
+            result.Should().Contain(x => x.Handler == resolveHandler2);
+        }
+
+        [Fact]
+        public void Should_Return_CompletionResolve_Descriptor()
+        {
+            // Given
+            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var resolveHandler = Substitute.For<ICompletionResolveHandler>();
+            var resolveHandler2 = Substitute.For<ICompletionResolveHandler>();
+
+            // When
+            var result = handlerMatcher.FindHandler(new CodeLens() {
+                        Data = JToken.FromObject(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } })
+                    },
+                    new List<HandlerDescriptor> {
+                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                            "Key",
+                            resolveHandler,
+                            resolveHandler.GetType(),
+                            typeof(CompletionItem),
+                            null,
+                            null,
+                            () => { }),
+                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                            "Key2",
+                            resolveHandler2,
+                            typeof(ICompletionResolveHandler),
+                            typeof(CompletionItem),
+                            null,
+                            null,
+                            () => { }),
+                    })
+                .ToArray();
+
+            // Then
+            result.Should().NotBeNullOrEmpty();
+            result.Should().Contain(x => x.Handler == resolveHandler2);
         }
     }
 }
