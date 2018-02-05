@@ -73,7 +73,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _handlerMactherCollection = new HandlerMatcherCollection
             {
                 new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>(), _collection.TextDocumentSyncHandlers),
-                new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>())
+                new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>()),
+                new ResolveCommandMatcher(_loggerFactory.CreateLogger<ResolveCommandMatcher>()),
+                new DocumentLinkCommandMatcher(_loggerFactory.CreateLogger<DocumentLinkCommandMatcher>())
             };
 
             _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection, _serializer);
