@@ -144,7 +144,8 @@ namespace Lsp.Tests.Matchers
                         null,
                         null,
                         () => { }),
-                });
+                })
+                .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();

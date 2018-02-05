@@ -27,8 +27,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             if (parameters is ICanBeResolved canBeResolved)
             {
-                var handleType = canBeResolved.Data?.Value<string>("handleType");
-                if (string.IsNullOrWhiteSpace(handleType))
+                var handlerType = canBeResolved.Data?.Value<string>("handlerType");
+                if (string.IsNullOrWhiteSpace(handlerType))
                 {
                     var descriptor = descriptors.FirstOrDefault();
                     _logger.LogTrace(
@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     _logger.LogTrace("Checking handler {Method}:{Handler}",
                         descriptor.Method,
                         descriptor.Handler.GetType().FullName);
-                    if (descriptor.Handler.GetType().FullName == handleType)
+                    if (descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType)
                     {
                         canBeResolved.Data = canBeResolved.Data["data"];
                         yield return descriptor;
