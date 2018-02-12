@@ -23,6 +23,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Params = @params;
             RegistrationType = registrationType;
             CapabilityType = capabilityType;
+            if (@params != null && typeof(ICanBeResolved).GetTypeInfo().IsAssignableFrom(@params))
+            {
+                CanBeResolvedHandlerType = typeof(ICanBeResolvedHandler<>).MakeGenericType(@params);
+            }
         }
 
         public IJsonRpcHandler Handler { get; }
@@ -80,6 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
         public bool AllowsDynamicRegistration { get; private set; }
+        public Type CanBeResolvedHandlerType { get; }
 
         public void Dispose()
         {

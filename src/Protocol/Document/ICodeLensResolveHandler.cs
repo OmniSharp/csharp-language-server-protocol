@@ -12,5 +12,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(CodeLensResolve)]
-    public interface ICodeLensResolveHandler : IRequestHandler<CodeLens, CodeLens> { }
+    public interface ICodeLensResolveHandler : ICanBeResolvedHandler<CodeLens> { }
 }
