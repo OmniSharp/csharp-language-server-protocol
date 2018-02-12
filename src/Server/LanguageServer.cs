@@ -90,6 +90,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public InitializeParams Client { get; private set; }
         public InitializeResult Server { get; private set; }
 
+        /// <summary>
+        ///     The minimum level for the server's default logger.
+        /// </summary>
+        public LogLevel MinimumLogLevel { get; set; } = LogLevel.Information;
+
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             var handlerDisposable = _collection.Add(method, handler);

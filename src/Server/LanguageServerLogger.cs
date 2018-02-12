@@ -20,14 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return new ImmutableDisposable();
         }
 
-        public bool IsEnabled(LogLevel logLevel)
-        {
-            // TODO: setup as configuration somehwhere (from trace perhaps?)
-            return true;
-        }
+        public bool IsEnabled(LogLevel logLevel) => logLevel >= _languageServer.MinimumLogLevel;
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
+            if (logLevel < _languageServer.MinimumLogLevel)
+                return;
+
             if (TryGetMessageType(logLevel, out var messageType))
             {
                 _languageServer.Log(new LogMessageParams()
