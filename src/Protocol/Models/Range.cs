@@ -1,9 +1,11 @@
-﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class Range
+    public class Range : IEquatable<Range>
     {
         public Range()
         {
@@ -25,5 +27,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The range's end position.
         /// </summary>
         public Position End { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            return Equals(obj as Range);
+        }
+
+        public bool Equals(Range other)
+        {
+            return other != null &&
+                   EqualityComparer<Position>.Default.Equals(Start, other.Start) &&
+                   EqualityComparer<Position>.Default.Equals(End, other.End);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1676728671;
+            hashCode = hashCode * -1521134295 + EqualityComparer<Position>.Default.GetHashCode(Start);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Position>.Default.GetHashCode(End);
+            return hashCode;
+        }
+
+        public static bool operator ==(Range range1, Range range2)
+        {
+            return EqualityComparer<Range>.Default.Equals(range1, range2);
+        }
+
+        public static bool operator !=(Range range1, Range range2)
+        {
+            return !(range1 == range2);
+        }
     }
 }

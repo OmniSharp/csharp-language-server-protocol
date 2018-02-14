@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class CompletionItem
+    public class CompletionItem : ICanBeResolved
     {
         /// <summary>
         /// The label of this completion item. By default

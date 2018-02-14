@@ -9,14 +9,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents a collection of [completion items](#CompletionItem) to be presented
     /// in the editor.
     /// </summary>
-    public class CompletionList
+    public class CompletionList : Container<CompletionItem>
     {
-        public CompletionList(IEnumerable<CompletionItem> items)
+        public CompletionList() : base(Enumerable.Empty<CompletionItem>()) { }
+        public CompletionList(bool isIncomplete) : base(Enumerable.Empty<CompletionItem>())
         {
-            Items = items;
+            IsIncomplete = isIncomplete;
         }
 
-        public CompletionList(IEnumerable<CompletionItem> items, bool isIncomplete) : this(items)
+        public CompletionList(IEnumerable<CompletionItem> items) : base(items) { }
+        public CompletionList(IEnumerable<CompletionItem> items, bool isIncomplete) : base(items)
+        {
+            IsIncomplete = isIncomplete;
+        }
+
+        public CompletionList(params CompletionItem[] items) : base(items) { }
+        public CompletionList(bool isIncomplete, params CompletionItem[] items) : base(items)
         {
             IsIncomplete = isIncomplete;
         }
@@ -30,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The completion items.
         /// </summary>
-        public IEnumerable<CompletionItem> Items { get; }
+        public IEnumerable<CompletionItem> Items => this;
 
         public static implicit operator CompletionList(CompletionItem[] items)
         {
@@ -49,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator CompletionItem[] (CompletionList list)
         {
-            return list.Items.ToArray();
+            return list.ToArray();
         }
     }
 }

@@ -12,5 +12,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(CompletionResolve)]
-    public interface ICompletionResolveHandler : IRequestHandler<CompletionItem, CompletionItem> { }
+    public interface ICompletionResolveHandler : ICanBeResolvedHandler<CompletionItem> { }
 }

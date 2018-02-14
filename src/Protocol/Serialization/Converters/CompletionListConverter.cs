@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var v = value as CompletionList;
             if (!v.IsIncomplete)
             {
-                serializer.Serialize(writer, v.Items);
+                serializer.Serialize(writer, v.Items.ToArray());
                 return;
             }
 

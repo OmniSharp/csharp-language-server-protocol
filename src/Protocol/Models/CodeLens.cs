@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A code lens is _unresolved_ when no command is associated to it. For performance
     /// reasons the creation of a code lens and resolving should be done in two stages.
     /// </summary>
-    public class CodeLens
+    public class CodeLens : ICanBeResolved
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.

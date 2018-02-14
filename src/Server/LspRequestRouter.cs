@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     internal class LspRequestRouter : IRequestRouter
     {
         private readonly IHandlerCollection _collection;
-        private readonly IEnumerable<IHandlerMatcher> _routeMatchers;
+        private readonly IHandlerMatcherCollection _routeMatchers;
         private readonly ISerializer _serializer;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ILogger<LspRequestRouter> _logger;
@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-            return _routeMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
+            return _routeMatchers.ForHandlerMatchers().SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 
         public async Task RouteNotification(IHandlerDescriptor descriptor, Notification notification)
@@ -153,6 +153,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                             responseValue = property.GetValue(result);
                             _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
+
+                            var lspDescriptor = descriptor as ILspHandlerDescriptor;
+
+                            foreach (var postProcessor in _routeMatchers.ForHandlerPostProcessorMatcher()
+                                .SelectMany(strat => strat.FindPostProcessor(lspDescriptor, @params, responseValue)))
+                            {
+                                responseValue = postProcessor.Process(lspDescriptor, @params, responseValue);
+                            }
                         }
 
                         return new JsonRpc.Client.Response(request.Id, responseValue);

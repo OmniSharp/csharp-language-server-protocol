@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(DocumentLink)]
-    public interface IDocumentLinkHandler : IRequestHandler<DocumentLinkParams, DocumentLink>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
+    public interface IDocumentLinkHandler : IRequestHandler<DocumentLinkParams, DocumentLinkContainer>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
 }
