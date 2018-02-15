@@ -30,8 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             if (parameters is ICanBeResolved canBeResolved)
             {
                 string handlerType = null;
-                if (canBeResolved.Data != null)
-                    handlerType = canBeResolved.Data.Value<string>(PrivateHandlerTypeName);
+                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
 
                 if (string.IsNullOrWhiteSpace(handlerType))
                 {
