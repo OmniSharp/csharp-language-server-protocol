@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -23,10 +24,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Params = @params;
             RegistrationType = registrationType;
             CapabilityType = capabilityType;
-            if (@params != null && typeof(ICanBeResolved).GetTypeInfo().IsAssignableFrom(@params))
-            {
-                CanBeResolvedHandlerType = typeof(ICanBeResolvedHandler<>).MakeGenericType(@params);
-            }
+
+            // If multiple are implemented this behavior is unknown
+            CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
+                .ImplementedInterfaces
+                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
         }
 
         public IJsonRpcHandler Handler { get; }

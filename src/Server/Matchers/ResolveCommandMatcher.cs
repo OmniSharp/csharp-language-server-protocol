@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
-    public class ResolveCommandMatcher : IHandlerMatcher, IHandlerPostProcessorMatcher, IHandlerPostProcessor
+    public class ResolveCommandMatcher : IHandlerMatcher, IHandlerPostProcessorMatcher, IHandlerPreProcessor, IHandlerPostProcessor
     {
         private readonly ILogger _logger;
         internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
@@ -30,8 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             if (parameters is ICanBeResolved canBeResolved)
             {
                 string handlerType = null;
-                if (canBeResolved.Data != null)
-                    handlerType = canBeResolved.Data.Value<string>(PrivateHandlerTypeName);
+                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
 
                 if (string.IsNullOrWhiteSpace(handlerType))
                 {
@@ -67,7 +67,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                         descriptor.Handler.GetType().FullName);
                     if (descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType)
                     {
-                        canBeResolved.Data = canBeResolved.Data["data"];
                         yield return descriptor;
                     }
                 }
@@ -89,6 +88,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     descriptor.Handler.GetType().FullName);
                 yield return this;
             }
+        }
+
+        public object Process(ILspHandlerDescriptor descriptor, object parameters)
+        {
+            if (parameters is ICanBeResolved canBeResolved)
+            {
+                string handlerType = null;
+                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
+
+                if (!string.IsNullOrWhiteSpace(handlerType))
+                {
+                    canBeResolved.Data = canBeResolved.Data["data"];
+                }
+            }
+
+            return parameters;
         }
 
         public object Process(ILspHandlerDescriptor descriptor, object parameters, object response)

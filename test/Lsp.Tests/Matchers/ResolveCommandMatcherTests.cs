@@ -140,6 +140,35 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
+        public void Should_Handle_Simple_Json_Data()
+        {
+            // Given
+            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var resolveHandler = Substitute.For<ICompletionResolveHandler>();
+            resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
+
+            // When
+            var result = handlerMatcher.FindHandler(new CompletionItem() {
+                Data = new Uri("file:///c%3A/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs")
+            },
+                    new List<HandlerDescriptor> {
+                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                            "Key",
+                            resolveHandler,
+                            resolveHandler.GetType(),
+                            typeof(CompletionItem),
+                            null,
+                            null,
+                            () => { }),
+                    })
+                .ToArray();
+
+            // Then
+            result.Should().NotBeNullOrEmpty();
+            result.Should().Contain(x => x.Handler == resolveHandler);
+        }
+
+        [Fact]
         public void Should_Return_CompletionResolve_Descriptor()
         {
             // Given
@@ -296,7 +325,7 @@ namespace Lsp.Tests.Matchers
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
-                            typeof(CodeLensParams),
+                            typeof(CompletionParams),
                             null,
                             null,
                             () => { });
@@ -325,7 +354,7 @@ namespace Lsp.Tests.Matchers
                             "Key",
                             resolveHandler as IJsonRpcHandler,
                             resolveHandler.GetType(),
-                            typeof(CompletionItem),
+                            typeof(CompletionParams),
                             null,
                             null,
                             () => { });
@@ -363,7 +392,7 @@ namespace Lsp.Tests.Matchers
                             "Key",
                             resolveHandler as IJsonRpcHandler,
                             resolveHandler.GetType(),
-                            typeof(CodeLens),
+                            typeof(CodeLensParams),
                             null,
                             null,
                             () => { });
@@ -384,6 +413,40 @@ namespace Lsp.Tests.Matchers
             var responseItem = (response as CodeLensContainer).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
+        }
+
+        [Fact]
+        public void Should_Update_CodeLens_Removing_HandlerType()
+        {
+            // Given
+            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var resolveHandler = Substitute.For(new Type[] {
+                typeof(ICodeLensHandler),
+                typeof(ICodeLensResolveHandler)
+            }, new object[0]);
+            (resolveHandler as ICodeLensResolveHandler).CanResolve(Arg.Any<CodeLens>()).Returns(true);
+            var descriptor = new HandlerDescriptor(
+                            DocumentNames.CodeLensResolve,
+                            "Key",
+                            resolveHandler as IJsonRpcHandler,
+                            resolveHandler.GetType(),
+                            typeof(CodeLens),
+                            null,
+                            null,
+                            () => { });
+
+            var item = new CodeLens() {
+                Data = JObject.FromObject(new { data = new { hello = "world" } })
+            };
+            item.Data[ResolveCommandMatcher.PrivateHandlerTypeName] = resolveHandler.GetType().FullName;
+
+            // When
+            var response = handlerMatcher.Process(descriptor, item);
+
+            // Then
+            response.Should().Be(item);
+            item.Data?[ResolveCommandMatcher.PrivateHandlerTypeName].Should().BeNull();
+            item.Data["hello"].Value<string>().Should().Be("world");
         }
     }
 }

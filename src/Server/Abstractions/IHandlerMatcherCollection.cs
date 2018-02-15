@@ -7,6 +7,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
     {
         IDisposable Add(object handler);
         IEnumerable<IHandlerMatcher> ForHandlerMatchers();
+        IEnumerable<IHandlerPreProcessorMatcher> ForHandlerPreProcessorMatcher();
+        IEnumerable<IHandlerPreProcessor> ForHandlerPreProcessor();
         IEnumerable<IHandlerPostProcessorMatcher> ForHandlerPostProcessorMatcher();
         IEnumerable<IHandlerPostProcessor> ForHandlerPostProcessor();
     }
