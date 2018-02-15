@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
-    public class ResolveCommandMatcher : IHandlerMatcher, IHandlerPostProcessorMatcher, IHandlerPreProcessor, IHandlerPostProcessor
+    public class ResolveCommandMatcher : IHandlerMatcher, IHandlerPreProcessorMatcher, IHandlerPostProcessorMatcher, IHandlerPreProcessor, IHandlerPostProcessor
     {
         private readonly ILogger _logger;
         internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
@@ -77,6 +77,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             where T : ICanBeResolved
         {
             return handler.CanResolve(value);
+        }
+
+        public IEnumerable<IHandlerPreProcessor> FindPreProcessor(ILspHandlerDescriptor descriptor, object parameters)
+        {
+            if (parameters is ICanBeResolved canBeResolved)
+            {
+                _logger.LogTrace("Using handler {Method}:{Handler}",
+                    descriptor.Method,
+                    descriptor.Handler.GetType().FullName);
+                yield return this;
+            }
         }
 
         public IEnumerable<IHandlerPostProcessor> FindPostProcessor(ILspHandlerDescriptor descriptor, object parameters, object response)
