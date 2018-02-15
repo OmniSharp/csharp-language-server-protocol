@@ -138,6 +138,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                             _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
                             return new InvalidParams(request.Id);
                         }
+                        var lspDescriptor = descriptor as ILspHandlerDescriptor;
+
+                        foreach (var preProcessor in _routeMatchers.ForHandlerPreProcessorMatcher()
+                            .SelectMany(strat => strat.FindPreProcessor(lspDescriptor, @params)))
+                        {
+                            @params = preProcessor.Process(lspDescriptor, @params);
+                        }
 
                         var result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
                         await result;
@@ -153,8 +160,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                             responseValue = property.GetValue(result);
                             _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
-
-                            var lspDescriptor = descriptor as ILspHandlerDescriptor;
 
                             foreach (var postProcessor in _routeMatchers.ForHandlerPostProcessorMatcher()
                                 .SelectMany(strat => strat.FindPostProcessor(lspDescriptor, @params, responseValue)))

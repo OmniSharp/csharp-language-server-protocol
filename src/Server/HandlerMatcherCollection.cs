@@ -13,6 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         private static readonly Type[] ValidHandlers = {
                 typeof(IHandlerMatcher),
+                typeof(IHandlerPreProcessor),
+                typeof(IHandlerPreProcessorMatcher),
                 typeof(IHandlerPostProcessor),
                 typeof(IHandlerPostProcessorMatcher)
             };
@@ -34,6 +36,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IEnumerable<IHandlerMatcher> ForHandlerMatchers()
         {
             return _handlers.OfType<IHandlerMatcher>();
+        }
+
+        public IEnumerable<IHandlerPreProcessorMatcher> ForHandlerPreProcessorMatcher()
+        {
+            return _handlers.OfType<IHandlerPreProcessorMatcher>();
+        }
+
+        public IEnumerable<IHandlerPreProcessor> ForHandlerPreProcessor()
+        {
+            return _handlers.OfType<IHandlerPreProcessor>();
         }
 
         public IEnumerable<IHandlerPostProcessorMatcher> ForHandlerPostProcessorMatcher()
