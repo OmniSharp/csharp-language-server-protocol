@@ -92,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
             if (response is IEnumerable<ICanBeResolved> canBeResolveds &&
-                descriptor.CanBeResolvedHandlerType.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()))
+                descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
             {
                 _logger.LogTrace("Updating Resolve items with wrapped data for {Method}:{Handler}",
                     descriptor.Method,

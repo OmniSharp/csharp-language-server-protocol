@@ -53,6 +53,27 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
+        public void Should_Not_Throw_Given_Another_Descriptor()
+        {
+            // Given
+            var resolveHandler = Substitute.For<ICodeLensHandler>();
+            var handlerDescriptor = new HandlerDescriptor(
+                        DocumentNames.CodeLens,
+                        "Key",
+                        resolveHandler,
+                        resolveHandler.GetType(),
+                        typeof(CodeLensParams),
+                        null,
+                        null,
+                        () => { });
+            var handlerMatcher = new ResolveCommandMatcher(_logger);
+
+            // When
+            Action a = () => handlerMatcher.Process(handlerDescriptor, new CodeLensParams(), new CodeLensContainer());
+            a.ShouldNotThrow();
+        }
+
+        [Fact]
         public void Should_Return_CodeLensResolve_Descriptor()
         {
             // Given
@@ -63,8 +84,7 @@ namespace Lsp.Tests.Matchers
             resolveHandler2.CanResolve(Arg.Any<CodeLens>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CodeLens()
-            {
+            var result = handlerMatcher.FindHandler(new CodeLens() {
                 Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
             },
                     new List<HandlerDescriptor> {
@@ -103,8 +123,7 @@ namespace Lsp.Tests.Matchers
             resolveHandler2.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem()
-            {
+            var result = handlerMatcher.FindHandler(new CompletionItem() {
                 Data = JToken.FromObject(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } })
             },
                     new List<HandlerDescriptor> {
@@ -146,8 +165,7 @@ namespace Lsp.Tests.Matchers
             (resolveHandler2 as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem()
-            {
+            var result = handlerMatcher.FindHandler(new CompletionItem() {
                 Data = new JObject()
             },
                     new List<HandlerDescriptor> {
@@ -189,8 +207,7 @@ namespace Lsp.Tests.Matchers
             (resolveHandler2 as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(false);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem()
-            {
+            var result = handlerMatcher.FindHandler(new CompletionItem() {
                 Data = new JObject()
             },
                     new List<HandlerDescriptor> {
@@ -287,9 +304,9 @@ namespace Lsp.Tests.Matchers
                             () => { });
 
             var item = new CompletionItem() {
-                Data =JObject.FromObject(new { hello = "world" })
+                Data = JObject.FromObject(new { hello = "world" })
             };
-            var list = new CompletionList(new [] {item});
+            var list = new CompletionList(new[] { item });
 
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
@@ -325,9 +342,9 @@ namespace Lsp.Tests.Matchers
                             () => { });
 
             var item = new CodeLens() {
-                Data =JObject.FromObject(new { hello = "world" })
+                Data = JObject.FromObject(new { hello = "world" })
             };
-            var list = new CodeLensContainer(new [] {item});
+            var list = new CodeLensContainer(new[] { item });
 
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
