@@ -113,6 +113,33 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
+        public void Should_Handle_Null_Data()
+        {
+            // Given
+            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var resolveHandler = Substitute.For<ICompletionResolveHandler>();
+            resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
+
+            // When
+            var result = handlerMatcher.FindHandler(new CompletionItem() { },
+                    new List<HandlerDescriptor> {
+                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                            "Key",
+                            resolveHandler,
+                            resolveHandler.GetType(),
+                            typeof(CompletionItem),
+                            null,
+                            null,
+                            () => { }),
+                    })
+                .ToArray();
+
+            // Then
+            result.Should().NotBeNullOrEmpty();
+            result.Should().Contain(x => x.Handler == resolveHandler);
+        }
+
+        [Fact]
         public void Should_Return_CompletionResolve_Descriptor()
         {
             // Given

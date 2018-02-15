@@ -29,7 +29,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             if (parameters is ICanBeResolved canBeResolved)
             {
-                var handlerType = canBeResolved.Data?.Value<string>(PrivateHandlerTypeName);
+                string handlerType = null;
+                if (canBeResolved.Data != null)
+                    handlerType = canBeResolved.Data.Value<string>(PrivateHandlerTypeName);
+
                 if (string.IsNullOrWhiteSpace(handlerType))
                 {
                     foreach (var descriptor in descriptors)
