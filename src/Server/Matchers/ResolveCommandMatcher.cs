@@ -127,10 +127,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 
         public object Process(ILspHandlerDescriptor descriptor, object parameters, object response)
         {
-            var registrationOptions = descriptor.Registration.RegisterOptions as TextDocumentRegistrationOptions;
-
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (registrationOptions?.DocumentSelector != null &&
+            if (descriptor is HandlerDescriptor handlerDescriptor &&
                 response is IEnumerable<ICanBeResolved> canBeResolveds &&
                 descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
             {
@@ -145,7 +143,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     var data = new JObject();
                     data["data"] = item.Data;
                     data[PrivateHandlerTypeName] = descriptor.Handler.GetType().FullName;
-                    data[PrivateHandlerKey] = registrationOptions.DocumentSelector.ToString();
+                    data[PrivateHandlerKey] = handlerDescriptor.Key;
                     item.Data = data;
                 }
             }
