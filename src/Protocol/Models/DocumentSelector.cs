@@ -39,7 +39,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator string(DocumentSelector documentSelector)
         {
-            return string.Join(", ", documentSelector.Select(x => (string)x));
+            return documentSelector != null ?
+                string.Join(", ", documentSelector.Select(x => (string)x)) :
+                null;
         }
 
         public bool IsMatch(TextDocumentAttributes attributes)

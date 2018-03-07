@@ -192,6 +192,22 @@ namespace Lsp.Tests
             descriptor.Key.Should().Be("default");
         }
 
+        [Fact]
+        public void Should_DealWithClassesThatImplementMultipleHandlers_BySettingKeyAccordingly()
+        {
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
+            ((ICodeLensHandler)codeLensHandler).GetRegistrationOptions()
+                .Returns(new CodeLensRegistrationOptions() {
+                    DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
+                });
+
+            var handler = new HandlerCollection();
+            handler.Add(codeLensHandler as IJsonRpcHandler);
+
+            var descriptor = handler._handlers.Select(x => x.Key);
+            descriptor.ShouldAllBeEquivalentTo(new [] { "[foo]", "[foo]" });
+        }
+
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
             var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);

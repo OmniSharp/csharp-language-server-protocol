@@ -82,11 +82,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var key = "default";
             // This protects against the case where class implements many, possibly conflicting, interfaces.
-            if (registration != null &&
-                typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registration) &&
+            if ((registration != null && typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registration) ||
+                registration == null && implementedType.GetTypeInfo().ImplementedInterfaces.Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>))) &&
                 handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
             {
-                key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
+                key = string.IsNullOrEmpty(handlerRegistration?.GetRegistrationOptions()?.DocumentSelector)
+                    ? key
+                    : handlerRegistration?.GetRegistrationOptions()?.DocumentSelector;
             }
 
             return new HandlerDescriptor(

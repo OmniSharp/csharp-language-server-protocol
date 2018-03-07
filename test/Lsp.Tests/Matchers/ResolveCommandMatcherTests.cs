@@ -374,6 +374,7 @@ namespace Lsp.Tests.Matchers
             (response as CompletionList).Items.Should().Contain(item);
             var responseItem = (response as CompletionList).Items.First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
+            responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
         }
 
@@ -412,6 +413,7 @@ namespace Lsp.Tests.Matchers
             (response as CodeLensContainer).Should().Contain(item);
             var responseItem = (response as CodeLensContainer).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
+            responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
         }
 
