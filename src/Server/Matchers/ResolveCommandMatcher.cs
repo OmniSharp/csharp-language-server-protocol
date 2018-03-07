@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
     {
         private readonly ILogger _logger;
         internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
+        internal static string PrivateHandlerKey = "$$___handlerKey___$$";
 
         public ResolveCommandMatcher(ILogger logger)
         {
@@ -30,10 +31,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             if (parameters is ICanBeResolved canBeResolved)
             {
                 string handlerType = null;
+                string handlerKey = null;
                 if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                {
                     handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
+                    handlerKey = canBeResolved.Data?[PrivateHandlerKey]?.ToString();
+                }
 
-                if (string.IsNullOrWhiteSpace(handlerType))
+                if (string.IsNullOrWhiteSpace(handlerType) &&
+                    string.IsNullOrWhiteSpace(handlerKey))
                 {
                     foreach (var descriptor in descriptors)
                     {
@@ -65,7 +71,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     _logger.LogTrace("Checking handler {Method}:{Handler}",
                         descriptor.Method,
                         descriptor.Handler.GetType().FullName);
-                    if (descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType)
+                    if ((descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
+                        ((descriptor is HandlerDescriptor handlerDescriptor) && handlerDescriptor.Key == handlerKey))
                     {
                         yield return descriptor;
                     }
@@ -120,8 +127,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 
         public object Process(ILspHandlerDescriptor descriptor, object parameters, object response)
         {
+            var registrationOptions = descriptor.Registration.RegisterOptions as TextDocumentRegistrationOptions;
+
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (response is IEnumerable<ICanBeResolved> canBeResolveds &&
+            if (registrationOptions?.DocumentSelector != null &&
+                response is IEnumerable<ICanBeResolved> canBeResolveds &&
                 descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
             {
                 _logger.LogTrace("Updating Resolve items with wrapped data for {Method}:{Handler}",
@@ -135,6 +145,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     var data = new JObject();
                     data["data"] = item.Data;
                     data[PrivateHandlerTypeName] = descriptor.Handler.GetType().FullName;
+                    data[PrivateHandlerKey] = registrationOptions.DocumentSelector.ToString();
                     item.Data = data;
                 }
             }
