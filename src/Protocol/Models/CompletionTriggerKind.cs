@@ -14,5 +14,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Completion was triggered by a trigger character specified by the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
         /// </summary>
         TriggerCharacter = 2,
+        /// <summary>
+        /// Completion was re-triggered as the current completion list is incomplete.
+        /// </summary>
+        TriggerForIncompleteCompletions = 3,
     }
 }

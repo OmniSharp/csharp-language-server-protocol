@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///  The id used to unregister the request or notification. Usually an id
         ///  provided during the register request.
         /// </summary>
-        public string Id { get; set; }
+        public BooleanString Id { get; set; }
 
         /// <summary>
         ///  The method to unregister for.

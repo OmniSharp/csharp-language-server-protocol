@@ -103,7 +103,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             return new ImmutableDisposable(
                 handlerDisposable,
-                new Disposable(() => {
+                new Disposable(() =>
+                {
                     var foundItems = _collection
                         .Where(x => handler == x.Handler)
                         .Where(x => x.AllowsDynamicRegistration)
@@ -111,7 +112,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         .Where(x => x != null)
                         .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() {
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
+                    {
                         Unregisterations = foundItems
                     }));
                 }));
@@ -133,7 +135,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             return new ImmutableDisposable(
                 handlerDisposable,
-                new Disposable(() => {
+                new Disposable(() =>
+                {
                     var foundItems = handlers
                     .SelectMany(handler => _collection
                         .Where(x => handler == x.Handler)
@@ -142,7 +145,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         .Where(x => x != null))
                     .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams() {
+                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
+                    {
                         Unregisterations = foundItems
                     }));
                 }));
@@ -193,7 +197,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
-            var serverCapabilities = new ServerCapabilities() {
+            var serverCapabilities = new ServerCapabilities()
+            {
                 CodeActionProvider = ccp.HasStaticHandler(textDocumentCapabilities.CodeAction),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
@@ -209,8 +214,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
                 RenameProvider = ccp.HasStaticHandler(textDocumentCapabilities.Rename),
                 SignatureHelpProvider = ccp.GetStaticOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = ccp.HasStaticHandler(workspaceCapabilities.Symbol)
+                WorkspaceSymbolProvider = ccp.HasStaticHandler(workspaceCapabilities.Symbol),
+                ImplementationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Implementation).Get<IImplementationOptions, ImplementationOptions>(ImplementationOptions.Of),
+                TypeDefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.TypeDefinition).Get<ITypeDefinitionOptions, TypeDefinitionOptions>(TypeDefinitionOptions.Of),
+                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, StaticColorOptions>(ColorOptions.Of),
             };
+
+            if (_collection.ContainsHandler(typeof(IWorkspaceFolderHandler)))
+            {
+                serverCapabilities.Workspace = new WorkspaceServerCapabilities()
+                {
+                    WorkspaceFolders = new WorkspaceFolderOptions()
+                    {
+                        Supported = true,
+                        ChangeNotifications = _collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler))
+                    }
+                };
+            }
 
             var textSyncHandlers = _collection
                 .Select(x => x.Handler)
@@ -236,7 +256,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     // TODO: Merge options
                     serverCapabilities.TextDocumentSync =
-                        textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
+                        textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions()
+                        {
                             Change = TextDocumentSyncKind.None,
                             OpenClose = false,
                             Save = new SaveOptions() { IncludeText = false },
@@ -272,7 +293,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return this;
         }
 
-        public Task Handle()
+        public Task Handle(InitializedParams @params)
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {

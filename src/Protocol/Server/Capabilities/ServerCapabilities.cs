@@ -2,15 +2,17 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class ServerCapabilities
     {
-// TODO NEXT:
-// Create ability for server capabilties to be pulled from registered handlers
-// Create the ability to look at the client capabilities to determine what parts we need to answer now (completion for example)
+        // TODO NEXT:
+        // Create ability for server capabilties to be pulled from registered handlers
+        // Create the ability to look at the client capabilities to determine what parts we need to answer now (completion for example)
 
         /// <summary>
         ///  Defines how text documents are synced. Is either a detailed structure defining each notification or
@@ -103,5 +105,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
+        /// <summary>
+        /// The server provides Goto Type Definition support.
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<TypeDefinitionOptions> TypeDefinitionProvider { get; set; }
+        /// <summary>
+        /// The server provides Goto Implementation support.
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        [Optional]
+        public BooleanOr<ImplementationOptions> ImplementationProvider { get; set; }
+        /// <summary>
+        /// The server provides color provider support.
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        [Optional]
+        public StaticColorOptions ColorProvider { get; set; }
+        /// <summary>
+        /// Workspace specific server capabilities
+        /// </summary>
+        [Optional]
+        public WorkspaceServerCapabilities Workspace { get; set; }
     }
 }

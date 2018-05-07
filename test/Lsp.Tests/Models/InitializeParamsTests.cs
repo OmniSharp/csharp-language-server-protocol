@@ -46,7 +46,7 @@ namespace Lsp.Tests.Models
                             WillSaveWaitUntil = true
                         }
                     },
-                    Workspace = new WorkspaceClientCapabilites() {
+                    Workspace = new WorkspaceClientCapabilities() {
                         ApplyEdit = true,
                         DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
                         DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },

@@ -113,5 +113,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ?.GetTypeInfo()
                 ?.GetGenericArguments()[0];
         }
+
+        public bool ContainsHandler(Type type)
+        {
+            return ContainsHandler(type.GetTypeInfo());
+        }
+
+        public bool ContainsHandler(TypeInfo typeInfo)
+        {
+            return this.Any(z =>
+                    z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) ||
+                    z.Handler.GetType().GetTypeInfo().IsAssignableFrom(typeInfo));
+        }
     }
 }

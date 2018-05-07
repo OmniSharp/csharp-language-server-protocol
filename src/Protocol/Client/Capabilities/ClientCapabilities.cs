@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Workspace specific client capabilities.
         /// </summary>
-        public WorkspaceClientCapabilites Workspace { get; set; }
+        public WorkspaceClientCapabilities Workspace { get; set; }
 
         /// <summary>
         /// Text document specific client capabilities.

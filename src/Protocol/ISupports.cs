@@ -1,6 +1,6 @@
 using System;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface ISupports
     {
