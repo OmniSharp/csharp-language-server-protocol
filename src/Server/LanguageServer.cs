@@ -220,14 +220,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, StaticColorOptions>(ColorOptions.Of),
             };
 
-            if (_collection.ContainsHandler(typeof(IWorkspaceFolderHandler)))
+            if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
                 serverCapabilities.Workspace = new WorkspaceServerCapabilities()
                 {
                     WorkspaceFolders = new WorkspaceFolderOptions()
                     {
                         Supported = true,
-                        ChangeNotifications = _collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler))
+                        ChangeNotifications = Guid.NewGuid().ToString()
                     }
                 };
             }
@@ -356,6 +356,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
         {
             return _responseRouter.SendRequest<T, TResponse>(method, @params);
+        }
+
+        public Task<TResponse> SendRequest<TResponse>(string method)
+        {
+            return _responseRouter.SendRequest<TResponse>(method);
         }
 
         public Task SendRequest<T>(string method, T @params)

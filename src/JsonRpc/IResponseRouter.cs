@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         void SendNotification<T>(string method, T @params);
         Task<TResponse> SendRequest<T, TResponse>(string method, T @params);
+        Task<TResponse> SendRequest<TResponse>(string method);
         Task SendRequest<T>(string method, T @params);
         TaskCompletionSource<JToken> GetRequest(long id);
     }

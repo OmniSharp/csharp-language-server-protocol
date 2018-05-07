@@ -54,6 +54,34 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
+        public async Task<TResponse> SendRequest<TResponse>(string method)
+        {
+            long nextId;
+            lock (_lock)
+            {
+                nextId = _id++;
+            }
+
+            var tcs = new TaskCompletionSource<JToken>();
+            _requests.TryAdd(nextId, tcs);
+
+            _outputHandler.Send(new Client.Request() {
+                Method = method,
+                Params = null,
+                Id = nextId
+            });
+
+            try
+            {
+                var result = await tcs.Task;
+                return result.ToObject<TResponse>(_serializer.JsonSerializer);
+            }
+            finally
+            {
+                _requests.TryRemove(nextId, out var _);
+            }
+        }
+
         public async Task SendRequest<T>(string method, T @params)
         {
             long nextId;
