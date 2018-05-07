@@ -107,9 +107,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     var foundItems = _collection
                         .Where(x => handler == x.Handler)
-                        .Where(x => x.AllowsDynamicRegistration)
+                        .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
                         .Select(x => x.Registration)
-                        .Where(x => x != null)
                         .ToArray();
 
                     Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
@@ -140,9 +139,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var foundItems = handlers
                     .SelectMany(handler => _collection
                         .Where(x => handler == x.Handler)
-                        .Where(x => x.AllowsDynamicRegistration)
-                        .Select(x => x.Registration)
-                        .Where(x => x != null))
+                        .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
+                        .Select(x => x.Registration))
                     .ToArray();
 
                     Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
@@ -324,7 +322,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private async Task DynamicallyRegisterHandlers()
         {
             var registrations = _collection
-                .Where(x => x.AllowsDynamicRegistration)
+                .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
                 .Select(handler => handler.Registration)
                 .ToList();
 

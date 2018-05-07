@@ -11,15 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         public static async Task RegisterCapability(this IResponseRouter mediator,  RegistrationParams @params)
         {
-            try
-            {
                 await mediator.SendRequest(Client.ClientNames.RegisterCapability, @params);
-            }
-            catch (Exception e)
-            {
-                // VsCode today does not implement LSP properly.
-                await mediator.SendRequest("client/registerFeature", @params);
-            }
         }
     }
 }

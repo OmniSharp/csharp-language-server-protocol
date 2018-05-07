@@ -16,15 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         public static async Task UnregisterCapability(this IResponseRouter mediator, UnregistrationParams @params)
         {
-            try
-            {
-                await mediator.SendRequest(ClientNames.UnregisterCapability, @params);
-            }
-            catch (Exception e)
-            {
-                // VsCode today does not implement LSP properly.
-                await mediator.SendRequest("client/unregisterFeature", @params);
-            }
+            await mediator.SendRequest(ClientNames.UnregisterCapability, @params);
         }
     }
 }
