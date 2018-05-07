@@ -1,5 +1,5 @@
 using OmniSharp.Extensions.JsonRpc;
-
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 // ReSharper disable CheckNamespace
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
@@ -11,5 +11,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Initialized)]
-    public interface IInitializedHandler : INotificationHandler { }
+    public interface IInitializedHandler : INotificationHandler<InitializedParams> { }
 }
