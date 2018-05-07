@@ -78,5 +78,7 @@
             "abc": "test"
         }
     },
-    "trace": "verbose"
+    "trace": "verbose",
+    "workspaceFolders": null
 }
+
