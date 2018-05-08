@@ -1,33 +1,43 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public static class ReflectionRequestHandlers
+    public static class MediatRHandlers
     {
-        public static Task HandleNotification(IHandlerDescriptor instance)
-        {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo PublishNotificationMethod = typeof(MediatRHandlers)
+            .GetMethod(nameof(PublishNotification), BindingFlags.NonPublic | BindingFlags.Static);
 
-            return (Task)method.Invoke(instance.Handler, new object[0]);
+        private static readonly MethodInfo SendRequestMethod = typeof(MediatRHandlers)
+            .GetMethod(nameof(SendRequest), BindingFlags.NonPublic | BindingFlags.Static);
+
+        public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token)
+        {
+            return (Task)PublishNotificationMethod
+                .MakeGenericMethod(handler.Params ?? typeof(INotification))
+                .Invoke(null, new object[] { mediator, @params, token });
         }
 
-        public static Task HandleNotification(IHandlerDescriptor instance, object @params)
+        private static Task PublishNotification<T>(IMediator mediator, T notification, CancellationToken token)
+            where T : INotification
         {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
-
-            return (Task)method.Invoke(instance.Handler, new[] { @params });
+            return mediator.Publish(notification, token);
         }
 
-        public static Task HandleRequest(IHandlerDescriptor instance, object @params, CancellationToken token)
+        public static Task HandleRequest(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token)
         {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(IRequestHandler<object, object>.Handle), BindingFlags.Public | BindingFlags.Instance);
+            return (Task)SendRequestMethod
+                .MakeGenericMethod(handler.Params ?? typeof(INotification))
+                .Invoke(null, new object[] { mediator, @params, token });
+        }
 
-            return (Task)method.Invoke(instance.Handler, new[] { @params, token });
+        private static Task SendRequest<T>(IMediator mediator, T request, CancellationToken token)
+            where T : IRequest
+        {
+            return mediator.Send(request, token);
         }
     }
 }

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -11,17 +13,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
+using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using Xunit;
 
 namespace Lsp.Tests.Matchers
 {
     public class ResolveCommandMatcherTests
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<ResolveCommandMatcher> _logger;
 
         public ResolveCommandMatcherTests()
         {
-            _logger = Substitute.For<ILogger>();
+            _logger = Substitute.For<ILogger<ResolveCommandMatcher>>();
         }
 
         [Fact]
@@ -66,11 +69,13 @@ namespace Lsp.Tests.Matchers
                         null,
                         null,
                         () => { });
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+                new LspRequestContext() { Descriptor = handlerDescriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             // When
-            Action a = () => handlerMatcher.Process(handlerDescriptor, new CodeLensParams(), new CodeLensContainer());
-            a.ShouldNotThrow();
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new CodeLensContainer()));
+            a.Should().NotThrow();
         }
 
         [Fact]
@@ -292,58 +297,9 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_FindPostProcessor_AsSelf_For_CodeLens()
-        {
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
-            var resolveHandler = Substitute.For<ICodeLensHandler>();
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.CodeLens,
-                            "Key",
-                            resolveHandler,
-                            resolveHandler.GetType(),
-                            typeof(CodeLensParams),
-                            null,
-                            null,
-                            () => { });
-
-            // When
-            var processors = handlerMatcher
-                .FindPostProcessor(descriptor, new CodeLensParams(), new CodeLensContainer())
-                .ToArray();
-
-            // Then
-            processors.Should().Contain(x => x == handlerMatcher);
-        }
-
-        [Fact]
-        public void Should_FindPostProcessor_AsSelf_For_Completion()
-        {
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
-            var resolveHandler = Substitute.For<ICompletionHandler>();
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.Completion,
-                            "Key",
-                            resolveHandler,
-                            resolveHandler.GetType(),
-                            typeof(CompletionParams),
-                            null,
-                            null,
-                            () => { });
-
-            // When
-            var processors = handlerMatcher
-                .FindPostProcessor(descriptor, new CompletionParams(), new CompletionList(Enumerable.Empty<CompletionItem>()))
-                .ToArray();
-
-            // Then
-            processors.Should().Contain(x => x == handlerMatcher);
-        }
-
-        [Fact]
-        public void Should_Update_CompletionItems_With_HandlerType()
+        public async Task Should_Update_CompletionItems_With_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICompletionHandler),
                 typeof(ICompletionResolveHandler)
@@ -358,6 +314,9 @@ namespace Lsp.Tests.Matchers
                             null,
                             null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CompletionParams, CompletionList>(
+                new LspRequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CompletionParams, CompletionList>>>());
 
             var item = new CompletionItem() {
                 Data = JObject.FromObject(new { hello = "world" })
@@ -367,10 +326,10 @@ namespace Lsp.Tests.Matchers
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
             // When
-            var response = handlerMatcher.Process(descriptor, new CompletionParams(), list);
+            var response = await handlerMatcher.Handle(new CompletionParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().Be(list);
+            response.Should().BeEquivalentTo(list);
             (response as CompletionList).Items.Should().Contain(item);
             var responseItem = (response as CompletionList).Items.First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
@@ -379,10 +338,9 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_Update_CodeLensContainer_With_HandlerType()
+        public async Task Should_Update_CodeLensContainer_With_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICodeLensHandler),
                 typeof(ICodeLensResolveHandler)
@@ -397,6 +355,9 @@ namespace Lsp.Tests.Matchers
                             null,
                             null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+                new LspRequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             var item = new CodeLens() {
                 Data = JObject.FromObject(new { hello = "world" })
@@ -406,10 +367,10 @@ namespace Lsp.Tests.Matchers
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
             // When
-            var response = handlerMatcher.Process(descriptor, new CodeLensParams(), list);
+            var response = await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().Be(list);
+            response.Should().BeEquivalentTo(list);
             (response as CodeLensContainer).Should().Contain(item);
             var responseItem = (response as CodeLensContainer).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
@@ -418,10 +379,9 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_Update_CodeLens_Removing_HandlerType()
+        public async Task Should_Update_CodeLens_Removing_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICodeLensHandler),
                 typeof(ICodeLensResolveHandler)
@@ -436,6 +396,9 @@ namespace Lsp.Tests.Matchers
                             null,
                             null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CodeLens, CodeLens>(
+                new LspRequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLens, CodeLens>>>());
 
             var item = new CodeLens() {
                 Data = JObject.FromObject(new { data = new { hello = "world" } })
@@ -443,10 +406,10 @@ namespace Lsp.Tests.Matchers
             item.Data[ResolveCommandMatcher.PrivateHandlerTypeName] = resolveHandler.GetType().FullName;
 
             // When
-            var response = handlerMatcher.Process(descriptor, item);
+            var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
-            response.Should().Be(item);
+            response.Should().BeEquivalentTo(item);
             item.Data?[ResolveCommandMatcher.PrivateHandlerTypeName].Should().BeNull();
             item.Data["hello"].Value<string>().Should().Be("world");
         }

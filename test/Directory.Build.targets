@@ -1,0 +1,10 @@
+<Project>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(Microsoft_NET_Test_Sdk_Version)" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="$(xunit_Version)" />
+        <PackageReference Include="xunit" Version="$(xunit_Version)" />
+        <PackageReference Include="FluentAssertions" Version="$(FluentAssertions_Version)" />
+        <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
+        <DotNetCliToolReference Include="dotnet-xunit" Version="$(xunit_Version)" />
+    </ItemGroup>
+</Project>

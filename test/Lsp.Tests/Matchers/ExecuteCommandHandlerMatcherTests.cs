@@ -17,11 +17,11 @@ namespace Lsp.Tests.Matchers
 {
     public class ExecuteCommandHandlerMatcherTests
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<ExecuteCommandMatcher> _logger;
 
         public ExecuteCommandHandlerMatcherTests()
         {
-            _logger = Substitute.For<ILogger>();
+            _logger = Substitute.For<ILogger<ExecuteCommandMatcher>>();
         }
 
         [Fact]

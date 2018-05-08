@@ -1,14 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyName>OmniSharp.Extensions.LanguageProtocol</AssemblyName>
-    <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.LanguageProtocol</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
+    </PropertyGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
+    </ItemGroup>
 </Project>

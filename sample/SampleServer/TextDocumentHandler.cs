@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -40,7 +41,7 @@ namespace SampleServer
             OpenClose = true
         };
 
-        public Task Handle(DidChangeTextDocumentParams notification)
+        public Task Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
             _router.LogMessage(new LogMessageParams()
             {
@@ -64,7 +65,7 @@ namespace SampleServer
             _capability = capability;
         }
 
-        public async Task Handle(DidOpenTextDocumentParams notification)
+        public async Task Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
             _router.LogMessage(new LogMessageParams()
@@ -82,12 +83,12 @@ namespace SampleServer
             };
         }
 
-        public Task Handle(DidCloseTextDocumentParams notification)
+        public Task Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
             return Task.CompletedTask;
         }
 
-        public Task Handle(DidSaveTextDocumentParams notification)
+        public Task Handle(DidSaveTextDocumentParams notification, CancellationToken token)
         {
             return Task.CompletedTask;
         }

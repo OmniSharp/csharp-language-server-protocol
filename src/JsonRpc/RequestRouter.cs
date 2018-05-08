@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -12,11 +13,13 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly HandlerCollection _collection;
         private readonly ISerializer _serializer;
+        private readonly IMediator _mediator;
 
-        public RequestRouter(HandlerCollection collection, ISerializer serializer)
+        public RequestRouter(HandlerCollection collection, ISerializer serializer, IMediator mediator)
         {
             _collection = collection;
             _serializer = serializer;
+            _mediator = mediator;
         }
 
         public IDisposable Add(IJsonRpcHandler handler)
@@ -32,16 +35,12 @@ namespace OmniSharp.Extensions.JsonRpc
         public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
         {
             Task result;
-            if (handler.Params is null)
+            object @params = null;
+            if (!(handler.Params is null))
             {
-                result = ReflectionRequestHandlers.HandleNotification(handler);
+                @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
             }
-            else
-            {
-                var @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
-                result = ReflectionRequestHandlers.HandleNotification(handler, @params);
-            }
-            await result.ConfigureAwait(false);
+            await MediatRHandlers.HandleNotification(_mediator, handler, @params, CancellationToken.None).ConfigureAwait(false);
         }
 
         public Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request)
@@ -56,17 +55,17 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new MethodNotFound(request.Id, request.Method);
             }
 
-                object @params;
-                try
-                {
-                    @params = request.Params.ToObject(handler.Params, _serializer.JsonSerializer);
-                }
-                catch
-                {
-                    return new InvalidParams(request.Id);
-                }
+            object @params;
+            try
+            {
+                @params = request.Params.ToObject(handler.Params, _serializer.JsonSerializer);
+            }
+            catch
+            {
+                return new InvalidParams(request.Id);
+            }
 
-                var result = ReflectionRequestHandlers.HandleRequest(handler, @params, token);
+            var result = MediatRHandlers.HandleRequest(_mediator, handler, @params, token);
 
             await result.ConfigureAwait(false);
 

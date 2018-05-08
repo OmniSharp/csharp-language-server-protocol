@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -6,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class InitializeParams
+    public class InitializeParams : IRequest<InitializeResult>
     {
         /// <summary>
         /// The process Id of the parent process that started

@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 
         private readonly TaskCompletionSource<bool> _shutdownSource = new TaskCompletionSource<bool>(TaskContinuationOptions.LongRunning);
         public Task WasShutDown => _shutdownSource.Task;
-        public async Task Handle(object request, CancellationToken token)
+        public async Task Handle(IRequest request, CancellationToken token)
         {
             await Task.Yield(); // Ensure shutdown handler runs asynchronously.
 

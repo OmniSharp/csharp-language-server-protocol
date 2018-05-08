@@ -12,5 +12,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(DocumentLinkResolve)]
-    public interface IDocumentLinkResolveHandler : IRequestHandler<DocumentLink, DocumentLink> { }
+    public interface IDocumentLinkResolveHandler : IJsonRpcRequestHandler<DocumentLink, DocumentLink> { }
 }

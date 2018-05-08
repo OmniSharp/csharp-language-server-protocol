@@ -8,9 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
     public class ExecuteCommandMatcher : IHandlerMatcher
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<ExecuteCommandMatcher> _logger;
 
-        public ExecuteCommandMatcher(ILogger logger)
+        public ExecuteCommandMatcher(ILogger<ExecuteCommandMatcher> logger)
         {
             _logger = logger;
         }

@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(TypeDefinition)]
-    public interface ITypeDefinitionHandler : IRequestHandler<TextDocumentPositionParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions>, ICapability<TypeDefinitionCapability> { }
+    public interface ITypeDefinitionHandler : IJsonRpcRequestHandler<TypeDefinitionParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions>, ICapability<TypeDefinitionCapability> { }
 }

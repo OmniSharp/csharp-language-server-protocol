@@ -1,0 +1,22 @@
+<Project>
+    <PropertyGroup>
+        <Company>OmniSharp</Company>
+        <Copyright>Copyright OmniSharp and contributors © 2018</Copyright>
+        <Authors>David Driscoll</Authors>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Microsoft_Extensions_Logging_Version>2.0.0</Microsoft_Extensions_Logging_Version>
+        <Microsoft_Extensions_DependencyInjection_Version>2.0.0</Microsoft_Extensions_DependencyInjection_Version>
+        <Newtonsoft_Version>11.0.2</Newtonsoft_Version>
+        <SourceLink_Version>2.8.1</SourceLink_Version>
+        <System_Reactive_Version>3.1.1</System_Reactive_Version>
+        <MediatR_Version>4.1.0</MediatR_Version>
+        <Microsoft_NET_Test_Sdk_Version>15.7.0</Microsoft_NET_Test_Sdk_Version>
+        <xunit_Version>2.3.1</xunit_Version>
+        <FluentAssertions_Version>5.3.0</FluentAssertions_Version>
+        <NSubstitute_Version>3.1.0</NSubstitute_Version>
+        <Serilog_Extensions_Logging_Version>2.0.2</Serilog_Extensions_Logging_Version>
+        <Serilog_Sinks_XUnit_Version>1.0.5</Serilog_Sinks_XUnit_Version>
+    </PropertyGroup>
+</Project>

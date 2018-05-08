@@ -1,4 +1,6 @@
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
@@ -17,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
         public Task WaitForExit => _exitedSource.Task;
 
 
-        public Task Handle()
+        public Task Handle(IRequest request, CancellationToken token)
         {
             var result = _shutdownHandler.ShutdownRequested ? 0 : 1;
             Exit?.Invoke(result);

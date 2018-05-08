@@ -1,3 +1,4 @@
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -5,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class CompletionItem : ICanBeResolved
+    public class CompletionItem : ICanBeResolved, IRequest<CompletionItem>
     {
         /// <summary>
         /// The label of this completion item. By default

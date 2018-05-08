@@ -1,3 +1,4 @@
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable CheckNamespace
@@ -11,5 +12,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Shutdown)]
-    public interface IShutdownHandler : IRequestHandler<object> { }
+    public interface IShutdownHandler : IJsonRpcRequestHandler<IRequest> { }
 }

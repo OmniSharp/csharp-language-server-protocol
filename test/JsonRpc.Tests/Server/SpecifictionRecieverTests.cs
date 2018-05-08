@@ -26,7 +26,7 @@ namespace JsonRpc.Tests.Server
                 var r = request[i];
                 var response = result[i];
 
-                response.ShouldBeEquivalentTo(r);
+                response.Should().BeEquivalentTo(r);
             }
         }
 
