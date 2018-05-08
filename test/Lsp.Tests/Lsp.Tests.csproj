@@ -10,9 +10,6 @@
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Serilog.Extensions.Logging" Version="$(Serilog_Extensions_Logging_Version)" />
-        <PackageReference Include="Serilog.Sinks.XUnit" Version="$(Serilog_Sinks_XUnit_Version)" />
+        <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>
 </Project>

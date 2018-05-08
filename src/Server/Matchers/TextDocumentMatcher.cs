@@ -13,10 +13,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         private readonly ILogger<TextDocumentMatcher> _logger;
         private readonly Func<IEnumerable<ITextDocumentSyncHandler>> _getSyncHandlers;
 
-        public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, Func<IEnumerable<ITextDocumentSyncHandler>> getSyncHandlers)
+        public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, IHandlerCollection handlerCollection)
         {
             _logger = logger;
-            _getSyncHandlers = getSyncHandlers;
+            _getSyncHandlers = handlerCollection.TextDocumentSyncHandlers;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)

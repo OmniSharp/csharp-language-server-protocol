@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -26,7 +27,8 @@ namespace JsonRpc.Tests.Server
                 var r = request[i];
                 var response = result[i];
 
-                response.Should().BeEquivalentTo(r);
+                JsonConvert.SerializeObject(response)
+                    .Should().Be(JsonConvert.SerializeObject(r));
             }
         }
 

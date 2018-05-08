@@ -5,17 +5,17 @@ using Serilog.Extensions.Logging;
 using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
 
-namespace Lsp.Tests
+// ReSharper disable once CheckNamespace
+namespace NSubstitute
 {
     public class TestLoggerFactory : ILoggerFactory
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private readonly SerilogLoggerProvider _loggerProvider;
 
         public TestLoggerFactory(ITestOutputHelper testOutputHelper)
         {
             _loggerProvider = new SerilogLoggerProvider(
-                new Serilog.LoggerConfiguration()
+                new LoggerConfiguration()
                     .WriteTo.TestOutput(testOutputHelper)
                     .CreateLogger()
             );

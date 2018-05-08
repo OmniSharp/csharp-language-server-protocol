@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -22,6 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Key = key;
             HandlerType = handlerType;
             Params = @params;
+            Response = Response;
             RegistrationType = registrationType;
             CapabilityType = capabilityType;
 
@@ -29,6 +31,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces
                 .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
+
+            var requestInterface = @params?.GetInterfaces()
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
+            if (requestInterface != null)
+                Response = requestInterface.GetGenericArguments()[0];
         }
 
         public IJsonRpcHandler Handler { get; }
@@ -83,6 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public string Method { get; }
         public string Key { get; }
         public Type Params { get; }
+        public Type Response { get; }
 
         public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
         public bool AllowsDynamicRegistration { get; private set; }

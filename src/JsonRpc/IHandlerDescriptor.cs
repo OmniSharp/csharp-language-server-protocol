@@ -8,5 +8,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IJsonRpcHandler Handler { get; }
         Type HandlerType { get; }
         Type Params { get; }
+        Type Response { get; }
     }
 }

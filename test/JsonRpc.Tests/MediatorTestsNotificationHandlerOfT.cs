@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -10,10 +11,11 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
-    public class MediatorTestsNotificationHandlerOfT
+    public class MediatorTestsNotificationHandlerOfT : AutoTestBase
     {
         [Method("$/cancelRequest")]
         public interface ICancelRequestHandler : IJsonRpcNotificationHandler<CancelParams> { }
@@ -23,6 +25,13 @@ namespace JsonRpc.Tests
             public object Id { get; set; }
         }
 
+        public MediatorTestsNotificationHandlerOfT(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+            Services
+                .AddJsonRpcMediatR(new[] { typeof(MediatorTestsNotificationHandler).Assembly })
+                .AddSingleton<ISerializer>(new Serializer());
+        }
+
         [Fact]
         public async Task ExecutesHandler()
         {
@@ -30,12 +39,13 @@ namespace JsonRpc.Tests
             var mediator = Substitute.For<IMediator>();
 
             var collection = new HandlerCollection { cancelRequestHandler };
-            IRequestRouter router = new RequestRouter(collection, new Serializer(), mediator);
+            AutoSubstitute.Provide(collection);
+            var router = AutoSubstitute.Resolve<RequestRouter>();
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await router.RouteNotification(notification);
+            await router.RouteNotification(router.GetDescriptor(notification), notification);
 
             await cancelRequestHandler.Received(1).Handle(Arg.Any<CancelParams>(), Arg.Any<CancellationToken>());
         }

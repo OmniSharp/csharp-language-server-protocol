@@ -15,6 +15,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -27,7 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ILogger<LspRequestRouter> _logger;
 
-        public LspRequestRouter(IHandlerCollection collection,
+        public LspRequestRouter(
+            IHandlerCollection collection,
             ILoggerFactory loggerFactory,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
@@ -89,22 +91,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }))
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<ILspRequestContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                    context.Descriptor = descriptor;
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    context.Descriptor = descriptor as ILspHandlerDescriptor;
 
                     try
                     {
                         if (descriptor.Params is null)
                         {
-                            await MediatRHandlers.HandleNotification(mediator, descriptor, null, CancellationToken.None);
+                            await MediatRHandlers.HandleNotification(mediator, descriptor, EmptyRequest.Instance, CancellationToken.None);
                         }
                         else
                         {
                             _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
                             var @params = notification.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
 
-                            await MediatRHandlers.HandleNotification(mediator, descriptor, @params, CancellationToken.None);
+                            await MediatRHandlers.HandleNotification(mediator, descriptor, @params ?? EmptyRequest.Instance, CancellationToken.None);
                         }
                     }
                     catch (Exception e)
@@ -126,9 +128,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }))
                 using (var scope = _serviceScopeFactory.CreateScope())
                 {
-                    var context = scope.ServiceProvider.GetRequiredService<ILspRequestContext>();
+                    var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                    context.Descriptor = descriptor;
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
-                    context.Descriptor = descriptor as ILspHandlerDescriptor;
 
                     var id = GetId(request.Id);
                     var cts = new CancellationTokenSource();
@@ -155,7 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                             return new InvalidParams(request.Id);
                         }
 
-                        var result = MediatRHandlers.HandleRequest(mediator, descriptor, @params, cts.Token);
+                        var result = MediatRHandlers.HandleRequest(mediator, descriptor, @params ?? EmptyRequest.Instance , cts.Token);
                         await result;
 
                         _logger.LogDebug("Result was {Type}", result.GetType().FullName);
@@ -168,6 +170,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                             responseValue = property.GetValue(result);
+                            if (responseValue?.GetType() == typeof(Unit))
+                            {
+                                responseValue = null;
+                            }
                             _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 

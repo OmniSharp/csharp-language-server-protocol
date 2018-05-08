@@ -187,12 +187,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(reciever);
             services.AddSingleton(loggerFactory);
 
-            services.AddMediatR(assemblies);
-            services.AddScoped<ILspRequestContext, LspRequestContext>();
-            services.AddScoped<SingleInstanceFactory>(p => t => {
-                var context = p.GetService<ILspRequestContext>();
-                return context?.Descriptor != null ? context.Descriptor.Handler : p.GetService(t);
-            });
+            services.AddJsonRpcMediatR(assemblies);
             services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
             services.AddTransient<IHandlerMatcher, ExecuteCommandMatcher>();
             services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();

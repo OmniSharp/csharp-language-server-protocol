@@ -70,7 +70,7 @@ namespace Lsp.Tests.Matchers
                         null,
                         () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
-                new LspRequestContext() { Descriptor = handlerDescriptor },
+                new RequestContext() { Descriptor = handlerDescriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             // When
@@ -315,7 +315,7 @@ namespace Lsp.Tests.Matchers
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CompletionParams, CompletionList>(
-                new LspRequestContext() { Descriptor = descriptor },
+                new RequestContext() { Descriptor = descriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CompletionParams, CompletionList>>>());
 
             var item = new CompletionItem() {
@@ -356,7 +356,7 @@ namespace Lsp.Tests.Matchers
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
-                new LspRequestContext() { Descriptor = descriptor },
+                new RequestContext() { Descriptor = descriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             var item = new CodeLens() {
@@ -397,7 +397,7 @@ namespace Lsp.Tests.Matchers
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLens, CodeLens>(
-                new LspRequestContext() { Descriptor = descriptor },
+                new RequestContext() { Descriptor = descriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLens, CodeLens>>>());
 
             var item = new CodeLens() {

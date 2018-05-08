@@ -29,7 +29,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new List<ITextDocumentSyncHandler>());
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection());
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -44,7 +44,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
 
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new List<ITextDocumentSyncHandler>());
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection());
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -59,7 +59,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new [] { textDocumentSyncHandler });
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection() { textDocumentSyncHandler });
 
             // When
             var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams() {
@@ -89,7 +89,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection() { textDocumentSyncHandler });
 
             // When
             var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
@@ -117,7 +117,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection() { textDocumentSyncHandler });
 
             // When
             var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
@@ -145,7 +145,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection() { textDocumentSyncHandler });
 
             // When
             var result = handlerMatcher.FindHandler(new DidCloseTextDocumentParams() {
@@ -173,7 +173,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var handlerMatcher = new TextDocumentMatcher(_logger, new HandlerCollection() { textDocumentSyncHandler });
 
             var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
             codeLensHandler.GetRegistrationOptions()
