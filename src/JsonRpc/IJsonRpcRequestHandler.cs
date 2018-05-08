@@ -1,5 +1,6 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -12,10 +13,9 @@ namespace OmniSharp.Extensions.JsonRpc
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
     /// <typeparam name="TResponse"></typeparam>
-    public interface IRequestHandler<TRequest, TResponse> : IJsonRpcHandler
-    {
-        Task<TResponse> Handle(TRequest request, CancellationToken token);
-    }
+    public interface IJsonRpcRequestHandler<in TRequest, TResponse> : IRequestHandler<TRequest, TResponse>, IJsonRpcHandler
+        where TRequest : IRequest<TResponse>
+    { }
 
     /// <summary>
     ///
@@ -25,8 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
     ///
     /// </summary>
     /// <typeparam name="TRequest"></typeparam>
-    public interface IRequestHandler<TRequest> : IJsonRpcHandler
-    {
-        Task Handle(TRequest request, CancellationToken token);
-    }
+    public interface IJsonRpcRequestHandler<in TRequest> : IRequestHandler<TRequest>, IJsonRpcHandler
+        where TRequest : IRequest
+    { }
 }

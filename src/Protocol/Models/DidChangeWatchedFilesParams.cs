@@ -1,9 +1,10 @@
-﻿using Newtonsoft.Json;
+using MediatR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DidChangeWatchedFilesParams
+    public class DidChangeWatchedFilesParams : IRequest
     {
         /// <summary>
         ///  The actual file events.

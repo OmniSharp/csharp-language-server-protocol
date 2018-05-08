@@ -1,9 +1,10 @@
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class CancelParams
+    public class CancelParams : IRequest
     {
         /// <summary>
         /// The request id to cancel.

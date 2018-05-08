@@ -20,7 +20,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("null");
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("null");
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
@@ -32,7 +32,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("1");
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("1");
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("true");
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("true");
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
@@ -56,7 +56,7 @@ namespace Lsp.Tests.Models
             result.Should().Be("\"abc\"");
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<BooleanNumberString>("\"abc\"");
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
     }
 }

@@ -15,5 +15,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// InitializeError
     /// </summary>
     [Serial, Method(Initialize)]
-    public interface IInitializeHandler : IRequestHandler<InitializeParams, InitializeResult> { }
+    public interface IInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult> { }
 }

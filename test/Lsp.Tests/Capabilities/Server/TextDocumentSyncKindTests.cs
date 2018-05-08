@@ -20,7 +20,7 @@ namespace Lsp.Tests.Capabilities.Server
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentSyncKind>(expected);
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
     }
 }

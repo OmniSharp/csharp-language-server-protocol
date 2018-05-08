@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -19,9 +20,9 @@ namespace JsonRpc.Tests
     public class MediatorTestsRequestHandlerOfTRequestTResponse
     {
         [Method("textDocument/codeAction")]
-        public interface ICodeActionHandler : IRequestHandler<CodeActionParams, IEnumerable<Command>> { }
+        public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, IEnumerable<Command>> { }
 
-        public class CodeActionParams
+        public class CodeActionParams : IRequest<IEnumerable<Command>>
         {
             public string TextDocument { get; set; }
             public string Range { get; set; }
@@ -39,15 +40,16 @@ namespace JsonRpc.Tests
         public async Task ExecutesHandler()
         {
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
+            var mediator = Substitute.For<IMediator>();
 
             var collection = new HandlerCollection { codeActionHandler };
-            IRequestRouter mediator = new RequestRouter(collection, new Serializer());
+            IRequestRouter router = new RequestRouter(collection, new Serializer(), mediator);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = await mediator.RouteRequest(request);
+            var response = await router.RouteRequest(request);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }

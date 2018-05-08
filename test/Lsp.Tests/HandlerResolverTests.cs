@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using System.Collections.Generic;
+using MediatR;
 
 namespace Lsp.Tests
 {
@@ -168,7 +169,7 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData("somemethod", typeof(IRequestHandler<object, object>))]
+        [InlineData("somemethod", typeof(IJsonRpcRequestHandler<IRequest<object>, object>))]
         public void Should_AllowSpecificHandlers_ToBeAdded(string method, Type handlerType)
         {
             var handler = new HandlerCollection();
@@ -205,7 +206,7 @@ namespace Lsp.Tests
             handler.Add(codeLensHandler as IJsonRpcHandler);
 
             var descriptor = handler._handlers.Select(x => x.Key);
-            descriptor.ShouldAllBeEquivalentTo(new [] { "[foo]", "[foo]" });
+            descriptor.Should().BeEquivalentTo(new [] { "[foo]", "[foo]" });
         }
 
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()

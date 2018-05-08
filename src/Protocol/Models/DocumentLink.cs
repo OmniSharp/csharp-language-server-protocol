@@ -1,4 +1,5 @@
 using System;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -11,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// text document or a web site.
     /// </summary>
 
-    public class DocumentLink
+    public class DocumentLink : ICanBeResolved, IRequest<DocumentLink>
     {
         /// <summary>
         /// The range this link applies to.

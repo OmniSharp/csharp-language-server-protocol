@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class HandlerTypeHelpers
     {
-        private static readonly Type[] HandlerTypes = { typeof(INotificationHandler), typeof(INotificationHandler<>), typeof(IRequestHandler<>), typeof(IRequestHandler<,>), };
+        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler), typeof(IJsonRpcNotificationHandler<>), typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>), };
 
         private static bool IsValidInterface(Type type)
         {

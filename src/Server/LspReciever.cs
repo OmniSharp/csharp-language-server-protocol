@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    class LspReciever : Reciever
+    public class LspReciever : Reciever, ILspReciever
     {
         private bool _initialized;
 

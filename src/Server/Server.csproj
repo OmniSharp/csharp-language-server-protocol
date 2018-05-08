@@ -1,15 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <AssemblyName>OmniSharp.Extensions.LanguageServer</AssemblyName>
-    <RootNamespace>OmniSharp.Extensions.LanguageServer.Server</RootNamespace>
-    <LangVersion>latest</LangVersion>
-  </PropertyGroup>
-  <ItemGroup>
-    <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-    <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-    <ProjectReference Include="..\Protocol\Protocol.csproj" />
-    <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.LanguageServer</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer.Server</RootNamespace>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
+    </ItemGroup>
 </Project>

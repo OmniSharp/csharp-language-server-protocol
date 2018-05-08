@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(Symbol)]
-    public interface IWorkspaceSymbolsHandler : IRequestHandler<WorkspaceSymbolParams, WorkspaceSymbolInformationContainer>, ICapability<WorkspaceSymbolCapability> { }
+    public interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, WorkspaceSymbolInformationContainer>, ICapability<WorkspaceSymbolCapability> { }
 }

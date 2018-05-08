@@ -1,9 +1,10 @@
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DidChangeTextDocumentParams
+    public class DidChangeTextDocumentParams : IRequest
     {
         /// <summary>
         ///  The document that did change. The version number points

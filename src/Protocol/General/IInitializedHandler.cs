@@ -11,5 +11,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Initialized)]
-    public interface IInitializedHandler : INotificationHandler<InitializedParams> { }
+    public interface IInitializedHandler : IJsonRpcNotificationHandler<InitializedParams> { }
 }

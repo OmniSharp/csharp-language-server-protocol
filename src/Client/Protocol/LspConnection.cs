@@ -12,7 +12,6 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
-using OmniSharp.Extensions.LanguageServer.Client.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -375,7 +374,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 
             string requestId = Interlocked.Increment(ref _nextRequestId).ToString();
 
-            TaskCompletionSource<ServerMessage> responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
+            var responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
             cancellationToken.Register(() =>
             {
                 responseCompletion.TrySetException(
@@ -438,7 +437,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 
             string requestId = Interlocked.Increment(ref _nextRequestId).ToString();
 
-            TaskCompletionSource<ServerMessage> responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
+            var responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
             cancellationToken.Register(() =>
             {
                 responseCompletion.TrySetException(
@@ -580,8 +579,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                             {
                                 // Response.
                                 string requestId = message.Id.ToString();
-                                TaskCompletionSource<ServerMessage> completion;
-                                if (_responseCompletions.TryGetValue(requestId, out completion))
+                                if (_responseCompletions.TryGetValue(requestId, out var completion))
                                 {
                                     if (message.Error != null)
                                     {
@@ -733,15 +731,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 
             Dictionary<string, string> parsedHeaders = ParseHeaders(headers);
 
-            string contentLengthHeader;
-            if (!parsedHeaders.TryGetValue("Content-Length", out contentLengthHeader))
+            if (!parsedHeaders.TryGetValue("Content-Length", out var contentLengthHeader))
             {
                 Log.LogDebug("Invalid request headers (missing 'Content-Length' header).");
 
                 return null;
             }
 
-            int contentLength = Int32.Parse(contentLengthHeader);
+            var contentLength = int.Parse(contentLengthHeader);
 
             Log.LogDebug("Reading response body ({ExpectedByteCount} bytes expected).", contentLength);
 
@@ -786,8 +783,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (rawHeaders == null)
                 throw new ArgumentNullException(nameof(rawHeaders));
 
-            Dictionary<string, string> headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // Header names are case-insensitive.
-            string[] rawHeaderEntries = rawHeaders.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+            var headers = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // Header names are case-insensitive.
+            var rawHeaderEntries = rawHeaders.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
             foreach (string rawHeaderEntry in rawHeaderEntries)
             {
                 string[] nameAndValue = rawHeaderEntry.Split(new char[] { ':' }, count: 2);
@@ -857,7 +854,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             string requestId = requestMessage.Id.ToString();
             Log.LogDebug("Dispatching incoming {RequestMethod} request {RequestId}...", requestMessage.Method, requestId);
 
-            CancellationTokenSource requestCancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancellation);
+            var requestCancellation = CancellationTokenSource.CreateLinkedTokenSource(_cancellation);
             _requestCancellations.TryAdd(requestId, requestCancellation);
 
             Task<object> handlerTask = _dispatcher.TryHandleRequest(requestMessage.Method, requestMessage.Params, requestCancellation.Token);

@@ -1,6 +1,8 @@
+using MediatR;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DidChangeWorkspaceFoldersParams
+    public class DidChangeWorkspaceFoldersParams : IRequest
     {
         /// <summary>
         /// The actual workspace folder change event.

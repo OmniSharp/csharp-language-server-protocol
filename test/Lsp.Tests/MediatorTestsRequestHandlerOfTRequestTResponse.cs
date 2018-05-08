@@ -5,6 +5,8 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,7 +31,6 @@ namespace Lsp.Tests
     public class MediatorTestsRequestHandlerOfTRequestTResponse
     {
         private readonly TestLoggerFactory _testLoggerFactory;
-        private readonly IHandlerMatcherCollection _handlerMatcherCollection = new HandlerMatcherCollection();
 
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper)
         {
@@ -40,7 +41,13 @@ namespace Lsp.Tests
         public async Task RequestsCancellation()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
+            var mediator = Substitute.For<IMediator>();
+            var serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
+            var serviceScope = Substitute.For<IServiceScope>();
+            serviceScopeFactory.CreateScope().Returns(serviceScope);
+            serviceScope.ServiceProvider.GetService(typeof(IMediator)).Returns(mediator);
+
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
@@ -53,7 +60,7 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+            var router = new LspRequestRouter(collection, _testLoggerFactory, new List<IHandlerMatcher>(), new Serializer(), serviceScopeFactory);
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {
@@ -66,12 +73,12 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            var response = ((IRequestRouter)mediator).RouteRequest(request);
-            mediator.CancelRequest(id);
+            var response = ((IRequestRouter)router).RouteRequest(request);
+            router.CancelRequest(id);
             var result = await response;
 
             result.IsError.Should().BeTrue();
-            result.Error.ShouldBeEquivalentTo(new RequestCancelled());
+            result.Error.Should().BeEquivalentTo(new RequestCancelled());
         }
     }
 }

@@ -23,7 +23,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentPositionParams>(expected);
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
     }
 }

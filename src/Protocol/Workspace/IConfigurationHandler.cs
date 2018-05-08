@@ -14,5 +14,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(WorkspaceConfiguration)]
-    public interface IConfigurationHandler : IRequestHandler<ConfigurationParams, Container<JToken>>, IRegistration<WorkspaceFolderRegistrationOptions>, ICapability<WorkspaceFolderCapability> { }
+    public interface IConfigurationHandler : IJsonRpcRequestHandler<ConfigurationParams, Container<JToken>>, IRegistration<WorkspaceFolderRegistrationOptions>, ICapability<WorkspaceFolderCapability> { }
 }

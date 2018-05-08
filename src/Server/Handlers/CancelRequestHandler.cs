@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+using System.Threading;
+using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -6,14 +8,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
     public class CancelRequestHandler : ICancelRequestHandler
     {
-        private readonly LspRequestRouter _requestRouter;
+        private readonly ILspRequestRouter _requestRouter;
 
-        internal CancelRequestHandler(LspRequestRouter requestRouter)
+        internal CancelRequestHandler(ILspRequestRouter requestRouter)
         {
             _requestRouter = requestRouter;
         }
 
-        public Task Handle(CancelParams notification)
+        public Task Handle(CancelParams notification, CancellationToken token)
         {
             _requestRouter.CancelRequest(notification.Id);
             return Task.CompletedTask;

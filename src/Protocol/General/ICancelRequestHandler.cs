@@ -7,5 +7,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     using static GeneralNames;
     [Parallel, Method(CancelRequest)]
-    public interface ICancelRequestHandler : INotificationHandler<CancelParams> { }
+    public interface ICancelRequestHandler : IJsonRpcNotificationHandler<CancelParams> { }
 }

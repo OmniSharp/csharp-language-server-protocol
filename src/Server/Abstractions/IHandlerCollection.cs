@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
@@ -12,5 +13,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
         IDisposable Add(IEnumerable<IJsonRpcHandler> handlers);
         bool ContainsHandler(Type type);
         bool ContainsHandler(TypeInfo typeInfo);
+        IEnumerable<ITextDocumentSyncHandler> TextDocumentSyncHandlers();
     }
 }

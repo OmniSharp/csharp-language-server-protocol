@@ -17,11 +17,11 @@ namespace Lsp.Tests.Matchers
 {
     public class TextDocumentMatcherTests
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<TextDocumentMatcher> _logger;
 
         public TextDocumentMatcherTests()
         {
-            _logger = Substitute.For<ILogger>();
+            _logger = Substitute.For<ILogger<TextDocumentMatcher>>();
         }
 
         [Fact]

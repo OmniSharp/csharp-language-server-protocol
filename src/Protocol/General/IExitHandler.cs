@@ -11,5 +11,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Exit)]
-    public interface IExitHandler : INotificationHandler { }
+    public interface IExitHandler : IJsonRpcNotificationHandler { }
 }

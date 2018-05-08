@@ -1,8 +1,11 @@
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -27,7 +30,6 @@ namespace Lsp.Tests
     public class MediatorTestsRequestHandlerOfTRequest
     {
         private readonly TestLoggerFactory _testLoggerFactory;
-        private readonly IHandlerMatcherCollection _handlerMatcherCollection = new HandlerMatcherCollection();
 
         public MediatorTestsRequestHandlerOfTRequest(ITestOutputHelper testOutputHelper)
         {
@@ -44,20 +46,25 @@ namespace Lsp.Tests
                     await Task.Delay(1000, c.Arg<CancellationToken>());
                     throw new XunitException("Task was not cancelled in time!");
                 });
+            var mediator = Substitute.For<IMediator>();
+            var serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
+            var serviceScope = Substitute.For<IServiceScope>();
+            serviceScopeFactory.CreateScope().Returns(serviceScope);
+            serviceScope.ServiceProvider.GetService(typeof(IMediator)).Returns(mediator);
 
             var collection = new HandlerCollection { executeCommandHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+            var router = new LspRequestRouter(collection, _testLoggerFactory, Enumerable.Empty<IHandlerMatcher>(), new Serializer(), serviceScopeFactory);
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };
             var request = new Request(id, "workspace/executeCommand", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            var response = ((IRequestRouter)mediator).RouteRequest(request);
-            mediator.CancelRequest(id);
+            var response = ((IRequestRouter)router).RouteRequest(request);
+            router.CancelRequest(id);
             var result = await response;
 
             result.IsError.Should().BeTrue();
-            result.Error.ShouldBeEquivalentTo(new RequestCancelled());
+            result.Error.Should().BeEquivalentTo(new RequestCancelled());
         }
     }
 }

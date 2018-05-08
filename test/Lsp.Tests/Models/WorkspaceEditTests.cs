@@ -37,7 +37,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceEdit>(expected);
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
 
         [Theory, JsonFixture]
@@ -89,7 +89,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceEdit>(expected);
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
     }
 }

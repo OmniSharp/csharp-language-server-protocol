@@ -21,7 +21,11 @@ namespace SampleServer
             //    await Task.Delay(100);
             //}
 
-            var server = new LanguageServer(Console.OpenStandardInput(), Console.OpenStandardOutput(), new LoggerFactory());
+            var server = LanguageServer.From(options =>
+                options
+                    .WithInput(Console.OpenStandardInput())
+                    .WithOutput(Console.OpenStandardOutput())
+                    .WithLoggerFactory(new LoggerFactory()));
 
             server.AddHandler(new TextDocumentHandler(server));
 

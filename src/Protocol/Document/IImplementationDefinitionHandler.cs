@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(Implementation)]
-    public interface IImplementationHandler : IRequestHandler<TextDocumentPositionParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ImplementationCapability> { }
+    public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ImplementationCapability> { }
 }
