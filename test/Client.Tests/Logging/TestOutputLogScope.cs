@@ -67,8 +67,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
         public static IDisposable Push(string name, object state)
         {
             TestOutputLogScope parent = Current;
-            Current = new TestOutputLogScope(name, state)
-            {
+            Current = new TestOutputLogScope(name, state) {
                 Parent = parent
             };
 
@@ -106,5 +105,5 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
                 _disposed = true;
             }
         }
-}
+    }
 }

@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -13,13 +14,13 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly HandlerCollection _collection;
         private readonly ISerializer _serializer;
-        private readonly IMediator _mediator;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public RequestRouter(HandlerCollection collection, ISerializer serializer, IMediator mediator)
+        public RequestRouter(HandlerCollection collection, ISerializer serializer, IServiceScopeFactory serviceScopeFactory)
         {
             _collection = collection;
             _serializer = serializer;
-            _mediator = mediator;
+            _serviceScopeFactory = serviceScopeFactory;
         }
 
         public IDisposable Add(IJsonRpcHandler handler)
@@ -34,13 +35,18 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task RouteNotification(IHandlerDescriptor handler, Notification notification)
         {
-            Task result;
-            object @params = null;
-            if (!(handler.Params is null))
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
+                var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                context.Descriptor = handler;
+
+                object @params = null;
+                if (!(handler.Params is null))
+                {
+                    @params = notification.Params.ToObject(handler.Params, _serializer.JsonSerializer);
+                }
+                await MediatRHandlers.HandleNotification(scope.ServiceProvider.GetRequiredService<IMediator>(), handler, @params ?? EmptyRequest.Instance, CancellationToken.None).ConfigureAwait(false);
             }
-            await MediatRHandlers.HandleNotification(_mediator, handler, @params, CancellationToken.None).ConfigureAwait(false);
         }
 
         public Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request)
@@ -50,36 +56,42 @@ namespace OmniSharp.Extensions.JsonRpc
 
         protected virtual async Task<ErrorResponse> RouteRequest(IHandlerDescriptor handler, Request request, CancellationToken token)
         {
-            if (request.Method is null)
+            using (var scope = _serviceScopeFactory.CreateScope())
             {
-                return new MethodNotFound(request.Id, request.Method);
+                var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                context.Descriptor = handler;
+
+                if (request.Method is null)
+                {
+                    return new MethodNotFound(request.Id, request.Method);
+                }
+
+                object @params;
+                try
+                {
+                    @params = request.Params.ToObject(handler.Params, _serializer.JsonSerializer);
+                }
+                catch
+                {
+                    return new InvalidParams(request.Id);
+                }
+
+                var result = MediatRHandlers.HandleRequest(scope.ServiceProvider.GetRequiredService<IMediator>(), handler, @params, token);
+
+                await result.ConfigureAwait(false);
+
+                object responseValue = null;
+                if (result.GetType().GetTypeInfo().IsGenericType)
+                {
+                    var property = typeof(Task<>)
+                        .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
+                        .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
+
+                    responseValue = property.GetValue(result);
+                }
+
+                return new Client.Response(request.Id, responseValue);
             }
-
-            object @params;
-            try
-            {
-                @params = request.Params.ToObject(handler.Params, _serializer.JsonSerializer);
-            }
-            catch
-            {
-                return new InvalidParams(request.Id);
-            }
-
-            var result = MediatRHandlers.HandleRequest(_mediator, handler, @params, token);
-
-            await result.ConfigureAwait(false);
-
-            object responseValue = null;
-            if (result.GetType().GetTypeInfo().IsGenericType)
-            {
-                var property = typeof(Task<>)
-                    .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
-                    .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
-
-                responseValue = property.GetValue(result);
-            }
-
-            return new Client.Response(request.Id, responseValue);
         }
 
         public IHandlerDescriptor GetDescriptor(Notification notification)

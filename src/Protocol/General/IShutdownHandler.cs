@@ -12,5 +12,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Serial, Method(Shutdown)]
-    public interface IShutdownHandler : IJsonRpcRequestHandler<IRequest> { }
+    public interface IShutdownHandler : IJsonRpcRequestHandler<EmptyRequest> { }
 }

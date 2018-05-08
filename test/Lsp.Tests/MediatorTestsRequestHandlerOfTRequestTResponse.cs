@@ -12,41 +12,36 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace Lsp.Tests
 {
-    public class MediatorTestsRequestHandlerOfTRequestTResponse
+    public class MediatorTestsRequestHandlerOfTRequestTResponse : AutoTestBase
     {
-        private readonly TestLoggerFactory _testLoggerFactory;
-
-        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper)
+        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _testLoggerFactory = new TestLoggerFactory(testOutputHelper);
+            Services
+                .AddJsonRpcMediatR(new[] { typeof(LspRequestRouterTests).Assembly })
+                .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
         }
 
         [Fact]
         public async Task RequestsCancellation()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var mediator = Substitute.For<IMediator>();
-            var serviceScopeFactory = Substitute.For<IServiceScopeFactory>();
-            var serviceScope = Substitute.For<IServiceScope>();
-            serviceScopeFactory.CreateScope().Returns(serviceScope);
-            serviceScope.ServiceProvider.GetService(typeof(IMediator)).Returns(mediator);
-
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
@@ -60,7 +55,8 @@ namespace Lsp.Tests
                 });
 
             var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var router = new LspRequestRouter(collection, _testLoggerFactory, new List<IHandlerMatcher>(), new Serializer(), serviceScopeFactory);
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {
@@ -73,8 +69,8 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            var response = ((IRequestRouter)router).RouteRequest(request);
-            router.CancelRequest(id);
+            var response = ((IRequestRouter)mediator).RouteRequest(request);
+            mediator.CancelRequest(id);
             var result = await response;
 
             result.IsError.Should().BeTrue();

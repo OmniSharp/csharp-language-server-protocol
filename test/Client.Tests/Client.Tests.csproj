@@ -19,6 +19,7 @@
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
+        <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>
 
 </Project>

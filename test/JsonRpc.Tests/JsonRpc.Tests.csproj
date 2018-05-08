@@ -6,10 +6,5 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\Lsp.Tests\Lsp.Tests.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Include="Serilog.Extensions.Logging" Version="$(Serilog_Extensions_Logging_Version)" />
-        <PackageReference Include="Serilog.Sinks.XUnit" Version="$(Serilog_Sinks_XUnit_Version)" />
     </ItemGroup>
 </Project>

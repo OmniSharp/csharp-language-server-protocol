@@ -5,22 +5,23 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
-    class ResolveCommandPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+    public class ResolveCommandPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     {
         private readonly ILogger<ResolveCommandPipeline<TRequest, TResponse>> _logger;
         internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
         internal static string PrivateHandlerKey = "$$___handlerKey___$$";
         private readonly ILspHandlerDescriptor _descriptor;
 
-        public ResolveCommandPipeline(ILspRequestContext context, ILogger<ResolveCommandPipeline<TRequest, TResponse>> logger)
+        public ResolveCommandPipeline(IRequestContext context, ILogger<ResolveCommandPipeline<TRequest, TResponse>> logger)
         {
             _logger = logger;
-            _descriptor = context.Descriptor;
+            _descriptor = context.Descriptor as ILspHandlerDescriptor;
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
