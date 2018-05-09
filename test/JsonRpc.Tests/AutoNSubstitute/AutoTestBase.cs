@@ -31,11 +31,6 @@ namespace NSubstitute
             };
         }
 
-        protected AutoTestBase()
-        {
-            throw new NotImplementedException();
-        }
-
         public ILoggerFactory LoggerFactory { get; }
         public ILogger Logger { get; }
         public IServiceCollection Services { get; } = new ServiceCollection();
