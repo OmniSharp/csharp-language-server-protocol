@@ -134,6 +134,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IResponseRouter _responseRouter;
         private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly ServiceProvider _serviceProvider;
 
         public static ILanguageServer From(Action<LanguageServerOptions> optionsAction)
         {
@@ -195,16 +196,34 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<IResponseRouter, ResponseRouter>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
 
-            var serviceProvider = services.BuildServiceProvider();
+            var foundHandlers = services
+                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) && x.ServiceType != typeof(IJsonRpcHandler))
+                .ToArray();
 
-            _requestRouter = serviceProvider.GetRequiredService<ILspRequestRouter>();
-            _responseRouter = serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = ActivatorUtilities.CreateInstance<Connection>(serviceProvider, input);
+            // Handlers are created at the start and maintained as a singleton
+            foreach (var handler in foundHandlers)
+            {
+                services.Remove(handler);
+
+                if (handler.ImplementationFactory != null)
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationFactory));
+                else if (handler.ImplementationInstance != null)
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationInstance));
+                else
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
+            }
+
+            _serviceProvider = services.BuildServiceProvider();
+
+            _requestRouter = _serviceProvider.GetRequiredService<ILspRequestRouter>();
+            _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
             _disposable.Add(
-                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
+                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter)),
+                AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>())
             );
         }
 
@@ -240,9 +259,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return AddHandlers(handler);
         }
 
+        public IDisposable AddHandler<T>()
+            where T : IJsonRpcHandler
+        {
+            return AddHandlers(ActivatorUtilities.CreateInstance<T>(_serviceProvider));
+        }
+
         public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
         {
             return AddHandlers(handlers.ToArray());
+        }
+
+        public IDisposable AddHandlers(IEnumerable<Type> handlers)
+        {
+            return AddHandlers(handlers.Select(x => ActivatorUtilities.CreateInstance(_serviceProvider, x) as IJsonRpcHandler).ToArray());
+        }
+
+        public IDisposable AddHandlers(params Type[] handlers)
+        {
+            return AddHandlers(handlers.Select(x => ActivatorUtilities.CreateInstance(_serviceProvider, x) as IJsonRpcHandler).ToArray());
         }
 
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
