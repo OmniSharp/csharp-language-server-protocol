@@ -6,11 +6,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lsp.Tests.Capabilities.Client
 {
     public class WorkspaceClientCapabilitiesTests : AutoTestBase
     {
+        public WorkspaceClientCapabilitiesTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        {
+        }
+
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
@@ -28,7 +33,7 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
         [Theory, JsonFixture]
