@@ -107,7 +107,7 @@ namespace Lsp.Tests
         {
             var serializer = new Serializer();
             serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities() {
-                Workspace= new WorkspaceClientCapabilites(){
+                Workspace= new WorkspaceClientCapabilities(){
                     Symbol= new Supports<WorkspaceSymbolCapability>(true, new WorkspaceSymbolCapability() {
                         DynamicRegistration = true,
                         SymbolKind= new SymbolKindCapability() {

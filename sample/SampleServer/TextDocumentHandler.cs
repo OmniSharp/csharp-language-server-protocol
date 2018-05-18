@@ -66,6 +66,7 @@ namespace SampleServer
 
         public async Task Handle(DidOpenTextDocumentParams notification)
         {
+            await Task.Yield();
             _router.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,

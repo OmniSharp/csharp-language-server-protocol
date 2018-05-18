@@ -53,7 +53,7 @@ namespace Lsp.Tests.Capabilities.Client
                         WillSaveWaitUntil = true
                     }
                 },
-                Workspace = new WorkspaceClientCapabilites()
+                Workspace = new WorkspaceClientCapabilities()
                 {
                     ApplyEdit = true,
                     WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },

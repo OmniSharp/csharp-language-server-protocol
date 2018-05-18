@@ -77,5 +77,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Capabilities specific to the `textDocument/rename`
         /// </summary>
         public Supports<RenameCapability> Rename { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/typeDefinition`
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        public Supports<TypeDefinitionCapability> TypeDefinition { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/implementation`
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        public Supports<ImplementationCapability> Implementation { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/documentColor` and the `textDocument/colorPresentation` request.
+        ///
+        /// Since 3.6.0
+        /// </summary>
+        public Supports<ColorProviderCapability> ColorProvider { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to `textDocument/publishDiagnostics`.
+        /// </summary>
+        public Supports<PublishDiagnosticsCapability> PublishDiagnostics { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
@@ -27,10 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var handlerType = typeof(T).GetTypeInfo().ImplementedInterfaces
                 .Single(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
                 .GetTypeInfo().GetGenericArguments()[0].GetTypeInfo();
-            return !capability.Value.DynamicRegistration == true &&
-                _collection.Any(z =>
-                    z.HandlerType.GetTypeInfo().IsAssignableFrom(handlerType) ||
-                    z.Handler.GetType().GetTypeInfo().IsAssignableFrom(handlerType));
+            return !capability.Value.DynamicRegistration == true && _collection.ContainsHandler(handlerType);
         }
 
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
@@ -91,6 +89,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             public TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
                 where TOptions : class
             {
+                return _collection
+                    .Select(x => x.Registration?.RegisterOptions is TInterface cl ? action(cl) : null)
+                    .FirstOrDefault(x => x != null);
+            }
+
+            public Supports<TOptions> Can<TInterface, TOptions>(Func<TInterface, TOptions> action)
+                where TOptions : class
+            {
+                var options = _collection
+                    .Select(x => x.Registration?.RegisterOptions is TInterface cl ? action(cl) : null)
+                    .FirstOrDefault(x => x != null);
+                if (options == null)
+                    return Supports.OfBoolean<TOptions>(false);
+
                 return _collection
                     .Select(x => x.Registration?.RegisterOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);

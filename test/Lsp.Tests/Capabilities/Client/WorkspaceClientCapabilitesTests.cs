@@ -8,12 +8,12 @@ using Xunit;
 
 namespace Lsp.Tests.Capabilities.Client
 {
-    public class WorkspaceClientCapabilitesTests
+    public class WorkspaceClientCapabilitiesTests
     {
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new WorkspaceClientCapabilites() {
+            var model = new WorkspaceClientCapabilities() {
                 ApplyEdit = true,
                 WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
                 DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
@@ -26,20 +26,20 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilites>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
 
         [Theory, JsonFixture]
         public void EmptyTest(string expected)
         {
-            var model = new WorkspaceClientCapabilites();
+            var model = new WorkspaceClientCapabilities();
 
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilites>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.ShouldBeEquivalentTo(model);
         }
     }

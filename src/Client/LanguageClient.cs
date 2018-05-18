@@ -157,7 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// </summary>
         public ClientCapabilities ClientCapabilities { get; } = new ClientCapabilities
         {
-            Workspace = new WorkspaceClientCapabilites
+            Workspace = new WorkspaceClientCapabilities
             {
                 DidChangeConfiguration = new DidChangeConfigurationCapability
                 {

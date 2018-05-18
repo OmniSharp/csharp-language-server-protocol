@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///  The id used to register the request. The id can be used to deregister
         ///  the request again.
         /// </summary>
-        public string Id { get; set; }
+        public BooleanString Id { get; set; }
 
         /// <summary>
         ///  The method / capability to register for.

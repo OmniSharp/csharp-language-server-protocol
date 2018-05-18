@@ -50,9 +50,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public InitializeTrace Trace { get; set; } = InitializeTrace.Off;
+
+        /// <summary>
+        /// The workspace folders configured in the client when the server starts.
+        /// This property is only available if the client supports workspace folders.
+        /// It can be `null` if the client supports workspace folders but none are
+        /// configured.
+        ///
+        /// Since 3.6.0
+        /// <summary/>
+        public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
     }
-
-
-    // ReSharper disable InconsistentNaming
-    // ReSharper restore InconsistentNaming
 }

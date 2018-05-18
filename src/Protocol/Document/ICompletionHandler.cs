@@ -13,5 +13,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     }
 
     [Parallel, Method(Completion)]
-    public interface ICompletionHandler : IRequestHandler<TextDocumentPositionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionCapability> { }
+    public interface ICompletionHandler : IRequestHandler<CompletionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionCapability> { }
 }
