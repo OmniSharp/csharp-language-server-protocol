@@ -13,11 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     class HandlerCollection : IHandlerCollection
     {
         internal readonly HashSet<HandlerDescriptor> _handlers = new HashSet<HandlerDescriptor>();
-        internal readonly HashSet<ITextDocumentSyncHandler> _documentSyncHandlers = new HashSet<ITextDocumentSyncHandler>();
+        internal readonly HashSet<ITextDocumentIdentifier> _textDocumentIdentifier = new HashSet<ITextDocumentIdentifier>();
 
-        public IEnumerable<ITextDocumentSyncHandler> TextDocumentSyncHandlers()
+        public IEnumerable<ITextDocumentIdentifier> TextDocumentIdentifiers()
         {
-            return _documentSyncHandlers;
+            return _textDocumentIdentifier;
         }
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator()
@@ -59,9 +59,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             foreach (var descriptor in descriptors)
             {
                 _handlers.Add(descriptor);
-                if (descriptor.Handler is ITextDocumentSyncHandler documentSyncHandler)
+                if (descriptor.Handler is ITextDocumentIdentifier documentSyncHandler)
                 {
-                    _documentSyncHandlers.Add(documentSyncHandler);
+                    _textDocumentIdentifier.Add(documentSyncHandler);
                 }
             }
 
@@ -101,7 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 capability,
                 () => {
                     _handlers.RemoveWhere(instance => instance.Handler == handler);
-                    _documentSyncHandlers.RemoveWhere(instance => instance == handler);
+                    _textDocumentIdentifier.RemoveWhere(instance => instance == handler);
                 });
         }
 

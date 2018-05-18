@@ -11,12 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
     public class TextDocumentMatcher : IHandlerMatcher
     {
         private readonly ILogger<TextDocumentMatcher> _logger;
-        private readonly Func<IEnumerable<ITextDocumentSyncHandler>> _getSyncHandlers;
+        private readonly Func<IEnumerable<ITextDocumentIdentifier>> _getSyncHandlers;
 
         public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, IHandlerCollection handlerCollection)
         {
             _logger = logger;
-            _getSyncHandlers = handlerCollection.TextDocumentSyncHandlers;
+            _getSyncHandlers = handlerCollection.TextDocumentIdentifiers;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
@@ -65,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> method, IEnumerable<TextDocumentAttributes> attributes)
         {
             return attributes
-                .SelectMany(x => GetHandler(method, x)); 
+                .SelectMany(x => GetHandler(method, x));
         }
 
         private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> method, TextDocumentAttributes attributes)
@@ -74,7 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             foreach (var handler in method)
             {
                 _logger.LogTrace("Checking handler {Method}:{Handler}", method, handler.Handler.GetType().FullName);
-                var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
+                var registrationOptions = handler.Registration.RegisterOptions as ITextDocumentRegistrationOptions;
 
                 _logger.LogTrace("Registration options {OptionsName}", registrationOptions?.GetType().FullName);
                 _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions?.DocumentSelector.ToString());

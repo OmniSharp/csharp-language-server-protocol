@@ -24,103 +24,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public class LanguageServerOptions
-    {
-        public LanguageServerOptions()
-        {
-        }
-
-        public Stream Input { get; set; }
-        public Stream Output { get; set; }
-        public ILoggerFactory LoggerFactory { get; set; }
-        public ISerializer Serializer { get; set; }
-        public IHandlerCollection Handlers { get; set; } = new HandlerCollection();
-        public IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
-        public ILspReciever Reciever { get; set; } = new LspReciever();
-        public IServiceCollection Services { get; set; } = new ServiceCollection();
-        internal List<Type> HandlerTypes { get; set; } = new List<Type>();
-        internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
-        internal bool AddDefaultLoggingProvider { get; set; }
-    }
-
-    public static class LanguageServerOptionsExtensions
-    {
-        public static LanguageServerOptions WithInput(this LanguageServerOptions options, Stream input)
-        {
-            options.Input = input;
-            return options;
-        }
-
-        public static LanguageServerOptions WithOutput(this LanguageServerOptions options, Stream output)
-        {
-            options.Output = output;
-            return options;
-        }
-
-        public static LanguageServerOptions WithLoggerFactory(this LanguageServerOptions options, ILoggerFactory loggerFactory)
-        {
-            options.LoggerFactory = loggerFactory;
-            return options;
-        }
-
-        public static LanguageServerOptions WithRequestProcessIdentifier(this LanguageServerOptions options, IRequestProcessIdentifier requestProcessIdentifier)
-        {
-            options.RequestProcessIdentifier = requestProcessIdentifier;
-            return options;
-        }
-
-        public static LanguageServerOptions WithSerializer(this LanguageServerOptions options, ISerializer serializer)
-        {
-            options.Serializer = serializer;
-            return options;
-        }
-
-        public static LanguageServerOptions WithReciever(this LanguageServerOptions options, ILspReciever reciever)
-        {
-            options.Reciever = reciever;
-            return options;
-        }
-
-        public static LanguageServerOptions AddHandler<T>(this LanguageServerOptions options)
-            where T : class, IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler, T>();
-            return options;
-        }
-
-        public static LanguageServerOptions AddHandler<T>(this LanguageServerOptions options, T handler)
-            where T : IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler>(handler);
-            return options;
-        }
-
-        public static LanguageServerOptions AddHandlers(this LanguageServerOptions options, Type type)
-        {
-            options.HandlerTypes.Add(type);
-            return options;
-        }
-
-        public static LanguageServerOptions AddHandlers(this LanguageServerOptions options, TypeInfo typeInfo)
-        {
-            options.HandlerTypes.Add(typeInfo.AsType());
-            return options;
-        }
-
-        public static LanguageServerOptions AddHandlers(this LanguageServerOptions options, Assembly assembly)
-        {
-            options.HandlerAssemblies.Add(assembly);
-            return options;
-        }
-
-        public static LanguageServerOptions AddDefaultLoggingProvider(this LanguageServerOptions options)
-        {
-            options.AddDefaultLoggingProvider = true;
-            return options;
-        }
-    }
-
-    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
+    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
         private readonly ILspRequestRouter _requestRouter;
@@ -372,42 +276,28 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 };
             }
 
-            var textSyncHandlers = _collection
-                .Select(x => x.Handler)
-                .OfType<ITextDocumentSyncHandler>()
-                .ToArray();
+            var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
+                ? _collection
+                    .OfType<IDidChangeTextDocumentHandler>()
+                    .Where(x => x.Change != TextDocumentSyncKind.None)
+                    .Min(z => z.Change)
+                : TextDocumentSyncKind.None;
 
             if (_clientVersion == ClientVersion.Lsp2)
             {
-                if (textSyncHandlers.Any())
-                {
-                    serverCapabilities.TextDocumentSync = textSyncHandlers
-                        .Where(x => x.Options.Change != TextDocumentSyncKind.None)
-                        .Min<ITextDocumentSyncHandler, TextDocumentSyncKind>(z => z.Options.Change);
-                }
-                else
-                {
-                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
-                }
+                serverCapabilities.TextDocumentSync = textDocumentSyncKind;
             }
             else
             {
-                if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
-                {
-                    // TODO: Merge options
-                    serverCapabilities.TextDocumentSync =
-                        textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions() {
-                            Change = TextDocumentSyncKind.None,
-                            OpenClose = false,
-                            Save = new SaveOptions() { IncludeText = false },
-                            WillSave = false,
-                            WillSaveWaitUntil = false
-                        };
-                }
-                else
-                {
-                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
-                }
+                serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions() {
+                    Change = textDocumentSyncKind,
+                    OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
+                    Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
+                        new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
+                        null,
+                    WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
+                    WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
+                };
             }
 
             _reciever.Initialized();

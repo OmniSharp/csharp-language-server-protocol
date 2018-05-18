@@ -13,6 +13,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
         IDisposable Add(IEnumerable<IJsonRpcHandler> handlers);
         bool ContainsHandler(Type type);
         bool ContainsHandler(TypeInfo typeInfo);
-        IEnumerable<ITextDocumentSyncHandler> TextDocumentSyncHandlers();
+        IEnumerable<ITextDocumentIdentifier> TextDocumentIdentifiers();
     }
 }

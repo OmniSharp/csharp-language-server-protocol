@@ -29,17 +29,7 @@ namespace SampleServer
             _router = router;
         }
 
-        public TextDocumentSyncOptions Options { get; } = new TextDocumentSyncOptions()
-        {
-            WillSaveWaitUntil = false,
-            WillSave = true,
-            Change = TextDocumentSyncKind.Full,
-            Save = new SaveOptions()
-            {
-                IncludeText = true
-            },
-            OpenClose = true
-        };
+        public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
         public Task Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
@@ -56,7 +46,7 @@ namespace SampleServer
             return new TextDocumentChangeRegistrationOptions()
             {
                 DocumentSelector = _documentSelector,
-                SyncKind = Options.Change
+                SyncKind = Change
             };
         }
 
@@ -98,7 +88,7 @@ namespace SampleServer
             return new TextDocumentSaveRegistrationOptions()
             {
                 DocumentSelector = _documentSelector,
-                IncludeText = Options.Save.IncludeText
+                IncludeText = true
             };
         }
         public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
