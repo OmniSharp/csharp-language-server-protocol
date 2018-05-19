@@ -8,11 +8,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
     public interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {
-        IDisposable Add(string method, IJsonRpcHandler handler);
-        IDisposable Add(params IJsonRpcHandler[] handlers);
-        IDisposable Add(IEnumerable<IJsonRpcHandler> handlers);
+        LspHandlerDescriptorDisposable Add(params IJsonRpcHandler[] handlers);
+        LspHandlerDescriptorDisposable Add(IServiceProvider serviceProvider, params Type[] handlerTypes);
+        LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler);
+        LspHandlerDescriptorDisposable Add(string method, IServiceProvider serviceProvider, Type handlerType);
         bool ContainsHandler(Type type);
         bool ContainsHandler(TypeInfo typeInfo);
-        IEnumerable<ITextDocumentSyncHandler> TextDocumentSyncHandlers();
+        IEnumerable<ITextDocumentIdentifier> TextDocumentIdentifiers();
     }
 }

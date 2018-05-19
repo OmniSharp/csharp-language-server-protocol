@@ -1,5 +1,7 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
@@ -11,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Processes
     public abstract class ServerProcess
         : IDisposable
     {
+        private readonly ISubject<System.Reactive.Unit> _exitedSubject;
         /// <summary>
         ///     Create a new <see cref="ServerProcess"/>.
         /// </summary>
@@ -31,6 +34,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Processes
 
             ServerExitCompletion = new TaskCompletionSource<object>();
             ServerExitCompletion.SetResult(null); // Start out as if the server has already exited.
+
+            Exited = _exitedSubject = new AsyncSubject<System.Reactive.Unit>();
         }
 
         /// <summary>
@@ -82,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Processes
         /// <summary>
         ///     Event raised when the server has exited.
         /// </summary>
-        public event EventHandler<EventArgs> Exited;
+        public IObservable<System.Reactive.Unit> Exited { get; }
 
         /// <summary>
         ///     Is the server running?
@@ -130,7 +135,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Processes
         /// </summary>
         protected virtual void OnExited()
         {
-            Exited?.Invoke(this, EventArgs.Empty);
+            _exitedSubject.OnNext(System.Reactive.Unit.Default);
+            _exitedSubject.OnCompleted();
         }
     }
 }

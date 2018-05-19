@@ -11,12 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
     public class TextDocumentMatcher : IHandlerMatcher
     {
         private readonly ILogger<TextDocumentMatcher> _logger;
-        private readonly Func<IEnumerable<ITextDocumentSyncHandler>> _getSyncHandlers;
+        private readonly Func<IEnumerable<ITextDocumentIdentifier>> _getSyncHandlers;
 
         public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, IHandlerCollection handlerCollection)
         {
             _logger = logger;
-            _getSyncHandlers = handlerCollection.TextDocumentSyncHandlers;
+            _getSyncHandlers = handlerCollection.TextDocumentIdentifiers;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             {
                 case ITextDocumentIdentifierParams textDocumentIdentifierParams:
                     {
-                        var attributes = GetTextDocumentAttributes(descriptors, textDocumentIdentifierParams.TextDocument.Uri);
+                        var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
                         _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 case DidChangeTextDocumentParams didChangeDocumentParams:
                     {
                         // TODO: Do something with document version here?
-                        var attributes = GetTextDocumentAttributes(descriptors, didChangeDocumentParams.TextDocument.Uri);
+                        var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
 
                         _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             return Enumerable.Empty<ILspHandlerDescriptor>();
         }
 
-        private List<TextDocumentAttributes> GetTextDocumentAttributes(IEnumerable<ILspHandlerDescriptor> method, Uri uri)
+        private List<TextDocumentAttributes> GetTextDocumentAttributes(Uri uri)
         {
             return _getSyncHandlers()
                 .Select(x => x.GetTextDocumentAttributes(uri))
@@ -62,26 +62,27 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 .ToList();
         }
 
-        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> method, IEnumerable<TextDocumentAttributes> attributes)
+        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, IEnumerable<TextDocumentAttributes> attributes)
         {
             return attributes
-                .SelectMany(x => GetHandler(method, x)); 
+                .SelectMany(x => GetHandler(descriptors, x));
         }
 
-        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> method, TextDocumentAttributes attributes)
+        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, TextDocumentAttributes attributes)
         {
-            _logger.LogTrace("Looking for handler for method {Method}", method);
-            foreach (var handler in method)
+            var method = descriptors.FirstOrDefault()?.Method;
+            _logger.LogTrace("Looking for handler for descriptors {Method}", method);
+            foreach (var descriptor in descriptors)
             {
-                _logger.LogTrace("Checking handler {Method}:{Handler}", method, handler.Handler.GetType().FullName);
-                var registrationOptions = handler.Registration.RegisterOptions as TextDocumentRegistrationOptions;
+                _logger.LogTrace("Checking handler {Method}:{Handler}", method, descriptor.ImplementationType.FullName);
+                var registrationOptions = descriptor.Registration?.RegisterOptions as ITextDocumentRegistrationOptions;
 
                 _logger.LogTrace("Registration options {OptionsName}", registrationOptions?.GetType().FullName);
                 _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions?.DocumentSelector.ToString());
                 if (registrationOptions?.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
-                    _logger.LogTrace("Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", handler.Handler.GetType().FullName, registrationOptions.DocumentSelector.ToString(), handler.HandlerType.FullName);
-                    yield return handler;
+                    _logger.LogTrace("Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", descriptor.ImplementationType.FullName, registrationOptions?.DocumentSelector?.ToString(), descriptor.HandlerType.FullName);
+                    yield return descriptor;
                 }
             }
         }

@@ -19,6 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 _disposeAction = disposeAction;
                 Handler = handler;
+                ImplementationType = handler.GetType();
                 Method = method;
                 HandlerType = handlerInterface;
                 Params = @params;
@@ -27,6 +28,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             public IJsonRpcHandler Handler { get; }
             public Type HandlerType { get; }
+            public Type ImplementationType { get; }
             public string Method { get; }
             public Type Params { get; }
             public Type Response { get; }

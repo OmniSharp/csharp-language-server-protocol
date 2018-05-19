@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Castle.Core.Logging;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -12,16 +13,14 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lsp.Tests.Matchers
 {
-    public class ExecuteCommandHandlerMatcherTests
+    public class ExecuteCommandHandlerMatcherTests : AutoTestBase
     {
-        private readonly ILogger<ExecuteCommandMatcher> _logger;
-
-        public ExecuteCommandHandlerMatcherTests()
+        public ExecuteCommandHandlerMatcherTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _logger = Substitute.For<ILogger<ExecuteCommandMatcher>>();
         }
 
         [Fact]
@@ -29,7 +28,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new ExecuteCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ExecuteCommandMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -43,7 +42,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new ExecuteCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ExecuteCommandMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -56,7 +55,7 @@ namespace Lsp.Tests.Matchers
         public void Should_Return_Handler_Descriptor()
         {
             // Given
-            var handlerMatcher = new ExecuteCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ExecuteCommandMatcher>();
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>().With(new Container<string>("Command"));
 
             // When
@@ -68,6 +67,11 @@ namespace Lsp.Tests.Matchers
                         executeCommandHandler.GetType(),
                         typeof(ExecuteCommandParams),
                         typeof(ExecuteCommandRegistrationOptions),
+                        new Registration() {
+                            RegisterOptions = new ExecuteCommandRegistrationOptions() {
+                                Commands = new Container<string>("Command")
+                            }
+                        }, 
                         typeof(ExecuteCommandCapability),
                         () => { })
                 });

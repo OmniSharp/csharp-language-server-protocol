@@ -54,7 +54,7 @@ namespace Lsp.Tests
                     return new CommandContainer();
                 });
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 

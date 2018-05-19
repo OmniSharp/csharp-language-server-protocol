@@ -15,77 +15,49 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         private readonly Action _disposeAction;
 
-        public HandlerDescriptor(string method, string key, IJsonRpcHandler handler, Type handlerType, Type @params, Type registrationType, Type capabilityType, Action disposeAction)
+        public HandlerDescriptor(
+            string method,
+            string key,
+            IJsonRpcHandler handler,
+            Type handlerType,
+            Type @params,
+            Type registrationType,
+            Registration registration,
+            Type capabilityType,
+            Action disposeAction)
         {
             _disposeAction = disposeAction;
-            Handler = handler;
             Method = method;
             Key = key;
+            ImplementationType = handler.GetType();
+            Handler = handler;
             HandlerType = handlerType;
             Params = @params;
             Response = Response;
             RegistrationType = registrationType;
+            Registration = registration;
             CapabilityType = capabilityType;
-
-            // If multiple are implemented this behavior is unknown
-            CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
-                .ImplementedInterfaces
-                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
 
             var requestInterface = @params?.GetInterfaces()
                 .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
             if (requestInterface != null)
                 Response = requestInterface.GetGenericArguments()[0];
+
+            // If multiple are implemented this behavior is unknown
+            CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
+                .ImplementedInterfaces
+                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
         }
 
-        public IJsonRpcHandler Handler { get; }
+        public Type ImplementationType { get; }
         public Type HandlerType { get; }
 
         public bool HasRegistration => RegistrationType != null;
         public Type RegistrationType { get; }
+        public Registration Registration { get; }
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
-
-        private Registration _registration;
-
-        public Registration Registration
-        {
-            get
-            {
-                if (!HasRegistration) return null;
-                if (_registration != null) return _registration;
-
-                // TODO: Cache this
-                var options = GetType()
-                    .GetTypeInfo()
-                    .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static)
-                    .MakeGenericMethod(RegistrationType)
-                    .Invoke(this, new object[] { Handler });
-
-                return _registration = new Registration()
-                {
-                    Id = Guid.NewGuid().ToString(),
-                    Method = Method,
-                    RegisterOptions = options
-                };
-            }
-        }
-
-        public void SetCapability(object instance)
-        {
-            if (instance is DynamicCapability dc)
-            {
-                AllowsDynamicRegistration = dc.DynamicRegistration == true;
-            }
-
-            // TODO: Cache this
-            GetType()
-                .GetTypeInfo()
-                .GetMethod(nameof(SetCapability), BindingFlags.NonPublic | BindingFlags.Static)
-                .MakeGenericMethod(CapabilityType)
-                .Invoke(this, new[] { Handler, instance });
-        }
 
         public string Method { get; }
         public string Key { get; }
@@ -93,22 +65,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public Type Response { get; }
 
         public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
-        public bool AllowsDynamicRegistration { get; private set; }
         public Type CanBeResolvedHandlerType { get; }
+
+        public IJsonRpcHandler Handler { get; }
 
         public void Dispose()
         {
             _disposeAction();
-        }
-
-        private static object GetRegistration<T>(IRegistration<T> registration)
-        {
-            return registration.GetRegistrationOptions();
-        }
-
-        private static void SetCapability<T>(ICapability<T> capability, T instance)
-        {
-            capability.SetCapability(instance);
         }
 
         public override bool Equals(object obj)

@@ -1,7 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -44,10 +46,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 {
                     foreach (var descriptor in descriptors)
                     {
-                        if (descriptor.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
+                        if (descriptor.Params == parameters.GetType())
+                        // if (descriptor.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.ImplementationType) == true)
                         {
-                            var method = typeof(ResolveCommandMatcher).GetTypeInfo()
-                                .GetMethod(nameof(CanResolve), BindingFlags.NonPublic | BindingFlags.Static)
+                            var method = CanResolveMethod
                                 .MakeGenericMethod(descriptor.Params);
                             if ((bool)method.Invoke(null, new[] { descriptor.Handler, parameters }))
                             {
@@ -61,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     _logger.LogTrace(
                         "Resolve {Method} was called, but data did not have handle type defined.  Using Handler {HandlerType}",
                         descriptor2?.Method,
-                        descriptor2?.Handler.GetType().FullName
+                        descriptor2?.ImplementationType.FullName
                     );
 
                     yield return descriptor2;
@@ -71,8 +73,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 {
                     _logger.LogTrace("Checking handler {Method}:{Handler}",
                         descriptor.Method,
-                        descriptor.Handler.GetType().FullName);
-                    if ((descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
+                        descriptor.ImplementationType.FullName);
+                    if ((descriptor.ImplementationType.FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
                         ((descriptor is HandlerDescriptor handlerDescriptor) && handlerDescriptor.Key == handlerKey))
                     {
                         yield return descriptor;
@@ -80,6 +82,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 }
             }
         }
+
+        private static readonly MethodInfo CanResolveMethod =
+            typeof(ResolveCommandMatcher).GetTypeInfo()
+                .GetMethod(nameof(CanResolve), BindingFlags.NonPublic | BindingFlags.Static);
 
         private static bool CanResolve<T>(ICanBeResolvedHandler<T> handler, T value)
             where T : ICanBeResolved, IRequest<T>

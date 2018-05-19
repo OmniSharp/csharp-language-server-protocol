@@ -21,15 +21,14 @@ namespace SampleServer
             //    await Task.Delay(100);
             //}
 
-            var server = LanguageServer.From(options =>
+            var server = await LanguageServer.From(options =>
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
                     .WithLoggerFactory(new LoggerFactory()));
 
-            server.AddHandler(new TextDocumentHandler(server));
+            server.AddHandlers(new TextDocumentHandler(server));
 
-            await server.Initialize();
             await server.WaitForExit;
         }
     }

@@ -43,12 +43,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
             if (_descriptor is HandlerDescriptor handlerDescriptor &&
                 response is IEnumerable<ICanBeResolved> canBeResolveds &&
-                _descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(_descriptor.Handler.GetType()) == true)
+                _descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(_descriptor.ImplementationType) == true)
             {
                 _logger.LogTrace(
                     "Updating Resolve items with wrapped data for {Method}:{Handler}",
                     _descriptor.Method,
-                    _descriptor.Handler.GetType().FullName);
+                    _descriptor.ImplementationType.FullName);
                 foreach (var item in canBeResolveds)
                 {
                     // Originally we were going to change Data to be a JObject instead of JToken
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                     // Since we're always going to intercept these items, we can control this.
                     var data = new JObject();
                     data["data"] = item.Data;
-                    data[PrivateHandlerTypeName] = _descriptor.Handler.GetType().FullName;
+                    data[PrivateHandlerTypeName] = _descriptor.ImplementationType.FullName;
                     data[PrivateHandlerKey] = handlerDescriptor.Key;
                     item.Data = data;
                 }

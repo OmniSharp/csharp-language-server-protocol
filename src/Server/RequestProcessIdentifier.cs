@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -21,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (_cache.TryGetValue(descriptor.HandlerType, out var type)) return type;
 
             type = _defaultRequestProcessType;
-            var handlerType = descriptor.Handler.GetType().GetTypeInfo();
+            var handlerType = descriptor.ImplementationType.GetTypeInfo();
             var processAttribute = handlerType
                 .GetCustomAttributes(true)
                 .Concat(descriptor.HandlerType.GetTypeInfo().GetCustomAttributes(true))

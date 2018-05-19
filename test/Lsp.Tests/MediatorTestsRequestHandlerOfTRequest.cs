@@ -48,7 +48,7 @@ namespace Lsp.Tests
                     throw new XunitException("Task was not cancelled in time!");
                 });
 
-            var collection = new HandlerCollection { executeCommandHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { executeCommandHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 

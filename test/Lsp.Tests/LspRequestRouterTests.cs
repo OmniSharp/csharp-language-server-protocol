@@ -34,7 +34,7 @@ namespace Lsp.Tests
         public LspRequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] {typeof(LspRequestRouterTests).Assembly})
+                .AddJsonRpcMediatR(new[] { typeof(LspRequestRouterTests).Assembly })
                 .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
             Services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
         }
@@ -45,11 +45,12 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-            var collection = new HandlerCollection { textDocumentSyncHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
-            var @params = new DidSaveTextDocumentParams() {
+            var @params = new DidSaveTextDocumentParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
@@ -68,11 +69,12 @@ namespace Lsp.Tests
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2 };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
-            var @params = new DidSaveTextDocumentParams() {
+            var @params = new DidSaveTextDocumentParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
@@ -96,12 +98,13 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandContainer());
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new DidSaveTextDocumentParams() {
+            var @params = new DidSaveTextDocumentParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
@@ -133,11 +136,12 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandContainer());
 
-            AutoSubstitute.Provide<IHandlerCollection>(new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 });
+            AutoSubstitute.Provide<IHandlerCollection>(new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 });
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new CodeActionParams() {
+            var @params = new CodeActionParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
@@ -169,12 +173,13 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CodeLensContainer());
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new CodeLensParams() {
+            var @params = new CodeLensParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
@@ -194,7 +199,7 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>())
                 .Returns(Task.CompletedTask);
 
-            var collection = new HandlerCollection { handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
@@ -212,11 +217,12 @@ namespace Lsp.Tests
             bool wasShutDown = false;
 
             var shutdownHandler = new ShutdownHandler();
-            shutdownHandler.Shutdown += shutdownRequested => {
+            shutdownHandler.Shutdown.Subscribe(shutdownRequested =>
+            {
                 wasShutDown = true;
-            };
+            });
 
-            var collection = new HandlerCollection { shutdownHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
@@ -235,11 +241,12 @@ namespace Lsp.Tests
         {
             bool wasShutdown = false;
             var shutdownHandler = new ShutdownHandler();
-            shutdownHandler.Shutdown += shutdownRequested => {
+            shutdownHandler.Shutdown.Subscribe(shutdownRequested =>
+            {
                 wasShutdown = true;
-            };
+            });
 
-            var collection = new HandlerCollection { shutdownHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 

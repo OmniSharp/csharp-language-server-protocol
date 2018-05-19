@@ -12,9 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 
         bool HasCapability { get; }
         Type CapabilityType { get; }
-        void SetCapability(object instance);
         bool IsDynamicCapability { get; }
-        bool AllowsDynamicRegistration { get; }
         Type CanBeResolvedHandlerType { get; }
     }
 }
