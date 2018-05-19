@@ -19,8 +19,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         Task Initialize();
 
-        event ShutdownEventHandler Shutdown;
-        event ExitEventHandler Exit;
+        IObservable<bool> Shutdown { get; }
+        IObservable<int> Exit { get; }
         Task WasShutDown { get; }
         Task WaitForExit { get; }
     }

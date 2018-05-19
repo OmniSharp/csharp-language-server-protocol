@@ -365,17 +365,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             await this.RegisterCapability(@params);
         }
 
-        public event ShutdownEventHandler Shutdown
-        {
-            add => _shutdownHandler.Shutdown += value;
-            remove => _shutdownHandler.Shutdown -= value;
-        }
-
-        public event ExitEventHandler Exit
-        {
-            add => _exitHandler.Exit += value;
-            remove => _exitHandler.Exit -= value;
-        }
+        public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
+        public IObservable<int> Exit => _exitHandler.Exit;
 
         public void SendNotification<T>(string method, T @params)
         {

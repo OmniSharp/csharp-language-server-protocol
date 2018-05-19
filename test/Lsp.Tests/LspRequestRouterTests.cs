@@ -212,9 +212,9 @@ namespace Lsp.Tests
             bool wasShutDown = false;
 
             var shutdownHandler = new ShutdownHandler();
-            shutdownHandler.Shutdown += shutdownRequested => {
+            shutdownHandler.Shutdown .Subscribe(shutdownRequested => {
                 wasShutDown = true;
-            };
+            });
 
             var collection = new HandlerCollection { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -235,9 +235,9 @@ namespace Lsp.Tests
         {
             bool wasShutdown = false;
             var shutdownHandler = new ShutdownHandler();
-            shutdownHandler.Shutdown += shutdownRequested => {
+            shutdownHandler.Shutdown .Subscribe(shutdownRequested => {
                 wasShutdown = true;
-            };
+            });
 
             var collection = new HandlerCollection { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
