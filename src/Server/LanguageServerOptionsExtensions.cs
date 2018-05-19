@@ -22,6 +22,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
+        public static LanguageServerOptions WithMinimumLogLevel(this LanguageServerOptions options, LogLevel logLevel)
+        {
+            options.MinimumLogLevel = logLevel;
+            return options;
+        }
+
         public static LanguageServerOptions WithLoggerFactory(this LanguageServerOptions options, ILoggerFactory loggerFactory)
         {
             options.LoggerFactory = loggerFactory;

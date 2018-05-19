@@ -12,8 +12,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly LanguageServer _responseRouter;
         private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(LanguageServer responseRouter)
+        public LanguageServerLogger(LanguageServer responseRouter, Func<LogLevel> logLevelGetter)
         {
+            _logLevelGetter = logLevelGetter;
             _responseRouter = responseRouter;
         }
 

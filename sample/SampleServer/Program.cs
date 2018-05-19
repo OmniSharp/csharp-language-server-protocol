@@ -25,7 +25,10 @@ namespace SampleServer
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
-                    .WithLoggerFactory(new LoggerFactory()));
+                    .WithLoggerFactory(new LoggerFactory())
+                    .AddDefaultLoggingProvider()
+                    .WithMinimumLogLevel(LogLevel.Trace)
+                );
 
             server.AddHandlers(new TextDocumentHandler(server));
 

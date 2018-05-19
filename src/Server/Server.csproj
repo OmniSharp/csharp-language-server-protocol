@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -9,6 +9,7 @@
     <ItemGroup>
         <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(Microsoft_Extensions_Logging_Version)" />
     </ItemGroup>
 
     <ItemGroup>
