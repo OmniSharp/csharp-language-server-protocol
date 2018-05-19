@@ -1,10 +1,11 @@
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class ApplyWorkspaceEditParams
+    public class ApplyWorkspaceEditParams : IRequest<ApplyWorkspaceEditResponse>
     {
         /// <summary>
         /// An optional label of the workspace edit. This label is

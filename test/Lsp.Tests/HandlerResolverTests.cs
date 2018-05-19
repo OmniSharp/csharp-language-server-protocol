@@ -13,6 +13,7 @@ using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using System.Collections.Generic;
 using MediatR;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Lsp.Tests
 {

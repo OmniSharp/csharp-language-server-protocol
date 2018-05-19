@@ -1,0 +1,13 @@
+using OmniSharp.Extensions.JsonRpc;
+
+// ReSharper disable once CheckNamespace
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
+{
+    public interface ILanguageClient : IResponseRouter
+    {
+        ILanguageClientDocument Document { get; }
+        ILanguageClientClient Client { get; }
+        ILanguageClientWindow Window { get; }
+        ILanguageClientWorkspace Workspace { get; }
+    }
+}

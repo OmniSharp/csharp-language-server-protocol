@@ -18,6 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Handlers;
@@ -139,10 +140,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _disposable.Add(
                 AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
             );
+
+            Document = new LanguageServerDocument(_responseRouter);
+            Client = new LanguageServerClient(_responseRouter);
+            Window = new LanguageServerWindow(_responseRouter);
+            Workspace = new LanguageServerWorkspace(_responseRouter);
         }
 
-        public InitializeParams Client { get; private set; }
-        public InitializeResult Server { get; private set; }
+        public ILanguageServerDocument Document { get; }
+        public ILanguageServerClient Client { get; }
+        public ILanguageServerWindow Window { get; }
+        public ILanguageServerWorkspace Workspace { get; }
+
+        public InitializeParams ClientSettings { get; private set; }
+        public InitializeResult ServerSettings { get; private set; }
 
         /// <summary>
         ///     The minimum level for the server's default logger.
@@ -194,7 +205,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 return new ImmutableDisposable(
                     handlerDisposable,
                     new Disposable(() => {
-                        this.UnregisterCapability(new UnregistrationParams() {
+                        Client.UnregisterCapability(new UnregistrationParams() {
                             Unregisterations = registrations.ToArray()
                         }).ToObservable().Subscribe();
                     }));
@@ -210,7 +221,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
-            Client = request;
+            ClientSettings = request;
 
             var supportedCapabilites = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
@@ -238,8 +249,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _clientVersion = request.Capabilities.GetClientVersion();
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
-            var textDocumentCapabilities = Client.Capabilities.TextDocument;
-            var workspaceCapabilities = Client.Capabilities.Workspace;
+            var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument;
+            var workspaceCapabilities = ClientSettings.Capabilities.Workspace;
 
             var ccp = new ClientCapabilityProvider(_collection);
 
@@ -302,7 +313,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
-            var result = Server = new InitializeResult() { Capabilities = serverCapabilities };
+            var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
 
             await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
 
@@ -328,7 +339,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 // Small delay to let client respond
                 await Task.Delay(100, token);
 
-                _initializeComplete.OnNext(Server);
+                _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }
         }
@@ -342,11 +353,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await _initializeComplete
                 .Select(x => System.Reactive.Unit.Default)
-                .Concat(Observable.Defer(() => this.RegisterCapability(@params).ToObservable()));
+                .Concat(Observable.Defer(() => Client.RegisterCapability(@params).ToObservable()));
         }
 
         public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
         public IObservable<int> Exit => _exitHandler.Exit;
+
+        public void SendNotification(string method)
+        {
+            _responseRouter.SendNotification(method);
+        }
 
         public void SendNotification<T>(string method, T @params)
         {

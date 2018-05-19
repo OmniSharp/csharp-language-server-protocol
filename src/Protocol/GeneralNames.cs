@@ -1,7 +1,11 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public static partial class GeneralNames
+    public static class GeneralNames
     {
-        
+        public const string CancelRequest = "$/cancelRequest";
+        public const string Exit = "exit";
+        public const string Initialized = "initialized";
+        public const string Initialize = "initialize";
+        public const string Shutdown = "shutdown";
     }
 }

@@ -18,6 +18,13 @@ namespace OmniSharp.Extensions.JsonRpc
             _serializer = serializer;
         }
 
+        public void SendNotification(string method)
+        {
+            _outputHandler.Send(new Client.Notification() {
+                Method = method
+            });
+        }
+
         public void SendNotification<T>(string method, T @params)
         {
             _outputHandler.Send(new Client.Notification() {

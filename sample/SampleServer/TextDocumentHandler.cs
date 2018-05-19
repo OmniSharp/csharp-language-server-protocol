@@ -5,8 +5,10 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server;
+using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 
 namespace SampleServer
 {
@@ -33,7 +35,7 @@ namespace SampleServer
 
         public Task Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
-            _router.LogMessage(new LogMessageParams()
+            _router.Window.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
@@ -58,7 +60,7 @@ namespace SampleServer
         public async Task Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
-            _router.LogMessage(new LogMessageParams()
+            _router.Window.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"

@@ -15,4 +15,8 @@
         <ProjectReference Include="..\Protocol\Protocol.csproj" />
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
     </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Protocol\" />
+    </ItemGroup>
 </Project>

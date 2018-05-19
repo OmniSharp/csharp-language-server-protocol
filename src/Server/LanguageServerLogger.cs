@@ -3,6 +3,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -30,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (TryGetMessageType(logLevel, out var messageType))
             {
-                _responseRouter.Log(new LogMessageParams()
+                _responseRouter.Window.Log(new LogMessageParams()
                 {
                     Type = messageType,
                     Message = formatter(state, exception)

@@ -1,10 +1,11 @@
 ﻿using System;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class PublishDiagnosticsParams
+    public class PublishDiagnosticsParams : IRequest
     {
         /// <summary>
         ///  The URI for which diagnostic information is reported.
