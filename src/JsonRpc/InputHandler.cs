@@ -175,7 +175,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Request.Method,
-                        async () => {
+                        async () =>
+                        {
                             try
                             {
                                 var result = await _requestRouter.RouteRequest(descriptor, item.Request);
@@ -191,7 +192,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                     );
                 }
-                else if (item.IsNotification)
+
+                if (item.IsNotification)
                 {
                     var descriptor = _requestRouter.GetDescriptor(item.Notification);
                     if (descriptor is null) continue;
@@ -199,7 +201,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
-                        async () => {
+                        async () =>
+                        {
                             try
                             {
                                 await _requestRouter.RouteNotification(descriptor, item.Notification);
@@ -214,7 +217,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                     );
                 }
-                else if (item.IsError)
+
+                if (item.IsError)
                 {
                     // TODO:
                     _outputHandler.Send(item.Error);

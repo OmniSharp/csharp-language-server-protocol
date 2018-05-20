@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _responseRouter.Window.Log(new LogMessageParams()
                 {
                     Type = messageType,
-                    Message = formatter(state, exception)
+                    Message = formatter(state, exception) + (exception != null ? " - " + exception.ToString() : "")
                 });
             }
         }

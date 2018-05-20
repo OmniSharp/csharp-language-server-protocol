@@ -102,6 +102,13 @@ namespace JsonRpc.Tests.Server
                     });
 
                 yield return (
+                    @"{""jsonrpc"":""2.0"",""method"":""initialized"",""params"":{}}",
+                    new Renor[] {
+                        new Notification("initialized", new JObject()), 
+                    }
+                );
+
+                yield return (
                     @"{""jsonrpc"": ""2.0"", ""method"": 1, ""params"": ""bar""}",
                     new Renor[]
                     {

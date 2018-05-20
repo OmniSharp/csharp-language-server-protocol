@@ -232,6 +232,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ClientSettings = request;
 
+            if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
+            {
+                MinimumLogLevel = LogLevel.Trace;
+            }
+
+            await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
+
+            _clientVersion = request.Capabilities.GetClientVersion();
+            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
+
             var supportedCapabilites = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
@@ -252,12 +262,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _supportedCapabilities.Add(supportedCapabilites);
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
-
             AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
-
-            _clientVersion = request.Capabilities.GetClientVersion();
-            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
             var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument;
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace;
@@ -334,7 +339,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
 
-
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
             {
@@ -367,9 +371,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var @params = new RegistrationParams() { Registrations = registrations };
 
-            await _initializeComplete
-                .Select(x => System.Reactive.Unit.Default)
-                .Concat(Observable.Defer(() => Client.RegisterCapability(@params).ToObservable()));
+            await _initializeComplete;
+            await Client.RegisterCapability(@params);
         }
 
         public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
@@ -452,7 +455,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             foreach (var item in supports)
             {
-                _supports.Add(item.ValueType, item.Value);
+                if (!_supports.TryGetValue(item.ValueType, out _))
+                    _supports.Add(item.ValueType, item.Value);
             }
         }
 

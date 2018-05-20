@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     newResults.Add(item);
                 }
-                else if (item.IsNotification && item.Notification.Method == GeneralNames.Exit)
+                else if (item.IsNotification)
                 {
                     newResults.Add(item);
                 }
