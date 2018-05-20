@@ -25,7 +25,7 @@ export function activate(context: ExtensionContext) {
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
         run: { command: serverExe, args: ['D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.dll', '-lsp'] },
-        debug: { command: serverExe, args: ['D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServerbin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.dll', '-lsp'] }
+        debug: { command: serverExe, args: ['D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.dll', '-lsp'] }
     }
 
     // Options to control the language client

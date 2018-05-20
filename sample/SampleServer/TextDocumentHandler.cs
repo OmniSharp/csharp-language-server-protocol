@@ -14,7 +14,7 @@ namespace SampleServer
 {
     class TextDocumentHandler : ITextDocumentSyncHandler
     {
-        private readonly ILanguageServer _router;
+        private readonly OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter()
@@ -26,7 +26,7 @@ namespace SampleServer
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(ILanguageServer router)
+        public TextDocumentHandler(OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer router)
         {
             _router = router;
         }

@@ -94,6 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddLogging();
             _reciever = reciever;
             _serializer = serializer;
+            _supportedCapabilities = new SupportedCapabilities();
             _collection = new HandlerCollection(_supportedCapabilities);
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
@@ -108,9 +109,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             services.AddJsonRpcMediatR(assemblies);
             services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
+            services.AddSingleton<Protocol.Server.ILanguageServer>(this);
+            services.AddSingleton<ILanguageServer>(this);
             services.AddTransient<IHandlerMatcher, ExecuteCommandMatcher>();
             services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();
             services.AddSingleton<ILspRequestRouter, LspRequestRouter>();
+            services.AddSingleton<IRequestRouter>(_ => _.GetRequiredService<ILspRequestRouter>());
+            services.AddSingleton<IReciever, LspReciever>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
 
@@ -206,8 +211,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 return new ImmutableDisposable(
                     handlerDisposable,
-                    new Disposable(() => {
-                        Client.UnregisterCapability(new UnregistrationParams() {
+                    new Disposable(() =>
+                    {
+                        Client.UnregisterCapability(new UnregistrationParams()
+                        {
                             Unregisterations = registrations.ToArray()
                         }).ToObservable().Subscribe();
                     }));
@@ -242,7 +249,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     );
                 }
             }
-            _supportedCapabilities = new SupportedCapabilities(supportedCapabilites);
+
+            _supportedCapabilities.Add(supportedCapabilites);
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
 
@@ -256,7 +264,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
-            var serverCapabilities = new ServerCapabilities() {
+            var serverCapabilities = new ServerCapabilities()
+            {
                 CodeActionProvider = ccp.HasStaticHandler(textDocumentCapabilities.CodeAction),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
@@ -280,8 +289,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
-                serverCapabilities.Workspace = new WorkspaceServerCapabilities() {
-                    WorkspaceFolders = new WorkspaceFolderOptions() {
+                serverCapabilities.Workspace = new WorkspaceServerCapabilities()
+                {
+                    WorkspaceFolders = new WorkspaceFolderOptions()
+                    {
                         Supported = true,
                         ChangeNotifications = Guid.NewGuid().ToString()
                     }
@@ -290,6 +301,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
                 ? _collection
+                    .Select(x => x.Handler)
                     .OfType<IDidChangeTextDocumentHandler>()
                     .Where(x => x.Change != TextDocumentSyncKind.None)
                     .Min(z => z.Change)
@@ -301,7 +313,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
             else
             {
-                serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions() {
+                serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
+                {
                     Change = textDocumentSyncKind,
                     OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                     Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
@@ -315,11 +328,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
+            _reciever.Initialized();
+
             var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
 
             await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
 
-            _reciever.Initialized();
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
@@ -429,10 +443,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             .GetTypeInfo()
             .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static);
 
-        private readonly IDictionary<Type, object> _supports;
-        public SupportedCapabilities(IEnumerable<ISupports> supports)
+        private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
+        public SupportedCapabilities()
         {
-            _supports = supports.ToDictionary(x => x.ValueType, x => x.Value);
+        }
+
+        public void Add(IEnumerable<ISupports> supports)
+        {
+            foreach (var item in supports)
+            {
+                _supports.Add(item.ValueType, item.Value);
+            }
         }
 
         public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)

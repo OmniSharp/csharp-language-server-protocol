@@ -187,7 +187,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     catch (Exception e)
                     {
                         _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
-                        return new InternalError(id);
+                        return new InternalError(id, e.ToString());
                     }
                     finally
                     {
