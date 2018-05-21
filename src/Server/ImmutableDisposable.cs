@@ -20,9 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public void Dispose()
         {
             foreach (var instance in _instances)
-            {
                 instance.Dispose();
-            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface IRegistration<out TOptions>
     {

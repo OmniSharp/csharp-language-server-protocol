@@ -1,38 +1,41 @@
 using System;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class LanguageServerLogger : ILogger
     {
-        private LanguageServer _languageServer;
+        private readonly LanguageServer _responseRouter;
+        private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(LanguageServer languageServer)
+        public LanguageServerLogger(LanguageServer responseRouter, Func<LogLevel> logLevelGetter)
         {
-            _languageServer = languageServer;
+            _logLevelGetter = logLevelGetter;
+            _responseRouter = responseRouter;
         }
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            // TODO
             return new ImmutableDisposable();
         }
 
-        public bool IsEnabled(LogLevel logLevel) => logLevel >= _languageServer.MinimumLogLevel;
+        public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();
 
         public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
         {
-            if (logLevel < _languageServer.MinimumLogLevel)
+            if (logLevel < _logLevelGetter())
                 return;
 
             if (TryGetMessageType(logLevel, out var messageType))
             {
-                _languageServer.Log(new LogMessageParams()
+                _responseRouter.Window.Log(new LogMessageParams()
                 {
                     Type = messageType,
-                    Message = formatter(state, exception)
+                    Message = formatter(state, exception) + (exception != null ? " - " + exception.ToString() : "")
                 });
             }
         }

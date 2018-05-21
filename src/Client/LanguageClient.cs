@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
@@ -91,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 throw new ArgumentNullException(nameof(process));
 
             _process = process;
-            _process.Exited += ServerProcess_Exit;
+            _process.Exited.Subscribe(x => ServerProcess_Exit());
         }
 
         /// <summary>
@@ -451,7 +452,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// <param name="args">
         ///     The event arguments.
         /// </param>
-        async void ServerProcess_Exit(object sender, EventArgs args)
+        async void ServerProcess_Exit()
         {
             Log.LogDebug("Server process has exited; language client is shutting down...");
 

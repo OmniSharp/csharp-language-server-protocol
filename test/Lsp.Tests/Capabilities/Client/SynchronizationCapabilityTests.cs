@@ -24,7 +24,7 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SynchronizationCapability>(expected);
-            deresult.ShouldBeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model);
         }
     }
 }

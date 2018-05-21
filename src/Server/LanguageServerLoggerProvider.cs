@@ -1,3 +1,4 @@
+using System;
 using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new LanguageServerLogger(_languageServer);
+            return new LanguageServerLogger(_languageServer, () => _languageServer.MinimumLogLevel);
         }
 
         public void Dispose()

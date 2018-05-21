@@ -16,16 +16,21 @@ namespace SampleServer
 
         static async Task MainAsync(string[] args)
         {
-            //while (!System.Diagnostics.Debugger.IsAttached)
-            //{
+            // while (!System.Diagnostics.Debugger.IsAttached)
+            // {
             //    await Task.Delay(100);
-            //}
+            // }
 
-            var server = new LanguageServer(Console.OpenStandardInput(), Console.OpenStandardOutput(), new LoggerFactory());
+            var server = await LanguageServer.From(options =>
+                options
+                    .WithInput(Console.OpenStandardInput())
+                    .WithOutput(Console.OpenStandardOutput())
+                    .WithLoggerFactory(new LoggerFactory())
+                    .AddDefaultLoggingProvider()
+                    .WithMinimumLogLevel(LogLevel.Trace)
+                    .WithHandler<TextDocumentHandler>()
+                );
 
-            server.AddHandler(new TextDocumentHandler(server));
-
-            await server.Initialize();
             await server.WaitForExit;
         }
     }

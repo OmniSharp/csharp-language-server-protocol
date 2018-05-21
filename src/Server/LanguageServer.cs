@@ -2,9 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -12,85 +18,149 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
+using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IDisposable, IAwaitableTermination
+    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
-        private readonly LspRequestRouter _requestRouter;
+        private readonly ILspRequestRouter _requestRouter;
         private readonly ShutdownHandler _shutdownHandler = new ShutdownHandler();
-        private readonly List<InitializeDelegate> _initializeDelegates = new List<InitializeDelegate>();
         private readonly ExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
-        private readonly HandlerCollection _collection = new HandlerCollection();
+        private readonly ILspReciever _reciever;
+        private readonly ISerializer _serializer;
+        private readonly IHandlerCollection _collection;
+        private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
+        private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
         private readonly IResponseRouter _responseRouter;
-        private readonly LspReciever _reciever;
-        private readonly ILoggerFactory _loggerFactory;
-        private readonly Serializer _serializer;
-        private readonly TaskCompletionSource<InitializeResult> _initializeComplete = new TaskCompletionSource<InitializeResult>();
+        private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly HandlerMatcherCollection _handlerMactherCollection;
+        private readonly ServiceProvider _serviceProvider;
+        private SupportedCapabilities _supportedCapabilities;
 
-        public LanguageServer(
-            Stream input,
-            Stream output,
-            ILoggerFactory loggerFactory)
-            : this(input, output, loggerFactory, addDefaultLoggingProvider: true)
+        public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
+            var options = new LanguageServerOptions();
+            optionsAction(options);
+            return From(options);
         }
 
-        public LanguageServer(
-            Stream input,
-            Stream output,
-            ILoggerFactory loggerFactory,
-            bool addDefaultLoggingProvider)
-            : this(input, output, new LspReciever(), new RequestProcessIdentifier(), loggerFactory, new Serializer(), addDefaultLoggingProvider)
+        public static async Task<ILanguageServer> From(LanguageServerOptions options)
         {
+            var server = new LanguageServer(
+                options.Input,
+                options.Output,
+                options.Reciever,
+                options.RequestProcessIdentifier,
+                options.LoggerFactory,
+                options.Serializer,
+                options.Services,
+                options.HandlerTypes.Select(x => x.Assembly)
+                    .Distinct().Concat(options.HandlerAssemblies),
+                options.InitializeDelegates,
+                options.InitializedDelegates
+            );
+
+            if (options.AddDefaultLoggingProvider)
+                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
+
+            await server.Initialize();
+
+            return server;
         }
 
         internal LanguageServer(
             Stream input,
             Stream output,
-            LspReciever reciever,
+            ILspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
             ILoggerFactory loggerFactory,
-            Serializer serializer,
-            bool addDefaultLoggingProvider)
+            ISerializer serializer,
+            IServiceCollection services,
+            IEnumerable<Assembly> assemblies,
+            IEnumerable<InitializeDelegate> initializeDelegates,
+            IEnumerable<InitializedDelegate> initializedDelegates)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            if (addDefaultLoggingProvider)
-                loggerFactory.AddProvider(new LanguageServerLoggerProvider(this));
-
+            services.AddLogging();
             _reciever = reciever;
-            _loggerFactory = loggerFactory;
             _serializer = serializer;
-            _handlerMactherCollection = new HandlerMatcherCollection
-            {
-                new TextDocumentMatcher(_loggerFactory.CreateLogger<TextDocumentMatcher>(), _collection.TextDocumentSyncHandlers),
-                new ExecuteCommandMatcher(_loggerFactory.CreateLogger<ExecuteCommandMatcher>()),
-                new ResolveCommandMatcher(_loggerFactory.CreateLogger<ResolveCommandMatcher>()),
-                new DocumentLinkCommandMatcher(_loggerFactory.CreateLogger<DocumentLinkCommandMatcher>())
-            };
+            _supportedCapabilities = new SupportedCapabilities();
+            _collection = new HandlerCollection(_supportedCapabilities);
+            _initializeDelegates = initializeDelegates;
+            _initializedDelegates = initializedDelegates;
 
-            _requestRouter = new LspRequestRouter(_collection, loggerFactory, _handlerMactherCollection, _serializer);
-            _responseRouter = new ResponseRouter(outputHandler, _serializer);
-            _connection = new Connection(input, outputHandler, reciever, requestProcessIdentifier, _requestRouter, _responseRouter, loggerFactory, serializer);
+            services.AddSingleton<IOutputHandler>(outputHandler);
+            services.AddSingleton(_collection);
+            services.AddSingleton(_serializer);
+            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
+            services.AddSingleton(requestProcessIdentifier);
+            services.AddSingleton(_reciever);
+            services.AddSingleton(loggerFactory);
+
+            services.AddJsonRpcMediatR(assemblies);
+            services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
+            services.AddSingleton<Protocol.Server.ILanguageServer>(this);
+            services.AddSingleton<ILanguageServer>(this);
+            services.AddTransient<IHandlerMatcher, ExecuteCommandMatcher>();
+            services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();
+            services.AddSingleton<ILspRequestRouter, LspRequestRouter>();
+            services.AddSingleton<IRequestRouter>(_ => _.GetRequiredService<ILspRequestRouter>());
+            services.AddSingleton<IReciever, LspReciever>();
+            services.AddSingleton<IResponseRouter, ResponseRouter>();
+            services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
+
+            var foundHandlers = services
+                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) && x.ServiceType != typeof(IJsonRpcHandler))
+                .ToArray();
+
+            // Handlers are created at the start and maintained as a singleton
+            foreach (var handler in foundHandlers)
+            {
+                services.Remove(handler);
+
+                if (handler.ImplementationFactory != null)
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationFactory));
+                else if (handler.ImplementationInstance != null)
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationInstance));
+                else
+                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
+            }
+
+            _serviceProvider = services.BuildServiceProvider();
+
+            _requestRouter = _serviceProvider.GetRequiredService<ILspRequestRouter>();
+            _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
             _exitHandler = new ExitHandler(_shutdownHandler);
 
             _disposable.Add(
                 AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
             );
+
+            Document = new LanguageServerDocument(_responseRouter);
+            Client = new LanguageServerClient(_responseRouter);
+            Window = new LanguageServerWindow(_responseRouter);
+            Workspace = new LanguageServerWorkspace(_responseRouter);
         }
 
-        public InitializeParams Client { get; private set; }
-        public InitializeResult Server { get; private set; }
+        public ILanguageServerDocument Document { get; }
+        public ILanguageServerClient Client { get; }
+        public ILanguageServerWindow Window { get; }
+        public ILanguageServerWorkspace Workspace { get; }
+
+        public InitializeParams ClientSettings { get; private set; }
+        public InitializeResult ServerSettings { get; private set; }
 
         /// <summary>
         ///     The minimum level for the server's default logger.
@@ -100,98 +170,102 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             var handlerDisposable = _collection.Add(method, handler);
-
-            return new ImmutableDisposable(
-                handlerDisposable,
-                new Disposable(() =>
-                {
-                    var foundItems = _collection
-                        .Where(x => handler == x.Handler)
-                        .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
-                        .Select(x => x.Registration)
-                        .ToArray();
-
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
-                    {
-                        Unregisterations = foundItems
-                    }));
-                }));
-        }
-
-        public IDisposable AddHandler(IJsonRpcHandler handler)
-        {
-            return AddHandlers(handler);
-        }
-
-        public IDisposable AddHandlers(IEnumerable<IJsonRpcHandler> handlers)
-        {
-            return AddHandlers(handlers.ToArray());
+            return RegisterHandlers(handlerDisposable);
         }
 
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
         {
             var handlerDisposable = _collection.Add(handlers);
+            return RegisterHandlers(handlerDisposable);
+        }
 
-            return new ImmutableDisposable(
-                handlerDisposable,
-                new Disposable(() =>
-                {
-                    var foundItems = handlers
-                    .SelectMany(handler => _collection
-                        .Where(x => handler == x.Handler)
-                        .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
-                        .Select(x => x.Registration))
+        public IDisposable AddHandler(string method, Type handlerType)
+        {
+            var handlerDisposable = _collection.Add(method, _serviceProvider, handlerType);
+            return RegisterHandlers(handlerDisposable);
+        }
+
+        public IDisposable AddHandler<T>()
+            where T : IJsonRpcHandler
+        {
+            return AddHandlers(typeof(T));
+        }
+
+        public IDisposable AddHandlers(params Type[] handlerTypes)
+        {
+            var handlerDisposable = _collection.Add(_serviceProvider, handlerTypes);
+            return RegisterHandlers(handlerDisposable);
+        }
+
+        private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
+        {
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var registrations = handlerDisposable.Descriptors
+                    .Select(x => x.Registration)
+                    .Where(x => x != null)
                     .ToArray();
 
-                    Task.Run(() => this.UnregisterCapability(new UnregistrationParams()
+                // Fire and forget
+                DynamicallyRegisterHandlers(registrations).ToObservable().Subscribe();
+
+                return new ImmutableDisposable(
+                    handlerDisposable,
+                    new Disposable(() =>
                     {
-                        Unregisterations = foundItems
+                        Client.UnregisterCapability(new UnregistrationParams()
+                        {
+                            Unregisterations = registrations.ToArray()
+                        }).ToObservable().Subscribe();
                     }));
-                }));
+            }
         }
 
-        public IDisposable AddHandlerMatcher(IHandlerMatcher handlerMatcher)
-        {
-            return _handlerMactherCollection.Add(handlerMatcher);
-        }
-
-        public async Task Initialize()
+        private async Task Initialize()
         {
             _connection.Open();
 
-            await _initializeComplete.Task;
-
-            // Small delay to let client respond
-            await Task.Delay(100);
-
-            await DynamicallyRegisterHandlers();
+            await _initializeComplete;
         }
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
-            Client = request;
+            ClientSettings = request;
+
+            if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
+            {
+                MinimumLogLevel = LogLevel.Trace;
+            }
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
 
             _clientVersion = request.Capabilities.GetClientVersion();
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
+            var supportedCapabilites = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                // handle client capabilites
                 if (request.Capabilities.TextDocument != null)
                 {
-                    ProcessCapabilties(request.Capabilities.TextDocument);
+                    supportedCapabilites.AddRange(
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
+                    );
                 }
 
                 if (request.Capabilities.Workspace != null)
                 {
-                    ProcessCapabilties(request.Capabilities.Workspace);
+                    supportedCapabilites.AddRange(
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
+                    );
                 }
             }
 
-            var textDocumentCapabilities = Client.Capabilities.TextDocument;
-            var workspaceCapabilities = Client.Capabilities.Workspace;
+            _supportedCapabilities.Add(supportedCapabilites);
+
+            AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
+
+            var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument;
+            var workspaceCapabilities = ClientSettings.Capabilities.Workspace;
 
             var ccp = new ClientCapabilityProvider(_collection);
 
@@ -230,120 +304,83 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 };
             }
 
-            var textSyncHandlers = _collection
-                .Select(x => x.Handler)
-                .OfType<ITextDocumentSyncHandler>()
-                .ToArray();
+            var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
+                ? _collection
+                    .Select(x => x.Handler)
+                    .OfType<IDidChangeTextDocumentHandler>()
+                    .Where(x => x.Change != TextDocumentSyncKind.None)
+                    .Min(z => z.Change)
+                : TextDocumentSyncKind.None;
 
             if (_clientVersion == ClientVersion.Lsp2)
             {
-                if (textSyncHandlers.Any())
-                {
-                    serverCapabilities.TextDocumentSync = textSyncHandlers
-                        .Where(x => x.Options.Change != TextDocumentSyncKind.None)
-                        .Min<ITextDocumentSyncHandler, TextDocumentSyncKind>(z => z.Options.Change);
-                }
-                else
-                {
-                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
-                }
+                serverCapabilities.TextDocumentSync = textDocumentSyncKind;
             }
             else
             {
-                if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
+                serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
                 {
-                    // TODO: Merge options
-                    serverCapabilities.TextDocumentSync =
-                        textSyncHandlers.FirstOrDefault()?.Options ?? new TextDocumentSyncOptions()
-                        {
-                            Change = TextDocumentSyncKind.None,
-                            OpenClose = false,
-                            Save = new SaveOptions() { IncludeText = false },
-                            WillSave = false,
-                            WillSaveWaitUntil = false
-                        };
-                }
-                else
-                {
-                    serverCapabilities.TextDocumentSync = TextDocumentSyncKind.None;
-                }
+                    Change = textDocumentSyncKind,
+                    OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
+                    Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
+                        new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
+                        null,
+                    WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
+                    WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
+                };
             }
-
-            _reciever.Initialized();
 
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
-            var result = Server = new InitializeResult() { Capabilities = serverCapabilities };
+            _reciever.Initialized();
+
+            var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
+
+            await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
             {
-                _initializeComplete.SetResult(result);
+                // Small delay to let client respond
+                await Task.Delay(100, token);
+
+                _initializeComplete.OnNext(result);
+                _initializeComplete.OnCompleted();
             }
 
             return result;
         }
 
-        public LanguageServer OnInitialize(InitializeDelegate @delegate)
-        {
-            _initializeDelegates.Add(@delegate);
-            return this;
-        }
-
-        public Task Handle(InitializedParams @params)
+        public async Task Handle(InitializedParams @params, CancellationToken token)
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                _initializeComplete.SetResult(Server);
-            }
-            return Task.CompletedTask;
-        }
+                // Small delay to let client respond
+                await Task.Delay(100, token);
 
-        private void ProcessCapabilties(object instance)
-        {
-            var values = instance
-                .GetType()
-                .GetTypeInfo()
-                .DeclaredProperties
-                .Where(x => x.CanRead)
-                .Select(x => x.GetValue(instance))
-                .OfType<ISupports>();
-
-            foreach (var value in values)
-            {
-                foreach (var handler in _collection.Where(x => x.HasCapability && x.CapabilityType == value.ValueType))
-                {
-                    handler.SetCapability(value.Value);
-                }
+                _initializeComplete.OnNext(ServerSettings);
+                _initializeComplete.OnCompleted();
             }
         }
 
-        private async Task DynamicallyRegisterHandlers()
+        private async Task DynamicallyRegisterHandlers(Registration[] registrations)
         {
-            var registrations = _collection
-                .Where(x => x.AllowsDynamicRegistration && x.HasRegistration)
-                .Select(handler => handler.Registration)
-                .ToList();
-
-            if (registrations.Count == 0)
+            if (registrations.Length == 0)
                 return; // No dynamic registrations supported by client.
 
             var @params = new RegistrationParams() { Registrations = registrations };
 
-            await this.RegisterCapability(@params);
+            await _initializeComplete;
+            await Client.RegisterCapability(@params);
         }
 
-        public event ShutdownEventHandler Shutdown
-        {
-            add => _shutdownHandler.Shutdown += value;
-            remove => _shutdownHandler.Shutdown -= value;
-        }
+        public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
+        public IObservable<int> Exit => _exitHandler.Exit;
 
-        public event ExitEventHandler Exit
+        public void SendNotification(string method)
         {
-            add => _exitHandler.Exit += value;
-            remove => _exitHandler.Exit -= value;
+            _responseRouter.SendNotification(method);
         }
 
         public void SendNotification<T>(string method, T @params)
@@ -381,5 +418,83 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
+    }
+
+    static class LspHandlerDescriptorHelpers
+    {
+        public static IJsonRpcHandler InitializeHandler(ILspHandlerDescriptor descriptor, SupportedCapabilities supportedCapabilities, IJsonRpcHandler handler)
+        {
+            supportedCapabilities.SetCapability(descriptor, handler);
+            return handler;
+        }
+
+        public static IEnumerable<ISupports> GetSupportedCapabilities(object capabilities)
+        {
+            return capabilities
+                .GetType()
+                .GetTypeInfo()
+                .DeclaredProperties
+                .Where(x => x.CanRead)
+                .Select(x => x.GetValue(capabilities))
+                .OfType<ISupports>();
+        }
+    }
+
+    class SupportedCapabilities : ISupportedCapabilities
+    {
+        private static readonly MethodInfo SetCapabilityInnerMethod = typeof(LspHandlerDescriptorHelpers)
+            .GetTypeInfo()
+            .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static);
+
+        private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
+        public SupportedCapabilities()
+        {
+        }
+
+        public void Add(IEnumerable<ISupports> supports)
+        {
+            foreach (var item in supports)
+            {
+                if (!_supports.TryGetValue(item.ValueType, out _))
+                    _supports.Add(item.ValueType, item.Value);
+            }
+        }
+
+        public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)
+        {
+            if (descriptor.HasCapability && _supports.TryGetValue(descriptor.CapabilityType, out var capability))
+            {
+                if (capability is DynamicCapability dc)
+                    return dc.DynamicRegistration;
+            }
+            return false;
+        }
+
+        public bool AllowsDynamicRegistration(Type capabilityType)
+        {
+            if (_supports.TryGetValue(capabilityType, out var capability))
+            {
+                if (capability is DynamicCapability dc)
+                    return dc.DynamicRegistration;
+            }
+            return false;
+        }
+
+        public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+        {
+            if (!descriptor.HasCapability) return;
+
+            if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
+            {
+                SetCapabilityInnerMethod
+                    .MakeGenericMethod(descriptor.CapabilityType)
+                    .Invoke(null, new[] { handler, capability });
+            }
+        }
+
+        private static void SetCapabilityInner<T>(ICapability<T> capability, T instance)
+        {
+            capability.SetCapability(instance);
+        }
     }
 }

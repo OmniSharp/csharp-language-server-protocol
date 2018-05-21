@@ -1,30 +1,42 @@
+using System;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
     public class ShutdownHandler : IShutdownHandler
     {
-        public event ShutdownEventHandler Shutdown;
+        private readonly ISubject<bool> _shutdownSubject;
 
+        public ShutdownHandler()
+        {
+            Shutdown = _shutdownSubject = new AsyncSubject<bool>();
+        }
+
+        public IObservable<bool> Shutdown { get; }
         public bool ShutdownRequested { get; private set; }
+        public Task WasShutDown => Shutdown.ToTask();
 
-        private readonly TaskCompletionSource<bool> _shutdownSource = new TaskCompletionSource<bool>(TaskContinuationOptions.LongRunning);
-        public Task WasShutDown => _shutdownSource.Task;
-        public async Task Handle(object request, CancellationToken token)
+        public async Task Handle(EmptyRequest request, CancellationToken token)
         {
             await Task.Yield(); // Ensure shutdown handler runs asynchronously.
 
             ShutdownRequested = true;
             try
             {
-                Shutdown?.Invoke(ShutdownRequested);
+                _shutdownSubject.OnNext(ShutdownRequested);
             }
             finally
             {
-                _shutdownSource.SetResult(true); // after all event sinks were notified
+                _shutdownSubject.OnCompleted();
             }
         }
     }

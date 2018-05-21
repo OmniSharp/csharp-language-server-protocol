@@ -1,33 +1,58 @@
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public static class ReflectionRequestHandlers
+    public static class MediatRHandlers
     {
-        public static Task HandleNotification(IHandlerDescriptor instance)
-        {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
+        private static readonly MethodInfo SendRequestUnit = typeof(MediatRHandlers)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Where(x => x.Name == nameof(SendRequest))
+            .First(x => x.GetGenericArguments().Length == 1);
 
-            return (Task)method.Invoke(instance.Handler, new object[0]);
+        private static readonly MethodInfo SendRequestResponse = typeof(MediatRHandlers)
+            .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
+            .Where(x => x.Name == nameof(SendRequest))
+            .First(x => x.GetGenericArguments().Length == 2);
+
+        public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token)
+        {
+            return (Task)SendRequestUnit
+                .MakeGenericMethod(handler.Params ?? typeof(EmptyRequest))
+                .Invoke(null, new object[] { mediator, @params, token });
         }
 
-        public static Task HandleNotification(IHandlerDescriptor instance, object @params)
+        public static Task HandleRequest(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token)
         {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(INotificationHandler.Handle), BindingFlags.Public | BindingFlags.Instance);
-
-            return (Task)method.Invoke(instance.Handler, new[] { @params });
+            if (handler.HandlerType.GetInterfaces().Any(x =>
+                x.IsGenericType && typeof(IRequestHandler<>).IsAssignableFrom(x.GetGenericTypeDefinition())))
+            {
+                return (Task)SendRequestUnit
+                    .MakeGenericMethod(handler.Params)
+                    .Invoke(null, new object[] { mediator, @params, token });
+            }
+            else
+            {
+                return (Task)SendRequestResponse
+                    .MakeGenericMethod(handler.Params, handler.Response)
+                    .Invoke(null, new object[] { mediator, @params, token });
+            }
         }
 
-        public static Task HandleRequest(IHandlerDescriptor instance, object @params, CancellationToken token)
+        private static Task SendRequest<T>(IMediator mediator, T request, CancellationToken token)
+            where T : IRequest
         {
-            var method = instance.HandlerType.GetTypeInfo()
-                .GetMethod(nameof(IRequestHandler<object, object>.Handle), BindingFlags.Public | BindingFlags.Instance);
+            return mediator.Send(request, token);
+        }
 
-            return (Task)method.Invoke(instance.Handler, new[] { @params, token });
+        private static Task<TResponse> SendRequest<T, TResponse>(IMediator mediator, T request, CancellationToken token)
+            where T : IRequest<TResponse>
+        {
+            return mediator.Send(request, token);
         }
     }
 }

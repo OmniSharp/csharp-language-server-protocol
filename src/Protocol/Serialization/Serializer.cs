@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             return JsonConvert.DeserializeObject<T>(json, Settings);
         }
 
-        public Serializer SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
+        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var documentSymbolKinds = DefaultSymbolKinds;
@@ -152,8 +152,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 documentSymbolKinds,
                 workspaceSymbolKinds
             );
-
-            return this;
         }
     }
 }

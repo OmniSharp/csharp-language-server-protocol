@@ -1,48 +1,40 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server;
+using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 
 namespace SampleServer
 {
     class TextDocumentHandler : ITextDocumentSyncHandler
     {
-        private readonly ILanguageServer _router;
+        private readonly OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter()
             {
-                Pattern = "**/*.csproj",
-                Language = "xml"
+                Pattern = "**/*.cs"
             }
         );
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(ILanguageServer router)
+        public TextDocumentHandler(OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer router)
         {
             _router = router;
         }
 
-        public TextDocumentSyncOptions Options { get; } = new TextDocumentSyncOptions()
-        {
-            WillSaveWaitUntil = false,
-            WillSave = true,
-            Change = TextDocumentSyncKind.Full,
-            Save = new SaveOptions()
-            {
-                IncludeText = true
-            },
-            OpenClose = true
-        };
+        public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
-        public Task Handle(DidChangeTextDocumentParams notification)
+        public Task Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
-            _router.LogMessage(new LogMessageParams()
+            _router.Window.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
@@ -55,7 +47,7 @@ namespace SampleServer
             return new TextDocumentChangeRegistrationOptions()
             {
                 DocumentSelector = _documentSelector,
-                SyncKind = Options.Change
+                SyncKind = Change
             };
         }
 
@@ -64,10 +56,10 @@ namespace SampleServer
             _capability = capability;
         }
 
-        public async Task Handle(DidOpenTextDocumentParams notification)
+        public async Task Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
-            _router.LogMessage(new LogMessageParams()
+            _router.Window.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
@@ -82,12 +74,12 @@ namespace SampleServer
             };
         }
 
-        public Task Handle(DidCloseTextDocumentParams notification)
+        public Task Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
             return Task.CompletedTask;
         }
 
-        public Task Handle(DidSaveTextDocumentParams notification)
+        public Task Handle(DidSaveTextDocumentParams notification, CancellationToken token)
         {
             return Task.CompletedTask;
         }
@@ -97,7 +89,7 @@ namespace SampleServer
             return new TextDocumentSaveRegistrationOptions()
             {
                 DocumentSelector = _documentSelector,
-                IncludeText = Options.Save.IncludeText
+                IncludeText = true
             };
         }
         public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)

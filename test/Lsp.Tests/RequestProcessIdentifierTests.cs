@@ -4,19 +4,19 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace Lsp.Tests
 {
-    public class RequestProcessIdentifierTests
+    public class RequestProcessIdentifierTests : AutoTestBase
     {
         private readonly TestLoggerFactory _testLoggerFactory;
 
-        public RequestProcessIdentifierTests(ITestOutputHelper testOutputHelper)
+        public RequestProcessIdentifierTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _testLoggerFactory = new TestLoggerFactory(testOutputHelper);
         }
 
         [Fact]
@@ -26,6 +26,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IHandlerDescriptor>();
             handler.Handler.Returns(Substitute.For<IJsonRpcHandler>());
             handler.HandlerType.Returns(typeof(IJsonRpcHandler));
+            handler.ImplementationType.Returns(x => handler.Handler.GetType());
 
             identifier.Identify(handler).Should().Be(RequestProcessType.Parallel);
         }
@@ -52,6 +53,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IHandlerDescriptor>();
             handler.Handler.Returns((IJsonRpcHandler)Substitute.For(new Type[] { type }, new object[0]));
             handler.HandlerType.Returns(type);
+            handler.ImplementationType.Returns(x => handler.Handler.GetType());
 
             identifier.Identify(handler).Should().Be(RequestProcessType.Parallel);
         }
@@ -77,6 +79,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IHandlerDescriptor>();
             handler.Handler.Returns((IJsonRpcHandler)Substitute.For(new Type[] { type }, new object[0]));
             handler.HandlerType.Returns(type);
+            handler.ImplementationType.Returns(x => handler.Handler.GetType());
 
             identifier.Identify(handler).Should().Be(RequestProcessType.Serial);
         }

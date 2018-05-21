@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
@@ -8,20 +10,20 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
+using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lsp.Tests.Matchers
 {
-    public class ResolveCommandMatcherTests
+    public class ResolveCommandMatcherTests : AutoTestBase
     {
-        private readonly ILogger _logger;
-
-        public ResolveCommandMatcherTests()
+        public ResolveCommandMatcherTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _logger = Substitute.For<ILogger>();
         }
 
         [Fact]
@@ -29,7 +31,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -43,7 +45,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -65,19 +67,22 @@ namespace Lsp.Tests.Matchers
                         typeof(CodeLensParams),
                         null,
                         null,
+                        null,
                         () => { });
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+                new RequestContext() { Descriptor = handlerDescriptor },
+                LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>());
 
             // When
-            Action a = () => handlerMatcher.Process(handlerDescriptor, new CodeLensParams(), new CodeLensContainer());
-            a.ShouldNotThrow();
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new CodeLensContainer()));
+            a.Should().NotThrow();
         }
 
         [Fact]
         public void Should_Return_CodeLensResolve_Descriptor()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICodeLensResolveHandler>();
             var resolveHandler2 = Substitute.For<ICodeLensResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CodeLens>()).Returns(false);
@@ -95,6 +100,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
+                            null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CodeLensResolve,
                             "Key2",
@@ -103,20 +109,21 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler2);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler2);
         }
 
         [Fact]
         public void Should_Handle_Null_Data()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICompletionResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
@@ -130,20 +137,21 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler);
         }
 
         [Fact]
         public void Should_Handle_Simple_Json_Data()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICompletionResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
@@ -159,20 +167,21 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler);
         }
 
         [Fact]
         public void Should_Return_CompletionResolve_Descriptor()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICompletionResolveHandler>();
             var resolveHandler2 = Substitute.For<ICompletionResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(false);
@@ -190,6 +199,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
                             "Key2",
@@ -198,27 +208,32 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler2);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler2);
         }
 
         [Fact]
         public void Should_Deal_WithHandlers_That_Not_Also_Resolvers()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICompletionResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(false);
             var resolveHandler2 = Substitute.For(new Type[] {
                 typeof(ICompletionHandler),
                 typeof(ICompletionResolveHandler)
-            }, new object[0]);
+            }, new object[0]) as IJsonRpcHandler;
             (resolveHandler2 as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(true);
+            (resolveHandler2 as ICompletionHandler).GetRegistrationOptions().Returns(
+                new CompletionRegistrationOptions() {
+                    DocumentSelector = DocumentSelector.ForLanguage("csharp")
+                });
 
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem() {
@@ -232,6 +247,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
                             "Key2",
@@ -240,20 +256,21 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler2);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler2);
         }
 
         [Fact]
         public void Should_Deal_WithHandlers_That_Not_Also_Resolvers2()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
+            var handlerMatcher = AutoSubstitute.Resolve<ResolveCommandMatcher>();
             var resolveHandler = Substitute.For<ICompletionResolveHandler>();
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
             var resolveHandler2 = Substitute.For(new Type[] {
@@ -274,6 +291,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
                             "Key2",
@@ -282,68 +300,20 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
+                            null,
                             () => { }),
                     })
                 .ToArray();
 
             // Then
             result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Handler == resolveHandler);
+            result.OfType<IHandlerDescriptor>().Should().Contain(x => x.Handler == resolveHandler);
         }
 
         [Fact]
-        public void Should_FindPostProcessor_AsSelf_For_CodeLens()
-        {
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
-            var resolveHandler = Substitute.For<ICodeLensHandler>();
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.CodeLens,
-                            "Key",
-                            resolveHandler,
-                            resolveHandler.GetType(),
-                            typeof(CodeLensParams),
-                            null,
-                            null,
-                            () => { });
-
-            // When
-            var processors = handlerMatcher
-                .FindPostProcessor(descriptor, new CodeLensParams(), new CodeLensContainer())
-                .ToArray();
-
-            // Then
-            processors.Should().Contain(x => x == handlerMatcher);
-        }
-
-        [Fact]
-        public void Should_FindPostProcessor_AsSelf_For_Completion()
-        {
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
-            var resolveHandler = Substitute.For<ICompletionHandler>();
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.Completion,
-                            "Key",
-                            resolveHandler,
-                            resolveHandler.GetType(),
-                            typeof(CompletionParams),
-                            null,
-                            null,
-                            () => { });
-
-            // When
-            var processors = handlerMatcher
-                .FindPostProcessor(descriptor, new CompletionParams(), new CompletionList(Enumerable.Empty<CompletionItem>()))
-                .ToArray();
-
-            // Then
-            processors.Should().Contain(x => x == handlerMatcher);
-        }
-
-        [Fact]
-        public void Should_Update_CompletionItems_With_HandlerType()
+        public async Task Should_Update_CompletionItems_With_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICompletionHandler),
                 typeof(ICompletionResolveHandler)
@@ -357,7 +327,11 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionParams),
                             null,
                             null,
+                            null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CompletionParams, CompletionList>(
+                new RequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CompletionParams, CompletionList>>>());
 
             var item = new CompletionItem() {
                 Data = JObject.FromObject(new { hello = "world" })
@@ -367,10 +341,10 @@ namespace Lsp.Tests.Matchers
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
             // When
-            var response = handlerMatcher.Process(descriptor, new CompletionParams(), list);
+            var response = await handlerMatcher.Handle(new CompletionParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().Be(list);
+            response.Should().BeEquivalentTo(list);
             (response as CompletionList).Items.Should().Contain(item);
             var responseItem = (response as CompletionList).Items.First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
@@ -379,10 +353,9 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_Update_CodeLensContainer_With_HandlerType()
+        public async Task Should_Update_CodeLensContainer_With_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICodeLensHandler),
                 typeof(ICodeLensResolveHandler)
@@ -396,7 +369,11 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLensParams),
                             null,
                             null,
+                            null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+                new RequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             var item = new CodeLens() {
                 Data = JObject.FromObject(new { hello = "world" })
@@ -406,10 +383,10 @@ namespace Lsp.Tests.Matchers
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
             // When
-            var response = handlerMatcher.Process(descriptor, new CodeLensParams(), list);
+            var response = await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(list));
 
             // Then
-            response.Should().Be(list);
+            response.Should().BeEquivalentTo(list);
             (response as CodeLensContainer).Should().Contain(item);
             var responseItem = (response as CodeLensContainer).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
@@ -418,10 +395,9 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
-        public void Should_Update_CodeLens_Removing_HandlerType()
+        public async Task Should_Update_CodeLens_Removing_HandlerType()
         {
             // Given
-            var handlerMatcher = new ResolveCommandMatcher(_logger);
             var resolveHandler = Substitute.For(new Type[] {
                 typeof(ICodeLensHandler),
                 typeof(ICodeLensResolveHandler)
@@ -435,7 +411,11 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
+                            null,
                             () => { });
+            var handlerMatcher = new ResolveCommandPipeline<CodeLens, CodeLens>(
+                new RequestContext() { Descriptor = descriptor },
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLens, CodeLens>>>());
 
             var item = new CodeLens() {
                 Data = JObject.FromObject(new { data = new { hello = "world" } })
@@ -443,10 +423,10 @@ namespace Lsp.Tests.Matchers
             item.Data[ResolveCommandMatcher.PrivateHandlerTypeName] = resolveHandler.GetType().FullName;
 
             // When
-            var response = handlerMatcher.Process(descriptor, item);
+            var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
-            response.Should().Be(item);
+            response.Should().BeEquivalentTo(item);
             item.Data?[ResolveCommandMatcher.PrivateHandlerTypeName].Should().BeNull();
             item.Data["hello"].Value<string>().Should().Be("world");
         }

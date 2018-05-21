@@ -8,20 +8,19 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace Lsp.Tests.Matchers
 {
-    public class TextDocumentMatcherTests
+    public class TextDocumentMatcherTests : AutoTestBase
     {
-        private readonly ILogger _logger;
-
-        public TextDocumentMatcherTests()
+        public TextDocumentMatcherTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _logger = Substitute.For<ILogger>();
         }
 
         [Fact]
@@ -29,7 +28,7 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new List<ITextDocumentSyncHandler>());
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -44,7 +43,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var handlerDescriptors = Enumerable.Empty<ILspHandlerDescriptor>();
 
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new List<ITextDocumentSyncHandler>());
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(1, handlerDescriptors);
@@ -59,7 +58,9 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new [] { textDocumentSyncHandler });
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams() {
@@ -67,16 +68,7 @@ namespace Lsp.Tests.Matchers
                     Uri = new Uri("file:///abc/123/d.cs")
                 }
             },
-                new List<HandlerDescriptor>() {
-                    new HandlerDescriptor(DocumentNames.DidOpen,
-                        "Key",
-                        textDocumentSyncHandler,
-                        textDocumentSyncHandler.GetType(),
-                        typeof(DidOpenTextDocumentParams),
-                        typeof(TextDocumentRegistrationOptions),
-                        typeof(TextDocumentClientCapabilities),
-                        () => { })
-                });
+                collection.Where(x => x.Method == DocumentNames.DidOpen));
 
             // Then
             result.Should().NotBeNullOrEmpty();
@@ -89,22 +81,15 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
-                new List<HandlerDescriptor>() {
-                    new HandlerDescriptor(DocumentNames.DidChange,
-                        "Key",
-                        textDocumentSyncHandler,
-                        textDocumentSyncHandler.GetType(),
-                        typeof(DidOpenTextDocumentParams),
-                        typeof(TextDocumentRegistrationOptions),
-                        typeof(TextDocumentClientCapabilities),
-                        () => { })
-                });
+                collection.Where(x => x.Method == DocumentNames.DidChange));
 
             // Then
             result.Should().NotBeNullOrEmpty();
@@ -117,22 +102,15 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
-                new List<HandlerDescriptor>() {
-                    new HandlerDescriptor(DocumentNames.DidSave,
-                        "Key",
-                        textDocumentSyncHandler,
-                        textDocumentSyncHandler.GetType(),
-                        typeof(DidOpenTextDocumentParams),
-                        typeof(TextDocumentRegistrationOptions),
-                        typeof(TextDocumentClientCapabilities),
-                        () => { })
-                });
+                collection.Where(x => x.Method == DocumentNames.DidSave));
 
             // Then
             result.Should().NotBeNullOrEmpty();
@@ -145,22 +123,15 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
             var result = handlerMatcher.FindHandler(new DidCloseTextDocumentParams() {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
-                },
-                new List<HandlerDescriptor>() {
-                    new HandlerDescriptor(DocumentNames.DidClose,
-                        "Key",
-                        textDocumentSyncHandler,
-                        textDocumentSyncHandler.GetType(),
-                        typeof(DidOpenTextDocumentParams),
-                        typeof(TextDocumentRegistrationOptions),
-                        typeof(TextDocumentClientCapabilities),
-                        () => { })
-                });
+                TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+            },
+                collection.Where(x => x.Method == DocumentNames.DidClose));
 
             // Then
             result.Should().NotBeNullOrEmpty();
@@ -173,7 +144,9 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var handlerMatcher = new TextDocumentMatcher(_logger, () => new[] { textDocumentSyncHandler });
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
             codeLensHandler.GetRegistrationOptions()
@@ -186,34 +159,18 @@ namespace Lsp.Tests.Matchers
                 .Returns(new CodeLensRegistrationOptions() {
                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cake" })
                 });
+            collection.Add(codeLensHandler, codeLensHandler2);
 
             // When
-            var result = handlerMatcher.FindHandler(new DidCloseTextDocumentParams() {
-                    TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
-                },
-                new List<HandlerDescriptor>() {
-                    new HandlerDescriptor(DocumentNames.CodeLens,
-                        "Key2",
-                        codeLensHandler2,
-                        codeLensHandler2.GetType(),
-                        typeof(CodeLensParams),
-                        typeof(CodeLensRegistrationOptions),
-                        typeof(CodeLensCapability),
-                        () => { }),
-                    new HandlerDescriptor(DocumentNames.CodeLens,
-                        "Key",
-                        codeLensHandler,
-                        codeLensHandler.GetType(),
-                        typeof(CodeLensParams),
-                        typeof(CodeLensRegistrationOptions),
-                        typeof(CodeLensCapability),
-                        () => { }),
-                });
+            var result = handlerMatcher.FindHandler(new CodeLensParams() {
+                TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
+            },
+                collection.Where(x => x.Method == DocumentNames.CodeLens));
 
             // Then
             result.Should().NotBeNullOrEmpty();
             result.Should().Contain(x => x.Method == DocumentNames.CodeLens);
-            result.Should().Contain(x => ((HandlerDescriptor)x).Key == "Key");
+            result.Should().Contain(x => ((HandlerDescriptor)x).Key == "[**/*.cs]");
         }
     }
 }

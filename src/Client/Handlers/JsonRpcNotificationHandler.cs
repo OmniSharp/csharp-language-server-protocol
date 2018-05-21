@@ -1,5 +1,8 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -7,13 +10,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
-    ///     A notification handler that invokes a JSON-RPC <see cref="INotificationHandler{TNotification}"/>.
+    ///     A notification handler that invokes a JSON-RPC <see cref="IJsonRpcNotificationHandler{TNotification}"/>.
     /// </summary>
     /// <typeparam name="TNotification">
     ///     The notification message handler.
     /// </typeparam>
-    public class JsonRpcNotificationHandler<TNotification>
-        : JsonRpcHandler, IInvokeNotificationHandler
+    public class JsonRpcNotificationHandler<TNotification> : JsonRpcHandler, IInvokeNotificationHandler
+        where TNotification : IRequest
     {
         /// <summary>
         ///     Create a new <see cref="JsonRpcNotificationHandler{TNotification}"/>.
@@ -22,9 +25,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         ///     The name of the method handled by the handler.
         /// </param>
         /// <param name="handler">
-        ///     The underlying JSON-RPC <see cref="INotificationHandler{TNotification}"/>.
+        ///     The underlying JSON-RPC <see cref="IJsonRpcNotificationHandler{TNotification}"/>.
         /// </param>
-        public JsonRpcNotificationHandler(string method, INotificationHandler<TNotification> handler)
+        public JsonRpcNotificationHandler(string method, IJsonRpcNotificationHandler<TNotification> handler)
             : base(method)
         {
             if (handler == null)
@@ -34,9 +37,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         }
 
         /// <summary>
-        ///     The underlying JSON-RPC <see cref="INotificationHandler{TNotification}"/>.
+        ///     The underlying JSON-RPC <see cref="IJsonRpcNotificationHandler{TNotification}"/>.
         /// </summary>
-        public INotificationHandler<TNotification> Handler { get; }
+        public IJsonRpcNotificationHandler<TNotification> Handler { get; }
 
         /// <summary>
         ///     The expected CLR type of the notification payload.
@@ -53,7 +56,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
         public Task Invoke(object notification) => Handler.Handle(
-            (TNotification)notification
+            (TNotification)notification,
+            CancellationToken.None
         );
     }
 }

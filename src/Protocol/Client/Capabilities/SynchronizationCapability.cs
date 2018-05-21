@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class SynchronizationCapability : DynamicCapability, ConnectedCapability<ITextDocumentSyncHandler>
+    public class SynchronizationCapability : DynamicCapability
     {
         /// <summary>
         /// The client supports sending will save notifications.

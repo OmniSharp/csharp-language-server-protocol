@@ -8,6 +8,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{D764E024-3D3
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}"
+	ProjectSection(SolutionItems) = preProject
+		test\Directory.Build.props = test\Directory.Build.props
+		test\Directory.Build.targets = test\Directory.Build.targets
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D7807-6F78-428C-A0D9-914BA583A104}"
 	ProjectSection(SolutionItems) = preProject
@@ -19,6 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D
 		build.cake = build.cake
 		build.ps1 = build.ps1
 		build.sh = build.sh
+		Common.Build.props = Common.Build.props
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject

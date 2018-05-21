@@ -1,11 +1,12 @@
-﻿using System;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {
     /// <summary>
-    ///     An empty notification handler that invokes a JSON-RPC <see cref="INotificationHandler"/>.
+    ///     An empty notification handler that invokes a JSON-RPC <see cref="IJsonRpcNotificationHandler"/>.
     /// </summary>
     public class JsonRpcEmptyNotificationHandler
         : JsonRpcHandler, IInvokeEmptyNotificationHandler
@@ -17,9 +18,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         ///     The name of the method handled by the handler.
         /// </param>
         /// <param name="handler">
-        ///     The underlying JSON-RPC <see cref="INotificationHandler"/>.
+        ///     The underlying JSON-RPC <see cref="IJsonRpcNotificationHandler"/>.
         /// </param>
-        public JsonRpcEmptyNotificationHandler(string method, INotificationHandler handler)
+        public JsonRpcEmptyNotificationHandler(string method, IJsonRpcNotificationHandler handler)
             : base(method)
         {
             if (handler == null)
@@ -29,9 +30,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         }
 
         /// <summary>
-        ///     The underlying JSON-RPC <see cref="INotificationHandler"/>.
+        ///     The underlying JSON-RPC <see cref="IJsonRpcNotificationHandler"/>.
         /// </summary>
-        public INotificationHandler Handler { get; }
+        public IJsonRpcNotificationHandler Handler { get; }
 
         /// <summary>
         ///     The expected CLR type of the notification payload (<c>null</c>, since the handler does not use the request payload).
@@ -44,6 +45,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
         /// <returns>
         ///     A <see cref="Task"/> representing the operation.
         /// </returns>
-        public Task Invoke() => Handler.Handle();
+        public Task Invoke() => Handler.Handle(null, CancellationToken.None);
     }
 }

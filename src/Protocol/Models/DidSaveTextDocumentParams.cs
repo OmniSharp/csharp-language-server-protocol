@@ -1,10 +1,11 @@
-﻿using Newtonsoft.Json;
+using MediatR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DidSaveTextDocumentParams : ITextDocumentIdentifierParams
+    public class DidSaveTextDocumentParams : ITextDocumentIdentifierParams, IRequest
     {
         /// <summary>
         ///  The document that was saved.

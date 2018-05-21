@@ -1,17 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>net46;netstandard1.6</TargetFrameworks>
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.JsonRpc</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
-        <PackageReference Include="System.ValueTuple" Version="4.4.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="1.0.2" />
-    </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.6' ">
-        <PackageReference Include="System.Diagnostics.Process" Version="4.3.0" />
-        <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
+        <PackageReference Include="MediatR" Version="$(MediatR_Version)" />
+        <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(Microsoft_Extensions_Logging_Version)" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
     </ItemGroup>
 </Project>

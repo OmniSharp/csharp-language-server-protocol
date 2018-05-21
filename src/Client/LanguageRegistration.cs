@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 
@@ -50,12 +51,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         ///     The name of the notification method to handle.
         /// </param>
         /// <param name="handler">
-        ///     A JSON-RPC <see cref="INotificationHandler"/> that implements the handler.
+        ///     A JSON-RPC <see cref="IJsonRpcNotificationHandler"/> that implements the handler.
         /// </param>
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the registration.
         /// </returns>
-        public static IDisposable HandleNotification(this LanguageClient languageClient, string method, INotificationHandler handler)
+        public static IDisposable HandleNotification(this LanguageClient languageClient, string method, IJsonRpcNotificationHandler handler)
         {
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));
@@ -119,12 +120,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         ///     The name of the notification method to handle.
         /// </param>
         /// <param name="handler">
-        ///     A JSON-RPC <see cref="INotificationHandler{TNotification}"/> that implements the handler.
+        ///     A JSON-RPC <see cref="IJsonRpcNotificationHandler{TNotification}"/> that implements the handler.
         /// </param>
         /// <returns>
         ///     An <see cref="IDisposable"/> representing the registration.
         /// </returns>
-        public static IDisposable HandleNotification<TNotification>(this LanguageClient languageClient, string method, INotificationHandler<TNotification> handler)
+        public static IDisposable HandleNotification<TNotification>(this LanguageClient languageClient, string method, IJsonRpcNotificationHandler<TNotification> handler)
+            where TNotification : IRequest
         {
             if (languageClient == null)
                 throw new ArgumentNullException(nameof(languageClient));

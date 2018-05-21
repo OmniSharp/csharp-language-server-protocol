@@ -3,11 +3,12 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    class LspReciever : Reciever
+    public class LspReciever : Reciever, ILspReciever
     {
         private bool _initialized;
 
@@ -30,6 +31,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     newResults.Add(new ServerNotInitialized());
                 }
                 else if (item.IsResponse)
+                {
+                    newResults.Add(item);
+                }
+                else if (item.IsNotification)
                 {
                     newResults.Add(item);
                 }

@@ -1,6 +1,9 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -9,13 +12,13 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
-    public class ResolveCommandMatcher : IHandlerMatcher, IHandlerPreProcessorMatcher, IHandlerPostProcessorMatcher, IHandlerPreProcessor, IHandlerPostProcessor
+    public class ResolveCommandMatcher : IHandlerMatcher
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<ResolveCommandMatcher> _logger;
         internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
         internal static string PrivateHandlerKey = "$$___handlerKey___$$";
 
-        public ResolveCommandMatcher(ILogger logger)
+        public ResolveCommandMatcher(ILogger<ResolveCommandMatcher> logger)
         {
             _logger = logger;
         }
@@ -43,10 +46,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 {
                     foreach (var descriptor in descriptors)
                     {
-                        if (descriptor.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
+                        if (descriptor.Params == parameters.GetType())
+                        // if (descriptor.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.ImplementationType) == true)
                         {
-                            var method = typeof(ResolveCommandMatcher).GetTypeInfo()
-                                .GetMethod(nameof(CanResolve), BindingFlags.NonPublic | BindingFlags.Static)
+                            var method = CanResolveMethod
                                 .MakeGenericMethod(descriptor.Params);
                             if ((bool)method.Invoke(null, new[] { descriptor.Handler, parameters }))
                             {
@@ -60,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     _logger.LogTrace(
                         "Resolve {Method} was called, but data did not have handle type defined.  Using Handler {HandlerType}",
                         descriptor2?.Method,
-                        descriptor2?.Handler.GetType().FullName
+                        descriptor2?.ImplementationType.FullName
                     );
 
                     yield return descriptor2;
@@ -70,8 +73,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 {
                     _logger.LogTrace("Checking handler {Method}:{Handler}",
                         descriptor.Method,
-                        descriptor.Handler.GetType().FullName);
-                    if ((descriptor.Handler.GetType().FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
+                        descriptor.ImplementationType.FullName);
+                    if ((descriptor.ImplementationType.FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
                         ((descriptor is HandlerDescriptor handlerDescriptor) && handlerDescriptor.Key == handlerKey))
                     {
                         yield return descriptor;
@@ -80,74 +83,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             }
         }
 
+        private static readonly MethodInfo CanResolveMethod =
+            typeof(ResolveCommandMatcher).GetTypeInfo()
+                .GetMethod(nameof(CanResolve), BindingFlags.NonPublic | BindingFlags.Static);
+
         private static bool CanResolve<T>(ICanBeResolvedHandler<T> handler, T value)
-            where T : ICanBeResolved
+            where T : ICanBeResolved, IRequest<T>
         {
             return handler.CanResolve(value);
-        }
-
-        public IEnumerable<IHandlerPreProcessor> FindPreProcessor(ILspHandlerDescriptor descriptor, object parameters)
-        {
-            if (parameters is ICanBeResolved canBeResolved)
-            {
-                _logger.LogTrace("Using handler {Method}:{Handler}",
-                    descriptor.Method,
-                    descriptor.Handler.GetType().FullName);
-                yield return this;
-            }
-        }
-
-        public IEnumerable<IHandlerPostProcessor> FindPostProcessor(ILspHandlerDescriptor descriptor, object parameters, object response)
-        {
-            if (descriptor.Method == DocumentNames.CodeLens || descriptor.Method == DocumentNames.Completion)
-            {
-                _logger.LogTrace("Using handler {Method}:{Handler}",
-                    descriptor.Method,
-                    descriptor.Handler.GetType().FullName);
-                yield return this;
-            }
-        }
-
-        public object Process(ILspHandlerDescriptor descriptor, object parameters)
-        {
-            if (parameters is ICanBeResolved canBeResolved)
-            {
-                string handlerType = null;
-                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
-                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
-
-                if (!string.IsNullOrWhiteSpace(handlerType))
-                {
-                    canBeResolved.Data = canBeResolved.Data["data"];
-                }
-            }
-
-            return parameters;
-        }
-
-        public object Process(ILspHandlerDescriptor descriptor, object parameters, object response)
-        {
-            // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (descriptor is HandlerDescriptor handlerDescriptor &&
-                response is IEnumerable<ICanBeResolved> canBeResolveds &&
-                descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.Handler.GetType()) == true)
-            {
-                _logger.LogTrace("Updating Resolve items with wrapped data for {Method}:{Handler}",
-                    descriptor.Method,
-                    descriptor.Handler.GetType().FullName);
-                foreach (var item in canBeResolveds)
-                {
-                    // Originally we were going to change Data to be a JObject instead of JToken
-                    // This allows us to leave data alone by simply wrapping it
-                    // Since we're always going to intercept these items, we can control this.
-                    var data = new JObject();
-                    data["data"] = item.Data;
-                    data[PrivateHandlerTypeName] = descriptor.Handler.GetType().FullName;
-                    data[PrivateHandlerKey] = handlerDescriptor.Key;
-                    item.Data = data;
-                }
-            }
-            return response;
         }
     }
 }

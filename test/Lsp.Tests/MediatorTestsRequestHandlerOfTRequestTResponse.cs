@@ -5,42 +5,45 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace Lsp.Tests
 {
-    public class MediatorTestsRequestHandlerOfTRequestTResponse
+    public class MediatorTestsRequestHandlerOfTRequestTResponse : AutoTestBase
     {
-        private readonly TestLoggerFactory _testLoggerFactory;
-        private readonly IHandlerMatcherCollection _handlerMatcherCollection = new HandlerMatcherCollection();
-
-        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper)
+        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            _testLoggerFactory = new TestLoggerFactory(testOutputHelper);
+            Services
+                .AddJsonRpcMediatR(new[] { typeof(LspRequestRouterTests).Assembly })
+                .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
         }
 
         [Fact]
         public async Task RequestsCancellation()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
@@ -52,8 +55,9 @@ namespace Lsp.Tests
                     return new CommandContainer();
                 });
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, codeActionHandler };
-            var mediator = new LspRequestRouter(collection, _testLoggerFactory, _handlerMatcherCollection, new Serializer());
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
             var @params = new CodeActionParams() {
@@ -71,7 +75,7 @@ namespace Lsp.Tests
             var result = await response;
 
             result.IsError.Should().BeTrue();
-            result.Error.ShouldBeEquivalentTo(new RequestCancelled());
+            result.Error.Should().BeEquivalentTo(new RequestCancelled());
         }
     }
 }

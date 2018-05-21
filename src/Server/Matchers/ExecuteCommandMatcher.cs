@@ -8,9 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
     public class ExecuteCommandMatcher : IHandlerMatcher
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<ExecuteCommandMatcher> _logger;
 
-        public ExecuteCommandMatcher(ILogger logger)
+        public ExecuteCommandMatcher(ILogger<ExecuteCommandMatcher> logger)
         {
             _logger = logger;
         }
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 _logger.LogTrace("Registration options {OptionsName}", executeCommandParams.GetType().FullName);
                 foreach (var descriptor in descriptors)
                 {
-                    if (descriptor.Registration.RegisterOptions is ExecuteCommandRegistrationOptions registrationOptions && registrationOptions.Commands.Any(x => x == executeCommandParams.Command))
+                    if (descriptor.Registration?.RegisterOptions is ExecuteCommandRegistrationOptions registrationOptions && registrationOptions.Commands.Any(x => x == executeCommandParams.Command))
                     {
                         _logger.LogTrace("Checking handler {Method}:{Handler}",
                             executeCommandParams.Command,

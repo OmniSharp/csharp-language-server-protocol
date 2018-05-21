@@ -1,30 +1,38 @@
+using System;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
     public class ExitHandler : IExitHandler
     {
+        private readonly ISubject<int> _exitSubject;
         private readonly ShutdownHandler _shutdownHandler;
 
         public ExitHandler(ShutdownHandler shutdownHandler)
         {
             _shutdownHandler = shutdownHandler;
+            Exit = _exitSubject = new AsyncSubject<int>();
         }
 
-        private readonly TaskCompletionSource<int> _exitedSource = new TaskCompletionSource<int>(TaskContinuationOptions.LongRunning);
-        public Task WaitForExit => _exitedSource.Task;
+        public Task WaitForExit => Exit.ToTask();
+        public IObservable<int> Exit { get; }
 
 
-        public Task Handle()
+        public async Task Handle(EmptyRequest request, CancellationToken token)
         {
-            var result = _shutdownHandler.ShutdownRequested ? 0 : 1;
-            Exit?.Invoke(result);
-            _exitedSource.SetResult(result);
-            return Task.CompletedTask;
-        }
+            await Task.Yield();
 
-        public event ExitEventHandler Exit;
+            var result = _shutdownHandler.ShutdownRequested ? 0 : 1;
+            _exitSubject.OnNext(result);
+            _exitSubject.OnCompleted();
+        }
     }
 }

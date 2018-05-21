@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DidChangeConfigurationParams
+    public class DidChangeConfigurationParams : IRequest
     {
         /// <summary>
         ///  The actual changed settings

@@ -1,4 +1,8 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public static partial class ClientNames { }
+    public static class ClientNames
+    {
+        public const string RegisterCapability = "client/unregisterCapability";
+        public const string UnregisterCapability = "client/unregisterCapability";
+    }
 }

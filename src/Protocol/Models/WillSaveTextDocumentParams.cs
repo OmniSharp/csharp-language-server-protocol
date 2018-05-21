@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+using MediatR;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -6,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     ///  The parameters send in a will save text document notification.
     /// </summary>
-    public class WillSaveTextDocumentParams
+    public class WillSaveTextDocumentParams : IRequest
     {
         /// <summary>
         ///  The document that will be saved.

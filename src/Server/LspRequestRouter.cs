@@ -5,6 +5,8 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -13,25 +15,30 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    internal class LspRequestRouter : IRequestRouter
+    internal class LspRequestRouter : ILspRequestRouter
     {
         private readonly IHandlerCollection _collection;
-        private readonly IHandlerMatcherCollection _routeMatchers;
+        private readonly IEnumerable<IHandlerMatcher> _handlerMatchers;
         private readonly ISerializer _serializer;
+        private readonly IServiceScopeFactory _serviceScopeFactory;
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
         private readonly ILogger<LspRequestRouter> _logger;
 
-        public LspRequestRouter(IHandlerCollection collection,
+        public LspRequestRouter(
+            IHandlerCollection collection,
             ILoggerFactory loggerFactory,
-            IHandlerMatcherCollection routeMatchers,
-            ISerializer serializer)
+            IEnumerable<IHandlerMatcher> handlerMatchers,
+            ISerializer serializer,
+            IServiceScopeFactory serviceScopeFactory)
         {
             _collection = collection;
-            _routeMatchers = routeMatchers;
+            _handlerMatchers = handlerMatchers;
             _serializer = serializer;
+            _serviceScopeFactory = serviceScopeFactory;
             _logger = loggerFactory.CreateLogger<LspRequestRouter>();
         }
 
@@ -61,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null)
             {
-                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method, string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler.GetType().FullName)));
+                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method, string.Join(", ", _collection.Select(x => x.Method + ":" + x.HandlerType.FullName)));
                 return null;
             }
 
@@ -71,38 +78,35 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-            return _routeMatchers.ForHandlerMatchers().SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
+            return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 
         public async Task RouteNotification(IHandlerDescriptor descriptor, Notification notification)
         {
             using (_logger.TimeDebug("Routing Notification {Method}", notification.Method))
             {
-                using (_logger.BeginScope(new KeyValuePair<string, string>[] {
+                using (_logger.BeginScope(new[] {
                     new KeyValuePair<string, string>( "Method", notification.Method),
                     new KeyValuePair<string, string>( "Params", notification.Params?.ToString())
                 }))
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
+                    var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                    context.Descriptor = descriptor;
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
                     try
                     {
                         if (descriptor.Params is null)
                         {
-                            await ReflectionRequestHandlers.HandleNotification(descriptor);
+                            await MediatRHandlers.HandleNotification(mediator, descriptor, EmptyRequest.Instance, CancellationToken.None);
                         }
                         else
                         {
                             _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
                             var @params = notification.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
 
-                            var lspDescriptor = descriptor as ILspHandlerDescriptor;
-
-                            foreach (var preProcessor in _routeMatchers.ForHandlerPreProcessorMatcher()
-                                .SelectMany(strat => strat.FindPreProcessor(lspDescriptor, @params)))
-                            {
-                                @params = preProcessor.Process(lspDescriptor, @params);
-                            }
-
-                            await ReflectionRequestHandlers.HandleNotification(descriptor, @params);
+                            await MediatRHandlers.HandleNotification(mediator, descriptor, @params ?? EmptyRequest.Instance, CancellationToken.None);
                         }
                     }
                     catch (Exception e)
@@ -117,12 +121,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             using (_logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method))
             {
-                using (_logger.BeginScope(new KeyValuePair<string, string>[] {
+                using (_logger.BeginScope(new[] {
                     new KeyValuePair<string, string>( "Id", request.Id?.ToString()),
                     new KeyValuePair<string, string>( "Method", request.Method),
                     new KeyValuePair<string, string>( "Params", request.Params?.ToString())
                 }))
+                using (var scope = _serviceScopeFactory.CreateScope())
                 {
+                    var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                    context.Descriptor = descriptor;
+                    var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
                     var id = GetId(request.Id);
                     var cts = new CancellationTokenSource();
                     _requests.TryAdd(id, cts);
@@ -148,15 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                             return new InvalidParams(request.Id);
                         }
 
-                        var lspDescriptor = descriptor as ILspHandlerDescriptor;
-
-                        foreach (var preProcessor in _routeMatchers.ForHandlerPreProcessorMatcher()
-                            .SelectMany(strat => strat.FindPreProcessor(lspDescriptor, @params)))
-                        {
-                            @params = preProcessor.Process(lspDescriptor, @params);
-                        }
-
-                        var result = ReflectionRequestHandlers.HandleRequest(descriptor, @params, cts.Token);
+                        var result = MediatRHandlers.HandleRequest(mediator, descriptor, @params ?? EmptyRequest.Instance , cts.Token);
                         await result;
 
                         _logger.LogDebug("Result was {Type}", result.GetType().FullName);
@@ -169,13 +170,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                             responseValue = property.GetValue(result);
-                            _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
-
-                            foreach (var postProcessor in _routeMatchers.ForHandlerPostProcessorMatcher()
-                                .SelectMany(strat => strat.FindPostProcessor(lspDescriptor, @params, responseValue)))
+                            if (responseValue?.GetType() == typeof(Unit))
                             {
-                                responseValue = postProcessor.Process(lspDescriptor, @params, responseValue);
+                                responseValue = null;
                             }
+                            _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 
                         return new JsonRpc.Client.Response(request.Id, responseValue);
@@ -188,7 +187,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     catch (Exception e)
                     {
                         _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
-                        return new InternalError(id);
+                        return new InternalError(id, e.ToString());
                     }
                     finally
                     {

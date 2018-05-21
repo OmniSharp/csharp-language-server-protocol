@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -14,19 +15,23 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             private readonly Action _disposeAction;
 
-            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Action disposeAction)
+            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, Action disposeAction)
             {
                 _disposeAction = disposeAction;
                 Handler = handler;
+                ImplementationType = handler.GetType();
                 Method = method;
                 HandlerType = handlerInterface;
                 Params = @params;
+                Response = response;
             }
 
             public IJsonRpcHandler Handler { get; }
             public Type HandlerType { get; }
+            public Type ImplementationType { get; }
             public string Method { get; }
             public Type Params { get; }
+            public Type Response { get; }
 
             public void Dispose()
             {
@@ -61,21 +66,26 @@ namespace OmniSharp.Extensions.JsonRpc
             var @interface = GetHandlerInterface(type);
 
             Type @params = null;
+            Type response = null;
             if (@interface.GetTypeInfo().IsGenericType)
             {
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
+                var requestInterface = @params.GetInterfaces()
+                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
+                if (requestInterface != null)
+                    response = requestInterface.GetGenericArguments()[0];
             }
 
-            var h = new HandlerInstance(method, handler, @interface, @params, () => Remove(handler));
+            var h = new HandlerInstance(method, handler, @interface, @params, response, () => Remove(handler));
             _handlers.Add(h);
             return h;
         }
 
         private static readonly Type[] HandlerTypes = {
-            typeof(INotificationHandler),
-            typeof(INotificationHandler<>),
-            typeof(IRequestHandler<>),
-            typeof(IRequestHandler<,>),
+            typeof(IJsonRpcNotificationHandler),
+            typeof(IJsonRpcNotificationHandler<>),
+            typeof(IJsonRpcRequestHandler<>),
+            typeof(IJsonRpcRequestHandler<,>),
         };
 
         private string GetMethodName(Type type)

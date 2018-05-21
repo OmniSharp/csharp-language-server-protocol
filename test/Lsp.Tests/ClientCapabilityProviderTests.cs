@@ -42,7 +42,7 @@ namespace Lsp.Tests
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeTrue();
@@ -62,7 +62,7 @@ namespace Lsp.Tests
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeFalse();
@@ -110,7 +110,7 @@ namespace Lsp.Tests
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
-            var collection = new HandlerCollection { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeFalse();
