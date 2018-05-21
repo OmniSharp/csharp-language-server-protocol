@@ -1,6 +1,6 @@
 #tool "nuget:?package=GitVersion.CommandLine"
 #tool "nuget:?package=xunit.runner.console"
-#tool "nuget:?package=JetBrains.dotCover.CommandLineTools"
+#tool "nuget:?package=JetBrains.dotCover.CommandLineTools&version=2018.1.0"
 #load "tasks/variables.cake";
 
 var target = Argument("target", "Default");
