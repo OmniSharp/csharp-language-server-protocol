@@ -7,7 +7,7 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class HandlerCollection : IEnumerable<IHandlerDescriptor>
+    public class HandlerCollection : IEnumerable<IHandlerDescriptor>
     {
         internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
 

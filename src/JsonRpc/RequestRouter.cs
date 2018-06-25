@@ -10,7 +10,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class RequestRouter : IRequestRouter
+    public class RequestRouter : IRequestRouter
     {
         private readonly HandlerCollection _collection;
         private readonly ISerializer _serializer;
