@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
         public bool ShutdownRequested { get; private set; }
         public Task WasShutDown => Shutdown.ToTask();
 
-        public async Task Handle(EmptyRequest request, CancellationToken token)
+        public async Task<Unit> Handle(EmptyRequest request, CancellationToken token)
         {
             await Task.Yield(); // Ensure shutdown handler runs asynchronously.
 
@@ -38,6 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
             {
                 _shutdownSubject.OnCompleted();
             }
+            return Unit.Value;
         }
     }
 }

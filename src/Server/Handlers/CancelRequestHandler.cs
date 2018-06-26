@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -15,10 +16,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
             _requestRouter = requestRouter;
         }
 
-        public Task Handle(CancelParams notification, CancellationToken token)
+        public Task<Unit> Handle(CancelParams notification, CancellationToken token)
         {
             _requestRouter.CancelRequest(notification.Id);
-            return Task.CompletedTask;
+            return Unit.Task;
         }
     }
 }

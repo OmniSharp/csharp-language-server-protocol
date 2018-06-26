@@ -10,7 +10,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class RequestRouter : IRequestRouter
+    public class RequestRouter : IRequestRouter
     {
         private readonly HandlerCollection _collection;
         private readonly ISerializer _serializer;
@@ -88,6 +88,10 @@ namespace OmniSharp.Extensions.JsonRpc
                         .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                     responseValue = property.GetValue(result);
+                    if (responseValue?.GetType() == typeof(Unit))
+                    {
+                        responseValue = null;
+                    }
                 }
 
                 return new Client.Response(request.Id, responseValue);

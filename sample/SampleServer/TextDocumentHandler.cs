@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -32,14 +33,14 @@ namespace SampleServer
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
-        public Task Handle(DidChangeTextDocumentParams notification, CancellationToken token)
+        public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
             _router.Window.LogMessage(new LogMessageParams()
             {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
-            return Task.CompletedTask;
+            return Unit.Task;
         }
 
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions()
@@ -56,7 +57,7 @@ namespace SampleServer
             _capability = capability;
         }
 
-        public async Task Handle(DidOpenTextDocumentParams notification, CancellationToken token)
+        public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
             _router.Window.LogMessage(new LogMessageParams()
@@ -64,6 +65,7 @@ namespace SampleServer
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
+            return Unit.Value;
         }
 
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
@@ -74,14 +76,14 @@ namespace SampleServer
             };
         }
 
-        public Task Handle(DidCloseTextDocumentParams notification, CancellationToken token)
+        public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
-            return Task.CompletedTask;
+            return Unit.Task;
         }
 
-        public Task Handle(DidSaveTextDocumentParams notification, CancellationToken token)
+        public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token)
         {
-            return Task.CompletedTask;
+            return Unit.Task;
         }
 
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()

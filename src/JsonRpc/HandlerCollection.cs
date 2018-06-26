@@ -1,13 +1,15 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class HandlerCollection : IEnumerable<IHandlerDescriptor>
+    [DebuggerDisplay("{Method}")]
+    public class HandlerCollection : IEnumerable<IHandlerDescriptor>
     {
         internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
 

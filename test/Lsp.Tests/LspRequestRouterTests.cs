@@ -44,7 +44,7 @@ namespace Lsp.Tests
         public async Task ShouldRouteToCorrect_Notification()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -67,8 +67,8 @@ namespace Lsp.Tests
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
+            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -91,7 +91,7 @@ namespace Lsp.Tests
         public async Task ShouldRouteToCorrect_Request()
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
@@ -122,8 +122,8 @@ namespace Lsp.Tests
 
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
+            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
@@ -159,8 +159,8 @@ namespace Lsp.Tests
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
-            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
-            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
+            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeLensHandler>();
             codeActionHandler.GetRegistrationOptions().Returns(new CodeLensRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
@@ -198,7 +198,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IShutdownHandler>();
             handler
                 .Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>())
-                .Returns(Task.CompletedTask);
+                .Returns(Unit.Value);
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);

@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class Serializer : ISerializer
+    public class Serializer : ISerializer
     {
         public Serializer()
         {

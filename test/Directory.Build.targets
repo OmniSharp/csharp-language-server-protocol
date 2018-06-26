@@ -1,16 +1,18 @@
 <Project>
     <ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="$(Microsoft_NET_Test_Sdk_Version)" />
         <PackageReference Include="xunit.runner.visualstudio" Version="$(xunit_Version)" />
         <PackageReference Include="xunit" Version="$(xunit_Version)" />
         <PackageReference Include="FluentAssertions" Version="$(FluentAssertions_Version)" />
         <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Autofac" Version="$(Autofac_Version)" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="$(Autofac_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="$(Serilog_Extensions_Logging_Version)" />
         <PackageReference Include="Serilog.Sinks.XUnit" Version="$(Serilog_Sinks_XUnit_Version)" />
-        <DotNetCliToolReference Include="dotnet-xunit" Version="$(xunit_Version)" />
+        <PackageReference Include="XunitXml.TestLogger" Version="$(XunitXml_TestLogger_Version)" />
+        <PackageReference Include="coverlet.msbuild" Version="$(coverlet_Version)" />
     </ItemGroup>
 </Project>

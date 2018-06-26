@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {

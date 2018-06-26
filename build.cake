@@ -50,9 +50,8 @@ Task("TestSetup")
         EnsureDirectoryExists(artifacts + "/coverage");
     });
 
-Task("Test (No Coverage)")
+Task("Test (Unix)")
     .WithCriteria(IsRunningOnUnix)
-    .WithCriteria(false) // TODO: Make work on travis
     .IsDependentOn("TestSetup")
     .IsDependentOn("Build")
     .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
@@ -61,27 +60,33 @@ Task("Test (No Coverage)")
         testProject.GetDirectory().FullPath,
         new DotNetCoreTestSettings() {
             NoBuild = true,
-            Framework = "netcoreapp2.0",
+            Configuration = configuration,
+            Framework = "netcoreapp2.1",
             EnvironmentVariables = GitVersionEnvironmentVariables,
-    });
+            TestAdapterPath = ".",
+            Logger = $"\"xunit;LogFilePath={string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension())}\"",
+            ArgumentCustomization = args => args.Append("/p:CollectCoverage=true"),
+        }
+    );
 });
 
-Task("Test (Coverage)")
+Task("Test (Windows)")
     .WithCriteria(IsRunningOnWindows)
     .IsDependentOn("TestSetup")
     .IsDependentOn("Build")
     .DoesForEach(GetFiles("test/*/*.csproj"), (testProject) =>
 {
     DotCoverCover(tool => {
-        tool.DotNetCoreTool(
+        tool.DotNetCoreTest(
             testProject.GetDirectory().FullPath,
-            "xunit",
-            new ProcessArgumentBuilder()
-                .AppendSwitchQuoted("-xml", string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension()))
-                .AppendSwitch("-configuration", configuration)
-                .Append("-noshadow"),
-            new DotNetCoreToolSettings() {
+            new DotNetCoreTestSettings() {
+                NoBuild = true,
+                Configuration = configuration,
+                Framework = "netcoreapp2.1",
                 EnvironmentVariables = GitVersionEnvironmentVariables,
+                TestAdapterPath = ".",
+                Logger = $"\"xunit;LogFilePath={string.Format("{0}/tests/{1}.xml", artifacts, testProject.GetFilenameWithoutExtension())}\"",
+                // ArgumentCustomization = args => args.Append("/p:CollectCoverage=true"),
             });
         },
         artifacts + "/coverage/coverage-"+ testProject.GetFilenameWithoutExtension() + ".dcvr",
@@ -120,8 +125,8 @@ Task("Test (Coverage)")
 });
 
 Task("Test")
-    .IsDependentOn("Test (Coverage)")
-    .IsDependentOn("Test (No Coverage)");
+    .IsDependentOn("Test (Unix)")
+    .IsDependentOn("Test (Windows)");
 
 Task("Pack")
     .WithCriteria(IsRunningOnWindows) // TODO: Make work on travis
