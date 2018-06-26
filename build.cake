@@ -123,8 +123,8 @@ Task("Test (Windows)")
 });
 
 Task("Test")
-    .IsDependentOn("Test (Coverage)")
-    .IsDependentOn("Test (No Coverage)");
+    .IsDependentOn("Test (Unix)")
+    .IsDependentOn("Test (Windows)");
 
 Task("Pack")
     .WithCriteria(IsRunningOnWindows) // TODO: Make work on travis
