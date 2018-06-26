@@ -1,23 +1,19 @@
 ﻿using System;
+using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class JsonRpcException : Exception
     {
-        public JsonRpcException()
+        public JsonRpcException(ServerError error)
         {
+            Error = error.Error;
+            Id = error.Id;
+            ProtocolVersion = error.ProtocolVersion;
         }
 
-        public JsonRpcException(string message) : base(message)
-        {
-        }
-
-        public JsonRpcException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
-
-        //protected JsonRpcException(SerializationInfo info, StreamingContext context) : base(info, context)
-        //{
-        //}
+        public JToken Error { get; }
+        public object Id { get; }
+        public string ProtocolVersion { get; }
     }
 }

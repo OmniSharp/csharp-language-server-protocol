@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reflection;
 using MediatR;
 
@@ -57,9 +58,13 @@ namespace OmniSharp.Extensions.JsonRpc
             if (i != null) _handlers.Remove(i);
         }
 
-        public IDisposable Add(IJsonRpcHandler handler)
+        public IDisposable Add(params IJsonRpcHandler[] handlers)
         {
-            return Add(GetMethodName(handler.GetType()), handler);
+            var cd = new CompositeDisposable();
+            foreach (var handler in handlers){
+                cd.Add(Add(GetMethodName(handler.GetType()), handler));
+            }
+            return cd;
         }
 
         public IDisposable Add(string method, IJsonRpcHandler handler)

@@ -158,7 +158,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                     else if (response is ServerError serverError)
                     {
-                        tcs.SetException(new Exception(_serializer.SerializeObject(serverError.Error)));
+                        tcs.SetException(new JsonRpcException(serverError));
                     }
                 }
 

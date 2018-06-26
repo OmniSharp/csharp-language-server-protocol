@@ -43,7 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly ServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
         private SupportedCapabilities _supportedCapabilities;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
@@ -419,83 +419,5 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
-    }
-
-    static class LspHandlerDescriptorHelpers
-    {
-        public static IJsonRpcHandler InitializeHandler(ILspHandlerDescriptor descriptor, SupportedCapabilities supportedCapabilities, IJsonRpcHandler handler)
-        {
-            supportedCapabilities.SetCapability(descriptor, handler);
-            return handler;
-        }
-
-        public static IEnumerable<ISupports> GetSupportedCapabilities(object capabilities)
-        {
-            return capabilities
-                .GetType()
-                .GetTypeInfo()
-                .DeclaredProperties
-                .Where(x => x.CanRead)
-                .Select(x => x.GetValue(capabilities))
-                .OfType<ISupports>();
-        }
-    }
-
-    class SupportedCapabilities : ISupportedCapabilities
-    {
-        private static readonly MethodInfo SetCapabilityInnerMethod = typeof(LspHandlerDescriptorHelpers)
-            .GetTypeInfo()
-            .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static);
-
-        private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
-        public SupportedCapabilities()
-        {
-        }
-
-        public void Add(IEnumerable<ISupports> supports)
-        {
-            foreach (var item in supports)
-            {
-                if (!_supports.TryGetValue(item.ValueType, out _))
-                    _supports.Add(item.ValueType, item.Value);
-            }
-        }
-
-        public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)
-        {
-            if (descriptor.HasCapability && _supports.TryGetValue(descriptor.CapabilityType, out var capability))
-            {
-                if (capability is DynamicCapability dc)
-                    return dc.DynamicRegistration;
-            }
-            return false;
-        }
-
-        public bool AllowsDynamicRegistration(Type capabilityType)
-        {
-            if (_supports.TryGetValue(capabilityType, out var capability))
-            {
-                if (capability is DynamicCapability dc)
-                    return dc.DynamicRegistration;
-            }
-            return false;
-        }
-
-        public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
-        {
-            if (!descriptor.HasCapability) return;
-
-            if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
-            {
-                SetCapabilityInnerMethod
-                    .MakeGenericMethod(descriptor.CapabilityType)
-                    .Invoke(null, new[] { handler, capability });
-            }
-        }
-
-        private static void SetCapabilityInner<T>(ICapability<T> capability, T instance)
-        {
-            capability.SetCapability(instance);
-        }
     }
 }
