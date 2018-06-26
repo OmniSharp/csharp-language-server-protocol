@@ -60,6 +60,7 @@ Task("Test (Unix)")
         testProject.GetDirectory().FullPath,
         new DotNetCoreTestSettings() {
             NoBuild = true,
+            Configuration = configuration,
             Framework = "netcoreapp2.1",
             EnvironmentVariables = GitVersionEnvironmentVariables,
             TestAdapterPath = ".",
@@ -80,6 +81,7 @@ Task("Test (Windows)")
             testProject.GetDirectory().FullPath,
             new DotNetCoreTestSettings() {
                 NoBuild = true,
+                Configuration = configuration,
                 Framework = "netcoreapp2.1",
                 EnvironmentVariables = GitVersionEnvironmentVariables,
                 TestAdapterPath = ".",
