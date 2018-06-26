@@ -6,6 +6,9 @@
         <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
+        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(Microsoft_Extensions_Logging_Version)" />
         <PackageReference Include="MediatR" Version="$(MediatR_Version)" />
         <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(Microsoft_Extensions_Logging_Version)" />

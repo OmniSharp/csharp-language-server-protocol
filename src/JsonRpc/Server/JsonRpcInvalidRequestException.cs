@@ -2,7 +2,7 @@
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
-    public class JsonRpcInvalidRequestException : JsonRpcException
+    public class JsonRpcInvalidRequestException : Exception
     {
         public JsonRpcInvalidRequestException()
         {

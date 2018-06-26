@@ -7,12 +7,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(Microsoft_Extensions_Logging_Version)" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Protocol\Protocol.csproj" />
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
     </ItemGroup>
