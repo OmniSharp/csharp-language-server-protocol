@@ -352,7 +352,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return result;
         }
 
-        public async Task Handle(InitializedParams @params, CancellationToken token)
+        public async Task<Unit> Handle(InitializedParams @params, CancellationToken token)
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
@@ -362,6 +362,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }
+            return Unit.Value;
         }
 
         private async Task DynamicallyRegisterHandlers(Registration[] registrations)

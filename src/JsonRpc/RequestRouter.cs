@@ -88,6 +88,10 @@ namespace OmniSharp.Extensions.JsonRpc
                         .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
 
                     responseValue = property.GetValue(result);
+                    if (responseValue?.GetType() == typeof(Unit))
+                    {
+                        responseValue = null;
+                    }
                 }
 
                 return new Client.Response(request.Id, responseValue);

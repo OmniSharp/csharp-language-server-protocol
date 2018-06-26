@@ -26,13 +26,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
         public IObservable<int> Exit { get; }
 
 
-        public async Task Handle(EmptyRequest request, CancellationToken token)
+        public async Task<Unit> Handle(EmptyRequest request, CancellationToken token)
         {
             await Task.Yield();
 
             var result = _shutdownHandler.ShutdownRequested ? 0 : 1;
             _exitSubject.OnNext(result);
             _exitSubject.OnCompleted();
+            return Unit.Value;
         }
     }
 }

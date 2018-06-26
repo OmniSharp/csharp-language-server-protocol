@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -22,7 +23,7 @@ namespace Lsp.Tests
         {
             ((IExecuteCommandHandler)handler).GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions { Commands = commands });
 
-            handler.Handle(Arg.Any<ExecuteCommandParams>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
+            handler.Handle(Arg.Any<ExecuteCommandParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             return handler;
         }

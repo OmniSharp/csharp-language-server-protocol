@@ -13,12 +13,10 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             services.AddMediatR(assemblies);
             services.AddScoped<IRequestContext, RequestContext>();
-            services.RemoveAll<SingleInstanceFactory>();
-            services.AddScoped<SingleInstanceFactory>(
+            services.RemoveAll<ServiceFactory>();
+            services.AddScoped<ServiceFactory>(
                 serviceProvider => {
-                    return serviceType => {
-                        return GetHandler(serviceProvider, serviceType);
-                    };
+                    return serviceType => GetHandler(serviceProvider, serviceType);
                 }
             );
             return services;
@@ -26,9 +24,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private static object GetHandler(IServiceProvider serviceProvider, Type serviceType)
         {
-            var context = serviceProvider.GetService<IRequestContext>();
-            return context.Descriptor.Handler;
-            // return context?.Descriptor != null ? context.Descriptor.Handler : serviceProvider.GetService(serviceType);
+            if (serviceType.IsGenericType &&
+                typeof(IRequestHandler<,>).IsAssignableFrom(serviceType.GetGenericTypeDefinition()))
+            {
+                var context = serviceProvider.GetService<IRequestContext>();
+                return context.Descriptor != null ? context.Descriptor.Handler : serviceProvider.GetService(serviceType);
+            }
+            return serviceProvider.GetService(serviceType);
         }
     }
 }

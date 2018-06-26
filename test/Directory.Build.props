@@ -1,9 +1,14 @@
 <Project>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     <PropertyGroup>
-        <RuntimeFrameworkVersion>2.0.6</RuntimeFrameworkVersion>
         <IsPackable>false</IsPackable>
         <PreserveCompilationContext>true</PreserveCompilationContext>
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
+        <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+
+        <!-- <CollectCoverage>true</CollectCoverage> -->
+        <CoverletOutputFormat>json,lcov,cobertura</CoverletOutputFormat>
+        <CoverletOutputDirectory>$([System.IO.Path]::GetDirectoryName($([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildThisFileDirectory)../'))))/coverage/</CoverletOutputDirectory>
+        <CoverletOutputName>$(MSBuildProjectName)-$(TargetFramework)</CoverletOutputName>
     </PropertyGroup>
 </Project>

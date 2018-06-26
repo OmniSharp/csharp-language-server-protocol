@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -9,7 +9,7 @@
         <PackageReference Include="MediatR" Version="$(MediatR_Version)" />
         <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(Microsoft_Extensions_Logging_Version)" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
     </ItemGroup>
 </Project>
