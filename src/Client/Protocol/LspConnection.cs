@@ -16,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
+using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 {
