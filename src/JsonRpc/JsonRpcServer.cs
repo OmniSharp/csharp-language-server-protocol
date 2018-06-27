@@ -104,6 +104,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
             _serviceProvider = services.BuildServiceProvider();
 
+            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            _collection.Add(handlers);
+
             _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
