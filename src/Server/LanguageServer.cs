@@ -148,6 +148,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
             );
 
+            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            _collection.Add(handlers);
+
             Document = new LanguageServerDocument(_responseRouter);
             Client = new LanguageServerClient(_responseRouter);
             Window = new LanguageServerWindow(_responseRouter);
