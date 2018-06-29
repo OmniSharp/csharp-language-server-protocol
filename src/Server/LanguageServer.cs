@@ -104,7 +104,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
             services.AddSingleton(requestProcessIdentifier);
-            services.AddSingleton(_reciever);
+            services.AddSingleton<IReceiver>(_reciever);
+            services.AddSingleton<ILspReciever>(_reciever);
             services.AddSingleton(loggerFactory);
 
             services.AddJsonRpcMediatR(assemblies);
@@ -115,7 +116,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();
             services.AddSingleton<ILspRequestRouter, LspRequestRouter>();
             services.AddSingleton<IRequestRouter>(_ => _.GetRequiredService<ILspRequestRouter>());
-            services.AddSingleton<IReciever, LspReciever>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
 
