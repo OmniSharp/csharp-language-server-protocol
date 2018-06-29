@@ -54,7 +54,7 @@ namespace Lsp.Tests.Capabilities.Client
                         WillSaveWaitUntil = true
                     }
                 },
-                Workspace = new WorkspaceClientCapabilites() {
+                Workspace = new WorkspaceClientCapabilities() {
                     ApplyEdit = true,
                     WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
                     DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
@@ -75,7 +75,7 @@ namespace Lsp.Tests.Capabilities.Client
         public void Github_Issue_75(string expected)
         {
             Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
-            a.ShouldNotThrow();
+            a.Should().NotThrow();
         }
     }
 }
