@@ -53,6 +53,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                     .Invoke(null, new [] { reader.Value });
             }
 
+            if (targetType == typeof(bool))
+            {
+                return new Supports<bool>(false, false);
+            }
+
             var target = serializer.Deserialize(reader, targetType);
 
             return OfValueMethod
