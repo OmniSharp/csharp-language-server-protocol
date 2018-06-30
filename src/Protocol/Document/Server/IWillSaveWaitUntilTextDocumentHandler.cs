@@ -8,5 +8,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
     [Serial, Method(WillSaveWaitUntil)]
-    public interface IWillSaveWaitUntilTextDocumentHandler : IJsonRpcRequestHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
+    public interface IWillSaveWaitUntilTextDocumentHandler : IJsonRpcRequestHandler<WillSaveWaitUntilTextDocumentParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 }

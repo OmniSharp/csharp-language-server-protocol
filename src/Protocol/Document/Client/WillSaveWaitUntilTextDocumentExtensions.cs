@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class WillSaveWaitUntilTextDocumentExtensions
     {
-        public static Task WillSaveWaitUntilTextDocument(this ILanguageClientDocument mediator, WillSaveTextDocumentParams @params)
+        public static Task WillSaveWaitUntilTextDocument(this ILanguageClientDocument mediator, WillSaveWaitUntilTextDocumentParams @params)
         {
             return mediator.SendRequest(DocumentNames.WillSaveWaitUntil, @params);
         }
