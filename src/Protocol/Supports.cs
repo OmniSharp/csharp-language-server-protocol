@@ -5,20 +5,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public struct Supports<T> : ISupports
     {
-        public Supports(bool isSupported, T value)
+        private readonly bool? _isSupported;
+        public Supports(bool? isSupported, T value)
         {
-            IsSupported = isSupported;
+            _isSupported = isSupported;
             Value = value;
         }
 
-        public Supports(bool isSupported)
+        public Supports(bool? isSupported)
         {
-            IsSupported = isSupported;
+            _isSupported = isSupported;
             Value = default(T);
         }
 
         public T Value { get; set; }
-        public bool IsSupported { get; set; }
+        public bool IsSupported => _isSupported ?? false;
         public Type ValueType => typeof(T);
         object ISupports.Value => Value;
 
@@ -41,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return new Supports<T>(value != null, value);
         }
 
-        public static Supports<T> OfBoolean<T>(bool isSupported)
+        public static Supports<T> OfBoolean<T>(bool? isSupported)
         {
             return new Supports<T>(isSupported);
         }

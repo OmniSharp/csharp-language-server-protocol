@@ -70,5 +70,12 @@ namespace Lsp.Tests.Capabilities.Client
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
+
+        [Theory, JsonFixture]
+        public void Github_Issue_75(string expected)
+        {
+            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
+            a.Should().NotThrow();
+        }
     }
 }
