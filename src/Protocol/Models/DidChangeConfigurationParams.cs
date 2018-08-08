@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using MediatR;
+using OmniSharp.Extensions.Embedded.MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

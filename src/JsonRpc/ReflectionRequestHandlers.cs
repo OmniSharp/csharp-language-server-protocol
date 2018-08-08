@@ -2,7 +2,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.Embedded.MediatR;
 using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc

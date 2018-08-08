@@ -1,6 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
+using OmniSharp.Extensions.Embedded.MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
