@@ -126,6 +126,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public BooleanOr<StaticColorOptions> ColorProvider { get; set; }
+
+        /// <summary>
+        /// The server provides folding provider support.
+        ///
+        /// Since 3.10.0
+        /// </summary>
+        public BooleanOr<StaticFoldingRangeOptions> FoldingRangeProvider { get; set; }
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
@@ -142,6 +149,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// may list out every specific kind they provide.
         /// </summary>
         [Optional]
-        public Container<CodeActionKind> ProvidedCodeActionKinds { get; set; }
+        public Container<CodeActionKind> CodeActionKinds { get; set; }
     }
 }

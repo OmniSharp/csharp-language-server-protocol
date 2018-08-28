@@ -293,6 +293,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ImplementationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Implementation).Get<IImplementationOptions, ImplementationOptions>(ImplementationOptions.Of),
                 TypeDefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.TypeDefinition).Get<ITypeDefinitionOptions, TypeDefinitionOptions>(TypeDefinitionOptions.Of),
                 ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, StaticColorOptions>(ColorOptions.Of),
+                FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRangeProvider).Get<IColorOptions, StaticFoldingRangeOptions>(FoldingRangeOptions.Of),
             };
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))

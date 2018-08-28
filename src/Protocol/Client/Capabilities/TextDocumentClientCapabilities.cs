@@ -100,6 +100,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<ColorProviderCapability> ColorProvider { get; set; }
 
         /// <summary>
+        /// The server provides folding provider support.
+        ///
+        /// Since 3.10.0
+        /// </summary>
+        public Supports<FoldingRangeProviderCapability> FoldingRangeProvider { get; set; }
+
+        /// <summary>
         /// Capabilities specific to `textDocument/publishDiagnostics`.
         /// </summary>
         public Supports<PublishDiagnosticsCapability> PublishDiagnostics { get; set; }

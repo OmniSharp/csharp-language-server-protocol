@@ -30,5 +30,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WillSave = "textDocument/willSave";
         public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";
+        public const string FoldingRange = "textDocument/foldingRange";
     }
 }
