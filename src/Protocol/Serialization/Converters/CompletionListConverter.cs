@@ -7,24 +7,23 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class CompletionListConverter : JsonConverter
+    class CompletionListConverter : JsonConverter<CompletionList>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, CompletionList value, JsonSerializer serializer)
         {
-            var v = value as CompletionList;
-            if (!v.IsIncomplete)
+            if (!value.IsIncomplete)
             {
-                serializer.Serialize(writer, v.Items.ToArray());
+                serializer.Serialize(writer, value.Items.ToArray());
                 return;
             }
 
             writer.WriteStartObject();
             writer.WritePropertyName("isIncomplete");
-            writer.WriteValue(v.IsIncomplete);
+            writer.WriteValue(value.IsIncomplete);
 
             writer.WritePropertyName("items");
             writer.WriteStartArray();
-            foreach (var item in v.Items)
+            foreach (var item in value.Items)
             {
                 serializer.Serialize(writer, item);
             }
@@ -32,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             writer.WriteEndObject();
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override CompletionList ReadJson(JsonReader reader, Type objectType, CompletionList existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
@@ -46,7 +45,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(CompletionList);
     }
 }

@@ -1,2 +1,2 @@
 -- This is the last commit we caught up with https://github.com/Microsoft/language-server-protocol/commits/gh-pages
-f39afb47038be65431ec684dc11725ff74e71f48
+9e2713d5f1618b8d5e05a91a4e2c637aa51e1ee0

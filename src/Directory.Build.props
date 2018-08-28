@@ -2,8 +2,8 @@
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     <PropertyGroup>
         <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
+        <AssemblyVersion>0.0.9.9</AssemblyVersion>
         <AssemblyVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_Major).$(GitVersion_Minor).0.0</AssemblyVersion>
-        <AssemblyVersion Condition="'$(AssemblyVersion)' == ''">0.0.9.9</AssemblyVersion>
         <FileVersion Condition="'$(GitVersion_AssemblySemVer)' != ''">$(GitVersion_AssemblySemVer)</FileVersion>
         <InformationalVersion Condition="'$(GitVersion_InformationalVersion)' != ''">$(GitVersion_InformationalVersion)</InformationalVersion>
         <IsPackable>true</IsPackable>

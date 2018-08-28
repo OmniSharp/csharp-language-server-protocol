@@ -5,22 +5,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    public class MarkedStringsOrMarkupContentConverter : JsonConverter
+    public class MarkedStringsOrMarkupContentConverter : JsonConverter<MarkedStringsOrMarkupContent>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, MarkedStringsOrMarkupContent value, JsonSerializer serializer)
         {
-            var v = value as MarkedStringsOrMarkupContent;
-            if (v.HasMarkupContent)
+            if (value.HasMarkupContent)
             {
-                serializer.Serialize(writer, v.MarkupContent);
+                serializer.Serialize(writer, value.MarkupContent);
             }
             else
             {
-                serializer.Serialize(writer, v.MarkedStrings);
+                serializer.Serialize(writer, value.MarkedStrings);
             }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override MarkedStringsOrMarkupContent ReadJson(JsonReader reader, Type objectType, MarkedStringsOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartObject)
             {
@@ -37,11 +36,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new MarkedStringsOrMarkupContent(reader.Value as string);
             }
 
-            return "";
+            return new MarkedStringsOrMarkupContent("");
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(MarkedStringsOrMarkupContent);
     }
 }

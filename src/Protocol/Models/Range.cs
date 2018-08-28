@@ -7,10 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class Range : IEquatable<Range>
     {
-        public Range()
-        {
-
-        }
+        public Range() { }
 
         public Range(Position start, Position end)
         {

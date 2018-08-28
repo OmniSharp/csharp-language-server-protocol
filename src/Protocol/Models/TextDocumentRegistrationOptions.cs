@@ -11,8 +11,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public DocumentSelector DocumentSelector { get; set; } = new DocumentSelector();
     }
-
-    public class CodeActionRegistrationOptions  : TextDocumentRegistrationOptions, ICodeActionOptions  {
-
-    }
 }

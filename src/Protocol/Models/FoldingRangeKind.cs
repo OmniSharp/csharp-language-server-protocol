@@ -1,3 +1,5 @@
+using System.Runtime.Serialization;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>

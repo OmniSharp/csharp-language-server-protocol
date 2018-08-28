@@ -5,9 +5,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class DiagnosticCodeConverter : JsonConverter
+    class DiagnosticCodeConverter : JsonConverter<DiagnosticCode>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DiagnosticCode value, JsonSerializer serializer)
         {
             var v = value as DiagnosticCode?;
 
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.String)
             {
@@ -35,7 +35,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(DiagnosticCode);
     }
 }

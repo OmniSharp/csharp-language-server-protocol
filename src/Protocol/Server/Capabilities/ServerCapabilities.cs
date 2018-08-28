@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides rename support.
         /// </summary>
         [Optional]
-        public bool RenameProvider { get; set; }
+        public BooleanOr<RenameOptions> RenameProvider { get; set; }
         /// <summary>
         ///  The server provides document link support.
         /// </summary>
@@ -125,30 +125,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.6.0
         /// </summary>
         [Optional]
-        public BooleanOr<StaticColorOptions> ColorProvider { get; set; }
+        public BooleanOr<ColorOptions> ColorProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.
         ///
         /// Since 3.10.0
         /// </summary>
-        public BooleanOr<StaticFoldingRangeOptions> FoldingRangeProvider { get; set; }
+        public BooleanOr<FoldingRangeOptions> FoldingRangeProvider { get; set; }
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
         [Optional]
         public WorkspaceServerCapabilities Workspace { get; set; }
-    }
-
-    public class CodeActionOptions
-    {
-        /// <summary>
-        /// CodeActionKinds that this server may return.
-        ///
-        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-        /// may list out every specific kind they provide.
-        /// </summary>
-        [Optional]
-        public Container<CodeActionKind> CodeActionKinds { get; set; }
     }
 }

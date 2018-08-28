@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             new JValue(value.Kind).WriteTo(writer);
         }
 
-        public override CodeActionKind ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override CodeActionKind ReadJson(JsonReader reader, Type objectType, CodeActionKind existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             switch (reader.TokenType)
             {

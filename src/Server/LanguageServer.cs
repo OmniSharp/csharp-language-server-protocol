@@ -274,7 +274,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var serverCapabilities = new ServerCapabilities()
             {
-                CodeActionProvider = ccp.HasStaticHandler(textDocumentCapabilities.CodeAction),
+                CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
                 DefinitionProvider = ccp.HasStaticHandler(textDocumentCapabilities.Definition),
@@ -287,13 +287,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
                 HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
-                RenameProvider = ccp.HasStaticHandler(textDocumentCapabilities.Rename),
+                RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename).Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
                 SignatureHelpProvider = ccp.GetStaticOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
                 WorkspaceSymbolProvider = ccp.HasStaticHandler(workspaceCapabilities.Symbol),
                 ImplementationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Implementation).Get<IImplementationOptions, ImplementationOptions>(ImplementationOptions.Of),
                 TypeDefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.TypeDefinition).Get<ITypeDefinitionOptions, TypeDefinitionOptions>(TypeDefinitionOptions.Of),
-                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, StaticColorOptions>(ColorOptions.Of),
-                FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRangeProvider).Get<IColorOptions, StaticFoldingRangeOptions>(FoldingRangeOptions.Of),
+                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, ColorOptions>(ColorOptions.Of),
+                FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRangeProvider).Get<IFoldingRangeOptions, FoldingRangeOptions>(FoldingRangeOptions.Of),
             };
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))

@@ -5,29 +5,28 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    public class StringOrMarkupContentConverter : JsonConverter
+    public class StringOrMarkupContentConverter : JsonConverter<StringOrMarkupContent>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, StringOrMarkupContent value, JsonSerializer serializer)
         {
-            var v = value as StringOrMarkupContent;
-            if (v.HasString)
+            if (value.HasString)
             {
-                writer.WriteValue(v.String);
+                writer.WriteValue(value.String);
             }
             else
             {
-                serializer.Serialize(writer, v.MarkupContent);
+                serializer.Serialize(writer, value.MarkupContent);
             }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override StringOrMarkupContent ReadJson(JsonReader reader, Type objectType, StringOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartObject)
             {
                 var result = JObject.Load(reader);
                 return new StringOrMarkupContent(
                     new MarkupContent() {
-                        Kind = Enum.TryParse<MarkupKind>(result["kind"]?.Value<string>(), true, out var kind) ? kind : MarkupKind.Plaintext,
+                        Kind = Enum.TryParse<MarkupKind>(result["kind"]?.Value<string>(), true, out var kind) ? kind : MarkupKind.PlainText,
                         Value = result["value"]?.Value<string>()
                     }
                 );
@@ -41,7 +40,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(StringOrMarkupContent);
     }
 }

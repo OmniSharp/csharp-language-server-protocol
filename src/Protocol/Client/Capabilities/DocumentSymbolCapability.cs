@@ -16,6 +16,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 		/// Whether document symbol supports hierarchical `DocumentSymbol`s.
         /// </summary>
         [Optional]
-        public bool? hierarchicalDocumentSymbolSupport { get; set; }
+        public bool? HierarchicalDocumentSymbolSupport { get; set; }
     }
 }

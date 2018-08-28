@@ -5,22 +5,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class BooleanNumberStringConverter : JsonConverter
+    class BooleanNumberStringConverter : JsonConverter<BooleanNumberString>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, BooleanNumberString value, JsonSerializer serializer)
         {
-            var v = value as BooleanNumberString?;
-            if (v.HasValue)
-            {
-                new JValue(v.Value.Value).WriteTo(writer);
-            }
-            else
-            {
-                writer.WriteNull();
-            }
+            new JValue(value.Value).WriteTo(writer);
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override BooleanNumberString ReadJson(JsonReader reader, Type objectType, BooleanNumberString existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -38,7 +30,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(BooleanNumberString);
     }
 }

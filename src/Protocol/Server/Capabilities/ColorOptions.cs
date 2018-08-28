@@ -2,11 +2,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class ColorOptions : IColorOptions
+    public class ColorOptions : StaticTextDocumentRegistrationOptions, IColorOptions
     {
-        public static StaticColorOptions Of(IColorOptions options)
+        public static ColorOptions Of(IColorOptions options)
         {
-            return new StaticColorOptions() { };
+            return new ColorOptions() { };
         }
     }
 }

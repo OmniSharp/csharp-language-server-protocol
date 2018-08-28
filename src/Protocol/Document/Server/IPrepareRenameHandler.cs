@@ -7,6 +7,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
-    [Parallel, Method(CodeAction)]
-    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<CodeActionCapability> { }
+    [Serial, Method(PrepareRename)]
+    public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange>, ICapability<RenameCapability> { }
 }
