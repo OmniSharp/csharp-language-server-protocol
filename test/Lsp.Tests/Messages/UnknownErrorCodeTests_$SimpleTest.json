@@ -1,5 +1,5 @@
 {
-    "protocolVersion": "2.0",
+    "jsonrpc": "2.0",
     "error": {
         "code": -32602,
         "message": "Unknown Error Code"

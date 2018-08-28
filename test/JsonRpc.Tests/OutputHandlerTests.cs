@@ -50,7 +50,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 43\r\n\r\n{\"protocolVersion\":\"2.0\",\"id\":1,\"result\":1}";
+                const string send = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":1}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality

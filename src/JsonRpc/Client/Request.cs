@@ -8,6 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Client
     {
         public object Id { get; set; }
 
+        [JsonProperty("jsonrpc")]
         public string ProtocolVersion { get; } = "2.0";
 
         public string Method { get; set; }
