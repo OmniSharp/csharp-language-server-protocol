@@ -13,5 +13,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// An array of diagnostics.
         /// </summary>
         public Container<Diagnostic> Diagnostics { get; set; }
+
+        /// <summary>
+        /// Requested kind of actions to return.
+        ///
+        /// Actions not of this kind are filtered out by the client before being shown. So servers
+        /// can omit computing them.
+        /// </summary>
+        public Container<CodeActionKind> Only { get; set; }
     }
 }

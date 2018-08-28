@@ -21,6 +21,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         SymbolKind Kind { get; set; }
 
         /// <summary>
+        /// Indicates if this item is deprecated.
+        /// </summary>
+        [Optional]
+        bool Deprecated { get; set; }
+
+        /// <summary>
         /// The location of this symbol.
         /// </summary>
         Location Location { get; set; }

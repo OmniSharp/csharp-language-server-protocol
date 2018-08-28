@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides code actions.
         /// </summary>
         [Optional]
-        public bool CodeActionProvider { get; set; }
+        public BooleanOr<CodeActionOptions> CodeActionProvider { get; set; }
         /// <summary>
         ///  The server provides code lens.
         /// </summary>
@@ -125,11 +125,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.6.0
         /// </summary>
         [Optional]
-        public StaticColorOptions ColorProvider { get; set; }
+        public BooleanOr<StaticColorOptions> ColorProvider { get; set; }
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
         [Optional]
         public WorkspaceServerCapabilities Workspace { get; set; }
+    }
+
+    public class CodeActionOptions
+    {
+        /// <summary>
+        /// CodeActionKinds that this server may return.
+        ///
+        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
+        /// may list out every specific kind they provide.
+        /// </summary>
+        [Optional]
+        public Container<CodeActionKind> ProvidedCodeActionKinds { get; set; }
     }
 }
