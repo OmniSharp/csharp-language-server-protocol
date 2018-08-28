@@ -20,6 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc
             ProtocolVersion = protocolVersion;
         }
 
+        [JsonProperty("jsonrpc")]
         public string ProtocolVersion { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]

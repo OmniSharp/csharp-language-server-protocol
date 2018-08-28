@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The JSON-RPC protocol version.
         /// </summary>
+        [JsonProperty("jsonrpc")]
         public string ProtocolVersion { get; set; } = "2.0";
 
         /// <summary>

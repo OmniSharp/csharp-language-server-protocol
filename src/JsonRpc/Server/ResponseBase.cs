@@ -1,3 +1,7 @@
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json.Serialization;
+
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class ResponseBase
@@ -7,6 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             Id = id;
         }
 
+        [JsonProperty("jsonrpc")]
         public string ProtocolVersion { get; set; } = "2.0";
 
         public object Id { get; set; }

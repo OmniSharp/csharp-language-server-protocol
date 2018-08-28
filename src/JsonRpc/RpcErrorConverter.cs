@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 data = dataToken.ToObject(errorMessageType, serializer);
             }
 
-            return Activator.CreateInstance(objectType, requestId, data, obj["protocolVersion"].ToString());
+            return Activator.CreateInstance(objectType, requestId, data, obj["jsonrpc"].ToString());
         }
 
         public override bool CanConvert(Type objectType)

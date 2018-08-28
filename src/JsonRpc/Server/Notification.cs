@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         internal Notification(string method, JToken @params) : this(method, @params, "2.0") { }
 
+        [JsonProperty("jsonrpc")]
         public string ProtocolVersion { get; }
 
         public string Method { get; }
