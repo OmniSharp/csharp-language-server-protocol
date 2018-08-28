@@ -4,6 +4,9 @@
         <Copyright>Copyright OmniSharp and contributors © 2018</Copyright>
         <Authors>David Driscoll</Authors>
         <LangVersion>latest</LangVersion>
+        <SignAssembly>true</SignAssembly>
+        <DelaySign>false</DelaySign>
+        <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <PropertyGroup>
         <Microsoft_Extensions_Logging_Version>2.0.0</Microsoft_Extensions_Logging_Version>

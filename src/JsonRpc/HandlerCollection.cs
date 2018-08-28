@@ -5,7 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
-using MediatR;
+using OmniSharp.Extensions.Embedded.MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

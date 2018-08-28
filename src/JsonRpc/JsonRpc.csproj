@@ -9,10 +9,12 @@
         <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="$(Microsoft_Extensions_Logging_Version)" />
-        <PackageReference Include="MediatR" Version="$(MediatR_Version)" />
+        <Compile Include="../../submodules/MediatR/src/MediatR/**/*.cs" Exclude="**/AssemblyInfo.cs" />
+        <Compile Include="../../submodules/MediatR.Extensions.Microsoft.DependencyInjection/src/MediatR.Extensions.Microsoft.DependencyInjection/**/*.cs" Exclude="**/AssemblyInfo.cs" />
         <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(Microsoft_Extensions_Logging_Version)" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" />
+        <!-- <PackageReference Include="MediatR" Version="$(MediatR_Version)" /> -->
+        <!-- <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" /> -->
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
     </ItemGroup>
 </Project>

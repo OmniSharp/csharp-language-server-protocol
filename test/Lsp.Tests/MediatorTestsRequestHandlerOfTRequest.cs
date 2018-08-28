@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
+using OmniSharp.Extensions.Embedded.MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
