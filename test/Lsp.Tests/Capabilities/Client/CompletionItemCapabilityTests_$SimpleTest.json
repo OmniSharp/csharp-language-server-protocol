@@ -1,4 +1,6 @@
 {
     "snippetSupport": true,
-    "commitCharactersSupport": false
+    "commitCharactersSupport": false,
+    "deprecatedSupport": false,
+    "preselectSupport": false
 }
