@@ -30,5 +30,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public Container<MarkupKind> DocumentationFormat { get; set; }
+
+        /// <summary>
+		/// Client supports the deprecated property on a completion item.
+		/// </summary>
+        [Optional]
+        public bool DeprecatedSupport { get; set; }
+        /// <summary>
+		/// Client supports the preselect property on a completion item.
+		/// </summary>
+        [Optional]
+        public bool PreselectSupport { get; set; }
     }
 }

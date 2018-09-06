@@ -1,4 +1,6 @@
+using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -10,16 +12,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Please note that `MarkupKinds` must not start with a `$`. This kinds
     /// are reserved for internal usage.
     /// </summary>
-    [JsonConverter(typeof(LowercaseStringEnumConverter))]
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum MarkupKind
     {
         /// <summary>
         /// Plain text is supported as a content format
         /// </summary>
-        Plaintext, // Only capitalize the first letter because the above converter will only lower case the first letter today
+        [EnumMember(Value="plaintext")]
+        PlainText, // Only capitalize the first letter because the above converter will only lower case the first letter today
         /// <summary>
         /// Markdown is supported as a content format
         /// </summary>
+        [EnumMember(Value="markdown")]
         Markdown,
     }
 }

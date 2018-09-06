@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class CodeActionExtensions
     {
-        public static Task<CommandContainer> CodeAction(this ILanguageClientDocument mediator, CodeActionParams @params)
+        public static Task<CommandOrCodeActionContainer> CodeAction(this ILanguageClientDocument mediator, CodeActionParams @params)
         {
-            return mediator.SendRequest<CodeActionParams, CommandContainer>(DocumentNames.CodeAction, @params);
+            return mediator.SendRequest<CodeActionParams, CommandOrCodeActionContainer>(DocumentNames.CodeAction, @params);
         }
     }
 }

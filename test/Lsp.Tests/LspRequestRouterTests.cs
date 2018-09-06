@@ -97,7 +97,7 @@ namespace Lsp.Tests
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
-                .Returns(new CommandContainer());
+                .Returns(new CommandOrCodeActionContainer());
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -129,13 +129,13 @@ namespace Lsp.Tests
             codeActionHandler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
-                .Returns(new CommandContainer());
+                .Returns(new CommandOrCodeActionContainer());
 
             var codeActionHandler2 = Substitute.For<ICodeActionHandler>();
             codeActionHandler2.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") });
             codeActionHandler2
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
-                .Returns(new CommandContainer());
+                .Returns(new CommandOrCodeActionContainer());
 
             AutoSubstitute.Provide<IHandlerCollection>(new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 });
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

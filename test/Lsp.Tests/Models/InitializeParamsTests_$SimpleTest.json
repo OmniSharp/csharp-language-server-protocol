@@ -29,7 +29,9 @@
             "completion": {
                 "completionItem": {
                     "snippetSupport": true,
-                    "commitCharactersSupport": false
+                    "commitCharactersSupport": false,
+                    "deprecatedSupport": false,
+                    "preselectSupport": false
                 },
                 "contextSupport": false,
                 "dynamicRegistration": true
@@ -71,6 +73,7 @@
                 "dynamicRegistration": true
             },
             "rename": {
+                "prepareSupport": false,
                 "dynamicRegistration": true
             }
         },
@@ -81,4 +84,3 @@
     "trace": "verbose",
     "workspaceFolders": null
 }
-

@@ -1,10 +1,12 @@
-﻿{
+{
     "isIncomplete": true,
     "items": [
         {
             "label": null,
             "kind": 7,
             "detail": "details",
+            "deprecated": false,
+            "preselect": false,
             "insertTextFormat": 0
         }
     ]

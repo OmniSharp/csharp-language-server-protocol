@@ -52,7 +52,7 @@ namespace Lsp.Tests
                 .Returns(async (c) => {
                     await Task.Delay(1000, c.Arg<CancellationToken>());
                     throw new XunitException("Task was not cancelled in time!");
-                    return new CommandContainer();
+                    return new CommandOrCodeActionContainer();
                 });
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };

@@ -5,23 +5,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class TextDocumentSyncConverter : JsonConverter
+    class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, TextDocumentSync value, JsonSerializer serializer)
         {
-            var v = value as TextDocumentSync;
-
-            if (v.HasOptions)
+            if (value.HasOptions)
             {
-                serializer.Serialize(writer, v.Options);
+                serializer.Serialize(writer, value.Options);
             }
-            else if (v.HasKind)
+            else if (value.HasKind)
             {
-                new JValue(v.Value).WriteTo(writer);
+                new JValue(value.Value).WriteTo(writer);
             }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -32,7 +30,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         public override bool CanRead => true;
-
-        public override bool CanConvert(Type objectType) => objectType == typeof(TextDocumentSync);
     }
 }

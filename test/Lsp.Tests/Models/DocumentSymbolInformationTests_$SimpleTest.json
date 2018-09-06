@@ -1,6 +1,7 @@
-﻿{
+{
     "name": "name",
     "kind": 17,
+    "deprecated": false,
     "location": {
         "uri": "file:///abc/123.cs",
         "range": {

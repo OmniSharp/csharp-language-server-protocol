@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides code actions.
         /// </summary>
         [Optional]
-        public bool CodeActionProvider { get; set; }
+        public BooleanOr<CodeActionOptions> CodeActionProvider { get; set; }
         /// <summary>
         ///  The server provides code lens.
         /// </summary>
@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides rename support.
         /// </summary>
         [Optional]
-        public bool RenameProvider { get; set; }
+        public BooleanOr<RenameOptions> RenameProvider { get; set; }
         /// <summary>
         ///  The server provides document link support.
         /// </summary>
@@ -125,7 +125,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.6.0
         /// </summary>
         [Optional]
-        public StaticColorOptions ColorProvider { get; set; }
+        public BooleanOr<ColorOptions> ColorProvider { get; set; }
+
+        /// <summary>
+        /// The server provides folding provider support.
+        ///
+        /// Since 3.10.0
+        /// </summary>
+        public BooleanOr<FoldingRangeOptions> FoldingRangeProvider { get; set; }
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>

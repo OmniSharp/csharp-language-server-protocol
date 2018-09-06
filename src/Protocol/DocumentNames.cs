@@ -25,10 +25,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string Implementation = "textDocument/implementation";
         public const string References = "textDocument/references";
         public const string Rename = "textDocument/rename";
+        public const string PrepareRename = "textDocument/prepareRename";
         public const string SignatureHelp = "textDocument/signatureHelp";
         public const string TypeDefinition = "textDocument/typeDefinition";
         public const string WillSave = "textDocument/willSave";
         public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";
+        public const string FoldingRange = "textDocument/foldingRange";
     }
 }

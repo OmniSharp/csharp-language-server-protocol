@@ -6,6 +6,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
-    [Serial, Method(FoldingRange)]
+    [Parallel, Method(FoldingRange)]
     public interface IFoldingRangeHandler : IJsonRpcRequestHandler<FoldingRangeRequestParam, Container<FoldingRange>>, IRegistration<TextDocumentRegistrationOptions>, ICapability<FoldingRangeCapability> { }
 }

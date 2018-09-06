@@ -36,6 +36,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public StringOrMarkupContent Documentation { get; set; }
 
         /// <summary>
+        /// Indicates if this item is deprecated.
+        /// </summary>
+        [Optional]
+        public bool Deprecated { get; set; }
+
+        /// <summary>
+        /// Select this item when showing.
+        ///
+        /// *Note* that only one completion item can be selected and that the
+        /// tool / client decides which item that is. The rule is that the *first*
+        /// item of those that match best is selected.
+        /// </summary>
+        [Optional]
+        public bool Preselect { get; set; }
+
+        /// <summary>
         /// A string that shoud be used when comparing this item
         /// with other items. When `falsy` the label is used.
         /// </summary>
