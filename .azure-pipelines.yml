@@ -31,8 +31,8 @@ jobs:
     vmImage: xcode9-macos10.13
   steps:
   - script: |
-    chmod 755 ./build.sh
-    ./build.sh
+      chmod 755 ./build.sh
+      ./build.sh
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
     inputs:
@@ -56,8 +56,8 @@ jobs:
     vmImage: ubuntu-16.04
   steps:
   - script: |
-    chmod 755 ./build.sh
-    ./build.sh
+      chmod 755 ./build.sh
+      ./build.sh
   - task: PublishTestResults@2
     displayName: 'Publish Test Results'
     inputs:
