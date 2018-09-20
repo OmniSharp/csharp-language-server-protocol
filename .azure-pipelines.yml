@@ -26,7 +26,7 @@ jobs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)\nuget\'
       ArtifactName: '$(Agent.OS)-nuget'
 
-      - job: macOS
+- job: macOS
   pool:
     vmImage: xcode9-macos10.13
   steps:
@@ -51,7 +51,7 @@ jobs:
       PathtoPublish: '$(System.DefaultWorkingDirectory)\nuget\'
       ArtifactName: '$(Agent.OS)-nuget'
 
-      - job: Linux
+- job: Linux
   pool:
     vmImage: ubuntu-16.04
   steps:
