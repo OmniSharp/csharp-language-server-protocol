@@ -1,0 +1,77 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+jobs:
+- job: Windows
+  pool:
+    vmImage: vs2017-win2016
+  steps:
+  - powershell: .\build.ps1
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testRunner: XUnit
+      testResultsFiles: 'artifacts/tests/*.xml'
+      mergeTestResults: true
+      testRunTitle: '$(Agent.OS)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) coverage'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\coverage\'
+      ArtifactName: '$(Agent.OS)-coverage'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) nuget'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\nuget\'
+      ArtifactName: '$(Agent.OS)-nuget'
+
+      - job: macOS
+  pool:
+    vmImage: xcode9-macos10.13
+  steps:
+  - script: |
+    chmod 755 ./build.sh
+    ./build.sh
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testRunner: XUnit
+      testResultsFiles: 'artifacts/tests/*.xml'
+      mergeTestResults: true
+      testRunTitle: '$(Agent.OS)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) coverage'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\coverage\'
+      ArtifactName: '$(Agent.OS)-coverage'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) nuget'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\nuget\'
+      ArtifactName: '$(Agent.OS)-nuget'
+
+      - job: Linux
+  pool:
+    vmImage: ubuntu-16.04
+  steps:
+  - script: |
+    chmod 755 ./build.sh
+    ./build.sh
+  - task: PublishTestResults@2
+    displayName: 'Publish Test Results'
+    inputs:
+      testRunner: XUnit
+      testResultsFiles: 'artifacts/tests/*.xml'
+      mergeTestResults: true
+      testRunTitle: '$(Agent.OS)'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) coverage'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\coverage\'
+      ArtifactName: '$(Agent.OS)-coverage'
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact: $(Agent.OS) nuget'
+    inputs:
+      PathtoPublish: '$(System.DefaultWorkingDirectory)\nuget\'
+      ArtifactName: '$(Agent.OS)-nuget'
