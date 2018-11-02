@@ -168,7 +168,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <summary>
         ///     The minimum level for the server's default logger.
         /// </summary>
-        public LogLevel MinimumLogLevel { get; set; } = LogLevel.Information;
+        public LogLevel MinimumLogLevel { get; set; }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

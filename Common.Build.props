@@ -6,6 +6,10 @@
         <LangVersion>latest</LangVersion>
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
+        <PackageLicenseUrl>https://github.com/OmniSharp/csharp-language-server-protocol/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIconUrl>http://www.omnisharp.net/images/logo.png</PackageIconUrl>
+        <PackageProjectUrl>https://github.com/OmniSharp/csharp-language-server-protocol</PackageProjectUrl>
+        <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
     </PropertyGroup>
     <PropertyGroup>

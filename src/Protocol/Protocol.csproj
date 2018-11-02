@@ -4,6 +4,7 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.LanguageProtocol</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
+        <PackageDescription>Language Server Protocl models, classes, interfaces and helper methods</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
