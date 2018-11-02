@@ -4,6 +4,7 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.LanguageServer</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.LanguageServer.Server</RootNamespace>
+        <PackageDescription>You can use this package to create a language server, that will be consumed by many clients</PackageDescription>
     </PropertyGroup>
 
     <ItemGroup>
