@@ -23,12 +23,12 @@ jobs:
     pool:
       vmImage: "VS2017-Win2016"
     steps:
-      - template: ../gitversion/store.yml
+      - template: gitversion/store.yml@rsg
         parameters:
           NuGetVersion: $(NuGetVersion)
 
 # Mac job seems to hang with unit tests currently, needs more testing (also need a mac)
-#   - template: cake-job.yml
+#   - template: pipeline/cake-job.yml@rsg
 #     parameters:
 #       name: 'macOS'
 #       dependsOn: GitVersion
@@ -41,7 +41,7 @@ jobs:
 #       NuGetVersion: $(NuGetVersion)
 #       Script: build.cake
 
-  - template: cake-job.yml
+  - template: pipeline/cake-job.yml@rsg
     parameters:
       name: 'Linux'
       dependsOn: GitVersion
@@ -54,7 +54,7 @@ jobs:
       NuGetVersion: $(NuGetVersion)
       Script: build.cake
 
-  - template: cake-job.yml
+  - template: pipeline/cake-job.yml@rsg
     parameters:
       name: 'Windows'
       dependsOn: GitVersion
