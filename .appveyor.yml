@@ -13,33 +13,5 @@ after_build:
   - codecov -f "./artifacts/coverage/coverage.xml"
 artifacts:
   - path: ./artifacts/nuget/*.nupkg
-cache:
-  - tools -> tools/packages.config
 nuget:
   project_feed: true
-deploy:
-  - provider: NuGet
-    server: https://www.myget.org/F/omnisharp/api/v2/package
-    api_key:
-      secure: eoBrSWDtOXSxyUOoCSTyQCeDkvU18W67pE3w26viEUBRi1K4Tru0cTjUtDUB7l9V
-    skip_symbols: false
-    symbol_server: https://www.myget.org/F/omnisharp/symbols/api/v2/package
-    artifact: /.*\.nupkg/
-    on:
-      branch: master
-  - provider: NuGet
-    server: https://www.myget.org/F/omnisharp/api/v2/package
-    api_key:
-      secure: eoBrSWDtOXSxyUOoCSTyQCeDkvU18W67pE3w26viEUBRi1K4Tru0cTjUtDUB7l9V
-    skip_symbols: false
-    symbol_server: https://www.myget.org/F/omnisharp/symbols/api/v2/package
-    artifact: /.*\.nupkg/
-    on:
-      appveyor_repo_tag: true
-  - provider: NuGet
-    api_key:
-      secure: lFaEHVRMsSWTveDH/DuLl4+hv+O0i4qLkbhW3aCgzq0oCrOuV+0TSEkqe6aiHuNX
-    skip_symbols: true
-    artifact: /.*\.nupkg/
-    on:
-      appveyor_repo_tag: true

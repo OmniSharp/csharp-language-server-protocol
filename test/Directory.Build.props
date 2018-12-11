@@ -6,9 +6,12 @@
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
-        <!-- <CollectCoverage>true</CollectCoverage> -->
-        <CoverletOutputFormat>json,lcov,cobertura</CoverletOutputFormat>
-        <CoverletOutputDirectory>$([System.IO.Path]::GetDirectoryName($([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildThisFileDirectory)../'))))/coverage/</CoverletOutputDirectory>
-        <CoverletOutputName>$(MSBuildProjectName)-$(TargetFramework)</CoverletOutputName>
+        <DebugType>full</DebugType>
+        <DebugSymbols>true</DebugSymbols>
+        <CollectCoverage>true</CollectCoverage>
+        <CoverletOutputFormat>json,lcov,cobertura,opencover</CoverletOutputFormat>
+        <CoverletName>$(MSBuildProjectName.Replace('.', '-'))</CoverletName>
+        <CoverletOutput Condition="'$(CoverageDirectory)'==''">$([System.IO.Path]::GetDirectoryName($([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildProjectDirectory)'))))/coverage/$(CoverletName)/</CoverletOutput>
+        <CoverletOutput Condition="'$(CoverageDirectory)'!=''">$(CoverageDirectory)/$(CoverletName)</CoverletOutput>
     </PropertyGroup>
 </Project>

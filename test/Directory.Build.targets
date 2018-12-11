@@ -7,7 +7,6 @@
         <PackageReference Include="FluentAssertions" Version="$(FluentAssertions_Version)" />
         <PackageReference Include="NSubstitute" Version="$(NSubstitute_Version)" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Autofac" Version="$(Autofac_Version)" />
         <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="$(Autofac_Extensions_DependencyInjection_Version)" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="$(Serilog_Extensions_Logging_Version)" />

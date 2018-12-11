@@ -2,14 +2,9 @@ language: csharp
 sudo: required
 dist: trusty
 mono: latest
-dotnet: 2.1.301
+dotnet: 2.1.500
 os:
   - linux
-cache:
-  directories:
-    - tools
-before_cache:
-  - rm -f tools/packages.config
 git:
   depth: 1000
 script:
