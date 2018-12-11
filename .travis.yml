@@ -2,7 +2,7 @@ language: csharp
 sudo: required
 dist: trusty
 mono: latest
-dotnet: 2.1.301
+dotnet: 2.1.500
 os:
   - linux
 git:
