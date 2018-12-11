@@ -5,11 +5,6 @@ mono: latest
 dotnet: 2.1.301
 os:
   - linux
-cache:
-  directories:
-    - tools
-before_cache:
-  - rm -f tools/packages.config
 git:
   depth: 1000
 script:
