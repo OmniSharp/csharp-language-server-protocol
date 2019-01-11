@@ -9,5 +9,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     using static WorkspaceNames;
 
     [Parallel, Method(DidChangeWorkspaceFolders)]
-    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>, ICapability<DidChangeWorkspaceFolderCapability> { }
+    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>, ICapability<DidChangeWorkspaceFolderCapability>, IRegistration<object> { }
 }

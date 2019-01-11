@@ -9,5 +9,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     using static WorkspaceNames;
 
     [Parallel, Method(WorkspaceSymbol)]
-    public interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, WorkspaceSymbolInformationContainer>, ICapability<WorkspaceSymbolCapability> { }
+    public interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, WorkspaceSymbolInformationContainer>, ICapability<WorkspaceSymbolCapability>, IRegistration<object> { }
 }
