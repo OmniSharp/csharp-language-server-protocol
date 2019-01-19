@@ -1,10 +1,13 @@
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class TextDocumentSyncOptions
+    public class TextDocumentSyncOptions : ITextDocumentSyncOptions
     {
         /// <summary>
         ///  Open and close notifications are sent to the server.
@@ -32,5 +35,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public SaveOptions Save { get; set; }
+
+        public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options)
+        {
+            return new TextDocumentSyncOptions() {
+                OpenClose = options.Any(z => z.OpenClose),
+                Change = options
+                        .Where(x => x.Change != TextDocumentSyncKind.None)
+                        .Min(z => z.Change),
+                WillSave = options.Any(z => z.WillSave),
+                WillSaveWaitUntil = options.Any(z => z.WillSaveWaitUntil),
+                Save = new SaveOptions() {
+                    IncludeText = options.Any(z => z.Save?.IncludeText == true)
+                }
+             };
+        }
     }
 }

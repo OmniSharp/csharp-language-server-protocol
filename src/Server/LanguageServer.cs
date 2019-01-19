@@ -307,6 +307,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
                 DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
+                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of),
                 HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
                 RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename).Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
@@ -330,30 +331,33 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 };
             }
 
-            var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
-                ? _collection
-                    .Select(x => x.Handler)
-                    .OfType<IDidChangeTextDocumentHandler>()
-                    .Where(x => x.Change != TextDocumentSyncKind.None)
-                    .Min(z => z.Change)
-                : TextDocumentSyncKind.None;
+            if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
+            {
+                var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
+                    ? _collection
+                        .Select(x => x.Handler)
+                        .OfType<IDidChangeTextDocumentHandler>()
+                        .Where(x => x.Change != TextDocumentSyncKind.None)
+                        .Min(z => z.Change)
+                    : TextDocumentSyncKind.None;
 
-            if (_clientVersion == ClientVersion.Lsp2)
-            {
-                serverCapabilities.TextDocumentSync = textDocumentSyncKind;
-            }
-            else
-            {
-                serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
+                if (_clientVersion == ClientVersion.Lsp2)
                 {
-                    Change = textDocumentSyncKind,
-                    OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
-                    Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
-                        new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
-                        null,
-                    WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
-                    WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
-                };
+                    serverCapabilities.TextDocumentSync = textDocumentSyncKind;
+                }
+                else
+                {
+                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
+                    {
+                        Change = textDocumentSyncKind,
+                        OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
+                        Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
+                            new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
+                            null,
+                        WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
+                        WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
+                    };
+                }
             }
 
             // TODO: Need a call back here

@@ -1,10 +1,11 @@
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class SynchronizationCapability : DynamicCapability
+    public class SynchronizationCapability : DynamicCapability, ConnectedCapability<IDidChangeTextDocumentHandler>, ConnectedCapability<IDidCloseTextDocumentHandler>, ConnectedCapability<IDidOpenTextDocumentHandler>, ConnectedCapability<IDidSaveTextDocumentHandler>, ConnectedCapability<IWillSaveTextDocumentHandler>, ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
     {
         /// <summary>
         /// The client supports sending will save notifications.
