@@ -180,6 +180,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// </summary>
         public LogLevel MinimumLogLevel { get; set; }
 
+        public IServiceProvider Services => _serviceProvider;
+
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             var handlerDisposable = _collection.Add(method, handler);
@@ -260,8 +262,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 MinimumLogLevel = LogLevel.Trace;
             }
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
-
             _clientVersion = request.Capabilities.GetClientVersion();
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
@@ -286,6 +286,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _supportedCapabilities.Add(supportedCapabilities);
 
             AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
+
+            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
             var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument;
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace;
