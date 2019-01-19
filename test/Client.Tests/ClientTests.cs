@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request Hover information.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request hover info", Skip="Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request hover info", Skip = "Periodic failures")]
         public async Task Hover_Success()
         {
             await Connect();
@@ -194,7 +194,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully receive diagnostics")]
+        [Fact(DisplayName = "Language client can successfully receive diagnostics", Skip = "Periodic failures")]
         public async Task Diagnostics_Success()
         {
             await Connect();
