@@ -38,3 +38,6 @@ tools/*/
 /coverage
 
 .idea
+coverage.*.xml
+coverage.json
+coverage.info

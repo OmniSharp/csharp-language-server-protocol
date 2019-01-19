@@ -11,24 +11,17 @@
         <PackageProjectUrl>https://github.com/OmniSharp/csharp-language-server-protocol</PackageProjectUrl>
         <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
+        <Logging_Extensions_Version>2.0.0</Logging_Extensions_Version>
     </PropertyGroup>
     <PropertyGroup>
-        <Microsoft_Extensions_Logging_Version>2.0.0</Microsoft_Extensions_Logging_Version>
-        <Microsoft_Extensions_DependencyInjection_Version>2.0.0</Microsoft_Extensions_DependencyInjection_Version>
-        <Newtonsoft_Version>11.0.2</Newtonsoft_Version>
-        <SourceLink_Version>2.8.3</SourceLink_Version>
-        <System_Reactive_Version>4.1.2</System_Reactive_Version>
-        <MediatR_Version>5.0.1</MediatR_Version>
-        <MediatR_Extensions_DependencyInjection_Version>5.0.2</MediatR_Extensions_DependencyInjection_Version>
-        <Autofac_Version>4.8.1</Autofac_Version>
-        <Autofac_Extensions_DependencyInjection_Version>4.3.1</Autofac_Extensions_DependencyInjection_Version>
-        <Microsoft_NET_Test_Sdk_Version>15.9.0</Microsoft_NET_Test_Sdk_Version>
-        <xunit_Version>2.4.1</xunit_Version>
-        <FluentAssertions_Version>5.5.3</FluentAssertions_Version>
-        <NSubstitute_Version>3.1.0</NSubstitute_Version>
-        <Serilog_Extensions_Logging_Version>2.0.2</Serilog_Extensions_Logging_Version>
-        <Serilog_Sinks_XUnit_Version>1.0.6</Serilog_Sinks_XUnit_Version>
-        <XunitXml_TestLogger_Version>2.0.0</XunitXml_TestLogger_Version>
-        <coverlet_Version>2.4.0</coverlet_Version>
+        <EmbedUntrackedSources>true</EmbedUntrackedSources>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PublishRepositoryUrl>true</PublishRepositoryUrl>
+        <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+        <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.pdb</AllowedReferenceRelatedFileExtensions>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(TF_BUILD)'!=''">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
 </Project>

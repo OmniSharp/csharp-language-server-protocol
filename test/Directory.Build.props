@@ -6,6 +6,8 @@
         <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
         <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
 
+        <Include>[Omnisharp.*]*</Include>
+
         <DebugType>full</DebugType>
         <DebugSymbols>true</DebugSymbols>
         <CollectCoverage>true</CollectCoverage>

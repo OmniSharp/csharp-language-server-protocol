@@ -3,5 +3,5 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public delegate Task InitializedDelegate(InitializeParams request, InitializeResult response);
+    public delegate Task InitializedDelegate(ILanguageServer server, InitializeParams request, InitializeResult response);
 }

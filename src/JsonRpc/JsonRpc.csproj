@@ -7,15 +7,13 @@
         <PackageDescription>Primitives for working with JsonRpc.  This library is used as the base for communication with language servers</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
-        <PackageReference Include="Microsoft.Extensions.Logging" Version="$(Microsoft_Extensions_Logging_Version)" />
+        <PackageReference Include="System.Reactive" />
+        <PackageReference Include="Microsoft.Extensions.Logging" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
+        <PackageReference Include="Newtonsoft.Json" />
         <Compile Include="../../submodules/MediatR/src/MediatR/**/*.cs" Exclude="**/AssemblyInfo.cs" />
         <Compile Include="../../submodules/MediatR.Extensions.Microsoft.DependencyInjection/src/MediatR.Extensions.Microsoft.DependencyInjection/**/*.cs" Exclude="**/AssemblyInfo.cs" />
-        <PackageReference Include="Newtonsoft.Json" Version="$(Newtonsoft_Version)" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="$(Microsoft_Extensions_Logging_Version)" />
-        <!-- <PackageReference Include="MediatR" Version="$(MediatR_Version)" /> -->
-        <!-- <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Extensions_DependencyInjection_Version)" /> -->
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="$(Microsoft_Extensions_DependencyInjection_Version)" />
     </ItemGroup>
 </Project>

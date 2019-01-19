@@ -361,7 +361,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
 
-            await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
+            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result)));
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
