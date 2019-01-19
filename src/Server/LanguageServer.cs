@@ -260,7 +260,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 MinimumLogLevel = LogLevel.Trace;
             }
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(request)));
+            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
             _clientVersion = request.Capabilities.GetClientVersion();
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
