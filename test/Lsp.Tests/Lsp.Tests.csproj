@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFramework>netcoreapp2.1</TargetFramework>
         <WarningsAsErrors>true</WarningsAsErrors>
@@ -9,6 +9,7 @@
         <EmbeddedResource Include="**\*.json" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>

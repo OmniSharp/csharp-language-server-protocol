@@ -5,6 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Parallel, Method(WorkspaceNames.ApplyEdit)]
+    [Parallel, Method(WorkspaceNames.WorkspaceFolders)]
     public interface IWorkspaceFoldersHandler : IJsonRpcRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>> { }
 }

@@ -48,12 +48,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
+            return From(optionsAction, CancellationToken.None);
+        }
+
+        public static Task<ILanguageServer> From(LanguageServerOptions options)
+        {
+            return From(options, CancellationToken.None);
+        }
+
+        public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction, CancellationToken token)
+        {
             var options = new LanguageServerOptions();
             optionsAction(options);
             return From(options);
         }
 
-        public static async Task<ILanguageServer> From(LanguageServerOptions options)
+        public static async Task<ILanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
             var server = new LanguageServer(
                 options.Input,
@@ -72,7 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (options.AddDefaultLoggingProvider)
                 options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
 
-            await server.Initialize();
+            await server.Initialize(token);
 
             return server;
         }
@@ -224,11 +234,21 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        private async Task Initialize()
+        private async Task Initialize(CancellationToken token)
         {
             _connection.Open();
-
-            await _initializeComplete;
+            try
+            {
+                await _initializeComplete.ToTask(token);
+            }
+            catch (TaskCanceledException e)
+            {
+                _initializeComplete.OnError(e);
+            }
+            catch (Exception e)
+            {
+                _initializeComplete.OnError(e);
+            }
         }
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
@@ -245,25 +265,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _clientVersion = request.Capabilities.GetClientVersion();
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
-            var supportedCapabilites = new List<ISupports>();
+            var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
                 if (request.Capabilities.TextDocument != null)
                 {
-                    supportedCapabilites.AddRange(
+                    supportedCapabilities.AddRange(
                         LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
                     );
                 }
 
                 if (request.Capabilities.Workspace != null)
                 {
-                    supportedCapabilites.AddRange(
+                    supportedCapabilities.AddRange(
                         LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
                     );
                 }
             }
 
-            _supportedCapabilities.Add(supportedCapabilites);
+            _supportedCapabilities.Add(supportedCapabilities);
 
             AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
 
@@ -341,7 +361,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
 
-            await Task.WhenAll(_initializedDelegates.Select(c => c(request, result)));
+            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result)));
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)

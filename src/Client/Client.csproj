@@ -9,7 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Reactive" Version="$(System_Reactive_Version)" />
+        <PackageReference Include="System.Reactive" />
     </ItemGroup>
 
     <ItemGroup>

@@ -104,7 +104,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         else
                         {
                             _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
-                            var @params = notification.Params.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                            var @params = (notification.Params ?? new JObject()).ToObject(descriptor.Params, _serializer.JsonSerializer);
 
                             await MediatRHandlers.HandleNotification(mediator, descriptor, @params ?? EmptyRequest.Instance, CancellationToken.None);
                         }

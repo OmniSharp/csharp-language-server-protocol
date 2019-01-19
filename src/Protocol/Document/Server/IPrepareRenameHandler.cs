@@ -8,5 +8,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
     [Serial, Method(PrepareRename)]
-    public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange>, ICapability<RenameCapability> { }
+    public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange>, IRegistration<object>, ICapability<RenameCapability> { }
 }
