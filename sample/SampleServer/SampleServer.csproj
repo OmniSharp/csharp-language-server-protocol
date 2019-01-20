@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
+        <IsPackable>false</IsPackable>
         <TargetFramework>netcoreapp2.0</TargetFramework>
         <RuntimeIdentifier>win7-x64</RuntimeIdentifier>
     </PropertyGroup>

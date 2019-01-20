@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class SupportedCapabilities : ISupportedCapabilities
     {
-        private static readonly MethodInfo SetCapabilityInnerMethod = typeof(LspHandlerDescriptorHelpers)
+        private static readonly MethodInfo SetCapabilityInnerMethod = typeof(SupportedCapabilities)
             .GetTypeInfo()
             .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static);
 
