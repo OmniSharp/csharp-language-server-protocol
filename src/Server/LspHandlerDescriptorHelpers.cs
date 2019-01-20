@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     static class LspHandlerDescriptorHelpers
     {
-        public static IJsonRpcHandler InitializeHandler(ILspHandlerDescriptor descriptor, SupportedCapabilities supportedCapabilities, IJsonRpcHandler handler)
+        public static IJsonRpcHandler InitializeHandler(ILspHandlerDescriptor descriptor, ISupportedCapabilities supportedCapabilities, IJsonRpcHandler handler)
         {
             supportedCapabilities.SetCapability(descriptor, handler);
             return handler;

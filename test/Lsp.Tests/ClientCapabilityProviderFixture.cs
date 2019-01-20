@@ -1,5 +1,6 @@
 using System;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -18,7 +19,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IExecuteCommandHandler>();
             handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
 
-            var handlerCollection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
+            var handlerCollection = new OmniSharp.Extensions.LanguageServer.Server.HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection);
 
             Provider = capabilityProvider;
@@ -40,6 +41,9 @@ namespace Lsp.Tests
 
             public bool AllowsDynamicRegistration(Type capabilityType) => true;
 
+            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+            {
+            }
         }
 
         class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
@@ -47,6 +51,10 @@ namespace Lsp.Tests
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => false;
 
             public bool AllowsDynamicRegistration(Type capabilityType) => false;
+
+            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+            {
+            }
         }
     }
 }

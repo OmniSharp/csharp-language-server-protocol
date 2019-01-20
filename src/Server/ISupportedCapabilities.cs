@@ -1,4 +1,5 @@
 using System;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -7,5 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor);
         bool AllowsDynamicRegistration(Type capabilityType);
+        void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler);
     }
+
 }

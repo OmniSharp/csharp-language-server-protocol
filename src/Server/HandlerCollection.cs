@@ -135,7 +135,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 if (_supportedCapabilities.AllowsDynamicRegistration(capabilityType))
                 {
-                    registration = new Registration() {
+                    registration = new Registration()
+                    {
                         Id = Guid.NewGuid().ToString(),
                         Method = method,
                         RegisterOptions = registrationOptions
@@ -162,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (string.IsNullOrWhiteSpace(key)) key = "default";
 
-            return new HandlerDescriptor(
+            var descriptor = new HandlerDescriptor(
                 method,
                 key,
                 handler,
@@ -171,10 +172,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 registrationType,
                 registration,
                 capabilityType,
-                () => {
-                    _handlers.RemoveWhere(descriptor => descriptor.Handler == handler);
-                    _textDocumentIdentifiers.RemoveWhere(descriptor => descriptor.Handler == handler);
+                () =>
+                {
+                    _handlers.RemoveWhere(d => d.Handler == handler);
+                    _textDocumentIdentifiers.RemoveWhere(d => d.Handler == handler);
                 });
+
+            LspHandlerDescriptorHelpers.InitializeHandler(descriptor, _supportedCapabilities, handler);
+
+            return descriptor;
         }
 
         private Type UnwrapGenericType(Type genericType, Type type)
