@@ -178,8 +178,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     _textDocumentIdentifiers.RemoveWhere(d => d.Handler == handler);
                 });
 
-            LspHandlerDescriptorHelpers.InitializeHandler(descriptor, _supportedCapabilities, handler);
-
             return descriptor;
         }
 

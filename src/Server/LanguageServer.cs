@@ -369,6 +369,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result)));
 
+            foreach (var item in _collection)
+            {
+                LspHandlerDescriptorHelpers.InitializeHandler(item, _supportedCapabilities, item.Handler);
+            }
+
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
             {
