@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -18,6 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         InitializeParams ClientSettings { get; }
         InitializeResult ServerSettings { get; }
+        IServiceProvider Services { get; }
 
         IObservable<bool> Shutdown { get; }
         IObservable<int> Exit { get; }
