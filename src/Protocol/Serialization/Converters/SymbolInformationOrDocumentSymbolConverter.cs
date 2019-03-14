@@ -5,13 +5,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    public class DocumentSymbolInformationOrDocumentSymbolConverter : JsonConverter<DocumentSymbolInformationOrDocumentSymbol>
+    public class SymbolInformationOrDocumentSymbolConverter : JsonConverter<SymbolInformationOrDocumentSymbol>
     {
-        public override void WriteJson(JsonWriter writer, DocumentSymbolInformationOrDocumentSymbol value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, SymbolInformationOrDocumentSymbol value, JsonSerializer serializer)
         {
             if (value.IsDocumentSymbolInformation)
             {
-                serializer.Serialize(writer, value.DocumentSymbolInformation);
+                serializer.Serialize(writer, value.SymbolInformation);
             }
             else if (value.IsDocumentSymbol)
             {
@@ -23,22 +23,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override DocumentSymbolInformationOrDocumentSymbol ReadJson(JsonReader reader, Type objectType, DocumentSymbolInformationOrDocumentSymbol existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SymbolInformationOrDocumentSymbol ReadJson(JsonReader reader, Type objectType, SymbolInformationOrDocumentSymbol existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             var result = JObject.Load(reader);
 
             // Commands have a name, CodeActions do not
             if (result["location"].Type == JTokenType.Object)
             {
-                return new DocumentSymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbolInformation>());
+                return new SymbolInformationOrDocumentSymbol(result.ToObject<SymbolInformation>());
             }
             else
             {
-                return new DocumentSymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>());
+                return new SymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>());
             }
         }
 
         public override bool CanRead => true;
     }
-    //DocumentSymbolInformationOrDocumentSymbolConverter
 }

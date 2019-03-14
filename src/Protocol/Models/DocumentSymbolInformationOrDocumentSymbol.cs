@@ -1,59 +1,34 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public struct DocumentSymbolInformationOrDocumentSymbol
+    public struct SymbolInformationOrDocumentSymbol
     {
         private DocumentSymbol _documentSymbol;
-        private DocumentSymbolInformation _command;
-        public DocumentSymbolInformationOrDocumentSymbol(DocumentSymbol value)
+        private SymbolInformation _symbolInformation;
+        public SymbolInformationOrDocumentSymbol(DocumentSymbol documentSymbol)
         {
-            _documentSymbol = value;
-            _command = default;
+            _documentSymbol = documentSymbol;
+            _symbolInformation = default;
         }
-        public DocumentSymbolInformationOrDocumentSymbol(DocumentSymbolInformation value)
+        public SymbolInformationOrDocumentSymbol(SymbolInformation symbolInformation)
         {
             _documentSymbol = default;
-            _command = value;
+            _symbolInformation = symbolInformation;
         }
 
-        public bool IsDocumentSymbolInformation => this._command != null;
-        public DocumentSymbolInformation DocumentSymbolInformation
+        public bool IsDocumentSymbolInformation => _symbolInformation != null;
+        public SymbolInformation SymbolInformation => _symbolInformation;
+
+        public bool IsDocumentSymbol => _documentSymbol != null;
+        public DocumentSymbol DocumentSymbol => _documentSymbol;
+
+        public static implicit operator SymbolInformationOrDocumentSymbol(SymbolInformation value)
         {
-            get { return this._command; }
-            set
-            {
-                this._command = value;
-                this._documentSymbol = null;
-            }
+            return new SymbolInformationOrDocumentSymbol(value);
         }
 
-        public bool IsDocumentSymbol => this._documentSymbol != null;
-        public DocumentSymbol DocumentSymbol
+        public static implicit operator SymbolInformationOrDocumentSymbol(DocumentSymbol value)
         {
-            get { return this._documentSymbol; }
-            set
-            {
-                this._command = default;
-                this._documentSymbol = value;
-            }
-        }
-        public object RawValue
-        {
-            get
-            {
-                if (IsDocumentSymbolInformation) return DocumentSymbolInformation;
-                if (IsDocumentSymbol) return DocumentSymbol;
-                return default;
-            }
-        }
-
-        public static implicit operator DocumentSymbolInformationOrDocumentSymbol(DocumentSymbolInformation value)
-        {
-            return new DocumentSymbolInformationOrDocumentSymbol(value);
-        }
-
-        public static implicit operator DocumentSymbolInformationOrDocumentSymbol(DocumentSymbol value)
-        {
-            return new DocumentSymbolInformationOrDocumentSymbol(value);
+            return new SymbolInformationOrDocumentSymbol(value);
         }
     }
 }
