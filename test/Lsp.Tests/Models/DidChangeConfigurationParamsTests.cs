@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -16,11 +17,11 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new DidChangeConfigurationParams() {
-                Settings = new Dictionary<string, BooleanNumberString>() {
+                Settings = JObject.FromObject(new Dictionary<string, object>() {
                     { "abc", 1 },
                     { "def", "a" },
                     { "ghi", true },
-                }
+                })
             };
             var result = Fixture.SerializeObject(model);
 
