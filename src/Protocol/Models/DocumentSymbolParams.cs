@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IRequest<DocumentSymbolInformationContainer>
+    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IRequest<DocumentSymbolInformationOrDocumentSymbolContainer>
     {
         /// <summary>
         /// The text document.
