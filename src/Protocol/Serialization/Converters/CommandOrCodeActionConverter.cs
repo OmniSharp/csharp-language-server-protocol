@@ -40,5 +40,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
         public override bool CanRead => true;
     }
-    //DocumentSymbolInformationOrDocumentSymbolConverter
 }
