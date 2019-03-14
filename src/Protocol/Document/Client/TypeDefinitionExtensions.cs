@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class TypeDefinitionExtensions
     {
-        public static Task<LocationOrLocations> TypeDefinition(this ILanguageClientDocument mediator, TypeDefinitionParams @params)
+        public static Task<LocationOrLocationLinks> TypeDefinition(this ILanguageClientDocument mediator, TypeDefinitionParams @params)
         {
-            return mediator.SendRequest<TypeDefinitionParams, LocationOrLocations>(DocumentNames.TypeDefinition, @params);
+            return mediator.SendRequest<TypeDefinitionParams, LocationOrLocationLinks>(DocumentNames.TypeDefinition, @params);
         }
     }
 }

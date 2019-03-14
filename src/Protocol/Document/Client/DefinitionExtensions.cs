@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DefinitionExtensions
     {
-        public static Task<LocationOrLocations> Definition(this ILanguageClientDocument mediator, DefinitionParams @params)
+        public static Task<LocationOrLocationLinks> Definition(this ILanguageClientDocument mediator, DefinitionParams @params)
         {
-            return mediator.SendRequest<DefinitionParams, LocationOrLocations>(DocumentNames.Definition, @params);
+            return mediator.SendRequest<DefinitionParams, LocationOrLocationLinks>(DocumentNames.Definition, @params);
         }
     }
 }

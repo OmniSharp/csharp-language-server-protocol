@@ -1,0 +1,28 @@
+[
+    {
+        "uri": null,
+        "range": {
+            "start": {
+                "line": 1,
+                "character": 1
+            },
+            "end": {
+                "line": 3,
+                "character": 3
+            }
+        }
+    },
+    {
+        "uri": null,
+        "range": {
+            "start": {
+                "line": 1,
+                "character": 1
+            },
+            "end": {
+                "line": 3,
+                "character": 3
+            }
+        }
+    }
+]

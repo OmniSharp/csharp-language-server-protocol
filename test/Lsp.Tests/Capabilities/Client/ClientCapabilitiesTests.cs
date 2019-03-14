@@ -30,7 +30,8 @@ namespace Lsp.Tests.Capabilities.Client
                 TextDocument = new TextDocumentClientCapabilities() {
                     CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                     CodeLens = new CodeLensCapability() { DynamicRegistration = true },
-                    Definition = new DefinitionCapability() { DynamicRegistration = true },
+                    Definition = new DefinitionCapability() { DynamicRegistration = true, LinkSupport = true },
+                    Declaration = new DeclarationCapability() { DynamicRegistration = true, LinkSupport = true },
                     DocumentHighlight = new DocumentHighlightCapability() { DynamicRegistration = true },
                     DocumentLink = new DocumentLinkCapability() { DynamicRegistration = true },
                     DocumentSymbol = new DocumentSymbolCapability() { DynamicRegistration = true },
@@ -46,6 +47,14 @@ namespace Lsp.Tests.Capabilities.Client
                         CompletionItem = new CompletionItemCapability() {
                             SnippetSupport = true
                         }
+                    },
+                    Implementation = new ImplementationCapability() {
+                        DynamicRegistration = true,
+                        LinkSupport = true
+                    },
+                    TypeDefinition = new TypeDefinitionCapability() {
+                        DynamicRegistration = true,
+                        LinkSupport = true
                     },
                     Synchronization = new SynchronizationCapability() {
                         DynamicRegistration = true,
@@ -68,7 +77,8 @@ namespace Lsp.Tests.Capabilities.Client
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
-            deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
+            deresult.Should().BeEquivalentTo(model, o => o
+                .ConfigureForSupports(Logger));
         }
 
         [Theory, JsonFixture]

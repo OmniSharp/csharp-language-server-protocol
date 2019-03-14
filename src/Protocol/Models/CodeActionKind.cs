@@ -76,6 +76,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public string Kind { get; }
-
     }
 }

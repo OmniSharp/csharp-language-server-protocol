@@ -67,6 +67,31 @@
                     "newText": "new text3"
                 }
             ]
+        },
+        {
+            "kind": "create",
+            "uri": "file:///abc/123/b.cs",
+            "options": {
+                "overwrite": true,
+                "ignoreIfExists": true
+            }
+        },
+        {
+            "kind": "rename",
+            "oldUri": "file:///abc/123/b.cs",
+            "newUri": "file:///abc/123/c.cs",
+            "options": {
+                "overwrite": true,
+                "ignoreIfExists": true
+            }
+        },
+        {
+            "kind": "delete",
+            "uri": "file:///abc/123/c.cs",
+            "options": {
+                "recursive": false,
+                "ignoreIfNotExists": true
+            }
         }
     ]
 }

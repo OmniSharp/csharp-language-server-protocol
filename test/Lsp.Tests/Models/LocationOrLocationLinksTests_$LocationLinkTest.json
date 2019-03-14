@@ -1,0 +1,35 @@
+[
+    {
+        "originSelectionRange": {
+            "start": {
+                "line": 1,
+                "character": 1
+            },
+            "end": {
+                "line": 3,
+                "character": 3
+            }
+        },
+        "targetUri": "file://asdfasdf/a.tst",
+        "targetRange": {
+            "start": {
+                "line": 1,
+                "character": 1
+            },
+            "end": {
+                "line": 3,
+                "character": 3
+            }
+        },
+        "targetSelectionRange": {
+            "start": {
+                "line": 1,
+                "character": 1
+            },
+            "end": {
+                "line": 3,
+                "character": 3
+            }
+        }
+    }
+]

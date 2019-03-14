@@ -63,12 +63,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 property.ValueProvider = new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
             }
 
-            if (property.DeclaringType == typeof(DocumentSymbolInformation) && property.PropertyType == typeof(SymbolKind))
+            if (property.DeclaringType == typeof(SymbolInformation) && property.PropertyType == typeof(SymbolKind))
             {
                 property.ValueProvider = new RangeValueProvider<SymbolKind>(property.ValueProvider, _documentSymbolKinds);
             }
 
-            if (property.DeclaringType == typeof(WorkspaceSymbolInformation) && property.PropertyType == typeof(SymbolKind))
+            if (property.DeclaringType == typeof(SymbolInformation) && property.PropertyType == typeof(SymbolKind))
             {
                 property.ValueProvider = new RangeValueProvider<SymbolKind>(property.ValueProvider, _workspaceSymbolKinds);
             }

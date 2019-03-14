@@ -40,6 +40,7 @@
         "dynamicRegistration": true
     },
     "definition": {
+        "linkSupport": false,
         "dynamicRegistration": true
     },
     "codeAction": {

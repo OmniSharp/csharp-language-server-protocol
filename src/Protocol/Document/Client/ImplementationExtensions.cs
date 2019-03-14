@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class ImplementationExtensions
     {
-        public static Task<LocationOrLocations> Implementation(this ILanguageClientDocument mediator, ImplementationParams @params)
+        public static Task<LocationOrLocationLinks> Implementation(this ILanguageClientDocument mediator, ImplementationParams @params)
         {
-            return mediator.SendRequest<ImplementationParams, LocationOrLocations>(DocumentNames.Implementation, @params);
+            return mediator.SendRequest<ImplementationParams, LocationOrLocationLinks>(DocumentNames.Implementation, @params);
         }
     }
 }

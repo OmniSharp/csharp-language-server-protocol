@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public MarkedStringContainer MarkedStrings { get; }
-        public bool HasMarkedStrings => this.MarkupContent == null;
+        public bool HasMarkedStrings => MarkupContent == null;
         public MarkupContent MarkupContent { get; }
         public bool HasMarkupContent => MarkedStrings == null;
     }

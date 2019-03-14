@@ -10,6 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Client supports the follow content formats for the content property. The order describes the preferred format of the client.
         /// </summary>
         [Optional]
-        public Container<MarkupKind> ContentFormat { get; set; }
+        public Container<MarkupKind> DocumentationFormat { get; set; }
+
+        [Optional]
+        public SignatureParameterInformationCapability ParameterInformation { get; set; }
     }
 }

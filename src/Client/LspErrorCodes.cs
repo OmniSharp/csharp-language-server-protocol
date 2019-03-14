@@ -44,5 +44,10 @@
         ///     Request was cancelled.
         /// </summary>
         public const int RequestCancelled = -32800;
+
+        /// <summary>
+        ///     Request was cancelled.
+        /// </summary>
+        public const int ContentModified = -32801;
     }
 }

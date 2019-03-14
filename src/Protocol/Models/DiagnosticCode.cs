@@ -18,7 +18,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public long Long { get; set; }
         public bool IsString => this.String != null;
         public string String { get; set; }
-        public object Value => String ?? (object)Long;
 
         public static implicit operator DiagnosticCode(long value)
         {

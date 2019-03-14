@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -9,15 +9,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     {
         public override void WriteJson(JsonWriter writer, BooleanString value, JsonSerializer serializer)
         {
-            var v = value as BooleanString?;
-            if (v.HasValue)
-            {
-                new JValue(value.Value).WriteTo(writer);
-            }
-            else
-            {
-                writer.WriteNull();
-            }
+            if (value.IsBool) serializer.Serialize(writer, value.Bool);
+            if (value.IsString) serializer.Serialize(writer, value.String);
         }
 
         public override BooleanString ReadJson(JsonReader reader, Type objectType, BooleanString existingValue, bool hasExistingValue, JsonSerializer serializer)
