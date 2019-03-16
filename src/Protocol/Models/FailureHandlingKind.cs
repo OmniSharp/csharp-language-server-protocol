@@ -24,5 +24,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [EnumMember(Value = "delete")]
         Delete,
+        /// <summary>
+        /// If the workspace edit contains only textual file changes they are executed transactional.
+        /// If resource changes (create, rename or delete file) are part of the change the failure
+        /// handling strategy is abort.
+        /// </summary>
+        [EnumMember(Value = "textOnlyTransactional")]
+        TextOnlyTransactional,
     }
 }
