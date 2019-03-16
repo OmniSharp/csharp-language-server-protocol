@@ -13,11 +13,11 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialKinds()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new WorkspaceSymbolInformation() {
+            var json = serializer.SerializeObject(new SymbolInformation() {
                 Kind = SymbolKind.Event
             });
 
-            var result = serializer.DeserializeObject<WorkspaceSymbolInformation>(json);
+            var result = serializer.DeserializeObject<SymbolInformation>(json);
             result.Kind.Should().Be(SymbolKind.File);
         }
 
@@ -35,11 +35,11 @@ namespace Lsp.Tests
                     })
                 }
             });
-            var json = serializer.SerializeObject(new WorkspaceSymbolInformation() {
+            var json = serializer.SerializeObject(new SymbolInformation() {
                 Kind = SymbolKind.Event
             });
 
-            var result = serializer.DeserializeObject<WorkspaceSymbolInformation>(json);
+            var result = serializer.DeserializeObject<SymbolInformation>(json);
             result.Kind.Should().Be(SymbolKind.Class);
         }
     }

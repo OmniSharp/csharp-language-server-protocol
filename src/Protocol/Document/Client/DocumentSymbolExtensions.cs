@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentSymbolExtensions
     {
-        public static Task<DocumentSymbolInformationOrDocumentSymbolContainer> DocumentSymbol(this ILanguageClientDocument mediator, DocumentSymbolParams @params)
+        public static Task<SymbolInformationOrDocumentSymbolContainer> DocumentSymbol(this ILanguageClientDocument mediator, DocumentSymbolParams @params)
         {
-            return mediator.SendRequest<DocumentSymbolParams, DocumentSymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, @params);
+            return mediator.SendRequest<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, @params);
         }
     }
 }

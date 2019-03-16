@@ -18,6 +18,7 @@ namespace Lsp.Tests
                 .ComparingByMembers<Supports<HoverCapability>>()
                 .ComparingByMembers<Supports<SignatureHelpCapability>>()
                 .ComparingByMembers<Supports<ReferencesCapability>>()
+                .ComparingByMembers<Supports<DeclarationCapability>>()
                 .ComparingByMembers<Supports<DocumentHighlightCapability>>()
                 .ComparingByMembers<Supports<DocumentSymbolCapability>>()
                 .ComparingByMembers<Supports<DocumentFormattingCapability>>()

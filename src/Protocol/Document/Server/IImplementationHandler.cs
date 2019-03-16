@@ -8,5 +8,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
     [Parallel, Method(Implementation)]
-    public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocations>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ImplementationCapability> { }
+    public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocationLinks>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ImplementationCapability> { }
 }

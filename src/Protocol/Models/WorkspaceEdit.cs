@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -16,10 +15,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// An array of `TextDocumentEdit`s to express changes to n different text documents
         /// where each text document edit addresses a specific version of a text document.
+        /// where each text document edit addresses a specific version of a text document. Or it can contain
+        /// above `TextDocumentEdit`s mixed with create, rename and delete file / folder operations.
+        ///
         /// Whether a client supports versioned document edits is expressed via
         /// `WorkspaceClientCapabilities.workspaceEdit.documentChanges`.
+        ///
+        /// If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
+        /// only plain `TextEdit`s using the `changes` property are supported.
         /// </summary>
         [Optional]
-        public Container<TextDocumentEdit> DocumentChanges { get; set; }
+        public Container<WorkspaceEditDocumentChange> DocumentChanges { get; set; }
     }
 }

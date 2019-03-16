@@ -59,6 +59,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<DefinitionCapability> Definition { get; set; }
 
         /// <summary>
+        /// Capabilities specific to the `textDocument/declaration`
+        /// </summary>
+        public Supports<DeclarationCapability> Declaration { get; set; }
+
+        /// <summary>
         /// Capabilities specific to the `textDocument/codeAction`
         /// </summary>
         public Supports<CodeActionCapability> CodeAction { get; set; }

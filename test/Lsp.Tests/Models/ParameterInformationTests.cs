@@ -12,7 +12,7 @@ namespace Lsp.Tests.Models
     public class ParameterInformationTests
     {
         [Theory, JsonFixture]
-        public void SimpleTest(string expected)
+            public void SimpleTest(string expected)
         {
             var model = new ParameterInformation() {
                 Documentation = "docs",

@@ -7,9 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class WorkspaceSymbolsExtensions
     {
-        public static Task<WorkspaceSymbolInformationContainer> WorkspaceSymbol(this ILanguageClientWorkspace router, WorkspaceSymbolParams @params)
+        public static Task<SymbolInformationContainer> WorkspaceSymbol(this ILanguageClientWorkspace router, WorkspaceSymbolParams @params)
         {
-            return router.SendRequest<WorkspaceSymbolParams, WorkspaceSymbolInformationContainer>(WorkspaceNames.WorkspaceSymbol, @params);
+            return router.SendRequest<WorkspaceSymbolParams, SymbolInformationContainer>(WorkspaceNames.WorkspaceSymbol, @params);
         }
     }
 }

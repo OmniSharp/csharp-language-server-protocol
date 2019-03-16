@@ -4,31 +4,31 @@ using System.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentSymbolInformationContainer : Container<DocumentSymbolInformation>
+    public class DocumentSymbolInformationContainer : Container<SymbolInformationOrDocumentSymbol>
     {
-        public DocumentSymbolInformationContainer() : this(Enumerable.Empty<DocumentSymbolInformation>())
+        public DocumentSymbolInformationContainer() : this(Enumerable.Empty<SymbolInformationOrDocumentSymbol>())
         {
         }
 
-        public DocumentSymbolInformationContainer(IEnumerable<DocumentSymbolInformation> items) : base(items)
+        public DocumentSymbolInformationContainer(IEnumerable<SymbolInformationOrDocumentSymbol> items) : base(items)
         {
         }
 
-        public DocumentSymbolInformationContainer(params DocumentSymbolInformation[] items) : base(items)
+        public DocumentSymbolInformationContainer(params SymbolInformationOrDocumentSymbol[] items) : base(items)
         {
         }
 
-        public static implicit operator DocumentSymbolInformationContainer(DocumentSymbolInformation[] items)
-        {
-            return new DocumentSymbolInformationContainer(items);
-        }
-
-        public static implicit operator DocumentSymbolInformationContainer(Collection<DocumentSymbolInformation> items)
+        public static implicit operator DocumentSymbolInformationContainer(SymbolInformationOrDocumentSymbol[] items)
         {
             return new DocumentSymbolInformationContainer(items);
         }
 
-        public static implicit operator DocumentSymbolInformationContainer(List<DocumentSymbolInformation> items)
+        public static implicit operator DocumentSymbolInformationContainer(Collection<SymbolInformationOrDocumentSymbol> items)
+        {
+            return new DocumentSymbolInformationContainer(items);
+        }
+
+        public static implicit operator DocumentSymbolInformationContainer(List<SymbolInformationOrDocumentSymbol> items)
         {
             return new DocumentSymbolInformationContainer(items);
         }

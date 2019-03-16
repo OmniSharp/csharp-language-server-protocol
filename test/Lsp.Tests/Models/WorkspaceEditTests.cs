@@ -45,7 +45,7 @@ namespace Lsp.Tests.Models
         {
             var model = new WorkspaceEdit()
             {
-                DocumentChanges = new Container<TextDocumentEdit>(
+                DocumentChanges = new Container<WorkspaceEditDocumentChange>(
                         new TextDocumentEdit()
                         {
                             TextDocument = new VersionedTextDocumentIdentifier()
@@ -81,6 +81,28 @@ namespace Lsp.Tests.Models
                                     Range = new Range(new Position(3, 3), new Position(4,4))
                                 }
                             }
+                        },
+                        new CreateFile() {
+                            Uri = "file:///abc/123/b.cs",
+                            Options = new CreateFileOptions() {
+                                IgnoreIfExists = true,
+                                Overwrite = true
+                            }
+                        },
+                        new RenameFile() {
+                            OldUri = "file:///abc/123/b.cs",
+                            NewUri = "file:///abc/123/c.cs",
+                            Options = new RenameFileOptions() {
+                                IgnoreIfExists = true,
+                                Overwrite = true
+                            }
+                        },
+                        new DeleteFile() {
+                            Uri = "file:///abc/123/c.cs",
+                            Options = new DeleteFileOptions() {
+                                IgnoreIfNotExists = true,
+                                Recursive = false
+                            }
                         }
                     )
             };
@@ -89,7 +111,9 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceEdit>(expected);
-            deresult.Should().BeEquivalentTo(model);
+            deresult.Should().BeEquivalentTo(model, x => x
+                .ComparingByMembers<WorkspaceEditDocumentChange>()
+                );
         }
     }
 }

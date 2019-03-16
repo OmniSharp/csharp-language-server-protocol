@@ -31,6 +31,30 @@ namespace Lsp.Tests.Models
         }
 
         [Theory, JsonFixture]
+        public void ParamRangeTest(string expected)
+        {
+            var model = new SignatureInformation() {
+                Documentation = "ab",
+                Label = "ab",
+                Parameters = new[] { new ParameterInformation() {
+                    Documentation = "param",
+                    Label = (1, 2)
+                } }
+            };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureInformation>(expected);
+            deresult.Should().BeEquivalentTo(model, x => x
+                .ComparingByMembers<ValueTuple<long, long>>()
+                .ComparingByMembers<ParameterInformation>()
+                .ComparingByMembers<ParameterInformationLabel>()
+                .ComparingByMembers<SignatureInformation>()
+            );
+        }
+
+        [Theory, JsonFixture]
         public void MarkupContentTest(string expected)
         {
             var model = new SignatureInformation() {

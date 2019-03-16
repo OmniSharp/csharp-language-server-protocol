@@ -59,6 +59,11 @@
             "dynamicRegistration": true
         },
         "definition": {
+            "linkSupport": true,
+            "dynamicRegistration": true
+        },
+        "declaration": {
+            "linkSupport": true,
             "dynamicRegistration": true
         },
         "codeAction": {
@@ -72,6 +77,14 @@
         },
         "rename": {
             "prepareSupport": false,
+            "dynamicRegistration": true
+        },
+        "typeDefinition": {
+            "linkSupport": true,
+            "dynamicRegistration": true
+        },
+        "implementation": {
+            "linkSupport": true,
             "dynamicRegistration": true
         }
     },

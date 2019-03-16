@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -9,16 +9,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     {
         public override void WriteJson(JsonWriter writer, DiagnosticCode value, JsonSerializer serializer)
         {
-            var v = value as DiagnosticCode?;
-
-            if (v.HasValue)
-            {
-                new JValue(v.Value.Value).WriteTo(writer);
-            }
-            else
-            {
-                writer.WriteNull();
-            }
+            if (value.IsLong) serializer.Serialize(writer, value.Long);
+            if (value.IsString) serializer.Serialize(writer, value.String);
         }
 
         public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue, bool hasExistingValue, JsonSerializer serializer)

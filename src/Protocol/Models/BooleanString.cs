@@ -15,34 +15,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _bool = value;
         }
 
-        public bool IsString => this._string != null;
+        public bool IsString => _string != null;
         public string String
         {
-            get { return this._string; }
+            get => _string;
             set
             {
-                this._string = value;
-                this._bool = null;
+                _string = value;
+                _bool = null;
             }
         }
 
-        public bool IsBool => this._bool.HasValue;
+        public bool IsBool => _bool.HasValue;
         public bool Bool
         {
-            get { return this._bool.HasValue && this._bool.Value; }
+            get => _bool.HasValue && _bool.Value;
             set
             {
-                this.String = null;
-                this._bool = value;
-            }
-        }
-        public object Value
-        {
-            get
-            {
-                if (IsBool) return Bool;
-                if (IsString) return String;
-                return null;
+                String = null;
+                _bool = value;
             }
         }
 

@@ -9,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string Completion = "textDocument/completion";
         public const string CompletionResolve = "completionItem/resolve";
         public const string Definition = "textDocument/definition";
+        public const string Declaration = "textDocument/declaration";
         public const string DidChange = "textDocument/didChange";
         public const string DidClose = "textDocument/didClose";
         public const string DidOpen = "textDocument/didOpen";

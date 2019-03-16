@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new SupportsConverter());
             ReplaceConverter(converters, new CompletionListConverter());
             ReplaceConverter(converters, new DiagnosticCodeConverter());
-            ReplaceConverter(converters, new LocationOrLocationsConverter());
+            ReplaceConverter(converters, new LocationOrLocationLinksConverter());
             ReplaceConverter(converters, new MarkedStringCollectionConverter());
             ReplaceConverter(converters, new MarkedStringConverter());
             ReplaceConverter(converters, new StringOrMarkupContentConverter());
@@ -70,7 +70,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new BooleanOrConverter());
             ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
             ReplaceConverter(converters, new CommandOrCodeActionConverter());
-            ReplaceConverter(converters, new DocumentSymbolInformationOrDocumentSymbolConverter());
+            ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
+            ReplaceConverter(converters, new LocationOrLocationLinkConverter());
+            ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
+            ReplaceConverter(converters, new ParameterInformationLabelConverter());
+            ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
         }
 
         private static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)

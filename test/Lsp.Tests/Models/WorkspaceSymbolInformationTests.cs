@@ -13,7 +13,7 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new WorkspaceSymbolInformation() {
+            var model = new SymbolInformation() {
                 ContainerName = "abc",
                 Kind = SymbolKind.Boolean,
                 Location = new Location() {
@@ -26,7 +26,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceSymbolInformation>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SymbolInformation>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }
