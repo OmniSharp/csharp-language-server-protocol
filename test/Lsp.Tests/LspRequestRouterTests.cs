@@ -30,6 +30,25 @@ using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Se
 
 namespace Lsp.Tests
 {
+    public class TestLanguageServerRegistry : ILanguageServerRegistry
+    {
+        internal List<IJsonRpcHandler> Handlers = new List<IJsonRpcHandler>();
+        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable AddHandler<T>() where T : IJsonRpcHandler
+        {
+            throw new NotImplementedException();
+        }
+
+        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
+        {
+            Handlers.AddRange(handlers);
+            return new Disposable(() => { });
+        }
+    }
     public class LspRequestRouterTests : AutoTestBase
     {
         public LspRequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
@@ -131,13 +150,18 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandOrCodeActionContainer());
 
-            var codeActionHandler2 = Substitute.For<ICodeActionHandler>();
-            codeActionHandler2.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") });
-            codeActionHandler2
-                .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
+            var registry = new TestLanguageServerRegistry();
+            var codeActionDelegate = Substitute.For<Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>>>();
+            codeActionDelegate.Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandOrCodeActionContainer());
+            registry.OnCodeAction(
+                codeActionDelegate,
+                new TextDocumentRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") }
+            );
 
-            AutoSubstitute.Provide<IHandlerCollection>(new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 });
+            var handlerCollection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler };
+            handlerCollection.Add(registry.Handlers);
+            AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -151,7 +175,7 @@ namespace Lsp.Tests
             await mediator.RouteRequest(mediator.GetDescriptor(request), request);
 
             await codeActionHandler.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
-            await codeActionHandler2.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
+            await codeActionDelegate.Received(1).Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -217,7 +241,7 @@ namespace Lsp.Tests
         {
             bool wasShutDown = false;
 
-            var shutdownHandler = new ShutdownHandler();
+            var shutdownHandler = new ServerShutdownHandler();
             shutdownHandler.Shutdown.Subscribe(shutdownRequested =>
             {
                 wasShutDown = true;
@@ -241,7 +265,7 @@ namespace Lsp.Tests
         public async Task ShouldHandle_Request_WithMissingParameters()
         {
             bool wasShutdown = false;
-            var shutdownHandler = new ShutdownHandler();
+            var shutdownHandler = new ServerShutdownHandler();
             shutdownHandler.Shutdown.Subscribe(shutdownRequested =>
             {
                 wasShutdown = true;

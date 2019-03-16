@@ -7,11 +7,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
-    public class CancelRequestHandler : ICancelRequestHandler
+    public class ServerCancelRequestHandler : ICancelRequestHandler
     {
         private readonly ILspRequestRouter _requestRouter;
 
-        internal CancelRequestHandler(ILspRequestRouter requestRouter)
+        public ServerCancelRequestHandler(ILspRequestRouter requestRouter)
         {
             _requestRouter = requestRouter;
         }
