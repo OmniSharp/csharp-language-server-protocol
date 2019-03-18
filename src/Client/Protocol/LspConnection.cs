@@ -387,7 +387,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 {
                     _outgoing.TryAdd(new ClientMessage
                     {
-                        Method = GeneralNames.CancelRequest,
+                        Method = JsonRpcNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
                         )
@@ -450,7 +450,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 {
                     _outgoing.TryAdd(new ClientMessage
                     {
-                        Method = GeneralNames.CancelRequest,
+                        Method = JsonRpcNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
                         )
@@ -817,7 +817,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                     if (message.Id != null)
                     {
                         // Request.
-                        if (message.Method == GeneralNames.CancelRequest)
+                        if (message.Method == JsonRpcNames.CancelRequest)
                             CancelRequest(message);
                         else
                             DispatchRequest(message);

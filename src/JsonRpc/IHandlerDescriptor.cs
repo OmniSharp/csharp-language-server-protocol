@@ -9,6 +9,8 @@ namespace OmniSharp.Extensions.JsonRpc
         Type ImplementationType { get; }
         Type Params { get; }
         Type Response { get; }
+        bool HasReturnType { get; }
+        bool IsDelegatingHandler { get; }
         IJsonRpcHandler Handler { get; }
     }
 }

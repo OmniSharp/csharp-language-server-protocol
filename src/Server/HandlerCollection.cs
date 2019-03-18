@@ -13,13 +13,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class HandlerCollection : IHandlerCollection
     {
+        private static readonly MethodInfo GetRegistrationMethod = typeof(HandlerCollection)
+            .GetTypeInfo()
+            .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static);
         private readonly ISupportedCapabilities _supportedCapabilities;
         private readonly HashSet<HandlerDescriptor> _textDocumentIdentifiers = new HashSet<HandlerDescriptor>();
         internal readonly HashSet<HandlerDescriptor> _handlers = new HashSet<HandlerDescriptor>();
+        private IServiceProvider _serviceProvider;
+
 
         public HandlerCollection(ISupportedCapabilities supportedCapabilities)
         {
             _supportedCapabilities = supportedCapabilities;
+        }
+
+        public void SetServiceProvider(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerable<ITextDocumentIdentifier> TextDocumentIdentifiers()
@@ -46,14 +56,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return new LspHandlerDescriptorDisposable(descriptor);
         }
 
-        public LspHandlerDescriptorDisposable Add(string method, IServiceProvider serviceProvider, Type handlerType)
+        public LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
         {
-            var descriptor = GetDescriptor(method, handlerType, serviceProvider);
+            var handler = handlerFunc(_serviceProvider);
+            var descriptor = GetDescriptor(method, handler.GetType(), handler);
             _handlers.Add(descriptor);
             return new LspHandlerDescriptorDisposable(descriptor);
         }
 
-        public LspHandlerDescriptorDisposable Add(IServiceProvider serviceProvider, params Type[] handlerTypes)
+        public LspHandlerDescriptorDisposable Add(string method, Type handlerType)
+        {
+            var descriptor = GetDescriptor(method, handlerType, _serviceProvider);
+            _handlers.Add(descriptor);
+            return new LspHandlerDescriptorDisposable(descriptor);
+        }
+
+        public LspHandlerDescriptorDisposable Add(params Type[] handlerTypes)
         {
             var descriptors = new HashSet<HandlerDescriptor>();
             foreach (var handlerType in handlerTypes)
@@ -63,7 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     .Select(x => (method: LspHelper.GetMethodName(x), implementedInterface: x))
                     .Where(x => !string.IsNullOrWhiteSpace(x.method)))
                 {
-                    descriptors.Add(GetDescriptor(method, implementedInterface, serviceProvider));
+                    descriptors.Add(GetDescriptor(method, implementedInterface, _serviceProvider));
                 }
             }
 
@@ -199,10 +217,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             return this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
         }
-
-        private static readonly MethodInfo GetRegistrationMethod = typeof(HandlerCollection)
-            .GetTypeInfo()
-            .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static);
 
         private static object GetRegistration<T>(IRegistration<T> registration)
         {

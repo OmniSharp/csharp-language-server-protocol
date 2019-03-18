@@ -1,17 +1,20 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IRequestRouter
+    public interface IRequestRouter<TDescriptor>
     {
-        IHandlerDescriptor GetDescriptor(Notification notification);
-        IHandlerDescriptor GetDescriptor(Request request);
+        TDescriptor GetDescriptor(Notification notification);
+        TDescriptor GetDescriptor(Request request);
 
-        Task RouteNotification(Notification notification);
-        Task RouteNotification(IHandlerDescriptor descriptor, Notification notification);
-        Task<ErrorResponse> RouteRequest(Request request);
-        Task<ErrorResponse> RouteRequest(IHandlerDescriptor descriptor, Request request);
+        Task RouteNotification(Notification notification, CancellationToken token);
+        Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token);
+        Task<ErrorResponse> RouteRequest(Request request, CancellationToken token);
+        Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token);
+
+        void CancelRequest(object id);
     }
 }

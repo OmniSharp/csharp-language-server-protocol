@@ -3,8 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 
-// ReSharper disable once CheckNamespace
-namespace Microsoft.Extensions.Logging
+namespace OmniSharp.Extensions.JsonRpc
 {
     internal static class TimeLoggerExtensions
     {

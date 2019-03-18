@@ -47,6 +47,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces
                 .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
+
+            HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
+                @interface.IsGenericType &&
+                typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
+            );
+
+            IsDelegatingHandler = @params?.IsGenericType == true &&
+                (
+                    typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
+                    typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
+                );
         }
 
         public Type ImplementationType { get; }
@@ -63,9 +74,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public string Key { get; }
         public Type Params { get; }
         public Type Response { get; }
+        public bool IsDelegatingHandler { get; }
 
         public bool IsDynamicCapability => typeof(DynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
         public Type CanBeResolvedHandlerType { get; }
+        public bool HasReturnType { get; }
 
         public IJsonRpcHandler Handler { get; }
 

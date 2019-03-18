@@ -11,9 +11,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public interface ILanguageServer : OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer, OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServerRegistry, IDisposable
     {
-        IDisposable AddHandlers(params Type[] handlerTypes);
-        IDisposable AddHandler(string method, Type handlerType);
-
         InitializeParams ClientSettings { get; }
         InitializeResult ServerSettings { get; }
         IServiceProvider Services { get; }

@@ -3,15 +3,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.Embedded.MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 // ReSharper disable CheckNamespace
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.JsonRpc
 {
-    [Parallel, Method(GeneralNames.CancelRequest)]
+    [Parallel, Method(JsonRpcNames.CancelRequest)]
     public interface ICancelRequestHandler : IJsonRpcNotificationHandler<CancelParams> { }
 
     public abstract class CancelRequestHandler : ICancelRequestHandler
@@ -21,11 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     public static class CancelRequestHandlerExtensions
     {
-        public static IDisposable OnCancelRequest(this ILanguageServerRegistry registry, Func<CancelParams, CancellationToken, Task<Unit>> handler)
-        {
-            return registry.AddHandlers(new DelegatingHandler(handler));
-        }
-        public static IDisposable OnCancelRequest(this ILanguageClientRegistry registry, Func<CancelParams, CancellationToken, Task<Unit>> handler)
+        public static IDisposable OnCancelRequest(this IJsonRpcHandlerRegistry registry, Func<CancelParams, CancellationToken, Task<Unit>> handler)
         {
             return registry.AddHandlers(new DelegatingHandler(handler));
         }

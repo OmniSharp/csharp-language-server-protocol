@@ -7,14 +7,14 @@ namespace OmniSharp.Extensions.JsonRpc
     public class Connection : IDisposable
     {
         private readonly IInputHandler _inputHandler;
-        private readonly IRequestRouter _requestRouter;
+        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
 
         public Connection(
             Stream input,
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter requestRouter,
+            IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
             ISerializer serializer)

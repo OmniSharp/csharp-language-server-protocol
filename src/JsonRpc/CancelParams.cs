@@ -2,7 +2,7 @@ using OmniSharp.Extensions.Embedded.MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class CancelParams : IRequest
     {

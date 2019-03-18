@@ -27,12 +27,16 @@ using Xunit.Sdk;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
+using System.Reactive.Disposables;
 
 namespace Lsp.Tests
 {
     public class TestLanguageServerRegistry : ILanguageServerRegistry
     {
         internal List<IJsonRpcHandler> Handlers = new List<IJsonRpcHandler>();
+
+        public OmniSharp.Extensions.JsonRpc.ISerializer Serializer => new Serializer();
+
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             throw new NotImplementedException();
@@ -43,10 +47,15 @@ namespace Lsp.Tests
             throw new NotImplementedException();
         }
 
+        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        {
+            throw new NotImplementedException();
+        }
+
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
         {
             Handlers.AddRange(handlers);
-            return new Disposable(() => { });
+            return Disposable.Empty;
         }
     }
     public class LspRequestRouterTests : AutoTestBase
@@ -67,6 +76,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams()
@@ -76,7 +86,7 @@ namespace Lsp.Tests
 
             var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteNotification(mediator.GetDescriptor(request), request);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await textDocumentSyncHandler.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>());
         }
@@ -91,6 +101,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams()
@@ -100,7 +111,7 @@ namespace Lsp.Tests
 
             var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteNotification(mediator.GetDescriptor(request), request);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await textDocumentSyncHandler.Received(0).Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>());
             await textDocumentSyncHandler2.Received(1).Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>());
@@ -120,6 +131,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -130,7 +142,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }
@@ -162,6 +174,7 @@ namespace Lsp.Tests
             var handlerCollection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler };
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -172,7 +185,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
             await codeActionDelegate.Received(1).Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
@@ -200,6 +213,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -210,7 +224,7 @@ namespace Lsp.Tests
 
             var request = new Request(id, DocumentNames.CodeLens, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler2.Received(0).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
@@ -226,12 +240,13 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
             var request = new Request(id, GeneralNames.Shutdown, new JObject());
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await handler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
         }
@@ -249,6 +264,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             JToken @params = JValue.CreateNull(); // If the "params" property present but null, this will be JTokenType.Null.
@@ -256,7 +272,7 @@ namespace Lsp.Tests
             var id = Guid.NewGuid().ToString();
             var request = new Request(id, GeneralNames.Shutdown, @params);
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             Assert.True(wasShutDown, "WasShutDown");
         }
@@ -273,6 +289,7 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             JToken @params = null; // If the "params" property was missing entirely, this will be null.
@@ -280,7 +297,7 @@ namespace Lsp.Tests
             var id = Guid.NewGuid().ToString();
             var request = new Request(id, GeneralNames.Shutdown, @params);
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             Assert.True(shutdownHandler.ShutdownRequested, "WasShutDown");
         }

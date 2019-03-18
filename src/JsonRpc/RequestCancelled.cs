@@ -1,7 +1,7 @@
 ﻿using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace OmniSharp.Extensions.LanguageServer.Server.Messages
+namespace OmniSharp.Extensions.JsonRpc
 {
     public class RequestCancelled : RpcError
     {
