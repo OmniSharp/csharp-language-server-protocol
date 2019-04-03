@@ -18,24 +18,9 @@ namespace Lsp.Tests
 {
     public class ClientCapabilityProviderTests
     {
-        private static readonly Type[] Capabilities = {
-            typeof(CompletionCapability),
-            typeof(HoverCapability),
-            typeof(SignatureHelpCapability),
-            typeof(ReferencesCapability),
-            typeof(DocumentHighlightCapability),
-            typeof(DocumentSymbolCapability),
-            typeof(DocumentFormattingCapability),
-            typeof(DocumentRangeFormattingCapability),
-            typeof(DocumentOnTypeFormattingCapability),
-            typeof(DefinitionCapability),
-            typeof(CodeActionCapability),
-            typeof(CodeLensCapability),
-            typeof(DocumentLinkCapability),
-            typeof(RenameCapability),
-            typeof(WorkspaceSymbolCapability),
-            typeof(ExecuteCommandCapability),
-        };
+        private static readonly Type[] Capabilities = typeof(ClientCapabilities).Assembly.GetTypes()
+            .Where(x => x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ConnectedCapability<>)))
+            .ToArray();
 
         [Theory, MemberData(nameof(AllowSupportedCapabilities))]
         public void Should_AllowSupportedCapabilities(IJsonRpcHandler handler, object instance)
@@ -51,8 +36,8 @@ namespace Lsp.Tests
         public static IEnumerable<object[]> AllowSupportedCapabilities()
         {
             return GetItems(Capabilities, type => {
-                var handlerType = GetHandlerType(type);
-                var handler = Substitute.For(new Type[] { handlerType }, new object[0]);
+                var handlerTypes = GetHandlerTypes(type);
+                var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true, Activator.CreateInstance(type)) };
             });
         }
@@ -99,8 +84,8 @@ namespace Lsp.Tests
         public static IEnumerable<object[]> DisallowUnsupportedCapabilities()
         {
             return GetItems(Capabilities, type => {
-                var handlerType = GetHandlerType(type);
-                var handler = Substitute.For(new Type[] { handlerType }, new object[0]);
+                var handlerTypes = GetHandlerTypes(type);
+                var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
             });
         }
@@ -119,8 +104,8 @@ namespace Lsp.Tests
         public static IEnumerable<object[]> DisallowNullSupportsCapabilities()
         {
             return GetItems(Capabilities, type => {
-                var handlerType = GetHandlerType(type);
-                var handler = Substitute.For(new Type[] { handlerType }, new object[0]);
+                var handlerTypes = GetHandlerTypes(type);
+                var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
             });
         }
@@ -150,11 +135,11 @@ namespace Lsp.Tests
             return types.Select(x => func(x).ToArray());
         }
 
-        private static Type GetHandlerType(Type type)
+        private static IEnumerable<Type> GetHandlerTypes(Type type)
         {
             return type.GetTypeInfo().ImplementedInterfaces
-                .Single(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
-                .GetTypeInfo().GetGenericArguments()[0];
+                .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
+                .Select(x => x.GetTypeInfo().GetGenericArguments()[0]);
         }
     }
 }
