@@ -1,0 +1,23 @@
+{
+    "codeActionKinds": [
+        "quickfix",
+        "refactor",
+        "refactor.extract",
+        "refactor.inline",
+        "refactor.rewrite",
+        "source",
+        "source.organizeImports"
+    ],
+    "documentSelector": [
+        {
+            "language": "csharp",
+            "scheme": "scheme",
+            "pattern": "pattern"
+        },
+        {
+            "language": "vb",
+            "scheme": "scheme",
+            "pattern": "pattern"
+        }
+    ]
+}
