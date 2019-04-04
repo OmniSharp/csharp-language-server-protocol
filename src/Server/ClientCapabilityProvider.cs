@@ -25,10 +25,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (capability.Value == null) return false;
             if (capability.Value.DynamicRegistration == true) return false;
 
-            var handlerType = typeof(T).GetTypeInfo().ImplementedInterfaces
-                .Single(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
-                .GetTypeInfo().GetGenericArguments()[0].GetTypeInfo();
-            return !capability.Value.DynamicRegistration == true && _collection.ContainsHandler(handlerType);
+            var handlerTypes = typeof(T).GetTypeInfo().ImplementedInterfaces
+                .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
+                .Select(x => x.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo());
+
+            return handlerTypes.All(_collection.ContainsHandler);
         }
 
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
