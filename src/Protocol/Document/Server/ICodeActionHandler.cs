@@ -8,5 +8,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     using static DocumentNames;
     [Parallel, Method(CodeAction)]
-    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<CodeActionCapability> { }
+    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability> { }
 }
