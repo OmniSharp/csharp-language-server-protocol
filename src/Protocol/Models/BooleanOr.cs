@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public struct BooleanOr<T>
+    public class BooleanOr<T>
     {
         private T _value;
         private bool? _bool;

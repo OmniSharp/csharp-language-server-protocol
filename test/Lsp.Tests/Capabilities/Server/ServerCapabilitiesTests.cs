@@ -59,7 +59,24 @@ namespace Lsp.Tests.Capabilities.Server
                     WillSaveWaitUntil = true
                 }),
                 WorkspaceSymbolProvider = true,
+                ColorProvider = true,
+                FoldingRangeProvider = true,
+                ImplementationProvider = true,
+                TypeDefinitionProvider = true
             };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
+
+        [Theory, JsonFixture]
+        public void Optional(string expected)
+        {
+            var model = new ServerCapabilities();
+
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
