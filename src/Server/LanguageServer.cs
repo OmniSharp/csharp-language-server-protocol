@@ -296,7 +296,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var serverCapabilities = new ServerCapabilities()
             {
-                CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
+                CodeActionProvider = textDocumentCapabilities.CodeAction.IsSupported && textDocumentCapabilities.CodeAction.Value.CodeActionLiteralSupport != null
+                    ? (BooleanOr<CodeActionOptions>) ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of)
+                    : false,
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
                 DefinitionProvider = ccp.HasStaticHandler(textDocumentCapabilities.Definition),
