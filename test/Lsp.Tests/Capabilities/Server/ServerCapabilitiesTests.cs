@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
@@ -75,7 +76,9 @@ namespace Lsp.Tests.Capabilities.Server
         [Theory, JsonFixture]
         public void Optional(string expected)
         {
-            var model = new ServerCapabilities();
+            var model = new ServerCapabilities {
+                ColorProvider = (ColorOptions)null
+            };
 
             var result = Fixture.SerializeObject(model);
 
