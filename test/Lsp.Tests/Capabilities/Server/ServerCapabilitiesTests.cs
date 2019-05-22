@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
@@ -59,7 +60,26 @@ namespace Lsp.Tests.Capabilities.Server
                     WillSaveWaitUntil = true
                 }),
                 WorkspaceSymbolProvider = true,
+                ColorProvider = true,
+                FoldingRangeProvider = true,
+                ImplementationProvider = true,
+                TypeDefinitionProvider = true
             };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
+
+        [Theory, JsonFixture]
+        public void Optional(string expected)
+        {
+            var model = new ServerCapabilities {
+                ColorProvider = (ColorOptions)null
+            };
+
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

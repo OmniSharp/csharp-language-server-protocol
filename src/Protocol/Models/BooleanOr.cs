@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public struct BooleanOr<T>
+    public class BooleanOr<T>
     {
         private T _value;
         private bool? _bool;
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator BooleanOr<T>(T value)
         {
-            return new BooleanOr<T>(value);
+            return value != null ? new BooleanOr<T>(value) : null;
         }
 
         public static implicit operator BooleanOr<T>(bool value)

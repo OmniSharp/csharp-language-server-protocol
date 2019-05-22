@@ -54,10 +54,6 @@
         },
         "experimental": {
             "abc": "123"
-        },
-        "typeDefinitionProvider": null,
-        "implementationProvider": null,
-        "colorProvider": null,
-        "foldingRangeProvider": null
+        }
     }
 }

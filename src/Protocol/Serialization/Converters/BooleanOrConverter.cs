@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return;
             }
 
-            if (value.IsBool && value.Bool)
+            if (value.IsBool)
             {
                 new JValue(value.Bool).WriteTo(writer);
                 return;
@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new BooleanOr<T>(JObject.Load(reader).ToObject<T>(serializer));
             }
 
-            return new BooleanOr<T>();
+            return new BooleanOr<T>(default(T));
         }
 
         public override bool CanRead => true;
