@@ -51,10 +51,10 @@ namespace Lsp.Tests.Models
                             DidSave = true,
                             WillSaveWaitUntil = true
                         },
-                        FoldingRangeProvider = new FoldingRangeCapability {
+                        FoldingRange = new FoldingRangeCapability {
                             DynamicRegistration = true,
                             LineFoldingOnly = true,
-                            RangeLimit = 500,
+                            RangeLimit = 5000,
                         }
                     },
                     Workspace = new WorkspaceClientCapabilities() {

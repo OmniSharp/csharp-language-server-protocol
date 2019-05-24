@@ -88,9 +88,9 @@
             "dynamicRegistration": true
         },
         "foldingRange": {
-          "dynamicRegistration": true,
-          "rangeLimit": 5000,
-          "lineFoldingOnly": true
+            "rangeLimit": 5000,
+            "lineFoldingOnly": true,
+            "dynamicRegistration": true
         }
     },
     "experimental": {

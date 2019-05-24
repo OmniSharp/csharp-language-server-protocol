@@ -109,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// Since 3.10.0
         /// </summary>
-        public Supports<FoldingRangeCapability> FoldingRangeProvider { get; set; }
+        public Supports<FoldingRangeCapability> FoldingRange { get; set; }
 
         /// <summary>
         /// Capabilities specific to `textDocument/publishDiagnostics`.

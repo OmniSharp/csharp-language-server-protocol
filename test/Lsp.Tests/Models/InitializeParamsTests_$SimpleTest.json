@@ -78,10 +78,10 @@
                 "dynamicRegistration": true
             },
             "foldingRange": {
-                "dynamicRegistration": true,
                 "rangeLimit": 5000,
-                "lineFoldingOnly": true
-            },
+                "lineFoldingOnly": true,
+                "dynamicRegistration": true
+            }
         },
         "experimental": {
             "abc": "test"
