@@ -76,7 +76,12 @@
             "rename": {
                 "prepareSupport": false,
                 "dynamicRegistration": true
-            }
+            },
+            "foldingRange": {
+                "dynamicRegistration": true,
+                "rangeLimit": 5000,
+                "lineFoldingOnly": true
+            },
         },
         "experimental": {
             "abc": "test"

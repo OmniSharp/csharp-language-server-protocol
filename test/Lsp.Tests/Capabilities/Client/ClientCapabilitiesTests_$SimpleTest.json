@@ -86,6 +86,11 @@
         "implementation": {
             "linkSupport": true,
             "dynamicRegistration": true
+        },
+        "foldingRange": {
+          "dynamicRegistration": true,
+          "rangeLimit": 5000,
+          "lineFoldingOnly": true
         }
     },
     "experimental": {
