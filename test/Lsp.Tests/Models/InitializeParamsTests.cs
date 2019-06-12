@@ -50,6 +50,11 @@ namespace Lsp.Tests.Models
                             WillSave = true,
                             DidSave = true,
                             WillSaveWaitUntil = true
+                        },
+                        FoldingRange = new FoldingRangeCapability {
+                            DynamicRegistration = true,
+                            LineFoldingOnly = true,
+                            RangeLimit = 5000,
                         }
                     },
                     Workspace = new WorkspaceClientCapabilities() {
