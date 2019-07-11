@@ -27,6 +27,16 @@ namespace OmniSharp.Extensions.JsonRpc
                 HandlerType = handlerInterface;
                 Params = @params;
                 Response = response;
+                HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
+                    @interface.IsGenericType &&
+                    typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
+                );
+
+                IsDelegatingHandler = @params?.IsGenericType == true &&
+                    (
+                        typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
+                        typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
+                    );
             }
 
             public IJsonRpcHandler Handler { get; }
@@ -35,6 +45,8 @@ namespace OmniSharp.Extensions.JsonRpc
             public string Method { get; }
             public Type Params { get; }
             public Type Response { get; }
+            public bool HasReturnType { get; }
+            public bool IsDelegatingHandler { get; }
 
             public void Dispose()
             {
@@ -61,7 +73,8 @@ namespace OmniSharp.Extensions.JsonRpc
         public IDisposable Add(params IJsonRpcHandler[] handlers)
         {
             var cd = new CompositeDisposable();
-            foreach (var handler in handlers){
+            foreach (var handler in handlers)
+            {
                 cd.Add(Add(GetMethodName(handler.GetType()), handler));
             }
             return cd;
@@ -80,7 +93,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 var requestInterface = @params.GetInterfaces()
                     .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
                 if (requestInterface != null)
+                {
                     response = requestInterface.GetGenericArguments()[0];
+                }
             }
 
             var h = new HandlerInstance(method, handler, @interface, @params, response, () => Remove(handler));

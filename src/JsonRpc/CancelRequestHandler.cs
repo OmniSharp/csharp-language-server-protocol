@@ -2,16 +2,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.Embedded.MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
+namespace OmniSharp.Extensions.JsonRpc
 {
-    public class CancelRequestHandler : ICancelRequestHandler
+    public class CancelRequestHandler<TDescriptor> : ICancelRequestHandler
     {
-        private readonly ILspRequestRouter _requestRouter;
+        private readonly IRequestRouter<TDescriptor> _requestRouter;
 
-        internal CancelRequestHandler(ILspRequestRouter requestRouter)
+        public CancelRequestHandler(IRequestRouter<TDescriptor> requestRouter)
         {
             _requestRouter = requestRouter;
         }

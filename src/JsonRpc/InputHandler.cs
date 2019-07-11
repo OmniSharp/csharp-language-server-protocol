@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IReciever _reciever;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
         private Thread _inputThread;
-        private readonly IRequestRouter _requestRouter;
+        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
         private readonly IResponseRouter _responseRouter;
         private readonly ISerializer _serializer;
         private readonly ILogger<InputHandler> _logger;
@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.JsonRpc
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter requestRouter,
+            IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
             ISerializer serializer
@@ -179,7 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             try
                             {
-                                var result = await _requestRouter.RouteRequest(descriptor, item.Request);
+                                var result = await _requestRouter.RouteRequest(descriptor, item.Request, CancellationToken.None);
                                 _outputHandler.Send(result.Value);
                             }
                             catch (Exception e)
@@ -205,7 +205,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             try
                             {
-                                await _requestRouter.RouteNotification(descriptor, item.Notification);
+                                await _requestRouter.RouteNotification(descriptor, item.Notification, CancellationToken.None);
                             }
                             catch (Exception e)
                             {

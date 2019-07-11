@@ -12,11 +12,11 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
-    public class ShutdownHandler : IShutdownHandler
+    public class ServerShutdownHandler : IShutdownHandler
     {
         private readonly ISubject<bool> _shutdownSubject;
 
-        public ShutdownHandler()
+        public ServerShutdownHandler()
         {
             Shutdown = _shutdownSubject = new AsyncSubject<bool>();
         }

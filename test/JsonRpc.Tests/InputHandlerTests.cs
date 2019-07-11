@@ -25,7 +25,7 @@ namespace JsonRpc.Tests
             IOutputHandler outputHandler,
             IReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter requestRouter,
+            IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             Action<CancellationTokenSource> action)
         {
@@ -61,7 +61,7 @@ namespace JsonRpc.Tests
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
-                Substitute.For<IRequestRouter>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 Substitute.For<IResponseRouter>(),
                 cts =>
                 {
@@ -88,7 +88,7 @@ namespace JsonRpc.Tests
                 Substitute.For<IOutputHandler>(),
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
-                Substitute.For<IRequestRouter>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 Substitute.For<IResponseRouter>(),
                 cts =>
                 {
@@ -119,7 +119,7 @@ namespace JsonRpc.Tests
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
-                Substitute.For<IRequestRouter>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 Substitute.For<IResponseRouter>(),
                 cts =>
                 {
@@ -140,7 +140,7 @@ namespace JsonRpc.Tests
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
             var reciever = Substitute.For<IReciever>();
-            var incomingRequestRouter = Substitute.For<IRequestRouter>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var req = new Request(1, "abc", null);
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
@@ -149,7 +149,7 @@ namespace JsonRpc.Tests
 
             var response = new Response(1);
 
-            incomingRequestRouter.RouteRequest(Arg.Any<IHandlerDescriptor>(), req)
+            incomingRequestRouter.RouteRequest(Arg.Any<IHandlerDescriptor>(), req, CancellationToken.None)
                 .Returns(response);
 
             using (NewHandler(
@@ -178,7 +178,7 @@ namespace JsonRpc.Tests
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
             var reciever = Substitute.For<IReciever>();
-            var incomingRequestRouter = Substitute.For<IRequestRouter>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var error = new RpcError(1, new ErrorMessage(1, "abc"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
@@ -212,7 +212,7 @@ namespace JsonRpc.Tests
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
             var reciever = Substitute.For<IReciever>();
-            var incomingRequestRouter = Substitute.For<IRequestRouter>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var notification = new Notification("abc", null);
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
@@ -228,14 +228,14 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts =>
                 {
-                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<IHandlerDescriptor>(), Arg.Any<Notification>()))
+                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<IHandlerDescriptor>(), Arg.Any<Notification>(), CancellationToken.None))
                         .Do(x =>
                         {
                             cts.Cancel();
                         });
                 }))
             {
-                await incomingRequestRouter.Received().RouteNotification(Arg.Any<IHandlerDescriptor>(), notification);
+                await incomingRequestRouter.Received().RouteNotification(Arg.Any<IHandlerDescriptor>(), notification, CancellationToken.None);
             }
         }
 
@@ -260,7 +260,7 @@ namespace JsonRpc.Tests
                 outputHandler,
                 reciever,
                 Substitute.For<IRequestProcessIdentifier>(),
-                Substitute.For<IRequestRouter>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
                 responseRouter,
                 cts =>
                 {

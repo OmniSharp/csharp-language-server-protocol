@@ -25,15 +25,16 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+using System.Reactive.Disposables;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
-        private readonly ILspRequestRouter _requestRouter;
-        private readonly ShutdownHandler _shutdownHandler = new ShutdownHandler();
-        private readonly ExitHandler _exitHandler;
+        private readonly IRequestRouter<ILspHandlerDescriptor> _requestRouter;
+        private readonly ServerShutdownHandler _shutdownHandler = new ServerShutdownHandler();
+        private readonly ServerExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
         private readonly ILspReciever _reciever;
         private readonly ISerializer _serializer;
@@ -75,6 +76,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.Services,
                 options.HandlerTypes.Select(x => x.Assembly)
                     .Distinct().Concat(options.HandlerAssemblies),
+                options.Handlers,
+                options.NamedHandlers,
+                options.NamedServiceHandlers,
                 options.InitializeDelegates,
                 options.InitializedDelegates
             );
@@ -96,6 +100,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ISerializer serializer,
             IServiceCollection services,
             IEnumerable<Assembly> assemblies,
+            IEnumerable<IJsonRpcHandler> handlers,
+            IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
+            IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates)
         {
@@ -105,7 +112,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
-            _collection = new HandlerCollection(_supportedCapabilities);
+            var collection = new HandlerCollection(_supportedCapabilities);
+            _collection = collection;
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
 
@@ -124,8 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<ILanguageServer>(this);
             services.AddTransient<IHandlerMatcher, ExecuteCommandMatcher>();
             services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();
-            services.AddSingleton<ILspRequestRouter, LspRequestRouter>();
-            services.AddSingleton<IRequestRouter>(_ => _.GetRequiredService<ILspRequestRouter>());
+            services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>, LspRequestRouter>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
 
@@ -147,19 +154,29 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             _serviceProvider = services.BuildServiceProvider();
+            collection.SetServiceProvider(_serviceProvider);
 
-            _requestRouter = _serviceProvider.GetRequiredService<ILspRequestRouter>();
+            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
-            _exitHandler = new ExitHandler(_shutdownHandler);
+            _exitHandler = new ServerExitHandler(_shutdownHandler);
 
             _disposable.Add(
-                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler(_requestRouter))
+                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(_requestRouter))
             );
 
-            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
-            _collection.Add(handlers);
+            var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            _disposable.Add(_collection.Add(serviceHandlers));
+            _disposable.Add(_collection.Add(handlers));
+            foreach (var (name, handler) in namedHandlers)
+            {
+                _disposable.Add(_collection.Add(name, handler));
+            }
+            foreach (var (name, handlerFunc) in namedServiceHandlers)
+            {
+                _disposable.Add(_collection.Add(name, handlerFunc(_serviceProvider)));
+            }
 
             Document = new LanguageServerDocument(_responseRouter);
             Client = new LanguageServerClient(_responseRouter);
@@ -188,6 +205,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return RegisterHandlers(handlerDisposable);
         }
 
+        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        {
+            var handlerDisposable = _collection.Add(method, handlerFunc);
+            return RegisterHandlers(handlerDisposable);
+        }
+
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
         {
             var handlerDisposable = _collection.Add(handlers);
@@ -196,7 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IDisposable AddHandler(string method, Type handlerType)
         {
-            var handlerDisposable = _collection.Add(method, _serviceProvider, handlerType);
+            var handlerDisposable = _collection.Add(method, handlerType);
             return RegisterHandlers(handlerDisposable);
         }
 
@@ -226,7 +249,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 return new ImmutableDisposable(
                     handlerDisposable,
-                    new Disposable(() =>
+                    Disposable.Create(() =>
                     {
                         Client.UnregisterCapability(new UnregistrationParams()
                         {
@@ -337,8 +360,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     ? _collection
                         .Select(x => x.Handler)
                         .OfType<IDidChangeTextDocumentHandler>()
-                        .Where(x => x.Change != TextDocumentSyncKind.None)
-                        .Min(z => z.Change)
+                        .Where(x => x.GetRegistrationOptions()?.SyncKind != TextDocumentSyncKind.None)
+                        .Min(z => z.GetRegistrationOptions()?.SyncKind)
                     : TextDocumentSyncKind.None;
 
                 if (_clientVersion == ClientVersion.Lsp2)
@@ -349,7 +372,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
                     {
-                        Change = textDocumentSyncKind,
+                        Change = textDocumentSyncKind ?? TextDocumentSyncKind.None,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
                             new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :

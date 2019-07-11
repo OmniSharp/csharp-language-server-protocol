@@ -60,6 +60,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
@@ -107,6 +108,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
@@ -128,6 +130,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
@@ -149,6 +152,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
@@ -170,6 +174,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;

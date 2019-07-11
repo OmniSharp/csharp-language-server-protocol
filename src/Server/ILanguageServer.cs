@@ -9,14 +9,8 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public interface ILanguageServer : OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer, IDisposable
+    public interface ILanguageServer : OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer, OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServerRegistry, IDisposable
     {
-        IDisposable AddHandlers(params IJsonRpcHandler[] handlers);
-        IDisposable AddHandlers(params Type[] handlerTypes);
-        IDisposable AddHandler<T>() where T : IJsonRpcHandler;
-        IDisposable AddHandler(string method, IJsonRpcHandler handler);
-        IDisposable AddHandler(string method, Type handlerType);
-
         InitializeParams ClientSettings { get; }
         InitializeResult ServerSettings { get; }
         IServiceProvider Services { get; }

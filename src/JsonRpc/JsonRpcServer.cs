@@ -14,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using System.Reactive.Disposables;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -21,10 +22,11 @@ namespace OmniSharp.Extensions.JsonRpc
     public class JsonRpcServer : IJsonRpcServer
     {
         private readonly Connection _connection;
-        private readonly IRequestRouter _requestRouter;
+        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
         private readonly IReciever _reciever;
         private readonly ISerializer _serializer;
         private readonly HandlerCollection _collection;
+        private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers = new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
         private readonly IResponseRouter _responseRouter;
         private readonly IServiceProvider _serviceProvider;
 
@@ -46,7 +48,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 options.Serializer,
                 options.Services,
                 options.HandlerTypes.Select(x => x.Assembly)
-                    .Distinct().Concat(options.HandlerAssemblies)
+                    .Distinct().Concat(options.HandlerAssemblies),
+                options.Handlers,
+                options.NamedHandlers,
+                options.NamedServiceHandlers
             );
 
             await server.Initialize();
@@ -62,7 +67,10 @@ namespace OmniSharp.Extensions.JsonRpc
             ILoggerFactory loggerFactory,
             ISerializer serializer,
             IServiceCollection services,
-            IEnumerable<Assembly> assemblies)
+            IEnumerable<Assembly> assemblies,
+            IEnumerable<IJsonRpcHandler> handlers,
+            IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
+            IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
@@ -81,7 +89,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             services.AddJsonRpcMediatR(assemblies);
             services.AddSingleton<IJsonRpcServer>(this);
-            services.AddSingleton<IRequestRouter, RequestRouter>();
+            services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
             services.AddSingleton<IReciever, Reciever>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
 
@@ -104,10 +112,20 @@ namespace OmniSharp.Extensions.JsonRpc
 
             _serviceProvider = services.BuildServiceProvider();
 
-            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
-            _collection.Add(handlers);
+            var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            _collection.Add(serviceHandlers);
+            _collection.Add(handlers.ToArray());
+            foreach (var (name, handler) in namedHandlers)
+            {
+            _collection.Add(name, handler);
+            }
+            foreach (var (name, handlerFunc) in namedServiceHandlers)
+            {
+                _collection.Add(name, handlerFunc(_serviceProvider));
+            }
 
-            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter>();
+            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
+            _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(_requestRouter));
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
         }
@@ -115,6 +133,12 @@ namespace OmniSharp.Extensions.JsonRpc
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             return _collection.Add(method, handler);
+        }
+
+        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        {
+            _namedHandlers.Add((method, handlerFunc));
+            return Disposable.Empty;
         }
 
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)

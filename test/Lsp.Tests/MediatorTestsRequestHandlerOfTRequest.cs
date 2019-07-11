@@ -26,6 +26,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Messages;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System.Collections.Generic;
 
 namespace Lsp.Tests
 {
@@ -52,13 +53,14 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { executeCommandHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };
             var request = new Request(id, "workspace/executeCommand", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            var response = ((IRequestRouter)mediator).RouteRequest(request);
+            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(request, CancellationToken.None);
             mediator.CancelRequest(id);
             var result = await response;
 
