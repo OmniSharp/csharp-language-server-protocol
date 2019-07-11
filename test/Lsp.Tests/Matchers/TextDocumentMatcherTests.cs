@@ -77,6 +77,30 @@ namespace Lsp.Tests.Matchers
         }
 
         [Fact]
+        public void Should_Return_Did_Open_Text_Document_Handler_Descriptor_With_Sepcial_Character()
+        {
+            // Given
+            var textDocumentSyncHandler =
+                TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cshtml"));
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            AutoSubstitute.Provide<IHandlerCollection>(collection);
+            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
+
+            // When
+            var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams() {
+                TextDocument = new TextDocumentItem {
+                    Uri = new Uri("file://c:/users/myøasdf/d.cshtml")
+                }
+            },
+                collection.Where(x => x.Method == DocumentNames.DidOpen));
+
+            // Then
+            result.Should().NotBeNullOrEmpty();
+            result.Should().Contain(x => x.Method == DocumentNames.DidOpen);
+        }
+
+        [Fact]
         public void Should_Return_Did_Change_Text_Document_Descriptor()
         {
             // Given

@@ -11,17 +11,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.CodeAction)]
-    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<CodeActionCapability> { }
+    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability> { }
 
     public abstract class CodeActionHandler : ICodeActionHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public CodeActionHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly CodeActionRegistrationOptions _options;
+        public CodeActionHandler(CodeActionRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
+        public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken);
         public abstract void SetCapability(CodeActionCapability capability);
     }
@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
+            CodeActionRegistrationOptions registrationOptions = null,
             Action<CodeActionCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
+            registrationOptions = registrationOptions ?? new CodeActionRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public DelegatingHandler(
                 Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
                 Action<CodeActionCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                CodeActionRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
                 _setCapability = setCapability;
