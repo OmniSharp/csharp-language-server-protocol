@@ -35,6 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentColorRegistrationOptions registrationOptions = null,
             Action<ColorProviderCapability> setCapability = null)
         {
+            registrationOptions = registrationOptions ?? new DocumentColorRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

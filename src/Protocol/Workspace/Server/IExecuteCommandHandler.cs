@@ -34,6 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             ExecuteCommandRegistrationOptions registrationOptions = null,
             Action<ExecuteCommandCapability> setCapability = null)
         {
+            registrationOptions = registrationOptions ?? new ExecuteCommandRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

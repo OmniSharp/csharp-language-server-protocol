@@ -219,8 +219,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         private static object GetRegistration<T>(IRegistration<T> registration)
+            where T : class, new()
         {
-            return registration.GetRegistrationOptions();
+            return registration.GetRegistrationOptions() ?? new T();
         }
     }
 }

@@ -33,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             SignatureHelpRegistrationOptions registrationOptions = null,
             Action<SignatureHelpCapability> setCapability = null)
         {
+            registrationOptions = registrationOptions ?? new SignatureHelpRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

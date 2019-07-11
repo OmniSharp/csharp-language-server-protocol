@@ -40,11 +40,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CodeLensRegistrationOptions registrationOptions = null,
             Action<CodeLensCapability> setCapability = null)
         {
+            var codeLensRegistrationOptions = new CodeLensRegistrationOptions();
+            codeLensRegistrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
             if (registrationOptions != null)
             {
-                registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
+                codeLensRegistrationOptions.DocumentSelector = registrationOptions.DocumentSelector;
             }
-            return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, canResolve, setCapability, registrationOptions));
+            return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, canResolve, setCapability, codeLensRegistrationOptions));
         }
 
         class DelegatingHandler : CodeLensHandler

@@ -33,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             TextDocumentRegistrationOptions registrationOptions = null,
             Action<TypeDefinitionCapability> setCapability = null)
         {
+            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 
