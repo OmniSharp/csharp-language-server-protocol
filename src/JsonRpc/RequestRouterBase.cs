@@ -153,6 +153,11 @@ namespace OmniSharp.Extensions.JsonRpc
                         _logger.LogDebug("Request {Id} was cancelled", id);
                         return new RequestCancelled();
                     }
+                    catch (RpcErrorException e)
+                    {
+                        _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
+                        return new RpcError(id, new ErrorMessage(e.Code, e.Message, e.Error));
+                    }
                     catch (Exception e)
                     {
                         _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle notification {Method}", request.Method);
