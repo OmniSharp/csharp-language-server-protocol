@@ -42,15 +42,24 @@ namespace Lsp.Tests
             });
         }
 
-        [Theory, MemberData(nameof(DisallowUnsupportedCapabilities))]
-        public void Should_DisallowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
+        [Theory, MemberData(nameof(AllowUnsupportedCapabilities))]
+        public void Should_AllowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
-            HasHandler(provider, instance).Should().BeFalse();
+            HasHandler(provider, instance).Should().BeTrue();
+        }
+
+        public static IEnumerable<object[]> AllowUnsupportedCapabilities()
+        {
+            return GetItems(Capabilities, type => {
+                var handlerTypes = GetHandlerTypes(type);
+                var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
+            });
         }
 
         [Fact]
@@ -81,17 +90,29 @@ namespace Lsp.Tests
             stub.Received().Invoke(Arg.Any<IEnumerable<IExecuteCommandOptions>>());
         }
 
-        public static IEnumerable<object[]> DisallowUnsupportedCapabilities()
+        [Theory, MemberData(nameof(AllowNullSupportsCapabilities))]
+        public void Should_AllowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var provider = new ClientCapabilityProvider(collection);
+
+            HasHandler(provider, instance).Should().BeTrue();
+        }
+
+        public static IEnumerable<object[]> AllowNullSupportsCapabilities()
         {
             return GetItems(Capabilities, type => {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
-                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
             });
         }
 
-        [Theory, MemberData(nameof(DisallowNullSupportsCapabilities))]
-        public void Should_DisallowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
+
+        [Theory, MemberData(nameof(DisallowDynamicSupportsCapabilities))]
+        public void Should_DisallowDynamicSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
@@ -101,12 +122,14 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeFalse();
         }
 
-        public static IEnumerable<object[]> DisallowNullSupportsCapabilities()
+        public static IEnumerable<object[]> DisallowDynamicSupportsCapabilities()
         {
             return GetItems(Capabilities, type => {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
-                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
+                var capability = Activator.CreateInstance(type);
+                if (capability is DynamicCapability dyn) dyn.DynamicRegistration = true;
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true, capability) };
             });
         }
 
