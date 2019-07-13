@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             // Dynamic registration will cause us to double register things if we report our capabilities staticly.
             // However if the client does not tell us it's capabilities we should just assume that they do not support
-            // dynamic registraiton
+            // dynamic registraiton but we should report any capabilities statically
             if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration == true) return false;
 
             var handlerTypes = typeof(T).GetTypeInfo().ImplementedInterfaces
