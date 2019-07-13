@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
@@ -42,15 +43,24 @@ namespace Lsp.Tests
             });
         }
 
-        [Theory, MemberData(nameof(DisallowUnsupportedCapabilities))]
-        public void Should_DisallowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
+        [Theory, MemberData(nameof(AllowUnsupportedCapabilities))]
+        public void Should_AllowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
-            HasHandler(provider, instance).Should().BeFalse();
+            HasHandler(provider, instance).Should().BeTrue();
+        }
+
+        public static IEnumerable<object[]> AllowUnsupportedCapabilities()
+        {
+            return GetItems(Capabilities, type => {
+                var handlerTypes = GetHandlerTypes(type);
+                var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
+            });
         }
 
         [Fact]
@@ -81,17 +91,29 @@ namespace Lsp.Tests
             stub.Received().Invoke(Arg.Any<IEnumerable<IExecuteCommandOptions>>());
         }
 
-        public static IEnumerable<object[]> DisallowUnsupportedCapabilities()
+        [Theory, MemberData(nameof(AllowNullSupportsCapabilities))]
+        public void Should_AllowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var provider = new ClientCapabilityProvider(collection);
+
+            HasHandler(provider, instance).Should().BeTrue();
+        }
+
+        public static IEnumerable<object[]> AllowNullSupportsCapabilities()
         {
             return GetItems(Capabilities, type => {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
-                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
             });
         }
 
-        [Theory, MemberData(nameof(DisallowNullSupportsCapabilities))]
-        public void Should_DisallowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
+
+        [Theory, MemberData(nameof(DisallowDynamicSupportsCapabilities))]
+        public void Should_DisallowDynamicSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
 
@@ -101,13 +123,42 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeFalse();
         }
 
-        public static IEnumerable<object[]> DisallowNullSupportsCapabilities()
+        public static IEnumerable<object[]> DisallowDynamicSupportsCapabilities()
         {
             return GetItems(Capabilities, type => {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
-                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
+                var capability = Activator.CreateInstance(type);
+                if (capability is DynamicCapability dyn) dyn.DynamicRegistration = true;
+                return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true, capability) };
             });
+        }
+
+        [Fact]
+        public void Should_Handle_Mixed_Capabilities()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+
+            var codeActionHandler = Substitute.For<ICodeActionHandler>();
+            var definitionHandler = Substitute.For<IDefinitionHandler>();
+            var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
+            var provider = new ClientCapabilityProvider(collection);
+            var capabilities = new ClientCapabilities() {
+                TextDocument = new TextDocumentClientCapabilities() {
+                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability() {
+                        DynamicRegistration = false,
+                    }),
+                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability() {
+                        DynamicRegistration = true,
+                    })
+                }
+            };
+
+            provider.GetStaticOptions(capabilities.TextDocument.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of).Should().NotBeNull();
+            provider.HasStaticHandler(capabilities.TextDocument.Definition).Should().BeTrue();
+            provider.HasStaticHandler(capabilities.TextDocument.TypeDefinition).Should().BeFalse();
         }
 
         private static bool HasHandler(ClientCapabilityProvider provider, object instance)
@@ -115,13 +166,6 @@ namespace Lsp.Tests
             return (bool)typeof(ClientCapabilityProviderTests).GetTypeInfo()
                 .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)
                 .MakeGenericMethod(instance.GetType().GetTypeInfo().GetGenericArguments()[0]).Invoke(null, new[] { provider, instance });
-        }
-
-        private static bool HasHandler(ClientCapabilityProvider provider, Type type)
-        {
-            return (bool)typeof(ClientCapabilityProviderTests).GetTypeInfo()
-                .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)
-                .MakeGenericMethod(type).Invoke(null, new object[] { provider, null });
         }
 
         private static bool GenericHasHandler<T>(ClientCapabilityProvider provider, Supports<T> supports)
