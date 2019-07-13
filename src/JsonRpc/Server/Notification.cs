@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         internal Notification(
             string method,
             JToken @params,
-            string protcolVersion)
+            string protocolVersion)
         {
-            ProtocolVersion = protcolVersion;
+            ProtocolVersion = protocolVersion;
             Method = method;
             Params = @params;
         }
