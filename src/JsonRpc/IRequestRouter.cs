@@ -5,16 +5,18 @@ using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IRequestRouter<TDescriptor>
+    public interface IRequestRouter
+    {
+        Task RouteNotification(Notification notification, CancellationToken token);
+        Task<ErrorResponse> RouteRequest(Request request, CancellationToken token);
+        void CancelRequest(object id);
+    }
+
+    public interface IRequestRouter<TDescriptor> : IRequestRouter
     {
         TDescriptor GetDescriptor(Notification notification);
         TDescriptor GetDescriptor(Request request);
-
-        Task RouteNotification(Notification notification, CancellationToken token);
         Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token);
-        Task<ErrorResponse> RouteRequest(Request request, CancellationToken token);
         Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token);
-
-        void CancelRequest(object id);
     }
 }

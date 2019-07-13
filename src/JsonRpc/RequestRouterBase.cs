@@ -198,12 +198,12 @@ namespace OmniSharp.Extensions.JsonRpc
             return id?.ToString();
         }
 
-        Task IRequestRouter<TDescriptor>.RouteNotification(Notification notification, CancellationToken token)
+        Task IRequestRouter.RouteNotification(Notification notification, CancellationToken token)
         {
             return RouteNotification(GetDescriptor(notification), notification, token);
         }
 
-        Task<ErrorResponse> IRequestRouter<TDescriptor>.RouteRequest(Request request, CancellationToken token)
+        Task<ErrorResponse> IRequestRouter.RouteRequest(Request request, CancellationToken token)
         {
             return RouteRequest(GetDescriptor(request), request, token);
         }
