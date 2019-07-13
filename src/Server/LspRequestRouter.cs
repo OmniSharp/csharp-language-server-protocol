@@ -19,7 +19,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>
+    internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>, IRequestRouter<IHandlerDescriptor>
     {
         private readonly IEnumerable<ILspHandlerDescriptor> _collection;
         private readonly IEnumerable<IHandlerMatcher> _handlerMatchers;
@@ -68,6 +68,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
-
+        
+        IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Notification notification) => GetDescriptor(notification);
+        IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Request request) => GetDescriptor(request);
+        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IHandlerDescriptor descriptor, Notification notification, CancellationToken token) =>
+            RouteNotification(
+                descriptor is ILspHandlerDescriptor d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
+                notification,
+                token);
+        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IHandlerDescriptor descriptor, Request request, CancellationToken token) =>
+            RouteRequest(
+                descriptor is ILspHandlerDescriptor d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
+                request,
+                token);
     }
 }

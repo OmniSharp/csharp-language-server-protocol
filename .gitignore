@@ -41,3 +41,4 @@ tools/*/
 coverage.*.xml
 coverage.json
 coverage.info
+/codealike.json

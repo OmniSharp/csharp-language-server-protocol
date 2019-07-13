@@ -61,7 +61,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             var options = new LanguageServerOptions();
             optionsAction(options);
-            return From(options);
+            return From(options, token);
+        }
+
+        public static ILanguageServer PreInit(Action<LanguageServerOptions> optionsAction)
+        {
+            var options = new LanguageServerOptions();
+            optionsAction(options);
+            return PreInit(options);
         }
 
         public static async Task<ILanguageServer> From(LanguageServerOptions options, CancellationToken token)
@@ -87,6 +94,38 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
 
             await server.Initialize(token);
+
+            return server;
+        }
+
+        /// <summary>
+        /// Create the server without connecting to the client
+        ///
+        /// Mainly used for unit testing
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static ILanguageServer PreInit(LanguageServerOptions options)
+        {
+            var server = new LanguageServer(
+                options.Input,
+                options.Output,
+                options.Reciever,
+                options.RequestProcessIdentifier,
+                options.LoggerFactory,
+                options.Serializer,
+                options.Services,
+                options.HandlerTypes.Select(x => x.Assembly)
+                    .Distinct().Concat(options.HandlerAssemblies),
+                options.Handlers,
+                options.NamedHandlers,
+                options.NamedServiceHandlers,
+                options.InitializeDelegates,
+                options.InitializedDelegates
+            );
+
+            if (options.AddDefaultLoggingProvider)
+                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
 
             return server;
         }
@@ -132,7 +171,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<ILanguageServer>(this);
             services.AddTransient<IHandlerMatcher, ExecuteCommandMatcher>();
             services.AddTransient<IHandlerMatcher, ResolveCommandMatcher>();
-            services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>, LspRequestRouter>();
+            services.AddSingleton<LspRequestRouter>();
+            services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
+            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
             services.AddSingleton<IResponseRouter, ResponseRouter>();
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ResolveCommandPipeline<,>));
 
@@ -285,7 +326,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 MinimumLogLevel = LogLevel.Trace;
             }
 
-            _clientVersion = request.Capabilities.GetClientVersion();
+            _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
             _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
             var supportedCapabilities = new List<ISupports>();
@@ -312,8 +353,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
-            var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument;
-            var workspaceCapabilities = ClientSettings.Capabilities.Workspace;
+            var textDocumentCapabilities = ClientSettings.Capabilities?.TextDocument ?? new TextDocumentClientCapabilities();
+            var workspaceCapabilities = ClientSettings.Capabilities?.Workspace ?? new WorkspaceClientCapabilities();
 
             var ccp = new ClientCapabilityProvider(_collection);
 
