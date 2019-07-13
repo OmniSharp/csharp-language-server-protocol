@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
@@ -133,18 +134,38 @@ namespace Lsp.Tests
             });
         }
 
+        [Fact]
+        public void Should_Handle_Mixed_Capabilities()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+
+            var codeActionHandler = Substitute.For<ICodeActionHandler>();
+            var definitionHandler = Substitute.For<IDefinitionHandler>();
+            var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
+            var provider = new ClientCapabilityProvider(collection);
+            var capabilities = new ClientCapabilities() {
+                TextDocument = new TextDocumentClientCapabilities() {
+                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability() {
+                        DynamicRegistration = false,
+                    }),
+                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability() {
+                        DynamicRegistration = true,
+                    })
+                }
+            };
+
+            provider.GetStaticOptions(capabilities.TextDocument.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of).Should().NotBeNull();
+            provider.HasStaticHandler(capabilities.TextDocument.Definition).Should().BeTrue();
+            provider.HasStaticHandler(capabilities.TextDocument.TypeDefinition).Should().BeFalse();
+        }
+
         private static bool HasHandler(ClientCapabilityProvider provider, object instance)
         {
             return (bool)typeof(ClientCapabilityProviderTests).GetTypeInfo()
                 .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)
                 .MakeGenericMethod(instance.GetType().GetTypeInfo().GetGenericArguments()[0]).Invoke(null, new[] { provider, instance });
-        }
-
-        private static bool HasHandler(ClientCapabilityProvider provider, Type type)
-        {
-            return (bool)typeof(ClientCapabilityProviderTests).GetTypeInfo()
-                .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)
-                .MakeGenericMethod(type).Invoke(null, new object[] { provider, null });
         }
 
         private static bool GenericHasHandler<T>(ClientCapabilityProvider provider, Supports<T> supports)
