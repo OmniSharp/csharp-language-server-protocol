@@ -11,4 +11,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         TextDocumentAttributes GetTextDocumentAttributes(Uri uri);
     }
+
+    public abstract class TextDocumentIdentifierBase : ITextDocumentIdentifier
+    {
+        public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
+        {
+            var (languageId, schema) = GetAttributes(uri);
+            return new TextDocumentAttributes(uri, languageId, schema);
+        }
+
+        protected abstract (string languageId, string schema) GetAttributes(Uri uri);
+    }
 }

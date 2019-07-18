@@ -51,7 +51,7 @@ namespace Lsp.Tests
                     return Unit.Value;
                 });
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { executeCommandHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { executeCommandHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

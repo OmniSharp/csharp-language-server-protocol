@@ -19,7 +19,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IExecuteCommandHandler>();
             handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
 
-            var handlerCollection = new OmniSharp.Extensions.LanguageServer.Server.HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
+            var handlerCollection = new OmniSharp.Extensions.LanguageServer.Server.HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection);
 
             Provider = capabilityProvider;

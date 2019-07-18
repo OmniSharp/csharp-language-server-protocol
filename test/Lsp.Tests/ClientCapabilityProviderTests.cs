@@ -26,9 +26,9 @@ namespace Lsp.Tests
         [Theory, MemberData(nameof(AllowSupportedCapabilities))]
         public void Should_AllowSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeTrue();
@@ -46,9 +46,9 @@ namespace Lsp.Tests
         [Theory, MemberData(nameof(AllowUnsupportedCapabilities))]
         public void Should_AllowUnsupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeTrue();
@@ -94,9 +94,9 @@ namespace Lsp.Tests
         [Theory, MemberData(nameof(AllowNullSupportsCapabilities))]
         public void Should_AllowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeTrue();
@@ -115,9 +115,9 @@ namespace Lsp.Tests
         [Theory, MemberData(nameof(DisallowDynamicSupportsCapabilities))]
         public void Should_DisallowDynamicSupportedCapabilities(IJsonRpcHandler handler, object instance)
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
             var provider = new ClientCapabilityProvider(collection);
 
             HasHandler(provider, instance).Should().BeFalse();
@@ -137,13 +137,13 @@ namespace Lsp.Tests
         [Fact]
         public void Should_Handle_Mixed_Capabilities()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             var definitionHandler = Substitute.For<IDefinitionHandler>();
             var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
             var provider = new ClientCapabilityProvider(collection);
             var capabilities = new ClientCapabilities() {
                 TextDocument = new TextDocumentClientCapabilities() {

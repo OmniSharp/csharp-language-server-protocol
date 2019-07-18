@@ -45,12 +45,12 @@
     "postinstall": "node ./node_modules/vscode/bin/install"
   },
   "devDependencies": {
-    "@types/mocha": "^5.2.0",
-    "@types/node": "^10.1.2",
-    "typescript": "^2.8.3",
-    "vscode": "^1.1.17"
+    "@types/mocha": "^5.2.7",
+    "@types/node": "^12.6.8",
+    "typescript": "^3.5.3",
+    "vscode": "^1.1.35"
   },
   "dependencies": {
-    "vscode-languageclient": "^4.1.4"
+    "vscode-languageclient": "^5.2.1"
   }
 }

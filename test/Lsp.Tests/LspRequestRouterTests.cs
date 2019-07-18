@@ -57,6 +57,9 @@ namespace Lsp.Tests
             Handlers.AddRange(handlers);
             return Disposable.Empty;
         }
+
+        public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers) => throw new NotImplementedException();
+        public IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier => throw new NotImplementedException();
     }
     public class LspRequestRouterTests : AutoTestBase
     {
@@ -71,10 +74,10 @@ namespace Lsp.Tests
         [Fact]
         public async Task ShouldRouteToCorrect_Notification()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -94,12 +97,15 @@ namespace Lsp.Tests
         [Fact]
         public async Task ShouldRouteToCorrect_Notification_WithManyHandlers()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"),"csharp");
+            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
-            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
+            textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>())
+                .Returns(Unit.Value);
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2 };
+            var textDocumentIdentifiers = new TextDocumentIdentifiers();
+            AutoSubstitute.Provide(textDocumentIdentifiers);
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers) { textDocumentSyncHandler, textDocumentSyncHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -120,7 +126,7 @@ namespace Lsp.Tests
         [Fact]
         public async Task ShouldRouteToCorrect_Request()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
@@ -129,7 +135,7 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandOrCodeActionContainer());
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -151,8 +157,8 @@ namespace Lsp.Tests
         public async Task ShouldRouteToCorrect_Request_WithManyHandlers()
         {
 
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
@@ -171,7 +177,9 @@ namespace Lsp.Tests
                 new CodeActionRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") }
             );
 
-            var handlerCollection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler };
+            var textDocumentIdentifiers = new TextDocumentIdentifiers();
+            AutoSubstitute.Provide(textDocumentIdentifiers);
+            var handlerCollection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler };
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
@@ -194,8 +202,8 @@ namespace Lsp.Tests
         [Fact]
         public async Task ShouldRouteToCorrect_Request_WithManyHandlers_CodeLensHandler()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
-            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
@@ -211,7 +219,7 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CodeLensContainer());
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -238,7 +246,7 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>())
                 .Returns(Unit.Value);
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { handler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { handler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -262,7 +270,7 @@ namespace Lsp.Tests
                 wasShutDown = true;
             });
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -287,7 +295,7 @@ namespace Lsp.Tests
                 wasShutdown = true;
             });
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { shutdownHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { shutdownHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

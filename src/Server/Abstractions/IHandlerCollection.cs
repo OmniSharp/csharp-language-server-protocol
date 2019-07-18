@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
-    public interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
+    internal interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
     {
         LspHandlerDescriptorDisposable Add(params IJsonRpcHandler[] handlers);
         LspHandlerDescriptorDisposable Add(params Type[] handlerTypes);
@@ -15,6 +15,5 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
         LspHandlerDescriptorDisposable Add(string method, Type handlerType);
         bool ContainsHandler(Type type);
         bool ContainsHandler(TypeInfo typeInfo);
-        IEnumerable<ITextDocumentIdentifier> TextDocumentIdentifiers();
     }
 }
