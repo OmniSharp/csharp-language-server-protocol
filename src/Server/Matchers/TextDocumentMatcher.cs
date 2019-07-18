@@ -8,15 +8,15 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
-    public class TextDocumentMatcher : IHandlerMatcher
+    class TextDocumentMatcher : IHandlerMatcher
     {
         private readonly ILogger<TextDocumentMatcher> _logger;
-        private readonly Func<IEnumerable<ITextDocumentIdentifier>> _getSyncHandlers;
+        private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
 
-        public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, IHandlerCollection handlerCollection)
+        public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, TextDocumentIdentifiers textDocumentIdentifiers)
         {
             _logger = logger;
-            _getSyncHandlers = handlerCollection.TextDocumentIdentifiers;
+            _textDocumentIdentifiers = textDocumentIdentifiers;;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 
         private List<TextDocumentAttributes> GetTextDocumentAttributes(Uri uri)
         {
-            return _getSyncHandlers()
+            return _textDocumentIdentifiers
                 .Select(x => x.GetTextDocumentAttributes(uri))
                 .Where(x => x != null)
                 .Distinct()

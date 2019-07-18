@@ -21,11 +21,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>, IRequestRouter<IHandlerDescriptor>
     {
-        private readonly IEnumerable<ILspHandlerDescriptor> _collection;
+        private readonly IHandlerCollection _collection;
         private readonly IEnumerable<IHandlerMatcher> _handlerMatchers;
 
         public LspRequestRouter(
-            IEnumerable<ILspHandlerDescriptor> collection,
+            IHandlerCollection collection,
             ILoggerFactory loggerFactory,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null)
             {
-                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method, string.Join(", ", _collection.Select(x => x.Method + ":" + x.HandlerType?.FullName)));
+                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method, string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName)));
                 return null;
             }
 
@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
-        
+
         IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Notification notification) => GetDescriptor(notification);
         IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Request request) => GetDescriptor(request);
         Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IHandlerDescriptor descriptor, Notification notification, CancellationToken token) =>

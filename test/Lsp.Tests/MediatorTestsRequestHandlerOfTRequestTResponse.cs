@@ -42,7 +42,7 @@ namespace Lsp.Tests
         [Fact]
         public async Task RequestsCancellation()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"));
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
@@ -55,7 +55,7 @@ namespace Lsp.Tests
                     return new CommandOrCodeActionContainer();
                 });
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue) { textDocumentSyncHandler, codeActionHandler };
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

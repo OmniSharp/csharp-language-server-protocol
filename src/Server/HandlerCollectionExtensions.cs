@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public static class HandlerCollectionExtensions
+    static class HandlerCollectionExtensions
     {
         public static LspHandlerDescriptorDisposable Add(this IHandlerCollection collection, IEnumerable<IJsonRpcHandler> handlers)
         {

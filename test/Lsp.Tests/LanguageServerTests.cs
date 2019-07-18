@@ -66,7 +66,7 @@ namespace Lsp.Tests
                 .WithLoggerFactory(LoggerFactory)
                 .AddDefaultLoggingProvider()
                 .WithMinimumLogLevel(LogLevel.Trace)
-                .AddHandlers(TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs")))
+                .AddHandlers(TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp"))
             ) as IRequestHandler<InitializeParams, InitializeResult>;
 
             var handler = server as IRequestHandler<InitializeParams, InitializeResult>;

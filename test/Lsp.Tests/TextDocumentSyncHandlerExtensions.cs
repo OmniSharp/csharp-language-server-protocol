@@ -8,21 +8,23 @@ namespace Lsp.Tests
 {
     static class TextDocumentSyncHandlerExtensions
     {
-        public static ITextDocumentSyncHandler With(DocumentSelector documentSelector)
+        public static ITextDocumentSyncHandler With(DocumentSelector documentSelector, string language)
         {
-            return Substitute.For<ITextDocumentSyncHandler>().With(documentSelector);
+            return Substitute.For<ITextDocumentSyncHandler>().With(documentSelector, language);
         }
 
-        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector documentSelector)
+        public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector documentSelector, string language)
         {
             ((IDidChangeTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentChangeRegistrationOptions() { DocumentSelector = documentSelector });
             ((IDidOpenTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = documentSelector });
             ((IDidCloseTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = documentSelector });
             ((IDidSaveTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentSaveRegistrationOptions() { DocumentSelector = documentSelector });
+            ((ITextDocumentIdentifier) handler).GetTextDocumentAttributes(Arg.Any<Uri>())
+                .Returns((info) => new TextDocumentAttributes(info.Arg<Uri>(), language));
 
             handler
-                .GetTextDocumentAttributes(Arg.Is<Uri>(x => documentSelector.IsMatch(new TextDocumentAttributes(x, ""))))
-                .Returns(c => new TextDocumentAttributes(c.Arg<Uri>(), ""));
+                .GetTextDocumentAttributes(Arg.Is<Uri>(x => documentSelector.IsMatch(new TextDocumentAttributes(x, language))))
+                .Returns(c => new TextDocumentAttributes(c.Arg<Uri>(), language));
 
             return handler;
         }

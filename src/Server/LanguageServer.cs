@@ -38,6 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private ClientVersion? _clientVersion;
         private readonly ILspReciever _reciever;
         private readonly ISerializer _serializer;
+        private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
@@ -45,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly IServiceProvider _serviceProvider;
-        private SupportedCapabilities _supportedCapabilities;
+        private readonly SupportedCapabilities _supportedCapabilities;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -84,8 +85,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.HandlerTypes.Select(x => x.Assembly)
                     .Distinct().Concat(options.HandlerAssemblies),
                 options.Handlers,
+                options.HandlerTypes,
                 options.NamedHandlers,
                 options.NamedServiceHandlers,
+                options.TextDocumentIdentifiers,
+                options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates
             );
@@ -118,8 +122,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.HandlerTypes.Select(x => x.Assembly)
                     .Distinct().Concat(options.HandlerAssemblies),
                 options.Handlers,
+                options.HandlerTypes,
                 options.NamedHandlers,
                 options.NamedServiceHandlers,
+                options.TextDocumentIdentifiers,
+                options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates
             );
@@ -140,8 +147,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IServiceCollection services,
             IEnumerable<Assembly> assemblies,
             IEnumerable<IJsonRpcHandler> handlers,
+            IEnumerable<Type> handlerTypes,
             IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
             IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers,
+            IEnumerable<ITextDocumentIdentifier> textDocumentIdentifiers,
+            IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates)
         {
@@ -151,19 +161,37 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
-            var collection = new HandlerCollection(_supportedCapabilities);
+            _textDocumentIdentifiers = new TextDocumentIdentifiers();
+            var collection = new HandlerCollection(_supportedCapabilities, _textDocumentIdentifiers);
             _collection = collection;
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
+            services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
             services.AddSingleton(requestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReciever>(reciever);
             services.AddSingleton<ILspReciever>(reciever);
             services.AddSingleton(loggerFactory);
+            foreach (var item in handlers)
+            {
+                services.AddSingleton(item);
+            }
+            foreach (var item in textDocumentIdentifiers)
+            {
+                services.AddSingleton(item);
+            }
+            foreach (var item in handlerTypes)
+            {
+                services.AddSingleton(typeof(IJsonRpcHandler), item);
+            }
+            foreach (var item in textDocumentIdentifierTypes)
+            {
+                services.AddSingleton(typeof(ITextDocumentIdentifier), item);
+            }
 
             services.AddJsonRpcMediatR(assemblies);
             services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
@@ -208,8 +236,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             );
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            var serviceIdentifiers = _serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
+            _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
             _disposable.Add(_collection.Add(serviceHandlers));
-            _disposable.Add(_collection.Add(handlers));
+
             foreach (var (name, handler) in namedHandlers)
             {
                 _disposable.Add(_collection.Add(name, handler));
@@ -218,6 +248,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 _disposable.Add(_collection.Add(name, handlerFunc(_serviceProvider)));
             }
+
 
             Document = new LanguageServerDocument(_responseRouter);
             Client = new LanguageServerClient(_responseRouter);
@@ -274,6 +305,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             var handlerDisposable = _collection.Add(_serviceProvider, handlerTypes);
             return RegisterHandlers(handlerDisposable);
+        }
+
+        public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
+        {
+            var cd = new CompositeDisposable();
+            foreach (var textDocumentIdentifier in handlers)
+            {
+                cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
+            }
+
+            return cd;
+        }
+
+        public IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier
+        {
+            return _textDocumentIdentifiers.Add(ActivatorUtilities.CreateInstance<T>(_serviceProvider));
         }
 
         private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
