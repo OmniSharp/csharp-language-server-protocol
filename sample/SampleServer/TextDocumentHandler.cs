@@ -18,8 +18,7 @@ namespace SampleServer
         private readonly OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer _router;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter()
-            {
+            new DocumentFilter() {
                 Pattern = "**/*.cs"
             }
         );
@@ -35,8 +34,7 @@ namespace SampleServer
 
         public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
-            _router.Window.LogMessage(new LogMessageParams()
-            {
+            _router.Window.LogMessage(new LogMessageParams() {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
@@ -45,8 +43,7 @@ namespace SampleServer
 
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentChangeRegistrationOptions()
-            {
+            return new TextDocumentChangeRegistrationOptions() {
                 DocumentSelector = _documentSelector,
                 SyncKind = Change
             };
@@ -60,8 +57,7 @@ namespace SampleServer
         public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
-            _router.Window.LogMessage(new LogMessageParams()
-            {
+            _router.Window.LogMessage(new LogMessageParams() {
                 Type = MessageType.Log,
                 Message = "Hello World!!!!"
             });
@@ -70,8 +66,7 @@ namespace SampleServer
 
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions()
-            {
+            return new TextDocumentRegistrationOptions() {
                 DocumentSelector = _documentSelector,
             };
         }
@@ -88,8 +83,7 @@ namespace SampleServer
 
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentSaveRegistrationOptions()
-            {
+            return new TextDocumentSaveRegistrationOptions() {
                 DocumentSelector = _documentSelector,
                 IncludeText = true
             };
@@ -97,6 +91,55 @@ namespace SampleServer
         public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
         {
             return new TextDocumentAttributes(uri, "csharp");
+        }
+    }
+
+    class FoldingRangeHandler : IFoldingRangeHandler
+    {
+        private FoldingRangeCapability _capability;
+
+        public TextDocumentRegistrationOptions GetRegistrationOptions()
+        {
+            return new TextDocumentRegistrationOptions() {
+                DocumentSelector = DocumentSelector.ForLanguage("csharp")
+            };
+        }
+
+        public Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request,
+            CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new Container<FoldingRange>(new FoldingRange() {
+                StartLine = 10,
+                EndLine = 20,
+                Kind = FoldingRangeKind.Region,
+                EndCharacter = 0,
+                StartCharacter = 0
+            }));
+        }
+
+        public void SetCapability(FoldingRangeCapability capability)
+        {
+            _capability = capability;
+        }
+    }
+
+    class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
+    {
+        private DidChangeWatchedFilesCapability _capability;
+
+        public object GetRegistrationOptions()
+        {
+            return new object();
+        }
+
+        public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
+        {
+            return Unit.Task;
+        }
+
+        public void SetCapability(DidChangeWatchedFilesCapability capability)
+        {
+            _capability = capability;
         }
     }
 }
