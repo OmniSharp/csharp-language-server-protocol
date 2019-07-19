@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 _logger.LogTrace("Registration options {OptionsName}", executeCommandParams.GetType().FullName);
                 foreach (var descriptor in descriptors)
                 {
-                    if (descriptor.Registration?.RegisterOptions is ExecuteCommandRegistrationOptions registrationOptions && registrationOptions.Commands.Any(x => x == executeCommandParams.Command))
+                    if (descriptor.RegistrationOptions is ExecuteCommandRegistrationOptions registrationOptions && registrationOptions.Commands.Any(x => x == executeCommandParams.Command))
                     {
                         _logger.LogTrace("Checking handler {Method}:{Handler}",
                             executeCommandParams.Command,

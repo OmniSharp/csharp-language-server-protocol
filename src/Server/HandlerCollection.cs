@@ -145,7 +145,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             Type @params = null;
             object registrationOptions = null;
-            Registration registration = null;
             if (@interface.GetTypeInfo().IsGenericType)
             {
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
@@ -156,15 +155,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 registrationOptions = GetRegistrationMethod
                     .MakeGenericMethod(registrationType)
                     .Invoke(null, new object[] { handler });
-
-                if (_supportedCapabilities.AllowsDynamicRegistration(capabilityType))
-                {
-                    registration = new Registration() {
-                        Id = Guid.NewGuid().ToString(),
-                        Method = method,
-                        RegisterOptions = registrationOptions
-                    };
-                }
             }
 
             var key = "default";
@@ -193,7 +183,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 @interface,
                 @params,
                 registrationType,
-                registration,
+                registrationOptions,
+                registrationType != null && _supportedCapabilities.AllowsDynamicRegistration(capabilityType),
                 capabilityType,
                 () => {
                     _handlers.RemoveWhere(d => d.Handler == handler);

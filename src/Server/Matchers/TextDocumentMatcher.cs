@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             foreach (var descriptor in descriptors)
             {
                 _logger.LogTrace("Checking handler {Method}:{Handler}", method, descriptor.ImplementationType.FullName);
-                var registrationOptions = descriptor.Registration?.RegisterOptions as ITextDocumentRegistrationOptions;
+                var registrationOptions = descriptor.RegistrationOptions as ITextDocumentRegistrationOptions;
 
                 _logger.LogTrace("Registration options {OptionsName}", registrationOptions?.GetType().FullName);
                 _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions?.DocumentSelector.ToString());
