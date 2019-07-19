@@ -193,6 +193,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 @interface,
                 @params,
                 registrationType,
+                registrationOptions,
                 registration,
                 capabilityType,
                 () => {

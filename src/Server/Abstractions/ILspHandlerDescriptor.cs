@@ -8,6 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
     {
         bool HasRegistration { get; }
         Type RegistrationType { get; }
+        object RegisterOptions { get; }
         Registration Registration { get; }
 
         bool HasCapability { get; }

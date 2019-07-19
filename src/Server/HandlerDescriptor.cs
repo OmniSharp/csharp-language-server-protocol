@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Type handlerType,
             Type @params,
             Type registrationType,
+            object registerOptions,
             Registration registration,
             Type capabilityType,
             Action disposeAction)
@@ -35,6 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Params = @params;
             Response = Response;
             RegistrationType = registrationType;
+            RegisterOptions = registerOptions;
             Registration = registration;
             CapabilityType = capabilityType;
 
@@ -65,6 +67,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public bool HasRegistration => RegistrationType != null;
         public Type RegistrationType { get; }
+        public object RegisterOptions { get; }
         public Registration Registration { get; }
 
         public bool HasCapability => CapabilityType != null;

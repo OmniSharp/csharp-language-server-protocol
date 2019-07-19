@@ -15,16 +15,16 @@ export function activate(context: ExtensionContext) {
 
     // The server is implemented in node
     // let serverExe = 'dotnet';
-    let serverExe = 'D:\\development\\omnisharp\\omnisharp-roslyn\\bin\\Debug\\OmniSharp.Stdio.Driver\\net461\\OmniSharp.exe';
+    let serverExe = 'C:/Users/mb/src/gh/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio.Driver/win7-x64/OmniSharp.exe';
     // let serverExe = context.asAbsolutePath('D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio/win7-x64/OmniSharp.exe');
     // The debug options for the server
-    // let debugOptions = { execArgv: ['-lsp', '-d' };5
+    // let debugOptions = { execArgv: ['-lsp', '-d' };
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
-        run: { command: serverExe, args: ['-lsp', '-d'] },
-        debug: { command: serverExe, args: ['-lsp', '-d'] }
+        run: { command: serverExe, args: ['-lsp'] },
+        debug: { command: serverExe, args: ['-lsp'] }
     }
 
     // Options to control the language client
