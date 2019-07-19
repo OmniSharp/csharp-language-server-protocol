@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+      <TargetFrameworks>netstandard2.0</TargetFrameworks>
+      <PlatformTarget>AnyCPU</PlatformTarget>
+      <AssemblyName>OmniSharp.Extensions.DebugAdapter.Server</AssemblyName>
+      <RootNamespace>OmniSharp.Extensions.DebugAdapter.Server</RootNamespace>
+      <PackageDescription>You can use this package to create a debug adapter, that will be consumed by many clients</PackageDescription>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
+    <ProjectReference Include="..\DebugAdapterRpc\DebugAdapterRpc.csproj" />
+  </ItemGroup>
+
+</Project>
