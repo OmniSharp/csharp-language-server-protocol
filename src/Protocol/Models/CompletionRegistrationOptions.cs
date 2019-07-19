@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -18,5 +18,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public bool ResolveProvider { get; set; }
+
+        /// <summary>
+        /// The list of all possible characters that commit a completion. This field can be used
+        /// if clients don't support individual commit characters per completion item. See
+        /// `ClientCapabilities.textDocument.completion.completionItem.commitCharactersSupport`
+        ///
+        /// Since 3.2.0
+        /// </summary>
+        [Optional]
+        public Container<string> AllCommitCharacters { get; set; }
     }
 }

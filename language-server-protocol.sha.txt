@@ -1,4 +1,4 @@
 -- This is the last commit we caught up with https://github.com/Microsoft/language-server-protocol/commits/gh-pages
-lastSha: 1a69f1270d59cccd7b85e0697450950abd5a0221
+lastSha: 202045f6546ba46b3c4fda08bbb91308f427902a
 
-https://github.com/Microsoft/language-server-protocol/compare/<lastSha>..<newSha>
+https://github.com/Microsoft/language-server-protocol/compare/<lastSha>..gh-pages

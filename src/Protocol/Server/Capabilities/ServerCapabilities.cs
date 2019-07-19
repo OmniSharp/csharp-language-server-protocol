@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -133,6 +133,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.10.0
         /// </summary>
         public BooleanOr<FoldingRangeOptions> FoldingRangeProvider { get; set; }
+        /// <summary>
+        /// The server provides folding provider support.
+        ///
+        /// Since 3.14.0
+        /// </summary>
+        public BooleanOr<DeclarationOptions> DeclarationProvider { get; set; }
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
