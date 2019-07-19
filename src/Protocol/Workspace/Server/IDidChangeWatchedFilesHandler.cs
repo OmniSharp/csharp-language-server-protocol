@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public object GetRegistrationOptions() => new object();
         public abstract Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(DidChangeWatchedFilesCapability capability);
+        public virtual void SetCapability(DidChangeWatchedFilesCapability capability) => Capability = capability;
+        protected DidChangeWatchedFilesCapability Capability { get; private set; }
     }
 
     public static class DidChangeWatchedFilesHandlerExtensions

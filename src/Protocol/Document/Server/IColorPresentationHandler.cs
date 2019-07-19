@@ -24,7 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public DocumentColorRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Container<ColorPresentation>> Handle(ColorPresentationParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(ColorProviderCapability capability);
+        public virtual void SetCapability(ColorProviderCapability capability) => Capability = capability;
+        protected ColorProviderCapability Capability { get; private set; }
     }
 
     public static class ColorPresentationHandlerExtensions

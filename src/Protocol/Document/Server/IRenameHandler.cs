@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public RenameRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<WorkspaceEdit> Handle(RenameParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(RenameCapability capability);
+        public virtual void SetCapability(RenameCapability capability) => Capability = capability;
+        protected RenameCapability Capability { get; private set; }
     }
 
     public static class RenameHandlerExtensions

@@ -23,7 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(ExecuteCommandCapability capability);
+        public virtual void SetCapability(ExecuteCommandCapability capability) => Capability = capability;
+        protected ExecuteCommandCapability Capability { get; private set; }
     }
 
     public static class ExecuteCommandHandlerExtensions

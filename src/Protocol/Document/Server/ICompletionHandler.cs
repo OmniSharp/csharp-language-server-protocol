@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
     public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler
     {
-        private readonly CompletionRegistrationOptions _options;
+        protected readonly CompletionRegistrationOptions _options;
+
         public CompletionHandler(CompletionRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
@@ -27,7 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public abstract Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken);
         public abstract Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CompletionItem value);
-        public abstract void SetCapability(CompletionCapability capability);
+        public virtual void SetCapability(CompletionCapability capability) => Capability = capability;
+        protected CompletionCapability Capability { get; private set; }
     }
 
     public static class CompletionHandlerExtensions

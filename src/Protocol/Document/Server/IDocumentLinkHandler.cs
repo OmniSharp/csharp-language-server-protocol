@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class DocumentLinkHandler : IDocumentLinkHandler, IDocumentLinkResolveHandler
     {
         private readonly DocumentLinkRegistrationOptions _options;
+
         public DocumentLinkHandler(DocumentLinkRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
@@ -27,7 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public abstract Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken);
         public abstract Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken);
         public abstract bool CanResolve(DocumentLink value);
-        public abstract void SetCapability(DocumentLinkCapability capability);
+        public virtual void SetCapability(DocumentLinkCapability capability) => Capability = capability;
+        protected DocumentLinkCapability Capability { get; private set; }
     }
 
     public static class DocumentLinkHandlerExtensions

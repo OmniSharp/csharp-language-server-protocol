@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationOrLocationLinks> Handle(TypeDefinitionParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(TypeDefinitionCapability capability);
+        public virtual void SetCapability(TypeDefinitionCapability capability) => Capability = capability;
+        protected TypeDefinitionCapability Capability { get; private set; }
     }
 
     public static class TypeDefinitionHandlerExtensions

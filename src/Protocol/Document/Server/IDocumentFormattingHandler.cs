@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<TextEditContainer> Handle(DocumentFormattingParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(DocumentFormattingCapability capability);
+        public virtual void SetCapability(DocumentFormattingCapability capability) => Capability = capability;
+        protected DocumentFormattingCapability Capability { get; private set; }
     }
 
     public static class DocumentFormattingHandlerExtensions

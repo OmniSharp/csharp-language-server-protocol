@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken);
-        public abstract void SetCapability(FoldingRangeCapability capability);
+        public virtual void SetCapability(FoldingRangeCapability capability) => Capability = capability;
+        protected FoldingRangeCapability Capability { get; private set; }
     }
 
     public static class FoldingRangeHandlerExtensions
