@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(DocumentSymbolCapability capability);
+        public virtual void SetCapability(DocumentSymbolCapability capability) => Capability = capability;
+        protected DocumentSymbolCapability Capability { get; private set; }
     }
 
     public static class DocumentSymbolHandlerExtensions

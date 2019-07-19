@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class CodeLensHandler : ICodeLensHandler, ICodeLensResolveHandler
     {
         private readonly CodeLensRegistrationOptions _options;
+
         public CodeLensHandler(CodeLensRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
@@ -27,7 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public abstract Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken);
         public abstract Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CodeLens value);
-        public abstract void SetCapability(CodeLensCapability capability);
+        public virtual void SetCapability(CodeLensCapability capability) => Capability = capability;
+        protected CodeLensCapability Capability { get; private set; }
     }
 
     public static class CodeLensHandlerExtensions

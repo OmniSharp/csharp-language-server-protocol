@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(HoverCapability capability);
+        public virtual void SetCapability(HoverCapability capability) => Capability = capability;
+        protected HoverCapability Capability { get; private set; }
     }
 
     public static class HoverHandlerExtensions

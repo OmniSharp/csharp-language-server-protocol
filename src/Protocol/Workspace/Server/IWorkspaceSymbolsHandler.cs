@@ -14,9 +14,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
     public abstract class WorkspaceSymbolsHandler : IWorkspaceSymbolsHandler
     {
+        protected WorkspaceSymbolCapability Capability { get; private set; }
+
         public object GetRegistrationOptions() => new object();
         public abstract Task<SymbolInformationContainer> Handle(WorkspaceSymbolParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(WorkspaceSymbolCapability capability);
+        public virtual void SetCapability(WorkspaceSymbolCapability capability) => Capability = capability;
     }
 
     public static class WorkspaceSymbolsHandlerExtensions

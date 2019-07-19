@@ -18,7 +18,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public object GetRegistrationOptions() => new object();
         public abstract Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(DidChangeConfigurationCapability capability);
+        public virtual void SetCapability(DidChangeConfigurationCapability capability) => Capability = capability;
+        protected DidChangeConfigurationCapability Capability { get; private set; }
     }
 
     public static class DidChangeConfigurationHandlerExtensions

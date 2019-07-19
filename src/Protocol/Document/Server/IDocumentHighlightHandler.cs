@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<DocumentHighlightContainer> Handle(DocumentHighlightParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(DocumentHighlightCapability capability);
+        public virtual void SetCapability(DocumentHighlightCapability capability) => Capability = capability;
+        protected DocumentHighlightCapability Capability { get; private set; }
     }
 
     public static class DocumentHighlightHandlerExtensions

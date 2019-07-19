@@ -23,7 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(CodeActionCapability capability);
+        public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
+        protected CodeActionCapability Capability { get; private set; }
     }
 
     public static class CodeActionHandlerExtensions

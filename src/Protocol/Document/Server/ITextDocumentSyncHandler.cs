@@ -37,7 +37,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(SynchronizationCapability capability);
+        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
+        protected SynchronizationCapability Capability { get; private set; }
     }
 
     public static class TextDocumentSyncHandlerExtensions

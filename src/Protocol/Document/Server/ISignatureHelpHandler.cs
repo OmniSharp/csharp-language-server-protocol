@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public SignatureHelpRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<SignatureHelp> Handle(SignatureHelpParams request, CancellationToken cancellationToken);
-        public abstract void SetCapability(SignatureHelpCapability capability);
+        public virtual void SetCapability(SignatureHelpCapability capability) => Capability = capability;
+        protected SignatureHelpCapability Capability { get; private set; }
     }
 
     public static class SignatureHelpHandlerExtensions
