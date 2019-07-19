@@ -6,10 +6,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
 {
     public interface ILspHandlerDescriptor : IHandlerDescriptor
     {
+        Guid Id { get; }
         bool HasRegistration { get; }
         Type RegistrationType { get; }
-        object RegisterOptions { get; }
-        Registration Registration { get; }
+        object RegistrationOptions { get; }
+        bool AllowsDynamicRegistration { get; }
 
         bool HasCapability { get; }
         Type CapabilityType { get; }

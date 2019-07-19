@@ -92,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 where TOptions : class
             {
                 return _collection
-                    .Select(x => x.RegisterOptions is TInterface cl ? action(cl) : null)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);
             }
 
@@ -100,13 +100,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 where TOptions : class
             {
                 var options = _collection
-                    .Select(x => x.RegisterOptions is TInterface cl ? action(cl) : null)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);
                 if (options == null)
                     return Supports.OfBoolean<TOptions>(false);
 
                 return _collection
-                    .Select(x => x.RegisterOptions is TInterface cl ? action(cl) : null)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);
             }
 
@@ -114,7 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 where TOptions : class
             {
                 return action(_collection
-                    .Select(x => x.RegisterOptions is TInterface cl ? cl : default)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? cl : default)
                     .Where(x => x != null));
             }
         }

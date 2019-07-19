@@ -67,7 +67,7 @@ namespace Lsp.Tests.Matchers
                         typeof(CodeLensParams),
                         null,
                         null,
-                        null,
+                        false,
                         null,
                         () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
@@ -101,7 +101,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CodeLensResolve,
@@ -111,7 +111,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -140,7 +140,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -171,7 +171,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -204,7 +204,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -214,7 +214,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -254,7 +254,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -264,7 +264,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -300,7 +300,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -310,7 +310,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionItem),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { }),
                     })
@@ -338,7 +338,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CompletionParams),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CompletionParams, CompletionList>(
@@ -381,7 +381,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLensParams),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
@@ -424,7 +424,7 @@ namespace Lsp.Tests.Matchers
                             typeof(CodeLens),
                             null,
                             null,
-                            null,
+                            false,
                             null,
                             () => { });
             var handlerMatcher = new ResolveCommandPipeline<CodeLens, CodeLens>(

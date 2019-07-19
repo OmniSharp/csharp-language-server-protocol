@@ -28,16 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor)
-        {
-            if (descriptor.HasCapability && _supports.TryGetValue(descriptor.CapabilityType, out var capability))
-            {
-                if (capability is DynamicCapability dc)
-                    return dc.DynamicRegistration;
-            }
-            return false;
-        }
-
         public bool AllowsDynamicRegistration(Type capabilityType)
         {
             if (_supports.TryGetValue(capabilityType, out var capability))

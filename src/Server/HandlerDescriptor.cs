@@ -22,12 +22,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Type handlerType,
             Type @params,
             Type registrationType,
-            object registerOptions,
-            Registration registration,
+            object registrationOptions,
+            bool allowsDynamicRegistration,
             Type capabilityType,
             Action disposeAction)
         {
             _disposeAction = disposeAction;
+            Id = Guid.NewGuid();
             Method = method;
             Key = key;
             ImplementationType = handler.GetType();
@@ -36,8 +37,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Params = @params;
             Response = Response;
             RegistrationType = registrationType;
-            RegisterOptions = registerOptions;
-            Registration = registration;
+            RegistrationOptions = registrationOptions;
+            AllowsDynamicRegistration = allowsDynamicRegistration;
             CapabilityType = capabilityType;
 
             var requestInterface = @params?.GetInterfaces()
@@ -65,10 +66,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public Type ImplementationType { get; }
         public Type HandlerType { get; }
 
+        public Guid Id { get; }
         public bool HasRegistration => RegistrationType != null;
         public Type RegistrationType { get; }
-        public object RegisterOptions { get; }
-        public Registration Registration { get; }
+        public object RegistrationOptions { get; }
+        public bool AllowsDynamicRegistration { get; }
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
