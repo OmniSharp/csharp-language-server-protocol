@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Ids of threads to be terminated.
         /// </summary>
-        [Optional] public Container<long> threadIds { get; set; }
+        [Optional] public Container<long> ThreadIds { get; set; }
     }
 
 }

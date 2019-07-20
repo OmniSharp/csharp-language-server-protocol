@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// The frames of the stackframe.If the array has length zero, there are no stackframes available.
         /// This means that there is no location information available.
         /// </summary>
-        public Container<StackFrame> stackFrames { get; set; }
+        public Container<StackFrame> StackFrames { get; set; }
 
         /// <summary>
         /// The total number of frames available.
         /// </summary>
-        [Optional] public long? totalFrames { get; set; }
+        [Optional] public long? TotalFrames { get; set; }
 
     }
 

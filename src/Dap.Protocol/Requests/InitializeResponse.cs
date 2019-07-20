@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The capabilities of this debug adapter.
         /// </summary>
-        [Optional] public Capabilities body { get; set; }
+        [Optional] public Capabilities Body { get; set; }
     }
 
 }

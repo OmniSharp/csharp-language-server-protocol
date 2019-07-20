@@ -9,12 +9,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// The reason for the event.
         /// Values: 'changed', 'new', 'removed', etc.
         /// </summary>
-        public string reason { get; set; }
+        public string Reason { get; set; }
 
         /// <summary>
         /// The 'id' attribute is used to find the target breakpoint and the other attributes are used as the new values.
         /// </summary>
-        public Breakpoint breakpoint { get; set; }
+        public Breakpoint Breakpoint { get; set; }
     }
 
 }

@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Execute 'reverseContinue' for this thread.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
     }
 
 }

@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The set of updated capabilities.
         /// </summary>
-        public Capabilities capabilities { get; set; }
+        public Capabilities Capabilities { get; set; }
     }
 
 }

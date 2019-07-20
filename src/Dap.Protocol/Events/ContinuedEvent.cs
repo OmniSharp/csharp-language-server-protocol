@@ -10,12 +10,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The thread which was continued.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
 
         /// <summary>
         /// If 'allThreadsContinued' is true, a debug adapter can announce that all threads have continued.
         /// </summary>
-        [Optional] public bool? allThreadsContinued { get; set; }
+        [Optional] public bool? AllThreadsContinued { get; set; }
     }
 
 }

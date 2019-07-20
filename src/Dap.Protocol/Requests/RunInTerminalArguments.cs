@@ -9,27 +9,27 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// What kind of terminal to launch.
         /// </summary>
-        [Optional] public RunInTerminalArgumentsKind kind { get; set; }
+        [Optional] public RunInTerminalArgumentsKind Kind { get; set; }
 
         /// <summary>
         /// Optional title of the terminal.
         /// </summary>
-        [Optional] public string title { get; set; }
+        [Optional] public string Title { get; set; }
 
         /// <summary>
         /// Working directory of the command.
         /// </summary>
-        public string cwd { get; set; }
+        public string Cwd { get; set; }
 
         /// <summary>
         /// List of arguments.The first argument is the command to run.
         /// </summary>
-        public Container<string> args { get; set; }
+        public Container<string> Args { get; set; }
 
         /// <summary>
         /// Environment key-value pairs that are added to or removed from the default environment.
         /// </summary>
-        [Optional] public IDictionary<string, string> env { get; set; }
+        [Optional] public IDictionary<string, string> Env { get; set; }
 
         public override bool Equals(object obj)
         {

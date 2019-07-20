@@ -8,18 +8,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Memory reference to the base location from which data should be read.
         /// </summary>
-        public string memoryReference { get; set; }
+        public string MemoryReference { get; set; }
 
         /// <summary>
         /// Optional offset(in bytes) to be applied to the reference location before reading data.Can be negative.
         /// </summary>
 
-        [Optional] public long? offset { get; set; }
+        [Optional] public long? Offset { get; set; }
 
         /// <summary>
         /// Number of bytes to read at the specified location and offset.
         /// </summary>
-        public long count { get; set; }
+        public long Count { get; set; }
     }
 
 }

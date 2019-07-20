@@ -8,27 +8,27 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The Variable reference.
         /// </summary>
-        public long variablesReference { get; set; }
+        public long VariablesReference { get; set; }
 
         /// <summary>
         /// Optional filter to limit the child variables to either named or indexed.If ommited, both types are fetched.
         /// </summary>
-        [Optional] public VariablesArgumentsFilter filter { get; set; }
+        [Optional] public VariablesArgumentsFilter Filter { get; set; }
 
         /// <summary>
         /// The index of the first variable to return; if omitted children start at 0.
         /// </summary>
-        [Optional] public long? start { get; set; }
+        [Optional] public long? Start { get; set; }
 
         /// <summary>
         /// The number of variables to return. If count is missing or 0, all variables are returned.
         /// </summary>
-        [Optional] public long? count { get; set; }
+        [Optional] public long? Count { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the Variable values.
         /// </summary>
-        [Optional] public ValueFormat format { get; set; }
+        [Optional] public ValueFormat Format { get; set; }
     }
 
 }

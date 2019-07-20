@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The stack frame for which to retrieve the possible stepIn targets.
         /// </summary>
-        public long frameId { get; set; }
+        public long FrameId { get; set; }
     }
 
 }

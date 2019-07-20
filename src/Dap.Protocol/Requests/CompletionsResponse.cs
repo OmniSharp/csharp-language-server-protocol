@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The possible completions for .
         /// </summary>
-        public Container<CompletionItem> targets { get; set; }
+        public Container<CompletionItem> Targets { get; set; }
     }
 
 }

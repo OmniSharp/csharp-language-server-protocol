@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// A value of true indicates that this 'terminate' request is part of a restart sequence.
         /// </summary>
-        [Optional] public bool? restart { get; set; }
+        [Optional] public bool? Restart { get; set; }
     }
 
 }

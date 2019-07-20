@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The reason for the event.
         /// </summary>
-        public ModuleEventReason reason { get; set; }
+        public ModuleEventReason Reason { get; set; }
 
         /// <summary>
         /// The new, changed, or removed module. In case of 'removed' only the module id is used.
         /// </summary>
-        public Module module { get; set; }
+        public Module Module { get; set; }
     }
 
 }

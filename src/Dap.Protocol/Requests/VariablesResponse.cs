@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// All(or a range) of variables for the given variable reference.
         /// </summary>
-        public Container<Variable> variables { get; set; }
+        public Container<Variable> Variables { get; set; }
     }
 
 }

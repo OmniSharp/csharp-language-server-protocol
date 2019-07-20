@@ -7,12 +7,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Set the goto target for this thread.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
 
         /// <summary>
         /// The location where the debuggee will continue to run.
         /// </summary>
-        public long targetId { get; set; }
+        public long TargetId { get; set; }
     }
 
 }

@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Specifies the source content to load.Either source.path or source.sourceReference must be specified.
         /// </summary>
-        [Optional] public Source source { get; set; }
+        [Optional] public Source Source { get; set; }
 
         /// <summary>
         /// The reference to the source.This is the same as source.sourceReference.This is provided for backward compatibility since old backends do not understand the 'source' attribute.
         /// </summary>
-        public long sourceReference { get; set; }
+        public long SourceReference { get; set; }
     }
 
 }

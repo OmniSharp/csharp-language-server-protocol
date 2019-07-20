@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The possible goto targets of the specified location.
         /// </summary>
-        public Container<GotoTarget> targets { get; set; }
+        public Container<GotoTarget> Targets { get; set; }
     }
 
 }

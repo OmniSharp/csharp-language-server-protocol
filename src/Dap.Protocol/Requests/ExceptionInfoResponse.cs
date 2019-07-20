@@ -7,22 +7,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// ID of the exception that was thrown.
         /// </summary>
-        public string exceptionId { get; set; }
+        public string ExceptionId { get; set; }
 
         /// <summary>
         /// Descriptive text for the exception provided by the debug adapter.
         /// </summary>
-        [Optional] public string description { get; set; }
+        [Optional] public string Description { get; set; }
 
         /// <summary>
         /// Mode that caused the exception notification to be raised.
         /// </summary>
-        public ExceptionBreakMode breakMode { get; set; }
+        public ExceptionBreakMode BreakMode { get; set; }
 
         /// <summary>
         /// Detailed information about the exception.
         /// </summary>
-        [Optional] public ExceptionDetails details { get; set; }
+        [Optional] public ExceptionDetails Details { get; set; }
     }
 
 }

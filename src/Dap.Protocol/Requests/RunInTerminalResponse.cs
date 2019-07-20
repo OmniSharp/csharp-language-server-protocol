@@ -7,12 +7,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The process ID.
         /// </summary>
-        [Optional] public long? processId { get; set; }
+        [Optional] public long? ProcessId { get; set; }
 
         /// <summary>
         /// The process ID of the terminal shell.
         /// </summary>
-        [Optional] public long? shellProcessId { get; set; }
+        [Optional] public long? ShellProcessId { get; set; }
     }
 
 }

@@ -7,12 +7,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// All modules or range of modules.
         /// </summary>
-        public Container<Module> modules { get; set; }
+        public Container<Module> Modules { get; set; }
 
         /// <summary>
         /// The total number of modules available.
         /// </summary>
-        [Optional] public long? totalModules { get; set; }
+        [Optional] public long? TotalModules { get; set; }
     }
 
 }

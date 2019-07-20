@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Execute 'stepIn' for this thread.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
 
         /// <summary>
         /// Optional id of the target to step into.
         /// </summary>
-        [Optional] public long? targetId { get; set; }
+        [Optional] public long? TargetId { get; set; }
     }
 
 }

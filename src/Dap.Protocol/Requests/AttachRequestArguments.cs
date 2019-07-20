@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// The client should leave the data intact.
         /// </summary>
         [Optional]
-        public JToken __restart { get; set; }
+        public JToken Restart { get; set; }
     }
 
 }

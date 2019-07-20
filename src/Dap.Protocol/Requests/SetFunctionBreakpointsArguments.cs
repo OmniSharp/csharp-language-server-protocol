@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The function names of the breakpoints.
         /// </summary>
-        public Container<FunctionBreakpoint> breakpoints { get; set; }
+        public Container<FunctionBreakpoint> Breakpoints { get; set; }
     }
 
 }

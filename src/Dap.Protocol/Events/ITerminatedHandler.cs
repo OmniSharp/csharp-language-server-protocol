@@ -32,4 +32,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
             public override Task<Unit> Handle(TerminatedEvent request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
         }
     }
+
 }

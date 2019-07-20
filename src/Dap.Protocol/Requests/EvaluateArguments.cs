@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The expression to evaluate.
         /// </summary>
-        public string expression { get; set; }
+        public string Expression { get; set; }
 
         /// <summary>
         /// Evaluate the expression in the scope of this stack frame. If not specified, the expression is evaluated in the global scope.
         /// </summary>
-        [Optional] public long? frameId { get; set; }
+        [Optional] public long? FrameId { get; set; }
 
         /// <summary>
         /// The context in which the evaluate request is run.
@@ -23,12 +23,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// 'hover': evaluate is run from a data hover.
         /// etc.
         /// </summary>
-        [Optional] public string context { get; set; }
+        [Optional] public string Context { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the Evaluate result.
         /// </summary>
-        [Optional] public ValueFormat format { get; set; }
+        [Optional] public ValueFormat Format { get; set; }
     }
 
 }

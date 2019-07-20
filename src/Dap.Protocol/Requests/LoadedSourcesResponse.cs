@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Set of loaded sources.
         /// </summary>
-        public Container<Source> sources { get; set; }
+        public Container<Source> Sources { get; set; }
     }
 
 }

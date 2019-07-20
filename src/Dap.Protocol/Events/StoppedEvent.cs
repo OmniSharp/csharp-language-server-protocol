@@ -10,34 +10,34 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// For backward compatibility this string is shown in the UI if the 'description' attribute is missing (but it must not be translated).
         /// Values: 'step', 'breakpoint', 'exception', 'pause', 'entry', 'goto', 'function breakpoint', 'data breakpoint', etc.
         /// </summary>
-        public string reason { get; set; }
+        public string Reason { get; set; }
 
         /// <summary>
         /// The full reason for the event, e.g. 'Paused on exception'. This string is shown in the UI as is and must be translated.
         /// </summary>
-        [Optional] public string description { get; set; }
+        [Optional] public string Description { get; set; }
 
         /// <summary>
         /// The thread which was stopped.
         /// </summary>
-        [Optional] public long? threadId { get; set; }
+        [Optional] public long? ThreadId { get; set; }
 
         /// <summary>
         /// A value of true hints to the frontend that this event should not change the focus.
         /// </summary>
-        [Optional] public bool? preserveFocusHint { get; set; }
+        [Optional] public bool? PreserveFocusHint { get; set; }
 
         /// <summary>
         /// Additional information. E.g. if reason is 'exception', text contains the exception name. This string is shown in the UI.
         /// </summary>
-        [Optional] public string text { get; set; }
+        [Optional] public string Text { get; set; }
 
         /// <summary>
         /// If 'allThreadsStopped' is true, a debug adapter can announce that all threads have stopped.
         /// - The client should use this information to enable that all threads can be expanded to access their stacktraces.
         /// - If the attribute is missing or false, only the thread with the given threadId can be expanded.
         /// </summary>
-        [Optional] public bool? allThreadsStopped { get; set; }
+        [Optional] public bool? AllThreadsStopped { get; set; }
     }
 
 }

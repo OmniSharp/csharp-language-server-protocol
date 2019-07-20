@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The reason for the event.
         /// </summary>
-        public LoadedSourceReason reason { get; set; }
+        public LoadedSourceReason Reason { get; set; }
 
         /// <summary>
         /// The new, changed, or removed source.
         /// </summary>
-        public Source source { get; set; }
+        public Source Source { get; set; }
     }
 
 }

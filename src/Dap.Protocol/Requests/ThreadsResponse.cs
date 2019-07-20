@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// All threads.
         /// </summary>
-        public Container<Thread> threads { get; set; }
+        public Container<Thread> Threads { get; set; }
     }
 
 }

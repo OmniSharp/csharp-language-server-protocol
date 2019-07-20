@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Thread for which exception information should be retrieved.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
     }
 
 }

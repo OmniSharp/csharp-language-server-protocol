@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// If noDebug is true the launch request should launch the program without enabling debugging.
         /// </summary>
-        [Optional] public bool? noDebug { get; set; }
+        [Optional] public bool? NoDebug { get; set; }
 
         /// <summary>
         /// Optional data from the previous, restarted session.
@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// The client should leave the data intact.
         /// </summary>
         [Optional]
-        public JToken __restart { get; set; }
+        public JToken Restart { get; set; }
     }
 
 }

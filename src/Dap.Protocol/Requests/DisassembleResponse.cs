@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The list of disassembled instructions.
         /// </summary>
-        public Container<DisassembledInstruction> instructions { get; set; }
+        public Container<DisassembledInstruction> Instructions { get; set; }
     }
 
 }

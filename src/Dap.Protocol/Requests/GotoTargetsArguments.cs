@@ -8,17 +8,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The source location for which the goto targets are determined.
         /// </summary>
-        public Source source { get; set; }
+        public Source Source { get; set; }
 
         /// <summary>
         /// The line location for which the goto targets are determined.
         /// </summary>
-        public long line { get; set; }
+        public long Line { get; set; }
 
         /// <summary>
         /// An optional column location for which the goto targets are determined.
         /// </summary>
-        [Optional] public long? column { get; set; }
+        [Optional] public long? Column { get; set; }
     }
 
 }

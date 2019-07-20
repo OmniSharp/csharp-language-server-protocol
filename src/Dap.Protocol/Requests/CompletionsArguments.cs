@@ -8,22 +8,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Returns completions in the scope of this stack frame. If not specified, the completions are returned for the global scope.
         /// </summary>
-        [Optional] public long? frameId { get; set; }
+        [Optional] public long? FrameId { get; set; }
 
         /// <summary>
         /// One or more source lines.Typically this is the text a user has typed into the debug console before he asked for completion.
         /// </summary>
-        public string text { get; set; }
+        public string Text { get; set; }
 
         /// <summary>
         /// The character position for which to determine the completion proposals.
         /// </summary>
-        public long column { get; set; }
+        public long Column { get; set; }
 
         /// <summary>
         /// An optional line for which to determine the completion proposals.If missing the first line of the text is assumed.
         /// </summary>
-        [Optional] public long? line { get; set; }
+        [Optional] public long? Line { get; set; }
     }
 
 }

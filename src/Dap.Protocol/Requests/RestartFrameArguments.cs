@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Restart this stackframe.
         /// </summary>
-        public long frameId { get; set; }
+        public long FrameId { get; set; }
     }
 
 }

@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The exit code returned from the debuggee.
         /// </summary>
-        public long exitCode { get; set; }
+        public long ExitCode { get; set; }
     }
 
 }

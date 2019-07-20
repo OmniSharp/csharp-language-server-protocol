@@ -9,12 +9,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// The reason for the event.
         /// Values: 'started', 'exited', etc.
         /// </summary>
-        public string reason { get; set; }
+        public string Reason { get; set; }
 
         /// <summary>
         /// The identifier of the thread.
         /// </summary>
-        public long threadId { get; set; }
+        public long ThreadId { get; set; }
     }
 
 }

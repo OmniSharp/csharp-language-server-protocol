@@ -8,22 +8,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The reference of the variable container.
         /// </summary>
-        public long variablesReference { get; set; }
+        public long VariablesReference { get; set; }
 
         /// <summary>
         /// The name of the variable in the container.
         /// </summary>
-        public string name { get; set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The value of the variable.
         /// </summary>
-        public string value { get; set; }
+        public string Value { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the response value.
         /// </summary>
-        [Optional] public ValueFormat format { get; set; }
+        [Optional] public ValueFormat Format { get; set; }
     }
 
 }
