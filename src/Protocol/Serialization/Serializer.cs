@@ -12,7 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class Serializer : JsonRpcSerializer
+    public class Serializer : JsonRpcSerializer, ISerializer
     {
         private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum.GetValues(typeof(CompletionItemKind))
             .Cast<CompletionItemKind>()
@@ -79,7 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             base.AddOrReplaceConverters(converters);
         }
 
-        public void SetClientCapabilities(ClientCapabilities clientCapabilities)
+        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var documentSymbolKinds = DefaultSymbolKinds;
