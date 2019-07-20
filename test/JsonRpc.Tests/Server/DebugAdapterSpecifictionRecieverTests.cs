@@ -106,25 +106,6 @@ namespace JsonRpc.Tests.Server
                     {
                         new InvalidRequest("Not an object")
                     });
-
-                //yield return (
-                //    @"[
-                //        {""jsonrpc"": ""2.0"", ""method"": ""sum"", ""params"": [1,2,4], ""id"": ""1""},
-                //        {""jsonrpc"": ""2.0"", ""method"": ""notify_hello"", ""params"": [7]},
-                //        {""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42,23], ""id"": ""2""},
-                //        {""foo"": ""boo""},
-                //        {""jsonrpc"": ""2.0"", ""method"": ""foo.get"", ""params"": {""name"": ""myself""}, ""id"": ""5""},
-                //        {""jsonrpc"": ""2.0"", ""method"": ""get_data"", ""id"": ""9""}
-                //    ]",
-                //    new Renor[]
-                //    {
-                //        new Request("1", "sum", new JArray(new [] {1,2,4})),
-                //        new Notification("notify_hello", new JArray(new [] {7})),
-                //        new Request("2", "subtract", new JArray(new [] {42,23})),
-                //        new InvalidRequest("Unexpected protocol"),
-                //        new Request("5", "foo.get", JObject.FromObject(new {name = "myself"})),
-                //        new Request("9", "get_data", null),
-                //    });
             }
         }
 

@@ -84,6 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new ClientResponseConverter());
             ReplaceConverter(converters, new ClientRequestConverter());
             ReplaceConverter(converters, new RpcErrorConverter());
+            ReplaceConverter(converters, new ErrorMessageConverter());
         }
 
         private static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
