@@ -146,7 +146,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 
-                        return new JsonRpc.Client.Response(request.Id, responseValue);
+                        return new JsonRpc.Client.Response(request.Id, responseValue, request);
                     }
                     catch (TaskCanceledException e)
                     {

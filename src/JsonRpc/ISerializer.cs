@@ -10,5 +10,6 @@ namespace OmniSharp.Extensions.JsonRpc
         string SerializeObject(object value);
         object DeserializeObject(string json, Type type);
         T DeserializeObject<T>(string json);
+        long GetNextId();
     }
 }

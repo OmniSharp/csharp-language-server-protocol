@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
@@ -11,6 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     public class Serializer : ISerializer
     {
+        private readonly object _lock = new object();
+        private long _id = 0;
         private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum.GetValues(typeof(CompletionItemKind))
             .Cast<CompletionItemKind>()
             .Where(x => x < CompletionItemKind.Folder)
@@ -75,6 +78,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
             ReplaceConverter(converters, new ParameterInformationLabelConverter());
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
+
+
+            ReplaceConverter(converters, new ClientNotificationConverter());
+            ReplaceConverter(converters, new ClientResponseConverter());
+            ReplaceConverter(converters, new ClientRequestConverter());
+            ReplaceConverter(converters, new RpcErrorConverter());
         }
 
         private static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
@@ -158,6 +167,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 documentSymbolKinds,
                 workspaceSymbolKinds
             );
+        }
+        public long GetNextId()
+        {
+            lock (_lock)
+            {
+                return _id++;
+            }
         }
     }
 }

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -10,16 +8,17 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
+using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
-using Response = OmniSharp.Extensions.JsonRpc.Client.Response;
 
 namespace JsonRpc.Tests
 {
-    public class InputHandlerTests
+    public class DapInputHandlerTests
     {
         private static InputHandler NewHandler(
             Stream inputStream,
@@ -43,7 +42,7 @@ namespace JsonRpc.Tests
                 requestRouter,
                 responseRouter,
                 Substitute.For<ILoggerFactory>(),
-                new JsonRpcSerializer());
+                new DapSerializer());
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();

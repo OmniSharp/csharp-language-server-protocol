@@ -2,8 +2,9 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using NSubstitute;
 using FluentAssertions;
+using Newtonsoft.Json.Linq;
+using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
@@ -13,7 +14,7 @@ using Xunit;
 
 namespace JsonRpc.Tests
 {
-    public class OutputHandlerTests
+    public class DapOutputHandlerTests
     {
         private static (OutputHandler handler, Func<Task> wait) NewHandler(Stream Writer, Action<CancellationTokenSource> action)
         {
@@ -24,7 +25,7 @@ namespace JsonRpc.Tests
 
             var handler = new OutputHandler(
                 Writer,
-                new JsonRpcSerializer());
+                new DapSerializer());
             handler.Start();
             return (handler, () => {
                         cts.Wait();
@@ -47,20 +48,19 @@ namespace JsonRpc.Tests
                         cts.Cancel();
                     });
             });
-            var value = new Response(1, 1, new OmniSharp.Extensions.JsonRpc.Server.Request(1, "a", null));
+            var value = new Response(1, new object(), new OmniSharp.Extensions.JsonRpc.Server.Request(1, "command", new JObject()));
 
             using (handler)
             {
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":1}";
+                const string send = "Content-Length: 73\r\n\r\n{\"seq\":0,\"type\":\"response\",\"request_seq\":1,\"command\":\"command\",\"body\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
             }
         }
-
 
         [Fact]
         public async Task ShouldSerializeNotifications()
@@ -86,7 +86,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 47\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"method\",\"params\":{}}";
+                const string send = "Content-Length: 51\r\n\r\n{\"seq\":0,\"type\":\"event\",\"event\":\"method\",\"body\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
@@ -118,7 +118,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 47\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"method\",\"params\":{}}";
+                const string send = "Content-Length: 60\r\n\r\n{\"seq\":1,\"type\":\"request\",\"command\":\"method\",\"arguments\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
@@ -146,7 +146,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":1,\"message\":\"something\",\"data\":{}}}";
+                const string send = "Content-Length: 47\r\n\r\n{\"seq\":0,\"request_seq\":1,\"message\":\"something\"}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
