@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -11,8 +11,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             writer.WriteStartObject();
             writer.WritePropertyName("code");
             writer.WriteValue(value.Code);
-            writer.WritePropertyName("data");
-            writer.WriteValue(value.Data);
+            if (value.Data != null)
+            {
+                writer.WritePropertyName("data");
+                writer.WriteValue(value.Data);
+            }
             writer.WritePropertyName("message");
             writer.WriteValue(value.Message);
             writer.WriteEndObject();
