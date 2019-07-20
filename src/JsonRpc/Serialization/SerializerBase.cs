@@ -1,13 +1,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
 {
     public abstract class SerializerBase : ISerializer
     {
-        private readonly object _lock = new object();
         private long _id = 0;
         public SerializerBase()
         {
@@ -61,10 +61,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
         }
         public long GetNextId()
         {
-            lock (_lock)
-            {
-                return _id++;
-            }
+            return Interlocked.Increment(ref _id);
         }
         protected abstract void AddOrReplaceConverters(ICollection<JsonConverter> converters);
     }

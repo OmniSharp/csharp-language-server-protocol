@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
       <TargetFrameworks>netstandard2.0</TargetFrameworks>
@@ -10,7 +10,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
-    <ProjectReference Include="..\DebugAdapterRpc\DebugAdapterRpc.csproj" />
   </ItemGroup>
 
 </Project>

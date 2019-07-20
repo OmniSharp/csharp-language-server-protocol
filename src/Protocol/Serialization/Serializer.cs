@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
@@ -12,8 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     public class Serializer : ISerializer
     {
-        private readonly object _lock = new object();
-        private long _id = 0;
+        private long _id;
         private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum.GetValues(typeof(CompletionItemKind))
             .Cast<CompletionItemKind>()
             .Where(x => x < CompletionItemKind.Folder)
@@ -171,10 +171,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         }
         public long GetNextId()
         {
-            lock (_lock)
-            {
-                return _id++;
-            }
+            return Interlocked.Increment(ref _id);
         }
     }
 }

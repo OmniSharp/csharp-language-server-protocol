@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                 data = dataToken.ToObject< ErrorMessage>(serializer);
             }
 
-            return new RpcError(id, data);
+            return new RpcError(requestId, data);
         }
     }
 }

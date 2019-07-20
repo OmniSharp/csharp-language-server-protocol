@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
                 data = dataToken.ToObject<ErrorMessage>(serializer);
             }
 
-            return new RpcError(id, data);
+            return new RpcError(requestId, data);
         }
     }
 }
