@@ -9,24 +9,19 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
     public abstract class SerializerBase : ISerializer
     {
         private long _id = 0;
-        public SerializerBase()
-        {
-            JsonSerializer = CreateSerializer();
-            Settings = CreateSerializerSettings();
-        }
 
-        protected JsonSerializer CreateSerializer()
+        protected virtual JsonSerializer CreateSerializer()
         {
             var serializer = JsonSerializer.CreateDefault();
             AddOrReplaceConverters(serializer.Converters);
-            return serializer;
+            return _jsonSerializer = serializer;
         }
 
-        protected JsonSerializerSettings CreateSerializerSettings()
+        protected virtual JsonSerializerSettings CreateSerializerSettings()
         {
             var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
             AddOrReplaceConverters(settings.Converters);
-            return settings;
+            return _settings = settings;
         }
 
         protected internal static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
@@ -41,9 +36,12 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             converters.Add(item);
         }
 
-        public JsonSerializer JsonSerializer { get; }
+        private JsonSerializer _jsonSerializer;
+        public JsonSerializer JsonSerializer => _jsonSerializer ?? ( CreateSerializer() );
 
-        public JsonSerializerSettings Settings { get; }
+
+        private JsonSerializerSettings _settings;
+        public JsonSerializerSettings Settings => _settings ?? ( CreateSerializerSettings() );
 
         public string SerializeObject(object value)
         {

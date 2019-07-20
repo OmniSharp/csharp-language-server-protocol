@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -11,9 +12,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class Serializer : ISerializer
+    public class Serializer : JsonRpcSerializer
     {
-        private long _id;
         private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum.GetValues(typeof(CompletionItemKind))
             .Cast<CompletionItemKind>()
             .Where(x => x < CompletionItemKind.Folder)
@@ -24,41 +24,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             .Where(x => x < SymbolKind.Key)
             .ToArray();
 
+        public ClientVersion ClientVersion { get; private set; }
+
         public static Serializer Instance { get; } = new Serializer();
         public Serializer() : this(ClientVersion.Lsp3) { }
         public Serializer(ClientVersion clientVersion)
         {
-            JsonSerializer = CreateSerializer(clientVersion);
-            Settings = CreateSerializerSettings(clientVersion);
+            ClientVersion = clientVersion;
         }
 
-        private static JsonSerializer CreateSerializer(ClientVersion version)
+
+        protected override JsonSerializer CreateSerializer()
         {
-            var serializer = JsonSerializer.CreateDefault();
+            var serializer = base.CreateSerializer();
             serializer.ContractResolver = new ContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultSymbolKinds,
                 DefaultSymbolKinds
             );
-            AddOrReplaceConverters(serializer.Converters, version);
-
             return serializer;
         }
 
-        private static JsonSerializerSettings CreateSerializerSettings(ClientVersion version)
+        protected override JsonSerializerSettings CreateSerializerSettings()
         {
-            var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
+            var settings = base.CreateSerializerSettings();
             settings.ContractResolver = new ContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultSymbolKinds,
                 DefaultSymbolKinds
             );
-            AddOrReplaceConverters(settings.Converters, version);
-
             return settings;
         }
 
-        private static void AddOrReplaceConverters(ICollection<JsonConverter> converters, ClientVersion version)
+        protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
         {
             ReplaceConverter(converters, new SupportsConverter());
             ReplaceConverter(converters, new CompletionListConverter());
@@ -78,47 +76,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
             ReplaceConverter(converters, new ParameterInformationLabelConverter());
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
-
-
-            ReplaceConverter(converters, new ClientNotificationConverter());
-            ReplaceConverter(converters, new ClientResponseConverter());
-            ReplaceConverter(converters, new ClientRequestConverter());
-            ReplaceConverter(converters, new RpcErrorConverter());
-            ReplaceConverter(converters, new ErrorMessageConverter());
+            base.AddOrReplaceConverters(converters);
         }
 
-        private static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
-            where T : JsonConverter
-        {
-            var existingConverters = converters.OfType<T>().ToArray();
-            if (existingConverters.Any())
-            {
-                foreach (var converter in existingConverters)
-                    converters.Remove(converter);
-            }
-            converters.Add(item);
-        }
-
-        public JsonSerializer JsonSerializer { get; }
-
-        public JsonSerializerSettings Settings { get; }
-
-        public string SerializeObject(object value)
-        {
-            return JsonConvert.SerializeObject(value, Settings);
-        }
-
-        public object DeserializeObject(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, Settings);
-        }
-
-        public T DeserializeObject<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, Settings);
-        }
-
-        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
+        public void SetClientCapabilities(ClientCapabilities clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var documentSymbolKinds = DefaultSymbolKinds;
@@ -155,23 +116,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             }
 
 
-            AddOrReplaceConverters(Settings.Converters, clientVersion);
+            AddOrReplaceConverters(Settings.Converters);
             Settings.ContractResolver = new ContractResolver(
                 completionItemKinds,
                 documentSymbolKinds,
                 workspaceSymbolKinds
             );
 
-            AddOrReplaceConverters(JsonSerializer.Converters, clientVersion);
+            AddOrReplaceConverters(JsonSerializer.Converters);
             JsonSerializer.ContractResolver = new ContractResolver(
                 completionItemKinds,
                 documentSymbolKinds,
                 workspaceSymbolKinds
             );
-        }
-        public long GetNextId()
-        {
-            return Interlocked.Increment(ref _id);
         }
     }
 }
