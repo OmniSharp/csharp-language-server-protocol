@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>VariablePresentationHint
     /// Optional properties of a variable that can be used to determine how to render the variable in the UI.

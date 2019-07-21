@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// The ModulesViewDescriptor is the container for all declarative configuration options of a ModuleView.

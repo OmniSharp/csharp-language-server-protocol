@@ -10,5 +10,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// </summary>
         public long ExitCode { get; set; }
     }
-
 }

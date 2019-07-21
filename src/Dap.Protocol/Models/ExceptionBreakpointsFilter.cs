@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>ExceptionBreakpointsFilter
     /// An ExceptionBreakpointsFilter is shown in the UI as an option for configuring how exceptions are dealt with.

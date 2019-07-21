@@ -1,10 +1,10 @@
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.Embedded.MediatR;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
     public class BreakpointEvent : IRequest
     {
-
         /// <summary>
         /// The reason for the event.
         /// Values: 'changed', 'new', 'removed', etc.

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A structured message object. Used to return errors from requests.

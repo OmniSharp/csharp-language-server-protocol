@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// Names of checksum algorithms that may be supported by a debug adapter.

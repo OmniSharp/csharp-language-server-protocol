@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A StepInTarget can be used in the ‘stepIn’ request and determines into which single target the stepIn request should step.

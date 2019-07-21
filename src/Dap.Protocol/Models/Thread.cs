@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A Thread

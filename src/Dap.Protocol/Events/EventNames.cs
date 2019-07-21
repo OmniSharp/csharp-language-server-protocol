@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -20,5 +20,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         public const string Process = "process";
         public const string Capabilities = "capabilities";
     }
-
 }

@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>FunctionBreakpoint
     /// Properties of a breakpoint passed to the setFunctionBreakpoints request.

@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A GotoTarget describes a code location that can be used as a target in the ‘goto’ request.

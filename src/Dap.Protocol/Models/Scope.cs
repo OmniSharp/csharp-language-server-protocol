@@ -1,6 +1,6 @@
 ﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A Scope is a named container for variables.Optionally a scope can map to a source or a range within a source.

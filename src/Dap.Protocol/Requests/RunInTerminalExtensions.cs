@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     public static class RunInTerminalExtensions
     {

@@ -1,7 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// A Source is a descriptor for source code.It is returned from the debug adapter as part of a StackFrame and it is used by clients when specifying breakpoints.

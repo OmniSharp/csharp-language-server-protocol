@@ -1,4 +1,5 @@
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.Embedded.MediatR;
 

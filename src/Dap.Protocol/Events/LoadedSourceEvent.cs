@@ -1,3 +1,4 @@
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.Embedded.MediatR;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events

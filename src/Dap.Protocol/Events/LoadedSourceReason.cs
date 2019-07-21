@@ -8,5 +8,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
     {
         New, Changed, Removed
     }
-
 }

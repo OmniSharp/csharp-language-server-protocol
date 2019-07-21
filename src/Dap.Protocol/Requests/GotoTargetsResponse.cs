@@ -1,7 +1,6 @@
-﻿using System.Text;
-using System.Threading;
+﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     public class GotoTargetsResponse
     {

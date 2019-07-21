@@ -1,6 +1,7 @@
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.Embedded.MediatR;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     public class SetDataBreakpointsArguments : IRequest<SetDataBreakpointsResponse>
     {

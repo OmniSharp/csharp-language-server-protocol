@@ -1,6 +1,6 @@
 using OmniSharp.Extensions.Embedded.MediatR;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     public class StepBackArguments : IRequest<StepBackResponse>
     {

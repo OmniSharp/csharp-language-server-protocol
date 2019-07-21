@@ -5,8 +5,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
     public class ContinuedEvent : IRequest
     {
-
-
         /// <summary>
         /// The thread which was continued.
         /// </summary>
@@ -17,5 +15,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// </summary>
         [Optional] public bool? AllThreadsContinued { get; set; }
     }
-
 }

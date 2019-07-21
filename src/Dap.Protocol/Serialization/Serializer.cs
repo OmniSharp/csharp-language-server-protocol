@@ -8,7 +8,7 @@ using OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
 {
-    public class DapProtocolSerializer : DapSerializer
+    public class DapProtocolSerializer : DapSerializer, ISerializer
     {
         protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
         {

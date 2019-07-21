@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// The checksum of an item calculated by the specified algorithm.

@@ -1,4 +1,6 @@
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     public class ScopesResponse
     {
