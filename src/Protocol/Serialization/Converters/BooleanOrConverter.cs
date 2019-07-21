@@ -25,7 +25,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (value.IsValue)
             {
-                new JValue(value.Value).WriteTo(writer);
+                if (typeof(T).IsValueType)
+                {
+                    new JValue(value.Value).WriteTo(writer);
+                }
+                else
+                {
+                    serializer.Serialize(writer, value.Value);
+                }
+                
                 return;
             }
 

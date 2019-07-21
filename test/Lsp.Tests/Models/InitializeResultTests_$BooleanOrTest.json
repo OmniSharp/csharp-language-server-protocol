@@ -1,0 +1,61 @@
+{
+    "capabilities": {
+        "hoverProvider": false,
+        "definitionProvider": false,
+        "referencesProvider": false,
+        "documentHighlightProvider": false,
+        "documentSymbolProvider": false,
+        "workspaceSymbolProvider": false,
+        "codeActionProvider": {
+            "codeActionKinds": [
+                "quickfix"
+            ]
+        },
+        "documentFormattingProvider": false,
+        "documentRangeFormattingProvider": false,
+        "renameProvider": {
+            "prepareProvider": true
+        },
+        "experimental": {},
+        "typeDefinitionProvider": {
+            "id": "foo",
+            "documentSelector": [
+                {
+                    "pattern": "**/*.foo"
+                }
+            ]
+        },
+        "implementationProvider": {
+            "id": "foo",
+            "documentSelector": [
+                {
+                    "pattern": "**/*.foo"
+                }
+            ]
+        },
+        "colorProvider": {
+            "id": "foo",
+            "documentSelector": [
+                {
+                    "pattern": "**/*.foo"
+                }
+            ]
+        },
+        "foldingRangeProvider": {
+            "id": "foo",
+            "documentSelector": [
+                {
+                    "pattern": "**/*.foo"
+                }
+            ]
+        },
+        "declarationProvider": {
+            "id": "foo",
+            "documentSelector": [
+                {
+                    "pattern": "**/*.foo"
+                }
+            ]
+        }
+    }
+}
