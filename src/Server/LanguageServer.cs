@@ -487,13 +487,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 else
                 {
                     defaultTextDocumentSyncOptions.Change = textDocumentSyncKind;
-                    serverCapabilities.TextDocumentSync = defaultTextDocumentSyncOptions;
                 }
-            }
-            else
-            {
-                defaultTextDocumentSyncOptions.Change = TextDocumentSyncKind.None;
-                serverCapabilities.TextDocumentSync = defaultTextDocumentSyncOptions;
             }
 
             // TODO: Need a call back here
