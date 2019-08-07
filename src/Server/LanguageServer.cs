@@ -474,7 +474,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
                     {
                         Change = TextDocumentSyncKind.None,
-                        OpenClose = (_collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler))),
+                        OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
                             new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
                             null,
