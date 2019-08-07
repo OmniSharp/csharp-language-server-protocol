@@ -329,7 +329,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 var registrations = handlerDisposable.Descriptors
                     .Where(d => d.AllowsDynamicRegistration)
-                    .Select(d => new Registration() {
+                    .Select(d => new Registration()
+                    {
                         Id = d.Id.ToString(),
                         Method = d.Method,
                         RegisterOptions = d.RegistrationOptions
@@ -409,6 +410,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
+            var defaultTextDocumentSyncOptions = new TextDocumentSyncOptions()
+            {
+                Change = TextDocumentSyncKind.None,
+                OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
+                Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
+                            new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
+                            null,
+                WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
+                WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
+            };
+
             var serverCapabilities = new ServerCapabilities()
             {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
@@ -422,7 +434,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
                 DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
-                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of),
+                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of(defaultTextDocumentSyncOptions)),
                 HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
                 RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename).Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
@@ -434,6 +446,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<IFoldingRangeOptions, FoldingRangeOptions>(FoldingRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration).Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
             };
+            if (serverCapabilities.TextDocumentSync.HasOptions)
+            {
+                defaultTextDocumentSyncOptions = serverCapabilities.TextDocumentSync.Options;
+            }
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -449,13 +465,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
             {
-                var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
-                    ? _collection
+                var textDocumentSyncKind = TextDocumentSyncKind.None;
+                if (_collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler)))
+                {
+                    var kinds = _collection
                         .Select(x => x.Handler)
                         .OfType<IDidChangeTextDocumentHandler>()
-                        .Where(x => x.GetRegistrationOptions()?.SyncKind != TextDocumentSyncKind.None)
-                        .Min(z => z.GetRegistrationOptions()?.SyncKind)
-                    : TextDocumentSyncKind.None;
+                        .Select(x => x.GetRegistrationOptions()?.SyncKind ?? TextDocumentSyncKind.None)
+                        .Where(x => x != TextDocumentSyncKind.None)
+                        .ToArray();
+                    if (kinds.Any())
+                    {
+                        textDocumentSyncKind = kinds.Min(z => z);
+                    }
+                }
 
                 if (_clientVersion == ClientVersion.Lsp2)
                 {
@@ -463,17 +486,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
-                    {
-                        Change = textDocumentSyncKind ?? TextDocumentSyncKind.None,
-                        OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
-                        Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
-                            new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
-                            null,
-                        WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
-                        WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
-                    };
+                    defaultTextDocumentSyncOptions.Change = textDocumentSyncKind;
+                    serverCapabilities.TextDocumentSync = defaultTextDocumentSyncOptions;
                 }
+            }
+            else
+            {
+                defaultTextDocumentSyncOptions.Change = TextDocumentSyncKind.None;
+                serverCapabilities.TextDocumentSync = defaultTextDocumentSyncOptions;
             }
 
             // TODO: Need a call back here

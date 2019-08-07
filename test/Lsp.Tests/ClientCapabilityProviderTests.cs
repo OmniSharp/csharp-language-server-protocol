@@ -36,7 +36,8 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> AllowSupportedCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true, Activator.CreateInstance(type)) };
@@ -56,7 +57,8 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> AllowUnsupportedCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
@@ -104,7 +106,8 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> AllowNullSupportsCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
@@ -125,7 +128,8 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> DisallowDynamicSupportsCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 var capability = Activator.CreateInstance(type);
@@ -145,12 +149,16 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
             var provider = new ClientCapabilityProvider(collection);
-            var capabilities = new ClientCapabilities() {
-                TextDocument = new TextDocumentClientCapabilities() {
-                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability() {
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability()
+                    {
                         DynamicRegistration = false,
                     }),
-                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability() {
+                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability()
+                    {
                         DynamicRegistration = true,
                     })
                 }
@@ -159,6 +167,57 @@ namespace Lsp.Tests
             provider.GetStaticOptions(capabilities.TextDocument.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of).Should().NotBeNull();
             provider.HasStaticHandler(capabilities.TextDocument.Definition).Should().BeTrue();
             provider.HasStaticHandler(capabilities.TextDocument.TypeDefinition).Should().BeFalse();
+        }
+
+        [Fact]
+        public void GH162_TextDocumentSync_Should_Work_Without_WillSave_Or_WillSaveWaitUntil()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler };
+            var provider = new ClientCapabilityProvider(collection);
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    Synchronization = new SynchronizationCapability()
+                    {
+                        DidSave = true,
+                        DynamicRegistration = false,
+                        WillSave = true,
+                        WillSaveWaitUntil = true
+                    },
+                }
+            };
+
+            provider.HasStaticHandler(capabilities.TextDocument.Synchronization).Should().BeTrue();
+        }
+
+        [Fact]
+        public void GH162_TextDocumentSync_Should_Work_With_WillSave_Or_WillSaveWaitUntil()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var willSaveTextDocumentHandler = Substitute.For<IWillSaveTextDocumentHandler>();
+            var willSaveWaitUntilTextDocumentHandler = Substitute.For<IWillSaveWaitUntilTextDocumentHandler>();
+            var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler, didSaveTextDocumentHandler };
+            var provider = new ClientCapabilityProvider(collection);
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    Synchronization = new SynchronizationCapability()
+                    {
+                        DidSave = true,
+                        DynamicRegistration = false,
+                        WillSave = true,
+                        WillSaveWaitUntil = true
+                    },
+                }
+            };
+
+            provider.HasStaticHandler(capabilities.TextDocument.Synchronization).Should().BeTrue();
         }
 
         private static bool HasHandler(ClientCapabilityProvider provider, object instance)
