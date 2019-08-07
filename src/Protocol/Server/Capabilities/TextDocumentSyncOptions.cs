@@ -37,28 +37,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public SaveOptions Save { get; set; }
 
-        public static Func<IEnumerable<ITextDocumentSyncOptions>, TextDocumentSyncOptions> Of(TextDocumentSyncOptions @default)
+        public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options)
         {
-            return options =>
+            var change = TextDocumentSyncKind.None;
+            if (options.Any())
             {
-                var change = @default.Change;
-                if (@default.Change == TextDocumentSyncKind.None && options.Any())
+                change = options
+                        .Where(x => x.Change != TextDocumentSyncKind.None)
+                        .Min(z => z.Change);
+            }
+            return new TextDocumentSyncOptions()
+            {
+                OpenClose = options.Any(z => z.OpenClose),
+                Change = change,
+                WillSave = options.Any(z => z.WillSave),
+                WillSaveWaitUntil = options.Any(z => z.WillSaveWaitUntil),
+                Save = new SaveOptions()
                 {
-                    change = @default.Change > 0 ? @default.Change : options
-                            .Where(x => x.Change != TextDocumentSyncKind.None)
-                            .Min(z => z.Change);
+                    IncludeText = options.Any(z => z.Save?.IncludeText == true)
                 }
-                return new TextDocumentSyncOptions()
-                {
-                    OpenClose = @default.OpenClose || options.Any(z => z.OpenClose),
-                    Change = change,
-                    WillSave = @default.WillSave || options.Any(z => z.WillSave),
-                    WillSaveWaitUntil = @default.WillSaveWaitUntil || options.Any(z => z.WillSaveWaitUntil),
-                    Save = new SaveOptions()
-                    {
-                        IncludeText = @default.Save?.IncludeText ?? options.Any(z => z.Save?.IncludeText == true)
-                    }
-                };
             };
         }
     }

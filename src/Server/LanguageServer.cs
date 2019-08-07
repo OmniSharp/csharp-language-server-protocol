@@ -410,17 +410,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
-            var defaultTextDocumentSyncOptions = new TextDocumentSyncOptions()
-            {
-                Change = TextDocumentSyncKind.None,
-                OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
-                Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
-                            new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
-                            null,
-                WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
-                WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
-            };
-
             var serverCapabilities = new ServerCapabilities()
             {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
@@ -434,7 +423,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
                 DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
-                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of(defaultTextDocumentSyncOptions)),
+                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of),
                 HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
                 ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
                 RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename).Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
@@ -446,10 +435,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<IFoldingRangeOptions, FoldingRangeOptions>(FoldingRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration).Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
             };
-            if (serverCapabilities.TextDocumentSync.HasOptions)
-            {
-                defaultTextDocumentSyncOptions = serverCapabilities.TextDocumentSync.Options;
-            }
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -486,7 +471,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    defaultTextDocumentSyncOptions.Change = textDocumentSyncKind;
+                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
+                    {
+                        Change = TextDocumentSyncKind.None,
+                        OpenClose = (_collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler))),
+                        Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
+                            new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
+                            null,
+                        WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
+                        WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
+                    };
                 }
             }
 
