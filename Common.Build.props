@@ -22,6 +22,6 @@
         <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.pdb</AllowedReferenceRelatedFileExtensions>
     </PropertyGroup>
     <PropertyGroup Condition="'$(TF_BUILD)'!=''">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+        <ContinuousIntegrationBuild Condition="'$(ContinuousIntegrationBuild)' == ''">true</ContinuousIntegrationBuild>
     </PropertyGroup>
 </Project>
