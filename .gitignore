@@ -42,4 +42,3 @@ coverage.*.xml
 coverage.json
 coverage.info
 /codealike.json
-vscode-testextension/codealike.json
