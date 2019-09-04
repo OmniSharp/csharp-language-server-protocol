@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,6 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
+        private readonly TaskCompletionSource<object> _outputIsFinished;
 
         public OutputHandler(Stream output, ISerializer serializer)
         {
@@ -65,13 +67,23 @@ namespace OmniSharp.Extensions.JsonRpc
             catch (OperationCanceledException ex)
             {
                 if (ex.CancellationToken != token)
-                    throw;
+                    _outputIsFinished.SetException(ex);
                 // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
+            catch (Exception e)
+            {
+                _outputIsFinished.SetException(e);
+            }
+        }
+
+        public Task WaitForShutdown()
+        {
+            return _outputIsFinished.Task;
         }
 
         public void Dispose()
         {
+            _outputIsFinished.TrySetResult(null);
             _cancel.Cancel();
             _thread.Join();
             _cancel.Dispose();
