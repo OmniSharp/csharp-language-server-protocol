@@ -90,7 +90,6 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddJsonRpcMediatR(assemblies);
             services.AddSingleton<IJsonRpcServer>(this);
             services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
-            services.AddSingleton<IReciever, Reciever>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
 
             var foundHandlers = services
