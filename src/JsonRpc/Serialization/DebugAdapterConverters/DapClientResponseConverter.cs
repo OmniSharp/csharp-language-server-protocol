@@ -30,6 +30,9 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             writer.WriteValue("response");
             writer.WritePropertyName("request_seq");
             writer.WriteValue(value.Id);
+            // TODO: Dynamically set this based on handler execution.
+            writer.WritePropertyName("success");
+            writer.WriteValue(true);
             writer.WritePropertyName("command");
             writer.WriteValue(value.Request?.Method);
             if (value.Result != null)
