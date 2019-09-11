@@ -236,9 +236,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
+            _scheduler.Dispose();
             _outputHandler.Dispose();
             _inputThread = null;
-            _scheduler.Dispose();
             _input?.Dispose();
         }
     }

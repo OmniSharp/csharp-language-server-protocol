@@ -71,12 +71,12 @@ namespace OmniSharp.Extensions.JsonRpc
             catch (OperationCanceledException ex)
             {
                 if (ex.CancellationToken != token)
-                    _outputIsFinished.SetException(ex);
+                    _outputIsFinished.TrySetException(ex);
                 // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
             catch (Exception e)
             {
-                _outputIsFinished.SetException(e);
+                _outputIsFinished.TrySetException(e);
             }
         }
 
