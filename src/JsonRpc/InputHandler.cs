@@ -72,52 +72,59 @@ namespace OmniSharp.Extensions.JsonRpc
             // content is encoded in UTF-8
             while (true)
             {
-                if (_inputThread == null) return;
+                try {
+                    if (_inputThread == null) return;
 
-                var buffer = new byte[300];
-                var current = _input.Read(buffer, 0, MinBuffer);
-                if (current == 0) return; // no more _input
-                while (current < MinBuffer ||
-                       buffer[current - 4] != CR || buffer[current - 3] != LF ||
-                       buffer[current - 2] != CR || buffer[current - 1] != LF)
-                {
-                    var n = _input.Read(buffer, current, 1);
-                    if (n == 0) return; // no more _input, mitigates endless loop here.
-                    current += n;
-                }
-
-                var headersContent = System.Text.Encoding.ASCII.GetString(buffer, 0, current);
-                var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
-                long length = 0;
-                for (var i = 1; i < headers.Length; i += 2)
-                {
-                    // starting at i = 1 instead of 0 won't throw, if we have uneven headers' length
-                    var header = headers[i - 1];
-                    var value = headers[i].Trim();
-                    if (header.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
+                    var buffer = new byte[300];
+                    var current = _input.Read(buffer, 0, MinBuffer);
+                    if (current == 0) return; // no more _input
+                    while (current < MinBuffer ||
+                        buffer[current - 4] != CR || buffer[current - 3] != LF ||
+                        buffer[current - 2] != CR || buffer[current - 1] != LF)
                     {
-                        length = 0;
-                        long.TryParse(value, out length);
+                        var n = _input.Read(buffer, current, 1);
+                        if (n == 0) return; // no more _input, mitigates endless loop here.
+                        current += n;
+                    }
+
+                    var headersContent = System.Text.Encoding.ASCII.GetString(buffer, 0, current);
+                    var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
+                    long length = 0;
+                    for (var i = 1; i < headers.Length; i += 2)
+                    {
+                        // starting at i = 1 instead of 0 won't throw, if we have uneven headers' length
+                        var header = headers[i - 1];
+                        var value = headers[i].Trim();
+                        if (header.Equals("Content-Length", StringComparison.OrdinalIgnoreCase))
+                        {
+                            length = 0;
+                            long.TryParse(value, out length);
+                        }
+                    }
+
+                    if (length == 0 || length >= int.MaxValue)
+                    {
+                        HandleRequest(string.Empty);
+                    }
+                    else
+                    {
+                        var requestBuffer = new byte[length];
+                        var received = 0;
+                        while (received < length)
+                        {
+                            var n = _input.Read(requestBuffer, received, requestBuffer.Length - received);
+                            if (n == 0) return; // no more _input
+                            received += n;
+                        }
+                        // TODO sometimes: encoding should be based on the respective header (including the wrong "utf8" value)
+                        var payload = System.Text.Encoding.UTF8.GetString(requestBuffer);
+                        HandleRequest(payload);
                     }
                 }
-
-                if (length == 0 || length >= int.MaxValue)
+                catch (IOException)
                 {
-                    HandleRequest(string.Empty);
-                }
-                else
-                {
-                    var requestBuffer = new byte[length];
-                    var received = 0;
-                    while (received < length)
-                    {
-                        var n = _input.Read(requestBuffer, received, requestBuffer.Length - received);
-                        if (n == 0) return; // no more _input
-                        received += n;
-                    }
-                    // TODO sometimes: encoding should be based on the respective header (including the wrong "utf8" value)
-                    var payload = System.Text.Encoding.UTF8.GetString(requestBuffer);
-                    HandleRequest(payload);
+                    _logger.LogError("Input stream has been closed.");
+                    break;
                 }
             }
         }
@@ -229,9 +236,10 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
+            _scheduler.Dispose();
             _outputHandler.Dispose();
             _inputThread = null;
-            _scheduler.Dispose();
+            _input?.Dispose();
         }
     }
 }
