@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     return new InvalidRequest(null, "No command given");
                 }
-                return new Request(sequence, command.Value<string>(), request.TryGetValue("arguments", out var body) ? body : null);
+                return new Request(sequence, command.Value<string>(), request.TryGetValue("arguments", out var body) ? body : new JObject());
             }
             if (messageType == "response")
             {
