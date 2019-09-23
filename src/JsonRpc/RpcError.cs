@@ -13,7 +13,15 @@ namespace OmniSharp.Extensions.JsonRpc
             Error = message;
         }
 
+        public RpcError(object id, string command, ErrorMessage message)
+        {
+            Id = id;
+            Command = command;
+            Error = message;
+        }
+
         public object Id { get; }
         public ErrorMessage Error { get; }
+        public string Command { get; }
     }
 }

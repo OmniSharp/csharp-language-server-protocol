@@ -20,11 +20,17 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
             writer.WriteValue(_serializer.GetNextId());
+            writer.WritePropertyName("type");
+            writer.WriteValue("response");
             if (value.Id != null)
             {
                 writer.WritePropertyName("request_seq");
-                writer.WriteValue(value.Id);
+                writer.WriteValue(long.Parse((string) value.Id));
             }
+            writer.WritePropertyName("command");
+            writer.WriteValue(value.Command);
+            writer.WritePropertyName("success");
+            writer.WriteValue(false);
             writer.WritePropertyName("message");
             writer.WriteValue(value.Error.Message);
             writer.WriteEndObject();
@@ -49,6 +55,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             {
                 var errorMessageType = typeof(ErrorMessage);
                 data = dataToken.ToObject<ErrorMessage>(serializer);
+            }
+
+            if (obj.TryGetValue("command", out var command))
+            {
+                return new RpcError(requestId, (string) command, data);
             }
 
             return new RpcError(requestId, data);

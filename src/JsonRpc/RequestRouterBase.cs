@@ -148,6 +148,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         return new JsonRpc.Client.Response(request.Id, responseValue, request);
                     }
+                    catch (HandledErrorException e)
+                    {
+                        _logger.LogDebug("Request {id} had a handled error", id);
+                        return new RpcError(id, request.Method, new ErrorMessage(0, e.Message));
+                    }
                     catch (TaskCanceledException e)
                     {
                         _logger.LogDebug("Request {Id} was cancelled", id);
