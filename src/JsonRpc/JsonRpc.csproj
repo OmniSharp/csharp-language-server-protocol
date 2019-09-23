@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
@@ -13,7 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Newtonsoft.Json" />
-        <Compile Include="../../submodules/MediatR/src/MediatR/**/*.cs" Exclude="**/AssemblyInfo.cs" Visible="false" />
-        <Compile Include="../../submodules/MediatR.Extensions.Microsoft.DependencyInjection/src/MediatR.Extensions.Microsoft.DependencyInjection/**/*.cs" Exclude="**/AssemblyInfo.cs" Visible="false" />
+        <Compile Include="../../submodules/MediatR/src/MediatR/**/*.cs" Exclude="**/*AssemblyInfo.cs" Visible="false" />
+        <Compile Include="../../submodules/MediatR.Extensions.Microsoft.DependencyInjection/src/MediatR.Extensions.Microsoft.DependencyInjection/**/*.cs" Exclude="**/*AssemblyInfo.cs" Visible="false" />
     </ItemGroup>
 </Project>

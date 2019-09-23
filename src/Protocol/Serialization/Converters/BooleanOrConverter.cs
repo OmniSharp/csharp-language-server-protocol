@@ -23,15 +23,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
         private static void WriteJsonGeneric<T>(JsonWriter writer, BooleanOr<T> value, JsonSerializer serializer)
         {
-            if (value.IsValue)
-            {
-                new JValue(value.Value).WriteTo(writer);
-                return;
-            }
-
             if (value.IsBool)
             {
                 new JValue(value.Bool).WriteTo(writer);
+                return;
+            }
+
+            if (value.IsValue)
+            {
+                serializer.Serialize(writer, value.Value);
                 return;
             }
 

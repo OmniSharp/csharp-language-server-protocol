@@ -65,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                 @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
                             }
 
-                            await HandleNotification(mediator, descriptor, @params ?? EmptyRequest.Instance, token);
+                            await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
                         }
                     }
                     catch (Exception e)

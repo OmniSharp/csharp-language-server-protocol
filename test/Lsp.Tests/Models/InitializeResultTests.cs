@@ -70,5 +70,48 @@ namespace Lsp.Tests.Models
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<InitializeResult>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
+
+        [Theory, JsonFixture]
+        public void BooleanOrTest(string expected)
+        {
+            var model = new InitializeResult() {
+                Capabilities = new ServerCapabilities {
+                    CodeActionProvider = new CodeActionOptions {
+                        CodeActionKinds = new [] {
+                            CodeActionKind.QuickFix
+                        }
+                    },
+                    ColorProvider = new ColorOptions {
+                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
+                        Id = "foo"
+                    },
+                    DeclarationProvider = new DeclarationOptions {
+                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
+                        Id = "foo"
+                    },
+                    FoldingRangeProvider = new FoldingRangeOptions {
+                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
+                        Id = "foo"
+                    },
+                    ImplementationProvider = new ImplementationOptions {
+                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
+                        Id = "foo"
+                    },
+                    RenameProvider = new RenameOptions {
+                        PrepareProvider = true
+                    },
+                    TypeDefinitionProvider = new TypeDefinitionOptions {
+                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
+                        Id = "foo"
+                    }
+                }
+            };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<InitializeResult>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
     }
 }

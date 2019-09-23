@@ -328,8 +328,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             using (var scope = _serviceProvider.CreateScope())
             {
                 var registrations = handlerDisposable.Descriptors
-                    .Select(x => x.Registration)
-                    .Where(x => x != null)
+                    .Where(d => d.AllowsDynamicRegistration)
+                    .Select(d => new Registration() {
+                        Id = d.Id.ToString(),
+                        Method = d.Method,
+                        RegisterOptions = d.RegistrationOptions
+                    })
                     .ToArray();
 
                 // Fire and forget
