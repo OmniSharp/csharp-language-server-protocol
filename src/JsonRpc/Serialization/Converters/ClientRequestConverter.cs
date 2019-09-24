@@ -19,6 +19,8 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             writer.WriteStartObject();
             writer.WritePropertyName("jsonrpc");
             writer.WriteValue("2.0");
+            writer.WritePropertyName("id");
+            writer.WriteValue(value.Id);
             writer.WritePropertyName("method");
             writer.WriteValue(value.Method);
             if (value.Params != null)
