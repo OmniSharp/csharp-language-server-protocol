@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             if (value.Data != null)
             {
                 writer.WritePropertyName("data");
-                writer.WriteValue(value.Data);
+                serializer.Serialize(writer, value.Data);
             }
             writer.WritePropertyName("message");
             writer.WriteValue(value.Message);

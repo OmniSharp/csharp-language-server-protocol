@@ -48,7 +48,7 @@ namespace JsonRpc.Tests.Server
                     @"{""seq"": ""1"", ""type"": ""request"", ""command"": ""attach""}",
                     new Renor[]
                     {
-                        new Request(1, "attach", null)
+                        new Request(1, "attach", new JObject())
                     }
                 );
 
