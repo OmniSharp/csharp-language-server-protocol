@@ -20,13 +20,17 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
             writer.WriteValue(_serializer.GetNextId());
+            writer.WritePropertyName("type");
+            writer.WriteValue("response");
             if (value.Id != null)
             {
                 writer.WritePropertyName("request_seq");
-                writer.WriteValue(value.Id);
+                writer.WriteValue(long.Parse((string) value.Id));
             }
+            writer.WritePropertyName("success");
+            writer.WriteValue(false);
             writer.WritePropertyName("message");
-            writer.WriteValue(value.Error.Message);
+            writer.WriteValue(value.Error.Data);
             writer.WriteEndObject();
         }
 
