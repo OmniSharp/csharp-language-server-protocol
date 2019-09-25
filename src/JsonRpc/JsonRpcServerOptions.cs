@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -17,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public Stream Input { get; set; }
         public Stream Output { get; set; }
         public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
-        public ISerializer Serializer { get; set; } = new Serializer();
+        public ISerializer Serializer { get; set; } = new JsonRpcSerializer();
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
         public IReciever Reciever { get; set; } = new Reciever();
         public IServiceCollection Services { get; set; } = new ServiceCollection();

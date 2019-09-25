@@ -16,6 +16,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using System.Reactive.Disposables;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace Lsp.Tests
 {
@@ -71,7 +72,7 @@ namespace Lsp.Tests
         {
             Services
                 .AddJsonRpcMediatR(new[] { typeof(RequestRouterTests).Assembly })
-                .AddSingleton<ISerializer>(new Serializer());
+                .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 
         [Fact]

@@ -1,27 +1,27 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using ServerRequest = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class Response
     {
-        public Response(object id)
+        public Response(object id, ServerRequest request)
         {
             Id = id;
+            Request = request;
         }
 
-        public Response(object id, object result)
+        public Response(object id, object result, ServerRequest request)
         {
             Id = id;
             Result = result;
+            Request = request;
         }
-
-        [JsonProperty("jsonrpc")]
-        public string ProtocolVersion { get; set; } = "2.0";
 
         public object Id { get; set; }
 
         public object Result { get; set; }
+        public ServerRequest Request { get; }
     }
 }

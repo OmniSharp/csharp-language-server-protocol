@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 
@@ -8,18 +8,11 @@ namespace OmniSharp.Extensions.JsonRpc.Server
     {
         internal Notification(
             string method,
-            JToken @params,
-            string protocolVersion)
+            JToken @params)
         {
-            ProtocolVersion = protocolVersion;
             Method = method;
             Params = @params;
         }
-
-        internal Notification(string method, JToken @params) : this(method, @params, "2.0") { }
-
-        [JsonProperty("jsonrpc")]
-        public string ProtocolVersion { get; }
 
         public string Method { get; }
 
