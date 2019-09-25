@@ -55,7 +55,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 73\r\n\r\n{\"seq\":0,\"type\":\"response\",\"request_seq\":1,\"command\":\"command\",\"body\":{}}";
+                const string send = "Content-Length: 88\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":true,\"command\":\"command\",\"body\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
@@ -86,7 +86,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 51\r\n\r\n{\"seq\":0,\"type\":\"event\",\"event\":\"method\",\"body\":{}}";
+                const string send = "Content-Length: 51\r\n\r\n{\"seq\":1,\"type\":\"event\",\"event\":\"method\",\"body\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
@@ -139,14 +139,14 @@ namespace JsonRpc.Tests
                         cts.Cancel();
                     });
             });
-            var value = new RpcError(1, new ErrorMessage(1, "something", new object()));
+            var value = new RpcError(1, new ErrorMessage(1, "something", "data"));
 
             using (handler)
             {
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 47\r\n\r\n{\"seq\":0,\"request_seq\":1,\"message\":\"something\"}";
+                const string send = "Content-Length: 76\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":false,\"message\":\"data\"}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality

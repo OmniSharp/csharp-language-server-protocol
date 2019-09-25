@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             if (value.Id != null)
             {
                 writer.WritePropertyName("request_seq");
-                writer.WriteValue(long.Parse((string) value.Id));
+                writer.WriteValue(value.Id);
             }
             writer.WritePropertyName("success");
             writer.WriteValue(false);

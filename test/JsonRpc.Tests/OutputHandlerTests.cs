@@ -7,7 +7,6 @@ using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 
@@ -118,7 +117,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 47\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"method\",\"params\":{}}";
+                const string send = "Content-Length: 54\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"method\",\"params\":{}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
@@ -146,7 +145,7 @@ namespace JsonRpc.Tests
 
                 handler.Send(value);
                 await wait();
-                const string send = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":1,\"message\":\"something\",\"data\":{}}}";
+                const string send = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":1,\"data\":{},\"message\":\"something\"}}";
                 received.Should().Be(send);
                 var b = System.Text.Encoding.UTF8.GetBytes(send);
                 w.Received().Write(Arg.Any<byte[]>(), 0, b.Length); // can't compare b here, because it is only value-equal and this test tests reference equality
