@@ -1,5 +1,5 @@
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 
 // ReSharper disable CheckNamespace

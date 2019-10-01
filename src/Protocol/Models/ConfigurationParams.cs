@@ -1,4 +1,4 @@
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models

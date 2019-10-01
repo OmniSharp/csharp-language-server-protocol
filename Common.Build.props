@@ -12,6 +12,7 @@
         <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
         <Logging_Extensions_Version>2.0.0</Logging_Extensions_Version>
+        <MediatR_Version>7.0.0</MediatR_Version>
     </PropertyGroup>
     <PropertyGroup>
         <EmbedUntrackedSources>true</EmbedUntrackedSources>

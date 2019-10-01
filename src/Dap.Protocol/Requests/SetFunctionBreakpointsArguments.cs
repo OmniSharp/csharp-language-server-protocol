@@ -1,5 +1,5 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {

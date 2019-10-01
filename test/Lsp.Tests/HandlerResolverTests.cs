@@ -12,7 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using System.Collections.Generic;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 
