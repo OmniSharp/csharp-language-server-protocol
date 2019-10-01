@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using MediatR;
+using MediatR.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
@@ -12,7 +13,8 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public static IServiceCollection AddJsonRpcMediatR(this IServiceCollection services, IEnumerable<Assembly> assemblies)
         {
-            services.AddMediatR(assemblies, configuration: null);
+            ServiceRegistrar.AddRequiredServices(services, new MediatRServiceConfiguration());
+            ServiceRegistrar.AddMediatRClasses(services, assemblies);
             services.AddScoped<IRequestContext, RequestContext>();
             services.RemoveAll<ServiceFactory>();
             services.AddScoped<ServiceFactory>(
