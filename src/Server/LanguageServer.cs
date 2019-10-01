@@ -74,29 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static async Task<ILanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
-            var server = new LanguageServer(
-                options.Input,
-                options.Output,
-                options.Reciever,
-                options.RequestProcessIdentifier,
-                options.LoggerFactory,
-                options.Serializer,
-                options.Services,
-                options.HandlerTypes.Select(x => x.Assembly)
-                    .Distinct().Concat(options.HandlerAssemblies),
-                options.Handlers,
-                options.HandlerTypes,
-                options.NamedHandlers,
-                options.NamedServiceHandlers,
-                options.TextDocumentIdentifiers,
-                options.TextDocumentIdentifierTypes,
-                options.InitializeDelegates,
-                options.InitializedDelegates
-            );
-
-            if (options.AddDefaultLoggingProvider)
-                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
-
+            var server = (LanguageServer)PreInit(options);
             await server.Initialize(token);
 
             return server;
