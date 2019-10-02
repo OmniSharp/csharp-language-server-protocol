@@ -1,0 +1,50 @@
+{
+    "range": {
+        "start": {
+            "line": 1,
+            "character": 1
+        },
+        "end": {
+            "line": 2,
+            "character": 2
+        }
+    },
+    "severity": 1,
+    "code": "abcd",
+    "source": "csharp",
+    "message": "message",
+    "relatedInformation": [
+        {
+            "location": {
+                "uri": "file:///abc/def.cs",
+                "range": {
+                    "start": {
+                        "line": 1,
+                        "character": 2
+                    },
+                    "end": {
+                        "line": 3,
+                        "character": 4
+                    }
+                }
+            },
+            "message": "related message 1"
+        },
+        {
+            "location": {
+                "uri": "file:///def/ghi.cs",
+                "range": {
+                    "start": {
+                        "line": 5,
+                        "character": 6
+                    },
+                    "end": {
+                        "line": 7,
+                        "character": 8
+                    }
+                }
+            },
+            "message": "related message 2"
+        }
+    ]
+}
