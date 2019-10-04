@@ -175,7 +175,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(requestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReciever>(reciever);
             services.AddSingleton<ILspReciever>(reciever);
-            services.AddSingleton(loggerFactory);
+
             foreach (var item in handlers)
             {
                 services.AddSingleton(item);

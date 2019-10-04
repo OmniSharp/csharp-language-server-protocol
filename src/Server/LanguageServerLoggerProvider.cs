@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    class LanguageServerLoggerProvider : ILoggerProvider
+    public class LanguageServerLoggerProvider : ILoggerProvider
     {
         private readonly LanguageServer _languageServer;
 
