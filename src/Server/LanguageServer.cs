@@ -94,7 +94,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.Output,
                 options.Reciever,
                 options.RequestProcessIdentifier,
-                options.LoggerFactory,
                 options.Serializer,
                 options.Services,
                 options.HandlerTypes.Select(x => x.Assembly)
@@ -106,11 +105,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifiers,
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
-                options.InitializedDelegates
+                options.InitializedDelegates,
+                options.LoggingBuilderAction
             );
 
             if (options.AddDefaultLoggingProvider)
-                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
+            {
+                options.LoggingBuilderAction = (builder) => {
+                    options.LoggingBuilderAction(builder);
+                    builder.AddProvider(new LanguageServerLoggerProvider(server));
+                };
+            }
 
             return server;
         }
@@ -120,7 +125,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Stream output,
             ILspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            ILoggerFactory loggerFactory,
             ISerializer serializer,
             IServiceCollection services,
             IEnumerable<Assembly> assemblies,
@@ -131,11 +135,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<ITextDocumentIdentifier> textDocumentIdentifiers,
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
-            IEnumerable<InitializedDelegate> initializedDelegates)
+            IEnumerable<InitializedDelegate> initializedDelegates,
+            Action<ILoggingBuilder> loggingBuilderAction)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            services.AddLogging();
+            services.AddLogging(loggingBuilderAction);
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
@@ -153,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(requestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReciever>(reciever);
             services.AddSingleton<ILspReciever>(reciever);
-            services.AddSingleton(loggerFactory);
+
             foreach (var item in handlers)
             {
                 services.AddSingleton(item);
