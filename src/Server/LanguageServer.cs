@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <returns></returns>
         public static ILanguageServer PreInit(LanguageServerOptions options)
         {
-            var server = new LanguageServer(
+            return new LanguageServer(
                 options.Input,
                 options.Output,
                 options.Reciever,
@@ -106,18 +106,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates,
-                options.LoggingBuilderAction
+                options.LoggingBuilderAction,
+                options.AddDefaultLoggingProvider
             );
-
-            if (options.AddDefaultLoggingProvider)
-            {
-                options.LoggingBuilderAction = (builder) => {
-                    options.LoggingBuilderAction(builder);
-                    builder.AddProvider(new LanguageServerLoggerProvider(server));
-                };
-            }
-
-            return server;
         }
 
         internal LanguageServer(
@@ -136,11 +127,21 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
-            Action<ILoggingBuilder> loggingBuilderAction)
+            Action<ILoggingBuilder> loggingBuilderAction,
+            bool addDefaultLoggingProvider)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            services.AddLogging(loggingBuilderAction);
+            services.AddLogging(builder =>
+            {
+                loggingBuilderAction(builder);
+
+                if (addDefaultLoggingProvider)
+                {
+                    builder.AddProvider(new LanguageServerLoggerProvider(this));
+                }
+            });
+
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();

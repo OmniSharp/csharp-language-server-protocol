@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
+using Serilog;
 
 namespace SampleServer
 {
@@ -22,13 +23,17 @@ namespace SampleServer
             //    await Task.Delay(100);
             // }
 
+            Log.Logger = new LoggerConfiguration()
+              .Enrich.FromLogContext()
+              .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+              .CreateLogger();
+
             var server = await LanguageServer.From(options =>
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
-                    .WithLoggerFactory(new LoggerFactory())
+                    .ConfigureLogging(x => x.AddSerilog())
                     .AddDefaultLoggingProvider()
-                    .WithMinimumLogLevel(LogLevel.Trace)
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()
