@@ -192,6 +192,73 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         }
 
         /// <summary>
+        ///     Ensure that the language client can successfully request SignatureHelp.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request signature help", Skip = "Periodic failures")]
+        public async Task SignatureHelp_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedSignatureHelp = new SignatureHelp {
+                ActiveParameter = 0,
+                ActiveSignature = 0,
+                Signatures = new[] {
+                    new SignatureInformation {
+                        Documentation = new StringOrMarkupContent("test documentation"),
+                        Label = "TestSignature",
+                        Parameters = new[] {
+                            new ParameterInformation {
+                                Documentation = "test parameter documentation",
+                                Label = "parameter label"
+                            }
+                        }
+                    }
+                }
+            };
+
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, SignatureHelp>(DocumentNames.SignatureHelp, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(expectedSignatureHelp);
+            });
+
+            var actualSignatureHelp = await LanguageClient.TextDocument.SignatureHelp(AbsoluteDocumentPath, line, column);
+
+            Assert.Equal(expectedSignatureHelp.ActiveParameter, actualSignatureHelp.ActiveParameter);
+            Assert.Equal(expectedSignatureHelp.ActiveSignature, actualSignatureHelp.ActiveSignature);
+
+            var actualSignatures = actualSignatureHelp.Signatures.ToArray();
+            Assert.Collection(actualSignatures, actualSignature => {
+                var expectedSignature = expectedSignatureHelp.Signatures.ToArray()[0];
+
+                Assert.True(actualSignature.Documentation.HasString);
+                Assert.Equal(expectedSignature.Documentation.String, actualSignature.Documentation.String);
+
+                Assert.Equal(expectedSignature.Label, actualSignature.Label);
+
+                var expectedParameters = expectedSignature.Parameters.ToArray();
+                var actualParameters = actualSignature.Parameters.ToArray();
+
+                Assert.Collection(actualParameters, actualParameter => {
+                    var expectedParameter = expectedParameters[0];
+                    Assert.True(actualParameter.Documentation.HasString);
+                    Assert.Equal(expectedParameter.Documentation.String, actualParameter.Documentation.String);
+                    Assert.Equal(expectedParameter.Label, actualParameter.Label);
+                });
+            });
+        }
+
+        /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully receive diagnostics", Skip = "Periodic failures")]
