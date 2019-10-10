@@ -47,7 +47,7 @@ namespace SampleServer
 
                             logger.LogInformation("Configuring");
 
-                            return new Foo();
+                            return new Foo(logger);
                         });
                     }).OnInitialize((s, request) => {
                         var serviceProvider = s.Services;
@@ -63,5 +63,17 @@ namespace SampleServer
 
     internal class Foo
     {
+        private readonly ILogger<Foo> _logger;
+
+        public Foo(ILogger<Foo> logger)
+        {
+            logger.LogInformation("inside ctor");
+            _logger = logger;
+        }
+
+        public void SayFoo()
+        {
+            _logger.LogInformation("Fooooo!");
+        }
     }
 }

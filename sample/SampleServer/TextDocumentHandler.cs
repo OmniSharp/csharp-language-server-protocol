@@ -26,9 +26,10 @@ namespace SampleServer
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(ILogger<TextDocumentHandler> logger)
+        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
         {
             _logger = logger;
+            foo.SayFoo();
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;

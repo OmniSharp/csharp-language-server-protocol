@@ -215,6 +215,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 
+            // We need to at least create Window here in case any handler does loggin in their constructor
+            Document = new LanguageServerDocument(_responseRouter);
+            Client = new LanguageServerClient(_responseRouter);
+            Window = new LanguageServerWindow(_responseRouter);
+            Workspace = new LanguageServerWorkspace(_responseRouter);
+
             _disposable.Add(
                 AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(_requestRouter))
             );
@@ -232,12 +238,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 _disposable.Add(_collection.Add(name, handlerFunc(_serviceProvider)));
             }
-
-
-            Document = new LanguageServerDocument(_responseRouter);
-            Client = new LanguageServerClient(_responseRouter);
-            Window = new LanguageServerWindow(_responseRouter);
-            Workspace = new LanguageServerWorkspace(_responseRouter);
         }
 
         public ILanguageServerDocument Document { get; }
