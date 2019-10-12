@@ -2,6 +2,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -15,7 +16,7 @@ namespace SampleServer
 {
     class TextDocumentHandler : ITextDocumentSyncHandler
     {
-        private readonly OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer _router;
+        private readonly ILogger<TextDocumentHandler> _logger;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter() {
@@ -25,19 +26,17 @@ namespace SampleServer
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(OmniSharp.Extensions.LanguageServer.Protocol.Server.ILanguageServer router)
+        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
         {
-            _router = router;
+            _logger = logger;
+            foo.SayFoo();
         }
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
         public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
-            _router.Window.LogMessage(new LogMessageParams() {
-                Type = MessageType.Log,
-                Message = "Hello World!!!!"
-            });
+            _logger.LogInformation("Hello world!");
             return Unit.Task;
         }
 
@@ -57,10 +56,7 @@ namespace SampleServer
         public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
-            _router.Window.LogMessage(new LogMessageParams() {
-                Type = MessageType.Log,
-                Message = "Hello World!!!!"
-            });
+            _logger.LogInformation("Hello world!");
             return Unit.Value;
         }
 

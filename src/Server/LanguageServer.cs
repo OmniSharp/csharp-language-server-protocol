@@ -74,29 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static async Task<ILanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
-            var server = new LanguageServer(
-                options.Input,
-                options.Output,
-                options.Reciever,
-                options.RequestProcessIdentifier,
-                options.LoggerFactory,
-                options.Serializer,
-                options.Services,
-                options.HandlerTypes.Select(x => x.Assembly)
-                    .Distinct().Concat(options.HandlerAssemblies),
-                options.Handlers,
-                options.HandlerTypes,
-                options.NamedHandlers,
-                options.NamedServiceHandlers,
-                options.TextDocumentIdentifiers,
-                options.TextDocumentIdentifierTypes,
-                options.InitializeDelegates,
-                options.InitializedDelegates
-            );
-
-            if (options.AddDefaultLoggingProvider)
-                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
-
+            var server = (LanguageServer)PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -111,12 +89,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <returns></returns>
         public static ILanguageServer PreInit(LanguageServerOptions options)
         {
-            var server = new LanguageServer(
+            return new LanguageServer(
                 options.Input,
                 options.Output,
                 options.Reciever,
                 options.RequestProcessIdentifier,
-                options.LoggerFactory,
                 options.Serializer,
                 options.Services,
                 options.HandlerTypes.Select(x => x.Assembly)
@@ -128,13 +105,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifiers,
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
-                options.InitializedDelegates
+                options.InitializedDelegates,
+                options.LoggingBuilderAction,
+                options.AddDefaultLoggingProvider
             );
-
-            if (options.AddDefaultLoggingProvider)
-                options.LoggerFactory.AddProvider(new LanguageServerLoggerProvider(server));
-
-            return server;
         }
 
         internal LanguageServer(
@@ -142,7 +116,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Stream output,
             ILspReciever reciever,
             IRequestProcessIdentifier requestProcessIdentifier,
-            ILoggerFactory loggerFactory,
             ISerializer serializer,
             IServiceCollection services,
             IEnumerable<Assembly> assemblies,
@@ -153,11 +126,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<ITextDocumentIdentifier> textDocumentIdentifiers,
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
-            IEnumerable<InitializedDelegate> initializedDelegates)
+            IEnumerable<InitializedDelegate> initializedDelegates,
+            Action<ILoggingBuilder> loggingBuilderAction,
+            bool addDefaultLoggingProvider)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            services.AddLogging();
+            services.AddLogging(builder =>
+            {
+                loggingBuilderAction(builder);
+
+                if (addDefaultLoggingProvider)
+                {
+                    builder.AddProvider(new LanguageServerLoggerProvider(this));
+                }
+            });
+
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
@@ -175,7 +159,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(requestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReciever>(reciever);
             services.AddSingleton<ILspReciever>(reciever);
-            services.AddSingleton(loggerFactory);
+
             foreach (var item in handlers)
             {
                 services.AddSingleton(item);
@@ -231,6 +215,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 
+            // We need to at least create Window here in case any handler does loggin in their constructor
+            Document = new LanguageServerDocument(_responseRouter);
+            Client = new LanguageServerClient(_responseRouter);
+            Window = new LanguageServerWindow(_responseRouter);
+            Workspace = new LanguageServerWorkspace(_responseRouter);
+
             _disposable.Add(
                 AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(_requestRouter))
             );
@@ -248,12 +238,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 _disposable.Add(_collection.Add(name, handlerFunc(_serviceProvider)));
             }
-
-
-            Document = new LanguageServerDocument(_responseRouter);
-            Client = new LanguageServerClient(_responseRouter);
-            Window = new LanguageServerWindow(_responseRouter);
-            Workspace = new LanguageServerWorkspace(_responseRouter);
         }
 
         public ILanguageServerDocument Document { get; }

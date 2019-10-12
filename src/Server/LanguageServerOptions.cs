@@ -22,8 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public Stream Input { get; set; }
         public Stream Output { get; set; }
-        public LogLevel MinimumLogLevel { get; set; } = LogLevel.Information;
-        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
         public ISerializer Serializer { get; set; } = Protocol.Serialization.Serializer.Instance;
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
         public ILspReciever Reciever { get; set; } = new LspReciever();
@@ -36,6 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal List<Type> TextDocumentIdentifierTypes { get; set; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
         internal bool AddDefaultLoggingProvider { get; set; }
+        internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
