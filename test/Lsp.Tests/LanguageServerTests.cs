@@ -37,10 +37,10 @@ namespace Lsp.Tests
             var serverStart = LanguageServer.From(x => x
                 //.WithHandler(handler)
                 .WithInput(process.ClientOutputStream)
-                .WithOutput(process.ClientInputStream)
-                .WithLoggerFactory(LoggerFactory)
-                .AddDefaultLoggingProvider()
-                .WithMinimumLogLevel(LogLevel.Trace),
+                .WithOutput(process.ClientInputStream),
+                //.WithLoggerFactory(LoggerFactory)
+                //.AddDefaultLoggingProvider()
+                //.WithMinimumLogLevel(LogLevel.Trace),
                 cts.Token
             );
 
@@ -63,9 +63,9 @@ namespace Lsp.Tests
             var server = LanguageServer.PreInit(x => x
                 .WithInput(process.ClientOutputStream)
                 .WithOutput(process.ClientInputStream)
-                .WithLoggerFactory(LoggerFactory)
-                .AddDefaultLoggingProvider()
-                .WithMinimumLogLevel(LogLevel.Trace)
+                //.WithLoggerFactory(LoggerFactory)
+                //.AddDefaultLoggingProvider()
+                //.WithMinimumLogLevel(LogLevel.Trace)
                 .AddHandlers(TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp"))
             ) as IRequestHandler<InitializeParams, InitializeResult>;
 

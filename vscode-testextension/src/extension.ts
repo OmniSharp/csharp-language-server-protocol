@@ -20,11 +20,10 @@ import { Trace } from "vscode-jsonrpc";
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
-    // let serverExe = 'dotnet';
+    let serverExe = 'dotnet';
 
     // let serverExe = 'D:\\Development\\Omnisharp\\csharp-language-server-protocol\\sample\\SampleServer\\bin\\Debug\\netcoreapp2.0\\win7-x64\\SampleServer.exe';
-    let serverExe =
-        "D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio.Driver/win7-x64/OmniSharp.exe";
+    // let serverExe = "D:/Development/Omnisharp/omnisharp-roslyn/artifacts/publish/OmniSharp.Stdio.Driver/win7-x64/OmniSharp.exe";
     // The debug options for the server
     // let debugOptions = { execArgv: ['-lsp', '-d' };5
 
@@ -32,9 +31,9 @@ export function activate(context: ExtensionContext) {
     // Otherwise the run options are used
     let serverOptions: ServerOptions = {
         // run: { command: serverExe, args: ['-lsp', '-d'] },
-        run: { command: serverExe, args: ["-lsp"] },
+        run: { command: serverExe, args: ["C:/src/gh/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp2.1/win7-x64/SampleServer.dll"] },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
-        debug: { command: serverExe, args: ["-lsp"] }
+        debug: { command: serverExe, args: ["C:/src/gh/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp2.1/win7-x64/SampleServer.dll"] }
     };
 
     // Options to control the language client
@@ -65,7 +64,7 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
     );
-    // client.trace = Trace.Verbose;
+    client.trace = Trace.Verbose;
     client.clientOptions.errorHandler;
     let disposable = client.start();
 
