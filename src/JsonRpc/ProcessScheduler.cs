@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var waitables = new List<Task>();
             try
             {
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
                     if (_queue.TryTake(out var item, Timeout.Infinite, token))
                     {

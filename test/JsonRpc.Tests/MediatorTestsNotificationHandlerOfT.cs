@@ -2,13 +2,14 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -29,7 +30,7 @@ namespace JsonRpc.Tests
         {
             Services
                 .AddJsonRpcMediatR(new[] { typeof(MediatorTestsNotificationHandler).Assembly })
-                .AddSingleton<ISerializer>(new Serializer());
+                .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 
         [Fact]

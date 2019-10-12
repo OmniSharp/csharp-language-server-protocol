@@ -8,7 +8,7 @@ using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -90,7 +90,6 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddJsonRpcMediatR(assemblies);
             services.AddSingleton<IJsonRpcServer>(this);
             services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
-            services.AddSingleton<IReciever, Reciever>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
 
             var foundHandlers = services

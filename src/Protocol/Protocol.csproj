@@ -1,10 +1,10 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <TargetFrameworks>netstandard2.0</TargetFrameworks>
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.LanguageProtocol</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
-        <PackageDescription>Language Server Protocl models, classes, interfaces and helper methods</PackageDescription>
+        <PackageDescription>Language Server Protocol models, classes, interfaces and helper methods</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />

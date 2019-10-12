@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -16,6 +16,7 @@ using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using System.Reactive.Disposables;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace Lsp.Tests
 {
@@ -71,7 +72,7 @@ namespace Lsp.Tests
         {
             Services
                 .AddJsonRpcMediatR(new[] { typeof(RequestRouterTests).Assembly })
-                .AddSingleton<ISerializer>(new Serializer());
+                .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 
         [Fact]

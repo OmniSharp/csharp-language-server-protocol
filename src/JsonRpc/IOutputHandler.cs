@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -6,5 +7,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         void Start();
         void Send(object value);
+        Task WaitForShutdown();
     }
 }

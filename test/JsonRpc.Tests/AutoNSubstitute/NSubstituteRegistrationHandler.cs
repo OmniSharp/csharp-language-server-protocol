@@ -4,7 +4,7 @@ using System.Linq;
 using Autofac;
 using Autofac.Builder;
 using Autofac.Core;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute

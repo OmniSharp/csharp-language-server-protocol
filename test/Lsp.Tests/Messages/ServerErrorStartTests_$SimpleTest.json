@@ -2,7 +2,7 @@
     "jsonrpc": "2.0",
     "error": {
         "code": -32099,
-        "message": "Server Error Start",
-        "data": "abcd"
+        "data": "abcd",
+        "message": "Server Error Start"
     }
 }

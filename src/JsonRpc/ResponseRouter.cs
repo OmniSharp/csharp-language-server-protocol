@@ -9,7 +9,6 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IOutputHandler _outputHandler;
         private readonly ISerializer _serializer;
         private readonly object _lock = new object();
-        private long _id = 0;
         private readonly ConcurrentDictionary<long, TaskCompletionSource<JToken>> _requests = new ConcurrentDictionary<long, TaskCompletionSource<JToken>>();
 
         public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer)
@@ -35,13 +34,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
         {
-            long nextId;
-            lock (_lock)
-            {
-                nextId = _id++;
-            }
-
             var tcs = new TaskCompletionSource<JToken>();
+            var nextId = _serializer.GetNextId();
             _requests.TryAdd(nextId, tcs);
 
             _outputHandler.Send(new Client.Request() {
@@ -63,11 +57,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task<TResponse> SendRequest<TResponse>(string method)
         {
-            long nextId;
-            lock (_lock)
-            {
-                nextId = _id++;
-            }
+            var nextId = _serializer.GetNextId();
 
             var tcs = new TaskCompletionSource<JToken>();
             _requests.TryAdd(nextId, tcs);
@@ -91,11 +81,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task SendRequest<T>(string method, T @params)
         {
-            long nextId;
-            lock (_lock)
-            {
-                nextId = _id++;
-            }
+            var nextId = _serializer.GetNextId();
 
             var tcs = new TaskCompletionSource<JToken>();
             _requests.TryAdd(nextId, tcs);

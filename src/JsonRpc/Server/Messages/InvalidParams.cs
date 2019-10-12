@@ -1,4 +1,4 @@
-﻿namespace OmniSharp.Extensions.JsonRpc.Server.Messages
+namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
     public class InvalidParams : RpcError
     {

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.IO;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,6 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
+        private readonly TaskCompletionSource<object> _outputIsFinished;
 
         public OutputHandler(Stream output, ISerializer serializer)
         {
@@ -21,6 +23,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _serializer = serializer;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
+            _outputIsFinished = new TaskCompletionSource<object>();
             _thread = new Thread(ProcessOutputQueue) { IsBackground = true, Name = "ProcessOutputQueue" };
         }
 
@@ -39,7 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var token = _cancel.Token;
             try
             {
-                while (true)
+                while (!token.IsCancellationRequested)
                 {
                     if (_queue.TryTake(out var value, Timeout.Infinite, token))
                     {
@@ -57,7 +60,10 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             ms.Write(headerBytes, 0, headerBytes.Length);
                             ms.Write(contentBytes, 0, contentBytes.Length);
-                            _output.Write(ms.ToArray(), 0, (int)ms.Position);
+                            if(!token.IsCancellationRequested)
+                            {
+                                _output.Write(ms.ToArray(), 0, (int)ms.Position);
+                            }
                         }
                     }
                 }
@@ -65,13 +71,23 @@ namespace OmniSharp.Extensions.JsonRpc
             catch (OperationCanceledException ex)
             {
                 if (ex.CancellationToken != token)
-                    throw;
+                    _outputIsFinished.TrySetException(ex);
                 // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
+            catch (Exception e)
+            {
+                _outputIsFinished.TrySetException(e);
+            }
+        }
+
+        public Task WaitForShutdown()
+        {
+            return _outputIsFinished.Task;
         }
 
         public void Dispose()
         {
+            _outputIsFinished.TrySetResult(null);
             _cancel.Cancel();
             _thread.Join();
             _cancel.Dispose();

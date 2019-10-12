@@ -14,7 +14,8 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new VersionedTextDocumentIdentifier() {
+            var model = new VersionedTextDocumentIdentifier()
+            {
                 Uri = new Uri("file:///abc/123.cs"),
                 Version = 12
             };

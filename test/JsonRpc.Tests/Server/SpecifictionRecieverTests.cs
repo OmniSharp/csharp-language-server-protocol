@@ -104,7 +104,7 @@ namespace JsonRpc.Tests.Server
                 yield return (
                     @"{""jsonrpc"":""2.0"",""method"":""initialized"",""params"":{}}",
                     new Renor[] {
-                        new Notification("initialized", new JObject()), 
+                        new Notification("initialized", new JObject()),
                     }
                 );
 

@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
@@ -146,9 +146,9 @@ namespace OmniSharp.Extensions.JsonRpc
                             _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 
-                        return new JsonRpc.Client.Response(request.Id, responseValue);
+                        return new JsonRpc.Client.Response(request.Id, responseValue, request);
                     }
-                    catch (TaskCanceledException e)
+                    catch (TaskCanceledException)
                     {
                         _logger.LogDebug("Request {Id} was cancelled", id);
                         return new RequestCancelled();

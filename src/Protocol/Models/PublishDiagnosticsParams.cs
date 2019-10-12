@@ -1,7 +1,8 @@
 ﻿using System;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -10,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         ///  The URI for which diagnostic information is reported.
         /// </summary>
+        [JsonConverter(typeof(AbsoluteUriConverter))]
         public Uri Uri { get; set; }
 
         /// <summary>
