@@ -13,7 +13,7 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Newtonsoft.Json" />
-        <Compile Include="../../submodules/MediatR/src/MediatR/**/*.cs" Exclude="**/*AssemblyInfo.cs" Visible="false" />
-        <Compile Include="../../submodules/MediatR.Extensions.Microsoft.DependencyInjection/src/MediatR.Extensions.Microsoft.DependencyInjection/**/*.cs" Exclude="**/*AssemblyInfo.cs" Visible="false" />
+        <PackageReference Include="MediatR" />
+        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
     </ItemGroup>
 </Project>

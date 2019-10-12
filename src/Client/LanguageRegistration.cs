@@ -1,5 +1,5 @@
 using System;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
 

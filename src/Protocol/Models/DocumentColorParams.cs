@@ -1,4 +1,4 @@
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {

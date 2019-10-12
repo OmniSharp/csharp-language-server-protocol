@@ -2,7 +2,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using System.Threading;
 using System;
 

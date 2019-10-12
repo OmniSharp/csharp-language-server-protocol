@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Client.Processes;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;

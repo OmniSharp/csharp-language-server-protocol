@@ -1,6 +1,6 @@
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {

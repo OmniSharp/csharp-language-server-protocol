@@ -22,5 +22,7 @@
         <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
         <PackageReference Update="coverlet.msbuild" Version="2.5.1" />
         <PackageReference Update="System.Reactive" Version="4.1.2" />
+        <PackageReference Update="MediatR" Version="$(MediatR_Version)" />
+        <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
     </ItemGroup>
 </Project>
