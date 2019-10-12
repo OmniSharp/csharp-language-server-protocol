@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options)
         {
             var change = TextDocumentSyncKind.None;
-            if (options.Any())
+            if (options.Any(x => x.Change != TextDocumentSyncKind.None))
             {
                 change = options
                         .Where(x => x.Change != TextDocumentSyncKind.None)
