@@ -168,7 +168,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             },
             TextDocument = new TextDocumentClientCapabilities
             {
-                Synchronization = new TextDocumentSyncCapability
+                Synchronization = new SynchronizationCapability
                 {
                     DidSave = true,
                     DynamicRegistration = false

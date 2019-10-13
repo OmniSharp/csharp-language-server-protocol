@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.WillSave)]
-    public interface IWillSaveTextDocumentHandler : IJsonRpcNotificationHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<TextDocumentSyncCapability> { }
+    public interface IWillSaveTextDocumentHandler : IJsonRpcNotificationHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 
     public abstract class WillSaveTextDocumentHandler : IWillSaveTextDocumentHandler
     {
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(WillSaveTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(TextDocumentSyncCapability capability) => Capability = capability;
-        protected TextDocumentSyncCapability Capability { get; private set; }
+        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
+        protected SynchronizationCapability Capability { get; private set; }
     }
 
     public static class WillSaveTextDocumentHandlerExtensions
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<WillSaveTextDocumentParams, CancellationToken, Task<Unit>> handler,
             TextDocumentRegistrationOptions registrationOptions = null,
-            Action<TextDocumentSyncCapability> setCapability = null)
+            Action<SynchronizationCapability> setCapability = null)
         {
             registrationOptions ??= new TextDocumentRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -42,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : WillSaveTextDocumentHandler
         {
             private readonly Func<WillSaveTextDocumentParams, CancellationToken, Task<Unit>> _handler;
-            private readonly Action<TextDocumentSyncCapability> _setCapability;
+            private readonly Action<SynchronizationCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<WillSaveTextDocumentParams, CancellationToken, Task<Unit>> handler,
-                Action<TextDocumentSyncCapability> setCapability,
+                Action<SynchronizationCapability> setCapability,
                 TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<Unit> Handle(WillSaveTextDocumentParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(TextDocumentSyncCapability capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(SynchronizationCapability capability) => _setCapability?.Invoke(capability);
         }
     }
 }

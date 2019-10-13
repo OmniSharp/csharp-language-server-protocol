@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<Container<TextEdit>>, IWorkDoneProgressParams
+    public class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The document to format.

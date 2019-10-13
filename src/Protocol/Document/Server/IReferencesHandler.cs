@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.References)]
-    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, Container<Location>>, IRegistration<ReferenceRegistrationOptions>, ICapability<ReferenceCapability> { }
+    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, LocationContainer>, IRegistration<ReferenceRegistrationOptions>, ICapability<ReferenceCapability> { }
 
     public abstract class ReferencesHandler : IReferencesHandler
     {
@@ -24,16 +24,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public ReferenceRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<Container<Location>> Handle(ReferenceParams request, CancellationToken cancellationToken)
+        public Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
             var createReporter = _progressManager.Delegate(request, cancellationToken);
             return Handle(request, partialResults, createReporter, cancellationToken);
         }
 
-        public abstract Task<Container<Location>> Handle(
+        public abstract Task<LocationContainer> Handle(
             ReferenceParams request,
-            IObserver<Container<Container<Location>>> partialResults,
+            IObserver<Container<LocationContainer>> partialResults,
             Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
             CancellationToken cancellationToken
         );
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnReferences(
             this ILanguageServerRegistry registry,
-            Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> handler,
+            Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> handler,
             ReferenceRegistrationOptions registrationOptions = null,
             Action<ReferenceCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : ReferencesHandler
         {
-            private readonly Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> _handler;
+            private readonly Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> _handler;
             private readonly Action<ReferenceCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> handler,
+                Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> handler,
                 ProgressManager progressManager,
                 Action<ReferenceCapability> setCapability,
                 ReferenceRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,9 +69,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<Location>> Handle(
+            public override Task<LocationContainer> Handle(
                 ReferenceParams request,
-                IObserver<Container<Container<Location>>> partialResults,
+                IObserver<Container<LocationContainer>> partialResults,
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);

@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.CodeAction)]
-    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, Container<CommandOrCodeAction>>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability> { }
+    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability> { }
 
     public abstract class CodeActionHandler : ICodeActionHandler
     {
@@ -25,14 +25,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         }
 
         public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
-        public Task<Container<CommandOrCodeAction>> Handle(CodeActionParams request, CancellationToken cancellationToken)
+        public Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
             var createReporter = _progressManager.Delegate(request, cancellationToken);
             return Handle(request, partialResults, createReporter, cancellationToken);
         }
 
-        public abstract Task<Container<CommandOrCodeAction>> Handle(
+        public abstract Task<CommandOrCodeActionContainer> Handle(
             CodeActionParams request,
             IObserver<Container<CodeActionOrCommand>> partialResults,
             Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
@@ -47,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnCodeAction(
             this ILanguageServerRegistry registry,
-            Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> handler,
+            Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             CodeActionRegistrationOptions registrationOptions = null,
             Action<CodeActionCapability> setCapability = null)
         {
@@ -57,11 +57,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         internal class DelegatingHandler : CodeActionHandler
         {
-            private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> _handler;
+            private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> _handler;
             private readonly Action<CodeActionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> handler,
+                Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
                 ProgressManager progressManager,
                 Action<CodeActionCapability> setCapability,
                 CodeActionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<CommandOrCodeAction>> Handle(
+            public override Task<CommandOrCodeActionContainer> Handle(
                 CodeActionParams request,
                 IObserver<Container<CodeActionOrCommand>> partialResults,
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,

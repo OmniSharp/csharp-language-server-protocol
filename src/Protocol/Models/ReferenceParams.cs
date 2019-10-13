@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class ReferenceParams : WorkDoneTextDocumentPositionParams, IRequest<Container<Location>>, IPartialItems<Container<Location>>
+    public class ReferenceParams : WorkDoneTextDocumentPositionParams, IRequest<LocationContainer>, IPartialItems<LocationContainer>
     {
         public ReferenceContext Context { get; set; }
 

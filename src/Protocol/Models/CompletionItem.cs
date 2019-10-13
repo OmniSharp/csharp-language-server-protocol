@@ -104,7 +104,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// nor with themselves.
         /// </summary>
         [Optional]
-        public Container<TextEdit> AdditionalTextEdits { get; set; }
+        public TextEditContainer AdditionalTextEdits { get; set; }
 
         /// <summary>
         /// An optional set of characters that when pressed while this completion is active will accept it first and

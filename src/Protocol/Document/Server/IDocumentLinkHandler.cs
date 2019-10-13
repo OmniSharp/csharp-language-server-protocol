@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentLink)]
-    public interface IDocumentLinkHandler : IJsonRpcRequestHandler<DocumentLinkParams, Container<DocumentLink>>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
+    public interface IDocumentLinkHandler : IJsonRpcRequestHandler<DocumentLinkParams, DocumentLinkContainer>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
 
     [Parallel, Method(DocumentNames.DocumentLinkResolve)]
     public interface IDocumentLinkResolveHandler : ICanBeResolvedHandler<DocumentLink> { }
@@ -32,16 +32,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public DocumentLinkRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<Container<DocumentLink>> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
+        public Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
             var createReporter = _progressManager.Delegate(request, cancellationToken);
             return Handle(request, partialResults, createReporter, cancellationToken);
         }
 
-        public abstract Task<Container<DocumentLink>> Handle(
+        public abstract Task<DocumentLinkContainer> Handle(
             DocumentLinkParams request,
-            IObserver<Container<DocumentLink>> partialResults,
+            IObserver<DocumentLinkContainer> partialResults,
             Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
             CancellationToken cancellationToken
         );
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentLink(
             this ILanguageServerRegistry registry,
-            Func<DocumentLinkParams, IObserver<Container<DocumentLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentLink>>> handler,
+            Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler = null,
             Func<DocumentLink, bool> canResolve = null,
             DocumentLinkRegistrationOptions registrationOptions = null,
@@ -69,13 +69,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentLinkHandler
         {
-            private readonly Func<DocumentLinkParams, IObserver<Container<DocumentLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentLink>>> _handler;
+            private readonly Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> _handler;
             private readonly Func<DocumentLink, CancellationToken, Task<DocumentLink>> _resolveHandler;
             private readonly Func<DocumentLink, bool> _canResolve;
             private readonly Action<DocumentLinkCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentLinkParams, IObserver<Container<DocumentLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentLink>>> handler,
+                Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> handler,
                 Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
                 ProgressManager progressManager,
                 Func<DocumentLink, bool> canResolve,
@@ -88,9 +88,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<DocumentLink>> Handle(
+            public override Task<DocumentLinkContainer> Handle(
                 DocumentLinkParams request,
-                IObserver<Container<DocumentLink>> partialResults,
+                IObserver<DocumentLinkContainer> partialResults,
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);

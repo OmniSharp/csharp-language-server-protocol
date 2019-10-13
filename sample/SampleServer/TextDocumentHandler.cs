@@ -25,7 +25,7 @@ namespace SampleServer
             }
         );
 
-        private TextDocumentSyncCapability _capability;
+        private SynchronizationCapability _capability;
 
         public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
         {
@@ -50,7 +50,7 @@ namespace SampleServer
             };
         }
 
-        public void SetCapability(TextDocumentSyncCapability capability)
+        public void SetCapability(SynchronizationCapability capability)
         {
             _capability = capability;
         }

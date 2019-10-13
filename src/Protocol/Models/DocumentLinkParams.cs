@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentLinkParams : ITextDocumentIdentifierParams, IRequest<Container<DocumentLink>>, IWorkDoneProgressParams, IPartialItems<DocumentLink>
+    public class DocumentLinkParams : ITextDocumentIdentifierParams, IRequest<DocumentLinkContainer>, IWorkDoneProgressParams, IPartialItems<DocumentLink>
     {
         /// <summary>
         /// The document to provide document links for.

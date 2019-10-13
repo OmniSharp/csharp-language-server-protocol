@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class CodeLensParams : ITextDocumentIdentifierParams, IRequest<Container<CodeLens>>, IWorkDoneProgressParams, IPartialItems<CodeLens>
+    public class CodeLensParams : ITextDocumentIdentifierParams, IRequest<CodeLensContainer>, IWorkDoneProgressParams, IPartialItems<CodeLens>
     {
         /// <summary>
         /// The document to request code lens for.

@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IRequest<Container<SymbolInformationOrDocumentSymbol>>, IWorkDoneProgressParams, IPartialItems<SymbolInformationOrDocumentSymbol>
+    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IRequest<SymbolInformationOrDocumentSymbolContainer>, IWorkDoneProgressParams, IPartialItems<SymbolInformationOrDocumentSymbol>
     {
         /// <summary>
         /// The text document.

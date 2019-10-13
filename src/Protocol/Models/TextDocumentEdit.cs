@@ -13,6 +13,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The edits to be applied.
         /// </summary>
-        public Container<TextEdit> Edits { get; set; }
+        public TextEditContainer Edits { get; set; }
     }
 }

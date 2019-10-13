@@ -37,8 +37,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(TextDocumentSyncCapability capability) => Capability = capability;
-        protected TextDocumentSyncCapability Capability { get; private set; }
+        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
+        protected SynchronizationCapability Capability { get; private set; }
     }
 
     public static class TextDocumentSyncHandlerExtensions
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> onSaveHandler,
             Func<Uri, TextDocumentAttributes> getTextDocumentAttributes,
             TextDocumentSaveRegistrationOptions registrationOptions = null,
-            Action<TextDocumentSyncCapability> setCapability = null)
+            Action<SynchronizationCapability> setCapability = null)
         {
             registrationOptions ??= new TextDocumentSaveRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(onOpenHandler, onCloseHandler, onChangeHandler, onSaveHandler, getTextDocumentAttributes, setCapability, registrationOptions, kind));
@@ -65,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> _onChangeHandler;
             private readonly Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> _onSaveHandler;
             private readonly Func<Uri, TextDocumentAttributes> _getTextDocumentAttributes;
-            private readonly Action<TextDocumentSyncCapability> _setCapability;
+            private readonly Action<SynchronizationCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DidOpenTextDocumentParams, CancellationToken, Task<Unit>> onOpenHandler,
@@ -73,7 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> onChangeHandler,
                 Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> onSaveHandler,
                 Func<Uri, TextDocumentAttributes> getTextDocumentAttributes,
-                Action<TextDocumentSyncCapability> setCapability,
+                Action<SynchronizationCapability> setCapability,
                 TextDocumentSaveRegistrationOptions registrationOptions,
                 TextDocumentSyncKind kind) : base(kind, registrationOptions)
             {
@@ -90,7 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken) => _onSaveHandler.Invoke(request, cancellationToken);
             public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken) => _onCloseHandler.Invoke(request, cancellationToken);
             public override TextDocumentAttributes GetTextDocumentAttributes(Uri uri) => _getTextDocumentAttributes.Invoke(uri);
-            public override void SetCapability(TextDocumentSyncCapability capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(SynchronizationCapability capability) => _setCapability?.Invoke(capability);
         }
     }
 }

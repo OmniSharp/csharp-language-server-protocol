@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class TextDocumentSyncCapability : DynamicCapability, ConnectedCapability<IDidChangeTextDocumentHandler>, ConnectedCapability<IDidCloseTextDocumentHandler>, ConnectedCapability<IDidOpenTextDocumentHandler>, ConnectedCapability<IDidSaveTextDocumentHandler>, ConnectedCapability<IWillSaveTextDocumentHandler>, ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
+    public class SynchronizationCapability : DynamicCapability, ConnectedCapability<IDidChangeTextDocumentHandler>, ConnectedCapability<IDidCloseTextDocumentHandler>, ConnectedCapability<IDidOpenTextDocumentHandler>, ConnectedCapability<IDidSaveTextDocumentHandler>, ConnectedCapability<IWillSaveTextDocumentHandler>, ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
     {
         /// <summary>
         /// The client supports sending will save notifications.

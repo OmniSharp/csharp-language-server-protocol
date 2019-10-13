@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(DocumentNames.DidChange)]
     public interface IDidChangeTextDocumentHandler : IJsonRpcNotificationHandler<DidChangeTextDocumentParams>,
-        IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<TextDocumentSyncCapability>
+        IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<SynchronizationCapability>
     { }
 
     public abstract class DidChangeTextDocumentHandler : IDidChangeTextDocumentHandler
@@ -26,8 +26,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public TextDocumentChangeRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(TextDocumentSyncCapability capability) => Capability = capability;
-        protected TextDocumentSyncCapability Capability { get; private set; }
+        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
+        protected SynchronizationCapability Capability { get; private set; }
     }
 
     public static class DidChangeTextDocumentHandlerExtensions
@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> handler,
             TextDocumentChangeRegistrationOptions registrationOptions = null,
-            Action<TextDocumentSyncCapability> setCapability = null)
+            Action<SynchronizationCapability> setCapability = null)
         {
             registrationOptions ??= new TextDocumentChangeRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -45,11 +45,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DidChangeTextDocumentHandler
         {
             private readonly Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> _handler;
-            private readonly Action<TextDocumentSyncCapability> _setCapability;
+            private readonly Action<SynchronizationCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> handler,
-                Action<TextDocumentSyncCapability> setCapability,
+                Action<SynchronizationCapability> setCapability,
                 TextDocumentChangeRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(TextDocumentSyncCapability capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(SynchronizationCapability capability) => _setCapability?.Invoke(capability);
         }
     }
 }

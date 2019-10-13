@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentHighlightParams : WorkDoneTextDocumentPositionParams, IRequest<Container<DocumentHighlight>>, IPartialItems<DocumentHighlight>
+    public class DocumentHighlightParams : WorkDoneTextDocumentPositionParams, IRequest<DocumentHighlightContainer>, IPartialItems<DocumentHighlight>
     {
         /// <inheritdoc />
         [Optional]

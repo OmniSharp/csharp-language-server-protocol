@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class CodeLensExtensions
     {
-        public static Task<Container<CodeLens>> CodeLens(this ILanguageClientDocument mediator, CodeLensParams @params)
+        public static Task<CodeLensContainer> CodeLens(this ILanguageClientDocument mediator, CodeLensParams @params)
         {
-            return mediator.SendRequest<CodeLensParams, Container<CodeLens>>(DocumentNames.CodeLens, @params);
+            return mediator.SendRequest<CodeLensParams, CodeLensContainer>(DocumentNames.CodeLens, @params);
         }
     }
 }

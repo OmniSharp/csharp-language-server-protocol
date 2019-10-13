@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(DocumentNames.WillSaveWaitUntil)]
-    public interface IWillSaveWaitUntilTextDocumentHandler : IJsonRpcRequestHandler<WillSaveWaitUntilTextDocumentParams, Container<TextEdit>>, IRegistration<TextDocumentRegistrationOptions>, ICapability<TextDocumentSyncCapability> { }
+    public interface IWillSaveWaitUntilTextDocumentHandler : IJsonRpcRequestHandler<WillSaveWaitUntilTextDocumentParams, TextEditContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
 
     public abstract class WillSaveWaitUntilTextDocumentHandler : IWillSaveWaitUntilTextDocumentHandler
     {
@@ -22,18 +22,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         }
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Container<TextEdit>> Handle(WillSaveWaitUntilTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(TextDocumentSyncCapability capability) => Capability = capability;
-        protected TextDocumentSyncCapability Capability { get; private set; }
+        public abstract Task<TextEditContainer> Handle(WillSaveWaitUntilTextDocumentParams request, CancellationToken cancellationToken);
+        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
+        protected SynchronizationCapability Capability { get; private set; }
     }
 
     public static class WillSaveWaitUntilTextDocumentHandlerExtensions
     {
         public static IDisposable OnWillSaveWaitUntilTextDocument(
             this ILanguageServerRegistry registry,
-            Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<Container<TextEdit>>> handler,
+            Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<TextEditContainer>> handler,
             TextDocumentRegistrationOptions registrationOptions = null,
-            Action<TextDocumentSyncCapability> setCapability = null)
+            Action<SynchronizationCapability> setCapability = null)
         {
             registrationOptions ??= new TextDocumentRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -41,20 +41,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : WillSaveWaitUntilTextDocumentHandler
         {
-            private readonly Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<Container<TextEdit>>> _handler;
-            private readonly Action<TextDocumentSyncCapability> _setCapability;
+            private readonly Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<TextEditContainer>> _handler;
+            private readonly Action<SynchronizationCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<Container<TextEdit>>> handler,
-                Action<TextDocumentSyncCapability> setCapability,
+                Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<TextEditContainer>> handler,
+                Action<SynchronizationCapability> setCapability,
                 TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<TextEdit>> Handle(WillSaveWaitUntilTextDocumentParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(TextDocumentSyncCapability capability) => _setCapability?.Invoke(capability);
+            public override Task<TextEditContainer> Handle(WillSaveWaitUntilTextDocumentParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+            public override void SetCapability(SynchronizationCapability capability) => _setCapability?.Invoke(capability);
         }
     }
 }

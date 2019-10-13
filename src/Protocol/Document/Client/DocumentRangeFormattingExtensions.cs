@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentRangeFormattingExtensions
     {
-        public static Task<Container<TextEdit>> DocumentRangeFormatting(this ILanguageClientDocument mediator, DocumentRangeFormattingParams @params)
+        public static Task<TextEditContainer> DocumentRangeFormatting(this ILanguageClientDocument mediator, DocumentRangeFormattingParams @params)
         {
-            return mediator.SendRequest<DocumentRangeFormattingParams, Container<TextEdit>>(DocumentNames.RangeFormatting, @params);
+            return mediator.SendRequest<DocumentRangeFormattingParams, TextEditContainer>(DocumentNames.RangeFormatting, @params);
         }
     }
 }

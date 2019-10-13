@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Params for the CodeActionRequest
     /// </summary>
-    public class CodeActionParams : ITextDocumentIdentifierParams, IRequest<Container<CommandOrCodeAction>>, IWorkDoneProgressParams, IPartialItems<CodeActionOrCommand>
+    public class CodeActionParams : ITextDocumentIdentifierParams, IRequest<CommandOrCodeActionContainer>, IWorkDoneProgressParams, IPartialItems<CodeActionOrCommand>
     {
         /// <summary>
         /// The document in which the command was invoked.

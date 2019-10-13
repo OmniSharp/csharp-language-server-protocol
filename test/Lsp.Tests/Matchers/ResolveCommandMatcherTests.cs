@@ -70,12 +70,12 @@ namespace Lsp.Tests.Matchers
                         false,
                         null,
                         () => { });
-            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>(
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
                 new RequestContext() { Descriptor = handlerDescriptor },
-                LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>>());
+                LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>());
 
             // When
-            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new Container<CodeLens>()));
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new CodeLensContainer()));
             a.Should().NotThrow();
         }
 
@@ -391,15 +391,15 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { });
-            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>(
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
                 new RequestContext() { Descriptor = descriptor },
-                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>>>());
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
 
             var item = new CodeLens()
             {
                 Data = JObject.FromObject(new { hello = "world" })
             };
-            var list = new Container<CodeLens>(new[] { item });
+            var list = new CodeLensContainer(new[] { item });
 
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
@@ -408,8 +408,8 @@ namespace Lsp.Tests.Matchers
 
             // Then
             response.Should().BeEquivalentTo(list);
-            (response as Container<CodeLens>).Should().Contain(item);
-            var responseItem = (response as Container<CodeLens>).First();
+            (response as CodeLensContainer).Should().Contain(item);
+            var responseItem = (response as CodeLensContainer).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");

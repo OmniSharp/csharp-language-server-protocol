@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class TextDocumentClientCapabilities
     {
-        public Supports<TextDocumentSyncCapability> Synchronization { get; set; }
+        public Supports<SynchronizationCapability> Synchronization { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/completion`
