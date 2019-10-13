@@ -171,7 +171,7 @@ namespace Lsp.Tests
                 .Returns(new CommandOrCodeActionContainer());
 
             var registry = new TestLanguageServerRegistry();
-            var codeActionDelegate = Substitute.For<Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>>>();
+            var codeActionDelegate = Substitute.For<Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>>>();
             codeActionDelegate.Invoke(Arg.Any<CodeActionParams>(), Arg.Any<IObserver<Container<CodeActionOrCommand>>>(), Arg.Any<WorkDoneProgressReporter>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandOrCodeActionContainer());
             registry.OnCodeAction(

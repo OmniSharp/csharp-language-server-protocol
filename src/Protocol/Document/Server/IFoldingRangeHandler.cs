@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class FoldingRangeHandler : IFoldingRangeHandler
     {
         private readonly FoldingRangeRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public FoldingRangeHandler(FoldingRangeRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public FoldingRangeRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<Container<FoldingRange>> Handle(
-            FoldingRangeParam request,
-            IObserver<Container<FoldingRange>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken);
         public virtual void SetCapability(FoldingRangeCapability capability) => Capability = capability;
         protected FoldingRangeCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnFoldingRange(
             this ILanguageServerRegistry registry,
-            Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> handler,
+            Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions = null,
             Action<FoldingRangeCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : FoldingRangeHandler
         {
-            private readonly Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> _handler;
+            private readonly Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> _handler;
             private readonly Action<FoldingRangeCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> handler,
+                Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> handler,
                 ProgressManager progressManager,
                 Action<FoldingRangeCapability> setCapability,
                 FoldingRangeRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,14 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<FoldingRange>> Handle(
-                FoldingRangeParam request,
-                IObserver<Container<FoldingRange>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(FoldingRangeCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

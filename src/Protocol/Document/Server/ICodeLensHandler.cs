@@ -18,29 +18,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class CodeLensHandler : ICodeLensHandler, ICodeLensResolveHandler
     {
         private readonly CodeLensRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public CodeLensHandler(CodeLensRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public CodeLensRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<CodeLensContainer> Handle(
-            CodeLensParams request,
-            IObserver<CodeLensContainer> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken);
         public abstract Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CodeLens value);
         public virtual void SetCapability(CodeLensCapability capability) => Capability = capability;
@@ -51,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnCodeLens(
             this ILanguageServerRegistry registry,
-            Func<CodeLensParams, IObserver<CodeLensContainer>, WorkDoneProgressReporter, CancellationToken, Task<CodeLensContainer>> handler,
+            Func<CodeLensParams, CancellationToken, Task<CodeLensContainer>> handler,
             Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler = null,
             Func<CodeLens, bool> canResolve = null,
             CodeLensRegistrationOptions registrationOptions = null,
@@ -68,13 +54,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : CodeLensHandler
         {
-            private readonly Func<CodeLensParams, IObserver<CodeLensContainer>, WorkDoneProgressReporter, CancellationToken, Task<CodeLensContainer>> _handler;
+            private readonly Func<CodeLensParams, CancellationToken, Task<CodeLensContainer>> _handler;
             private readonly Func<CodeLens, CancellationToken, Task<CodeLens>> _resolveHandler;
             private readonly Func<CodeLens, bool> _canResolve;
             private readonly Action<CodeLensCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<CodeLensParams, IObserver<CodeLensContainer>, WorkDoneProgressReporter, CancellationToken, Task<CodeLensContainer>> handler,
+                Func<CodeLensParams, CancellationToken, Task<CodeLensContainer>> handler,
                 Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler,
                 ProgressManager progressManager,
                 Func<CodeLens, bool> canResolve,
@@ -87,16 +73,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<CodeLensContainer> Handle(
-                CodeLensParams request,
-                IObserver<CodeLensContainer> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(CodeLens value) => _canResolve.Invoke(value);
             public override void SetCapability(CodeLensCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

@@ -18,29 +18,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler
     {
         protected readonly CompletionRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public CompletionHandler(CompletionRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public CompletionRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<CompletionList> Handle(
-            CompletionParams request,
-            IObserver<Container<CompletionItem>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken);
         public abstract Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CompletionItem value);
         public virtual void SetCapability(CompletionCapability capability) => Capability = capability;
@@ -51,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnCompletion(
             this ILanguageServerRegistry registry,
-            Func<CompletionParams, IObserver<Container<CompletionItem>>, WorkDoneProgressReporter, CancellationToken, Task<CompletionList>> handler,
+            Func<CompletionParams, CancellationToken, Task<CompletionList>> handler,
             Func<CompletionItem, CancellationToken, Task<CompletionItem>> resolveHandler = null,
             Func<CompletionItem, bool> canResolve = null,
             CompletionRegistrationOptions registrationOptions = null,
@@ -64,13 +50,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : CompletionHandler
         {
-            private readonly Func<CompletionParams, IObserver<Container<CompletionItem>>, WorkDoneProgressReporter, CancellationToken, Task<CompletionList>> _handler;
+            private readonly Func<CompletionParams, CancellationToken, Task<CompletionList>> _handler;
             private readonly Func<CompletionItem, CancellationToken, Task<CompletionItem>> _resolveHandler;
             private readonly Func<CompletionItem, bool> _canResolve;
             private readonly Action<CompletionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<CompletionParams, IObserver<Container<CompletionItem>>, WorkDoneProgressReporter, CancellationToken, Task<CompletionList>> handler,
+                Func<CompletionParams, CancellationToken, Task<CompletionList>> handler,
                 Func<CompletionItem, CancellationToken, Task<CompletionItem>> resolveHandler,
                 ProgressManager progressManager,
                 Func<CompletionItem, bool> canResolve,
@@ -83,17 +69,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<CompletionList> Handle(
-                CompletionParams request,
-                IObserver<Container<CompletionItem>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
-
+            public override Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(CompletionItem value) => _canResolve.Invoke(value);
             public override void SetCapability(CompletionCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

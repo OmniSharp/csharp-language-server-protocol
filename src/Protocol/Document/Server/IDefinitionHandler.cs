@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class DefinitionHandler : IDefinitionHandler
     {
         private readonly DefinitionRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public DefinitionHandler(DefinitionRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public DefinitionRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<LocationOrLocationLinks> Handle(
-            DefinitionParams request,
-            IObserver<Container<LocationOrLocationLink>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DefinitionCapability capability) => Capability = capability;
         protected DefinitionCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDefinition(
             this ILanguageServerRegistry registry,
-            Func<DefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
+            Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             DefinitionRegistrationOptions registrationOptions = null,
             Action<DefinitionCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DefinitionHandler
         {
-            private readonly Func<DefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> _handler;
+            private readonly Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> _handler;
             private readonly Action<DefinitionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
+                Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
                 ProgressManager progressManager,
                 Action<DefinitionCapability> setCapability,
                 DefinitionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,14 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<LocationOrLocationLinks> Handle(
-                DefinitionParams request,
-                IObserver<Container<LocationOrLocationLink>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(DefinitionCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

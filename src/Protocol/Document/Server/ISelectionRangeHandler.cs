@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class SelectionRangeHandler : ISelectionRangeHandler
     {
         private readonly SelectionRangeRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public SelectionRangeHandler(SelectionRangeRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public SelectionRangeRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<Container<SelectionRange>> Handle(
-            SelectionRangeParam request,
-            IObserver<Container<SelectionRange>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken);
         public virtual void SetCapability(SelectionRangeCapability capability) => Capability = capability;
         protected SelectionRangeCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnSelectionRange(
             this ILanguageServerRegistry registry,
-            Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> handler,
+            Func<SelectionRangeParam, CancellationToken, Task<Container<SelectionRange>>> handler,
             SelectionRangeRegistrationOptions registrationOptions = null,
             Action<SelectionRangeCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : SelectionRangeHandler
         {
-            private readonly Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> _handler;
+            private readonly Func<SelectionRangeParam, CancellationToken, Task<Container<SelectionRange>>> _handler;
             private readonly Action<SelectionRangeCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> handler,
+                Func<SelectionRangeParam, CancellationToken, Task<Container<SelectionRange>>> handler,
                 ProgressManager progressManager,
                 Action<SelectionRangeCapability> setCapability,
                 SelectionRangeRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,14 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<SelectionRange>> Handle(
-                SelectionRangeParam request,
-                IObserver<Container<SelectionRange>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(SelectionRangeCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

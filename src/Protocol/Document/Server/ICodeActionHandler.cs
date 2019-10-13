@@ -16,29 +16,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class CodeActionHandler : ICodeActionHandler
     {
         private readonly CodeActionRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
 
         public CodeActionHandler(CodeActionRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
-        public async Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<CommandOrCodeActionContainer> Handle(
-            CodeActionParams request,
-            IObserver<Container<CodeActionOrCommand>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
         protected CodeActionCapability Capability { get; private set; }
     }
@@ -47,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnCodeAction(
             this ILanguageServerRegistry registry,
-            Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
+            Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             CodeActionRegistrationOptions registrationOptions = null,
             Action<CodeActionCapability> setCapability = null)
         {
@@ -57,11 +44,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         internal class DelegatingHandler : CodeActionHandler
         {
-            private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> _handler;
+            private readonly Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> _handler;
             private readonly Action<CodeActionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
+                Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
                 ProgressManager progressManager,
                 Action<CodeActionCapability> setCapability,
                 CodeActionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -70,13 +57,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<CommandOrCodeActionContainer> Handle(
-                CodeActionParams request,
-                IObserver<Container<CodeActionOrCommand>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(CodeActionCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

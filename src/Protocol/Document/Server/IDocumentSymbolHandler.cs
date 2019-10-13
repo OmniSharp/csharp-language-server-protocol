@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class DocumentSymbolHandler : IDocumentSymbolHandler
     {
         private readonly DocumentSymbolRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public DocumentSymbolHandler(DocumentSymbolRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public DocumentSymbolRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(
-            DocumentSymbolParams request,
-            IObserver<SymbolInformationOrDocumentSymbolContainer> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DocumentSymbolCapability capability) => Capability = capability;
         protected DocumentSymbolCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentSymbol(
             this ILanguageServerRegistry registry,
-            Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
+            Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
             DocumentSymbolRegistrationOptions registrationOptions = null,
             Action<DocumentSymbolCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentSymbolHandler
         {
-            private readonly Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> _handler;
+            private readonly Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> _handler;
             private readonly Action<DocumentSymbolCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
+                Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
                 ProgressManager progressManager,
                 Action<DocumentSymbolCapability> setCapability,
                 DocumentSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,14 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(
-                DocumentSymbolParams request,
-                IObserver<SymbolInformationOrDocumentSymbolContainer> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(DocumentSymbolCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

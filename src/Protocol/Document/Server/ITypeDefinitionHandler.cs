@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class TypeDefinitionHandler : ITypeDefinitionHandler
     {
         private readonly TypeDefinitionRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public TypeDefinitionHandler(TypeDefinitionRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public TypeDefinitionRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<LocationOrLocationLinks> Handle(TypeDefinitionParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<LocationOrLocationLinks> Handle(
-            TypeDefinitionParams request,
-            IObserver<Container<LocationOrLocationLink>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<LocationOrLocationLinks> Handle(TypeDefinitionParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(TypeDefinitionCapability capability) => Capability = capability;
         protected TypeDefinitionCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnTypeDefinition(
             this ILanguageServerRegistry registry,
-            Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
+            Func<TypeDefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             TypeDefinitionRegistrationOptions registrationOptions = null,
             Action<TypeDefinitionCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : TypeDefinitionHandler
         {
-            private readonly Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> _handler;
+            private readonly Func<TypeDefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> _handler;
             private readonly Action<TypeDefinitionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
+                Func<TypeDefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
                 ProgressManager progressManager,
                 Action<TypeDefinitionCapability> setCapability,
                 TypeDefinitionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,14 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<LocationOrLocationLinks> Handle(
-                TypeDefinitionParams request,
-                IObserver<Container<LocationOrLocationLink>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
+            public override Task<LocationOrLocationLinks> Handle(TypeDefinitionParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(TypeDefinitionCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

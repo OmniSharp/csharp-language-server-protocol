@@ -15,29 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class ReferencesHandler : IReferencesHandler
     {
         private readonly ReferenceRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected ProgressManager ProgressManager { get; }
         public ReferencesHandler(ReferenceRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public ReferenceRegistrationOptions GetRegistrationOptions() => _options;
-
-        public async Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken)
-        {
-            using var partialResults = _progressManager.For(request, cancellationToken);
-            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
-        }
-
-        public abstract Task<LocationContainer> Handle(
-            ReferenceParams request,
-            IObserver<Container<LocationContainer>> partialResults,
-            WorkDoneProgressReporter progressReporter,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ReferenceCapability capability) => Capability = capability;
         protected ReferenceCapability Capability { get; private set; }
     }
@@ -46,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnReferences(
             this ILanguageServerRegistry registry,
-            Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> handler,
+            Func<ReferenceParams, CancellationToken, Task<LocationContainer>> handler,
             ReferenceRegistrationOptions registrationOptions = null,
             Action<ReferenceCapability> setCapability = null)
         {
@@ -56,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : ReferencesHandler
         {
-            private readonly Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> _handler;
+            private readonly Func<ReferenceParams, CancellationToken, Task<LocationContainer>> _handler;
             private readonly Action<ReferenceCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> handler,
+                Func<ReferenceParams, CancellationToken, Task<LocationContainer>> handler,
                 ProgressManager progressManager,
                 Action<ReferenceCapability> setCapability,
                 ReferenceRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -69,15 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<LocationContainer> Handle(
-                ReferenceParams request,
-                IObserver<Container<LocationContainer>> partialResults,
-                WorkDoneProgressReporter progressReporter,
-                CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
-
+            public override Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(ReferenceCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }
