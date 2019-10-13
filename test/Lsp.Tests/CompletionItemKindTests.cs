@@ -31,14 +31,14 @@ namespace Lsp.Tests
         public void CustomBehavior_When_Defined_By_Client()
         {
             var serializer = new Serializer();
-            serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities()
+            serializer.SetCapability(ClientVersion.Lsp3, new Capability()
             {
-                TextDocument = new TextDocumentClientCapabilities
+                TextDocument = new TextDocumentCapability
                 {
-                    Completion = new Supports<CompletionClientCapabilities>(true, new CompletionClientCapabilities()
+                    Completion = new Supports<CompletionCapability>(true, new CompletionCapability()
                     {
                         DynamicRegistration = true,
-                        CompletionItemKind = new CompletionItemKindClientCapabilities()
+                        CompletionItemKind = new CompletionItemKindCapability()
                         {
                             ValueSet = new Container<CompletionItemKind>(CompletionItemKind.Class)
                         }

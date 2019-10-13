@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentLink)]
-    public interface IDocumentLinkHandler : IJsonRpcRequestHandler<DocumentLinkParams, Container<DocumentLink>>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkClientCapabilities> { }
+    public interface IDocumentLinkHandler : IJsonRpcRequestHandler<DocumentLinkParams, Container<DocumentLink>>, IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability> { }
 
     [Parallel, Method(DocumentNames.DocumentLinkResolve)]
     public interface IDocumentLinkResolveHandler : ICanBeResolvedHandler<DocumentLink> { }
@@ -48,8 +48,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public abstract Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken);
         public abstract bool CanResolve(DocumentLink value);
-        public virtual void SetCapability(DocumentLinkClientCapabilities capability) => Capability = capability;
-        protected DocumentLinkClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DocumentLinkCapability capability) => Capability = capability;
+        protected DocumentLinkCapability Capability { get; private set; }
     }
 
     public static class DocumentLinkHandlerExtensions
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler = null,
             Func<DocumentLink, bool> canResolve = null,
             DocumentLinkRegistrationOptions registrationOptions = null,
-            Action<DocumentLinkClientCapabilities> setCapability = null)
+            Action<DocumentLinkCapability> setCapability = null)
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
@@ -72,14 +72,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<DocumentLinkParams, IObserver<Container<DocumentLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentLink>>> _handler;
             private readonly Func<DocumentLink, CancellationToken, Task<DocumentLink>> _resolveHandler;
             private readonly Func<DocumentLink, bool> _canResolve;
-            private readonly Action<DocumentLinkClientCapabilities> _setCapability;
+            private readonly Action<DocumentLinkCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DocumentLinkParams, IObserver<Container<DocumentLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentLink>>> handler,
                 Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
                 ProgressManager progressManager,
                 Func<DocumentLink, bool> canResolve,
-                Action<DocumentLinkClientCapabilities> setCapability,
+                Action<DocumentLinkCapability> setCapability,
                 DocumentLinkRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -96,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
             public override Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(DocumentLink value) => _canResolve.Invoke(value);
-            public override void SetCapability(DocumentLinkClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DocumentLinkCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

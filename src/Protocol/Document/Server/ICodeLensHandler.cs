@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.CodeLens)]
-    public interface ICodeLensHandler : IJsonRpcRequestHandler<CodeLensParams, Container<CodeLens>>, IRegistration<CodeLensRegistrationOptions>, ICapability<CodeLensClientCapabilities> { }
+    public interface ICodeLensHandler : IJsonRpcRequestHandler<CodeLensParams, Container<CodeLens>>, IRegistration<CodeLensRegistrationOptions>, ICapability<CodeLensCapability> { }
 
     [Parallel, Method(DocumentNames.CodeLensResolve)]
     public interface ICodeLensResolveHandler : ICanBeResolvedHandler<CodeLens> { }
@@ -43,8 +43,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public abstract Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CodeLens value);
-        public virtual void SetCapability(CodeLensClientCapabilities capability) => Capability = capability;
-        protected CodeLensClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(CodeLensCapability capability) => Capability = capability;
+        protected CodeLensCapability Capability { get; private set; }
     }
 
     public static class CodeLensHandlerExtensions
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler = null,
             Func<CodeLens, bool> canResolve = null,
             CodeLensRegistrationOptions registrationOptions = null,
-            Action<CodeLensClientCapabilities> setCapability = null)
+            Action<CodeLensCapability> setCapability = null)
         {
             var codeLensRegistrationOptions = new CodeLensRegistrationOptions();
             codeLensRegistrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
@@ -71,14 +71,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<CodeLensParams, IObserver<Container<CodeLens>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CodeLens>>> _handler;
             private readonly Func<CodeLens, CancellationToken, Task<CodeLens>> _resolveHandler;
             private readonly Func<CodeLens, bool> _canResolve;
-            private readonly Action<CodeLensClientCapabilities> _setCapability;
+            private readonly Action<CodeLensCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<CodeLensParams, IObserver<Container<CodeLens>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CodeLens>>> handler,
                 Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler,
                 ProgressManager progressManager,
                 Func<CodeLens, bool> canResolve,
-                Action<CodeLensClientCapabilities> setCapability,
+                Action<CodeLensCapability> setCapability,
                 CodeLensRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -95,7 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(CodeLens value) => _canResolve.Invoke(value);
-            public override void SetCapability(CodeLensClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(CodeLensCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

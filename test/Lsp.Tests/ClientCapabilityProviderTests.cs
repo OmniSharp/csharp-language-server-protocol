@@ -19,7 +19,7 @@ namespace Lsp.Tests
 {
     public class ClientCapabilityProviderTests
     {
-        private static readonly Type[] Capabilities = typeof(ClientCapabilities).Assembly.GetTypes()
+        private static readonly Type[] Capabilities = typeof(Capability).Assembly.GetTypes()
             .Where(x => x.GetInterfaces().Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ConnectedCapability<>)))
             .ToArray();
 
@@ -149,15 +149,15 @@ namespace Lsp.Tests
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
             var provider = new ClientCapabilityProvider(collection, true);
-            var capabilities = new ClientCapabilities()
+            var capabilities = new Capability()
             {
-                TextDocument = new TextDocumentClientCapabilities()
+                TextDocument = new TextDocumentCapability()
                 {
-                    CodeAction = new Supports<CodeActionClientCapabilities>(true, new CodeActionClientCapabilities()
+                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability()
                     {
                         DynamicRegistration = false,
                     }),
-                    TypeDefinition = new Supports<TypeDefinitionClientCapabilities>(true, new TypeDefinitionClientCapabilities()
+                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability()
                     {
                         DynamicRegistration = true,
                     })

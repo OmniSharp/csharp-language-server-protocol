@@ -13,12 +13,12 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionClientCapabilities() { DynamicRegistration = false, CompletionItem = new CompletionItemClientCapabilities() { SnippetSupport = false } };
+            var model = new CompletionCapability() { DynamicRegistration = false, CompletionItem = new CompletionItemCapability() { SnippetSupport = false } };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionClientCapabilities>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionCapability>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

@@ -12,14 +12,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(WorkspaceNames.DidChangeConfiguration)]
-    public interface IDidChangeConfigurationHandler : IJsonRpcNotificationHandler<DidChangeConfigurationParams>, IRegistration<object>, ICapability<DidChangeConfigurationClientCapabilities> { }
+    public interface IDidChangeConfigurationHandler : IJsonRpcNotificationHandler<DidChangeConfigurationParams>, IRegistration<object>, ICapability<DidChangeConfigurationCapability> { }
 
     public abstract class DidChangeConfigurationHandler : IDidChangeConfigurationHandler
     {
         public object GetRegistrationOptions() => new object();
         public abstract Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DidChangeConfigurationClientCapabilities capability) => Capability = capability;
-        protected DidChangeConfigurationClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DidChangeConfigurationCapability capability) => Capability = capability;
+        protected DidChangeConfigurationCapability Capability { get; private set; }
     }
 
     public static class DidChangeConfigurationHandlerExtensions
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnDidChangeConfiguration(
             this ILanguageServerRegistry registry,
             Func<DidChangeConfigurationParams, CancellationToken, Task<Unit>> handler,
-            Action<DidChangeConfigurationClientCapabilities> setCapability = null)
+            Action<DidChangeConfigurationCapability> setCapability = null)
         {
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability));
         }
@@ -35,18 +35,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DidChangeConfigurationHandler
         {
             private readonly Func<DidChangeConfigurationParams, CancellationToken, Task<Unit>> _handler;
-            private readonly Action<DidChangeConfigurationClientCapabilities> _setCapability;
+            private readonly Action<DidChangeConfigurationCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DidChangeConfigurationParams, CancellationToken, Task<Unit>> handler,
-                Action<DidChangeConfigurationClientCapabilities> setCapability) : base()
+                Action<DidChangeConfigurationCapability> setCapability) : base()
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
             public override Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DidChangeConfigurationClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DidChangeConfigurationCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

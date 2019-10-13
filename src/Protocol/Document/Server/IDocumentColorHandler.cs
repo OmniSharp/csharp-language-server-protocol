@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentColor)]
-    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>, ICapability<ColorProviderClientCapabilities> { }
+    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>, ICapability<ColorProviderCapability> { }
 
     public abstract class DocumentColorHandler : IDocumentColorHandler
     {
@@ -38,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(ColorProviderClientCapabilities capability) => Capability = capability;
-        protected ColorProviderClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(ColorProviderCapability capability) => Capability = capability;
+        protected ColorProviderCapability Capability { get; private set; }
     }
 
     public static class DocumentColorHandlerExtensions
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions = null,
-            Action<ColorProviderClientCapabilities> setCapability = null)
+            Action<ColorProviderCapability> setCapability = null)
         {
             registrationOptions ??= new DocumentColorRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -57,12 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DocumentColorHandler
         {
             private readonly Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> _handler;
-            private readonly Action<ColorProviderClientCapabilities> _setCapability;
+            private readonly Action<ColorProviderCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> handler,
                 ProgressManager progressManager,
-                Action<ColorProviderClientCapabilities> setCapability,
+                Action<ColorProviderCapability> setCapability,
                 DocumentColorRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
-            public override void SetCapability(ColorProviderClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(ColorProviderCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

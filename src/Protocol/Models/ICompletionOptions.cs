@@ -23,7 +23,7 @@
         /// <summary>
         /// The list of all possible characters that commit a completion. This field can be used
         /// if clients don't support individual commmit characters per completion item. See
-        /// `ClientCapabilities.textDocument.completion.completionItem.commitCharactersSupport`
+        /// `Capability.textDocument.completion.completionItem.commitCharactersSupport`
         ///
         /// @since 3.2.0
         /// </summary>

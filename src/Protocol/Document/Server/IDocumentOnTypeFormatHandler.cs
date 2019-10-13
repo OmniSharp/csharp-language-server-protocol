@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(DocumentNames.OnTypeFormatting)]
-    public interface IDocumentOnTypeFormatHandler : IJsonRpcRequestHandler<DocumentOnTypeFormattingParams, Container<TextEdit>>, IRegistration<DocumentOnTypeFormattingRegistrationOptions>, ICapability<DocumentOnTypeFormattingClientCapabilities> { }
+    public interface IDocumentOnTypeFormatHandler : IJsonRpcRequestHandler<DocumentOnTypeFormattingParams, Container<TextEdit>>, IRegistration<DocumentOnTypeFormattingRegistrationOptions>, ICapability<DocumentOnTypeFormattingCapability> { }
 
     public abstract class DocumentOnTypeFormatHandler : IDocumentOnTypeFormatHandler
     {
@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public DocumentOnTypeFormattingRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Container<TextEdit>> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DocumentOnTypeFormattingClientCapabilities capability) => Capability = capability;
-        protected DocumentOnTypeFormattingClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DocumentOnTypeFormattingCapability capability) => Capability = capability;
+        protected DocumentOnTypeFormattingCapability Capability { get; private set; }
     }
 
     public static class DocumentOnTypeFormatHandlerExtensions
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> handler,
             DocumentOnTypeFormattingRegistrationOptions registrationOptions = null,
-            Action<DocumentOnTypeFormattingClientCapabilities> setCapability = null)
+            Action<DocumentOnTypeFormattingCapability> setCapability = null)
         {
             registrationOptions ??= new DocumentOnTypeFormattingRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -41,11 +41,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DocumentOnTypeFormatHandler
         {
             private readonly Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> _handler;
-            private readonly Action<DocumentOnTypeFormattingClientCapabilities> _setCapability;
+            private readonly Action<DocumentOnTypeFormattingCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> handler,
-                Action<DocumentOnTypeFormattingClientCapabilities> setCapability,
+                Action<DocumentOnTypeFormattingCapability> setCapability,
                 DocumentOnTypeFormattingRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<Container<TextEdit>> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DocumentOnTypeFormattingClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DocumentOnTypeFormattingCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

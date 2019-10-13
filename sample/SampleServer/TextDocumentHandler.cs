@@ -25,7 +25,7 @@ namespace SampleServer
             }
         );
 
-        private TextDocumentSyncClientCapabilities _capability;
+        private TextDocumentSyncCapability _capability;
 
         public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
         {
@@ -50,7 +50,7 @@ namespace SampleServer
             };
         }
 
-        public void SetCapability(TextDocumentSyncClientCapabilities capability)
+        public void SetCapability(TextDocumentSyncCapability capability)
         {
             _capability = capability;
         }
@@ -96,7 +96,7 @@ namespace SampleServer
 
     class FoldingRangeHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.FoldingRangeHandler
     {
-        private FoldingRangeClientCapabilities _capability;
+        private FoldingRangeCapability _capability;
 
         public FoldingRangeHandler(ProgressManager progressManager) : base(new FoldingRangeRegistrationOptions()
         {
@@ -120,7 +120,7 @@ namespace SampleServer
 
     class DidChangeWatchedFilesHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DidChangeWatchedFilesHandler
     {
-        private DidChangeWatchedFilesClientCapabilities _capability;
+        private DidChangeWatchedFilesCapability _capability;
 
         public DidChangeWatchedFilesHandler() : base(new DidChangeWatchedFilesRegistrationOptions() { })
         {

@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentSymbol)]
-    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, Container<SymbolInformationOrDocumentSymbol>>, IRegistration<DocumentSymbolRegistrationOptions>, ICapability<DocumentSymbolClientCapabilities> { }
+    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, Container<SymbolInformationOrDocumentSymbol>>, IRegistration<DocumentSymbolRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
 
     public abstract class DocumentSymbolHandler : IDocumentSymbolHandler
     {
@@ -38,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(DocumentSymbolClientCapabilities capability) => Capability = capability;
-        protected DocumentSymbolClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DocumentSymbolCapability capability) => Capability = capability;
+        protected DocumentSymbolCapability Capability { get; private set; }
     }
 
     public static class DocumentSymbolHandlerExtensions
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> handler,
             DocumentSymbolRegistrationOptions registrationOptions = null,
-            Action<DocumentSymbolClientCapabilities> setCapability = null)
+            Action<DocumentSymbolCapability> setCapability = null)
         {
             registrationOptions ??= new DocumentSymbolRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -57,12 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DocumentSymbolHandler
         {
             private readonly Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> _handler;
-            private readonly Action<DocumentSymbolClientCapabilities> _setCapability;
+            private readonly Action<DocumentSymbolCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> handler,
                 ProgressManager progressManager,
-                Action<DocumentSymbolClientCapabilities> setCapability,
+                Action<DocumentSymbolCapability> setCapability,
                 DocumentSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
-            public override void SetCapability(DocumentSymbolClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DocumentSymbolCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

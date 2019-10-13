@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.TypeDefinition)]
-    public interface ITypeDefinitionHandler : IJsonRpcRequestHandler<TypeDefinitionParams, LocationOrLocationLinks>, IRegistration<TypeDefinitionRegistrationOptions>, ICapability<TypeDefinitionClientCapabilities> { }
+    public interface ITypeDefinitionHandler : IJsonRpcRequestHandler<TypeDefinitionParams, LocationOrLocationLinks>, IRegistration<TypeDefinitionRegistrationOptions>, ICapability<TypeDefinitionCapability> { }
 
     public abstract class TypeDefinitionHandler : ITypeDefinitionHandler
     {
@@ -38,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(TypeDefinitionClientCapabilities capability) => Capability = capability;
-        protected TypeDefinitionClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(TypeDefinitionCapability capability) => Capability = capability;
+        protected TypeDefinitionCapability Capability { get; private set; }
     }
 
     public static class TypeDefinitionHandlerExtensions
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
             TypeDefinitionRegistrationOptions registrationOptions = null,
-            Action<TypeDefinitionClientCapabilities> setCapability = null)
+            Action<TypeDefinitionCapability> setCapability = null)
         {
             registrationOptions ??= new TypeDefinitionRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -57,12 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : TypeDefinitionHandler
         {
             private readonly Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> _handler;
-            private readonly Action<TypeDefinitionClientCapabilities> _setCapability;
+            private readonly Action<TypeDefinitionCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<TypeDefinitionParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
                 ProgressManager progressManager,
-                Action<TypeDefinitionClientCapabilities> setCapability,
+                Action<TypeDefinitionCapability> setCapability,
                 TypeDefinitionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
-            public override void SetCapability(TypeDefinitionClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(TypeDefinitionCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

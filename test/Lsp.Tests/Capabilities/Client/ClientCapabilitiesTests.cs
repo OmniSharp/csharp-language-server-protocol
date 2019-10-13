@@ -14,62 +14,62 @@ using Xunit.Abstractions;
 
 namespace Lsp.Tests.Capabilities.Client
 {
-    public class ClientCapabilitiesTests : AutoTestBase
+    public class CapabilityTests : AutoTestBase
     {
         // private const Fixtures =
-        public ClientCapabilitiesTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+        public CapabilityTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ClientCapabilities()
+            var model = new Capability()
             {
                 Experimental = new Dictionary<string, JToken>()
                 {
                     {  "abc", "test" }
                 },
-                TextDocument = new TextDocumentClientCapabilities()
+                TextDocument = new TextDocumentCapability()
                 {
-                    CodeAction = new CodeActionClientCapabilities() { DynamicRegistration = true },
-                    CodeLens = new CodeLensClientCapabilities() { DynamicRegistration = true },
-                    Definition = new DefinitionClientCapabilities() { DynamicRegistration = true, LinkSupport = true },
-                    Declaration = new DeclarationClientCapabilities() { DynamicRegistration = true, LinkSupport = true },
-                    DocumentHighlight = new DocumentHighlightClientCapabilities() { DynamicRegistration = true },
-                    DocumentLink = new DocumentLinkClientCapabilities() { DynamicRegistration = true },
-                    DocumentSymbol = new DocumentSymbolClientCapabilities() { DynamicRegistration = true },
-                    Formatting = new DocumentFormattingClientCapabilities() { DynamicRegistration = true },
-                    Hover = new HoverClientCapabilities() { DynamicRegistration = true },
-                    OnTypeFormatting = new DocumentOnTypeFormattingClientCapabilities() { DynamicRegistration = true },
-                    RangeFormatting = new DocumentRangeFormattingClientCapabilities() { DynamicRegistration = true },
-                    References = new ReferenceClientCapabilities() { DynamicRegistration = true },
-                    Rename = new RenameClientCapabilities() { DynamicRegistration = true },
-                    SignatureHelp = new SignatureHelpClientCapabilities() { DynamicRegistration = true },
-                    Completion = new CompletionClientCapabilities()
+                    CodeAction = new CodeActionCapability() { DynamicRegistration = true },
+                    CodeLens = new CodeLensCapability() { DynamicRegistration = true },
+                    Definition = new DefinitionCapability() { DynamicRegistration = true, LinkSupport = true },
+                    Declaration = new DeclarationCapability() { DynamicRegistration = true, LinkSupport = true },
+                    DocumentHighlight = new DocumentHighlightCapability() { DynamicRegistration = true },
+                    DocumentLink = new DocumentLinkCapability() { DynamicRegistration = true },
+                    DocumentSymbol = new DocumentSymbolCapability() { DynamicRegistration = true },
+                    Formatting = new DocumentFormattingCapability() { DynamicRegistration = true },
+                    Hover = new HoverCapability() { DynamicRegistration = true },
+                    OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
+                    RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
+                    References = new ReferenceCapability() { DynamicRegistration = true },
+                    Rename = new RenameCapability() { DynamicRegistration = true },
+                    SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
+                    Completion = new CompletionCapability()
                     {
                         DynamicRegistration = true,
-                        CompletionItem = new CompletionItemClientCapabilities()
+                        CompletionItem = new CompletionItemCapability()
                         {
                             SnippetSupport = true
                         }
                     },
-                    Implementation = new ImplementationClientCapabilities()
+                    Implementation = new ImplementationCapability()
                     {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    TypeDefinition = new TypeDefinitionClientCapabilities()
+                    TypeDefinition = new TypeDefinitionCapability()
                     {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    Synchronization = new TextDocumentSyncClientCapabilities()
+                    Synchronization = new TextDocumentSyncCapability()
                     {
                         DynamicRegistration = true,
                         WillSave = true,
                         DidSave = true,
                         WillSaveWaitUntil = true
                     },
-                    FoldingRange = new FoldingRangeClientCapabilities()
+                    FoldingRange = new FoldingRangeCapability()
                     {
                         DynamicRegistration = true,
                         LineFoldingOnly = true,
@@ -77,21 +77,21 @@ namespace Lsp.Tests.Capabilities.Client
                     }
 
                 },
-                Workspace = new WorkspaceClientCapabilities()
+                Workspace = new WorkspaceCapability()
                 {
                     ApplyEdit = true,
-                    WorkspaceEdit = new WorkspaceEditClientCapabilities() { DocumentChanges = true },
-                    DidChangeConfiguration = new DidChangeConfigurationClientCapabilities() { DynamicRegistration = true },
-                    DidChangeWatchedFiles = new DidChangeWatchedFilesClientCapabilities() { DynamicRegistration = true },
-                    ExecuteCommand = new ExecuteCommandClientCapabilities() { DynamicRegistration = true },
-                    Symbol = new WorkspaceSymbolClientCapabilities() { DynamicRegistration = true },
+                    WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
+                    DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
+                    DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
+                    ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },
+                    Symbol = new WorkspaceSymbolCapability() { DynamicRegistration = true },
                 }
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Capability>(expected);
             deresult.Should().BeEquivalentTo(model, o => o
                 .ConfigureForSupports(Logger));
         }
@@ -99,7 +99,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void Github_Issue_75(string expected)
         {
-            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
+            Action a = () => JObject.Parse(expected).ToObject(typeof(Capability), new Serializer(ClientVersion.Lsp3).JsonSerializer);
             a.Should().NotThrow();
         }
     }

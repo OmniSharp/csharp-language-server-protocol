@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.SignatureHelp)]
-    public interface ISignatureHelpHandler : IJsonRpcRequestHandler<SignatureHelpParams, SignatureHelp>, IRegistration<SignatureHelpRegistrationOptions>, ICapability<SignatureHelpClientCapabilities> { }
+    public interface ISignatureHelpHandler : IJsonRpcRequestHandler<SignatureHelpParams, SignatureHelp>, IRegistration<SignatureHelpRegistrationOptions>, ICapability<SignatureHelpCapability> { }
 
     public abstract class SignatureHelpHandler : ISignatureHelpHandler
     {
@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public SignatureHelpRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<SignatureHelp> Handle(SignatureHelpParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SignatureHelpClientCapabilities capability) => Capability = capability;
-        protected SignatureHelpClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(SignatureHelpCapability capability) => Capability = capability;
+        protected SignatureHelpCapability Capability { get; private set; }
     }
 
     public static class SignatureHelpHandlerExtensions
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<SignatureHelpParams, CancellationToken, Task<SignatureHelp>> handler,
             SignatureHelpRegistrationOptions registrationOptions = null,
-            Action<SignatureHelpClientCapabilities> setCapability = null)
+            Action<SignatureHelpCapability> setCapability = null)
         {
             registrationOptions ??= new SignatureHelpRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -41,11 +41,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : SignatureHelpHandler
         {
             private readonly Func<SignatureHelpParams, CancellationToken, Task<SignatureHelp>> _handler;
-            private readonly Action<SignatureHelpClientCapabilities> _setCapability;
+            private readonly Action<SignatureHelpCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<SignatureHelpParams, CancellationToken, Task<SignatureHelp>> handler,
-                Action<SignatureHelpClientCapabilities> setCapability,
+                Action<SignatureHelpCapability> setCapability,
                 SignatureHelpRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<SignatureHelp> Handle(SignatureHelpParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(SignatureHelpClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(SignatureHelpCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

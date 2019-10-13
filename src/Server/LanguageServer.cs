@@ -372,7 +372,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
+            _serializer.SetCapability(_clientVersion.Value, request.Capabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
@@ -398,9 +398,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
-            var textDocumentCapabilities = ClientSettings.Capabilities?.TextDocument ?? new TextDocumentClientCapabilities();
-            var workspaceCapabilities = ClientSettings.Capabilities?.Workspace ?? new WorkspaceClientCapabilities();
-            var windowCapabilities = ClientSettings.Capabilities?.Window ?? new WindowClientCapabilities();
+            var textDocumentCapabilities = ClientSettings.Capabilities?.TextDocument ?? new TextDocumentCapability();
+            var workspaceCapabilities = ClientSettings.Capabilities?.Workspace ?? new WorkspaceCapability();
+            var windowCapabilities = ClientSettings.Capabilities?.Window ?? new WindowCapability();
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
 

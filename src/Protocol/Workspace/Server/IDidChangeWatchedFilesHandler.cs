@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(WorkspaceNames.DidChangeWatchedFiles)]
-    public interface IDidChangeWatchedFilesHandler : IJsonRpcNotificationHandler<DidChangeWatchedFilesParams>, IRegistration<DidChangeWatchedFilesRegistrationOptions>, ICapability<DidChangeWatchedFilesClientCapabilities> { }
+    public interface IDidChangeWatchedFilesHandler : IJsonRpcNotificationHandler<DidChangeWatchedFilesParams>, IRegistration<DidChangeWatchedFilesRegistrationOptions>, ICapability<DidChangeWatchedFilesCapability> { }
 
     public abstract class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
     {
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DidChangeWatchedFilesClientCapabilities capability) => Capability = capability;
-        protected DidChangeWatchedFilesClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DidChangeWatchedFilesCapability capability) => Capability = capability;
+        protected DidChangeWatchedFilesCapability Capability { get; private set; }
     }
 
     public static class DidChangeWatchedFilesHandlerExtensions
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnDidChangeWatchedFiles(
             this ILanguageServerRegistry registry,
             Func<DidChangeWatchedFilesParams, CancellationToken, Task<Unit>> handler,
-            Action<DidChangeWatchedFilesClientCapabilities> setCapability = null,
+            Action<DidChangeWatchedFilesCapability> setCapability = null,
             DidChangeWatchedFilesRegistrationOptions registrationOptions = null)
         {
             registrationOptions ??= new DidChangeWatchedFilesRegistrationOptions();
@@ -42,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DidChangeWatchedFilesHandler
         {
             private readonly Func<DidChangeWatchedFilesParams, CancellationToken, Task<Unit>> _handler;
-            private readonly Action<DidChangeWatchedFilesClientCapabilities> _setCapability;
+            private readonly Action<DidChangeWatchedFilesCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DidChangeWatchedFilesParams, CancellationToken, Task<Unit>> handler,
-                Action<DidChangeWatchedFilesClientCapabilities> setCapability,
+                Action<DidChangeWatchedFilesCapability> setCapability,
                 DidChangeWatchedFilesRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DidChangeWatchedFilesClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DidChangeWatchedFilesCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

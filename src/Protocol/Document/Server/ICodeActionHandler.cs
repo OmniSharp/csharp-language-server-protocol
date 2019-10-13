@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.CodeAction)]
-    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, Container<CommandOrCodeAction>>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionClientCapabilities> { }
+    public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, Container<CommandOrCodeAction>>, IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability> { }
 
     public abstract class CodeActionHandler : ICodeActionHandler
     {
@@ -39,8 +39,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(CodeActionClientCapabilities capability) => Capability = capability;
-        protected CodeActionClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
+        protected CodeActionCapability Capability { get; private set; }
     }
 
     public static class CodeActionHandlerExtensions
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> handler,
             CodeActionRegistrationOptions registrationOptions = null,
-            Action<CodeActionClientCapabilities> setCapability = null)
+            Action<CodeActionCapability> setCapability = null)
         {
             registrationOptions ??= new CodeActionRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -58,12 +58,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         internal class DelegatingHandler : CodeActionHandler
         {
             private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> _handler;
-            private readonly Action<CodeActionClientCapabilities> _setCapability;
+            private readonly Action<CodeActionCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<CommandOrCodeAction>>> handler,
                 ProgressManager progressManager,
-                Action<CodeActionClientCapabilities> setCapability,
+                Action<CodeActionCapability> setCapability,
                 CodeActionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 IObserver<Container<CodeActionOrCommand>> partialResults,
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
-            public override void SetCapability(CodeActionClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(CodeActionCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

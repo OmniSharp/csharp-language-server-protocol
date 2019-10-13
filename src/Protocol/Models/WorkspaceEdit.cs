@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// above `TextDocumentEdit`s mixed with create, rename and delete file / folder operations.
         ///
         /// Whether a client supports versioned document edits is expressed via
-        /// `WorkspaceClientCapabilities.workspaceEdit.documentChanges`.
+        /// `WorkspaceCapability.workspaceEdit.documentChanges`.
         ///
         /// If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
         /// only plain `TextEdit`s using the `changes` property are supported.

@@ -13,7 +13,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItemClientCapabilities()
+            var model = new CompletionItemCapability()
             {
                 SnippetSupport = true
             };
@@ -21,7 +21,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemClientCapabilities>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         /// <summary>
         /// The completion context. This is only available it the client specifies to send
-        /// this using `ClientCapabilities.textDocument.completion.contextSupport === true`
+        /// this using `Capability.textDocument.completion.contextSupport === true`
         /// </summary>
         [Optional]
         public CompletionContext Context { get; set; }

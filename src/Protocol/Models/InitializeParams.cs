@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        public ClientCapabilities Capabilities { get; set; }
+        public Capability Capabilities { get; set; }
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').

@@ -4,6 +4,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     public interface ISerializer : OmniSharp.Extensions.JsonRpc.ISerializer
     {
-        void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities);
+        void SetCapability(ClientVersion clientVersion, Capability Capability);
     }
 }

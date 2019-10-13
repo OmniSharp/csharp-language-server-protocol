@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentHighlight)]
-    public interface IDocumentHighlightHandler : IJsonRpcRequestHandler<DocumentHighlightParams, Container<DocumentHighlight>>, IRegistration<DocumentHighlightRegistrationOptions>, ICapability<DocumentHighlightClientCapabilities> { }
+    public interface IDocumentHighlightHandler : IJsonRpcRequestHandler<DocumentHighlightParams, Container<DocumentHighlight>>, IRegistration<DocumentHighlightRegistrationOptions>, ICapability<DocumentHighlightCapability> { }
 
     public abstract class DocumentHighlightHandler : IDocumentHighlightHandler
     {
@@ -38,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(DocumentHighlightClientCapabilities capability) => Capability = capability;
-        protected DocumentHighlightClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(DocumentHighlightCapability capability) => Capability = capability;
+        protected DocumentHighlightCapability Capability { get; private set; }
     }
 
     public static class DocumentHighlightHandlerExtensions
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<DocumentHighlightParams, IObserver<Container<DocumentHighlight>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentHighlight>>> handler,
             DocumentHighlightRegistrationOptions registrationOptions = null,
-            Action<DocumentHighlightClientCapabilities> setCapability = null)
+            Action<DocumentHighlightCapability> setCapability = null)
         {
             registrationOptions ??= new DocumentHighlightRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -57,12 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : DocumentHighlightHandler
         {
             private readonly Func<DocumentHighlightParams, IObserver<Container<DocumentHighlight>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentHighlight>>> _handler;
-            private readonly Action<DocumentHighlightClientCapabilities> _setCapability;
+            private readonly Action<DocumentHighlightCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<DocumentHighlightParams, IObserver<Container<DocumentHighlight>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<DocumentHighlight>>> handler,
                 ProgressManager progressManager,
-                Action<DocumentHighlightClientCapabilities> setCapability,
+                Action<DocumentHighlightCapability> setCapability,
                 DocumentHighlightRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
-            public override void SetCapability(DocumentHighlightClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(DocumentHighlightCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

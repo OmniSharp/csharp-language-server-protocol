@@ -27,7 +27,7 @@ namespace Lsp.Tests
 
         public ClientCapabilityProvider.IOptionsGetter GetStaticOptions()
         {
-            return Provider.GetStaticOptions(new Supports<ExecuteCommandClientCapabilities>(true, new ExecuteCommandClientCapabilities { DynamicRegistration = false }));
+            return Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
         }
     }
 }

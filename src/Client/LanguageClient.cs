@@ -157,29 +157,29 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// <summary>
         ///     The client's capabilities.
         /// </summary>
-        public ClientCapabilities ClientCapabilities { get; } = new ClientCapabilities
+        public Capability Capability { get; } = new Capability
         {
-            Workspace = new WorkspaceClientCapabilities
+            Workspace = new WorkspaceCapability
             {
-                DidChangeConfiguration = new DidChangeConfigurationClientCapabilities
+                DidChangeConfiguration = new DidChangeConfigurationCapability
                 {
                     DynamicRegistration = false
                 }
             },
-            TextDocument = new TextDocumentClientCapabilities
+            TextDocument = new TextDocumentCapability
             {
-                Synchronization = new TextDocumentSyncClientCapabilities
+                Synchronization = new TextDocumentSyncCapability
                 {
                     DidSave = true,
                     DynamicRegistration = false
                 },
-                Hover = new HoverClientCapabilities
+                Hover = new HoverCapability
                 {
                     DynamicRegistration = false
                 },
-                Completion = new CompletionClientCapabilities
+                Completion = new CompletionCapability
                 {
-                    CompletionItem = new CompletionItemClientCapabilities
+                    CompletionItem = new CompletionItemCapability
                     {
                         SnippetSupport = false
                     },
@@ -254,7 +254,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 var initializeParams = new InitializeParams
                 {
                     RootPath = workspaceRoot,
-                    Capabilities = ClientCapabilities,
+                    Capabilities = Capability,
                     ProcessId = Process.GetCurrentProcess().Id,
                     InitializationOptions = initializationOptions
                 };

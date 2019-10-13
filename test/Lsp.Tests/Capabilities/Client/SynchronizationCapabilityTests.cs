@@ -13,7 +13,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentSyncClientCapabilities()
+            var model = new TextDocumentSyncCapability()
             {
                 WillSave = false,
                 WillSaveWaitUntil = false,
@@ -24,7 +24,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentSyncClientCapabilities>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentSyncCapability>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

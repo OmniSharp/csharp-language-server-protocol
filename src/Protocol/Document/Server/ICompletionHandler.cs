@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.Completion)]
-    public interface ICompletionHandler : IJsonRpcRequestHandler<CompletionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionClientCapabilities> { }
+    public interface ICompletionHandler : IJsonRpcRequestHandler<CompletionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionCapability> { }
 
     [Serial, Method(DocumentNames.CompletionResolve)]
     public interface ICompletionResolveHandler : ICanBeResolvedHandler<CompletionItem> { }
@@ -43,8 +43,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public abstract Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken);
         public abstract bool CanResolve(CompletionItem value);
-        public virtual void SetCapability(CompletionClientCapabilities capability) => Capability = capability;
-        protected CompletionClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(CompletionCapability capability) => Capability = capability;
+        protected CompletionCapability Capability { get; private set; }
     }
 
     public static class CompletionHandlerExtensions
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Func<CompletionItem, CancellationToken, Task<CompletionItem>> resolveHandler = null,
             Func<CompletionItem, bool> canResolve = null,
             CompletionRegistrationOptions registrationOptions = null,
-            Action<CompletionClientCapabilities> setCapability = null)
+            Action<CompletionCapability> setCapability = null)
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
@@ -67,14 +67,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<CompletionParams, IObserver<Container<CompletionItem>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CompletionList>> _handler;
             private readonly Func<CompletionItem, CancellationToken, Task<CompletionItem>> _resolveHandler;
             private readonly Func<CompletionItem, bool> _canResolve;
-            private readonly Action<CompletionClientCapabilities> _setCapability;
+            private readonly Action<CompletionCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<CompletionParams, IObserver<Container<CompletionItem>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CompletionList>> handler,
                 Func<CompletionItem, CancellationToken, Task<CompletionItem>> resolveHandler,
                 ProgressManager progressManager,
                 Func<CompletionItem, bool> canResolve,
-                Action<CompletionClientCapabilities> setCapability,
+                Action<CompletionCapability> setCapability,
                 CompletionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -92,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
             public override Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(CompletionItem value) => _canResolve.Invoke(value);
-            public override void SetCapability(CompletionClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(CompletionCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }

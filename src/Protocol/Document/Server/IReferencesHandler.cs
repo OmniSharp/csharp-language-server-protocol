@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.References)]
-    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, Container<Location>>, IRegistration<ReferenceRegistrationOptions>, ICapability<ReferenceClientCapabilities> { }
+    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, Container<Location>>, IRegistration<ReferenceRegistrationOptions>, ICapability<ReferenceCapability> { }
 
     public abstract class ReferencesHandler : IReferencesHandler
     {
@@ -38,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CancellationToken cancellationToken
         );
 
-        public virtual void SetCapability(ReferenceClientCapabilities capability) => Capability = capability;
-        protected ReferenceClientCapabilities Capability { get; private set; }
+        public virtual void SetCapability(ReferenceCapability capability) => Capability = capability;
+        protected ReferenceCapability Capability { get; private set; }
     }
 
     public static class ReferencesHandlerExtensions
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> handler,
             ReferenceRegistrationOptions registrationOptions = null,
-            Action<ReferenceClientCapabilities> setCapability = null)
+            Action<ReferenceCapability> setCapability = null)
         {
             registrationOptions ??= new ReferenceRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
@@ -57,12 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : ReferencesHandler
         {
             private readonly Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> _handler;
-            private readonly Action<ReferenceClientCapabilities> _setCapability;
+            private readonly Action<ReferenceCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<ReferenceParams, IObserver<Container<Container<Location>>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<Location>>> handler,
                 ProgressManager progressManager,
-                Action<ReferenceClientCapabilities> setCapability,
+                Action<ReferenceCapability> setCapability,
                 ReferenceRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 CancellationToken cancellationToken
             ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
 
-            public override void SetCapability(ReferenceClientCapabilities capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(ReferenceCapability capability) => _setCapability?.Invoke(capability);
 
         }
     }
