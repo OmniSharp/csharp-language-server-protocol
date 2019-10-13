@@ -157,16 +157,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// <summary>
         ///     The client's capabilities.
         /// </summary>
-        public Capability Capability { get; } = new Capability
+        public ClientCapabilities ClientCapabilities { get; } = new ClientCapabilities
         {
-            Workspace = new WorkspaceCapability
+            Workspace = new WorkspaceClientCapabilities
             {
                 DidChangeConfiguration = new DidChangeConfigurationCapability
                 {
                     DynamicRegistration = false
                 }
             },
-            TextDocument = new TextDocumentCapability
+            TextDocument = new TextDocumentClientCapabilities
             {
                 Synchronization = new TextDocumentSyncCapability
                 {
@@ -254,7 +254,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 var initializeParams = new InitializeParams
                 {
                     RootPath = workspaceRoot,
-                    Capabilities = Capability,
+                    ClientCapabilitieses = ClientCapabilities,
                     ProcessId = Process.GetCurrentProcess().Id,
                     InitializationOptions = initializationOptions
                 };

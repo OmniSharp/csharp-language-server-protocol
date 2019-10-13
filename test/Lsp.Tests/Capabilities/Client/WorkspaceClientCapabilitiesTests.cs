@@ -19,7 +19,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new WorkspaceCapability()
+            var model = new WorkspaceClientCapabilities()
             {
                 ApplyEdit = true,
                 WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
@@ -33,20 +33,20 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceCapability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
         [Theory, JsonFixture]
         public void EmptyTest(string expected)
         {
-            var model = new WorkspaceCapability();
+            var model = new WorkspaceClientCapabilities();
 
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceCapability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

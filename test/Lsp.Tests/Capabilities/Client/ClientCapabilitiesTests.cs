@@ -22,13 +22,13 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new Capability()
+            var model = new ClientCapabilities()
             {
                 Experimental = new Dictionary<string, JToken>()
                 {
                     {  "abc", "test" }
                 },
-                TextDocument = new TextDocumentCapability()
+                TextDocument = new TextDocumentClientCapabilities()
                 {
                     CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                     CodeLens = new CodeLensCapability() { DynamicRegistration = true },
@@ -77,7 +77,7 @@ namespace Lsp.Tests.Capabilities.Client
                     }
 
                 },
-                Workspace = new WorkspaceCapability()
+                Workspace = new WorkspaceClientCapabilities()
                 {
                     ApplyEdit = true,
                     WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
@@ -91,7 +91,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Capability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o
                 .ConfigureForSupports(Logger));
         }
@@ -99,7 +99,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void Github_Issue_75(string expected)
         {
-            Action a = () => JObject.Parse(expected).ToObject(typeof(Capability), new Serializer(ClientVersion.Lsp3).JsonSerializer);
+            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
             a.Should().NotThrow();
         }
     }

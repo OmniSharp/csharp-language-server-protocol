@@ -19,7 +19,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentCapability()
+            var model = new TextDocumentClientCapabilities()
             {
                 CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                 CodeLens = new CodeLensCapability() { DynamicRegistration = true },
@@ -54,19 +54,19 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentCapability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
         [Theory, JsonFixture]
         public void EmptyTest(string expected)
         {
-            var model = new TextDocumentCapability();
+            var model = new TextDocumentClientCapabilities();
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentCapability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
     }

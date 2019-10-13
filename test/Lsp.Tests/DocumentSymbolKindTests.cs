@@ -26,9 +26,9 @@ namespace Lsp.Tests
         public void CustomBehavior_When_Defined_By_Client()
         {
             var serializer = new Serializer();
-            serializer.SetCapability(ClientVersion.Lsp3, new Capability()
+            serializer.SetCapability(ClientVersion.Lsp3, new ClientCapabilities()
             {
-                TextDocument = new TextDocumentCapability
+                TextDocument = new TextDocumentClientCapabilities
                 {
                     DocumentSymbol = new Supports<DocumentSymbolCapability>(true, new DocumentSymbolCapability()
                     {

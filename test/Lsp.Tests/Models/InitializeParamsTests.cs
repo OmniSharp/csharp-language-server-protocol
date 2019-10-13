@@ -24,10 +24,10 @@ namespace Lsp.Tests.Models
         {
             var model = new InitializeParams()
             {
-                Capabilities = new Capability()
+                ClientCapabilitieses = new ClientCapabilities()
                 {
                     Experimental = new Dictionary<string, JToken>() { { "abc", "test" } },
-                    TextDocument = new TextDocumentCapability()
+                    TextDocument = new TextDocumentClientCapabilities()
                     {
                         CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                         CodeLens = new CodeLensCapability() { DynamicRegistration = true },
@@ -64,7 +64,7 @@ namespace Lsp.Tests.Models
                             RangeLimit = 5000,
                         }
                     },
-                    Workspace = new WorkspaceCapability()
+                    Workspace = new WorkspaceClientCapabilities()
                     {
                         ApplyEdit = true,
                         DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },

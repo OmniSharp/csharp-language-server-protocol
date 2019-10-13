@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class TextDocumentCapability
+    public class TextDocumentClientCapabilities
     {
         public Supports<TextDocumentSyncCapability> Synchronization { get; set; }
 

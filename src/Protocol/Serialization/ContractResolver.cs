@@ -29,8 +29,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonObjectContract CreateObjectContract(Type objectType)
         {
             var contract = base.CreateObjectContract(objectType);
-            if (objectType == typeof(WorkspaceCapability) ||
-                objectType == typeof(TextDocumentCapability))
+            if (objectType == typeof(WorkspaceClientCapabilities) ||
+                objectType == typeof(TextDocumentClientCapabilities))
             {
                 foreach (var property in contract.Properties)
                 {

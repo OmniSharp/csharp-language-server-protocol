@@ -31,9 +31,9 @@ namespace Lsp.Tests
         public void CustomBehavior_When_Defined_By_Client()
         {
             var serializer = new Serializer();
-            serializer.SetCapability(ClientVersion.Lsp3, new Capability()
+            serializer.SetCapability(ClientVersion.Lsp3, new ClientCapabilities()
             {
-                TextDocument = new TextDocumentCapability
+                TextDocument = new TextDocumentClientCapabilities
                 {
                     Completion = new Supports<CompletionCapability>(true, new CompletionCapability()
                     {

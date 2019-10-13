@@ -80,15 +80,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             base.AddOrReplaceConverters(converters);
         }
 
-        public void SetCapability(ClientVersion clientVersion, Capability Capability)
+        public void SetCapability(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var documentSymbolKinds = DefaultSymbolKinds;
             var workspaceSymbolKinds = DefaultSymbolKinds;
 
-            if (Capability?.TextDocument?.Completion.IsSupported == true)
+            if (clientCapabilities?.TextDocument?.Completion.IsSupported == true)
             {
-                var completion = Capability.TextDocument.Completion.Value;
+                var completion = clientCapabilities.TextDocument.Completion.Value;
                 var valueSet = completion?.CompletionItemKind?.ValueSet;
                 if (valueSet != null && valueSet.Any())
                 {
@@ -96,9 +96,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 }
             }
 
-            if (Capability?.TextDocument?.DocumentSymbol.IsSupported == true)
+            if (clientCapabilities?.TextDocument?.DocumentSymbol.IsSupported == true)
             {
-                var symbol = Capability.TextDocument.DocumentSymbol.Value;
+                var symbol = clientCapabilities.TextDocument.DocumentSymbol.Value;
                 var valueSet = symbol?.SymbolKind?.ValueSet;
                 if (valueSet != null && valueSet.Any())
                 {
@@ -106,9 +106,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 }
             }
 
-            if (Capability?.Workspace?.Symbol.IsSupported == true)
+            if (clientCapabilities?.Workspace?.Symbol.IsSupported == true)
             {
-                var symbol = Capability.Workspace.Symbol.Value;
+                var symbol = clientCapabilities.Workspace.Symbol.Value;
                 var valueSet = symbol?.SymbolKind?.ValueSet;
                 if (valueSet != null && valueSet.Any())
                 {

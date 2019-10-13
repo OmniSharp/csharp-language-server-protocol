@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class WorkspaceCapability
+    public class WorkspaceClientCapabilities
     {
         /// <summary>
         /// The client supports applying batch edits

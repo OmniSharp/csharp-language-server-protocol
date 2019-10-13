@@ -26,9 +26,9 @@ namespace Lsp.Tests
         public void CustomBehavior_When_Defined_By_Client()
         {
             var serializer = new Serializer();
-            serializer.SetCapability(ClientVersion.Lsp3, new Capability()
+            serializer.SetCapability(ClientVersion.Lsp3, new ClientCapabilities()
             {
-                Workspace = new WorkspaceCapability()
+                Workspace = new WorkspaceClientCapabilities()
                 {
                     Symbol = new Supports<WorkspaceSymbolCapability>(true, new WorkspaceSymbolCapability()
                     {

@@ -371,23 +371,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 MinimumLogLevel = LogLevel.Trace;
             }
 
-            _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetCapability(_clientVersion.Value, request.Capabilities);
+            _clientVersion = request.ClientCapabilitieses?.GetClientVersion() ?? ClientVersion.Lsp2;
+            _serializer.SetCapability(_clientVersion.Value, request.ClientCapabilitieses);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                if (request.Capabilities.TextDocument != null)
+                if (request.ClientCapabilitieses.TextDocument != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.ClientCapabilitieses.TextDocument)
                     );
                 }
 
-                if (request.Capabilities.Workspace != null)
+                if (request.ClientCapabilitieses.Workspace != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.ClientCapabilitieses.Workspace)
                     );
                 }
             }
@@ -398,9 +398,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
-            var textDocumentCapabilities = ClientSettings.Capabilities?.TextDocument ?? new TextDocumentCapability();
-            var workspaceCapabilities = ClientSettings.Capabilities?.Workspace ?? new WorkspaceCapability();
-            var windowCapabilities = ClientSettings.Capabilities?.Window ?? new WindowCapability();
+            var textDocumentCapabilities = ClientSettings.ClientCapabilitieses?.TextDocument ?? new TextDocumentClientCapabilities();
+            var workspaceCapabilities = ClientSettings.ClientCapabilitieses?.Workspace ?? new WorkspaceClientCapabilities();
+            var windowCapabilities = ClientSettings.ClientCapabilitieses?.Window ?? new WindowCapability();
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
 
