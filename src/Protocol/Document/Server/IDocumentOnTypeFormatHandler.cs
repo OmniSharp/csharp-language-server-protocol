@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentOnTypeFormattingRegistrationOptions registrationOptions = null,
             Action<DocumentOnTypeFormattingClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentOnTypeFormattingRegistrationOptions();
+            registrationOptions ??= new DocumentOnTypeFormattingRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

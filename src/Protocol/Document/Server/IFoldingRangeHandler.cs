@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             FoldingRangeRegistrationOptions registrationOptions = null,
             Action<FoldingRangeClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new FoldingRangeRegistrationOptions();
+            registrationOptions ??= new FoldingRangeRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

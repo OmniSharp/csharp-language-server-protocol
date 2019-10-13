@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentSymbolRegistrationOptions registrationOptions = null,
             Action<DocumentSymbolClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentSymbolRegistrationOptions();
+            registrationOptions ??= new DocumentSymbolRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             HoverRegistrationOptions registrationOptions = null,
             Action<HoverClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new HoverRegistrationOptions();
+            registrationOptions ??= new HoverRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

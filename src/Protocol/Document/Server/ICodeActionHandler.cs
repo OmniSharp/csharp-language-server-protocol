@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CodeActionRegistrationOptions registrationOptions = null,
             Action<CodeActionClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new CodeActionRegistrationOptions();
+            registrationOptions ??= new CodeActionRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

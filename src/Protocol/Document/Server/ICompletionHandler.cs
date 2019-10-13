@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             CompletionRegistrationOptions registrationOptions = null,
             Action<CompletionClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new CompletionRegistrationOptions();
+            registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
             return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, registry.ProgressManager, canResolve, setCapability, registrationOptions));
         }

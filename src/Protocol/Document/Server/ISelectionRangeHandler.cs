@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             SelectionRangeRegistrationOptions registrationOptions = null,
             Action<SelectionRangeClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new SelectionRangeRegistrationOptions();
+            registrationOptions ??= new SelectionRangeRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

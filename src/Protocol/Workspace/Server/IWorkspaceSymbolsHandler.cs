@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Action<WorkspaceSymbolClientCapabilities> setCapability = null,
             WorkspaceSymbolRegistrationOptions registrationOptions = null)
         {
-            registrationOptions = registrationOptions ?? new WorkspaceSymbolRegistrationOptions();
+            registrationOptions ??= new WorkspaceSymbolRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

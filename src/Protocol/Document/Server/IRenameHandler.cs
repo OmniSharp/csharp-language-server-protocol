@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             RenameRegistrationOptions registrationOptions = null,
             Action<RenameClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new RenameRegistrationOptions();
+            registrationOptions ??= new RenameRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

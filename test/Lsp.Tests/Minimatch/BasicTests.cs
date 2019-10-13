@@ -37,7 +37,7 @@ namespace Minimatch.Tests
 
         static void TestCase(string pattern, IList<string> expected, Options options = null, IEnumerable<string> input = null)
         {
-            input = input ?? files;
+            input ??= files;
 
             Assert.Equal(
                 string.Join(Environment.NewLine, expected.OrderBy(s => s)),

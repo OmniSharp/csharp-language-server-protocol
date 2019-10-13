@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Action<DidChangeWatchedFilesClientCapabilities> setCapability = null,
             DidChangeWatchedFilesRegistrationOptions registrationOptions = null)
         {
-            registrationOptions = registrationOptions ?? new DidChangeWatchedFilesRegistrationOptions();
+            registrationOptions ??= new DidChangeWatchedFilesRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

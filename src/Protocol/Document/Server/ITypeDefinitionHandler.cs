@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             TypeDefinitionRegistrationOptions registrationOptions = null,
             Action<TypeDefinitionClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TypeDefinitionRegistrationOptions();
+            registrationOptions ??= new TypeDefinitionRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

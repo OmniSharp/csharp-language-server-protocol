@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentHighlightRegistrationOptions registrationOptions = null,
             Action<DocumentHighlightClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentHighlightRegistrationOptions();
+            registrationOptions ??= new DocumentHighlightRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 

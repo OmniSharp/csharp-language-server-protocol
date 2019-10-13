@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentLinkRegistrationOptions registrationOptions = null,
             Action<DocumentLinkClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentLinkRegistrationOptions();
+            registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
             return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, registry.ProgressManager, canResolve, setCapability, registrationOptions));
         }
