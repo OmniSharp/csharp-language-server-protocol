@@ -27,11 +27,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public CompletionRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
+        public async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
-            var partialResults = _progressManager.For(request, cancellationToken);
-            var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, progressReporter, cancellationToken);
+            using var partialResults = _progressManager.For(request, cancellationToken);
+            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
         }
 
         public abstract Task<CompletionList> Handle(

@@ -366,16 +366,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
-            using var progressReporter = _progressManager.Delegate(request, token);
-            var reporter = progressReporter.Begin(new WorkDoneProgressBegin()
-            {
-                Title = "Starting Language Server",
-                Message = "Starting...",
-            }, () => new WorkDoneProgressEnd()
-            {
-                Message = "Finished!"
-            });
-
             ClientSettings = request;
 
             if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
@@ -406,14 +396,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _supportedCapabilities.Add(supportedCapabilities);
 
-            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
-
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Message = $"Adding ({handlers.Length}) handlers!",
-            });
-
-            AddHandlers(handlers);
+            AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
@@ -458,11 +441,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 SelectionRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<ISelectionRangeOptions, SelectionRangeOptions>(SelectionRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration).Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
             };
-
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Message = $"Managing the magic of static and dynamic!",
-            });
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -509,12 +487,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // serverCapabilities.Experimental;
 
             _reciever.Initialized();
-
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Message = $"Plugging in all the things!",
-            });
-
             var result = ServerSettings = new InitializeResult()
             {
                 Capabilities = serverCapabilities,

@@ -24,11 +24,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public ImplementationRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<LocationOrLocationLinks> Handle(ImplementationParams request, CancellationToken cancellationToken)
+        public async Task<LocationOrLocationLinks> Handle(ImplementationParams request, CancellationToken cancellationToken)
         {
-            var partialResults = _progressManager.For(request, cancellationToken);
-            var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, progressReporter, cancellationToken);
+            using var partialResults = _progressManager.For(request, cancellationToken);
+            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
         }
 
         public abstract Task<LocationOrLocationLinks> Handle(

@@ -26,12 +26,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<Unit> Handle(
+        public async Task<Unit> Handle(
             ExecuteCommandParams request,
             CancellationToken cancellationToken)
         {
-            var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, progressReporter, cancellationToken);
+            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return await Handle(request, progressReporter, cancellationToken).ConfigureAwait(false);
         }
 
         public abstract Task<Unit> Handle(ExecuteCommandParams request, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken);

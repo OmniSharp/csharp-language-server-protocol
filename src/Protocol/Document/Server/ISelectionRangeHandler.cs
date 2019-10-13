@@ -24,11 +24,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public SelectionRangeRegistrationOptions GetRegistrationOptions() => _options;
 
-        public Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken)
+        public async Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken)
         {
-            var partialResults = _progressManager.For(request, cancellationToken);
-            var progressReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, progressReporter, cancellationToken);
+            using var partialResults = _progressManager.For(request, cancellationToken);
+            using var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return await Handle(request, partialResults, progressReporter, cancellationToken).ConfigureAwait(false);
         }
 
         public abstract Task<Container<SelectionRange>> Handle(
