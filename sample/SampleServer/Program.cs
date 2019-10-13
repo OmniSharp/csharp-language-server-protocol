@@ -27,6 +27,7 @@ namespace SampleServer
             Log.Logger = new LoggerConfiguration()
               .Enrich.FromLogContext()
               .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
+                .MinimumLevel.Verbose()
               .CreateLogger();
 
             Log.Logger.Information("This only goes file...");
@@ -40,8 +41,13 @@ namespace SampleServer
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()
-                    .WithServices(services => {
-                        services.AddSingleton<Foo>(provider => {
+                    .WithHandler<MyWorkspaceSymbolsHandler>()
+                    .WithHandler<MyDocumentSymbolHandler>()
+                    .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
+                    .WithServices(services =>
+                    {
+                        services.AddSingleton<Foo>(provider =>
+                        {
                             var loggerFactory = provider.GetService<ILoggerFactory>();
                             var logger = loggerFactory.CreateLogger<Foo>();
 
@@ -49,7 +55,8 @@ namespace SampleServer
 
                             return new Foo(logger);
                         });
-                    }).OnInitialize((s, request) => {
+                    }).OnInitialize((s, request) =>
+                    {
                         var serviceProvider = s.Services;
                         var foo = serviceProvider.GetService<Foo>();
 

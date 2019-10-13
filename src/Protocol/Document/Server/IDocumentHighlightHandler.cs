@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<DocumentHighlightContainer> Handle(DocumentHighlightParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<DocumentHighlightContainer> Handle(
             DocumentHighlightParams request,
             IObserver<DocumentHighlightContainer> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentHighlight(
             this ILanguageServerRegistry registry,
-            Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentHighlightContainer>> handler,
+            Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentHighlightContainer>> handler,
             DocumentHighlightRegistrationOptions registrationOptions = null,
             Action<DocumentHighlightCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentHighlightHandler
         {
-            private readonly Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentHighlightContainer>> _handler;
+            private readonly Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentHighlightContainer>> _handler;
             private readonly Action<DocumentHighlightCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentHighlightContainer>> handler,
+                Func<DocumentHighlightParams, IObserver<DocumentHighlightContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentHighlightContainer>> handler,
                 ProgressManager progressManager,
                 Action<DocumentHighlightCapability> setCapability,
                 DocumentHighlightRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<DocumentHighlightContainer> Handle(
                 DocumentHighlightParams request,
                 IObserver<DocumentHighlightContainer> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(DocumentHighlightCapability capability) => _setCapability?.Invoke(capability);
 
         }

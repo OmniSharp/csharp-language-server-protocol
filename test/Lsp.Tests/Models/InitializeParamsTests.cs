@@ -24,7 +24,7 @@ namespace Lsp.Tests.Models
         {
             var model = new InitializeParams()
             {
-                ClientCapabilitieses = new ClientCapabilities()
+                Capabilities = new ClientCapabilities()
                 {
                     Experimental = new Dictionary<string, JToken>() { { "abc", "test" } },
                     TextDocument = new TextDocumentClientCapabilities()

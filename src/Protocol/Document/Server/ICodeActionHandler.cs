@@ -28,14 +28,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<CommandOrCodeActionContainer> Handle(
             CodeActionParams request,
             IObserver<Container<CodeActionOrCommand>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -47,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnCodeAction(
             this ILanguageServerRegistry registry,
-            Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
+            Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             CodeActionRegistrationOptions registrationOptions = null,
             Action<CodeActionCapability> setCapability = null)
         {
@@ -57,11 +57,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         internal class DelegatingHandler : CodeActionHandler
         {
-            private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> _handler;
+            private readonly Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> _handler;
             private readonly Action<CodeActionCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
+                Func<CodeActionParams, IObserver<Container<CodeActionOrCommand>>, WorkDoneProgressReporter, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
                 ProgressManager progressManager,
                 Action<CodeActionCapability> setCapability,
                 CodeActionRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -73,8 +73,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<CommandOrCodeActionContainer> Handle(
                 CodeActionParams request,
                 IObserver<Container<CodeActionOrCommand>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
-                CancellationToken cancellationToken) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+                WorkDoneProgressReporter progressReporter,
+                CancellationToken cancellationToken) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(CodeActionCapability capability) => _setCapability?.Invoke(capability);
 
         }

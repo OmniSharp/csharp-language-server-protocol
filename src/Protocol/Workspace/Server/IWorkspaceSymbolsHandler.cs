@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         protected WorkspaceSymbolCapability Capability { get; private set; }
         private readonly WorkspaceSymbolRegistrationOptions _options;
-        private readonly ProgressManager _progressManager;
+        protected readonly ProgressManager _progressManager;
         public WorkspaceSymbolsHandler(WorkspaceSymbolRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
@@ -28,14 +28,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<Container<SymbolInformation>> Handle(
             WorkspaceSymbolParams request,
             IObserver<Container<SymbolInformation>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnWorkspaceSymbols(
             this ILanguageServerRegistry registry,
-            Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformation>>> handler,
+            Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SymbolInformation>>> handler,
             Action<WorkspaceSymbolCapability> setCapability = null,
             WorkspaceSymbolRegistrationOptions registrationOptions = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : WorkspaceSymbolsHandler
         {
-            private readonly Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformation>>> _handler;
+            private readonly Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SymbolInformation>>> _handler;
             private readonly Action<WorkspaceSymbolCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformation>>> handler,
+                Func<WorkspaceSymbolParams, IObserver<Container<SymbolInformation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SymbolInformation>>> handler,
                 ProgressManager progressManager,
                 Action<WorkspaceSymbolCapability> setCapability,
                 WorkspaceSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Container<SymbolInformation>> Handle(
                 WorkspaceSymbolParams request,
                 IObserver<Container<SymbolInformation>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(WorkspaceSymbolCapability capability) => _setCapability?.Invoke(capability);
         }
     }

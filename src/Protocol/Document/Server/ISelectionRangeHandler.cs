@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<Container<SelectionRange>> Handle(SelectionRangeParam request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<Container<SelectionRange>> Handle(
             SelectionRangeParam request,
             IObserver<Container<SelectionRange>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnSelectionRange(
             this ILanguageServerRegistry registry,
-            Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SelectionRange>>> handler,
+            Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> handler,
             SelectionRangeRegistrationOptions registrationOptions = null,
             Action<SelectionRangeCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : SelectionRangeHandler
         {
-            private readonly Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SelectionRange>>> _handler;
+            private readonly Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> _handler;
             private readonly Action<SelectionRangeCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SelectionRange>>> handler,
+                Func<SelectionRangeParam, IObserver<Container<SelectionRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<SelectionRange>>> handler,
                 ProgressManager progressManager,
                 Action<SelectionRangeCapability> setCapability,
                 SelectionRangeRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Container<SelectionRange>> Handle(
                 SelectionRangeParam request,
                 IObserver<Container<SelectionRange>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(SelectionRangeCapability capability) => _setCapability?.Invoke(capability);
 
         }

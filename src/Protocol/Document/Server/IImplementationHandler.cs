@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<LocationOrLocationLinks> Handle(ImplementationParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<LocationOrLocationLinks> Handle(
             ImplementationParams request,
             IObserver<Container<LocationOrLocationLink>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnImplementation(
             this ILanguageServerRegistry registry,
-            Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
+            Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
             ImplementationRegistrationOptions registrationOptions = null,
             Action<ImplementationCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : ImplementationHandler
         {
-            private readonly Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> _handler;
+            private readonly Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> _handler;
             private readonly Action<ImplementationCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
+                Func<ImplementationParams, IObserver<Container<LocationOrLocationLink>>, WorkDoneProgressReporter, CancellationToken, Task<LocationOrLocationLinks>> handler,
                 ProgressManager progressManager,
                 Action<ImplementationCapability> setCapability,
                 ImplementationRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<LocationOrLocationLinks> Handle(
                 ImplementationParams request,
                 IObserver<Container<LocationOrLocationLink>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(ImplementationCapability capability) => _setCapability?.Invoke(capability);
 
         }

@@ -72,7 +72,8 @@ namespace OmniSharp.Extensions.JsonRpc
             // content is encoded in UTF-8
             while (true)
             {
-                try {
+                try
+                {
                     if (_inputThread == null) return;
 
                     var buffer = new byte[300];
@@ -187,6 +188,10 @@ namespace OmniSharp.Extensions.JsonRpc
                             try
                             {
                                 var result = await _requestRouter.RouteRequest(descriptor, item.Request, CancellationToken.None);
+                                if (result.IsError && result.Error is RequestCancelled)
+                                {
+                                    return;
+                                }
                                 _outputHandler.Send(result.Value);
                             }
                             catch (Exception e)

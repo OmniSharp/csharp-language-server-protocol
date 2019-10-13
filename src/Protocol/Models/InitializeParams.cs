@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class InitializeParams : IRequest<InitializeResult>
+    public class InitializeParams : IWorkDoneProgressParams, IRequest<InitializeResult>
     {
         /// <summary>
         /// The process Id of the parent process that started
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        public ClientCapabilities ClientCapabilitieses { get; set; }
+        public ClientCapabilities Capabilities { get; set; }
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
@@ -69,5 +69,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Since 3.6.0
         /// <summary/>
         public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

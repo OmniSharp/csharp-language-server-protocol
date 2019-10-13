@@ -95,8 +95,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                     var id = GetId(request.Id);
-                    var cts = new CancellationTokenSource();
-                    token.Register(cts.Cancel);
+                    var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
                     _requests.TryAdd(id, cts);
 
                     // TODO: Try / catch for Internal Error
@@ -111,7 +110,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         object @params;
                         try
                         {
-                            _logger.LogDebug("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
+                            _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
                             if (descriptor.IsDelegatingHandler)
                             {
                                 // new DelegatingRequest();
@@ -125,14 +124,12 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                         catch (Exception cannotDeserializeRequestParams)
                         {
-                            _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
+                            _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
                             return new InvalidParams(request.Id);
                         }
 
                         var result = HandleRequest(mediator, descriptor, @params ?? EmptyRequest.Instance, cts.Token);
                         await result;
-
-                        _logger.LogDebug("Result was {Type}", result.GetType().FullName);
 
                         object responseValue = null;
                         if (result.GetType().GetTypeInfo().IsGenericType)
@@ -146,7 +143,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             {
                                 responseValue = null;
                             }
-                            _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
+                            _logger.LogTrace("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 
                         return new JsonRpc.Client.Response(request.Id, responseValue, request);
@@ -178,6 +175,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             if (_requests.TryGetValue(GetId(id), out var cts))
             {
+                _logger.LogTrace("Request {Id} was cancelled", id);
                 cts.Cancel();
             }
             else

@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<Container<ColorPresentation>> Handle(DocumentColorParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<Container<ColorPresentation>> Handle(
             DocumentColorParams request,
             IObserver<Container<ColorPresentation>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentColor(
             this ILanguageServerRegistry registry,
-            Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> handler,
+            Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions = null,
             Action<ColorProviderCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentColorHandler
         {
-            private readonly Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> _handler;
+            private readonly Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<ColorPresentation>>> _handler;
             private readonly Action<ColorProviderCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<ColorPresentation>>> handler,
+                Func<DocumentColorParams, IObserver<Container<ColorPresentation>>, WorkDoneProgressReporter, CancellationToken, Task<Container<ColorPresentation>>> handler,
                 ProgressManager progressManager,
                 Action<ColorProviderCapability> setCapability,
                 DocumentColorRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Container<ColorPresentation>> Handle(
                 DocumentColorParams request,
                 IObserver<Container<ColorPresentation>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(ColorProviderCapability capability) => _setCapability?.Invoke(capability);
 
         }

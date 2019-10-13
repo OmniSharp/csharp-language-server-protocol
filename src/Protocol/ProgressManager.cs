@@ -32,15 +32,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             _initialized = true;
         }
 
+        public bool IsInitialized => _initialized;
+
         /// <summary>
         /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
         /// </summary>
-        public async Task<(IObserver<WorkDoneProgressReport>, CancellationToken token)> Create(WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null)
+        public async Task<(ResultObserver<WorkDoneProgressReport>, CancellationToken token)> Create(WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null)
         {
             if (!_initialized)
             {
-                return (Observer.Create<WorkDoneProgressReport>(x => { }), CancellationToken.None);
+                return (ResultObserver<WorkDoneProgressReport>.Noop, CancellationToken.None);
             }
 
             ProgressToken token = Guid.NewGuid().ToString();
@@ -61,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             _router.SendProgress(token.Create(token, _serializer.JsonSerializer));
 
-            var observer = Observer.Create<WorkDoneProgressReport>(
+            var observer = new ResultObserver<WorkDoneProgressReport>(Observer.Create<WorkDoneProgressReport>(
                 value => _router.SendProgress(token.Create(value, _serializer.JsonSerializer)),
                 error => _router.SendProgress(token.Create(onError(error), _serializer.JsonSerializer)),
                 () =>
@@ -72,7 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         if (result == null) return;
                         _router.SendProgress(token.Create(result, _serializer.JsonSerializer));
                     }
-                });
+                }));
 
             var source = new CancellationTokenSource();
             source.Token.Register(() =>
@@ -88,60 +90,54 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// </summary>
-        public Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> Delegate(IWorkDoneProgressParams request, CancellationToken cancellationToken)
+        public WorkDoneProgressReporter Delegate(IWorkDoneProgressParams request, CancellationToken cancellationToken)
         {
-            return begin => Create(request, begin, cancellationToken);
+            return new WorkDoneProgressReporter(this, request.WorkDoneToken, cancellationToken);
         }
 
         /// <summary>
-        /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
+        /// Creates a <see cref="ResultObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// </summary>
-        public IObserver<WorkDoneProgressReport> Create(IWorkDoneProgressParams request, WorkDoneProgressBegin begin, CancellationToken cancellationToken)
+        public ResultObserver<WorkDoneProgressReport> Create(IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<WorkDoneProgressEnd> end, CancellationToken cancellationToken)
         {
             if (!_initialized)
             {
-                return Observer.Create<WorkDoneProgressReport>(x => { });
+                return ResultObserver<WorkDoneProgressReport>.Noop;
             }
 
             if (request.WorkDoneToken == null)
             {
-                return Observer.Create<WorkDoneProgressReport>(x => { });
+                return ResultObserver<WorkDoneProgressReport>.Noop;
             }
-
-            if (_activeObservers.TryGetValue(request.WorkDoneToken, out var item))
-            {
-                return (IObserver<WorkDoneProgressReport>)item.observer;
-            }
-
-            _router.SendProgress(request.WorkDoneToken.Create(request.WorkDoneToken, _serializer.JsonSerializer));
-
-            return For<WorkDoneProgressReport>(request.WorkDoneToken, cancellationToken);
+            return Create(request.WorkDoneToken, begin, end, cancellationToken);
         }
 
         /// <summary>
-        /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
-        /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
+        /// Creates a <see cref="ResultObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// </summary>
-        public IObserver<T> For<T>(ProgressToken token, CancellationToken cancellationToken)
+        public ResultObserver<WorkDoneProgressReport> Create(ProgressToken token, WorkDoneProgressBegin begin, Func<WorkDoneProgressEnd> end, CancellationToken cancellationToken)
         {
             if (!_initialized)
             {
-                return Observer.Create<T>(x => { });
+                return ResultObserver<WorkDoneProgressReport>.Noop;
             }
 
             if (token == null)
             {
-                return Observer.Create<T>(x => { });
+                return ResultObserver<WorkDoneProgressReport>.Noop;
             }
 
             if (_activeObservers.TryGetValue(token, out var item))
             {
-                return (IObserver<T>)item.observer;
+                return (ResultObserver<WorkDoneProgressReport>)item.observer;
             }
 
-            _router.SendProgress(token.Create(token, _serializer.JsonSerializer));
+            _router.SendProgress(token.Create(begin, _serializer.JsonSerializer));
 
-            var observer = Observer.Create<T>(value => _router.SendProgress(token.Create(value, _serializer.JsonSerializer)));
+            var observer = new ResultObserver<WorkDoneProgressReport>(Observer.Create<WorkDoneProgressReport>(
+                value => _router.SendProgress(token.Create(value, _serializer.JsonSerializer)),
+                () => _router.SendProgress(token.Create(end() ?? new WorkDoneProgressEnd(), _serializer.JsonSerializer)))
+            );
 
             var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             source.Token.Register(() =>
@@ -155,17 +151,52 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return observer;
         }
 
-        public IObserver<Container<T>> For<T>(IPartialResultParams<T> request, CancellationToken cancellationToken)
+        /// <summary>
+        /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
+        /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
+        /// </summary>
+        public ResultObserver<T> For<T>(ProgressToken token, CancellationToken cancellationToken)
+        {
+            if (!_initialized)
+            {
+                return ResultObserver<T>.Noop;
+            }
+
+            if (token == null)
+            {
+                return ResultObserver<T>.Noop;
+            }
+
+            if (_activeObservers.TryGetValue(token, out var item))
+            {
+                return (ResultObserver<T>)item.observer;
+            }
+
+            var observer = new ResultObserver<T>(Observer.Create<T>(value => _router.SendProgress(token.Create(value, _serializer.JsonSerializer))));
+
+            var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            source.Token.Register(() =>
+            {
+                if (_activeObservers.TryRemove(token, out var _))
+                    observer.OnCompleted();
+            });
+
+            _activeObservers.TryAdd(token, (observer, source));
+
+            return observer;
+        }
+
+        public ResultObserver<Container<T>> For<T>(IPartialResultParams<T> request, CancellationToken cancellationToken)
         {
             return For<Container<T>>(request.PartialResultToken, cancellationToken);
         }
 
-        public IObserver<Container<T>> For<T>(IPartialItems<T> request, CancellationToken cancellationToken)
+        public ResultObserver<Container<T>> For<T>(IPartialItems<T> request, CancellationToken cancellationToken)
         {
             return For<Container<T>>(request.PartialResultToken, cancellationToken);
         }
 
-        public IObserver<T> For<T>(IPartialItem<T> request, CancellationToken cancellationToken)
+        public ResultObserver<T> For<T>(IPartialItem<T> request, CancellationToken cancellationToken)
         {
             return For<T>(request.PartialResultToken, cancellationToken);
         }

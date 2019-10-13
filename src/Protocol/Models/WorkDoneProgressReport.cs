@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If unset, the previous progress message (if any) is still valid.
         /// </summary>
         [Optional]
-        string Message { get; set; }
+        public string Message { get; set; }
 
         /// <summary>
         /// Optional progress percentage to display (value 100 is considered 100%).

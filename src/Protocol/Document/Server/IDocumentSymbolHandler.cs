@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(
             DocumentSymbolParams request,
             IObserver<SymbolInformationOrDocumentSymbolContainer> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentSymbol(
             this ILanguageServerRegistry registry,
-            Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
+            Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
             DocumentSymbolRegistrationOptions registrationOptions = null,
             Action<DocumentSymbolCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentSymbolHandler
         {
-            private readonly Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> _handler;
+            private readonly Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> _handler;
             private readonly Action<DocumentSymbolCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
+                Func<DocumentSymbolParams, IObserver<SymbolInformationOrDocumentSymbolContainer>, WorkDoneProgressReporter, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
                 ProgressManager progressManager,
                 Action<DocumentSymbolCapability> setCapability,
                 DocumentSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(
                 DocumentSymbolParams request,
                 IObserver<SymbolInformationOrDocumentSymbolContainer> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(DocumentSymbolCapability capability) => _setCapability?.Invoke(capability);
 
         }

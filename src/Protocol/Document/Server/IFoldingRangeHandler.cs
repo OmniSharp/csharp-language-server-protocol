@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<Container<FoldingRange>> Handle(
             FoldingRangeParam request,
             IObserver<Container<FoldingRange>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnFoldingRange(
             this ILanguageServerRegistry registry,
-            Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<FoldingRange>>> handler,
+            Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions = null,
             Action<FoldingRangeCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : FoldingRangeHandler
         {
-            private readonly Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<FoldingRange>>> _handler;
+            private readonly Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> _handler;
             private readonly Action<FoldingRangeCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<FoldingRange>>> handler,
+                Func<FoldingRangeParam, IObserver<Container<FoldingRange>>, WorkDoneProgressReporter, CancellationToken, Task<Container<FoldingRange>>> handler,
                 ProgressManager progressManager,
                 Action<FoldingRangeCapability> setCapability,
                 FoldingRangeRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Container<FoldingRange>> Handle(
                 FoldingRangeParam request,
                 IObserver<Container<FoldingRange>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override void SetCapability(FoldingRangeCapability capability) => _setCapability?.Invoke(capability);
 
         }

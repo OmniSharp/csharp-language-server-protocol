@@ -161,7 +161,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
-            services.AddSingleton(_progressManager);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
@@ -215,6 +214,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
             }
 
+            services.AddSingleton(_progressManager);
             _serviceProvider = services.BuildServiceProvider();
             collection.SetServiceProvider(_serviceProvider);
 
@@ -223,6 +223,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
+            _progressManager.Initialized(_responseRouter, _serializer);
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             Document = new LanguageServerDocument(_responseRouter);
@@ -365,6 +366,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
+            using var progressReporter = _progressManager.Delegate(request, token);
+            var reporter = progressReporter.Begin(new WorkDoneProgressBegin()
+            {
+                Title = "Starting Language Server",
+                Message = "Starting...",
+            }, () => new WorkDoneProgressEnd()
+            {
+                Message = "Finished!"
+            });
+
             ClientSettings = request;
 
             if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
@@ -372,38 +383,54 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 MinimumLogLevel = LogLevel.Trace;
             }
 
-            _clientVersion = request.ClientCapabilitieses?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetCapability(_clientVersion.Value, request.ClientCapabilitieses);
+            _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
+            _serializer.SetCapability(_clientVersion.Value, request.Capabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                if (request.ClientCapabilitieses.TextDocument != null)
+                if (request.Capabilities.TextDocument != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.ClientCapabilitieses.TextDocument)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
                     );
                 }
 
-                if (request.ClientCapabilitieses.Workspace != null)
+                if (request.Capabilities.Workspace != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.ClientCapabilitieses.Workspace)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
                     );
                 }
             }
 
             _supportedCapabilities.Add(supportedCapabilities);
 
-            AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
+            var handlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+
+            reporter.OnNext(new WorkDoneProgressReport()
+            {
+                Message = $"Adding ({handlers.Length}) handlers!",
+            });
+
+            AddHandlers(handlers);
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
-            var textDocumentCapabilities = ClientSettings.ClientCapabilitieses?.TextDocument ?? new TextDocumentClientCapabilities();
-            var workspaceCapabilities = ClientSettings.ClientCapabilitieses?.Workspace ?? new WorkspaceClientCapabilities();
-            var windowCapabilities = ClientSettings.ClientCapabilitieses?.Window ?? new WindowCapability();
+            ClientSettings.Capabilities ??= new ClientCapabilities();
+            var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
+            var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
+            var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
+
+            foreach (var item in _collection)
+            {
+                if (item.RegistrationOptions is IWorkDoneProgressOptions options)
+                {
+                    options.WorkDoneProgress = windowCapabilities.WorkDoneProgress;
+                }
+            }
 
             var serverCapabilities = new ServerCapabilities()
             {
@@ -431,6 +458,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 SelectionRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<ISelectionRangeOptions, SelectionRangeOptions>(SelectionRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration).Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
             };
+
+            reporter.OnNext(new WorkDoneProgressReport()
+            {
+                Message = $"Managing the magic of static and dynamic!",
+            });
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -477,7 +509,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // serverCapabilities.Experimental;
 
             _reciever.Initialized();
-            _progressManager.Initialized(_responseRouter, _serializer);
+
+            reporter.OnNext(new WorkDoneProgressReport()
+            {
+                Message = $"Plugging in all the things!",
+            });
 
             var result = ServerSettings = new InitializeResult()
             {
@@ -531,6 +567,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var @params = new RegistrationParams() { Registrations = registrations };
 
             await _initializeComplete;
+
+            foreach (var item in registrations)
+            {
+                if (item.RegisterOptions is IWorkDoneProgressOptions options)
+                {
+                    options.WorkDoneProgress = ClientSettings.Capabilities.Window.WorkDoneProgress;
+                }
+            }
+
             await Client.RegisterCapability(@params);
         }
 

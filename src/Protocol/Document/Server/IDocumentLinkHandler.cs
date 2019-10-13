@@ -35,14 +35,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<DocumentLinkContainer> Handle(
             DocumentLinkParams request,
             IObserver<DocumentLinkContainer> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentLink(
             this ILanguageServerRegistry registry,
-            Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> handler,
+            Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler = null,
             Func<DocumentLink, bool> canResolve = null,
             DocumentLinkRegistrationOptions registrationOptions = null,
@@ -69,13 +69,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentLinkHandler
         {
-            private readonly Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> _handler;
+            private readonly Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentLinkContainer>> _handler;
             private readonly Func<DocumentLink, CancellationToken, Task<DocumentLink>> _resolveHandler;
             private readonly Func<DocumentLink, bool> _canResolve;
             private readonly Action<DocumentLinkCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<DocumentLinkContainer>> handler,
+                Func<DocumentLinkParams, IObserver<DocumentLinkContainer>, WorkDoneProgressReporter, CancellationToken, Task<DocumentLinkContainer>> handler,
                 Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
                 ProgressManager progressManager,
                 Func<DocumentLink, bool> canResolve,
@@ -91,9 +91,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<DocumentLinkContainer> Handle(
                 DocumentLinkParams request,
                 IObserver<DocumentLinkContainer> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
             public override Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(DocumentLink value) => _canResolve.Invoke(value);
             public override void SetCapability(DocumentLinkCapability capability) => _setCapability?.Invoke(capability);

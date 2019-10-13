@@ -30,11 +30,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             ExecuteCommandParams request,
             CancellationToken cancellationToken)
         {
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, progressReporter, cancellationToken);
         }
 
-        public abstract Task<Unit> Handle(ExecuteCommandParams request, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter, CancellationToken cancellationToken);
+        public abstract Task<Unit> Handle(ExecuteCommandParams request, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken);
 
         public virtual void SetCapability(ExecuteCommandCapability capability) => Capability = capability;
         protected ExecuteCommandCapability Capability { get; private set; }
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnExecuteCommand(
             this ILanguageServerRegistry registry,
-            Func<ExecuteCommandParams, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Unit>> handler,
+            Func<ExecuteCommandParams, WorkDoneProgressReporter, CancellationToken, Task<Unit>> handler,
             ExecuteCommandRegistrationOptions registrationOptions = null,
             Action<ExecuteCommandCapability> setCapability = null)
         {
@@ -54,10 +54,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : ExecuteCommandHandler
         {
-            private readonly Func<ExecuteCommandParams, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Unit>> _handler;
+            private readonly Func<ExecuteCommandParams, WorkDoneProgressReporter, CancellationToken, Task<Unit>> _handler;
             private readonly Action<ExecuteCommandCapability> _setCapability;
 
-            public DelegatingHandler(Func<ExecuteCommandParams, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Unit>> handler,
+            public DelegatingHandler(Func<ExecuteCommandParams, WorkDoneProgressReporter, CancellationToken, Task<Unit>> handler,
                 ProgressManager progressManager,
                 Action<ExecuteCommandCapability> setCapability,
                 ExecuteCommandRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -66,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Unit> Handle(ExecuteCommandParams request, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter, CancellationToken cancellationToken) => _handler.Invoke(request, createReporter, cancellationToken);
+            public override Task<Unit> Handle(ExecuteCommandParams request, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken) => _handler.Invoke(request, progressReporter, cancellationToken);
             public override void SetCapability(ExecuteCommandCapability capability) => _setCapability?.Invoke(capability);
 
         }

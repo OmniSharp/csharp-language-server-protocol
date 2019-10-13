@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public ILogger CreateLogger(string categoryName)
         {
-            return new LanguageServerLogger(_languageServer, () => _languageServer.MinimumLogLevel);
+            return new LanguageServerLogger(_languageServer, categoryName, () => _languageServer.MinimumLogLevel);
         }
 
         public void Dispose()

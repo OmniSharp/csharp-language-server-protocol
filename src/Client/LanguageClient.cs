@@ -254,7 +254,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 var initializeParams = new InitializeParams
                 {
                     RootPath = workspaceRoot,
-                    ClientCapabilitieses = ClientCapabilities,
+                    Capabilities = ClientCapabilities,
                     ProcessId = Process.GetCurrentProcess().Id,
                     InitializationOptions = initializationOptions
                 };

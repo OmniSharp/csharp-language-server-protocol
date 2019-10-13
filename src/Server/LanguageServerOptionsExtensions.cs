@@ -78,6 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             servicesAction(options.Services);
             return options;
         }
+
         public static LanguageServerOptions WithServerInfo(this LanguageServerOptions options, ServerInfo serverInfo)
         {
             options.ServerInfo = serverInfo;

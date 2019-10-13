@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken)
         {
             var partialResults = _progressManager.For(request, cancellationToken);
-            var createReporter = _progressManager.Delegate(request, cancellationToken);
-            return Handle(request, partialResults, createReporter, cancellationToken);
+            var progressReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, progressReporter, cancellationToken);
         }
 
         public abstract Task<LocationContainer> Handle(
             ReferenceParams request,
             IObserver<Container<LocationContainer>> partialResults,
-            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            WorkDoneProgressReporter progressReporter,
             CancellationToken cancellationToken
         );
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnReferences(
             this ILanguageServerRegistry registry,
-            Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> handler,
+            Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> handler,
             ReferenceRegistrationOptions registrationOptions = null,
             Action<ReferenceCapability> setCapability = null)
         {
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : ReferencesHandler
         {
-            private readonly Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> _handler;
+            private readonly Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> _handler;
             private readonly Action<ReferenceCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<ReferenceParams, IObserver<Container<LocationContainer>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationContainer>> handler,
+                Func<ReferenceParams, IObserver<Container<LocationContainer>>, WorkDoneProgressReporter, CancellationToken, Task<LocationContainer>> handler,
                 ProgressManager progressManager,
                 Action<ReferenceCapability> setCapability,
                 ReferenceRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -72,9 +72,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<LocationContainer> Handle(
                 ReferenceParams request,
                 IObserver<Container<LocationContainer>> partialResults,
-                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                WorkDoneProgressReporter progressReporter,
                 CancellationToken cancellationToken
-            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            ) => _handler.Invoke(request, partialResults, progressReporter, cancellationToken);
 
             public override void SetCapability(ReferenceCapability capability) => _setCapability?.Invoke(capability);
 
