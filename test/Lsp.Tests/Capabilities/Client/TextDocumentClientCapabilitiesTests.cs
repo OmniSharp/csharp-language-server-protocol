@@ -19,27 +19,31 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentClientCapabilities() {
-                CodeAction = new CodeActionCapability() { DynamicRegistration = true },
-                CodeLens = new CodeLensCapability() { DynamicRegistration = true },
-                Definition = new DefinitionCapability() { DynamicRegistration = true },
-                DocumentHighlight = new DocumentHighlightCapability() { DynamicRegistration = true },
-                DocumentLink = new DocumentLinkCapability() { DynamicRegistration = true },
-                DocumentSymbol = new DocumentSymbolCapability() { DynamicRegistration = true },
-                Formatting = new DocumentFormattingCapability() { DynamicRegistration = true },
-                Hover = new HoverCapability() { DynamicRegistration = true },
-                OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
-                RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
-                References = new ReferencesCapability() { DynamicRegistration = true },
-                Rename = new RenameCapability() { DynamicRegistration = true },
-                SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
-                Completion = new CompletionCapability() {
+            var model = new TextDocumentClientCapabilities()
+            {
+                CodeAction = new CodeActionClientCapabilities() { DynamicRegistration = true },
+                CodeLens = new CodeLensClientCapabilities() { DynamicRegistration = true },
+                Definition = new DefinitionClientCapabilities() { DynamicRegistration = true },
+                DocumentHighlight = new DocumentHighlightClientCapabilities() { DynamicRegistration = true },
+                DocumentLink = new DocumentLinkClientCapabilities() { DynamicRegistration = true },
+                DocumentSymbol = new DocumentSymbolClientCapabilities() { DynamicRegistration = true },
+                Formatting = new DocumentFormattingClientCapabilities() { DynamicRegistration = true },
+                Hover = new HoverClientCapabilities() { DynamicRegistration = true },
+                OnTypeFormatting = new DocumentOnTypeFormattingClientCapabilities() { DynamicRegistration = true },
+                RangeFormatting = new DocumentRangeFormattingClientCapabilities() { DynamicRegistration = true },
+                References = new ReferenceClientCapabilities() { DynamicRegistration = true },
+                Rename = new RenameClientCapabilities() { DynamicRegistration = true },
+                SignatureHelp = new SignatureHelpClientCapabilities() { DynamicRegistration = true },
+                Completion = new CompletionClientCapabilities()
+                {
                     DynamicRegistration = true,
-                    CompletionItem = new CompletionItemCapability() {
+                    CompletionItem = new CompletionItemClientCapabilities()
+                    {
                         SnippetSupport = true
                     }
                 },
-                Synchronization = new SynchronizationCapability() {
+                Synchronization = new TextDocumentSyncClientCapabilities()
+                {
                     DynamicRegistration = true,
                     WillSave = true,
                     DidSave = true,

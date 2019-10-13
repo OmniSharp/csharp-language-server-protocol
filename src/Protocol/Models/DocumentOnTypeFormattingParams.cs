@@ -4,7 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>
+    public class DocumentOnTypeFormattingParams : ITextDocumentIdentifierParams, IRequest<Container<TextEdit>>
     {
         /// <summary>
         /// The document to format.

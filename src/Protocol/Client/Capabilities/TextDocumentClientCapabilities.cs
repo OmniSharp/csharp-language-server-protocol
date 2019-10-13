@@ -6,114 +6,121 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class TextDocumentClientCapabilities
     {
-        public Supports<SynchronizationCapability> Synchronization { get; set; }
+        public Supports<TextDocumentSyncClientCapabilities> Synchronization { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/completion`
         /// </summary>
-        public Supports<CompletionCapability> Completion { get; set; }
+        public Supports<CompletionClientCapabilities> Completion { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/hover`
         /// </summary>
-        public Supports<HoverCapability> Hover { get; set; }
+        public Supports<HoverClientCapabilities> Hover { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/signatureHelp`
         /// </summary>
-        public Supports<SignatureHelpCapability> SignatureHelp { get; set; }
+        public Supports<SignatureHelpClientCapabilities> SignatureHelp { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/references`
         /// </summary>
-        public Supports<ReferencesCapability> References { get; set; }
+        public Supports<ReferenceClientCapabilities> References { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentHighlight`
         /// </summary>
-        public Supports<DocumentHighlightCapability> DocumentHighlight { get; set; }
+        public Supports<DocumentHighlightClientCapabilities> DocumentHighlight { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentSymbol`
         /// </summary>
-        public Supports<DocumentSymbolCapability> DocumentSymbol { get; set; }
+        public Supports<DocumentSymbolClientCapabilities> DocumentSymbol { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/formatting`
         /// </summary>
-        public Supports<DocumentFormattingCapability> Formatting { get; set; }
+        public Supports<DocumentFormattingClientCapabilities> Formatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/rangeFormatting`
         /// </summary>
-        public Supports<DocumentRangeFormattingCapability> RangeFormatting { get; set; }
+        public Supports<DocumentRangeFormattingClientCapabilities> RangeFormatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/onTypeFormatting`
         /// </summary>
-        public Supports<DocumentOnTypeFormattingCapability> OnTypeFormatting { get; set; }
+        public Supports<DocumentOnTypeFormattingClientCapabilities> OnTypeFormatting { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/definition`
         /// </summary>
-        public Supports<DefinitionCapability> Definition { get; set; }
+        public Supports<DefinitionClientCapabilities> Definition { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/declaration`
         /// </summary>
-        public Supports<DeclarationCapability> Declaration { get; set; }
+        public Supports<DeclarationClientCapabilities> Declaration { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/codeAction`
         /// </summary>
-        public Supports<CodeActionCapability> CodeAction { get; set; }
+        public Supports<CodeActionClientCapabilities> CodeAction { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/codeLens`
         /// </summary>
-        public Supports<CodeLensCapability> CodeLens { get; set; }
+        public Supports<CodeLensClientCapabilities> CodeLens { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentLink`
         /// </summary>
-        public Supports<DocumentLinkCapability> DocumentLink { get; set; }
+        public Supports<DocumentLinkClientCapabilities> DocumentLink { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/rename`
         /// </summary>
-        public Supports<RenameCapability> Rename { get; set; }
+        public Supports<RenameClientCapabilities> Rename { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/typeDefinition`
         ///
         /// Since 3.6.0
         /// </summary>
-        public Supports<TypeDefinitionCapability> TypeDefinition { get; set; }
+        public Supports<TypeDefinitionClientCapabilities> TypeDefinition { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/implementation`
         ///
         /// Since 3.6.0
         /// </summary>
-        public Supports<ImplementationCapability> Implementation { get; set; }
+        public Supports<ImplementationClientCapabilities> Implementation { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `textDocument/documentColor` and the `textDocument/colorPresentation` request.
         ///
         /// Since 3.6.0
         /// </summary>
-        public Supports<ColorProviderCapability> ColorProvider { get; set; }
+        public Supports<ColorProviderClientCapabilities> ColorProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.
         ///
         /// Since 3.10.0
         /// </summary>
-        public Supports<FoldingRangeCapability> FoldingRange { get; set; }
+        public Supports<FoldingRangeClientCapabilities> FoldingRange { get; set; }
+
+        /// <summary>
+        /// The server provides selection provider support.
+        ///
+        /// Since 3.15.0
+        /// </summary>
+        public Supports<SelectionRangeClientCapabilities> SelectionRange { get; set; }
 
         /// <summary>
         /// Capabilities specific to `textDocument/publishDiagnostics`.
         /// </summary>
-        public Supports<PublishDiagnosticsCapability> PublishDiagnostics { get; set; }
+        public Supports<PublishDiagnosticsClientCapabilities> PublishDiagnostics { get; set; }
     }
 }

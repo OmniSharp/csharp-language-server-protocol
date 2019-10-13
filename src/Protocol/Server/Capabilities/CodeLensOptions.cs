@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     ///  Code Lens options.
     /// </summary>
-    public class CodeLensOptions : ICodeLensOptions
+    public class CodeLensOptions : WorkDoneProgressOptions, ICodeLensOptions
     {
         /// <summary>
         ///  Code lens has a resolve provider as well.
@@ -18,7 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static CodeLensOptions Of(ICodeLensOptions options)
         {
-            return new CodeLensOptions() { ResolveProvider = options.ResolveProvider };
+            return new CodeLensOptions() {
+                ResolveProvider = options.ResolveProvider,
+                WorkDoneProgress = options.WorkDoneProgress
+            };
         }
     }
 }

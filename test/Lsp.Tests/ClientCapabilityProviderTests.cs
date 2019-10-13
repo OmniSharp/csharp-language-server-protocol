@@ -29,14 +29,15 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
 
         public static IEnumerable<object[]> AllowSupportedCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true, Activator.CreateInstance(type)) };
@@ -49,14 +50,15 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
 
         public static IEnumerable<object[]> AllowUnsupportedCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), false) };
@@ -97,14 +99,15 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
 
         public static IEnumerable<object[]> AllowNullSupportsCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 return new[] { handler, Activator.CreateInstance(typeof(Supports<>).MakeGenericType(type), true) };
@@ -118,14 +121,15 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeFalse();
         }
 
         public static IEnumerable<object[]> DisallowDynamicSupportsCapabilities()
         {
-            return GetItems(Capabilities, type => {
+            return GetItems(Capabilities, type =>
+            {
                 var handlerTypes = GetHandlerTypes(type);
                 var handler = Substitute.For(handlerTypes.ToArray(), new object[0]);
                 var capability = Activator.CreateInstance(type);
@@ -144,13 +148,17 @@ namespace Lsp.Tests
             var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
-            var provider = new ClientCapabilityProvider(collection);
-            var capabilities = new ClientCapabilities() {
-                TextDocument = new TextDocumentClientCapabilities() {
-                    CodeAction = new Supports<CodeActionCapability>(true, new CodeActionCapability() {
+            var provider = new ClientCapabilityProvider(collection, true);
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    CodeAction = new Supports<CodeActionClientCapabilities>(true, new CodeActionClientCapabilities()
+                    {
                         DynamicRegistration = false,
                     }),
-                    TypeDefinition = new Supports<TypeDefinitionCapability>(true, new TypeDefinitionCapability() {
+                    TypeDefinition = new Supports<TypeDefinitionClientCapabilities>(true, new TypeDefinitionClientCapabilities()
+                    {
                         DynamicRegistration = true,
                     })
                 }

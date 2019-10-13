@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentLinkExtensions
     {
-        public static Task<DocumentLinkContainer> DocumentLink(this ILanguageClientDocument mediator, DocumentLinkParams @params)
+        public static Task<Container<DocumentLink>> DocumentLink(this ILanguageClientDocument mediator, DocumentLinkParams @params)
         {
-            return mediator.SendRequest<DocumentLinkParams, DocumentLinkContainer>(DocumentNames.DocumentLink, @params);
+            return mediator.SendRequest<DocumentLinkParams, Container<DocumentLink>>(DocumentNames.DocumentLink, @params);
         }
     }
 }

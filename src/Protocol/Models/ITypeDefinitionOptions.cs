@@ -1,4 +1,4 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public interface ITypeDefinitionOptions { }
+    public interface ITypeDefinitionOptions : IWorkDoneProgressOptions { }
 }

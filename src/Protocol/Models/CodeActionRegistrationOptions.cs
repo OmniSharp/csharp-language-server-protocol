@@ -2,7 +2,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class CodeActionRegistrationOptions : TextDocumentRegistrationOptions, ICodeActionOptions
+    public class CodeActionRegistrationOptions : WorkDoneTextDocumentRegistrationOptions, ICodeActionOptions
     {
         /// <summary>
         /// CodeActionKinds that this server may return.

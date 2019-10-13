@@ -22,60 +22,69 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ClientCapabilities() {
+            var model = new ClientCapabilities()
+            {
                 Experimental = new Dictionary<string, JToken>()
                 {
                     {  "abc", "test" }
                 },
-                TextDocument = new TextDocumentClientCapabilities() {
-                    CodeAction = new CodeActionCapability() { DynamicRegistration = true },
-                    CodeLens = new CodeLensCapability() { DynamicRegistration = true },
-                    Definition = new DefinitionCapability() { DynamicRegistration = true, LinkSupport = true },
-                    Declaration = new DeclarationCapability() { DynamicRegistration = true, LinkSupport = true },
-                    DocumentHighlight = new DocumentHighlightCapability() { DynamicRegistration = true },
-                    DocumentLink = new DocumentLinkCapability() { DynamicRegistration = true },
-                    DocumentSymbol = new DocumentSymbolCapability() { DynamicRegistration = true },
-                    Formatting = new DocumentFormattingCapability() { DynamicRegistration = true },
-                    Hover = new HoverCapability() { DynamicRegistration = true },
-                    OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
-                    RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
-                    References = new ReferencesCapability() { DynamicRegistration = true },
-                    Rename = new RenameCapability() { DynamicRegistration = true },
-                    SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
-                    Completion = new CompletionCapability() {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    CodeAction = new CodeActionClientCapabilities() { DynamicRegistration = true },
+                    CodeLens = new CodeLensClientCapabilities() { DynamicRegistration = true },
+                    Definition = new DefinitionClientCapabilities() { DynamicRegistration = true, LinkSupport = true },
+                    Declaration = new DeclarationClientCapabilities() { DynamicRegistration = true, LinkSupport = true },
+                    DocumentHighlight = new DocumentHighlightClientCapabilities() { DynamicRegistration = true },
+                    DocumentLink = new DocumentLinkClientCapabilities() { DynamicRegistration = true },
+                    DocumentSymbol = new DocumentSymbolClientCapabilities() { DynamicRegistration = true },
+                    Formatting = new DocumentFormattingClientCapabilities() { DynamicRegistration = true },
+                    Hover = new HoverClientCapabilities() { DynamicRegistration = true },
+                    OnTypeFormatting = new DocumentOnTypeFormattingClientCapabilities() { DynamicRegistration = true },
+                    RangeFormatting = new DocumentRangeFormattingClientCapabilities() { DynamicRegistration = true },
+                    References = new ReferenceClientCapabilities() { DynamicRegistration = true },
+                    Rename = new RenameClientCapabilities() { DynamicRegistration = true },
+                    SignatureHelp = new SignatureHelpClientCapabilities() { DynamicRegistration = true },
+                    Completion = new CompletionClientCapabilities()
+                    {
                         DynamicRegistration = true,
-                        CompletionItem = new CompletionItemCapability() {
+                        CompletionItem = new CompletionItemClientCapabilities()
+                        {
                             SnippetSupport = true
                         }
                     },
-                    Implementation = new ImplementationCapability() {
+                    Implementation = new ImplementationClientCapabilities()
+                    {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    TypeDefinition = new TypeDefinitionCapability() {
+                    TypeDefinition = new TypeDefinitionClientCapabilities()
+                    {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    Synchronization = new SynchronizationCapability() {
+                    Synchronization = new TextDocumentSyncClientCapabilities()
+                    {
                         DynamicRegistration = true,
                         WillSave = true,
                         DidSave = true,
                         WillSaveWaitUntil = true
                     },
-                    FoldingRange = new FoldingRangeCapability() {
+                    FoldingRange = new FoldingRangeClientCapabilities()
+                    {
                         DynamicRegistration = true,
                         LineFoldingOnly = true,
                         RangeLimit = 5000
                     }
-                    
+
                 },
-                Workspace = new WorkspaceClientCapabilities() {
+                Workspace = new WorkspaceClientCapabilities()
+                {
                     ApplyEdit = true,
-                    WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
-                    DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },
-                    DidChangeWatchedFiles = new DidChangeWatchedFilesCapability() { DynamicRegistration = true },
-                    ExecuteCommand = new ExecuteCommandCapability() { DynamicRegistration = true },
-                    Symbol = new WorkspaceSymbolCapability() { DynamicRegistration = true },
+                    WorkspaceEdit = new WorkspaceEditClientCapabilities() { DocumentChanges = true },
+                    DidChangeConfiguration = new DidChangeConfigurationClientCapabilities() { DynamicRegistration = true },
+                    DidChangeWatchedFiles = new DidChangeWatchedFilesClientCapabilities() { DynamicRegistration = true },
+                    ExecuteCommand = new ExecuteCommandClientCapabilities() { DynamicRegistration = true },
+                    Symbol = new WorkspaceSymbolClientCapabilities() { DynamicRegistration = true },
                 }
             };
             var result = Fixture.SerializeObject(model);

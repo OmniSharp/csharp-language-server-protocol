@@ -23,12 +23,15 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
 
-        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger)
+        public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger)
         {
             _serializer = serializer;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            ServiceProvider = serviceProvider;
         }
+
+        public IServiceProvider ServiceProvider { get; }
 
         public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token)
         {

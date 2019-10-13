@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentHighlightExtensions
     {
-        public static Task<DocumentHighlightContainer> DocumentHighlight(this ILanguageClientDocument mediator, DocumentHighlightParams @params)
+        public static Task<Container<DocumentHighlight>> DocumentHighlight(this ILanguageClientDocument mediator, DocumentHighlightParams @params)
         {
-            return mediator.SendRequest<DocumentHighlightParams, DocumentHighlightContainer>(DocumentNames.DocumentHighlight, @params);
+            return mediator.SendRequest<DocumentHighlightParams, Container<DocumentHighlight>>(DocumentNames.DocumentHighlight, @params);
         }
     }
 }

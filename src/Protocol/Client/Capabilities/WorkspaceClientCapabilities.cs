@@ -12,27 +12,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         public Supports<bool> ApplyEdit { get; set; }
 
-        public Supports<WorkspaceEditCapability> WorkspaceEdit { get; set; }
+        public Supports<WorkspaceEditClientCapabilities> WorkspaceEdit { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/didChangeConfiguration` notification.
         /// </summary>
-        public Supports<DidChangeConfigurationCapability> DidChangeConfiguration { get; set; }
+        public Supports<DidChangeConfigurationClientCapabilities> DidChangeConfiguration { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/didChangeWatchedFiles` notification.
         /// </summary>
-        public Supports<DidChangeWatchedFilesCapability> DidChangeWatchedFiles { get; set; }
+        public Supports<DidChangeWatchedFilesClientCapabilities> DidChangeWatchedFiles { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/symbol` request.
         /// </summary>
-        public Supports<WorkspaceSymbolCapability> Symbol { get; set; }
+        public Supports<WorkspaceSymbolClientCapabilities> Symbol { get; set; }
 
         /// <summary>
         /// Capabilities specific to the `workspace/executeCommand` request.
         /// </summary>
-        public Supports<ExecuteCommandCapability> ExecuteCommand { get; set; }
+        public Supports<ExecuteCommandClientCapabilities> ExecuteCommand { get; set; }
 
         /// <summary>
         /// The client has support for workspace folders.

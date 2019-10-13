@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -23,9 +23,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options)
         {
-            return new DocumentOnTypeFormattingOptions() {
+            return new DocumentOnTypeFormattingOptions()
+            {
                 FirstTriggerCharacter = options.FirstTriggerCharacter,
-                MoreTriggerCharacter = options.MoreTriggerCharacter
+                MoreTriggerCharacter = options.MoreTriggerCharacter,
             };
         }
     }

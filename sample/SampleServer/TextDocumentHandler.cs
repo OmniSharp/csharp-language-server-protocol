@@ -19,12 +19,13 @@ namespace SampleServer
         private readonly ILogger<TextDocumentHandler> _logger;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() {
+            new DocumentFilter()
+            {
                 Pattern = "**/*.cs"
             }
         );
 
-        private SynchronizationCapability _capability;
+        private TextDocumentSyncClientCapabilities _capability;
 
         public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
         {
@@ -42,13 +43,14 @@ namespace SampleServer
 
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentChangeRegistrationOptions() {
+            return new TextDocumentChangeRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 SyncKind = Change
             };
         }
 
-        public void SetCapability(SynchronizationCapability capability)
+        public void SetCapability(TextDocumentSyncClientCapabilities capability)
         {
             _capability = capability;
         }
@@ -62,7 +64,8 @@ namespace SampleServer
 
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions() {
+            return new TextDocumentRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
             };
         }
@@ -79,7 +82,8 @@ namespace SampleServer
 
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentSaveRegistrationOptions() {
+            return new TextDocumentSaveRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 IncludeText = true
             };
@@ -90,21 +94,21 @@ namespace SampleServer
         }
     }
 
-    class FoldingRangeHandler : IFoldingRangeHandler
+    class FoldingRangeHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.FoldingRangeHandler
     {
-        private FoldingRangeCapability _capability;
+        private FoldingRangeClientCapabilities _capability;
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions()
+        public FoldingRangeHandler(ProgressManager progressManager) : base(new FoldingRangeRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions() {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp")
-            };
+            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+        }, progressManager)
+        {
         }
 
-        public Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request,
-            CancellationToken cancellationToken)
+        public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, IObserver<Container<FoldingRange>> partialResults, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new Container<FoldingRange>(new FoldingRange() {
+            return Task.FromResult(new Container<FoldingRange>(new FoldingRange()
+            {
                 StartLine = 10,
                 EndLine = 20,
                 Kind = FoldingRangeKind.Region,
@@ -112,30 +116,19 @@ namespace SampleServer
                 StartCharacter = 0
             }));
         }
-
-        public void SetCapability(FoldingRangeCapability capability)
-        {
-            _capability = capability;
-        }
     }
 
-    class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
+    class DidChangeWatchedFilesHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DidChangeWatchedFilesHandler
     {
-        private DidChangeWatchedFilesCapability _capability;
+        private DidChangeWatchedFilesClientCapabilities _capability;
 
-        public object GetRegistrationOptions()
+        public DidChangeWatchedFilesHandler() : base(new DidChangeWatchedFilesRegistrationOptions() { })
         {
-            return new object();
         }
 
-        public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
+        public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
         {
             return Unit.Task;
-        }
-
-        public void SetCapability(DidChangeWatchedFilesCapability capability)
-        {
-            _capability = capability;
         }
     }
 }

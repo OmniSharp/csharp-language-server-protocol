@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(DocumentNames.Rename)]
-    public interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit>, IRegistration<RenameRegistrationOptions>, ICapability<RenameCapability> { }
+    public interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit>, IRegistration<RenameRegistrationOptions>, ICapability<RenameClientCapabilities> { }
 
     public abstract class RenameHandler : IRenameHandler
     {
@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         public RenameRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<WorkspaceEdit> Handle(RenameParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(RenameCapability capability) => Capability = capability;
-        protected RenameCapability Capability { get; private set; }
+        public virtual void SetCapability(RenameClientCapabilities capability) => Capability = capability;
+        protected RenameClientCapabilities Capability { get; private set; }
     }
 
     public static class RenameHandlerExtensions
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             this ILanguageServerRegistry registry,
             Func<RenameParams, CancellationToken, Task<WorkspaceEdit>> handler,
             RenameRegistrationOptions registrationOptions = null,
-            Action<RenameCapability> setCapability = null)
+            Action<RenameClientCapabilities> setCapability = null)
         {
             registrationOptions = registrationOptions ?? new RenameRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -41,11 +41,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         class DelegatingHandler : RenameHandler
         {
             private readonly Func<RenameParams, CancellationToken, Task<WorkspaceEdit>> _handler;
-            private readonly Action<RenameCapability> _setCapability;
+            private readonly Action<RenameClientCapabilities> _setCapability;
 
             public DelegatingHandler(
                 Func<RenameParams, CancellationToken, Task<WorkspaceEdit>> handler,
-                Action<RenameCapability> setCapability,
+                Action<RenameClientCapabilities> setCapability,
                 RenameRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             }
 
             public override Task<WorkspaceEdit> Handle(RenameParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(RenameCapability capability) => _setCapability?.Invoke(capability);
+            public override void SetCapability(RenameClientCapabilities capability) => _setCapability?.Invoke(capability);
 
         }
     }

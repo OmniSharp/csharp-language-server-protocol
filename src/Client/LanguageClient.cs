@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         : IDisposable
     {
         /// <summary>
-        ///     The serialiser for notification / request / response bodies.
+        ///     The serializer for notification / request / response bodies.
         /// </summary>
         /// <remarks>
         ///     TODO: Make this injectable. And what does client version do - do we have to negotiate this?
@@ -161,25 +161,25 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             Workspace = new WorkspaceClientCapabilities
             {
-                DidChangeConfiguration = new DidChangeConfigurationCapability
+                DidChangeConfiguration = new DidChangeConfigurationClientCapabilities
                 {
                     DynamicRegistration = false
                 }
             },
             TextDocument = new TextDocumentClientCapabilities
             {
-                Synchronization = new SynchronizationCapability
+                Synchronization = new TextDocumentSyncClientCapabilities
                 {
                     DidSave = true,
                     DynamicRegistration = false
                 },
-                Hover = new HoverCapability
+                Hover = new HoverClientCapabilities
                 {
                     DynamicRegistration = false
                 },
-                Completion = new CompletionCapability
+                Completion = new CompletionClientCapabilities
                 {
-                    CompletionItem = new CompletionItemCapability
+                    CompletionItem = new CompletionItemClientCapabilities
                     {
                         SnippetSupport = false
                     },

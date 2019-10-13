@@ -17,28 +17,34 @@ namespace Lsp.Tests.Capabilities.Server
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ServerCapabilities() {
+            var model = new ServerCapabilities()
+            {
                 CodeActionProvider = true,
-                CodeLensProvider = new CodeLensOptions() {
+                CodeLensProvider = new CodeLensOptions()
+                {
                     ResolveProvider = true,
                 },
-                CompletionProvider = new CompletionOptions() {
+                CompletionProvider = new CompletionOptions()
+                {
                     ResolveProvider = true,
                     TriggerCharacters = new[] { "a", "b", "c" }
                 },
                 DefinitionProvider = true,
                 DocumentFormattingProvider = true,
                 DocumentHighlightProvider = true,
-                DocumentLinkProvider = new DocumentLinkOptions() {
+                DocumentLinkProvider = new DocumentLinkOptions()
+                {
                     ResolveProvider = true
                 },
-                DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions() {
+                DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions()
+                {
                     FirstTriggerCharacter = ".",
                     MoreTriggerCharacter = new[] { ";", " " }
                 },
                 DocumentRangeFormattingProvider = true,
                 DocumentSymbolProvider = true,
-                ExecuteCommandProvider = new ExecuteCommandOptions() {
+                ExecuteCommandProvider = new ExecuteCommandOptions()
+                {
                     Commands = new string[] { "command1", "command2" }
                 },
                 Experimental = new Dictionary<string, JToken>() {
@@ -47,13 +53,16 @@ namespace Lsp.Tests.Capabilities.Server
                 HoverProvider = true,
                 ReferencesProvider = true,
                 RenameProvider = true,
-                SignatureHelpProvider = new SignatureHelpOptions() {
+                SignatureHelpProvider = new SignatureHelpOptions()
+                {
                     TriggerCharacters = new[] { ";", " " }
                 },
-                TextDocumentSync = new TextDocumentSync(new TextDocumentSyncOptions() {
+                TextDocumentSync = new TextDocumentSync(new TextDocumentSyncOptions()
+                {
                     Change = TextDocumentSyncKind.Full,
                     OpenClose = true,
-                    Save = new SaveOptions() {
+                    Save = new SaveOptions()
+                    {
                         IncludeText = true
                     },
                     WillSave = true,
@@ -76,8 +85,9 @@ namespace Lsp.Tests.Capabilities.Server
         [Theory, JsonFixture]
         public void Optional(string expected)
         {
-            var model = new ServerCapabilities {
-                ColorProvider = (ColorOptions)null
+            var model = new ServerCapabilities
+            {
+                ColorProvider = (DocumentColorOptions)null
             };
 
             var result = Fixture.SerializeObject(model);

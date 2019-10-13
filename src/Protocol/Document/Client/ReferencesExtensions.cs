@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class ReferencesExtensions
     {
-        public static Task<LocationContainer> References(this ILanguageClientDocument mediator, ReferenceParams @params)
+        public static Task<Container<Location>> References(this ILanguageClientDocument mediator, ReferenceParams @params)
         {
-            return mediator.SendRequest<ReferenceParams, LocationContainer>(DocumentNames.References, @params);
+            return mediator.SendRequest<ReferenceParams, Container<Location>>(DocumentNames.References, @params);
         }
     }
 }

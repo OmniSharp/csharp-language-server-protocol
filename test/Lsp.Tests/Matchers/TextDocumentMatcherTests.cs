@@ -66,8 +66,10 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams() {
-                TextDocument = new TextDocumentItem {
+            var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams()
+            {
+                TextDocument = new TextDocumentItem
+                {
                     Uri = new Uri("file:///abc/123/d.cs")
                 }
             },
@@ -92,8 +94,10 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams() {
-                TextDocument = new TextDocumentItem {
+            var result = handlerMatcher.FindHandler(new DidOpenTextDocumentParams()
+            {
+                TextDocument = new TextDocumentItem
+                {
                     Uri = new Uri("file://c:/users/myøasdf/d.cshtml")
                 }
             },
@@ -118,7 +122,8 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
+            var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams()
+            {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 collection.Where(x => x.Method == DocumentNames.DidChange));
@@ -142,7 +147,8 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams() {
+            var result = handlerMatcher.FindHandler(new DidChangeTextDocumentParams()
+            {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 collection.Where(x => x.Method == DocumentNames.DidSave));
@@ -166,7 +172,8 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new DidCloseTextDocumentParams() {
+            var result = handlerMatcher.FindHandler(new DidCloseTextDocumentParams()
+            {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 collection.Where(x => x.Method == DocumentNames.DidClose));
@@ -182,7 +189,7 @@ namespace Lsp.Tests.Matchers
             // Given
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
-            var textDocumentIdentifiers =  new TextDocumentIdentifiers();
+            var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers) { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -191,19 +198,22 @@ namespace Lsp.Tests.Matchers
 
             var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
             codeLensHandler.GetRegistrationOptions()
-                .Returns(new CodeLensRegistrationOptions() {
+                .Returns(new CodeLensRegistrationOptions()
+                {
                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cs" })
                 });
 
             var codeLensHandler2 = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
             codeLensHandler2.GetRegistrationOptions()
-                .Returns(new CodeLensRegistrationOptions() {
+                .Returns(new CodeLensRegistrationOptions()
+                {
                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cake" })
                 });
             collection.Add(codeLensHandler, codeLensHandler2);
 
             // When
-            var result = handlerMatcher.FindHandler(new CodeLensParams() {
+            var result = handlerMatcher.FindHandler(new CodeLensParams()
+            {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },
                 collection.Where(x => x.Method == DocumentNames.CodeLens));
@@ -228,8 +238,9 @@ namespace Lsp.Tests.Matchers
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.ps*1"), "powershell");
             var handler = Substitute.For<IFoldingRangeHandler>();
-            handler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {Pattern = "**/*.ps*1"})
+            handler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions()
+            {
+                DocumentSelector = new DocumentSelector(new DocumentFilter() { Pattern = "**/*.ps*1" })
             });
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
@@ -239,11 +250,13 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new FoldingRangeRequestParam() {
-                    TextDocument = new TextDocumentItem {
-                        Uri = new Uri("file:///abc/123/d.ps1")
-                    }
-                },
+            var result = handlerMatcher.FindHandler(new FoldingRangeParam()
+            {
+                TextDocument = new TextDocumentItem
+                {
+                    Uri = new Uri("file:///abc/123/d.ps1")
+                }
+            },
                 collection.Where(x => x.Method == DocumentNames.DidOpen));
 
             // Then

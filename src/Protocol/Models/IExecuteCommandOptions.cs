@@ -1,6 +1,6 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public interface IExecuteCommandOptions
+    public interface IExecuteCommandOptions : IWorkDoneProgressOptions
     {
         Container<string> Commands { get; set; }
     }

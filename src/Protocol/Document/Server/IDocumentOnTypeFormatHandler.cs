@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Serial, Method(DocumentNames.OnTypeFormatting)]
-    public interface IDocumentOnTypeFormatHandler : IJsonRpcRequestHandler<DocumentOnTypeFormattingParams, TextEditContainer>, IRegistration<DocumentOnTypeFormattingRegistrationOptions>, ICapability<DocumentOnTypeFormattingCapability> { }
+    public interface IDocumentOnTypeFormatHandler : IJsonRpcRequestHandler<DocumentOnTypeFormattingParams, Container<TextEdit>>, IRegistration<DocumentOnTypeFormattingRegistrationOptions>, ICapability<DocumentOnTypeFormattingClientCapabilities> { }
 
     public abstract class DocumentOnTypeFormatHandler : IDocumentOnTypeFormatHandler
     {
@@ -21,18 +21,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         }
 
         public DocumentOnTypeFormattingRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<TextEditContainer> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DocumentOnTypeFormattingCapability capability) => Capability = capability;
-        protected DocumentOnTypeFormattingCapability Capability { get; private set; }
+        public abstract Task<Container<TextEdit>> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken);
+        public virtual void SetCapability(DocumentOnTypeFormattingClientCapabilities capability) => Capability = capability;
+        protected DocumentOnTypeFormattingClientCapabilities Capability { get; private set; }
     }
 
     public static class DocumentOnTypeFormatHandlerExtensions
     {
         public static IDisposable OnDocumentOnTypeFormat(
             this ILanguageServerRegistry registry,
-            Func<DocumentOnTypeFormattingParams, CancellationToken, Task<TextEditContainer>> handler,
+            Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> handler,
             DocumentOnTypeFormattingRegistrationOptions registrationOptions = null,
-            Action<DocumentOnTypeFormattingCapability> setCapability = null)
+            Action<DocumentOnTypeFormattingClientCapabilities> setCapability = null)
         {
             registrationOptions = registrationOptions ?? new DocumentOnTypeFormattingRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
@@ -40,20 +40,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : DocumentOnTypeFormatHandler
         {
-            private readonly Func<DocumentOnTypeFormattingParams, CancellationToken, Task<TextEditContainer>> _handler;
-            private readonly Action<DocumentOnTypeFormattingCapability> _setCapability;
+            private readonly Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> _handler;
+            private readonly Action<DocumentOnTypeFormattingClientCapabilities> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentOnTypeFormattingParams, CancellationToken, Task<TextEditContainer>> handler,
-                Action<DocumentOnTypeFormattingCapability> setCapability,
+                Func<DocumentOnTypeFormattingParams, CancellationToken, Task<Container<TextEdit>>> handler,
+                Action<DocumentOnTypeFormattingClientCapabilities> setCapability,
                 DocumentOnTypeFormattingRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
-            public override Task<TextEditContainer> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DocumentOnTypeFormattingCapability capability) => _setCapability?.Invoke(capability);
+            public override Task<Container<TextEdit>> Handle(DocumentOnTypeFormattingParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+            public override void SetCapability(DocumentOnTypeFormattingClientCapabilities capability) => _setCapability?.Invoke(capability);
 
         }
     }

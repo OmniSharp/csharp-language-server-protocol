@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
@@ -20,8 +21,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
         }
 
+        public ProgressManager ProgressManager { get; } = new ProgressManager();
         public Stream Input { get; set; }
         public Stream Output { get; set; }
+        public ServerInfo ServerInfo { get; set; }
         public ISerializer Serializer { get; set; } = Protocol.Serialization.Serializer.Instance;
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
         public ILspReciever Reciever { get; set; } = new LspReciever();

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     public class ServerCapabilities
     {
         // TODO NEXT:
-        // Create ability for server capabilties to be pulled from registered handlers
+        // Create ability for server capabilities to be pulled from registered handlers
         // Create the ability to look at the client capabilities to determine what parts we need to answer now (completion for example)
 
         /// <summary>
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides hover support.
         /// </summary>
         [Optional]
-        public bool HoverProvider { get; set; }
+        public BooleanOr<HoverOptions> HoverProvider { get; set; }
         /// <summary>
         ///  The server provides completion support.
         /// </summary>
@@ -39,27 +39,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides goto definition support.
         /// </summary>
         [Optional]
-        public bool DefinitionProvider { get; set; }
+        public BooleanOr<DefinitionOptions> DefinitionProvider { get; set; }
         /// <summary>
         ///  The server provides find references support.
         /// </summary>
         [Optional]
-        public bool ReferencesProvider { get; set; }
+        public BooleanOr<ReferencesOptions> ReferencesProvider { get; set; }
         /// <summary>
         ///  The server provides document highlight support.
         /// </summary>
         [Optional]
-        public bool DocumentHighlightProvider { get; set; }
+        public BooleanOr<DocumentHighlightOptions> DocumentHighlightProvider { get; set; }
         /// <summary>
         ///  The server provides document symbol support.
         /// </summary>
         [Optional]
-        public bool DocumentSymbolProvider { get; set; }
+        public BooleanOr<DocumentSymbolOptions> DocumentSymbolProvider { get; set; }
         /// <summary>
         ///  The server provides workspace symbol support.
         /// </summary>
         [Optional]
-        public bool WorkspaceSymbolProvider { get; set; }
+        public BooleanOr<WorkspaceSymbolOptions> WorkspaceSymbolProvider { get; set; }
         /// <summary>
         ///  The server provides code actions.
         /// </summary>
@@ -74,12 +74,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  The server provides document formatting.
         /// </summary>
         [Optional]
-        public bool DocumentFormattingProvider { get; set; }
+        public BooleanOr<DocumentFormattingOptions> DocumentFormattingProvider { get; set; }
         /// <summary>
         ///  The server provides document range formatting.
         /// </summary>
         [Optional]
-        public bool DocumentRangeFormattingProvider { get; set; }
+        public BooleanOr<DocumentRangeFormattingOptions> DocumentRangeFormattingProvider { get; set; }
         /// <summary>
         ///  The server provides document formatting on typing.
         /// </summary>
@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.6.0
         /// </summary>
         [Optional]
-        public BooleanOr<ColorOptions> ColorProvider { get; set; }
+        public BooleanOr<DocumentColorOptions> ColorProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.
@@ -133,6 +133,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.10.0
         /// </summary>
         public BooleanOr<FoldingRangeOptions> FoldingRangeProvider { get; set; }
+
+        /// <summary>
+        /// The server provides selection range support.
+        ///
+        /// Since 3.15.0
+        /// </summary>
+        public BooleanOr<SelectionRangeOptions> SelectionRangeProvider { get; set; }
+
         /// <summary>
         /// The server provides folding provider support.
         ///

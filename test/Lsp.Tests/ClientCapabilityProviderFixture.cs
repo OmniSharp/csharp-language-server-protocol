@@ -20,14 +20,14 @@ namespace Lsp.Tests
             handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
 
             var handlerCollection = new OmniSharp.Extensions.LanguageServer.Server.HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { handler };
-            var capabilityProvider = new ClientCapabilityProvider(handlerCollection);
+            var capabilityProvider = new ClientCapabilityProvider(handlerCollection, true);
 
             Provider = capabilityProvider;
         }
 
         public ClientCapabilityProvider.IOptionsGetter GetStaticOptions()
         {
-            return Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
+            return Provider.GetStaticOptions(new Supports<ExecuteCommandClientCapabilities>(true, new ExecuteCommandClientCapabilities { DynamicRegistration = false }));
         }
     }
 }

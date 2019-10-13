@@ -5,6 +5,7 @@ using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -12,10 +13,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     internal class ClientCapabilityProvider
     {
         private readonly IHandlerCollection _collection;
+        private readonly bool _supportsProgress;
 
-        public ClientCapabilityProvider(IHandlerCollection collection)
+        public ClientCapabilityProvider(IHandlerCollection collection, bool supportsProgress)
         {
             _collection = collection;
+            _supportsProgress = supportsProgress;
         }
 
         public bool HasStaticHandler<T>(Supports<T> capability)
@@ -36,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
             where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler>
         {
-            return !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection);
+            return !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
         }
 
         private static readonly IOptionsGetter Null = new NullOptionsGetter();
@@ -82,18 +85,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private class OptionsGetter : IOptionsGetter
         {
             private readonly IHandlerCollection _collection;
+            private readonly bool _supportsProgress;
 
-            public OptionsGetter(IHandlerCollection collection)
+            public OptionsGetter(IHandlerCollection collection, bool supportsProgress)
             {
                 _collection = collection;
+                _supportsProgress = supportsProgress;
             }
 
             public TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
                 where TOptions : class
             {
-                return _collection
+                var value = _collection
                     .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
                     .FirstOrDefault(x => x != null);
+                if (value is IWorkDoneProgressOptions wdpo)
+                {
+                    wdpo.WorkDoneProgress = _supportsProgress;
+                }
+                return value;
             }
 
             public Supports<TOptions> Can<TInterface, TOptions>(Func<TInterface, TOptions> action)
@@ -105,17 +115,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 if (options == null)
                     return Supports.OfBoolean<TOptions>(false);
 
-                return _collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
-                    .FirstOrDefault(x => x != null);
+                return options;
             }
 
             public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
                 where TOptions : class
             {
-                return action(_collection
+                var value = action(_collection
                     .Select(x => x.RegistrationOptions is TInterface cl ? cl : default)
                     .Where(x => x != null));
+
+                if (value is IWorkDoneProgressOptions wdpo)
+                {
+                    wdpo.WorkDoneProgress = _supportsProgress;
+                }
+
+                return value;
             }
         }
     }

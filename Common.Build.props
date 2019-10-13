@@ -3,7 +3,7 @@
         <Company>OmniSharp</Company>
         <Copyright>Copyright OmniSharp and contributors © 2018</Copyright>
         <Authors>David Driscoll</Authors>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>8.0</LangVersion>
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
         <PackageLicenseUrl>https://github.com/OmniSharp/csharp-language-server-protocol/blob/master/LICENSE</PackageLicenseUrl>

@@ -10,50 +10,72 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentSymbol)]
-    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
+    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, Container<SymbolInformationOrDocumentSymbol>>, IRegistration<DocumentSymbolRegistrationOptions>, ICapability<DocumentSymbolClientCapabilities> { }
 
     public abstract class DocumentSymbolHandler : IDocumentSymbolHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public DocumentSymbolHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly DocumentSymbolRegistrationOptions _options;
+        private readonly ProgressManager _progressManager;
+        public DocumentSymbolHandler(DocumentSymbolRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            _progressManager = progressManager;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DocumentSymbolCapability capability) => Capability = capability;
-        protected DocumentSymbolCapability Capability { get; private set; }
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions() => _options;
+
+        public Task<Container<SymbolInformationOrDocumentSymbol>> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
+        {
+            var partialResults = _progressManager.For(request, cancellationToken);
+            var createReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, createReporter, cancellationToken);
+        }
+
+        public abstract Task<Container<SymbolInformationOrDocumentSymbol>> Handle(
+            DocumentSymbolParams request,
+            IObserver<Container<SymbolInformationOrDocumentSymbol>> partialResults,
+            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            CancellationToken cancellationToken
+        );
+
+        public virtual void SetCapability(DocumentSymbolClientCapabilities capability) => Capability = capability;
+        protected DocumentSymbolClientCapabilities Capability { get; private set; }
     }
 
     public static class DocumentSymbolHandlerExtensions
     {
         public static IDisposable OnDocumentSymbol(
             this ILanguageServerRegistry registry,
-            Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
-            Action<DocumentSymbolCapability> setCapability = null)
+            Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> handler,
+            DocumentSymbolRegistrationOptions registrationOptions = null,
+            Action<DocumentSymbolClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions = registrationOptions ?? new DocumentSymbolRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : DocumentSymbolHandler
         {
-            private readonly Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> _handler;
-            private readonly Action<DocumentSymbolCapability> _setCapability;
+            private readonly Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> _handler;
+            private readonly Action<DocumentSymbolClientCapabilities> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
-                Action<DocumentSymbolCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                Func<DocumentSymbolParams, IObserver<Container<SymbolInformationOrDocumentSymbol>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<Container<SymbolInformationOrDocumentSymbol>>> handler,
+                ProgressManager progressManager,
+                Action<DocumentSymbolClientCapabilities> setCapability,
+                DocumentSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
-            public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DocumentSymbolCapability capability) => _setCapability?.Invoke(capability);
+            public override Task<Container<SymbolInformationOrDocumentSymbol>> Handle(
+                DocumentSymbolParams request,
+                IObserver<Container<SymbolInformationOrDocumentSymbol>> partialResults,
+                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                CancellationToken cancellationToken
+            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            public override void SetCapability(DocumentSymbolClientCapabilities capability) => _setCapability?.Invoke(capability);
 
         }
     }

@@ -17,6 +17,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public long? ProcessId { get; set; }
 
         /// <summary>
+        /// Information about the client
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public ClientInfo ClientInfo { get; set; }
+
+        /// <summary>
         /// The rootPath of the workspace. Is null
         /// if no folder is open.
         ///

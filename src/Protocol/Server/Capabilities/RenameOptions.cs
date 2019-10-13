@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class RenameOptions : IRenameOptions
+    public class RenameOptions : WorkDoneProgressOptions, IRenameOptions
     {
         /// <summary>
         /// Renames should be checked and tested before being executed.
@@ -13,7 +13,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static RenameOptions Of(IRenameOptions options)
         {
-            return new RenameOptions() { PrepareProvider = options.PrepareProvider };
+            return new RenameOptions() {
+                PrepareProvider = options.PrepareProvider,
+                WorkDoneProgress = options.WorkDoneProgress
+            };
         }
     }
 }

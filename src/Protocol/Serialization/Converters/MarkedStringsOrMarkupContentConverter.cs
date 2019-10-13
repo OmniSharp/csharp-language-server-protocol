@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var result = JArray.Load(reader);
-                return new MarkedStringsOrMarkupContent(result.ToObject<MarkedStringContainer>(serializer));
+                return new MarkedStringsOrMarkupContent(result.ToObject<Container<MarkedString>>(serializer));
             }
             if (reader.TokenType == JsonToken.String)
             {

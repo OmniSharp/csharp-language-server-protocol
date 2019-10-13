@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class CodeActionOptions: ICodeActionOptions
+    public class CodeActionOptions : WorkDoneProgressOptions, ICodeActionOptions
     {
         /// <summary>
         /// CodeActionKinds that this server may return.
@@ -16,7 +16,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static CodeActionOptions Of(ICodeActionOptions options)
         {
-            return new CodeActionOptions() { CodeActionKinds = options.CodeActionKinds };
+            return new CodeActionOptions() {
+                CodeActionKinds = options.CodeActionKinds,
+                WorkDoneProgress = options.WorkDoneProgress
+            };
         }
     }
 }

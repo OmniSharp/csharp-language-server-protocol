@@ -10,50 +10,72 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.Declaration)]
-    public interface IDeclarationHandler : IJsonRpcRequestHandler<DeclarationParams, LocationOrLocationLinks>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DeclarationCapability> { }
+    public interface IDeclarationHandler : IJsonRpcRequestHandler<DeclarationParams, LocationOrLocationLinks>, IRegistration<DeclarationRegistrationOptions>, ICapability<DeclarationClientCapabilities> { }
 
     public abstract class DeclarationHandler : IDeclarationHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public DeclarationHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly DeclarationRegistrationOptions _options;
+        private readonly ProgressManager _progressManager;
+        public DeclarationHandler(DeclarationRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            _progressManager = progressManager;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<LocationOrLocationLinks> Handle(DeclarationParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DeclarationCapability capability) => Capability = capability;
-        protected DeclarationCapability Capability { get; private set; }
+        public DeclarationRegistrationOptions GetRegistrationOptions() => _options;
+
+        public Task<LocationOrLocationLinks> Handle(DeclarationParams request, CancellationToken cancellationToken)
+        {
+            var partialResults = _progressManager.For(request, cancellationToken);
+            var createReporter = _progressManager.Delegate(request, cancellationToken);
+            return Handle(request, partialResults, createReporter, cancellationToken);
+        }
+
+        public abstract Task<LocationOrLocationLinks> Handle(
+            DeclarationParams request,
+            IObserver<Container<LocationLink>> partialResults,
+            Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+            CancellationToken cancellationToken
+        );
+
+        public virtual void SetCapability(DeclarationClientCapabilities capability) => Capability = capability;
+        protected DeclarationClientCapabilities Capability { get; private set; }
     }
 
     public static class DeclarationHandlerExtensions
     {
         public static IDisposable OnDeclaration(
             this ILanguageServerRegistry registry,
-            Func<DeclarationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
-            Action<DeclarationCapability> setCapability = null)
+            Func<DeclarationParams, IObserver<Container<LocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
+            DeclarationRegistrationOptions registrationOptions = null,
+            Action<DeclarationClientCapabilities> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions = registrationOptions ?? new DeclarationRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : DeclarationHandler
         {
-            private readonly Func<DeclarationParams, CancellationToken, Task<LocationOrLocationLinks>> _handler;
-            private readonly Action<DeclarationCapability> _setCapability;
+            private readonly Func<DeclarationParams, IObserver<Container<LocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> _handler;
+            private readonly Action<DeclarationClientCapabilities> _setCapability;
 
             public DelegatingHandler(
-                Func<DeclarationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
-                Action<DeclarationCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                Func<DeclarationParams, IObserver<Container<LocationLink>>, Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>>, CancellationToken, Task<LocationOrLocationLinks>> handler,
+                ProgressManager progressManager,
+                Action<DeclarationClientCapabilities> setCapability,
+                DeclarationRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
-            public override Task<LocationOrLocationLinks> Handle(DeclarationParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(DeclarationCapability capability) => _setCapability?.Invoke(capability);
+            public override Task<LocationOrLocationLinks> Handle(
+                DeclarationParams request,
+                IObserver<Container<LocationLink>> partialResults,
+                Func<WorkDoneProgressBegin, IObserver<WorkDoneProgressReport>> createReporter,
+                CancellationToken cancellationToken
+            ) => _handler.Invoke(request, partialResults, createReporter, cancellationToken);
+            public override void SetCapability(DeclarationClientCapabilities capability) => _setCapability?.Invoke(capability);
 
         }
     }

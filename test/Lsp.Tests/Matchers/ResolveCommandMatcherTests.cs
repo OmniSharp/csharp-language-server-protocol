@@ -70,12 +70,12 @@ namespace Lsp.Tests.Matchers
                         false,
                         null,
                         () => { });
-            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>(
                 new RequestContext() { Descriptor = handlerDescriptor },
-                LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>());
+                LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>>());
 
             // When
-            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new CodeLensContainer()));
+            Func<Task> a = async () => await handlerMatcher.Handle(new CodeLensParams(), CancellationToken.None, () => Task.FromResult(new Container<CodeLens>()));
             a.Should().NotThrow();
         }
 
@@ -90,7 +90,8 @@ namespace Lsp.Tests.Matchers
             resolveHandler2.CanResolve(Arg.Any<CodeLens>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CodeLens() {
+            var result = handlerMatcher.FindHandler(new CodeLens()
+            {
                 Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
             },
                     new List<HandlerDescriptor> {
@@ -160,7 +161,8 @@ namespace Lsp.Tests.Matchers
             resolveHandler.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem() {
+            var result = handlerMatcher.FindHandler(new CompletionItem()
+            {
                 Data = new Uri("file:///c%3A/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs")
             },
                     new List<HandlerDescriptor> {
@@ -193,7 +195,8 @@ namespace Lsp.Tests.Matchers
             resolveHandler2.CanResolve(Arg.Any<CompletionItem>()).Returns(true);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem() {
+            var result = handlerMatcher.FindHandler(new CompletionItem()
+            {
                 Data = JToken.FromObject(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } })
             },
                     new List<HandlerDescriptor> {
@@ -238,12 +241,14 @@ namespace Lsp.Tests.Matchers
             }, new object[0]) as IJsonRpcHandler;
             (resolveHandler2 as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(true);
             (resolveHandler2 as ICompletionHandler).GetRegistrationOptions().Returns(
-                new CompletionRegistrationOptions() {
+                new CompletionRegistrationOptions()
+                {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp")
                 });
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem() {
+            var result = handlerMatcher.FindHandler(new CompletionItem()
+            {
                 Data = new JObject()
             },
                     new List<HandlerDescriptor> {
@@ -289,7 +294,8 @@ namespace Lsp.Tests.Matchers
             (resolveHandler2 as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(false);
 
             // When
-            var result = handlerMatcher.FindHandler(new CompletionItem() {
+            var result = handlerMatcher.FindHandler(new CompletionItem()
+            {
                 Data = new JObject()
             },
                     new List<HandlerDescriptor> {
@@ -345,7 +351,8 @@ namespace Lsp.Tests.Matchers
                 new RequestContext() { Descriptor = descriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CompletionParams, CompletionList>>>());
 
-            var item = new CompletionItem() {
+            var item = new CompletionItem()
+            {
                 Data = JObject.FromObject(new { hello = "world" })
             };
             var list = new CompletionList(new[] { item });
@@ -384,14 +391,15 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { });
-            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
+            var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>(
                 new RequestContext() { Descriptor = descriptor },
-                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
+                Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, Container<CodeLens>>>>());
 
-            var item = new CodeLens() {
+            var item = new CodeLens()
+            {
                 Data = JObject.FromObject(new { hello = "world" })
             };
-            var list = new CodeLensContainer(new[] { item });
+            var list = new Container<CodeLens>(new[] { item });
 
             (list is IEnumerable<ICanBeResolved>).Should().BeTrue();
 
@@ -400,8 +408,8 @@ namespace Lsp.Tests.Matchers
 
             // Then
             response.Should().BeEquivalentTo(list);
-            (response as CodeLensContainer).Should().Contain(item);
-            var responseItem = (response as CodeLensContainer).First();
+            (response as Container<CodeLens>).Should().Contain(item);
+            var responseItem = (response as Container<CodeLens>).First();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
             responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
@@ -431,7 +439,8 @@ namespace Lsp.Tests.Matchers
                 new RequestContext() { Descriptor = descriptor },
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLens, CodeLens>>>());
 
-            var item = new CodeLens() {
+            var item = new CodeLens()
+            {
                 Data = JObject.FromObject(new { data = new { hello = "world" } })
             };
             item.Data[ResolveCommandMatcher.PrivateHandlerTypeName] = resolveHandler.GetType().FullName;

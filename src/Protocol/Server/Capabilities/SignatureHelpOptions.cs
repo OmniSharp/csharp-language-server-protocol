@@ -8,18 +8,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     ///  Signature help options.
     /// </summary>
-    public class SignatureHelpOptions : ISignatureHelpOptions
+    public class SignatureHelpOptions : WorkDoneProgressOptions, ISignatureHelpOptions
     {
         /// <summary>
-        ///  The characters that trigger signature help
-        ///  automatically.
+        /// The characters that trigger signature help
+        /// automatically.
         /// </summary>
         [Optional]
         public Container<string> TriggerCharacters { get; set; }
 
+        /// <summary>
+        /// List of characters that re-trigger signature help.
+        ///
+        /// These trigger characters are only active when signature help is already showing. All trigger characters
+        /// are also counted as re-trigger characters.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public Container<string> RetriggerCharacters { get; set; }
+
         public static SignatureHelpOptions Of(ISignatureHelpOptions options)
         {
-            return new SignatureHelpOptions() { TriggerCharacters = options.TriggerCharacters };
+            return new SignatureHelpOptions() { TriggerCharacters = options.TriggerCharacters, RetriggerCharacters = options.RetriggerCharacters, WorkDoneProgress = options.WorkDoneProgress };
         }
     }
 }

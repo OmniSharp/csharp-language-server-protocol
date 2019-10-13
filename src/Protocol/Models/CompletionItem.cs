@@ -23,6 +23,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public CompletionItemKind Kind { get; set; }
 
         /// <summary>
+        /// Tags for this completion item.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        public Container<CompletionItemTag> Tags { get; set; }
+
+        /// <summary>
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>
@@ -97,7 +104,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// nor with themselves.
         /// </summary>
         [Optional]
-        public TextEditContainer AdditionalTextEdits { get; set; }
+        public Container<TextEdit> AdditionalTextEdits { get; set; }
 
         /// <summary>
         /// An optional set of characters that when pressed while this completion is active will accept it first and
