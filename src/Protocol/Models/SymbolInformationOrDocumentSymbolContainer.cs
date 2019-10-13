@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class SymbolInformationOrDocumentSymbolContainer : SymbolInformationOrDocumentSymbolContainer
+    public class SymbolInformationOrDocumentSymbolContainer : Container<SymbolInformationOrDocumentSymbol>
     {
         public SymbolInformationOrDocumentSymbolContainer() : this(Enumerable.Empty<SymbolInformationOrDocumentSymbol>())
         {

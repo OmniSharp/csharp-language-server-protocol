@@ -14,15 +14,12 @@ resources:
     - repository: rsg
       type: github
       name: RocketSurgeonsGuild/AzureDevopsTemplates
-      ref: refs/tags/v0.3.2
+      # ref: refs/tags/v0.3.2
       endpoint: github
 
 variables:
   Configuration: Release
   Verbosity: Normal
-  DotNetVersion: "2.2.101"
-  CakeVersion: "0.32.1"
-  NuGetVersion: "4.9.2"
   Coverage: "$(Agent.BuildDirectory)/c"
   VstsCoverage: "$(Coverage)"
   Artifacts: $(Build.ArtifactStagingDirectory)
@@ -30,50 +27,24 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
 jobs:
-  - job: GitVersion
-    pool:
-      vmImage: "VS2017-Win2016"
-    steps:
-      - template: gitversion/store.yml@rsg
-        parameters:
-          NuGetVersion: $(NuGetVersion)
 
-# Mac job seems to hang with unit tests currently, needs more testing (also need a mac)
-#   - template: pipeline/cake-job.yml@rsg
-#     parameters:
-#       name: 'macOS'
-#       dependsOn: GitVersion
-#       vmImage: "macOS-10.13"
-#       pushNuget: false
-#       Configuration: $(Configuration)
-#       Verbosity: $(Verbosity)
-#       CakeVersion: $(CakeVersion)
-#       DotNetVersion: $(DotNetVersion)
-#       NuGetVersion: $(NuGetVersion)
-#       Script: build.cake
-
-  - template: pipeline/cake-job.yml@rsg
+  - template: pipeline/cake.yml@rsg
     parameters:
       name: 'Linux'
       dependsOn: GitVersion
-      vmImage: "Ubuntu-16.04"
+      vmImage: "ubuntu-latest"
       pushNuget: false
       Configuration: $(Configuration)
       Verbosity: $(Verbosity)
-      CakeVersion: $(CakeVersion)
-      DotNetVersion: $(DotNetVersion)
-      NuGetVersion: $(NuGetVersion)
       Script: build.cake
-
-  - template: pipeline/cake-job.yml@rsg
-    parameters:
-      name: 'Windows'
-      dependsOn: GitVersion
-      vmImage: "VS2017-Win2016"
-      pushNuget: true
-      Configuration: $(Configuration)
-      Verbosity: $(Verbosity)
-      CakeVersion: $(CakeVersion)
-      DotNetVersion: $(DotNetVersion)
-      NuGetVersion: $(NuGetVersion)
-      Script: build.cake
+      EnableReleaseNotes: false
+      Matrix:
+        Windows:
+          MATRIX_NAME: "Windows"
+          IMAGE_NAME: "windows-latest"
+        Linux:
+          MATRIX_NAME: "Linux"
+          IMAGE_NAME: "ubuntu-latest"
+        # macOS:
+        #   MATRIX_NAME: "macOS"
+        #   IMAGE_NAME: "macOS-latest"

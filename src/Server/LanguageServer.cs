@@ -161,6 +161,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
+            services.AddSingleton(_progressManager);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
