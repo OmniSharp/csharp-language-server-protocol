@@ -159,52 +159,57 @@ namespace SampleServer
                 Percentage = 0
             });
             using var partialResults = ProgressManager.For(request, cancellationToken);
-
-            await Task.Delay(2000, cancellationToken);
-
-            reporter.OnNext(new WorkDoneProgressReport()
+            if (partialResults != null)
             {
-                Cancellable = true,
-                Percentage = 20
-            });
-            await Task.Delay(500, cancellationToken);
+                await Task.Delay(2000, cancellationToken);
 
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Cancellable = true,
-                Percentage = 40
-            });
-            await Task.Delay(500, cancellationToken);
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 20
+                });
+                await Task.Delay(500, cancellationToken);
 
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Cancellable = true,
-                Percentage = 50
-            });
-            await Task.Delay(500, cancellationToken);
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 40
+                });
+                await Task.Delay(500, cancellationToken);
 
-            partialResults.OnNext(new[] {
-                new SymbolInformation() {
-                    ContainerName = "Partial Container",
-                    Deprecated = true,
-                    Kind = SymbolKind.Constant,
-                    Location = new Location() { Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(2, 1), new Position(2, 10)) {} },
-                    Name = "Partial name"
-                }
-            });
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 50
+                });
+                await Task.Delay(500, cancellationToken);
 
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Cancellable = true,
-                Percentage = 70
-            });
-            await Task.Delay(500, cancellationToken);
+                partialResults.OnNext(new[] {
+                    new SymbolInformation() {
+                        ContainerName = "Partial Container",
+                        Deprecated = true,
+                        Kind = SymbolKind.Constant,
+                        Location = new Location() { Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(2, 1), new Position(2, 10)) {} },
+                        Name = "Partial name"
+                    }
+                });
 
-            reporter.OnNext(new WorkDoneProgressReport()
-            {
-                Cancellable = true,
-                Percentage = 90
-            });
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 70
+                });
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 90
+                });
+
+                partialResults.OnCompleted();
+                return new SymbolInformation[] { };
+            }
 
             await Task.Delay(500, cancellationToken);
             try
