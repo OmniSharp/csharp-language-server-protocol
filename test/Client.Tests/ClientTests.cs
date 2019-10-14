@@ -301,7 +301,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             var actualDefinitions = definitions.ToArray();
             Assert.Collection(actualDefinitions, actualDefinition => {
-                var expectedDefinition = expectedDefinitions.First();
+                var expectedDefinition = expectedDefinitions.Single();
 
                 Assert.NotNull(actualDefinition.Location);
                 Assert.Equal(expectedDefinition.Location.Uri, actualDefinition.Location.Uri);
@@ -313,6 +313,63 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 Assert.Equal(expectedDefinition.Location.Range.Start.Character, actualDefinition.Location.Range.Start.Character);
                 Assert.Equal(expectedDefinition.Location.Range.End.Line, actualDefinition.Location.Range.End.Line);
                 Assert.Equal(expectedDefinition.Location.Range.End.Character, actualDefinition.Location.Range.End.Character);
+            });
+        }
+
+        /// <summary>
+        ///     Ensure that the language client can successfully request DocumentHighlight.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request document highlights", Skip = "Periodic failures")]
+        public async Task DocumentHighlight_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedHighlights = new DocumentHighlightContainer(
+                new DocumentHighlight {
+                    Kind = DocumentHighlightKind.Write,
+                    Range = new Range {
+                        Start = new Position {
+                            Line = line,
+                            Character = column
+                        },
+                        End = new Position {
+                            Line = line,
+                            Character = column
+                        }
+                    },
+                });
+
+            ServerDispatcher.HandleRequest<DocumentHighlightParams, DocumentHighlightContainer>(DocumentNames.DocumentHighlight, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(expectedHighlights);
+            });
+
+            var definitions = await LanguageClient.TextDocument.DocumentHighlight(AbsoluteDocumentPath, line, column);
+
+            var actualDefinitions = definitions.ToArray();
+            Assert.Collection(actualDefinitions, actualHighlight => {
+                var expectedHighlight = expectedHighlights.Single();
+
+                Assert.Equal(DocumentHighlightKind.Write, expectedHighlight.Kind);
+
+                Assert.NotNull(actualHighlight.Range);
+                Assert.NotNull(actualHighlight.Range.Start);
+                Assert.NotNull(actualHighlight.Range.End);
+                Assert.Equal(expectedHighlight.Range.Start.Line, actualHighlight.Range.Start.Line);
+                Assert.Equal(expectedHighlight.Range.Start.Character, actualHighlight.Range.Start.Character);
+                Assert.Equal(expectedHighlight.Range.End.Line, actualHighlight.Range.End.Line);
+                Assert.Equal(expectedHighlight.Range.End.Character, actualHighlight.Range.End.Character);
             });
         }
 

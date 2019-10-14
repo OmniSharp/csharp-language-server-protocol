@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
     public partial class TextDocumentClient
     {
         /// <summary>
-        ///     Request definition at the specified document position.
+        ///     Request document highlights at the specified document position.
         /// </summary>
         /// <param name="filePath">
         ///     The full file-system path of the text document.
@@ -28,20 +28,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         ///     An optional <see cref="CancellationToken"/> that can be used to cancel the request.
         /// </param>
         /// <returns>
-        ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no definitions are available at the specified position.
+        ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
         /// </returns>
-        public Task<LocationOrLocationLinks> Definition(string filePath, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<DocumentHighlightContainer> DocumentHighlight(string filePath, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             var documentUri = DocumentUri.FromFileSystemPath(filePath);
 
-            return Definition(documentUri, line, column, cancellationToken);
+            return DocumentHighlight(documentUri, line, column, cancellationToken);
         }
 
         /// <summary>
-        ///     Request definition at the specified document position.
+        ///     Request document highlights at the specified document position.
         /// </summary>
         /// <param name="documentUri">
         ///     The document URI.
@@ -56,11 +56,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         ///     An optional <see cref="CancellationToken"/> that can be used to cancel the request.
         /// </param>
         /// <returns>
-        ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no definitions are available at the specified position.
+        ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
         /// </returns>
-        public Task<LocationOrLocationLinks> Definition(Uri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<DocumentHighlightContainer> DocumentHighlight(Uri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<LocationOrLocationLinks>(DocumentNames.Definition, documentUri, line, column, cancellationToken);
+            return PositionalRequest<DocumentHighlightContainer>(DocumentNames.DocumentHighlight, documentUri, line, column, cancellationToken);
         }
     }
 }
