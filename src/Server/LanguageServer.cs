@@ -26,6 +26,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using System.Reactive.Disposables;
+using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -106,8 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates,
-                options.LoggingBuilderAction,
-                options.AddDefaultLoggingProvider
+                options.LoggingBuilderAction
             );
         }
 
@@ -127,20 +127,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
-            Action<ILoggingBuilder> loggingBuilderAction,
-            bool addDefaultLoggingProvider)
+            Action<ILoggingBuilder> loggingBuilderAction)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            services.AddLogging(builder =>
-            {
-                loggingBuilderAction(builder);
-
-                if (addDefaultLoggingProvider)
-                {
-                    builder.AddProvider(new LanguageServerLoggerProvider(this));
-                }
-            });
+            services.AddLogging(builder => loggingBuilderAction(builder));
 
             _reciever = reciever;
             _serializer = serializer;
@@ -248,11 +239,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public InitializeParams ClientSettings { get; private set; }
         public InitializeResult ServerSettings { get; private set; }
 
-        /// <summary>
-        ///     The minimum level for the server's default logger.
-        /// </summary>
-        public LogLevel MinimumLogLevel { get; set; }
-
         public IServiceProvider Services => _serviceProvider;
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
@@ -357,9 +343,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ClientSettings = request;
 
-            if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
+            if (request.Trace == InitializeTrace.Verbose)
             {
-                MinimumLogLevel = LogLevel.Trace;
+                var loggerSettings = _serviceProvider.GetService<LanguageServerLoggerSettings>();
+
+                if (loggerSettings?.MinimumLogLevel >= LogLevel.Information)
+                {
+                    loggerSettings.MinimumLogLevel = LogLevel.Trace;
+                }
             }
 
             _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
