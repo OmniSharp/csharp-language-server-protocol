@@ -172,7 +172,7 @@ namespace Lsp.Tests
 
             var registry = new TestLanguageServerRegistry();
             var codeActionDelegate = Substitute.For<Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>>>();
-            codeActionDelegate.Invoke(Arg.Any<CodeActionParams>(), Arg.Any<IObserver<Container<CodeActionOrCommand>>>(), Arg.Any<WorkDoneProgressReporter>(), Arg.Any<CancellationToken>())
+            codeActionDelegate.Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CommandOrCodeActionContainer());
             registry.OnCodeAction(
                 codeActionDelegate,
@@ -198,7 +198,7 @@ namespace Lsp.Tests
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
-            await codeActionDelegate.Received(1).Invoke(Arg.Any<CodeActionParams>(), Arg.Any<IObserver<Container<CodeActionOrCommand>>>(), Arg.Any<WorkDoneProgressReporter>(), Arg.Any<CancellationToken>());
+            await codeActionDelegate.Received(1).Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]

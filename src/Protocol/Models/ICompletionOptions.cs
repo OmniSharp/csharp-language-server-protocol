@@ -1,4 +1,6 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public interface ICompletionOptions : IWorkDoneProgressOptions
     {
@@ -6,6 +8,7 @@
         /// The server provides support to resolve additional
         /// information for a completion item.
         /// </summary>
+        [Optional]
         bool ResolveProvider { get; set; }
 
         /// <summary>
@@ -18,6 +21,7 @@
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
+        [Optional]
         Container<string> TriggerCharacters { get; set; }
 
         /// <summary>
@@ -27,6 +31,7 @@
         ///
         /// @since 3.2.0
         /// </summary>
+        [Optional]
         Container<string> AllCommitCharacters { get; set; }
     }
 }

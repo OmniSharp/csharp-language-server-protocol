@@ -14,10 +14,10 @@ using Xunit.Abstractions;
 
 namespace Lsp.Tests.Capabilities.Client
 {
-    public class CapabilityTests : AutoTestBase
+    public class ClientCapabilitiesTests : AutoTestBase
     {
         // private const Fixtures =
-        public CapabilityTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
+        public ClientCapabilitiesTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) { }
 
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
@@ -69,8 +69,12 @@ namespace Lsp.Tests.Capabilities.Client
                         DidSave = true,
                         WillSaveWaitUntil = true
                     },
-                    FoldingRange = new FoldingRangeCapability()
-                    {
+                    FoldingRange = new FoldingRangeCapability() {
+                        DynamicRegistration = true,
+                        LineFoldingOnly = true,
+                        RangeLimit = 5000
+                    },
+                    SelectionRange = new SelectionRangeCapability() {
                         DynamicRegistration = true,
                         LineFoldingOnly = true,
                         RangeLimit = 5000

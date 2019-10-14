@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The server provides support to resolve additional
         /// information for a completion item.
         /// </summary>
+        [Optional]
         public bool ResolveProvider { get; set; }
 
         /// <summary>
@@ -22,6 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
+        [Optional]
         public Container<string> TriggerCharacters { get; set; }
 
         /// <summary>
@@ -31,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.2.0
         /// </summary>
+        [Optional]
         public Container<string> AllCommitCharacters { get; set; }
     }
 }

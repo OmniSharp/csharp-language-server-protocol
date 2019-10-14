@@ -16,11 +16,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         protected WorkspaceSymbolCapability Capability { get; private set; }
         private readonly WorkspaceSymbolRegistrationOptions _options;
-        protected readonly ProgressManager _progressManager;
+        protected readonly ProgressManager ProgressManager;
         public WorkspaceSymbolsHandler(WorkspaceSymbolRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
-            _progressManager = progressManager;
+            ProgressManager = progressManager;
         }
 
         public WorkspaceSymbolRegistrationOptions GetRegistrationOptions() => _options;

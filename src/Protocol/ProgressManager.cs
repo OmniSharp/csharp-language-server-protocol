@@ -93,15 +93,46 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public WorkDoneProgressReporter WorkDone(IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<WorkDoneProgressEnd> end = default, CancellationToken cancellationToken = default)
         {
             end ??= (() => new WorkDoneProgressEnd());
-            return new WorkDoneProgressReporter(this, request.WorkDoneToken, begin, end, cancellationToken);
+            return new WorkDoneProgressReporter(this, request, begin, end, cancellationToken);
         }
 
         /// <summary>
         /// Creates a <see cref="ResultObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// </summary>
-        public WorkDoneProgressReporter Create(IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<WorkDoneProgressEnd> end, CancellationToken cancellationToken)
+        public ResultObserver<WorkDoneProgressReport> Create(IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<WorkDoneProgressEnd> end, CancellationToken cancellationToken)
         {
-            return WorkDone(request, begin, end, cancellationToken);
+            if (!_initialized)
+            {
+                return ResultObserver<WorkDoneProgressReport>.Noop;
+            }
+
+            if (request.WorkDoneToken == null)
+            {
+                return ResultObserver<WorkDoneProgressReport>.Noop;
+            }
+
+            if (_activeObservers.TryGetValue(request.WorkDoneToken, out var item))
+            {
+                return (ResultObserver<WorkDoneProgressReport>)item.observer;
+            }
+
+            _router.SendProgress(request.WorkDoneToken.Create(begin, _serializer.JsonSerializer));
+
+            var observer = new ResultObserver<WorkDoneProgressReport>(Observer.Create<WorkDoneProgressReport>(
+                value => _router.SendProgress(request.WorkDoneToken.Create(value, _serializer.JsonSerializer)),
+                () => _router.SendProgress(request.WorkDoneToken.Create(end() ?? new WorkDoneProgressEnd(), _serializer.JsonSerializer)))
+            );
+
+            var source = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            source.Token.Register(() =>
+            {
+                if (_activeObservers.TryRemove(request.WorkDoneToken, out var _))
+                    observer.OnCompleted();
+            });
+
+            _activeObservers.TryAdd(request.WorkDoneToken, (observer, source));
+
+            return observer;
         }
 
         /// <summary>

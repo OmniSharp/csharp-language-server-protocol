@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             base.AddOrReplaceConverters(converters);
         }
 
-        public void SetCapability(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
+        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var documentSymbolKinds = DefaultSymbolKinds;

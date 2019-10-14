@@ -19,6 +19,7 @@
         "dynamicRegistration": true
     },
     "signatureHelp": {
+        "contextSupport": false,
         "dynamicRegistration": true
     },
     "references": {
@@ -44,12 +45,14 @@
         "dynamicRegistration": true
     },
     "codeAction": {
+        "isPreferredSupport": false,
         "dynamicRegistration": true
     },
     "codeLens": {
         "dynamicRegistration": true
     },
     "documentLink": {
+        "tooltipSupport": false,
         "dynamicRegistration": true
     },
     "rename": {

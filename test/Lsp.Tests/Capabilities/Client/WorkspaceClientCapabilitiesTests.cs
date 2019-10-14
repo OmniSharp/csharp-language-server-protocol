@@ -10,9 +10,9 @@ using Xunit.Abstractions;
 
 namespace Lsp.Tests.Capabilities.Client
 {
-    public class WorkspaceCapabilityTests : AutoTestBase
+    public class WorkspaceClientCapabilitiesTests : AutoTestBase
     {
-        public WorkspaceCapabilityTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public WorkspaceClientCapabilitiesTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }
 

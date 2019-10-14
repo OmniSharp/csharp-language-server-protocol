@@ -38,7 +38,8 @@ namespace Lsp.Tests
                 .ComparingByMembers<Supports<DidChangeWatchedFilesCapability>>()
                 .ComparingByMembers<Supports<WorkspaceSymbolCapability>>()
                 .ComparingByMembers<Supports<ExecuteCommandCapability>>()
-                .ComparingByMembers<Supports<FoldingRangeCapability>>();
+                .ComparingByMembers<Supports<FoldingRangeCapability>>()
+                .ComparingByMembers<Supports<SelectionRangeCapability>>();
         }
     }
 }

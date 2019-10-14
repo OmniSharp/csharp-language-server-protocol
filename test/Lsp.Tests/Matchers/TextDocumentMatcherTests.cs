@@ -238,7 +238,7 @@ namespace Lsp.Tests.Matchers
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.ps*1"), "powershell");
             var handler = Substitute.For<IFoldingRangeHandler>();
-            handler.GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions()
+            handler.GetRegistrationOptions().Returns(new FoldingRangeRegistrationOptions()
             {
                 DocumentSelector = new DocumentSelector(new DocumentFilter() { Pattern = "**/*.ps*1" })
             });

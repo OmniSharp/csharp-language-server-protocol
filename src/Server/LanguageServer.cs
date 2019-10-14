@@ -374,7 +374,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetCapability(_clientVersion.Value, request.Capabilities);
+            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)

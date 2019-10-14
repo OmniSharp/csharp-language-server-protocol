@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
     public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler
     {
-        protected readonly CompletionRegistrationOptions _options;
+        private readonly CompletionRegistrationOptions _options;
         protected ProgressManager ProgressManager { get; }
         public CompletionHandler(CompletionRegistrationOptions registrationOptions, ProgressManager progressManager)
         {

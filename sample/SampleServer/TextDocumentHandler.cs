@@ -103,7 +103,7 @@ namespace SampleServer
         {
         }
 
-        public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, IObserver<Container<FoldingRange>> partialResults, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken)
+        public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken)
         {
             return Task.FromResult(new Container<FoldingRange>(new FoldingRange()
             {
@@ -125,7 +125,7 @@ namespace SampleServer
         {
         }
 
-        public async override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, IObserver<SymbolInformationOrDocumentSymbolContainer> partialResults, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken)
+        public async override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
         {
             await Task.Delay(2000, cancellationToken);
             return new[] {
@@ -149,15 +149,17 @@ namespace SampleServer
             this.logger = logger;
         }
 
-        public async override Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request, IObserver<Container<SymbolInformation>> partialResults, WorkDoneProgressReporter progressReporter, CancellationToken cancellationToken)
+        public async override Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request, CancellationToken cancellationToken)
         {
-            var reporter = progressReporter.Begin(new WorkDoneProgressBegin()
+            using var reporter = ProgressManager.WorkDone(request, new WorkDoneProgressBegin()
             {
                 Cancellable = true,
                 Message = "This might take a while...",
                 Title = "Some long task....",
                 Percentage = 0
             });
+            using var partialResults = ProgressManager.For(request, cancellationToken);
+
             await Task.Delay(2000, cancellationToken);
 
             reporter.OnNext(new WorkDoneProgressReport()
