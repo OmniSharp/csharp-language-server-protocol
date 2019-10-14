@@ -211,7 +211,6 @@ namespace SampleServer
                 return new SymbolInformation[] { };
             }
 
-            await Task.Delay(500, cancellationToken);
             try
             {
                 return new[] {
