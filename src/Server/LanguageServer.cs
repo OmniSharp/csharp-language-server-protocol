@@ -456,13 +456,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (ccp.HasStaticHandler(textDocumentCapabilities.Synchronization))
             {
-                var textDocumentSyncKind = _collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler))
-                    ? _collection
+                var textDocumentSyncKind = TextDocumentSyncKind.None;
+                if (_collection.ContainsHandler(typeof(IDidChangeTextDocumentHandler)))
+                {
+                    var kinds = _collection
                         .Select(x => x.Handler)
                         .OfType<IDidChangeTextDocumentHandler>()
-                        .Where(x => x.GetRegistrationOptions()?.SyncKind != TextDocumentSyncKind.None)
-                        .Min(z => z.GetRegistrationOptions()?.SyncKind)
-                    : TextDocumentSyncKind.None;
+                        .Select(x => x.GetRegistrationOptions()?.SyncKind ?? TextDocumentSyncKind.None)
+                        .Where(x => x != TextDocumentSyncKind.None)
+                        .ToArray();
+                    if (kinds.Any())
+                    {
+                        textDocumentSyncKind = kinds.Min(z => z);
+                    }
+                }
 
                 if (_clientVersion == ClientVersion.Lsp2)
                 {
@@ -472,7 +479,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
                     {
-                        Change = textDocumentSyncKind ?? TextDocumentSyncKind.None,
+                        Change = TextDocumentSyncKind.None,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
                             new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :

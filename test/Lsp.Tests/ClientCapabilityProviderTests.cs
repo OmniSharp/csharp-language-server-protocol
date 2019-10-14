@@ -169,6 +169,57 @@ namespace Lsp.Tests
             provider.HasStaticHandler(capabilities.TextDocument.TypeDefinition).Should().BeFalse();
         }
 
+        [Fact]
+        public void GH162_TextDocumentSync_Should_Work_Without_WillSave_Or_WillSaveWaitUntil()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler };
+            var provider = new ClientCapabilityProvider(collection, true);
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    Synchronization = new SynchronizationCapability()
+                    {
+                        DidSave = true,
+                        DynamicRegistration = false,
+                        WillSave = true,
+                        WillSaveWaitUntil = true
+                    },
+                }
+            };
+
+            provider.HasStaticHandler(capabilities.TextDocument.Synchronization).Should().BeTrue();
+        }
+
+        [Fact]
+        public void GH162_TextDocumentSync_Should_Work_With_WillSave_Or_WillSaveWaitUntil()
+        {
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
+            var willSaveTextDocumentHandler = Substitute.For<IWillSaveTextDocumentHandler>();
+            var willSaveWaitUntilTextDocumentHandler = Substitute.For<IWillSaveWaitUntilTextDocumentHandler>();
+            var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
+
+            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler, didSaveTextDocumentHandler };
+            var provider = new ClientCapabilityProvider(collection, true);
+            var capabilities = new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
+                    Synchronization = new SynchronizationCapability()
+                    {
+                        DidSave = true,
+                        DynamicRegistration = false,
+                        WillSave = true,
+                        WillSaveWaitUntil = true
+                    },
+                }
+            };
+
+            provider.HasStaticHandler(capabilities.TextDocument.Synchronization).Should().BeTrue();
+        }
+
         private static bool HasHandler(ClientCapabilityProvider provider, object instance)
         {
             return (bool)typeof(ClientCapabilityProviderTests).GetTypeInfo()

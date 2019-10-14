@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
                 .Select(x => x.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo());
 
-            return handlerTypes.All(_collection.ContainsHandler);
+            return handlerTypes.Any(_collection.ContainsHandler);
         }
 
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
