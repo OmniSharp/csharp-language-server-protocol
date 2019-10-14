@@ -27,13 +27,9 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
 jobs:
-
   - template: pipeline/cake.yml@rsg
     parameters:
-      name: 'Linux'
       dependsOn: GitVersion
-      vmImage: "ubuntu-latest"
-      pushNuget: false
       Configuration: $(Configuration)
       Verbosity: $(Verbosity)
       Script: build.cake
