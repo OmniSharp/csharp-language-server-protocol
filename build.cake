@@ -1,4 +1,4 @@
-#load "nuget:?package=Rocket.Surgery.Cake.Library&version=0.9.3";
+#load "nuget:?package=Rocket.Surgery.Cake.Library&version=0.10.1";
 
 Task("Default")
     .IsDependentOn("dotnetcore");

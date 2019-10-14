@@ -36,40 +36,35 @@ http://cakebuild.net
 
 [CmdletBinding()]
 Param(
-    [parameter(position=0)]
+    [parameter(position = 0)]
     [string]$Target = "Default",
     [string]$Script = "build.cake",
     [ValidateSet("Release", "Debug")]
     [string]$Configuration = "Release",
     [ValidateSet("Quiet", "Minimal", "Normal", "Verbose", "Diagnostic")]
-    [string]$Verbosity = "Verbose",
-    [Alias("DryRun","Noop")]
+    [string]$Verbosity = "Normal",
+    [Alias("DryRun", "Noop")]
     [switch]$WhatIf,
     [switch]$SkipToolPackageRestore,
-    [Parameter(Position=0,Mandatory=$false,ValueFromRemainingArguments=$true)]
+    [Parameter(Position = 0, Mandatory = $false, ValueFromRemainingArguments = $true)]
     [string[]]$ScriptArgs
 )
 
 [Reflection.Assembly]::LoadWithPartialName("System.Security") | Out-Null
-function MD5HashFile([string] $filePath)
-{
-    if ([string]::IsNullOrEmpty($filePath) -or !(Test-Path $filePath -PathType Leaf))
-    {
+function MD5HashFile([string] $filePath) {
+    if ([string]::IsNullOrEmpty($filePath) -or !(Test-Path $filePath -PathType Leaf)) {
         return $null
     }
 
     [System.IO.Stream] $file = $null;
     [System.Security.Cryptography.MD5] $md5 = $null;
-    try
-    {
+    try {
         $md5 = [System.Security.Cryptography.MD5]::Create()
         $file = [System.IO.File]::OpenRead($filePath)
         return [System.BitConverter]::ToString($md5.ComputeHash($file))
     }
-    finally
-    {
-        if ($file -ne $null)
-        {
+    finally {
+        if ($file -ne $null) {
             $file.Dispose()
         }
     }
@@ -77,7 +72,7 @@ function MD5HashFile([string] $filePath)
 
 Write-Host "Preparing to run build script..."
 
-if(!$PSScriptRoot){
+if (!$PSScriptRoot) {
     $PSScriptRoot = Split-Path $MyInvocation.MyCommand.Path -Parent
 }
 
@@ -90,7 +85,7 @@ $PACKAGES_CONFIG_MD5 = Join-Path $TOOLS_DIR "packages.config.md5sum"
 
 # Is this a dry run?
 $UseDryRun = "";
-if($WhatIf.IsPresent) {
+if ($WhatIf.IsPresent) {
     $UseDryRun = "-dryrun"
 }
 
@@ -124,7 +119,8 @@ if (!(Test-Path $NUGET_EXE)) {
     Write-Verbose -Message "Downloading NuGet.exe..."
     try {
         (New-Object System.Net.WebClient).DownloadFile($NUGET_URL, $NUGET_EXE)
-    } catch {
+    }
+    catch {
         Throw "Could not download NuGet.exe."
     }
 }
@@ -133,16 +129,16 @@ if (!(Test-Path $NUGET_EXE)) {
 $ENV:NUGET_EXE = $NUGET_EXE
 
 # Restore tools from NuGet?
-if(-Not $SkipToolPackageRestore.IsPresent) {
+if (-Not $SkipToolPackageRestore.IsPresent) {
     Push-Location
     Set-Location $TOOLS_DIR
 
     # Check for changes in packages.config and remove installed tools if true.
     [string] $md5Hash = MD5HashFile($PACKAGES_CONFIG)
-    if((!(Test-Path $PACKAGES_CONFIG_MD5)) -Or
-      ($md5Hash -ne (Get-Content $PACKAGES_CONFIG_MD5 ))) {
+    if ((!(Test-Path $PACKAGES_CONFIG_MD5)) -Or
+        ($md5Hash -ne (Get-Content $PACKAGES_CONFIG_MD5 ))) {
         Write-Verbose -Message "Missing or changed package.config hash..."
-        Remove-Item * -Recurse -Exclude packages.config,nuget.exe
+        Remove-Item * -Recurse -Exclude packages.config, nuget.exe
     }
 
     Write-Verbose -Message "Restoring tools from NuGet..."
@@ -151,8 +147,7 @@ if(-Not $SkipToolPackageRestore.IsPresent) {
     if ($LASTEXITCODE -ne 0) {
         Throw "An error occured while restoring NuGet tools."
     }
-    else
-    {
+    else {
         $md5Hash | Out-File $PACKAGES_CONFIG_MD5 -Encoding "ASCII"
     }
     Write-Verbose -Message ($NuGetOutput | out-string)

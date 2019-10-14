@@ -7,7 +7,7 @@
 ##########################################################################
 
 # Define directories.
-SCRIPT_DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 TOOLS_DIR=$SCRIPT_DIR/tools
 NUGET_EXE=$TOOLS_DIR/nuget.exe
 CAKE_EXE=$TOOLS_DIR/Cake/Cake.exe
@@ -26,7 +26,7 @@ fi
 SCRIPT="build.cake"
 TARGET="Default"
 CONFIGURATION="Release"
-VERBOSITY="verbose"
+VERBOSITY="Normal"
 DRYRUN=
 SHOW_VERSION=false
 SCRIPT_ARGUMENTS=()
@@ -34,21 +34,37 @@ SCRIPT_ARGUMENTS=()
 # Parse arguments.
 for i in "$@"; do
     case $1 in
-        -s|--script) SCRIPT="$2"; shift ;;
-        -t|--target) TARGET="$2"; shift ;;
-        -c|--configuration) CONFIGURATION="$2"; shift ;;
-        -v|--verbosity) VERBOSITY="$2"; shift ;;
-        -d|--dryrun) DRYRUN="-dryrun" ;;
-        --version) SHOW_VERSION=true ;;
-        --) shift; SCRIPT_ARGUMENTS+=("$@"); break ;;
-        *) SCRIPT_ARGUMENTS+=("$1") ;;
+    -s | --script)
+        SCRIPT="$2"
+        shift
+        ;;
+    -t | --target)
+        TARGET="$2"
+        shift
+        ;;
+    -c | --configuration)
+        CONFIGURATION="$2"
+        shift
+        ;;
+    -v | --verbosity)
+        VERBOSITY="$2"
+        shift
+        ;;
+    -d | --dryrun) DRYRUN="-dryrun" ;;
+    --version) SHOW_VERSION=true ;;
+    --)
+        shift
+        SCRIPT_ARGUMENTS+=("$@")
+        break
+        ;;
+    *) SCRIPT_ARGUMENTS+=("$1") ;;
     esac
     shift
 done
 
 # Make sure the tools folder exist.
 if [ ! -d "$TOOLS_DIR" ]; then
-  mkdir "$TOOLS_DIR"
+    mkdir "$TOOLS_DIR"
 fi
 
 # Make sure that packages.config exist.
@@ -73,7 +89,7 @@ fi
 
 # Restore tools from NuGet.
 pushd "$TOOLS_DIR" >/dev/null
-if [ ! -f $PACKAGES_CONFIG_MD5 ] || [ "$( cat $PACKAGES_CONFIG_MD5 | sed 's/\r$//' )" != "$( $MD5_EXE $PACKAGES_CONFIG | awk '{ print $1 }' )" ]; then
+if [ ! -f $PACKAGES_CONFIG_MD5 ] || [ "$(cat $PACKAGES_CONFIG_MD5 | sed 's/\r$//')" != "$($MD5_EXE $PACKAGES_CONFIG | awk '{ print $1 }')" ]; then
     find . -type d ! -name . | xargs rm -rf
 fi
 
@@ -83,7 +99,7 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-$MD5_EXE $PACKAGES_CONFIG | awk '{ print $1 }' >| $PACKAGES_CONFIG_MD5
+$MD5_EXE $PACKAGES_CONFIG | awk '{ print $1 }' >|$PACKAGES_CONFIG_MD5
 
 popd >/dev/null
 
