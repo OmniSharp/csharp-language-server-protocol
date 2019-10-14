@@ -259,6 +259,64 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         }
 
         /// <summary>
+        ///     Ensure that the language client can successfully request Definition.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request definition", Skip = "Periodic failures")]
+        public async Task Definition_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedDefinitions = new LocationOrLocationLinks(
+                new LocationOrLocationLink(new Location {
+                    Uri = expectedDocumentUri,
+                    Range = new Range {
+                        Start = new Position {
+                            Line = line,
+                            Character = column
+                        },
+                        End = new Position {
+                            Line = line,
+                            Character = column
+                        }
+                    },
+                }));
+
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, LocationOrLocationLinks>(DocumentNames.Definition, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(expectedDefinitions);
+            });
+
+            var definitions = await LanguageClient.TextDocument.Definition(AbsoluteDocumentPath, line, column);
+
+            var actualDefinitions = definitions.ToArray();
+            Assert.Collection(actualDefinitions, actualDefinition => {
+                var expectedDefinition = expectedDefinitions.First();
+
+                Assert.NotNull(actualDefinition.Location);
+                Assert.Equal(expectedDefinition.Location.Uri, actualDefinition.Location.Uri);
+
+                Assert.NotNull(actualDefinition.Location.Range);
+                Assert.NotNull(actualDefinition.Location.Range.Start);
+                Assert.NotNull(actualDefinition.Location.Range.End);
+                Assert.Equal(expectedDefinition.Location.Range.Start.Line, actualDefinition.Location.Range.Start.Line);
+                Assert.Equal(expectedDefinition.Location.Range.Start.Character, actualDefinition.Location.Range.Start.Character);
+                Assert.Equal(expectedDefinition.Location.Range.End.Line, actualDefinition.Location.Range.End.Line);
+                Assert.Equal(expectedDefinition.Location.Range.End.Character, actualDefinition.Location.Range.End.Character);
+            });
+        }
+
+        /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully receive diagnostics", Skip = "Periodic failures")]
