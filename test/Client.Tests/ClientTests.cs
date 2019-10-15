@@ -320,7 +320,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         ///     Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request document highlights", Skip = "Periodic failures")]
-        public async Task DocumentHighlight_Success()
+        public async Task DocumentHighlights_Success()
         {
             await Connect();
 
@@ -355,7 +355,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 return Task.FromResult(expectedHighlights);
             });
 
-            var definitions = await LanguageClient.TextDocument.DocumentHighlight(AbsoluteDocumentPath, line, column);
+            var definitions = await LanguageClient.TextDocument.DocumentHighlights(AbsoluteDocumentPath, line, column);
 
             var actualDefinitions = definitions.ToArray();
             Assert.Collection(actualDefinitions, actualHighlight => {
@@ -370,6 +370,47 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 Assert.Equal(expectedHighlight.Range.Start.Character, actualHighlight.Range.Start.Character);
                 Assert.Equal(expectedHighlight.Range.End.Line, actualHighlight.Range.End.Line);
                 Assert.Equal(expectedHighlight.Range.End.Character, actualHighlight.Range.End.Character);
+            });
+        }
+
+        /// <summary>
+        ///     Ensure that the language client can successfully request FoldingRanges.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request document folding ranges", Skip = "Periodic failures")]
+        public async Task FoldingRanges_Success()
+        {
+            await Connect();
+
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedFoldingRanges = new Container<FoldingRange>(
+                new FoldingRange {
+                    Kind = FoldingRangeKind.Region,
+                    StartLine = 5,
+                    StartCharacter = 1,
+                    EndLine = 7,
+                    EndCharacter = 2,
+                });
+
+            ServerDispatcher.HandleRequest<FoldingRangeRequestParam, Container<FoldingRange>>(DocumentNames.FoldingRange, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                return Task.FromResult(expectedFoldingRanges);
+            });
+
+            var foldingRanges = await LanguageClient.TextDocument.FoldingRanges(AbsoluteDocumentPath);
+
+            var actualFoldingRanges = foldingRanges.ToArray();
+            Assert.Collection(actualFoldingRanges, actualFoldingRange => {
+                var expectedFoldingRange = expectedFoldingRanges.Single();
+
+                Assert.Equal(FoldingRangeKind.Region, expectedFoldingRange.Kind);
+
+                Assert.Equal(expectedFoldingRange.StartLine, actualFoldingRange.StartLine);
+                Assert.Equal(expectedFoldingRange.StartCharacter, actualFoldingRange.StartCharacter);
+                Assert.Equal(expectedFoldingRange.EndLine, actualFoldingRange.EndLine);
+                Assert.Equal(expectedFoldingRange.EndCharacter, actualFoldingRange.EndCharacter);
             });
         }
 

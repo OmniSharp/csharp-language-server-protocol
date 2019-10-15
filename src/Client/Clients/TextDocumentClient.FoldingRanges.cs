@@ -13,16 +13,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
     public partial class TextDocumentClient
     {
         /// <summary>
-        ///     Request document highlights at the specified document position.
+        ///     Request document folding ranges.
         /// </summary>
         /// <param name="filePath">
         ///     The full file-system path of the text document.
-        /// </param>
-        /// <param name="line">
-        ///     The target line (0-based).
-        /// </param>
-        /// <param name="column">
-        ///     The target column (0-based).
         /// </param>
         /// <param name="cancellationToken">
         ///     An optional <see cref="CancellationToken"/> that can be used to cancel the request.
@@ -30,14 +24,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <returns>
         ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
         /// </returns>
-        public Task<DocumentHighlightContainer> DocumentHighlight(string filePath, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Container<FoldingRange>> FoldingRanges(string filePath, CancellationToken cancellationToken = default(CancellationToken))
         {
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
             var documentUri = DocumentUri.FromFileSystemPath(filePath);
 
-            return DocumentHighlight(documentUri, line, column, cancellationToken);
+            return FoldingRanges(documentUri, cancellationToken);
         }
 
         /// <summary>
@@ -58,9 +52,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <returns>
         ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
         /// </returns>
-        public Task<DocumentHighlightContainer> DocumentHighlight(Uri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Container<FoldingRange>> FoldingRanges(Uri documentUri, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<DocumentHighlightContainer>(DocumentNames.DocumentHighlight, documentUri, line, column, cancellationToken);
+            var request = new FoldingRangeRequestParam {
+                TextDocument = new TextDocumentItem {
+                    Uri = documentUri
+                }
+            };
+
+            return await Client.SendRequest<Container<FoldingRange>>(DocumentNames.FoldingRange, request, cancellationToken).ConfigureAwait(false);
         }
     }
 }
