@@ -19,7 +19,7 @@ namespace SampleServer
 
         static async Task MainAsync(string[] args)
         {
-            Debugger.Launch();
+            //Debugger.Launch();
             //while (!System.Diagnostics.Debugger.IsAttached)
             //{
             //    await Task.Delay(100);
@@ -38,8 +38,8 @@ namespace SampleServer
                     .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
                         .AddSerilog()
-                        .AddLanguageServer(LogLevel.Critical)
-                        .SetMinimumLevel(LogLevel.Trace))
+                        .AddLanguageServer(LogLevel.Error)
+                        .SetMinimumLevel(LogLevel.Error))
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()

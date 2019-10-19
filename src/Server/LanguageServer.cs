@@ -27,6 +27,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using System.Reactive.Disposables;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -132,6 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var outputHandler = new OutputHandler(output, serializer);
 
             services.AddLogging(builder => loggingBuilderAction(builder));
+            services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
             _reciever = reciever;
             _serializer = serializer;
@@ -347,9 +349,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 var loggerSettings = _serviceProvider.GetService<LanguageServerLoggerSettings>();
 
-                if (loggerSettings?.MinimumLogLevel >= LogLevel.Information)
+                if (loggerSettings?.MinimumLogLevel <= LogLevel.Information)
                 {
                     loggerSettings.MinimumLogLevel = LogLevel.Trace;
+                }
+
+                var optionsMonitor = _serviceProvider.GetService<IOptionsMonitor<LoggerFilterOptions>>() as LanguageServerLoggerFilterOptions;
+
+                if (optionsMonitor?.CurrentValue.MinLevel <= LogLevel.Information)
+                {
+                    optionsMonitor.CurrentValue.MinLevel = LogLevel.Trace;
+                    optionsMonitor.Set(optionsMonitor.CurrentValue);
                 }
             }
 
