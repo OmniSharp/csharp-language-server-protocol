@@ -38,8 +38,8 @@ namespace SampleServer
                     .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
                         .AddSerilog()
-                        .AddLanguageServer(LogLevel.Error)
-                        .SetMinimumLevel(LogLevel.Error))
+                        .AddLanguageServer()
+                        .SetMinimumLevel(LogLevel.Information))
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()
