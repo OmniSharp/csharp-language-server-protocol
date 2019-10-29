@@ -39,7 +39,7 @@ namespace SampleServer
                     .ConfigureLogging(x => x
                         .AddSerilog()
                         .AddLanguageServer()
-                        .SetMinimumLevel(LogLevel.Information))
+                        .SetMinimumLevel(LogLevel.Debug))
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()
