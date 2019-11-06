@@ -259,6 +259,162 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         }
 
         /// <summary>
+        ///     Ensure that the language client can successfully request Definition.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request definition", Skip = "Periodic failures")]
+        public async Task Definition_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedDefinitions = new LocationOrLocationLinks(
+                new LocationOrLocationLink(new Location {
+                    Uri = expectedDocumentUri,
+                    Range = new Range {
+                        Start = new Position {
+                            Line = line,
+                            Character = column
+                        },
+                        End = new Position {
+                            Line = line,
+                            Character = column
+                        }
+                    },
+                }));
+
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, LocationOrLocationLinks>(DocumentNames.Definition, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(expectedDefinitions);
+            });
+
+            var definitions = await LanguageClient.TextDocument.Definition(AbsoluteDocumentPath, line, column);
+
+            var actualDefinitions = definitions.ToArray();
+            Assert.Collection(actualDefinitions, actualDefinition => {
+                var expectedDefinition = expectedDefinitions.Single();
+
+                Assert.NotNull(actualDefinition.Location);
+                Assert.Equal(expectedDefinition.Location.Uri, actualDefinition.Location.Uri);
+
+                Assert.NotNull(actualDefinition.Location.Range);
+                Assert.NotNull(actualDefinition.Location.Range.Start);
+                Assert.NotNull(actualDefinition.Location.Range.End);
+                Assert.Equal(expectedDefinition.Location.Range.Start.Line, actualDefinition.Location.Range.Start.Line);
+                Assert.Equal(expectedDefinition.Location.Range.Start.Character, actualDefinition.Location.Range.Start.Character);
+                Assert.Equal(expectedDefinition.Location.Range.End.Line, actualDefinition.Location.Range.End.Line);
+                Assert.Equal(expectedDefinition.Location.Range.End.Character, actualDefinition.Location.Range.End.Character);
+            });
+        }
+
+        /// <summary>
+        ///     Ensure that the language client can successfully request DocumentHighlight.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request document highlights", Skip = "Periodic failures")]
+        public async Task DocumentHighlights_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int column = 5;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedHighlights = new DocumentHighlightContainer(
+                new DocumentHighlight {
+                    Kind = DocumentHighlightKind.Write,
+                    Range = new Range {
+                        Start = new Position {
+                            Line = line,
+                            Character = column
+                        },
+                        End = new Position {
+                            Line = line,
+                            Character = column
+                        }
+                    },
+                });
+
+            ServerDispatcher.HandleRequest<DocumentHighlightParams, DocumentHighlightContainer>(DocumentNames.DocumentHighlight, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                Assert.Equal(line, request.Position.Line);
+                Assert.Equal(column, request.Position.Character);
+
+                return Task.FromResult(expectedHighlights);
+            });
+
+            var definitions = await LanguageClient.TextDocument.DocumentHighlights(AbsoluteDocumentPath, line, column);
+
+            var actualDefinitions = definitions.ToArray();
+            Assert.Collection(actualDefinitions, actualHighlight => {
+                var expectedHighlight = expectedHighlights.Single();
+
+                Assert.Equal(DocumentHighlightKind.Write, expectedHighlight.Kind);
+
+                Assert.NotNull(actualHighlight.Range);
+                Assert.NotNull(actualHighlight.Range.Start);
+                Assert.NotNull(actualHighlight.Range.End);
+                Assert.Equal(expectedHighlight.Range.Start.Line, actualHighlight.Range.Start.Line);
+                Assert.Equal(expectedHighlight.Range.Start.Character, actualHighlight.Range.Start.Character);
+                Assert.Equal(expectedHighlight.Range.End.Line, actualHighlight.Range.End.Line);
+                Assert.Equal(expectedHighlight.Range.End.Character, actualHighlight.Range.End.Character);
+            });
+        }
+
+        /// <summary>
+        ///     Ensure that the language client can successfully request FoldingRanges.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request document folding ranges", Skip = "Periodic failures")]
+        public async Task FoldingRanges_Success()
+        {
+            await Connect();
+
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+
+            var expectedFoldingRanges = new Container<FoldingRange>(
+                new FoldingRange {
+                    Kind = FoldingRangeKind.Region,
+                    StartLine = 5,
+                    StartCharacter = 1,
+                    EndLine = 7,
+                    EndCharacter = 2,
+                });
+
+            ServerDispatcher.HandleRequest<FoldingRangeRequestParam, Container<FoldingRange>>(DocumentNames.FoldingRange, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                return Task.FromResult(expectedFoldingRanges);
+            });
+
+            var foldingRanges = await LanguageClient.TextDocument.FoldingRanges(AbsoluteDocumentPath);
+
+            var actualFoldingRanges = foldingRanges.ToArray();
+            Assert.Collection(actualFoldingRanges, actualFoldingRange => {
+                var expectedFoldingRange = expectedFoldingRanges.Single();
+
+                Assert.Equal(FoldingRangeKind.Region, expectedFoldingRange.Kind);
+
+                Assert.Equal(expectedFoldingRange.StartLine, actualFoldingRange.StartLine);
+                Assert.Equal(expectedFoldingRange.StartCharacter, actualFoldingRange.StartCharacter);
+                Assert.Equal(expectedFoldingRange.EndLine, actualFoldingRange.EndLine);
+                Assert.Equal(expectedFoldingRange.EndCharacter, actualFoldingRange.EndCharacter);
+            });
+        }
+
+        /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully receive diagnostics", Skip = "Periodic failures")]
