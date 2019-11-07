@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _bool = value;
         }
 
-        public bool IsValue => this._value != default;
+        public bool IsValue => _value != null && !_value.Equals(default(T));
         public T Value
         {
             get { return this._value; }

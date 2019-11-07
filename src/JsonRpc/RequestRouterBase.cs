@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     // TODO: Try / catch for Internal Error
                     try
                     {
-                        if (descriptor == default)
+                        if (descriptor == null || descriptor.Equals(default(TDescriptor)))
                         {
                             _logger.LogDebug("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
                             return new MethodNotFound(request.Id, request.Method);
