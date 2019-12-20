@@ -51,7 +51,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 throw new JsonSerializationException("The URI value must be an absolute Uri. Relative URI instances are not allowed.");
             }
 
-            writer.WriteValue(uriValue.ToString());
+            if (uriValue.IsFile)
+            {
+                // Regular file paths
+                if (uriValue.HostNameType == UriHostNameType.Basic)
+                {
+                    writer.WriteValue($"{uriValue.Scheme}://{uriValue.PathAndQuery}");
+                    return;
+                }
+
+                // UNC file paths
+                writer.WriteValue($"{uriValue.Scheme}://{uriValue.Host}{uriValue.PathAndQuery}");
+                return;
+            }
+
+            writer.WriteValue(uriValue.AbsoluteUri);
         }
     }
 }
