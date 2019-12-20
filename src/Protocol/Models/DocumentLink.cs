@@ -2,8 +2,8 @@ using System;
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -23,6 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
         [Optional]
+        [JsonConverter(typeof(AbsoluteUriConverter))]
         public Uri Target { get; set; }
 
         /// </summary>
