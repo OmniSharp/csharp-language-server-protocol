@@ -42,46 +42,38 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return;
             }
 
-            if (!(value is Uri uriValue))
-            {
-                throw new JsonSerializationException("The value must be a URI.");
-            }
-
-            writer.WriteValue(Convert(uriValue));
-        }
-
-        public static string Convert(Uri uri)
-        {
-            if (!uri.IsAbsoluteUri)
+            if (!value.IsAbsoluteUri)
             {
                 throw new JsonSerializationException("The URI value must be an absolute Uri. Relative URI instances are not allowed.");
             }
 
-            if (uri.IsFile)
+            if (value.IsFile)
             {
                 // First add the file scheme and ://
-                var builder = new StringBuilder(uri.Scheme)
+                var builder = new StringBuilder(value.Scheme)
                     .Append("://");
 
                 // UNC file paths use the Host
-                if (uri.HostNameType != UriHostNameType.Basic)
+                if (value.HostNameType != UriHostNameType.Basic)
                 {
-                    builder.Append(uri.Host);
+                    builder.Append(value.Host);
                 }
 
                 // Paths that start with a drive letter don't have a slash in the PathAndQuery
                 // but they need it in the final result.
-                if (uri.PathAndQuery[0] != '/')
+                if (value.PathAndQuery[0] != '/')
                 {
                     builder.Append('/');
                 }
 
                 // Lastly add the remaining parts of the URL
-                builder.Append(uri.PathAndQuery);
-                return builder.ToString();
+                builder.Append(value.PathAndQuery);
+                writer.WriteValue(builder.ToString());
             }
-
-            return uri.AbsoluteUri;
+            else
+            {
+                writer.WriteValue(value.AbsoluteUri);
+            }
         }
     }
 }
