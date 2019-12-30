@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -11,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Holds changes to existing resources.
         /// </summary>
         [Optional]
+        [JsonConverter(typeof(AbsoluteUriKeyConverter<IEnumerable<TextEdit>>))]
         public IDictionary<Uri, IEnumerable<TextEdit>> Changes { get; set; }
         /// <summary>
         /// An array of `TextDocumentEdit`s to express changes to n different text documents

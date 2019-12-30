@@ -1,5 +1,7 @@
 ﻿using System;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -17,6 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The target resource identifier of this link.
         /// </summary>
+        [JsonConverter(typeof(AbsoluteUriConverter))]
         public Uri TargetUri { get; set; }
 
         /// <summary>

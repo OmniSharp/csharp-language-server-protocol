@@ -1,0 +1,22 @@
+﻿{
+    "textDocument": {
+        "version": 0,
+        "uri": "file:///C:/abc/M%C3%B6rk%C3%B6.cs"
+    },
+    "contentChanges": [
+        {
+            "range": {
+                "start": {
+                    "line": 1,
+                    "character": 1
+                },
+                "end": {
+                    "line": 2,
+                    "character": 2
+                }
+            },
+            "rangeLength": 12,
+            "text": "abc"
+        }
+    ]
+}

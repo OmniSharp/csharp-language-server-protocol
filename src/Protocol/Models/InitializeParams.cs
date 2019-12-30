@@ -4,6 +4,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -34,6 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// folder is open. If both `rootPath` and `rootUri` are set
         /// `rootUri` wins.
         /// </summary>
+        [JsonConverter(typeof(AbsoluteUriConverter))]
         public Uri RootUri { get; set; }
 
         /// <summary>
