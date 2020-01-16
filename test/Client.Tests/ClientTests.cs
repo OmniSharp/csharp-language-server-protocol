@@ -374,6 +374,56 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         }
 
         /// <summary>
+        ///     Ensure that the language client can successfully request DocumentHighlight.
+        /// </summary>
+        [Fact(DisplayName = "Language client can successfully request document symbols")]
+        public async Task DocumentSymbols_DocumentSymbol_Success()
+        {
+            await Connect();
+
+            const int line = 5;
+            const int character = 6;
+            var expectedDocumentPath = AbsoluteDocumentPath;
+            var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
+            var detail = "some detail";
+
+            var documentSymbol = new DocumentSymbol {
+                Detail = detail,
+                Kind = SymbolKind.Class,
+                Range = new Range(new Position(line, character), new Position(line, character))
+            };
+            var expectedSymbols = new SymbolInformationOrDocumentSymbolContainer(
+                new SymbolInformationOrDocumentSymbol(documentSymbol));
+
+            ServerDispatcher.HandleRequest<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, (request, cancellationToken) => {
+                Assert.NotNull(request.TextDocument);
+
+                Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+
+                return Task.FromResult(expectedSymbols);
+            });
+            var documentSymbolParams = new DocumentSymbolParams {
+                TextDocument = new TextDocumentIdentifier(expectedDocumentUri)
+            };
+            var symbols = await LanguageClient.SendRequest<SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, documentSymbolParams);
+
+            var actualSymbols = symbols.ToArray();
+            Assert.Collection(actualSymbols, actualSymbol => {
+                var expectedSymbol = expectedSymbols.Single();
+
+                Assert.True(expectedSymbol.IsDocumentSymbol);
+
+                Assert.NotNull(actualSymbol.DocumentSymbol);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Detail, actualSymbol.DocumentSymbol.Detail);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Kind, actualSymbol.DocumentSymbol.Kind);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Range.Start.Line, actualSymbol.DocumentSymbol.Range.Start.Line);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Range.Start.Character, actualSymbol.DocumentSymbol.Range.Start.Character);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Range.End.Line, actualSymbol.DocumentSymbol.Range.End.Line);
+                Assert.Equal(expectedSymbol.DocumentSymbol.Range.End.Character, actualSymbol.DocumentSymbol.Range.End.Character);
+            });
+        }
+
+        /// <summary>
         ///     Ensure that the language client can successfully request FoldingRanges.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request document folding ranges", Skip = "Periodic failures")]

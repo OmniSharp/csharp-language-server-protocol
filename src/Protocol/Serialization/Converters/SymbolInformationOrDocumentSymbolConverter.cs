@@ -27,8 +27,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var result = JObject.Load(reader);
 
-            // Commands have a name, CodeActions do not
-            if (result["location"].Type == JTokenType.Object)
+            // SymbolInformation has property location, DocumentSymbol does not.
+            if (result["location"] != null)
             {
                 return new SymbolInformationOrDocumentSymbol(result.ToObject<SymbolInformation>());
             }
