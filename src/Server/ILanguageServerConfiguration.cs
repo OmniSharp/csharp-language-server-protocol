@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -32,8 +33,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <param name="scopeUri"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        bool TryGetScopedConfiguration(Uri scopeUri, out IDisposable configuration);
+        bool TryGetScopedConfiguration(Uri scopeUri, out IDisposableConfiguration configuration);
     }
-
-    public interface IDisposableConfiguration : IDisposable, IConfiguration { }
 }

@@ -24,8 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private DidChangeConfigurationCapability _capability;
         private readonly ConfigurationRoot _configuration;
 
-        private readonly ConcurrentDictionary<Uri, WorkspaceConfigurationSource> _openScopes =
-            new ConcurrentDictionary<Uri, WorkspaceConfigurationSource>();
+        private readonly ConcurrentDictionary<Uri, DisposableConfiguration> _openScopes =
+            new ConcurrentDictionary<Uri, DisposableConfiguration>();
 
         public DidChangeConfigurationProvider(ILanguageServer server, Action<IConfigurationBuilder> configurationBuilderAction)
         {
@@ -42,12 +42,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             // https://github.com/Microsoft/vscode-languageserver-node/issues/380
             if (request.Settings == null || request.Settings.Type == JTokenType.Null)
             {
-                _server.Services.GetRequiredService<ILogger<DidChangeConfigurationProvider>>().LogInformation("Reloading workspace configuration!");
                 await GetWorkspaceConfiguration();
                 return Unit.Value;
             }
 
-            _server.Services.GetRequiredService<ILogger<DidChangeConfigurationProvider>>().LogInformation("parsing provided configuration!");
             ParseClientConfiguration(request.Settings);
             OnReload();
             return Unit.Value;
@@ -73,8 +71,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                     (scope, settings) => (scope, settings)))
                 {
                     ParseClientConfiguration(settings, scope.Section);
-
-                    _server.Services.GetRequiredService<ILogger<DidChangeConfigurationProvider>>().LogInformation("Config: {Config}", settings);
                 }
 
                 OnReload();
@@ -99,7 +95,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 {
                     if (!_openScopes.TryGetValue(group.Key, out var source)) continue;
                     source.Update(group.Select(z => (z.scope.Section, z.settings)));
-                    _server.Services.GetRequiredService<ILogger<DidChangeConfigurationProvider>>().LogInformation("Group: {Config}", group);
                 }
             }
         }
@@ -142,9 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         {
             var scopes = _server.Services.GetServices<ConfigurationItem>().ToArray();
             if (scopes.Length == 0)
-                return new DisposableConfiguration(
-                    new ConfigurationBuilder().AddConfiguration(_configuration).Build() as ConfigurationRoot,
-                    Disposable.Empty);
+                return EmptyDisposableConfiguration.Instance;
 
             var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
                 Items = scopes.Select(z => new ConfigurationItem() {Section = z.Section, ScopeUri = scopeUri}).ToArray()
@@ -153,63 +146,29 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var data = scopes.Zip(configurations,
                 (scope, settings) => (scope.Section, settings));
 
-            var source = new WorkspaceConfigurationSource(data);
-            _openScopes.TryAdd(scopeUri, source);
-            var configurationBuilder = new ConfigurationBuilder()
-                // this avoids chaining the configurations
-                // so that the returned configuration object
-                // is stateless.
-                // scoped configuration should be a snapshot of the current state.
-                .AddConfiguration(_configuration)
-                .Add(source);
-            return new DisposableConfiguration(
-                configurationBuilder.Build() as ConfigurationRoot,
+            var config =  new DisposableConfiguration(
+                new ConfigurationBuilder()
+                    .AddConfiguration(_configuration),
+                new WorkspaceConfigurationSource(data),
                 Disposable.Create(
                     () => _openScopes.TryRemove(scopeUri, out _))
             );
+
+            _openScopes.TryAdd(scopeUri, config);
+            return config;
         }
 
-        public bool TryGetScopedConfiguration(Uri scopeUri, out IDisposable disposable)
+        public bool TryGetScopedConfiguration(Uri scopeUri, out IDisposableConfiguration disposable)
         {
             var result = _openScopes.TryGetValue(scopeUri, out var c);
             if (result)
             {
-                disposable = Disposable.Create(() => _openScopes.TryRemove(scopeUri, out _));
+                disposable = c;
                 return true;
             }
 
-            disposable = Disposable.Empty;
+            disposable = EmptyDisposableConfiguration.Instance;
             return false;
-        }
-    }
-
-    class DisposableConfiguration : IDisposableConfiguration
-    {
-        private ConfigurationRoot _configuration;
-        private readonly IDisposable _disposable;
-
-        public DisposableConfiguration(ConfigurationRoot configuration, IDisposable disposable)
-        {
-            _configuration = configuration;
-            _disposable = disposable;
-        }
-
-        public IConfigurationSection GetSection(string key) => _configuration.GetSection(key);
-
-        public IEnumerable<IConfigurationSection> GetChildren() => _configuration.GetChildren();
-
-        public IChangeToken GetReloadToken() => _configuration.GetReloadToken();
-
-        public string this[string key]
-        {
-            get => _configuration[key];
-            set => _configuration[key] = value;
-        }
-
-        public void Dispose()
-        {
-            _configuration.Dispose();
-            _disposable.Dispose();
         }
     }
 }
