@@ -7,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests.Models
 {
@@ -15,10 +16,8 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ApplyWorkspaceEditParams()
-            {
-                Edit = new WorkspaceEdit()
-                {
+            var model = new ApplyWorkspaceEditParams() {
+                Edit = new WorkspaceEdit() {
                     Changes = new Dictionary<Uri, IEnumerable<TextEdit>>() {
                         {
                             new Uri("file:///abc/123/d.cs"), new [] {
@@ -46,10 +45,8 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void NonStandardCharactersTest(string expected)
         {
-            var model = new ApplyWorkspaceEditParams()
-            {
-                Edit = new WorkspaceEdit()
-                {
+            var model = new ApplyWorkspaceEditParams() {
+                Edit = new WorkspaceEdit() {
                     Changes = new Dictionary<Uri, IEnumerable<TextEdit>>() {
                         {
                             // Mörkö
@@ -78,15 +75,11 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void DocumentChangesTest(string expected)
         {
-            var model = new ApplyWorkspaceEditParams()
-            {
-                Edit = new WorkspaceEdit()
-                {
+            var model = new ApplyWorkspaceEditParams() {
+                Edit = new WorkspaceEdit() {
                     DocumentChanges = new Container<WorkspaceEditDocumentChange>(
-                        new TextDocumentEdit()
-                        {
-                            TextDocument = new VersionedTextDocumentIdentifier()
-                            {
+                        new TextDocumentEdit() {
+                            TextDocument = new VersionedTextDocumentIdentifier() {
                                 Version = 1,
                                 Uri = new Uri("file:///abc/123/d.cs"),
                             },
@@ -101,10 +94,8 @@ namespace Lsp.Tests.Models
                                 }
                             }
                         },
-                        new TextDocumentEdit()
-                        {
-                            TextDocument = new VersionedTextDocumentIdentifier()
-                            {
+                        new TextDocumentEdit() {
+                            TextDocument = new VersionedTextDocumentIdentifier() {
                                 Version = 1,
                                 Uri = new Uri("file:///abc/123/b.cs"),
                             },
@@ -151,13 +142,13 @@ namespace Lsp.Tests.Models
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ApplyWorkspaceEditParams>(expected);
             deresult.Should().BeEquivalentTo(model, x => x
                 .ComparingByMembers<WorkspaceEditDocumentChange>()
-                //.ComparingByMembers<CreateFile>()
-                //.ComparingByMembers<RenameFile>()
-                //.ComparingByMembers<DeleteFile>()
-                //.ComparingByMembers<CreateFileOptions>()
-                //.ComparingByMembers<RenameFileOptions>()
-                //.ComparingByMembers<DeleteFileOptions>()
-                //.ComparingByMembers<TextDocumentEdit>()
+            //.ComparingByMembers<CreateFile>()
+            //.ComparingByMembers<RenameFile>()
+            //.ComparingByMembers<DeleteFile>()
+            //.ComparingByMembers<CreateFileOptions>()
+            //.ComparingByMembers<RenameFileOptions>()
+            //.ComparingByMembers<DeleteFileOptions>()
+            //.ComparingByMembers<TextDocumentEdit>()
             );
         }
     }

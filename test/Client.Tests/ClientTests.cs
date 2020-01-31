@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {
