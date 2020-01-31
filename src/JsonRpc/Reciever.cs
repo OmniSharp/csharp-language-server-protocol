@@ -6,7 +6,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class Reciever : IReciever
+    public class Receiver : IReceiver
     {
         public bool IsValid(JToken container)
         {

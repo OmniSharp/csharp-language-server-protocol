@@ -24,7 +24,7 @@ namespace JsonRpc.Tests
         private static InputHandler NewHandler(
             Stream inputStream,
             IOutputHandler outputHandler,
-            IReciever reciever,
+            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
@@ -38,7 +38,7 @@ namespace JsonRpc.Tests
             var handler = new InputHandler(
                 inputStream,
                 outputHandler,
-                reciever,
+                receiver,
                 requestProcessIdentifier,
                 requestRouter,
                 responseRouter,
@@ -55,7 +55,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
 
             using (NewHandler(
                 inputStream,
@@ -80,7 +80,7 @@ namespace JsonRpc.Tests
         {
             var threadName = "(untouched)";
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
 
             using (NewHandler(
                 inputStream,
@@ -109,7 +109,7 @@ namespace JsonRpc.Tests
             // Note: an ä (&auml;) is encoded by two bytes, so string-length is 13 and byte-length is 14
             var inputStream = new MemoryStream(Encoding.UTF8.GetBytes("Content-Length: 14\r\n\r\n{\"utf8\": \"ä\"}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
 
             using (NewHandler(
                 inputStream,
@@ -134,7 +134,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var req = new Request(1, "abc", null);
@@ -170,7 +170,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var error = new RpcError(1, new ErrorMessage(1, "abc"));
@@ -202,7 +202,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
 
             var notification = new Notification("abc", null);
@@ -233,7 +233,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
             var responseRouter = Substitute.For<IResponseRouter>();
 
             var response = new OmniSharp.Extensions.JsonRpc.Server.ServerResponse(1L, JToken.Parse("{}"));

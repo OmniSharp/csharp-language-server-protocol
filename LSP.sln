@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
+		Directory.Build.targets = Directory.Build.targets
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JsonRpc", "src\JsonRpc\JsonRpc.csproj", "{9AF43FA2-EF35-435E-B59E-724877E44DDA}"

@@ -16,5 +16,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Abstractions
         Type CapabilityType { get; }
         bool IsDynamicCapability { get; }
         Type CanBeResolvedHandlerType { get; }
+        StartedDelegate StartedDelegate { get; }
     }
 }

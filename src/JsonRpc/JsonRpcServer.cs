@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Connection _connection;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
-        private readonly IReciever _reciever;
+        private readonly IReceiver _receiver;
         private readonly ISerializer _serializer;
         private readonly HandlerCollection _collection;
         private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers = new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var server = new JsonRpcServer(
                 options.Input,
                 options.Output,
-                options.Reciever,
+                options.Receiver,
                 options.RequestProcessIdentifier,
                 options.LoggerFactory,
                 options.Serializer,
@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
         internal JsonRpcServer(
             Stream input,
             Stream output,
-            IReciever reciever,
+            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             ILoggerFactory loggerFactory,
             ISerializer serializer,
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var outputHandler = new OutputHandler(output, serializer);
 
             services.AddLogging();
-            _reciever = reciever;
+            _receiver = receiver;
             _serializer = serializer;
             _collection = new HandlerCollection();
 
@@ -84,7 +84,7 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
             services.AddSingleton(requestProcessIdentifier);
-            services.AddSingleton(_reciever);
+            services.AddSingleton(_receiver);
             services.AddSingleton(loggerFactory);
 
             services.AddJsonRpcMediatR(assemblies);

@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public Connection(
             Stream input,
             IOutputHandler outputHandler,
-            IReciever reciever,
+            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _inputHandler = new InputHandler(
                 input,
                 outputHandler,
-                reciever,
+                receiver,
                 requestProcessIdentifier,
                 requestRouter,
                 responseRouter,

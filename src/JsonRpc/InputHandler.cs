@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private readonly Stream _input;
         private readonly IOutputHandler _outputHandler;
-        private readonly IReciever _reciever;
+        private readonly IReceiver _receiver;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
         private Thread _inputThread;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public InputHandler(
             Stream input,
             IOutputHandler outputHandler,
-            IReciever reciever,
+            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc
             if (!input.CanRead) throw new ArgumentException($"must provide a readable stream for {nameof(input)}", nameof(input));
             _input = input;
             _outputHandler = outputHandler;
-            _reciever = reciever;
+            _receiver = receiver;
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
@@ -142,13 +142,13 @@ namespace OmniSharp.Extensions.JsonRpc
                 return;
             }
 
-            if (!_reciever.IsValid(payload))
+            if (!_receiver.IsValid(payload))
             {
                 _outputHandler.Send(new InvalidRequest());
                 return;
             }
 
-            var (requests, hasResponse) = _reciever.GetRequests(payload);
+            var (requests, hasResponse) = _receiver.GetRequests(payload);
             if (hasResponse)
             {
                 foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))

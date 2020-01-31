@@ -6,7 +6,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DapReciever : IReciever
+    public class DapReceiver : IReceiver
     {
         public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {

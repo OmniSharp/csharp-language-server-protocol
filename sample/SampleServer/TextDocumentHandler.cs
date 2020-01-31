@@ -17,6 +17,7 @@ namespace SampleServer
     class TextDocumentHandler : ITextDocumentSyncHandler
     {
         private readonly ILogger<TextDocumentHandler> _logger;
+        private readonly ILanguageServerConfiguration _configuration;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
             new DocumentFilter() {
@@ -26,9 +27,11 @@ namespace SampleServer
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo)
+        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo,
+            ILanguageServerConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
             foo.SayFoo();
         }
 
@@ -43,7 +46,8 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions()
+        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
+            GetRegistrationOptions()
         {
             return new TextDocumentChangeRegistrationOptions() {
                 DocumentSelector = _documentSelector,
@@ -60,6 +64,7 @@ namespace SampleServer
         {
             await Task.Yield();
             _logger.LogInformation("Hello world!");
+            await _configuration.GetScopedConfiguration(notification.TextDocument.Uri);
             return Unit.Value;
         }
 
@@ -72,6 +77,11 @@ namespace SampleServer
 
         public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
+            if (_configuration.TryGetScopedConfiguration(notification.TextDocument.Uri, out var disposable))
+            {
+                disposable.Dispose();
+            }
+
             return Unit.Task;
         }
 
@@ -87,58 +97,10 @@ namespace SampleServer
                 IncludeText = true
             };
         }
+
         public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
         {
             return new TextDocumentAttributes(uri, "csharp");
-        }
-    }
-
-    class FoldingRangeHandler : IFoldingRangeHandler
-    {
-        private FoldingRangeCapability _capability;
-
-        public TextDocumentRegistrationOptions GetRegistrationOptions()
-        {
-            return new TextDocumentRegistrationOptions() {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp")
-            };
-        }
-
-        public Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request,
-            CancellationToken cancellationToken)
-        {
-            return Task.FromResult(new Container<FoldingRange>(new FoldingRange() {
-                StartLine = 10,
-                EndLine = 20,
-                Kind = FoldingRangeKind.Region,
-                EndCharacter = 0,
-                StartCharacter = 0
-            }));
-        }
-
-        public void SetCapability(FoldingRangeCapability capability)
-        {
-            _capability = capability;
-        }
-    }
-
-    class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
-    {
-        private DidChangeWatchedFilesCapability _capability;
-
-        public object GetRegistrationOptions()
-        {
-            return new object();
-        }
-
-        public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
-        {
-            return Unit.Task;
-        }
-
-        public void SetCapability(DidChangeWatchedFilesCapability capability)
-        {
-            _capability = capability;
         }
     }
 }

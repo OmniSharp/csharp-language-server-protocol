@@ -4,7 +4,7 @@ using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IReciever
+    public interface IReceiver
     {
         (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container);
         bool IsValid(JToken container);

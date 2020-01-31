@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
@@ -34,9 +35,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithReciever(this LanguageServerOptions options, ILspReciever reciever)
+        public static LanguageServerOptions WithReciever(this LanguageServerOptions options, ILspReceiver receiver)
         {
-            options.Reciever = reciever;
+            options.Receiver = receiver;
             return options;
         }
 
@@ -100,6 +101,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions ConfigureLogging(this LanguageServerOptions options, Action<ILoggingBuilder> builderAction)
         {
             options.LoggingBuilderAction = builderAction;
+            return options;
+        }
+
+        public static LanguageServerOptions ConfigureConfiguration(this LanguageServerOptions options, Action<IConfigurationBuilder> builderAction)
+        {
+            options.ConfigurationBuilderAction = builderAction;
             return options;
         }
     }
