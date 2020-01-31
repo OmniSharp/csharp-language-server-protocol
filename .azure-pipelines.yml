@@ -52,18 +52,19 @@ jobs:
 #       NuGetVersion: $(NuGetVersion)
 #       Script: build.cake
 
-  - template: pipeline/cake-job.yml@rsg
-    parameters:
-      name: 'Linux'
-      dependsOn: GitVersion
-      vmImage: "ubuntu-latest"
-      pushNuget: false
-      Configuration: $(Configuration)
-      Verbosity: $(Verbosity)
-      CakeVersion: $(CakeVersion)
-      DotNetVersion: $(DotNetVersion)
-      NuGetVersion: $(NuGetVersion)
-      Script: build.cake
+# Disabled temporarily as the template does not support multiple runtimes
+#   - template: pipeline/cake-job.yml@rsg
+#     parameters:
+#       name: 'Linux'
+#       dependsOn: GitVersion
+#       vmImage: "ubuntu-latest"
+#       pushNuget: false
+#       Configuration: $(Configuration)
+#       Verbosity: $(Verbosity)
+#       CakeVersion: $(CakeVersion)
+#       DotNetVersion: $(DotNetVersion)
+#       NuGetVersion: $(NuGetVersion)
+#       Script: build.cake
 
   - template: pipeline/cake-job.yml@rsg
     parameters:
