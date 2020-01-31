@@ -37,6 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
+        internal readonly List<StartedDelegate> StartedDelegates = new List<StartedDelegate>();
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

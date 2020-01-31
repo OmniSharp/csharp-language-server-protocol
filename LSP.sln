@@ -23,7 +23,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D
 		build.cake = build.cake
 		build.ps1 = build.ps1
 		build.sh = build.sh
-		Common.Build.props = Common.Build.props
+		Directory.Build.props = Directory.Build.props
 		nuget.config = nuget.config
 	EndProjectSection
 EndProject

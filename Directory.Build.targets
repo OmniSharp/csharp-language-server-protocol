@@ -1,12 +1,12 @@
 <Project>
     <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0-beta2-18618-05" PrivateAssets="All" />
+        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Update="Microsoft.Extensions.Logging" Version="$(Logging_Extensions_Version)" />
-        <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="$(Logging_Extensions_Version)" />
-        <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="$(Logging_Extensions_Version)" />
+        <PackageReference Update="Microsoft.Extensions.Logging" Version="2.0.0" />
+        <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
+        <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
         <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
         <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.0.0" />
         <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
@@ -22,7 +22,7 @@
         <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
         <PackageReference Update="coverlet.msbuild" Version="2.5.1" />
         <PackageReference Update="System.Reactive" Version="4.1.2" />
-        <PackageReference Update="MediatR" Version="$(MediatR_Version)" />
-        <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="$(MediatR_Version)" />
+        <PackageReference Update="MediatR" Version="7.0.0" />
+        <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
     </ItemGroup>
 </Project>

@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request Hover information.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request hover info", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request hover info")]
         public async Task Hover_Success()
         {
             await Connect();
@@ -67,8 +67,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             const int column = 5;
             var expectedHoverContent = new MarkedStringsOrMarkupContent("123", "456", "789");
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) =>
-            {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(AbsoluteDocumentPath,
@@ -78,11 +77,9 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 Assert.Equal(line, request.Position.Line);
                 Assert.Equal(column, request.Position.Character);
 
-                return Task.FromResult(new Hover
-                {
+                return Task.FromResult(new Hover {
                     Contents = expectedHoverContent,
-                    Range = new Range
-                    {
+                    Range = new Range {
                         Start = request.Position,
                         End = request.Position
                     }
@@ -114,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request Completions.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request completions", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request completions")]
         public async Task Completions_Success()
         {
             await Connect();
@@ -150,8 +147,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(DocumentNames.Completion, (request, cancellationToken) =>
-            {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(DocumentNames.Completion, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -171,8 +167,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             Assert.NotNull(actualCompletions.Items);
 
             var actualCompletionItems = actualCompletions.Items.ToArray();
-            Assert.Collection(actualCompletionItems, actualCompletionItem =>
-            {
+            Assert.Collection(actualCompletionItems, actualCompletionItem => {
                 var expectedCompletionItem = expectedCompletionItems[0];
 
                 Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
@@ -194,7 +189,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request SignatureHelp.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request signature help", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request signature help", Skip = "disabled because of equality check")]
         public async Task SignatureHelp_Success()
         {
             await Connect();
@@ -261,7 +256,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request Definition.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request definition", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request definition")]
         public async Task Definition_Success()
         {
             await Connect();
@@ -319,7 +314,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request document highlights", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request document highlights")]
         public async Task DocumentHighlights_Success()
         {
             await Connect();
@@ -426,7 +421,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request FoldingRanges.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request document folding ranges", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully request document folding ranges")]
         public async Task FoldingRanges_Success()
         {
             await Connect();
@@ -467,7 +462,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully receive diagnostics", Skip = "Periodic failures")]
+        [Fact(DisplayName = "Language client can successfully receive diagnostics")]
         public async Task Diagnostics_Success()
         {
             await Connect();
@@ -502,16 +497,14 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             Uri actualDocumentUri = null;
             List<Diagnostic> actualDiagnostics = null;
-            LanguageClient.TextDocument.OnPublishDiagnostics((documentUri, diagnostics) =>
-            {
+            LanguageClient.TextDocument.OnPublishDiagnostics((documentUri, diagnostics) => {
                 actualDocumentUri = documentUri;
                 actualDiagnostics = diagnostics;
 
                 receivedDiagnosticsNotification.SetResult(null);
             });
 
-            ServerConnection.SendNotification(DocumentNames.PublishDiagnostics, new PublishDiagnosticsParams
-            {
+            ServerConnection.SendNotification(DocumentNames.PublishDiagnostics, new PublishDiagnosticsParams {
                 Uri = DocumentUri.FromFileSystemPath(documentPath),
                 Diagnostics = expectedDiagnostics
             });
@@ -566,18 +559,14 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// </summary>
         void HandleServerInitialize()
         {
-            ServerDispatcher.HandleRequest<InitializeParams, InitializeResult>("initialize", (request, cancellationToken) =>
-            {
-                return Task.FromResult(new InitializeResult
-                {
-                    Capabilities = new ServerCapabilities
-                    {
+            ServerDispatcher.HandleRequest<InitializeParams, InitializeResult>("initialize", (request, cancellationToken) => {
+                return Task.FromResult(new InitializeResult {
+                    Capabilities = new ServerCapabilities {
                         HoverProvider = true
                     }
                 });
             });
-            ServerDispatcher.HandleEmptyNotification("initialized", () =>
-            {
+            ServerDispatcher.HandleEmptyNotification("initialized", () => {
                 Log.LogInformation("Server initialized.");
             });
         }

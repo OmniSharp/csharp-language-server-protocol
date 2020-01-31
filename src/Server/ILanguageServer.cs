@@ -15,8 +15,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         InitializeResult ServerSettings { get; }
         IServiceProvider Services { get; }
 
+        IObservable<InitializeResult> Start { get; }
         IObservable<bool> Shutdown { get; }
         IObservable<int> Exit { get; }
+        Task<InitializeResult> WasStarted { get; }
         Task WasShutDown { get; }
         Task WaitForExit { get; }
     }
