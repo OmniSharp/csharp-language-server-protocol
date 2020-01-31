@@ -20,9 +20,9 @@ resources:
 variables:
   Configuration: Release
   Verbosity: Normal
-  DotNetVersion: "2.2.101"
+  DotNetVersion: "3.1.x"
   CakeVersion: "0.32.1"
-  NuGetVersion: "4.9.2"
+  NuGetVersion: "5.4.0"
   Coverage: "$(Agent.BuildDirectory)/c"
   VstsCoverage: "$(Coverage)"
   Artifacts: $(Build.ArtifactStagingDirectory)
@@ -32,7 +32,7 @@ variables:
 jobs:
   - job: GitVersion
     pool:
-      vmImage: "VS2017-Win2016"
+      vmImage: "windows-latest"
     steps:
       - template: gitversion/store.yml@rsg
         parameters:
@@ -56,7 +56,7 @@ jobs:
     parameters:
       name: 'Linux'
       dependsOn: GitVersion
-      vmImage: "Ubuntu-16.04"
+      vmImage: "ubuntu-latest"
       pushNuget: false
       Configuration: $(Configuration)
       Verbosity: $(Verbosity)
@@ -69,7 +69,7 @@ jobs:
     parameters:
       name: 'Windows'
       dependsOn: GitVersion
-      vmImage: "VS2017-Win2016"
+      vmImage: "windows-latest"
       pushNuget: true
       Configuration: $(Configuration)
       Verbosity: $(Verbosity)
