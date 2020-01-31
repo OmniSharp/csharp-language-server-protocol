@@ -291,7 +291,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 );
             }
 
-            _cancellationSource?.Cancel();
+            try
+            {
+                _cancellationSource?.Cancel();
+            }
+            catch (AggregateException e) when (e.InnerException is ObjectDisposedException)
+            {
+                // Swallow object disposed exception
+            }
             _sendLoop = null;
             _receiveLoop = null;
             _dispatchLoop = null;
@@ -312,8 +319,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (!IsOpen)
                 throw new LspException("Not connected to the language server.");
 
-            _outgoing.TryAdd(new ClientMessage
-            {
+            _outgoing.TryAdd(new ClientMessage {
                 // No Id means it's a notification.
                 Method = method
             });
@@ -339,8 +345,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             if (!IsOpen)
                 throw new LspException("Not connected to the language server.");
 
-            _outgoing.TryAdd(new ClientMessage
-            {
+            _outgoing.TryAdd(new ClientMessage {
                 // No Id means it's a notification.
                 Method = method,
                 Params = JToken.FromObject(notification, Serializer.JsonSerializer)
@@ -376,8 +381,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             string requestId = Interlocked.Increment(ref _nextRequestId).ToString();
 
             var responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
-            cancellationToken.Register(() =>
-            {
+            cancellationToken.Register(() => {
                 responseCompletion.TrySetException(
                     new OperationCanceledException("The request was canceled via the supplied cancellation token.", cancellationToken)
                 );
@@ -385,8 +389,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 // Send notification telling server to cancel the request, if possible.
                 if (!_outgoing.IsAddingCompleted)
                 {
-                    _outgoing.TryAdd(new ClientMessage
-                    {
+                    _outgoing.TryAdd(new ClientMessage {
                         Method = JsonRpcNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
@@ -397,8 +400,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 
             _responseCompletions.TryAdd(requestId, responseCompletion);
 
-            _outgoing.TryAdd(new ClientMessage
-            {
+            _outgoing.TryAdd(new ClientMessage {
                 Id = requestId,
                 Method = method,
                 Params = request != null ? JToken.FromObject(request, Serializer.JsonSerializer) : null
@@ -439,8 +441,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             string requestId = Interlocked.Increment(ref _nextRequestId).ToString();
 
             var responseCompletion = new TaskCompletionSource<ServerMessage>(state: requestId);
-            cancellationToken.Register(() =>
-            {
+            cancellationToken.Register(() => {
                 responseCompletion.TrySetException(
                     new OperationCanceledException("The request was canceled via the supplied cancellation token.", cancellationToken)
                 );
@@ -448,8 +449,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 // Send notification telling server to cancel the request, if possible.
                 if (!_outgoing.IsAddingCompleted)
                 {
-                    _outgoing.TryAdd(new ClientMessage
-                    {
+                    _outgoing.TryAdd(new ClientMessage {
                         Method = JsonRpcNames.CancelRequest,
                         Params = new JObject(
                             new JProperty("id", requestId)
@@ -460,8 +460,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
 
             _responseCompletions.TryAdd(requestId, responseCompletion);
 
-            _outgoing.TryAdd(new ClientMessage
-            {
+            _outgoing.TryAdd(new ClientMessage {
                 Id = requestId,
                 Method = method,
                 Params = request != null ? JToken.FromObject(request, Serializer.JsonSerializer) : null
@@ -871,8 +870,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             }
 
 #pragma warning disable CS4014 // Continuation does the work we need; no need to await it as this would tie up the dispatch loop.
-            handlerTask.ContinueWith(_ =>
-            {
+            handlerTask.ContinueWith(_ => {
                 if (handlerTask.IsCanceled)
                     Log.LogDebug("{RequestMethod} request {RequestId} canceled.", requestMessage.Method, requestId);
                 else if (handlerTask.IsFaulted)
@@ -893,8 +891,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 {
                     Log.LogDebug("{RequestMethod} request {RequestId} complete (Result = {@Result}).", requestMessage.Method, requestId, handlerTask.Result);
 
-                    _outgoing.TryAdd(new ClientMessage
-                    {
+                    _outgoing.TryAdd(new ClientMessage {
                         Id = requestMessage.Id,
                         Method = requestMessage.Method,
                         Result = handlerTask.Result != null ? JToken.FromObject(handlerTask.Result, Serializer.JsonSerializer) : null
@@ -962,8 +959,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
                 handlerTask = _dispatcher.TryHandleEmptyNotification(notificationMessage.Method);
 
 #pragma warning disable CS4014 // Continuation does the work we need; no need to await it as this would tie up the dispatch loop.
-            handlerTask.ContinueWith(completedHandler =>
-            {
+            handlerTask.ContinueWith(completedHandler => {
                 if (handlerTask.IsCanceled)
                     Log.LogDebug("{NotificationMethod} notification canceled.", notificationMessage.Method);
                 else if (handlerTask.IsFaulted)
@@ -1006,31 +1002,31 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
             switch (message.Error.Code)
             {
                 case LspErrorCodes.InvalidRequest:
-                {
-                    return new LspInvalidRequestException(requestId);
-                }
+                    {
+                        return new LspInvalidRequestException(requestId);
+                    }
                 case LspErrorCodes.InvalidParameters:
-                {
-                    return new LspInvalidParametersException(requestId);
-                }
+                    {
+                        return new LspInvalidParametersException(requestId);
+                    }
                 case LspErrorCodes.InternalError:
-                {
-                    return new LspInternalErrorException(requestId);
-                }
+                    {
+                        return new LspInternalErrorException(requestId);
+                    }
                 case LspErrorCodes.MethodNotSupported:
-                {
-                    return new LspMethodNotSupportedException(requestId, message.Method);
-                }
+                    {
+                        return new LspMethodNotSupportedException(requestId, message.Method);
+                    }
                 case LspErrorCodes.RequestCancelled:
-                {
-                    return new LspRequestCancelledException(requestId);
-                }
+                    {
+                        return new LspRequestCancelledException(requestId);
+                    }
                 default:
-                {
-                    string exceptionMessage = $"Error processing request '{message.Id}' ({message.Error.Code}): {message.Error.Message}";
+                    {
+                        string exceptionMessage = $"Error processing request '{message.Id}' ({message.Error.Code}): {message.Error.Message}";
 
-                    return new LspRequestException(exceptionMessage, requestId, message.Error.Code);
-                }
+                        return new LspRequestException(exceptionMessage, requestId, message.Error.Code);
+                    }
             }
         }
     }

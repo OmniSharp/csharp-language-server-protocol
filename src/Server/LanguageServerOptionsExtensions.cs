@@ -91,6 +91,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
+        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, StartedDelegate @delegate)
+        {
+            options.StartedDelegates.Add(@delegate);
+            return options;
+        }
+
         public static LanguageServerOptions ConfigureLogging(this LanguageServerOptions options, Action<ILoggingBuilder> builderAction)
         {
             options.LoggingBuilderAction = builderAction;

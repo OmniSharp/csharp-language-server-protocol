@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFramework>netcoreapp2.1</TargetFramework>
+        <TargetFramework>netcoreapp3.1</TargetFramework>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -14,6 +14,6 @@
         <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="obj\Release\netcoreapp2.1\" />
+        <Folder Include="obj\Release\netcoreapp3.1\" />
     </ItemGroup>
 </Project>

@@ -53,10 +53,10 @@ namespace Lsp.Tests.Models
         {
             var serializer = new Serializer(ClientVersion.Lsp3);
             var result = serializer.DeserializeObject<TextDocumentIdentifier>(@"{
-                ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp2.1/0b0jnxg2.kgh.ps1""
+                ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""
             }");
 
-            result.Uri.Should().Be(new Uri("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp2.1/0b0jnxg2.kgh.ps1", UriKind.Absolute));
+            result.Uri.Should().Be(new Uri("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1", UriKind.Absolute));
         }
     }
 }

@@ -25,7 +25,9 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
@@ -44,6 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<StartedDelegate> _startedDelegates;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -108,6 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates,
+                options.StartedDelegates,
                 options.LoggingBuilderAction
             );
         }
@@ -128,6 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
+            IEnumerable<StartedDelegate> startedDelegates,
             Action<ILoggingBuilder> loggingBuilderAction)
         {
             var outputHandler = new OutputHandler(output, serializer);
@@ -143,6 +148,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _collection = collection;
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
+            _startedDelegates = startedDelegates;
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
@@ -301,8 +307,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 var registrations = handlerDisposable.Descriptors
                     .Where(d => d.AllowsDynamicRegistration)
-                    .Select(d => new Registration()
-                    {
+                    .Select(d => new Registration() {
                         Id = d.Id.ToString(),
                         Method = d.Method,
                         RegisterOptions = d.RegistrationOptions
@@ -314,10 +319,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 return new ImmutableDisposable(
                     handlerDisposable,
-                    Disposable.Create(() =>
-                    {
-                        Client.UnregisterCapability(new UnregistrationParams()
-                        {
+                    Disposable.Create(() => {
+                        Client.UnregisterCapability(new UnregistrationParams() {
                             Unregisterations = registrations.ToArray()
                         }).ToObservable().Subscribe();
                     }));
@@ -329,7 +332,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection.Open();
             try
             {
-                await _initializeComplete.ToTask(token);
+                await _initializeComplete
+                    .Select(result => _startedDelegates.Select(@delegate =>
+                            Observable.FromAsync(() => @delegate(result))
+                        )
+                        .ToObservable()
+                        .Merge()
+                        .Select(z => result)
+                    )
+                .Merge()
+                .LastAsync()
+                .ToTask(token);
             }
             catch (TaskCanceledException e)
             {
@@ -395,8 +408,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
-            var serverCapabilities = new ServerCapabilities()
-            {
+            var serverCapabilities = new ServerCapabilities() {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
@@ -423,10 +435,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
-                serverCapabilities.Workspace = new WorkspaceServerCapabilities()
-                {
-                    WorkspaceFolders = new WorkspaceFolderOptions()
-                    {
+                serverCapabilities.Workspace = new WorkspaceServerCapabilities() {
+                    WorkspaceFolders = new WorkspaceFolderOptions() {
                         Supported = true,
                         ChangeNotifications = Guid.NewGuid().ToString()
                     }
@@ -456,8 +466,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
-                    {
+                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions() {
                         Change = textDocumentSyncKind,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
@@ -496,7 +505,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return result;
         }
 
-        public async Task<Unit> Handle(InitializedParams @params, CancellationToken token)
+        public async Task<MediatR.Unit> Handle(InitializedParams @params, CancellationToken token)
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
@@ -506,7 +515,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }
-            return Unit.Value;
+            return MediatR.Unit.Value;
         }
 
         private async Task DynamicallyRegisterHandlers(Registration[] registrations)
@@ -522,6 +531,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
         public IObservable<int> Exit => _exitHandler.Exit;
+        public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
         public void SendNotification(string method)
         {
@@ -555,6 +565,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public Task WasShutDown => _shutdownHandler.WasShutDown;
         public Task WaitForExit => _exitHandler.WaitForExit;
+        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
         public void Dispose()
         {
