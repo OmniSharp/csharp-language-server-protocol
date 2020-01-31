@@ -20,7 +20,7 @@ resources:
 variables:
   Configuration: Release
   Verbosity: Normal
-  DotNetVersion: "3.1.x"
+  DotNetVersion: "3.1.101"
   CakeVersion: "0.32.1"
   NuGetVersion: "5.4.0"
   Coverage: "$(Agent.BuildDirectory)/c"
