@@ -64,6 +64,11 @@ namespace SampleServer
 
                             return new Foo(logger);
                         });
+                        services.AddSingleton(new ConfigurationItem() {
+                            Section = "typescript",
+                        }).AddSingleton(new ConfigurationItem() {
+                            Section = "terminal",
+                        });
                     })
                     .OnStarted(async (languageServer, result) => {
                         var logger = languageServer.Services.GetService<ILogger<Foo>>();
