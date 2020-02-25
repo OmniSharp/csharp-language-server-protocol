@@ -52,6 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly IServiceProvider _serviceProvider;
         private readonly SupportedCapabilities _supportedCapabilities;
+        private Task _initializingTask;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -301,13 +302,57 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _textDocumentIdentifiers.Add(ActivatorUtilities.CreateInstance<T>(_serviceProvider));
         }
 
+        public async Task Initialize(CancellationToken token)
+        {
+            if (_initializingTask != null)
+            {
+                try
+                {
+                    await _initializingTask;
+                }
+                catch
+                {
+                    // Swallow exceptions because the original initialization task will report errors if it fails (don't want to doubly report).
+                }
+
+                return;
+            }
+
+            try
+            {
+                _connection.Open();
+                _initializingTask = _initializeComplete
+                    .Select(result => _startedDelegates.Select(@delegate =>
+                            Observable.FromAsync(() => @delegate(result))
+                        )
+                        .ToObservable()
+                        .Merge()
+                        .Select(z => result)
+                    )
+                .Merge()
+                .LastAsync()
+                .ToTask(token);
+
+                await _initializingTask;
+            }
+            catch (TaskCanceledException e)
+            {
+                _initializeComplete.OnError(e);
+            }
+            catch (Exception e)
+            {
+                _initializeComplete.OnError(e);
+            }
+        }
+
         private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
                 var registrations = handlerDisposable.Descriptors
                     .Where(d => d.AllowsDynamicRegistration)
-                    .Select(d => new Registration() {
+                    .Select(d => new Registration()
+                    {
                         Id = d.Id.ToString(),
                         Method = d.Method,
                         RegisterOptions = d.RegistrationOptions
@@ -319,38 +364,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                 return new ImmutableDisposable(
                     handlerDisposable,
-                    Disposable.Create(() => {
-                        Client.UnregisterCapability(new UnregistrationParams() {
+                    Disposable.Create(() =>
+                    {
+                        Client.UnregisterCapability(new UnregistrationParams()
+                        {
                             Unregisterations = registrations.ToArray()
                         }).ToObservable().Subscribe();
                     }));
-            }
-        }
-
-        private async Task Initialize(CancellationToken token)
-        {
-            _connection.Open();
-            try
-            {
-                await _initializeComplete
-                    .Select(result => _startedDelegates.Select(@delegate =>
-                            Observable.FromAsync(() => @delegate(result))
-                        )
-                        .ToObservable()
-                        .Merge()
-                        .Select(z => result)
-                    )
-                .Merge()
-                .LastAsync()
-                .ToTask(token);
-            }
-            catch (TaskCanceledException e)
-            {
-                _initializeComplete.OnError(e);
-            }
-            catch (Exception e)
-            {
-                _initializeComplete.OnError(e);
             }
         }
 
@@ -408,7 +428,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var ccp = new ClientCapabilityProvider(_collection);
 
-            var serverCapabilities = new ServerCapabilities() {
+            var serverCapabilities = new ServerCapabilities()
+            {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
@@ -435,8 +456,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
-                serverCapabilities.Workspace = new WorkspaceServerCapabilities() {
-                    WorkspaceFolders = new WorkspaceFolderOptions() {
+                serverCapabilities.Workspace = new WorkspaceServerCapabilities()
+                {
+                    WorkspaceFolders = new WorkspaceFolderOptions()
+                    {
                         Supported = true,
                         ChangeNotifications = Guid.NewGuid().ToString()
                     }
@@ -466,7 +489,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else
                 {
-                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions() {
+                    serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
+                    {
                         Change = textDocumentSyncKind,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
