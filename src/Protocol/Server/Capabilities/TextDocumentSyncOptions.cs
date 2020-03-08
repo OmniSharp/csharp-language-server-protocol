@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
@@ -38,17 +39,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options)
         {
-            return new TextDocumentSyncOptions() {
-                OpenClose = options.Any(z => z.OpenClose),
-                Change = options
+            var change = TextDocumentSyncKind.None;
+            if (options.Any(x => x.Change != TextDocumentSyncKind.None))
+            {
+                change = options
                         .Where(x => x.Change != TextDocumentSyncKind.None)
-                        .Min(z => z.Change),
+                        .Min(z => z.Change);
+            }
+            return new TextDocumentSyncOptions()
+            {
+                OpenClose = options.Any(z => z.OpenClose),
+                Change = change,
                 WillSave = options.Any(z => z.WillSave),
                 WillSaveWaitUntil = options.Any(z => z.WillSaveWaitUntil),
-                Save = new SaveOptions() {
+                Save = new SaveOptions()
+                {
                     IncludeText = options.Any(z => z.Save?.IncludeText == true)
                 }
-             };
+            };
         }
     }
 }

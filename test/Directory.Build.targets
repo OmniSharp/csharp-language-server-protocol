@@ -14,5 +14,5 @@
         <PackageReference Include="XunitXml.TestLogger" />
         <PackageReference Include="coverlet.msbuild" />
     </ItemGroup>
-    <Import Project="$([MSBuild]::GetPathOfFileAbove('Common.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 </Project>

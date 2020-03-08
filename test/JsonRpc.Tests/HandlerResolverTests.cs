@@ -5,7 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using FluentAssertions.Common;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;

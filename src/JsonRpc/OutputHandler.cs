@@ -65,6 +65,8 @@ namespace OmniSharp.Extensions.JsonRpc
                                 _output.Write(ms.ToArray(), 0, (int)ms.Position);
                             }
                         }
+
+                        _output.Flush();
                     }
                 }
             }

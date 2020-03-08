@@ -2,7 +2,7 @@ using System;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
@@ -99,7 +99,10 @@ namespace OmniSharp.Extensions.JsonRpc
                     // TODO: Try / catch for Internal Error
                     try
                     {
-                        if (descriptor == default)
+                        // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
+                        // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
+                        // https://stackoverflow.com/a/864860
+                        if (EqualityComparer<TDescriptor>.Default.Equals(descriptor, default))
                         {
                             _logger.LogDebug("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
                             return new MethodNotFound(request.Id, request.Method);
@@ -148,7 +151,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         return new JsonRpc.Client.Response(request.Id, responseValue, request);
                     }
-                    catch (TaskCanceledException e)
+                    catch (TaskCanceledException)
                     {
                         _logger.LogDebug("Request {Id} was cancelled", id);
                         return new RequestCancelled();

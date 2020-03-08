@@ -22,18 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithMinimumLogLevel(this LanguageServerOptions options, LogLevel logLevel)
-        {
-            options.MinimumLogLevel = logLevel;
-            return options;
-        }
-
-        public static LanguageServerOptions WithLoggerFactory(this LanguageServerOptions options, ILoggerFactory loggerFactory)
-        {
-            options.LoggerFactory = loggerFactory;
-            return options;
-        }
-
         public static LanguageServerOptions WithRequestProcessIdentifier(this LanguageServerOptions options, IRequestProcessIdentifier requestProcessIdentifier)
         {
             options.RequestProcessIdentifier = requestProcessIdentifier;
@@ -90,13 +78,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions AddDefaultLoggingProvider(this LanguageServerOptions options)
-        {
-            options.AddDefaultLoggingProvider = true;
-            return options;
-        }
-
-
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
         {
             options.InitializeDelegates.Add(@delegate);
@@ -107,6 +88,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions OnInitialized(this LanguageServerOptions options, InitializedDelegate @delegate)
         {
             options.InitializedDelegates.Add(@delegate);
+            return options;
+        }
+
+        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, StartedDelegate @delegate)
+        {
+            options.StartedDelegates.Add(@delegate);
+            return options;
+        }
+
+        public static LanguageServerOptions ConfigureLogging(this LanguageServerOptions options, Action<ILoggingBuilder> builderAction)
+        {
+            options.LoggingBuilderAction = builderAction;
             return options;
         }
     }

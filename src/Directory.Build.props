@@ -1,5 +1,5 @@
 <Project>
-    <Import Project="$([MSBuild]::GetPathOfFileAbove('Common.Build.props', '$(MSBuildThisFileDirectory)../'))" />
+    <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.props', '$(MSBuildThisFileDirectory)../'))" />
     <PropertyGroup>
         <PackageVersion Condition="'$(GitVersion_NuGetVersion)' != ''">$(GitVersion_NuGetVersion)</PackageVersion>
         <AssemblyVersion>0.0.9.9</AssemblyVersion>

@@ -5,7 +5,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using OmniSharp.Extensions.Embedded.MediatR;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
@@ -27,6 +27,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Messages;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests
 {

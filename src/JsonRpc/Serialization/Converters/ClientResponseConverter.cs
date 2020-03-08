@@ -21,10 +21,13 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             writer.WriteValue("2.0");
             writer.WritePropertyName("id");
             writer.WriteValue(value.Id);
+            writer.WritePropertyName("result");
             if (value.Result != null)
             {
-                writer.WritePropertyName("result");
                 serializer.Serialize(writer, value.Result);
+            }
+            else{
+                writer.WriteNull();
             }
             writer.WriteEndObject();
         }
