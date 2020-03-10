@@ -23,10 +23,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> TriggerCharacters { get; set; }
 
+        /// <summary>
+        /// The list of all possible characters that commit a completion. This field can be used
+        /// if clients don't support individual commit characters per completion item. See
+        /// `ClientCapabilities.textDocument.completion.completionItem.commitCharactersSupport`
+        ///
+        /// Since 3.2.0
+        [Optional]
+        public Container<string> AllCommitCharacters { get; set; }
+
         public static CompletionOptions Of(ICompletionOptions options)
         {
             return new CompletionOptions()
             {
+                AllCommitCharacters = options.AllCommitCharacters,
                 ResolveProvider = options.ResolveProvider,
                 TriggerCharacters = options.TriggerCharacters
             };
