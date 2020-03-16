@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -260,6 +261,53 @@ namespace JsonRpc.Tests
             {
                 responseRouter.Received().GetRequest(1L);
                 tcs.Task.Result.ToString().Should().Be("{}");
+            }
+        }
+
+        [Fact]
+        public async Task ShouldCancelRequest()
+        {
+            var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var reciever = Substitute.For<IReciever>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
+            var requestDescription = Substitute.For<IHandlerDescriptor>();
+            requestDescription.Method.Returns("abc");
+            var cancelDescription = Substitute.For<IHandlerDescriptor>();
+            cancelDescription.Method.Returns(JsonRpcNames.CancelRequest);
+
+            var req = new Request(1, "abc", null);
+            var cancel = new Notification(JsonRpcNames.CancelRequest, "{ \"id\": 1 }");
+            reciever.IsValid(Arg.Any<JToken>()).Returns(true);
+            reciever.GetRequests(Arg.Any<JToken>())
+                .Returns(c => (new Renor[] { req, cancel }, false));
+
+            incomingRequestRouter.When(z => z.CancelRequest(Arg.Any<object>()));
+            incomingRequestRouter.GetDescriptor(cancel).Returns(cancelDescription);
+            incomingRequestRouter.GetDescriptor(req).Returns(requestDescription);
+
+            incomingRequestRouter.RouteRequest(requestDescription, req, CancellationToken.None)
+                .Returns(new Response(1, req));
+
+            incomingRequestRouter.RouteNotification(cancelDescription, cancel, CancellationToken.None)
+                .Returns(Task.CompletedTask);
+
+            using (NewHandler(
+                inputStream,
+                outputHandler,
+                reciever,
+                Substitute.For<IRequestProcessIdentifier>(),
+                incomingRequestRouter,
+                Substitute.For<IResponseRouter>(),
+                cts => {
+                    outputHandler.When(x => x.Send(Arg.Any<object>()))
+                        .Do(x => {
+                            cts.Cancel();
+                        });
+                }))
+            {
+                await incomingRequestRouter.Received().RouteNotification(cancelDescription, cancel, CancellationToken.None);
+                incomingRequestRouter.Received().CancelRequest(1L);
             }
         }
     }
