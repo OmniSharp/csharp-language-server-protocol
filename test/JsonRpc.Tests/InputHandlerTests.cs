@@ -277,7 +277,7 @@ namespace JsonRpc.Tests
             cancelDescription.Method.Returns(JsonRpcNames.CancelRequest);
 
             var req = new Request(1, "abc", null);
-            var cancel = new Notification(JsonRpcNames.CancelRequest, "{\"id\":1}");
+            var cancel = new Notification(JsonRpcNames.CancelRequest, JObject.Parse("{\"id\":1}"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
                 .Returns(c => (new Renor[] { req, cancel }, false));
