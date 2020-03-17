@@ -92,13 +92,22 @@ namespace OmniSharp.Extensions.JsonRpc
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                     var id = GetId(request.Id);
-                    var cts = new CancellationTokenSource();
+                    if (!_requests.TryGetValue(id, out var cts))
+                    {
+                        cts = new CancellationTokenSource();
+                        _requests.TryAdd(id, cts);
+                    }
                     token.Register(cts.Cancel);
-                    _requests.TryAdd(id, cts);
 
                     // TODO: Try / catch for Internal Error
                     try
                     {
+                        if (cts.IsCancellationRequested)
+                        {
+                            _logger.LogDebug("Request {Id} was cancelled", id);
+                            return new RequestCancelled();
+                        }
+
                         // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
                         // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
                         // https://stackoverflow.com/a/864860
@@ -176,13 +185,17 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void CancelRequest(object id)
         {
-            if (_requests.TryGetValue(GetId(id), out var cts))
+            var idValue = GetId(id);
+            if (_requests.TryGetValue(idValue, out var cts))
             {
                 cts.Cancel();
             }
             else
             {
-                _logger.LogDebug("Request {Id} was not found to cancel", id);
+                cts = new CancellationTokenSource();
+                _requests.TryAdd(idValue, cts);
+                cts.Cancel();
+                _logger.LogDebug("Request {Id} was not found to cancel, stubbing it in.", id);
             }
         }
 
