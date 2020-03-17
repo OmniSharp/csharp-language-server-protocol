@@ -185,18 +185,19 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void CancelRequest(object id)
         {
-            var idValue = GetId(id);
-            if (_requests.TryGetValue(idValue, out var cts))
+            if (_requests.TryGetValue(GetId(id), out var cts))
             {
                 cts.Cancel();
             }
             else
             {
-                cts = new CancellationTokenSource();
-                _requests.TryAdd(idValue, cts);
-                cts.Cancel();
                 _logger.LogDebug("Request {Id} was not found to cancel, stubbing it in.", id);
             }
+        }
+
+        public void StartRequest(object id)
+        {
+            _requests.TryAdd(GetId(id), new CancellationTokenSource());
         }
 
         private string GetId(object id)

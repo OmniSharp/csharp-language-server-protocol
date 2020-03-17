@@ -179,6 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var descriptor = _requestRouter.GetDescriptor(item.Request);
                     if (descriptor is null) continue;
                     var type = _requestProcessIdentifier.Identify(descriptor);
+                    _requestRouter.StartRequest(item.Request.Id);
                     _scheduler.Add(
                         type,
                         item.Request.Method,
