@@ -38,6 +38,8 @@ jobs:
         Windows:
           BuildName: "Windows"
           ImageName: "windows-latest"
+          ScriptName: build.ps1
         Linux:
           BuildName: "Linux"
           ImageName: "ubuntu-latest"
+          ScriptName: build.sh
