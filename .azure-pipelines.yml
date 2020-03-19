@@ -121,6 +121,5 @@ jobs:
           - template: support/nuget-push.yml@rsg
             parameters:
                 Artifacts: "$(Pipeline.Workspace)"
-                NuGetVersion: ${{ parameters.NuGetVersion }}
-                GitHubPackages: ${{ parameters.GitHubPackages }}
-                MyGetPackages: ${{ parameters.MyGetPackages }}
+                GitHubPackages: false
+                MyGetPackages: true
