@@ -2,7 +2,13 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
-
+    <ItemGroup>
+        <PackageReference Update="GitVersion.Tool" Version="5.1.3" />
+        <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2019.3.4" />
+        <PackageReference Update="Nuke.Common" Version="0.24.4" />
+        <PackageReference Update="ReportGenerator" Version="4.5.0" />
+        <PackageReference Update="Rocket.Surgery.Nuke.DotNetCore" Version="0.13.4" />
+    </ItemGroup>
     <ItemGroup>
         <PackageReference Update="Microsoft.Extensions.Logging" Version="2.0.0" />
         <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="2.0.0" />
