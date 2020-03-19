@@ -54,8 +54,6 @@ jobs:
     - template: jobs/gitversion.yml@rsg
 
     - job: Build
-      variables:
-          - group: rsg-bot
       strategy:
           matrix:
               Windows:
