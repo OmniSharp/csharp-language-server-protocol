@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -180,11 +179,11 @@ namespace OmniSharp.Extensions.JsonRpc
                     var descriptor = _requestRouter.GetDescriptor(item.Request);
                     if (descriptor is null) continue;
                     var type = _requestProcessIdentifier.Identify(descriptor);
+                    _requestRouter.StartRequest(item.Request.Id);
                     _scheduler.Add(
                         type,
                         item.Request.Method,
-                        async () =>
-                        {
+                        async () => {
                             try
                             {
                                 var result = await _requestRouter.RouteRequest(descriptor, item.Request, CancellationToken.None);
@@ -207,26 +206,24 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 if (item.IsNotification)
                 {
+
                     var descriptor = _requestRouter.GetDescriptor(item.Notification);
                     if (descriptor is null) continue;
+
+                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
+                    if (descriptor.Method == JsonRpcNames.CancelRequest)
+                    {
+                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
+                        if (cancelParams == null) { continue; }
+                        _requestRouter.CancelRequest(cancelParams.Id);
+                        continue;
+                    }
+
                     var type = _requestProcessIdentifier.Identify(descriptor);
                     _scheduler.Add(
                         type,
                         item.Notification.Method,
-                        async () =>
-                        {
-                            try
-                            {
-                                await _requestRouter.RouteNotification(descriptor, item.Notification, CancellationToken.None);
-                            }
-                            catch (Exception e)
-                            {
-                                _logger.LogCritical(Events.UnhandledNotification, e, "Unhandled exception executing notification {Method}", item.Notification.Method);
-                                // TODO: Should we rethrow or swallow?
-                                // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
-                                throw;
-                            }
-                        }
+                        DoNotification(descriptor, item.Notification)
                     );
                 }
 
@@ -235,6 +232,23 @@ namespace OmniSharp.Extensions.JsonRpc
                     // TODO:
                     _outputHandler.Send(item.Error);
                 }
+            }
+
+            Func<Task> DoNotification(IHandlerDescriptor descriptor, Notification notification)
+            {
+                return async () => {
+                    try
+                    {
+                        await _requestRouter.RouteNotification(descriptor, notification, CancellationToken.None);
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogCritical(Events.UnhandledNotification, e, "Unhandled exception executing notification {Method}", notification.Method);
+                        // TODO: Should we rethrow or swallow?
+                        // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
+                        throw;
+                    }
+                };
             }
         }
 

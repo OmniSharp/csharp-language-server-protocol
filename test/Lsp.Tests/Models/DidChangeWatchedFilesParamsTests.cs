@@ -29,5 +29,25 @@ namespace Lsp.Tests.Models
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DidChangeWatchedFilesParams>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
+
+        [Theory, JsonFixture]
+        public void NonStandardCharactersTest(string expected)
+        {
+            var model = new DidChangeWatchedFilesParams() {
+                Changes = new[] {
+                    new FileEvent() {
+                        Type = FileChangeType.Created,
+                        // Mörkö
+                        Uri = new Uri("file:///M%C3%B6rk%C3%B6.cs")
+                    }
+                }
+            };
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DidChangeWatchedFilesParams>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
     }
 }

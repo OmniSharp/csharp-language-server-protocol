@@ -1,7 +1,5 @@
 using System;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -9,11 +7,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     class LanguageServerLogger : ILogger
     {
-        private readonly LanguageServer _responseRouter;
+        private readonly ILanguageServer _responseRouter;
         private readonly string _categoryName;
         private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(LanguageServer responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
+        public LanguageServerLogger(ILanguageServer responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
         {
             _logLevelGetter = logLevelGetter;
             _responseRouter = responseRouter;

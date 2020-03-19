@@ -37,6 +37,9 @@ namespace SampleServer
 
         public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
+            _logger.LogCritical("Critical");
+            _logger.LogDebug("Debug");
+            _logger.LogTrace("Trace");
             _logger.LogInformation("Hello world!");
             return Unit.Task;
         }

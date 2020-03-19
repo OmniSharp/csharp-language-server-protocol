@@ -25,7 +25,11 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -44,11 +48,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<StartedDelegate> _startedDelegates;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly IServiceProvider _serviceProvider;
         private readonly SupportedCapabilities _supportedCapabilities;
+        private Task _initializingTask;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -108,6 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.TextDocumentIdentifierTypes,
                 options.InitializeDelegates,
                 options.InitializedDelegates,
+                options.StartedDelegates,
                 options.LoggingBuilderAction,
                 options.AddDefaultLoggingProvider,
                 options.ProgressManager,
@@ -131,6 +138,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<Type> textDocumentIdentifierTypes,
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
+            IEnumerable<StartedDelegate> startedDelegates,
             Action<ILoggingBuilder> loggingBuilderAction,
             bool addDefaultLoggingProvider,
             ProgressManager progressManager,
@@ -138,15 +146,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             var outputHandler = new OutputHandler(output, serializer);
 
-            services.AddLogging(builder =>
-            {
-                loggingBuilderAction(builder);
-
-                if (addDefaultLoggingProvider)
-                {
-                    builder.AddProvider(new LanguageServerLoggerProvider(this));
-                }
-            });
+            services.AddLogging(builder => loggingBuilderAction(builder));
+            services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
             _serverInfo = serverInfo;
             _progressManager = progressManager;
@@ -158,6 +159,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _collection = collection;
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
+            _startedDelegates = startedDelegates;
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
@@ -259,11 +261,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public InitializeParams ClientSettings { get; private set; }
         public InitializeResult ServerSettings { get; private set; }
 
-        /// <summary>
-        ///     The minimum level for the server's default logger.
-        /// </summary>
-        public LogLevel MinimumLogLevel { get; set; }
-
         public IServiceProvider Services => _serviceProvider;
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
@@ -318,6 +315,49 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _textDocumentIdentifiers.Add(ActivatorUtilities.CreateInstance<T>(_serviceProvider));
         }
 
+        public async Task Initialize(CancellationToken token)
+        {
+            if (_initializingTask != null)
+            {
+                try
+                {
+                    await _initializingTask;
+                }
+                catch
+                {
+                    // Swallow exceptions because the original initialization task will report errors if it fails (don't want to doubly report).
+                }
+
+                return;
+            }
+
+            try
+            {
+                _connection.Open();
+                _initializingTask = _initializeComplete
+                    .Select(result => _startedDelegates.Select(@delegate =>
+                            Observable.FromAsync(() => @delegate(result))
+                        )
+                        .ToObservable()
+                        .Merge()
+                        .Select(z => result)
+                    )
+                .Merge()
+                .LastAsync()
+                .ToTask(token);
+
+                await _initializingTask;
+            }
+            catch (TaskCanceledException e)
+            {
+                _initializeComplete.OnError(e);
+            }
+            catch (Exception e)
+            {
+                _initializeComplete.OnError(e);
+            }
+        }
+
         private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
         {
             using (var scope = _serviceProvider.CreateScope())
@@ -347,30 +387,26 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        private async Task Initialize(CancellationToken token)
-        {
-            _connection.Open();
-            try
-            {
-                await _initializeComplete.ToTask(token);
-            }
-            catch (TaskCanceledException e)
-            {
-                _initializeComplete.OnError(e);
-            }
-            catch (Exception e)
-            {
-                _initializeComplete.OnError(e);
-            }
-        }
-
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(InitializeParams request, CancellationToken token)
         {
             ClientSettings = request;
 
-            if (request.Trace == InitializeTrace.Verbose && MinimumLogLevel >= LogLevel.Information)
+            if (request.Trace == InitializeTrace.Verbose)
             {
-                MinimumLogLevel = LogLevel.Trace;
+                var loggerSettings = _serviceProvider.GetService<LanguageServerLoggerSettings>();
+
+                if (loggerSettings?.MinimumLogLevel <= LogLevel.Information)
+                {
+                    loggerSettings.MinimumLogLevel = LogLevel.Trace;
+                }
+
+                var optionsMonitor = _serviceProvider.GetService<IOptionsMonitor<LoggerFilterOptions>>() as LanguageServerLoggerFilterOptions;
+
+                if (optionsMonitor?.CurrentValue.MinLevel <= LogLevel.Information)
+                {
+                    optionsMonitor.CurrentValue.MinLevel = LogLevel.Trace;
+                    optionsMonitor.Set(optionsMonitor.CurrentValue);
+                }
             }
 
             _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
@@ -479,7 +515,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     serverCapabilities.TextDocumentSync = new TextDocumentSyncOptions()
                     {
-                        Change = TextDocumentSyncKind.None,
+                        Change = textDocumentSyncKind,
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) || _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler)) ?
                             new SaveOptions() { IncludeText = true /* TODO: Make configurable */ } :
@@ -525,7 +561,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return result;
         }
 
-        public async Task<Unit> Handle(InitializedParams @params, CancellationToken token)
+        public async Task<MediatR.Unit> Handle(InitializedParams @params, CancellationToken token)
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
@@ -535,7 +571,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }
-            return Unit.Value;
+            return MediatR.Unit.Value;
         }
 
         private async Task DynamicallyRegisterHandlers(Registration[] registrations)
@@ -560,6 +596,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
         public IObservable<int> Exit => _exitHandler.Exit;
+        public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
         public void SendNotification(string method)
         {
@@ -593,6 +630,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public Task WasShutDown => _shutdownHandler.WasShutDown;
         public Task WaitForExit => _exitHandler.WaitForExit;
+        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
         public void Dispose()
         {

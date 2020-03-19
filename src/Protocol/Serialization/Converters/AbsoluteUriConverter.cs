@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 	// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 // #see https://github.com/NuGet/NuGet.Server
 using System;
+using System.Text;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
@@ -41,17 +42,38 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return;
             }
 
-            if (!(value is Uri uriValue))
-            {
-                throw new JsonSerializationException("The value must be a URI.");
-            }
-
-            if (!uriValue.IsAbsoluteUri)
+            if (!value.IsAbsoluteUri)
             {
                 throw new JsonSerializationException("The URI value must be an absolute Uri. Relative URI instances are not allowed.");
             }
 
-            writer.WriteValue(uriValue.ToString());
+            if (value.IsFile)
+            {
+                // First add the file scheme and ://
+                var builder = new StringBuilder(value.Scheme)
+                    .Append("://");
+
+                // UNC file paths use the Host
+                if (value.HostNameType != UriHostNameType.Basic)
+                {
+                    builder.Append(value.Host);
+                }
+
+                // Paths that start with a drive letter don't have a slash in the PathAndQuery
+                // but they need it in the final result.
+                if (value.PathAndQuery[0] != '/')
+                {
+                    builder.Append('/');
+                }
+
+                // Lastly add the remaining parts of the URL
+                builder.Append(value.PathAndQuery);
+                writer.WriteValue(builder.ToString());
+            }
+            else
+            {
+                writer.WriteValue(value.AbsoluteUri);
+            }
         }
     }
 }

@@ -36,11 +36,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal List<Type> HandlerTypes { get; set; } = new List<Type>();
         internal List<Type> TextDocumentIdentifierTypes { get; set; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
-        internal bool AddDefaultLoggingProvider { get; set; }
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
+        internal readonly List<StartedDelegate> StartedDelegates = new List<StartedDelegate>();
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

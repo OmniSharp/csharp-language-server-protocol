@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class BooleanOr<T>
@@ -15,7 +17,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _bool = value;
         }
 
-        public bool IsValue => this._value != default;
+        // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
+        // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
+        // https://stackoverflow.com/a/864860
+        public bool IsValue => !EqualityComparer<T>.Default.Equals(_value, default);
+
         public T Value
         {
             get { return this._value; }

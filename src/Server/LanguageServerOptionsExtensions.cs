@@ -85,13 +85,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions AddDefaultLoggingProvider(this LanguageServerOptions options)
-        {
-            options.AddDefaultLoggingProvider = true;
-            return options;
-        }
-
-
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
         {
             options.InitializeDelegates.Add(@delegate);
@@ -102,6 +95,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions OnInitialized(this LanguageServerOptions options, InitializedDelegate @delegate)
         {
             options.InitializedDelegates.Add(@delegate);
+            return options;
+        }
+
+        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, StartedDelegate @delegate)
+        {
+            options.StartedDelegates.Add(@delegate);
             return options;
         }
 

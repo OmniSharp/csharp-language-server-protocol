@@ -19,10 +19,11 @@ namespace SampleServer
 
         static async Task MainAsync(string[] args)
         {
-            // while (!System.Diagnostics.Debugger.IsAttached)
-            // {
+            //Debugger.Launch();
+            //while (!System.Diagnostics.Debugger.IsAttached)
+            //{
             //    await Task.Delay(100);
-            // }
+            //}
 
             Log.Logger = new LoggerConfiguration()
               .Enrich.FromLogContext()
@@ -36,8 +37,10 @@ namespace SampleServer
                 options
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
-                    .ConfigureLogging(x => x.AddSerilog())
-                    .AddDefaultLoggingProvider()
+                    .ConfigureLogging(x => x
+                        .AddSerilog()
+                        .AddLanguageServer()
+                        .SetMinimumLevel(LogLevel.Debug))
                     .WithHandler<TextDocumentHandler>()
                     .WithHandler<DidChangeWatchedFilesHandler>()
                     .WithHandler<FoldingRangeHandler>()
