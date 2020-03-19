@@ -2,6 +2,7 @@
     {
         "label": null,
         "kind": 7,
+        "tags": null,
         "detail": "details",
         "deprecated": false,
         "preselect": false,

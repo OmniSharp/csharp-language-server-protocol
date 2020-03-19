@@ -19,7 +19,8 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new WorkspaceClientCapabilities() {
+            var model = new WorkspaceClientCapabilities()
+            {
                 ApplyEdit = true,
                 WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
                 DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },

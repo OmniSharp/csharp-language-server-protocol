@@ -10,17 +10,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.Implementation)]
-    public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocationLinks>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ImplementationCapability> { }
+    public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocationLinks>, IRegistration<ImplementationRegistrationOptions>, ICapability<ImplementationCapability> { }
 
     public abstract class ImplementationHandler : IImplementationHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public ImplementationHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly ImplementationRegistrationOptions _options;
+        protected ProgressManager ProgressManager { get; }
+        public ImplementationHandler(ImplementationRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            ProgressManager = progressManager;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
+        public ImplementationRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationOrLocationLinks> Handle(ImplementationParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ImplementationCapability capability) => Capability = capability;
         protected ImplementationCapability Capability { get; private set; }
@@ -31,11 +33,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnImplementation(
             this ILanguageServerRegistry registry,
             Func<ImplementationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
+            ImplementationRegistrationOptions registrationOptions = null,
             Action<ImplementationCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions ??= new ImplementationRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : ImplementationHandler
@@ -45,8 +47,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
             public DelegatingHandler(
                 Func<ImplementationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
+                ProgressManager progressManager,
                 Action<ImplementationCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                ImplementationRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
@@ -54,7 +57,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
             public override Task<LocationOrLocationLinks> Handle(ImplementationParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(ImplementationCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

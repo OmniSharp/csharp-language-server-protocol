@@ -10,18 +10,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentColor)]
-    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorInformation>>, IRegistration<DocumentColorRegistrationOptions>, ICapability<ColorProviderCapability> { }
+    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>, ICapability<ColorProviderCapability> { }
 
     public abstract class DocumentColorHandler : IDocumentColorHandler
     {
         private readonly DocumentColorRegistrationOptions _options;
-        public DocumentColorHandler(DocumentColorRegistrationOptions registrationOptions)
+        protected ProgressManager ProgressManager { get; }
+        public DocumentColorHandler(DocumentColorRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            ProgressManager = progressManager;
         }
 
         public DocumentColorRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Container<ColorInformation>> Handle(DocumentColorParams request, CancellationToken cancellationToken);
+        public abstract Task<Container<ColorPresentation>> Handle(DocumentColorParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ColorProviderCapability capability) => Capability = capability;
         protected ColorProviderCapability Capability { get; private set; }
     }
@@ -30,31 +32,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnDocumentColor(
             this ILanguageServerRegistry registry,
-            Func<DocumentColorParams, CancellationToken, Task<Container<ColorInformation>>> handler,
+            Func<DocumentColorParams, CancellationToken, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions = null,
             Action<ColorProviderCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentColorRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions ??= new DocumentColorRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : DocumentColorHandler
         {
-            private readonly Func<DocumentColorParams, CancellationToken, Task<Container<ColorInformation>>> _handler;
+            private readonly Func<DocumentColorParams, CancellationToken, Task<Container<ColorPresentation>>> _handler;
             private readonly Action<ColorProviderCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<DocumentColorParams, CancellationToken, Task<Container<ColorInformation>>> handler,
+                Func<DocumentColorParams, CancellationToken, Task<Container<ColorPresentation>>> handler,
+                ProgressManager progressManager,
                 Action<ColorProviderCapability> setCapability,
-                DocumentColorRegistrationOptions registrationOptions) : base(registrationOptions)
+                DocumentColorRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<ColorInformation>> Handle(DocumentColorParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+            public override Task<Container<ColorPresentation>> Handle(DocumentColorParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(ColorProviderCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

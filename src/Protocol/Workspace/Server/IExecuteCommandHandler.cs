@@ -16,9 +16,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class ExecuteCommandHandler : IExecuteCommandHandler
     {
         private readonly ExecuteCommandRegistrationOptions _options;
-        public ExecuteCommandHandler(ExecuteCommandRegistrationOptions registrationOptions)
+        protected ProgressManager ProgressManager { get; }
+
+        public ExecuteCommandHandler(ExecuteCommandRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            ProgressManager = progressManager;
         }
 
         public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
@@ -35,8 +38,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             ExecuteCommandRegistrationOptions registrationOptions = null,
             Action<ExecuteCommandCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new ExecuteCommandRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions ??= new ExecuteCommandRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : ExecuteCommandHandler
@@ -44,10 +47,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<ExecuteCommandParams, CancellationToken, Task<Unit>> _handler;
             private readonly Action<ExecuteCommandCapability> _setCapability;
 
-            public DelegatingHandler(
-                Func<ExecuteCommandParams, CancellationToken, Task<Unit>> handler,
+            public DelegatingHandler(Func<ExecuteCommandParams, CancellationToken, Task<Unit>> handler,
+                ProgressManager progressManager,
                 Action<ExecuteCommandCapability> setCapability,
-                ExecuteCommandRegistrationOptions registrationOptions) : base(registrationOptions)
+                ExecuteCommandRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;

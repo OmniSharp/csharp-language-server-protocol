@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class ExecuteCommandParams : IRequest
+    public class ExecuteCommandParams : IRequest, IWorkDoneProgressParams
     {
         /// <summary>
         /// The identifier of the actual command handler.
@@ -18,5 +18,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public JArray Arguments { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

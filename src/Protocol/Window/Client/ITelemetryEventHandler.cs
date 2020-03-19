@@ -6,6 +6,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Serial, Method(WindowNames.TelemetryEvent)]
+    [Parallel, Method(WindowNames.TelemetryEvent)]
     public interface ITelemetryEventHandler : IJsonRpcNotificationHandler<TelemetryEventParams> { }
 }

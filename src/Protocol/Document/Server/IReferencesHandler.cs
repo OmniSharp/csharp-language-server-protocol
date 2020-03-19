@@ -10,20 +10,22 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.References)]
-    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, LocationContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<ReferencesCapability> { }
+    public interface IReferencesHandler : IJsonRpcRequestHandler<ReferenceParams, LocationContainer>, IRegistration<ReferenceRegistrationOptions>, ICapability<ReferenceCapability> { }
 
     public abstract class ReferencesHandler : IReferencesHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public ReferencesHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly ReferenceRegistrationOptions _options;
+        protected ProgressManager ProgressManager { get; }
+        public ReferencesHandler(ReferenceRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            ProgressManager = progressManager;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
+        public ReferenceRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(ReferencesCapability capability) => Capability = capability;
-        protected ReferencesCapability Capability { get; private set; }
+        public virtual void SetCapability(ReferenceCapability capability) => Capability = capability;
+        protected ReferenceCapability Capability { get; private set; }
     }
 
     public static class ReferencesHandlerExtensions
@@ -31,30 +33,30 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnReferences(
             this ILanguageServerRegistry registry,
             Func<ReferenceParams, CancellationToken, Task<LocationContainer>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
-            Action<ReferencesCapability> setCapability = null)
+            ReferenceRegistrationOptions registrationOptions = null,
+            Action<ReferenceCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions ??= new ReferenceRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : ReferencesHandler
         {
             private readonly Func<ReferenceParams, CancellationToken, Task<LocationContainer>> _handler;
-            private readonly Action<ReferencesCapability> _setCapability;
+            private readonly Action<ReferenceCapability> _setCapability;
 
             public DelegatingHandler(
                 Func<ReferenceParams, CancellationToken, Task<LocationContainer>> handler,
-                Action<ReferencesCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                ProgressManager progressManager,
+                Action<ReferenceCapability> setCapability,
+                ReferenceRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
             }
 
             public override Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
-            public override void SetCapability(ReferencesCapability capability) => _setCapability?.Invoke(capability);
-
+            public override void SetCapability(ReferenceCapability capability) => _setCapability?.Invoke(capability);
         }
     }
 }

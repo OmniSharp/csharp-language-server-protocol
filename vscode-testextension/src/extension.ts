@@ -60,6 +60,7 @@ export function activate(context: ExtensionContext) {
                 pattern: "**/*.cake"
             }
         ],
+        progressOnInitialization: true,
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: "languageServerExample",
@@ -74,8 +75,8 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
     );
+    client.registerProposedFeatures();
     client.trace = Trace.Verbose;
-    client.clientOptions.errorHandler;
     let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the

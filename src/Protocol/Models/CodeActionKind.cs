@@ -10,6 +10,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class CodeActionKind
     {
         /// <summary>
+        /// Base kind for quickfix actions: ''
+        /// </summary>
+        public static CodeActionKind Empty = new CodeActionKind("");
+
+        /// <summary>
         /// Base kind for quickfix actions: 'quickfix'
         /// </summary>
         public static CodeActionKind QuickFix = new CodeActionKind("quickfix");

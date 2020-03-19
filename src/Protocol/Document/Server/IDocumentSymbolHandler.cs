@@ -10,17 +10,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.DocumentSymbol)]
-    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>, IRegistration<TextDocumentRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
+    public interface IDocumentSymbolHandler : IJsonRpcRequestHandler<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>, IRegistration<DocumentSymbolRegistrationOptions>, ICapability<DocumentSymbolCapability> { }
 
     public abstract class DocumentSymbolHandler : IDocumentSymbolHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public DocumentSymbolHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly DocumentSymbolRegistrationOptions _options;
+        protected ProgressManager ProgressManager { get; }
+        public DocumentSymbolHandler(DocumentSymbolRegistrationOptions registrationOptions, ProgressManager progressManager)
         {
             _options = registrationOptions;
+            ProgressManager = progressManager;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DocumentSymbolCapability capability) => Capability = capability;
         protected DocumentSymbolCapability Capability { get; private set; }
@@ -31,11 +33,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnDocumentSymbol(
             this ILanguageServerRegistry registry,
             Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
+            DocumentSymbolRegistrationOptions registrationOptions = null,
             Action<DocumentSymbolCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
-            return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
+            registrationOptions ??= new DocumentSymbolRegistrationOptions();
+            return registry.AddHandlers(new DelegatingHandler(handler, registry.ProgressManager, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : DocumentSymbolHandler
@@ -45,8 +47,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
             public DelegatingHandler(
                 Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
+                ProgressManager progressManager,
                 Action<DocumentSymbolCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                DocumentSymbolRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
             {
                 _handler = handler;
                 _setCapability = setCapability;
@@ -54,7 +57,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
             public override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(DocumentSymbolCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

@@ -8,5 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers);
         IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier;
+        ProgressManager ProgressManager { get; }
     }
 }

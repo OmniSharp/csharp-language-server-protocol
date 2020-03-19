@@ -20,7 +20,8 @@ namespace SampleServer
         private readonly ILanguageServerConfiguration _configuration;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() {
+            new DocumentFilter()
+            {
                 Pattern = "**/*.cs"
             }
         );
@@ -49,7 +50,8 @@ namespace SampleServer
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
             GetRegistrationOptions()
         {
-            return new TextDocumentChangeRegistrationOptions() {
+            return new TextDocumentChangeRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 SyncKind = Change
             };
@@ -70,7 +72,8 @@ namespace SampleServer
 
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions() {
+            return new TextDocumentRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
             };
         }
@@ -92,7 +95,8 @@ namespace SampleServer
 
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()
         {
-            return new TextDocumentSaveRegistrationOptions() {
+            return new TextDocumentSaveRegistrationOptions()
+            {
                 DocumentSelector = _documentSelector,
                 IncludeText = true
             };
@@ -101,6 +105,158 @@ namespace SampleServer
         public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
         {
             return new TextDocumentAttributes(uri, "csharp");
+        }
+    }
+
+    class FoldingRangeHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.FoldingRangeHandler
+    {
+        public FoldingRangeHandler(ProgressManager progressManager) : base(new FoldingRangeRegistrationOptions()
+        {
+            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+        }, progressManager)
+        {
+        }
+
+        public override Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken)
+        {
+            return Task.FromResult(new Container<FoldingRange>(new FoldingRange()
+            {
+                StartLine = 10,
+                EndLine = 20,
+                Kind = FoldingRangeKind.Region,
+                EndCharacter = 0,
+                StartCharacter = 0
+            }));
+        }
+    }
+
+    class MyDocumentSymbolHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DocumentSymbolHandler
+    {
+        public MyDocumentSymbolHandler(ProgressManager progressManager) : base(new DocumentSymbolRegistrationOptions()
+        {
+            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+        }, progressManager)
+        {
+        }
+
+        public async override Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request, CancellationToken cancellationToken)
+        {
+            await Task.Delay(2000, cancellationToken);
+            return new[] {
+                    new SymbolInformation() {
+                        ContainerName = "Container",
+                        Deprecated = true,
+                        Kind = SymbolKind.Constant,
+                        Location = new Location() { Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(1, 1), new Position(1, 10)) {} },
+                        Name = "name"
+                    }
+                };
+        }
+    }
+
+    class MyWorkspaceSymbolsHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkspaceSymbolsHandler
+    {
+        private readonly ILogger<MyWorkspaceSymbolsHandler> logger;
+
+        public MyWorkspaceSymbolsHandler(ProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) : base(new WorkspaceSymbolRegistrationOptions() { }, progressManager)
+        {
+            this.logger = logger;
+        }
+
+        public async override Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request, CancellationToken cancellationToken)
+        {
+            using var reporter = ProgressManager.WorkDone(request, new WorkDoneProgressBegin()
+            {
+                Cancellable = true,
+                Message = "This might take a while...",
+                Title = "Some long task....",
+                Percentage = 0
+            });
+            using var partialResults = ProgressManager.For(request, cancellationToken);
+            if (partialResults != null)
+            {
+                await Task.Delay(2000, cancellationToken);
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 20
+                });
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 40
+                });
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 50
+                });
+                await Task.Delay(500, cancellationToken);
+
+                partialResults.OnNext(new[] {
+                    new SymbolInformation() {
+                        ContainerName = "Partial Container",
+                        Deprecated = true,
+                        Kind = SymbolKind.Constant,
+                        Location = new Location() { Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(2, 1), new Position(2, 10)) {} },
+                        Name = "Partial name"
+                    }
+                });
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 70
+                });
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 90
+                });
+
+                partialResults.OnCompleted();
+                return new SymbolInformation[] { };
+            }
+
+            try
+            {
+                return new[] {
+                    new SymbolInformation() {
+                        ContainerName = "Container",
+                        Deprecated = true,
+                        Kind = SymbolKind.Constant,
+                        Location = new Location() { Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(1, 1), new Position(1, 10)) {} },
+                        Name = "name"
+                    }
+                };
+            }
+            finally
+            {
+                reporter.OnNext(new WorkDoneProgressReport()
+                {
+                    Cancellable = true,
+                    Percentage = 100
+                });
+            }
+        }
+    }
+
+    class DidChangeWatchedFilesHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DidChangeWatchedFilesHandler
+    {
+        public DidChangeWatchedFilesHandler() : base(new DidChangeWatchedFilesRegistrationOptions() { })
+        {
+        }
+
+        public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
+        {
+            return Unit.Task;
         }
     }
 }

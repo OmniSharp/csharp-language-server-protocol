@@ -1,3 +1,4 @@
-﻿{
-    "resolveProvider": false
+{
+    "resolveProvider": false,
+    "workDoneProgress": false
 }

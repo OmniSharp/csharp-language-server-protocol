@@ -50,7 +50,8 @@ namespace Lsp.Tests
             codeActionHandler.GetRegistrationOptions().Returns(new CodeActionRegistrationOptions() { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                 .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
-                .Returns(async (c) => {
+                .Returns(async (c) =>
+                {
                     await Task.Delay(1000, c.Arg<CancellationToken>());
                     throw new XunitException("Task was not cancelled in time!");
                     return new CommandOrCodeActionContainer();
@@ -62,10 +63,12 @@ namespace Lsp.Tests
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new CodeActionParams() {
+            var @params = new CodeActionParams()
+            {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs")),
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
-                Context = new CodeActionContext() {
+                Context = new CodeActionContext()
+                {
                     Diagnostics = new Container<Diagnostic>()
                 }
             };

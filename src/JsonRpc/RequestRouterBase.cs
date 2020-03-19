@@ -23,12 +23,15 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
 
 
-        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger)
+        public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger)
         {
             _serializer = serializer;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            ServiceProvider = serviceProvider;
         }
+
+        public IServiceProvider ServiceProvider { get; }
 
         public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token)
         {
@@ -92,13 +95,22 @@ namespace OmniSharp.Extensions.JsonRpc
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                     var id = GetId(request.Id);
-                    var cts = new CancellationTokenSource();
+                    if (!_requests.TryGetValue(id, out var cts))
+                    {
+                        cts = new CancellationTokenSource();
+                        _requests.TryAdd(id, cts);
+                    }
                     token.Register(cts.Cancel);
-                    _requests.TryAdd(id, cts);
 
                     // TODO: Try / catch for Internal Error
                     try
                     {
+                        if (cts.IsCancellationRequested)
+                        {
+                            _logger.LogDebug("Request {Id} was cancelled", id);
+                            return new RequestCancelled();
+                        }
+
                         // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
                         // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
                         // https://stackoverflow.com/a/864860
@@ -111,7 +123,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         object @params;
                         try
                         {
-                            _logger.LogDebug("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
+                            _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
                             if (descriptor.IsDelegatingHandler)
                             {
                                 // new DelegatingRequest();
@@ -125,14 +137,12 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                         catch (Exception cannotDeserializeRequestParams)
                         {
-                            _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialise request parameters.");
+                            _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
                             return new InvalidParams(request.Id);
                         }
 
                         var result = HandleRequest(mediator, descriptor, @params ?? EmptyRequest.Instance, cts.Token);
                         await result;
-
-                        _logger.LogDebug("Result was {Type}", result.GetType().FullName);
 
                         object responseValue = null;
                         if (result.GetType().GetTypeInfo().IsGenericType)
@@ -146,7 +156,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             {
                                 responseValue = null;
                             }
-                            _logger.LogDebug("Response value was {Type}", responseValue?.GetType().FullName);
+                            _logger.LogTrace("Response value was {Type}", responseValue?.GetType().FullName);
                         }
 
                         return new JsonRpc.Client.Response(request.Id, responseValue, request);
@@ -178,12 +188,18 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             if (_requests.TryGetValue(GetId(id), out var cts))
             {
+                _logger.LogTrace("Request {Id} was cancelled", id);
                 cts.Cancel();
             }
             else
             {
-                _logger.LogDebug("Request {Id} was not found to cancel", id);
+                _logger.LogDebug("Request {Id} was not found to cancel, stubbing it in.", id);
             }
+        }
+
+        public void StartRequest(object id)
+        {
+            _requests.TryAdd(GetId(id), new CancellationTokenSource());
         }
 
         private string GetId(object id)

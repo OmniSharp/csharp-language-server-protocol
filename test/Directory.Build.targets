@@ -12,6 +12,7 @@
         <PackageReference Include="Serilog.Extensions.Logging" />
         <PackageReference Include="Serilog.Sinks.XUnit" />
         <PackageReference Include="XunitXml.TestLogger" />
+        <PackageReference Include="coverlet.collector" />
         <PackageReference Include="coverlet.msbuild" />
     </ItemGroup>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />

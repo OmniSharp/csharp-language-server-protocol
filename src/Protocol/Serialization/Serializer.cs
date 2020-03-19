@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
@@ -69,6 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new BooleanNumberStringConverter());
             ReplaceConverter(converters, new BooleanStringConverter());
             ReplaceConverter(converters, new BooleanOrConverter());
+            ReplaceConverter(converters, new ProgressTokenConverter());
             ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
             ReplaceConverter(converters, new CommandOrCodeActionConverter());
             ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
@@ -76,6 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
             ReplaceConverter(converters, new ParameterInformationLabelConverter());
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
+            ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             base.AddOrReplaceConverters(converters);
         }
 

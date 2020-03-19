@@ -58,7 +58,8 @@ namespace Lsp.Tests.Matchers
             // Given
             var handlerMatcher = AutoSubstitute.Resolve<ExecuteCommandMatcher>();
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>().With(new Container<string>("Command"));
-            var registrationsOptions = new ExecuteCommandRegistrationOptions() {
+            var registrationsOptions = new ExecuteCommandRegistrationOptions()
+            {
                 Commands = new Container<string>("Command")
             };
 

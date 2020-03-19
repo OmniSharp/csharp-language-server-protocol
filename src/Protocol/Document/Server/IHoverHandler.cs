@@ -10,17 +10,17 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.Hover)]
-    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover>, IRegistration<TextDocumentRegistrationOptions>, ICapability<HoverCapability> { }
+    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover>, IRegistration<HoverRegistrationOptions>, ICapability<HoverCapability> { }
 
     public abstract class HoverHandler : IHoverHandler
     {
-        private readonly TextDocumentRegistrationOptions _options;
-        public HoverHandler(TextDocumentRegistrationOptions registrationOptions)
+        private readonly HoverRegistrationOptions _options;
+        public HoverHandler(HoverRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
         }
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
+        public HoverRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(HoverCapability capability) => Capability = capability;
         protected HoverCapability Capability { get; private set; }
@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public static IDisposable OnHover(
             this ILanguageServerRegistry registry,
             Func<HoverParams, CancellationToken, Task<Hover>> handler,
-            TextDocumentRegistrationOptions registrationOptions = null,
+            HoverRegistrationOptions registrationOptions = null,
             Action<HoverCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentRegistrationOptions();
+            registrationOptions ??= new HoverRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public DelegatingHandler(
                 Func<HoverParams, CancellationToken, Task<Hover>> handler,
                 Action<HoverCapability> setCapability,
-                TextDocumentRegistrationOptions registrationOptions) : base(registrationOptions)
+                HoverRegistrationOptions registrationOptions) : base(registrationOptions)
             {
                 _handler = handler;
                 _setCapability = setCapability;
@@ -56,4 +56,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override void SetCapability(HoverCapability capability) => _setCapability?.Invoke(capability);
 
         }
-    }}
+    }
+}

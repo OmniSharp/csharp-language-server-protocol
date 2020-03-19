@@ -1,12 +1,15 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class DeclarationOptions : StaticTextDocumentRegistrationOptions, IDeclarationOptions
+    public class DeclarationOptions : StaticWorkDoneTextDocumentRegistrationOptions, IDeclarationOptions
     {
         public static DeclarationOptions Of(IDeclarationOptions options)
         {
-            return new DeclarationOptions() { };
+            return new DeclarationOptions()
+            {
+                WorkDoneProgress = options.WorkDoneProgress
+            };
         }
     }
 }

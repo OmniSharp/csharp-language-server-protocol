@@ -1,17 +1,26 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// The parameters of a Workspace Symbol Request.
     /// </summary>
-    public class WorkspaceSymbolParams : IRequest<SymbolInformationContainer>
+    public class WorkspaceSymbolParams : IRequest<Container<SymbolInformation>>, IWorkDoneProgressParams, IPartialItems<SymbolInformation>
     {
         /// <summary>
         /// A non-empty query string
         /// </summary>
         public string Query { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken PartialResultToken { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

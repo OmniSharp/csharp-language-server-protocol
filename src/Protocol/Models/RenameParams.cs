@@ -1,10 +1,11 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class RenameParams : ITextDocumentIdentifierParams, IRequest<WorkspaceEdit>
+    public class RenameParams : ITextDocumentIdentifierParams, IRequest<WorkspaceEdit>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The document to format.
@@ -22,5 +23,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// appropriate message set.
         /// </summary>
         public string NewName { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

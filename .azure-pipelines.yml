@@ -1,80 +1,123 @@
 trigger:
-  branches:
-    include:
-      - master
-      - refs/tags/*
+    batch: true
+    branches:
+        include:
+            - master
+            - refs/tags/*
+    paths:
+        exclude:
+            - '**/*.md'
+            - '.appveyor.yml'
+            - '.codecov.yml'
+            - 'GitVersion.yml'
+            - 'GitReleaseManager.yaml'
+            - .vscode/*
+            - .git*
+            - .editorconfig
+            - .nuke
+            - LICENSE
+
 pr:
-  autoCancel: true
-  branches:
-    include:
-      - master
+    autoCancel: true
+    branches:
+        include:
+            - master
 
 resources:
-  repositories:
-    - repository: rsg
-      type: github
-      name: RocketSurgeonsGuild/AzureDevopsTemplates
-      ref: refs/tags/v0.3.2
-      endpoint: github
+    repositories:
+        - repository: rsg
+          type: github
+          name: RocketSurgeonsGuild/AzureDevopsTemplates
+          ref: refs/tags/v0.12.0
+          endpoint: github
 
 variables:
-  Configuration: Release
-  Verbosity: Normal
-  DotNetVersion: "3.1.101"
-  CakeVersion: "0.32.1"
-  NuGetVersion: "5.4.0"
-  Coverage: "$(Agent.BuildDirectory)/c"
-  VstsCoverage: "$(Coverage)"
-  Artifacts: $(Build.ArtifactStagingDirectory)
-  VstsArtifacts: "$(Artifacts)"
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
+    - name: CONFIGURATION
+      value: Release
+    - name: VERBOSITY
+      value: Normal
+    - name: COVERAGE
+      value: '$(Agent.BuildDirectory)/c'
+    - name: ARTIFACTS
+      value: $(Build.ArtifactStagingDirectory)
+    - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
+      value: 'true'
+    - name: CodeCovToken
+      value: 'd122bf99-4ca6-4a7c-a7ff-90468bcc7703'
+    # Fixes the github package repo warnings on restore
+    - name: EmitAssetsLogMessages
+      value: false
+    - name: HideWarningsAndErrors
+      value: true
 
 jobs:
-  - job: GitVersion
-    pool:
-      vmImage: "windows-latest"
-    steps:
-      - template: gitversion/store.yml@rsg
-        parameters:
-          NuGetVersion: $(NuGetVersion)
+    - template: jobs/gitversion.yml@rsg
 
-# Mac job seems to hang with unit tests currently, needs more testing (also need a mac)
-#   - template: pipeline/cake-job.yml@rsg
-#     parameters:
-#       name: 'macOS'
-#       dependsOn: GitVersion
-#       vmImage: "macOS-10.13"
-#       pushNuget: false
-#       Configuration: $(Configuration)
-#       Verbosity: $(Verbosity)
-#       CakeVersion: $(CakeVersion)
-#       DotNetVersion: $(DotNetVersion)
-#       NuGetVersion: $(NuGetVersion)
-#       Script: build.cake
+    - job: Build
+      strategy:
+          matrix:
+              Windows:
+                  BuildName: 'Windows'
+                  ImageName: 'windows-latest'
+              Linux:
+                  BuildName: 'Linux'
+                  ImageName: 'ubuntu-latest'
+              macOS:
+                  BuildName: 'macOS'
+                  ImageName: 'macOS-latest'
+      pool:
+          vmImage: $(ImageName)
+      steps:
+          - template: support/mono.yml@rsg
+          - template: support/install-dotnet.yml@rsg
+            parameters:
+                DotNetSdk:
+                    - '2.x'
+                    - '3.x'
+          - template: support/gitversion-hack.yml@rsg
 
-# Disabled temporarily as the template does not support multiple runtimes
-#   - template: pipeline/cake-job.yml@rsg
-#     parameters:
-#       name: 'Linux'
-#       dependsOn: GitVersion
-#       vmImage: "ubuntu-latest"
-#       pushNuget: false
-#       Configuration: $(Configuration)
-#       Verbosity: $(Verbosity)
-#       CakeVersion: $(CakeVersion)
-#       DotNetVersion: $(DotNetVersion)
-#       NuGetVersion: $(NuGetVersion)
-#       Script: build.cake
+          - task: DotNetCoreCLI@2
+            displayName: 'dotnet tool restore'
+            inputs:
+                command: custom
+                custom: tool
+                arguments: 'restore'
 
-  - template: pipeline/cake-job.yml@rsg
-    parameters:
-      name: 'Windows'
-      dependsOn: GitVersion
-      vmImage: "windows-latest"
-      pushNuget: true
-      Configuration: $(Configuration)
-      Verbosity: $(Verbosity)
-      CakeVersion: $(CakeVersion)
-      DotNetVersion: $(DotNetVersion)
-      NuGetVersion: $(NuGetVersion)
-      Script: build.cake
+          - task: DotNetCoreCLI@2
+            displayName: 'dotnet restore'
+            inputs:
+                command: restore
+                feedsToUse: config
+                nugetConfigPath: NuGet.config
+                verbosityRestore: Minimal
+
+          - template: ./azure-pipelines.nuke.yml
+            parameters:
+                Artifacts: $(Artifacts)
+                Configuration: $(Configuration)
+                Coverage: $(Coverage)
+
+          - template: support/publish-artifacts.yml@rsg
+            parameters:
+                Artifacts: $(Artifacts)
+                Configuration: $(Configuration)
+                Coverage: $(Coverage)
+                Postfix: ' - $(BuildName)'
+                PublishVSTest: true
+    - ${{ if and(or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), ne(variables['System.PullRequest.IsFork'], 'true')) }}:
+      - job: Publish_NuGet_Packages
+        displayName: "Publish NuGet Packages"
+        pool:
+            vmImage: "windows-latest"
+        dependsOn:
+            - Build
+        steps:
+            - checkout: none
+            - download: current
+              displayName: "Download NuGet Packages"
+              artifact: 'NuGet - Windows'
+            - template: support/nuget-push.yml@rsg
+              parameters:
+                Artifacts: "$(Pipeline.Workspace)"
+                GitHubPackages: false
+                MyGetPackages: true

@@ -16,11 +16,9 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D7807-6F78-428C-A0D9-914BA583A104}"
 	ProjectSection(SolutionItems) = preProject
 		.appveyor.yml = .appveyor.yml
-		.coveralls.yml = .coveralls.yml
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes
 		.gitignore = .gitignore
-		build.cake = build.cake
 		build.ps1 = build.ps1
 		build.sh = build.sh
 		Directory.Build.props = Directory.Build.props
@@ -54,6 +52,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dap.Protocol", "src\Dap.Protocol\Dap.Protocol.csproj", "{F2C9D555-118E-442B-A953-9A7B58A53F33}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dap.Server", "src\Dap.Server\Dap.Server.csproj", "{E1A9123B-A236-4240-8C82-A61BD85C3BF4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = ".build", ".build\.build.csproj", "{28B13787-A442-4D28-BF9A-3D65BF13AAEC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".build", ".build", "{26522B49-0743-4CBE-BA67-6D17FF65CAB9}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -185,6 +187,12 @@ Global
 		{E1A9123B-A236-4240-8C82-A61BD85C3BF4}.Release|x64.Build.0 = Release|Any CPU
 		{E1A9123B-A236-4240-8C82-A61BD85C3BF4}.Release|x86.ActiveCfg = Release|Any CPU
 		{E1A9123B-A236-4240-8C82-A61BD85C3BF4}.Release|x86.Build.0 = Release|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Release|x64.ActiveCfg = Release|Any CPU
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -200,6 +208,7 @@ Global
 		{E540868F-438E-4F7F-BBB7-010D6CB18A57} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{F2C9D555-118E-442B-A953-9A7B58A53F33} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{E1A9123B-A236-4240-8C82-A61BD85C3BF4} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
+		{28B13787-A442-4D28-BF9A-3D65BF13AAEC} = {26522B49-0743-4CBE-BA67-6D17FF65CAB9}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D38DD0EC-D095-4BCD-B8AF-2D788AF3B9AE}

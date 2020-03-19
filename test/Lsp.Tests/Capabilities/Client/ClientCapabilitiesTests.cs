@@ -22,12 +22,14 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ClientCapabilities() {
+            var model = new ClientCapabilities()
+            {
                 Experimental = new Dictionary<string, JToken>()
                 {
                     {  "abc", "test" }
                 },
-                TextDocument = new TextDocumentClientCapabilities() {
+                TextDocument = new TextDocumentClientCapabilities()
+                {
                     CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                     CodeLens = new CodeLensCapability() { DynamicRegistration = true },
                     Definition = new DefinitionCapability() { DynamicRegistration = true, LinkSupport = true },
@@ -39,24 +41,29 @@ namespace Lsp.Tests.Capabilities.Client
                     Hover = new HoverCapability() { DynamicRegistration = true },
                     OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
                     RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
-                    References = new ReferencesCapability() { DynamicRegistration = true },
+                    References = new ReferenceCapability() { DynamicRegistration = true },
                     Rename = new RenameCapability() { DynamicRegistration = true },
                     SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
-                    Completion = new CompletionCapability() {
+                    Completion = new CompletionCapability()
+                    {
                         DynamicRegistration = true,
-                        CompletionItem = new CompletionItemCapability() {
+                        CompletionItem = new CompletionItemCapability()
+                        {
                             SnippetSupport = true
                         }
                     },
-                    Implementation = new ImplementationCapability() {
+                    Implementation = new ImplementationCapability()
+                    {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    TypeDefinition = new TypeDefinitionCapability() {
+                    TypeDefinition = new TypeDefinitionCapability()
+                    {
                         DynamicRegistration = true,
                         LinkSupport = true
                     },
-                    Synchronization = new SynchronizationCapability() {
+                    Synchronization = new SynchronizationCapability()
+                    {
                         DynamicRegistration = true,
                         WillSave = true,
                         DidSave = true,
@@ -66,10 +73,16 @@ namespace Lsp.Tests.Capabilities.Client
                         DynamicRegistration = true,
                         LineFoldingOnly = true,
                         RangeLimit = 5000
+                    },
+                    SelectionRange = new SelectionRangeCapability() {
+                        DynamicRegistration = true,
+                        LineFoldingOnly = true,
+                        RangeLimit = 5000
                     }
-                    
+
                 },
-                Workspace = new WorkspaceClientCapabilities() {
+                Workspace = new WorkspaceClientCapabilities()
+                {
                     ApplyEdit = true,
                     WorkspaceEdit = new WorkspaceEditCapability() { DocumentChanges = true },
                     DidChangeConfiguration = new DidChangeConfigurationCapability() { DynamicRegistration = true },

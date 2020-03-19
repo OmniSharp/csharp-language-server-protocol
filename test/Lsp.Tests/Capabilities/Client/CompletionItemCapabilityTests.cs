@@ -13,7 +13,8 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItemCapability() {
+            var model = new CompletionItemCapability()
+            {
                 SnippetSupport = true
             };
             var result = Fixture.SerializeObject(model);

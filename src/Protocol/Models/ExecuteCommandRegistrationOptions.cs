@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Execute command registration options.
     /// </summary>
-    public class ExecuteCommandRegistrationOptions : IExecuteCommandOptions
+    public class ExecuteCommandRegistrationOptions : WorkDoneTextDocumentRegistrationOptions, IExecuteCommandOptions
     {
         /// <summary>
         /// The commands to be executed on the server

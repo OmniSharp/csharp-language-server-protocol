@@ -7,9 +7,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class MarkedStringCollectionConverter : JsonConverter<MarkedStringContainer>
+    class MarkedStringCollectionConverter : JsonConverter<Container<MarkedString>>
     {
-        public override void WriteJson(JsonWriter writer, MarkedStringContainer value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, Container<MarkedString> value, JsonSerializer serializer)
         {
             var v = value.ToArray();
             if (v.Length == 1)
@@ -21,22 +21,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             serializer.Serialize(writer, v);
         }
 
-        public override MarkedStringContainer ReadJson(JsonReader reader, Type objectType, MarkedStringContainer existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Container<MarkedString> ReadJson(JsonReader reader, Type objectType, Container<MarkedString> existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
-                return new MarkedStringContainer(JArray.Load(reader).ToObject<IEnumerable<MarkedString>>(serializer));
+                return new Container<MarkedString>(JArray.Load(reader).ToObject<IEnumerable<MarkedString>>(serializer));
             }
             else if (reader.TokenType == JsonToken.StartObject)
             {
-                return new MarkedStringContainer(JObject.Load(reader).ToObject<MarkedString>(serializer));
+                return new Container<MarkedString>(JObject.Load(reader).ToObject<MarkedString>(serializer));
             }
             else if (reader.TokenType == JsonToken.String)
             {
-                return new MarkedStringContainer(reader.Value as string);
+                return new Container<MarkedString>(reader.Value as string);
             }
 
-            return new MarkedStringContainer();
+            return new Container<MarkedString>();
         }
 
         public override bool CanRead => true;

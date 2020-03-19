@@ -1,11 +1,3 @@
 {
-    "hoverProvider": false,
-    "definitionProvider": false,
-    "referencesProvider": false,
-    "documentHighlightProvider": false,
-    "documentSymbolProvider": false,
-    "workspaceSymbolProvider": false,
-    "documentFormattingProvider": false,
-    "documentRangeFormattingProvider": false,
     "experimental": {}
 }

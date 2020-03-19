@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             MarkupContent = markupContent;
         }
 
-        public MarkedStringContainer MarkedStrings { get; }
+        public Container<MarkedString> MarkedStrings { get; }
         public bool HasMarkedStrings => MarkupContent == null;
         public MarkupContent MarkupContent { get; }
         public bool HasMarkupContent => MarkedStrings == null;
