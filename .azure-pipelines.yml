@@ -43,7 +43,7 @@ variables:
     - name: DOTNET_SKIP_FIRST_TIME_EXPERIENCE
       value: 'true'
     - name: CodeCovToken
-      value: '61159895-7ba0-464b-b0ab-558625c0830d'
+      value: 'd122bf99-4ca6-4a7c-a7ff-90468bcc7703'
     # Fixes the github package repo warnings on restore
     - name: EmitAssetsLogMessages
       value: false
