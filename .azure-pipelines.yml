@@ -52,7 +52,6 @@ variables:
 
 jobs:
     - template: jobs/gitversion.yml@rsg
-    - template: jobs/gitversion.yml@rsg
 
     - job: Build
       variables:
