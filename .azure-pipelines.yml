@@ -111,8 +111,6 @@ jobs:
           vmImage: "windows-latest"
       dependsOn:
           - Build
-          - ${{ if and(eq(parameters.EnableReleaseNotes, 'true'), eq(parameters.GitHub, 'true')) }}:
-                - GitHub_Draft_Release
       steps:
           - checkout: none
           - download: current
