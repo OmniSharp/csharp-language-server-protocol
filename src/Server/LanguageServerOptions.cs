@@ -5,12 +5,10 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -37,6 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal List<Type> TextDocumentIdentifierTypes { get; set; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
+        internal bool AddDefaultLoggingProvider { get; set; }
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();

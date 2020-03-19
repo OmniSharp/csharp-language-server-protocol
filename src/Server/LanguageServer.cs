@@ -10,14 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
@@ -25,9 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
-using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
@@ -36,7 +32,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
-        private readonly IRequestRouter<ILspHandlerDescriptor> _requestRouter;
         private readonly ServerShutdownHandler _shutdownHandler = new ServerShutdownHandler();
         private readonly ServerExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
@@ -220,7 +215,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _serviceProvider = services.BuildServiceProvider();
             collection.SetServiceProvider(_serviceProvider);
 
-            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
+            var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
@@ -234,7 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Workspace = new LanguageServerWorkspace(_responseRouter);
 
             _disposable.Add(
-                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(_requestRouter), _progressManager)
+                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter), _progressManager)
             );
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();

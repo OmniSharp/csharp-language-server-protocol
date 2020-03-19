@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private bool _initialized;
         private readonly ConcurrentDictionary<ProgressToken, (object observer, CancellationTokenSource cts)> _activeObservers
             = new ConcurrentDictionary<ProgressToken, (object observer, CancellationTokenSource cts)>();
-        private readonly ConcurrentDictionary<ProgressToken, ISubject<JObject>> _activeObservables
-            = new ConcurrentDictionary<ProgressToken, ISubject<JObject>>();
+        private readonly ConcurrentDictionary<ProgressToken, ISubject<JToken>> _activeObservables
+            = new ConcurrentDictionary<ProgressToken, ISubject<JToken>>();
 
         public void Initialized(IResponseRouter router, ISerializer serializer)
         {

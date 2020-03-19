@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new ProgressParams()
             {
                 Token = token,
-                Value = JObject.FromObject(value, jsonSerializer)
+                Value = JToken.FromObject(value, jsonSerializer)
             };
         }
 
@@ -23,6 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The progress data.
         /// </summary>
-        public JObject Value { get; set; }
+        public JToken Value { get; set; }
     }
 }

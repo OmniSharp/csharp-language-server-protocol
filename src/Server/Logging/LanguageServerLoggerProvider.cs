@@ -1,4 +1,3 @@
-using System;
 using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.LanguageServer.Server

@@ -250,7 +250,7 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             // When
-            var result = handlerMatcher.FindHandler(new FoldingRangeParam()
+            var result = handlerMatcher.FindHandler(new FoldingRangeRequestParam()
             {
                 TextDocument = new TextDocumentItem
                 {

@@ -106,7 +106,7 @@ namespace SampleServer
         {
         }
 
-        public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken)
+        public override Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken)
         {
             return Task.FromResult(new Container<FoldingRange>(new FoldingRange()
             {

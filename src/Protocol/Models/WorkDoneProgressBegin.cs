@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// to ignore the setting.
         /// </summary>
         [Optional]
-        public bool Cancellable { get; set; }
+        public bool? Cancellable { get; set; }
 
         /// <summary>
         /// Optional, more detailed associated progress message. Contains
@@ -44,6 +44,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// that are not following this rule.
         /// </summary>
         [Optional]
-        public double Percentage { get; set; }
+        public double? Percentage { get; set; }
     }
 }

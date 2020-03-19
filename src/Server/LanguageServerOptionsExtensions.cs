@@ -109,5 +109,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             options.LoggingBuilderAction = builderAction;
             return options;
         }
+
+        public static LanguageServerOptions AddDefaultLoggingProvider(this LanguageServerOptions options)
+        {
+            options.AddDefaultLoggingProvider = true;
+            return options;
+        }
     }
 }

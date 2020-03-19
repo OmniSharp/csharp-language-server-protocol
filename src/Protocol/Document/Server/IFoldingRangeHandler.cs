@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     [Parallel, Method(DocumentNames.FoldingRange)]
-    public interface IFoldingRangeHandler : IJsonRpcRequestHandler<FoldingRangeParam, Container<FoldingRange>>, IRegistration<FoldingRangeRegistrationOptions>, ICapability<FoldingRangeCapability> { }
+    public interface IFoldingRangeHandler : IJsonRpcRequestHandler<FoldingRangeRequestParam, Container<FoldingRange>>, IRegistration<FoldingRangeRegistrationOptions>, ICapability<FoldingRangeCapability> { }
 
     public abstract class FoldingRangeHandler : IFoldingRangeHandler
     {
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         }
 
         public FoldingRangeRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken);
+        public abstract Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken);
         public virtual void SetCapability(FoldingRangeCapability capability) => Capability = capability;
         protected FoldingRangeCapability Capability { get; private set; }
     }
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static IDisposable OnFoldingRange(
             this ILanguageServerRegistry registry,
-            Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> handler,
+            Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions = null,
             Action<FoldingRangeCapability> setCapability = null)
         {
@@ -42,11 +42,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         class DelegatingHandler : FoldingRangeHandler
         {
-            private readonly Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> _handler;
+            private readonly Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> _handler;
             private readonly Action<FoldingRangeCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<FoldingRangeParam, CancellationToken, Task<Container<FoldingRange>>> handler,
+                Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> handler,
                 ProgressManager progressManager,
                 Action<FoldingRangeCapability> setCapability,
                 FoldingRangeRegistrationOptions registrationOptions) : base(registrationOptions, progressManager)
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 _setCapability = setCapability;
             }
 
-            public override Task<Container<FoldingRange>> Handle(FoldingRangeParam request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+            public override Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
             public override void SetCapability(FoldingRangeCapability capability) => _setCapability?.Invoke(capability);
         }
     }
