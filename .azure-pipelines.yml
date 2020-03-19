@@ -36,11 +36,8 @@ jobs:
       EnableReleaseNotes: false
       Matrix:
         Windows:
-          MATRIX_NAME: "Windows"
-          IMAGE_NAME: "windows-latest"
+          BuildName: "Windows"
+          ImageName: "windows-latest"
         Linux:
-          MATRIX_NAME: "Linux"
-          IMAGE_NAME: "ubuntu-latest"
-        # macOS:
-        #   MATRIX_NAME: "macOS"
-        #   IMAGE_NAME: "macOS-latest"
+          BuildName: "Linux"
+          ImageName: "ubuntu-latest"
