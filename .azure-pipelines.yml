@@ -44,7 +44,6 @@ variables:
       value: 'true'
     - name: CodeCovToken
       value: '61159895-7ba0-464b-b0ab-558625c0830d'
-    - group: rsg-bot
     # Fixes the github package repo warnings on restore
     - name: EmitAssetsLogMessages
       value: false
@@ -53,18 +52,9 @@ variables:
 
 jobs:
     - template: jobs/gitversion.yml@rsg
-    - template: jobs/publish-release.yml@rsg
-      parameters:
-          EnableReleaseNotes: true
-          GitHub: true
-          GitHubPackages: true
-          GitHubAuthVariableGroup: rsg-bot
-          PublishNuGetPackagesFromArtifact: 'NuGet - Windows'
+    - template: jobs/gitversion.yml@rsg
 
     - job: Build
-      dependsOn:
-          - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/tags/v') }}:
-                - GitHub_Draft_Release
       variables:
           - group: rsg-bot
       strategy:
@@ -82,8 +72,6 @@ jobs:
           vmImage: $(ImageName)
       steps:
           - template: support/mono.yml@rsg
-          - ${{ if startsWith(variables['Build.SourceBranch'], 'refs/tags/v') }}:
-                - template: support/download-release-notes.yml@rsg
           - template: support/install-dotnet.yml@rsg
             parameters:
                 DotNetSdk:
