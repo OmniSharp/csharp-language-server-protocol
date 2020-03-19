@@ -269,7 +269,7 @@ namespace JsonRpc.Tests
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
-            var reciever = Substitute.For<IReciever>();
+            var reciever = Substitute.For<IReceiver>();
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
             var requestDescription = Substitute.For<IHandlerDescriptor>();
             requestDescription.Method.Returns("abc");

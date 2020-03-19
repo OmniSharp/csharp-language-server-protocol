@@ -10,9 +10,9 @@ namespace SampleServer
     {
         private FoldingRangeCapability _capability;
 
-        public TextDocumentRegistrationOptions GetRegistrationOptions()
+        public FoldingRangeRegistrationOptions GetRegistrationOptions()
         {
-            return new TextDocumentRegistrationOptions() {
+            return new FoldingRangeRegistrationOptions() {
                 DocumentSelector = DocumentSelector.ForLanguage("csharp")
             };
         }

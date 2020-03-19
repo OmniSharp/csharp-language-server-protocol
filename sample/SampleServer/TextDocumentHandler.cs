@@ -108,28 +108,6 @@ namespace SampleServer
         }
     }
 
-    class FoldingRangeHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.FoldingRangeHandler
-    {
-        public FoldingRangeHandler(ProgressManager progressManager) : base(new FoldingRangeRegistrationOptions()
-        {
-            DocumentSelector = DocumentSelector.ForLanguage("csharp")
-        }, progressManager)
-        {
-        }
-
-        public override Task<Container<FoldingRange>> Handle(FoldingRangeRequestParam request, CancellationToken cancellationToken)
-        {
-            return Task.FromResult(new Container<FoldingRange>(new FoldingRange()
-            {
-                StartLine = 10,
-                EndLine = 20,
-                Kind = FoldingRangeKind.Region,
-                EndCharacter = 0,
-                StartCharacter = 0
-            }));
-        }
-    }
-
     class MyDocumentSymbolHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DocumentSymbolHandler
     {
         public MyDocumentSymbolHandler(ProgressManager progressManager) : base(new DocumentSymbolRegistrationOptions()
@@ -245,18 +223,6 @@ namespace SampleServer
                     Percentage = 100
                 });
             }
-        }
-    }
-
-    class DidChangeWatchedFilesHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DidChangeWatchedFilesHandler
-    {
-        public DidChangeWatchedFilesHandler() : base(new DidChangeWatchedFilesRegistrationOptions() { })
-        {
-        }
-
-        public override Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
-        {
-            return Unit.Task;
         }
     }
 }

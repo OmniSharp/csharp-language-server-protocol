@@ -11,9 +11,9 @@ namespace SampleServer
     {
         private DidChangeWatchedFilesCapability _capability;
 
-        public object GetRegistrationOptions()
+        public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions()
         {
-            return new object();
+            return new DidChangeWatchedFilesRegistrationOptions();
         }
 
         public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
