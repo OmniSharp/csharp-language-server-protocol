@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public bool Supported { get; set; }
+
         /// <summary>
         /// Whether the server wants to receive workspace folder
         /// change notifications.

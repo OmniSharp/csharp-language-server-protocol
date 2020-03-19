@@ -1,10 +1,11 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>
+    public class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The document to format.
@@ -15,5 +16,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The format options.
         /// </summary>
         public FormattingOptions Options { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

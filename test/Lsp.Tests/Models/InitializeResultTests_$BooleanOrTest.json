@@ -1,23 +1,18 @@
 {
     "capabilities": {
-        "hoverProvider": false,
-        "definitionProvider": false,
-        "referencesProvider": false,
-        "documentHighlightProvider": false,
-        "documentSymbolProvider": false,
-        "workspaceSymbolProvider": false,
         "codeActionProvider": {
             "codeActionKinds": [
                 "quickfix"
-            ]
+            ],
+            "workDoneProgress": false
         },
-        "documentFormattingProvider": false,
-        "documentRangeFormattingProvider": false,
         "renameProvider": {
-            "prepareProvider": true
+            "prepareProvider": true,
+            "workDoneProgress": false
         },
         "experimental": {},
         "typeDefinitionProvider": {
+            "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [
                 {
@@ -26,6 +21,7 @@
             ]
         },
         "implementationProvider": {
+            "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [
                 {
@@ -34,6 +30,8 @@
             ]
         },
         "colorProvider": {
+            "resolveProvider": false,
+            "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [
                 {
@@ -42,6 +40,7 @@
             ]
         },
         "foldingRangeProvider": {
+            "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [
                 {
@@ -50,6 +49,7 @@
             ]
         },
         "declarationProvider": {
+            "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [
                 {

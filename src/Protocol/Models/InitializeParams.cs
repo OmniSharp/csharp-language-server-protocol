@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class InitializeParams : IRequest<InitializeResult>
+    public class InitializeParams : IWorkDoneProgressParams, IRequest<InitializeResult>
     {
         /// <summary>
         /// The process Id of the parent process that started
@@ -16,6 +16,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If the parent process is not alive then the server should exit (see exit notification) its process.
         /// </summary>
         public long? ProcessId { get; set; }
+
+        /// <summary>
+        /// Information about the client
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public ClientInfo ClientInfo { get; set; }
 
         /// <summary>
         /// The rootPath of the workspace. Is null
@@ -63,5 +71,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Since 3.6.0
         /// <summary/>
         public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public ProgressToken WorkDoneToken { get; set; }
     }
 }

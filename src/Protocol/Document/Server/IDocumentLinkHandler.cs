@@ -18,6 +18,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     public abstract class DocumentLinkHandler : IDocumentLinkHandler, IDocumentLinkResolveHandler
     {
         private readonly DocumentLinkRegistrationOptions _options;
+        protected ProgressManager ProgressManager { get; }
+        public DocumentLinkHandler(DocumentLinkRegistrationOptions registrationOptions, ProgressManager progressManager)
+        {
+            _options = registrationOptions;
+            ProgressManager = progressManager;
+        }
 
         public DocumentLinkHandler(DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -42,9 +48,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             DocumentLinkRegistrationOptions registrationOptions = null,
             Action<DocumentLinkCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new DocumentLinkRegistrationOptions();
+            registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, canResolve, setCapability, registrationOptions));
+            return registry.AddHandlers(new DelegatingHandler(handler, resolveHandler, registry.ProgressManager, canResolve, setCapability, registrationOptions));
         }
 
         class DelegatingHandler : DocumentLinkHandler
@@ -57,6 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public DelegatingHandler(
                 Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer>> handler,
                 Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
+                ProgressManager progressManager,
                 Func<DocumentLink, bool> canResolve,
                 Action<DocumentLinkCapability> setCapability,
                 DocumentLinkRegistrationOptions registrationOptions) : base(registrationOptions)
@@ -71,7 +78,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken) => _resolveHandler.Invoke(request, cancellationToken);
             public override bool CanResolve(DocumentLink value) => _canResolve.Invoke(value);
             public override void SetCapability(DocumentLinkCapability capability) => _setCapability?.Invoke(capability);
-
         }
     }
 }

@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             TextDocumentChangeRegistrationOptions registrationOptions = null,
             Action<SynchronizationCapability> setCapability = null)
         {
-            registrationOptions = registrationOptions ?? new TextDocumentChangeRegistrationOptions();
+            registrationOptions ??= new TextDocumentChangeRegistrationOptions();
             return registry.AddHandlers(new DelegatingHandler(handler, setCapability, registrationOptions));
         }
 

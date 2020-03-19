@@ -14,15 +14,12 @@ resources:
     - repository: rsg
       type: github
       name: RocketSurgeonsGuild/AzureDevopsTemplates
-      ref: refs/tags/v0.3.2
+#      ref: refs/tags/v0.12.0
       endpoint: github
 
 variables:
   Configuration: Release
   Verbosity: Normal
-  DotNetVersion: "3.1.101"
-  CakeVersion: "0.32.1"
-  NuGetVersion: "5.4.0"
   Coverage: "$(Agent.BuildDirectory)/c"
   VstsCoverage: "$(Coverage)"
   Artifacts: $(Build.ArtifactStagingDirectory)
@@ -30,51 +27,19 @@ variables:
   DOTNET_SKIP_FIRST_TIME_EXPERIENCE: "true"
 
 jobs:
-  - job: GitVersion
-    pool:
-      vmImage: "windows-latest"
-    steps:
-      - template: gitversion/store.yml@rsg
-        parameters:
-          NuGetVersion: $(NuGetVersion)
-
-# Mac job seems to hang with unit tests currently, needs more testing (also need a mac)
-#   - template: pipeline/cake-job.yml@rsg
-#     parameters:
-#       name: 'macOS'
-#       dependsOn: GitVersion
-#       vmImage: "macOS-10.13"
-#       pushNuget: false
-#       Configuration: $(Configuration)
-#       Verbosity: $(Verbosity)
-#       CakeVersion: $(CakeVersion)
-#       DotNetVersion: $(DotNetVersion)
-#       NuGetVersion: $(NuGetVersion)
-#       Script: build.cake
-
-# Disabled temporarily as the template does not support multiple runtimes
-#   - template: pipeline/cake-job.yml@rsg
-#     parameters:
-#       name: 'Linux'
-#       dependsOn: GitVersion
-#       vmImage: "ubuntu-latest"
-#       pushNuget: false
-#       Configuration: $(Configuration)
-#       Verbosity: $(Verbosity)
-#       CakeVersion: $(CakeVersion)
-#       DotNetVersion: $(DotNetVersion)
-#       NuGetVersion: $(NuGetVersion)
-#       Script: build.cake
-
-  - template: pipeline/cake-job.yml@rsg
+  - template: pipeline/cake.yml@rsg
     parameters:
-      name: 'Windows'
       dependsOn: GitVersion
-      vmImage: "windows-latest"
-      pushNuget: true
       Configuration: $(Configuration)
       Verbosity: $(Verbosity)
-      CakeVersion: $(CakeVersion)
-      DotNetVersion: $(DotNetVersion)
-      NuGetVersion: $(NuGetVersion)
       Script: build.cake
+      EnableReleaseNotes: false
+      Matrix:
+        Windows:
+          BuildName: "Windows"
+          ImageName: "windows-latest"
+          ScriptName: build.ps1
+        Linux:
+          BuildName: "Linux"
+          ImageName: "ubuntu-latest"
+          ScriptName: build.sh

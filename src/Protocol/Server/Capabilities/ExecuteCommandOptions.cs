@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
     /// <summary>
     ///  Execute command options.
     /// </summary>
-    public class ExecuteCommandOptions : IExecuteCommandOptions
+    public class ExecuteCommandOptions : WorkDoneProgressOptions, IExecuteCommandOptions
     {
         /// <summary>
         ///  The commands to be executed on the server
@@ -18,7 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 
         public static ExecuteCommandOptions Of(IEnumerable<IExecuteCommandOptions> options)
         {
-            return new ExecuteCommandOptions() { Commands = options.SelectMany(x => x.Commands).ToArray() };
+            return new ExecuteCommandOptions() {
+                Commands = options.SelectMany(x => x.Commands).ToArray(),
+                WorkDoneProgress = options.Any(x => x.WorkDoneProgress)
+            };
         }
     }
 }

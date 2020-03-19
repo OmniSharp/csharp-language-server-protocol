@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         {
                             ms.Write(headerBytes, 0, headerBytes.Length);
                             ms.Write(contentBytes, 0, contentBytes.Length);
-                            if(!token.IsCancellationRequested)
+                            if (!token.IsCancellationRequested)
                             {
                                 _output.Write(ms.ToArray(), 0, (int)ms.Position);
                             }

@@ -5,6 +5,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Serial, Method(WindowNames.LogMessage)]
+    [Parallel, Method(WindowNames.LogMessage)]
     public interface ILogMessageHandler : IJsonRpcNotificationHandler<LogMessageParams> { }
 }

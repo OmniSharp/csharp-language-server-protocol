@@ -69,6 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new BooleanNumberStringConverter());
             ReplaceConverter(converters, new BooleanStringConverter());
             ReplaceConverter(converters, new BooleanOrConverter());
+            ReplaceConverter(converters, new ProgressTokenConverter());
             ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
             ReplaceConverter(converters, new CommandOrCodeActionConverter());
             ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());

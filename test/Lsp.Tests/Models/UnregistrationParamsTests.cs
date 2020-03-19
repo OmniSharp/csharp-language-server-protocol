@@ -14,8 +14,10 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new UnregistrationParams() {
-                Unregisterations = new UnregistrationContainer(new Unregistration() {
+            var model = new UnregistrationParams()
+            {
+                Unregisterations = new UnregistrationContainer(new Unregistration()
+                {
                     Id = "abc",
                     Method = "ads"
                 })

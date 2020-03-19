@@ -36,10 +36,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 		/// </summary>
         [Optional]
         public bool DeprecatedSupport { get; set; }
+
         /// <summary>
 		/// Client supports the preselect property on a completion item.
 		/// </summary>
         [Optional]
         public bool PreselectSupport { get; set; }
+
+
+        /// <summary>
+        /// Client supports the tag property on a completion item. Clients supporting
+        /// tags have to handle unknown tags gracefully. Clients especially need to
+        /// preserve unknown tags when sending a completion item back to the server in
+        /// a resolve call.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public CompletionItemTagSupportCapability TagSupport { get; set; }
     }
 }

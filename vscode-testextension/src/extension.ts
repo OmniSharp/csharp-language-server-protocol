@@ -34,14 +34,14 @@ export function activate(context: ExtensionContext) {
         run: {
             command: serverExe,
             args: [
-                "C:/src/gh/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
+                "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
             ]
         },
         // debug: { command: serverExe, args: ['-lsp', '-d'] }
         debug: {
             command: serverExe,
             args: [
-                "C:/src/gh/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
+                "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
             ]
         }
     };
@@ -60,6 +60,7 @@ export function activate(context: ExtensionContext) {
                 pattern: "**/*.cake"
             }
         ],
+        progressOnInitialization: true,
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: "languageServerExample",
@@ -74,8 +75,8 @@ export function activate(context: ExtensionContext) {
         serverOptions,
         clientOptions
     );
+    client.registerProposedFeatures();
     client.trace = Trace.Verbose;
-    client.clientOptions.errorHandler;
     let disposable = client.start();
 
     // Push the disposable to the context's subscriptions so that the

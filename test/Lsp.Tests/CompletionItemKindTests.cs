@@ -18,7 +18,8 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialKinds()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem()
+            {
                 Kind = CompletionItemKind.Event
             });
 
@@ -30,18 +31,23 @@ namespace Lsp.Tests
         public void CustomBehavior_When_Defined_By_Client()
         {
             var serializer = new Serializer();
-            serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities() {
-                TextDocument = new TextDocumentClientCapabilities {
-                    Completion = new Supports<CompletionCapability>(true, new CompletionCapability() {
+            serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities()
+            {
+                TextDocument = new TextDocumentClientCapabilities
+                {
+                    Completion = new Supports<CompletionCapability>(true, new CompletionCapability()
+                    {
                         DynamicRegistration = true,
-                        CompletionItemKind = new CompletionItemKindCapability() {
+                        CompletionItemKind = new CompletionItemKindCapability()
+                        {
                             ValueSet = new Container<CompletionItemKind>(CompletionItemKind.Class)
                         }
                     })
                 }
             });
 
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem()
+            {
                 Kind = CompletionItemKind.Event
             });
 

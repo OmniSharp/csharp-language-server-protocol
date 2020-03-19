@@ -22,6 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// selecting this color presentation. Edits must not overlap with the main [edit](#ColorPresentation.textEdit) nor with themselves.
         /// </summary>
         [Optional]
-        public Container<TextEdit> AdditionalTextEdits { get; set; }
+        public TextEditContainer AdditionalTextEdits { get; set; }
     }
 }

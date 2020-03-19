@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         : IDisposable
     {
         /// <summary>
-        ///     The serialiser for notification / request / response bodies.
+        ///     The serializer for notification / request / response bodies.
         /// </summary>
         /// <remarks>
         ///     TODO: Make this injectable. And what does client version do - do we have to negotiate this?

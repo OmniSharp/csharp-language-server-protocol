@@ -8,6 +8,7 @@
         "source",
         "source.organizeImports"
     ],
+    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp",

@@ -17,7 +17,7 @@ namespace Lsp.Tests
                 .ComparingByMembers<Supports<CompletionCapability>>()
                 .ComparingByMembers<Supports<HoverCapability>>()
                 .ComparingByMembers<Supports<SignatureHelpCapability>>()
-                .ComparingByMembers<Supports<ReferencesCapability>>()
+                .ComparingByMembers<Supports<ReferenceCapability>>()
                 .ComparingByMembers<Supports<DeclarationCapability>>()
                 .ComparingByMembers<Supports<DocumentHighlightCapability>>()
                 .ComparingByMembers<Supports<DocumentSymbolCapability>>()
@@ -38,7 +38,8 @@ namespace Lsp.Tests
                 .ComparingByMembers<Supports<DidChangeWatchedFilesCapability>>()
                 .ComparingByMembers<Supports<WorkspaceSymbolCapability>>()
                 .ComparingByMembers<Supports<ExecuteCommandCapability>>()
-                .ComparingByMembers<Supports<FoldingRangeCapability>>();
+                .ComparingByMembers<Supports<FoldingRangeCapability>>()
+                .ComparingByMembers<Supports<SelectionRangeCapability>>();
         }
     }
 }

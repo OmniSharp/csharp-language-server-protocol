@@ -4,6 +4,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -78,6 +79,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
+        public static LanguageServerOptions WithServerInfo(this LanguageServerOptions options, ServerInfo serverInfo)
+        {
+            options.ServerInfo = serverInfo;
+            return options;
+        }
+
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
         {
             options.InitializeDelegates.Add(@delegate);
@@ -100,6 +107,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions ConfigureLogging(this LanguageServerOptions options, Action<ILoggingBuilder> builderAction)
         {
             options.LoggingBuilderAction = builderAction;
+            return options;
+        }
+
+        public static LanguageServerOptions AddDefaultLoggingProvider(this LanguageServerOptions options)
+        {
+            options.AddDefaultLoggingProvider = true;
             return options;
         }
     }

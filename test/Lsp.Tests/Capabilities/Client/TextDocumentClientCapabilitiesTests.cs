@@ -19,7 +19,8 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentClientCapabilities() {
+            var model = new TextDocumentClientCapabilities()
+            {
                 CodeAction = new CodeActionCapability() { DynamicRegistration = true },
                 CodeLens = new CodeLensCapability() { DynamicRegistration = true },
                 Definition = new DefinitionCapability() { DynamicRegistration = true },
@@ -30,16 +31,19 @@ namespace Lsp.Tests.Capabilities.Client
                 Hover = new HoverCapability() { DynamicRegistration = true },
                 OnTypeFormatting = new DocumentOnTypeFormattingCapability() { DynamicRegistration = true },
                 RangeFormatting = new DocumentRangeFormattingCapability() { DynamicRegistration = true },
-                References = new ReferencesCapability() { DynamicRegistration = true },
+                References = new ReferenceCapability() { DynamicRegistration = true },
                 Rename = new RenameCapability() { DynamicRegistration = true },
                 SignatureHelp = new SignatureHelpCapability() { DynamicRegistration = true },
-                Completion = new CompletionCapability() {
+                Completion = new CompletionCapability()
+                {
                     DynamicRegistration = true,
-                    CompletionItem = new CompletionItemCapability() {
+                    CompletionItem = new CompletionItemCapability()
+                    {
                         SnippetSupport = true
                     }
                 },
-                Synchronization = new SynchronizationCapability() {
+                Synchronization = new SynchronizationCapability()
+                {
                     DynamicRegistration = true,
                     WillSave = true,
                     DidSave = true,

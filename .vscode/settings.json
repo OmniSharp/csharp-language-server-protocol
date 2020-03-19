@@ -1,4 +1,11 @@
 {
     "coverage-gutters.lcovname": "*.info",
-    "coverage-gutters.showGutterCoverage": true
+    "coverage-gutters.showGutterCoverage": true,
+    "cSpell.words": [
+        "Unregisterations",
+        "Unregistration",
+        "Unregistrations",
+        "deresult",
+        "reciever"
+    ]
 }

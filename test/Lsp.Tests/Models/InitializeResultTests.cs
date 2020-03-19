@@ -94,7 +94,7 @@ namespace Lsp.Tests.Models
                             CodeActionKind.QuickFix
                         }
                     },
-                    ColorProvider = new ColorOptions
+                    ColorProvider = new DocumentColorOptions
                     {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"

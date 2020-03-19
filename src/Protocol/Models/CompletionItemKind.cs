@@ -1,10 +1,12 @@
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// The kind of a completion entry.
     /// </summary>
+    [JsonConverter(typeof(NumberEnumConverter))]
     public enum CompletionItemKind
     {
         Text = 1,

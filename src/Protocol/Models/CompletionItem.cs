@@ -23,6 +23,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public CompletionItemKind Kind { get; set; }
 
         /// <summary>
+        /// Tags for this completion item.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        public Container<CompletionItemTag> Tags { get; set; }
+
+        /// <summary>
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>

@@ -13,7 +13,8 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SynchronizationCapability() {
+            var model = new SynchronizationCapability()
+            {
                 WillSave = false,
                 WillSaveWaitUntil = false,
                 DidSave = false,

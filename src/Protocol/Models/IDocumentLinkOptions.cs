@@ -1,6 +1,6 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public interface IDocumentLinkOptions
+    public interface IDocumentLinkOptions : IWorkDoneProgressOptions
     {
         bool ResolveProvider { get; set; }
     }

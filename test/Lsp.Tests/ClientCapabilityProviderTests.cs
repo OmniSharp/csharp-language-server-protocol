@@ -29,7 +29,7 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
@@ -50,7 +50,7 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
@@ -99,7 +99,7 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeTrue();
         }
@@ -121,7 +121,7 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, handler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
 
             HasHandler(provider, instance).Should().BeFalse();
         }
@@ -148,7 +148,7 @@ namespace Lsp.Tests
             var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities()
             {
                 TextDocument = new TextDocumentClientCapabilities()
@@ -175,7 +175,7 @@ namespace Lsp.Tests
             var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities()
             {
                 TextDocument = new TextDocumentClientCapabilities()
@@ -202,7 +202,7 @@ namespace Lsp.Tests
             var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
 
             var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler, didSaveTextDocumentHandler };
-            var provider = new ClientCapabilityProvider(collection);
+            var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities()
             {
                 TextDocument = new TextDocumentClientCapabilities()

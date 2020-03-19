@@ -16,13 +16,15 @@
                 "a",
                 "b",
                 "c"
-            ]
+            ],
+            "workDoneProgress": false
         },
         "signatureHelpProvider": {
             "triggerCharacters": [
                 ";",
                 " "
-            ]
+            ],
+            "workDoneProgress": false
         },
         "definitionProvider": true,
         "referencesProvider": true,
@@ -31,7 +33,8 @@
         "workspaceSymbolProvider": true,
         "codeActionProvider": true,
         "codeLensProvider": {
-            "resolveProvider": true
+            "resolveProvider": true,
+            "workDoneProgress": false
         },
         "documentFormattingProvider": true,
         "documentRangeFormattingProvider": true,
@@ -44,13 +47,15 @@
         },
         "renameProvider": true,
         "documentLinkProvider": {
-            "resolveProvider": true
+            "resolveProvider": true,
+            "workDoneProgress": false
         },
         "executeCommandProvider": {
             "commands": [
                 "command1",
                 "command2"
-            ]
+            ],
+            "workDoneProgress": false
         },
         "experimental": {
             "abc": "123"

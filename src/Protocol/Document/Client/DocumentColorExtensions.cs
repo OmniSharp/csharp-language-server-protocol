@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentColorExtensions
     {
-        public static Task<Container<ColorInformation>> DocumentColor(this ILanguageClientDocument mediator, DocumentColorParams @params)
+        public static Task<Container<ColorPresentation>> DocumentColor(this ILanguageClientDocument mediator, DocumentColorParams @params)
         {
-            return mediator.SendRequest<DocumentColorParams, Container<ColorInformation>>(DocumentNames.DocumentColor, @params);
+            return mediator.SendRequest<DocumentColorParams, Container<ColorPresentation>>(DocumentNames.DocumentColor, @params);
         }
     }
 }

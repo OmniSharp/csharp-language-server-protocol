@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual color value for this color range.
         /// </summary>
-        public Color Color { get; set; }
+        public DocumentColor Color { get; set; }
     }
 }

@@ -1,9 +1,10 @@
-﻿{
+{
     "firstTriggerCharacter": "1",
     "moreTriggerCharacter": [
         "1",
         "2"
     ],
+    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp"

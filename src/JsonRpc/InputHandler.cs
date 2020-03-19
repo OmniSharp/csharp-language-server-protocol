@@ -187,6 +187,10 @@ namespace OmniSharp.Extensions.JsonRpc
                             try
                             {
                                 var result = await _requestRouter.RouteRequest(descriptor, item.Request, CancellationToken.None);
+                                if (result.IsError && result.Error is RequestCancelled)
+                                {
+                                    return;
+                                }
                                 _outputHandler.Send(result.Value);
                             }
                             catch (Exception e)

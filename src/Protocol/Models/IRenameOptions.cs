@@ -2,7 +2,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public interface IRenameOptions
+    public interface IRenameOptions : IWorkDoneProgressOptions
     {
         /// <summary>
         /// Renames should be checked and tested before being executed.

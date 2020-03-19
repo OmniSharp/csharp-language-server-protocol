@@ -8,12 +8,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     class LanguageServerLogger : ILogger
     {
         private readonly ILanguageServer _responseRouter;
+        private readonly string _categoryName;
         private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(ILanguageServer responseRouter, Func<LogLevel> logLevelGetter)
+        public LanguageServerLogger(ILanguageServer responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
         {
             _logLevelGetter = logLevelGetter;
             _responseRouter = responseRouter;
+            _categoryName = categoryName;
         }
 
         public IDisposable BeginScope<TState>(TState state)
@@ -33,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _responseRouter.Window.Log(new LogMessageParams()
                 {
                     Type = messageType,
-                    Message = formatter(state, exception) + (exception != null ? " - " + exception.ToString() : "")
+                    Message = _categoryName + ": " + formatter(state, exception) + (exception != null ? " - " + exception.ToString() : "")
                 });
             }
         }

@@ -12,5 +12,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool RelatedInformation { get; set; }
+
+        /// <summary>
+        /// Client supports the tag property to provide meta data about a diagnostic.
+        /// Clients supporting tags have to handle unknown tags gracefully.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public PublishDiagnosticsTagSupportCapability TagSupport { get; set; }
     }
 }

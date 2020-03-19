@@ -37,6 +37,8 @@ namespace Lsp.Tests
 
         public OmniSharp.Extensions.JsonRpc.ISerializer Serializer => new Serializer();
 
+        public ProgressManager ProgressManager { get; } = new ProgressManager();
+
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             throw new NotImplementedException();
@@ -97,7 +99,7 @@ namespace Lsp.Tests
         [Fact]
         public async Task ShouldRouteToCorrect_Notification_WithManyHandlers()
         {
-            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"),"csharp");
+            var textDocumentSyncHandler = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentSyncHandler2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>())

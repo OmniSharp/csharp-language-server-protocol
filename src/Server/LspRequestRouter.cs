@@ -1,20 +1,14 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Server.Messages;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -29,7 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ILoggerFactory loggerFactory,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
-            IServiceScopeFactory serviceScopeFactory) : base(serializer, serviceScopeFactory, loggerFactory.CreateLogger<LspRequestRouter>())
+            IServiceProvider serviceProvider,
+            IServiceScopeFactory serviceScopeFactory) : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<LspRequestRouter>())
         {
             _collection = collection;
             _handlerMatchers = handlerMatchers;

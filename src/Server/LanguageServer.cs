@@ -10,14 +10,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
@@ -25,9 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
-using System.Reactive;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
@@ -36,10 +32,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
-        private readonly IRequestRouter<ILspHandlerDescriptor> _requestRouter;
         private readonly ServerShutdownHandler _shutdownHandler = new ServerShutdownHandler();
         private readonly ServerExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
+        private readonly ServerInfo _serverInfo;
+        private readonly ProgressManager _progressManager;
         private readonly ILspReciever _reciever;
         private readonly ISerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
@@ -113,7 +110,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.InitializeDelegates,
                 options.InitializedDelegates,
                 options.StartedDelegates,
-                options.LoggingBuilderAction
+                options.LoggingBuilderAction,
+                options.AddDefaultLoggingProvider,
+                options.ProgressManager,
+                options.ServerInfo
             );
         }
 
@@ -134,13 +134,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
             IEnumerable<StartedDelegate> startedDelegates,
-            Action<ILoggingBuilder> loggingBuilderAction)
+            Action<ILoggingBuilder> loggingBuilderAction,
+            bool addDefaultLoggingProvider,
+            ProgressManager progressManager,
+            ServerInfo serverInfo)
         {
             var outputHandler = new OutputHandler(output, serializer);
 
             services.AddLogging(builder => loggingBuilderAction(builder));
             services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
+            _serverInfo = serverInfo;
+            _progressManager = progressManager;
             _reciever = reciever;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
@@ -206,14 +211,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
             }
 
+            services.AddSingleton(_progressManager);
             _serviceProvider = services.BuildServiceProvider();
             collection.SetServiceProvider(_serviceProvider);
 
-            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
+            var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
+            _progressManager.Initialized(_responseRouter, _serializer);
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             Document = new LanguageServerDocument(_responseRouter);
@@ -222,7 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Workspace = new LanguageServerWorkspace(_responseRouter);
 
             _disposable.Add(
-                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(_requestRouter))
+                AddHandlers(this, _shutdownHandler, _exitHandler, new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter), _progressManager)
             );
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
@@ -244,6 +251,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public ILanguageServerClient Client { get; }
         public ILanguageServerWindow Window { get; }
         public ILanguageServerWorkspace Workspace { get; }
+        public ProgressManager ProgressManager => _progressManager;
 
         public InitializeParams ClientSettings { get; private set; }
         public InitializeResult ServerSettings { get; private set; }
@@ -423,34 +431,45 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
-            var textDocumentCapabilities = ClientSettings.Capabilities?.TextDocument ?? new TextDocumentClientCapabilities();
-            var workspaceCapabilities = ClientSettings.Capabilities?.Workspace ?? new WorkspaceClientCapabilities();
+            ClientSettings.Capabilities ??= new ClientCapabilities();
+            var textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
+            var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
+            var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
 
-            var ccp = new ClientCapabilityProvider(_collection);
+            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
+
+            foreach (var item in _collection)
+            {
+                if (item.RegistrationOptions is IWorkDoneProgressOptions options)
+                {
+                    options.WorkDoneProgress = windowCapabilities.WorkDoneProgress;
+                }
+            }
 
             var serverCapabilities = new ServerCapabilities()
             {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction).Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
                 CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens).Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
                 CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion).Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
-                DefinitionProvider = ccp.HasStaticHandler(textDocumentCapabilities.Definition),
-                DocumentFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.Formatting),
-                DocumentHighlightProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentHighlight),
+                DefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Definition).Get<IDefinitionOptions, DefinitionOptions>(DefinitionOptions.Of),
+                DocumentFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.Formatting).Get<IDocumentFormattingOptions, DocumentFormattingOptions>(DocumentFormattingOptions.Of),
+                DocumentHighlightProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentHighlight).Get<IDocumentHighlightOptions, DocumentHighlightOptions>(DocumentHighlightOptions.Of),
                 DocumentLinkProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentLink).Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
                 DocumentOnTypeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.OnTypeFormatting).Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
-                DocumentRangeFormattingProvider = ccp.HasStaticHandler(textDocumentCapabilities.RangeFormatting),
-                DocumentSymbolProvider = ccp.HasStaticHandler(textDocumentCapabilities.DocumentSymbol),
+                DocumentRangeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.RangeFormatting).Get<IDocumentRangeFormattingOptions, DocumentRangeFormattingOptions>(DocumentRangeFormattingOptions.Of),
+                DocumentSymbolProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentSymbol).Get<IDocumentSymbolOptions, DocumentSymbolOptions>(DocumentSymbolOptions.Of),
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand).Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
                 TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization).Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of),
-                HoverProvider = ccp.HasStaticHandler(textDocumentCapabilities.Hover),
-                ReferencesProvider = ccp.HasStaticHandler(textDocumentCapabilities.References),
+                HoverProvider = ccp.GetStaticOptions(textDocumentCapabilities.Hover).Get<IHoverOptions, HoverOptions>(HoverOptions.Of),
+                ReferencesProvider = ccp.GetStaticOptions(textDocumentCapabilities.References).Get<IReferencesOptions, ReferencesOptions>(ReferencesOptions.Of),
                 RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename).Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
                 SignatureHelpProvider = ccp.GetStaticOptions(textDocumentCapabilities.SignatureHelp).Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = ccp.HasStaticHandler(workspaceCapabilities.Symbol),
+                WorkspaceSymbolProvider = ccp.GetStaticOptions(workspaceCapabilities.Symbol).Get<IWorkspaceSymbolOptions, WorkspaceSymbolOptions>(WorkspaceSymbolOptions.Of),
                 ImplementationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Implementation).Get<IImplementationOptions, ImplementationOptions>(ImplementationOptions.Of),
                 TypeDefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.TypeDefinition).Get<ITypeDefinitionOptions, TypeDefinitionOptions>(TypeDefinitionOptions.Of),
-                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IColorOptions, ColorOptions>(ColorOptions.Of),
+                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider).Get<IDocumentColorOptions, DocumentColorOptions>(DocumentColorOptions.Of),
                 FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<IFoldingRangeOptions, FoldingRangeOptions>(FoldingRangeOptions.Of),
+                SelectionRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange).Get<ISelectionRangeOptions, SelectionRangeOptions>(SelectionRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration).Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
             };
 
@@ -506,8 +525,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // serverCapabilities.Experimental;
 
             _reciever.Initialized();
-
-            var result = ServerSettings = new InitializeResult() { Capabilities = serverCapabilities };
+            var result = ServerSettings = new InitializeResult()
+            {
+                Capabilities = serverCapabilities,
+                ServerInfo = _serverInfo ?? new ServerInfo()
+                {
+                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ??
+                        Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+                }
+            };
 
             await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result)));
 
@@ -550,6 +577,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var @params = new RegistrationParams() { Registrations = registrations };
 
             await _initializeComplete;
+
+            foreach (var item in registrations)
+            {
+                if (item.RegisterOptions is IWorkDoneProgressOptions options)
+                {
+                    options.WorkDoneProgress = ClientSettings.Capabilities.Window.WorkDoneProgress;
+                }
+            }
+
             await Client.RegisterCapability(@params);
         }
 

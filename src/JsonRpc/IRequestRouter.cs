@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IRequestRouter
     {
+        IServiceProvider ServiceProvider { get; }
         Task RouteNotification(Notification notification, CancellationToken token);
         Task<ErrorResponse> RouteRequest(Request request, CancellationToken token);
         void CancelRequest(object id);
