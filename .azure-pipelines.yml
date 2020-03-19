@@ -104,20 +104,20 @@ jobs:
                 Coverage: $(Coverage)
                 Postfix: ' - $(BuildName)'
                 PublishVSTest: true
-
-    - job: Publish_NuGet_Packages
-      displayName: "Publish NuGet Packages"
-      pool:
-          vmImage: "windows-latest"
-      dependsOn:
-          - Build
-      steps:
-          - checkout: none
-          - download: current
-            displayName: "Download NuGet Packages"
-            artifact: 'NuGet - Windows'
-          - template: support/nuget-push.yml@rsg
-            parameters:
+    - ${{ if and(or(startsWith(variables['Build.SourceBranch'], 'refs/tags/v'), eq(variables['Build.SourceBranch'], 'refs/heads/master')), ne(variables['System.PullRequest.IsFork'], 'true')) }}:
+      - job: Publish_NuGet_Packages
+        displayName: "Publish NuGet Packages"
+        pool:
+            vmImage: "windows-latest"
+        dependsOn:
+            - Build
+        steps:
+            - checkout: none
+            - download: current
+              displayName: "Download NuGet Packages"
+              artifact: 'NuGet - Windows'
+            - template: support/nuget-push.yml@rsg
+              parameters:
                 Artifacts: "$(Pipeline.Workspace)"
                 GitHubPackages: false
                 MyGetPackages: true
