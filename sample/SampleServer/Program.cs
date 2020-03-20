@@ -45,6 +45,8 @@ namespace SampleServer
 
             Log.Logger.Information("This only goes file...");
 
+            IObserver<WorkDoneProgressReport> workDone = null;
+
             var server = await LanguageServer.From(options =>
                 options
                     .WithInput(Console.OpenStandardInput())
@@ -59,10 +61,8 @@ namespace SampleServer
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
-                    .WithServices(services =>
-                    {
-                        services.AddSingleton(provider =>
-                        {
+                    .WithServices(services => {
+                        services.AddSingleton(provider => {
                             var loggerFactory = provider.GetService<ILoggerFactory>();
                             var logger = loggerFactory.CreateLogger<Foo>();
 
@@ -76,8 +76,42 @@ namespace SampleServer
                             Section = "terminal",
                         });
                     })
-                    .OnStarted(async (languageServer, result) =>
-                    {
+                    .OnInitialize(new InitializeDelegate(async (server, request) => {
+                        var manager = server.ProgressManager.WorkDone(request, new WorkDoneProgressBegin() {
+                            Title = "Server is starting...",
+                            Percentage = 10,
+                        });
+                        workDone = manager;
+
+                        await Task.Delay(2000);
+
+                        manager.OnNext(new WorkDoneProgressReport() {
+                            Percentage = 20,
+                            Message = "loading in progress"
+                        });
+                    }))
+                    .OnInitialized(new InitializedDelegate(async (server, request, response) => {
+                        workDone.OnNext(new WorkDoneProgressReport() {
+                            Percentage = 40,
+                            Message = "loading almost done",
+                        });
+
+                        await Task.Delay(2000);
+
+                        workDone.OnNext(new WorkDoneProgressReport() {
+                            Message = "loading done",
+                            Percentage = 100,
+                        });
+                    }))
+                    .OnStarted(async (languageServer, result) => {
+                        using var manager = await languageServer.ProgressManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
+
+                        manager.OnNext(new WorkDoneProgressReport() { Message = "doing things..." });
+                        await Task.Delay(10000);
+                        manager.OnNext(new WorkDoneProgressReport() { Message = "doing things... 1234" });
+                        await Task.Delay(10000);
+                        manager.OnNext(new WorkDoneProgressReport() { Message = "doing things... 56789" });
+
                         var logger = languageServer.Services.GetService<ILogger<Foo>>();
                         var configuration = await languageServer.Configuration.GetConfiguration(
                             new ConfigurationItem() {

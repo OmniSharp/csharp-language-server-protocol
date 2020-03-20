@@ -81,7 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static async Task<ILanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
-            var server = (LanguageServer) PreInit(options);
+            var server = (LanguageServer)PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -157,6 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
             _serverInfo = serverInfo;
+            _receiver = receiver;
             _progressManager = progressManager;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
@@ -236,7 +237,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
-            _progressManager.Initialized(_responseRouter, _serializer);
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             Document = new LanguageServerDocument(_responseRouter);
@@ -457,23 +457,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
-
             ClientSettings.Capabilities ??= new ClientCapabilities();
             var textDocumentCapabilities =
                 ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
+            _progressManager.Initialized(_responseRouter, _serializer, windowCapabilities);
+
+            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
-
-            foreach (var item in _collection)
-            {
-                if (item.RegistrationOptions is IWorkDoneProgressOptions options)
-                {
-                    options.WorkDoneProgress = windowCapabilities.WorkDoneProgress;
-                }
-            }
 
             var serverCapabilities = new ServerCapabilities() {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction)
@@ -491,11 +484,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 DocumentLinkProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentLink)
                     .Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
                 DocumentOnTypeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.OnTypeFormatting)
-                    .Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(
-                        DocumentOnTypeFormattingOptions.Of),
+                    .Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(DocumentOnTypeFormattingOptions.Of),
                 DocumentRangeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.RangeFormatting)
-                    .Get<IDocumentRangeFormattingOptions, DocumentRangeFormattingOptions>(DocumentRangeFormattingOptions
-                        .Of),
+                    .Get<IDocumentRangeFormattingOptions, DocumentRangeFormattingOptions>(DocumentRangeFormattingOptions.Of),
                 DocumentSymbolProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentSymbol)
                     .Get<IDocumentSymbolOptions, DocumentSymbolOptions>(DocumentSymbolOptions.Of),
                 ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand)
@@ -564,7 +555,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) ||
                                     _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler))
-                            ? new SaveOptions() {IncludeText = true /* TODO: Make configurable */}
+                            ? new SaveOptions() { IncludeText = true /* TODO: Make configurable */}
                             : null,
                         WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
                         WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
@@ -626,17 +617,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (registrations.Length == 0)
                 return; // No dynamic registrations supported by client.
 
-            var @params = new RegistrationParams() {Registrations = registrations};
+            var @params = new RegistrationParams() { Registrations = registrations };
 
             await _initializeComplete;
-
-            foreach (var item in registrations)
-            {
-                if (item.RegisterOptions is IWorkDoneProgressOptions options)
-                {
-                    options.WorkDoneProgress = ClientSettings.Capabilities.Window.WorkDoneProgress;
-                }
-            }
 
             await Client.RegisterCapability(@params);
         }
