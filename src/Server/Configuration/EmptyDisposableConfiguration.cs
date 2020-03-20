@@ -5,7 +5,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class EmptyDisposableConfiguration : IDisposableConfiguration
+    class EmptyDisposableConfiguration : IScopedConfiguration
     {
         public static EmptyDisposableConfiguration Instance { get; } = new EmptyDisposableConfiguration();
         private ConfigurationRoot _configuration;
@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         {
             _configuration = new ConfigurationBuilder().Build() as ConfigurationRoot;
         }
-        void IDisposable.Dispose() {}
+        void IDisposable.Dispose() { }
 
         IConfigurationSection IConfiguration.GetSection(string key) => _configuration.GetSection(key);
 

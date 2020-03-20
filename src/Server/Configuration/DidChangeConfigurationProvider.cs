@@ -79,8 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             {
                 var scopedConfigurationItems = configurationItems
                     .SelectMany(scope =>
-                        _openScopes.Keys.Select(scopeUri => new ConfigurationItem()
-                            {ScopeUri = scopeUri, Section = scope.Section})
+                        _openScopes.Keys.Select(scopeUri => new ConfigurationItem() { ScopeUri = scopeUri, Section = scope.Section })
                     ).ToArray();
 
                 var configurations = (await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
@@ -133,20 +132,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 .Build();
         }
 
-        public async Task<IDisposableConfiguration> GetScopedConfiguration(Uri scopeUri)
+        public async Task<IScopedConfiguration> GetScopedConfiguration(Uri scopeUri)
         {
             var scopes = _server.Services.GetServices<ConfigurationItem>().ToArray();
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
             var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
-                Items = scopes.Select(z => new ConfigurationItem() {Section = z.Section, ScopeUri = scopeUri}).ToArray()
+                Items = scopes.Select(z => new ConfigurationItem() { Section = z.Section, ScopeUri = scopeUri }).ToArray()
             });
 
             var data = scopes.Zip(configurations,
                 (scope, settings) => (scope.Section, settings));
 
-            var config =  new DisposableConfiguration(
+            var config = new DisposableConfiguration(
                 new ConfigurationBuilder()
                     .AddConfiguration(_configuration),
                 new WorkspaceConfigurationSource(data),
@@ -158,7 +157,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return config;
         }
 
-        public bool TryGetScopedConfiguration(Uri scopeUri, out IDisposableConfiguration disposable)
+        public bool TryGetScopedConfiguration(Uri scopeUri, out IScopedConfiguration disposable)
         {
             var result = _openScopes.TryGetValue(scopeUri, out var c);
             if (result)

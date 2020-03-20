@@ -6,7 +6,7 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class DisposableConfiguration : IDisposableConfiguration
+    class DisposableConfiguration : IScopedConfiguration
     {
         private readonly ConfigurationRoot _configuration;
         private readonly WorkspaceConfigurationSource _configurationSource;

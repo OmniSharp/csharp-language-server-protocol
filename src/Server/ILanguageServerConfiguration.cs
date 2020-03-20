@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// </summary>
         /// <param name="scopeUri"></param>
         /// <returns></returns>
-        Task<IDisposableConfiguration> GetScopedConfiguration(Uri scopeUri);
+        Task<IScopedConfiguration> GetScopedConfiguration(Uri scopeUri);
 
         /// <summary>
         /// Attempt to get an existing scoped configuration so that it can be disposed
@@ -33,6 +33,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <param name="scopeUri"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        bool TryGetScopedConfiguration(Uri scopeUri, out IDisposableConfiguration configuration);
+        bool TryGetScopedConfiguration(Uri scopeUri, out IScopedConfiguration configuration);
     }
 }
