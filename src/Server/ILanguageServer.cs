@@ -9,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         InitializeParams ClientSettings { get; }
         InitializeResult ServerSettings { get; }
         IServiceProvider Services { get; }
+        ILanguageServerConfiguration Configuration { get; }
 
         IObservable<InitializeResult> Start { get; }
         IObservable<bool> Shutdown { get; }

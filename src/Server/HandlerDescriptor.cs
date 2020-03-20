@@ -60,6 +60,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
                     typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                 );
+            if (handler is IOnStarted started)
+            {
+                StartedDelegate = started.OnStarted;
+            }
         }
 
         public Type ImplementationType { get; }
@@ -73,6 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
+        public StartedDelegate StartedDelegate { get; }
 
         public string Method { get; }
         public string Key { get; }

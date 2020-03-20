@@ -38,9 +38,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return options;
         }
 
-        public static JsonRpcServerOptions WithReciever(this JsonRpcServerOptions options, IReciever reciever)
+        public static JsonRpcServerOptions WithReciever(this JsonRpcServerOptions options, IReceiver receiver)
         {
-            options.Reciever = reciever;
+            options.Receiver = receiver;
             return options;
         }
 

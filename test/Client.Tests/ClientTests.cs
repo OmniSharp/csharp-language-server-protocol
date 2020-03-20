@@ -190,7 +190,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         /// <summary>
         ///     Ensure that the language client can successfully request SignatureHelp.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request signature help", Skip = "disabled because of equality check")]
+        [Fact(DisplayName = "Language client can successfully request signature help")]
         public async Task SignatureHelp_Success()
         {
             await Connect();
@@ -249,7 +249,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                     var expectedParameter = expectedParameters[0];
                     Assert.True(actualParameter.Documentation.HasString);
                     Assert.Equal(expectedParameter.Documentation.String, actualParameter.Documentation.String);
-                    Assert.Equal(expectedParameter.Label, actualParameter.Label);
+                    Assert.Equal(expectedParameter.Label.Label, actualParameter.Label.Label);
                 });
             });
         }

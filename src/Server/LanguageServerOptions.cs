@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Disposables;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public ServerInfo ServerInfo { get; set; }
         public ISerializer Serializer { get; set; } = Protocol.Serialization.Serializer.Instance;
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
-        public ILspReciever Reciever { get; set; } = new LspReciever();
+        public ILspReceiver Receiver { get; set; } = new LspReceiver();
         public IServiceCollection Services { get; set; } = new ServiceCollection();
         internal List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         internal List<ITextDocumentIdentifier> TextDocumentIdentifiers { get; set; } = new List<ITextDocumentIdentifier>();
@@ -35,6 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal List<Type> TextDocumentIdentifierTypes { get; set; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
+        internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } = new Action<IConfigurationBuilder>(_ => { });
         internal bool AddDefaultLoggingProvider { get; set; }
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();

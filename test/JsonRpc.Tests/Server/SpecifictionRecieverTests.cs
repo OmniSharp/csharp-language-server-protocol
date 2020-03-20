@@ -17,7 +17,7 @@ namespace JsonRpc.Tests.Server
         [ClassData(typeof(SpecificationMessages))]
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
-            var reciever = new Reciever();
+            var reciever = new Receiver();
             var (requests, _) = reciever.GetRequests(JToken.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
@@ -164,7 +164,7 @@ namespace JsonRpc.Tests.Server
         [ClassData(typeof(InvalidMessages))]
         public void Should_ValidateInvalidMessages(string json, bool expected)
         {
-            var reciever = new Reciever();
+            var reciever = new Receiver();
             var result = reciever.IsValid(JToken.Parse(json));
             result.Should().Be(expected);
         }

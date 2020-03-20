@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             LoggerFactory = new LoggerFactory();
             Disposal.Add(LoggerFactory);
 
-            LoggerFactory.AddDebug(LogLevel);
+            // LoggerFactory.AddDebug(LogLevel);
             LoggerFactory.AddTestOutput(TestOutput, LogLevel);
 
             // Ugly hack to get access to the current test.

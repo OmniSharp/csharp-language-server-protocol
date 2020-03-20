@@ -2,7 +2,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public interface ILspReciever : IReciever
+    public interface ILspReceiver : IReceiver
     {
         void Initialized();
     }
