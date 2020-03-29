@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class SignatureHelpExtensions
     {
-        public static Task<SignatureHelp> SignatureHelp(this ILanguageClientDocument mediator, SignatureHelpParams @params)
+        public static Task<SignatureHelp> SignatureHelp(this ILanguageClientDocument mediator, SignatureHelpParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<SignatureHelpParams, SignatureHelp>(DocumentNames.SignatureHelp, @params);
+            return mediator.SendRequest<SignatureHelpParams, SignatureHelp>(DocumentNames.SignatureHelp, @params, cancellationToken);
         }
     }
 }

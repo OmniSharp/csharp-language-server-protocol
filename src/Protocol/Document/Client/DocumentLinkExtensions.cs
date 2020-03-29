@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentLinkExtensions
     {
-        public static Task<DocumentLinkContainer> DocumentLink(this ILanguageClientDocument mediator, DocumentLinkParams @params)
+        public static Task<DocumentLinkContainer> DocumentLink(this ILanguageClientDocument mediator, DocumentLinkParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentLinkParams, DocumentLinkContainer>(DocumentNames.DocumentLink, @params);
+            return mediator.SendRequest<DocumentLinkParams, DocumentLinkContainer>(DocumentNames.DocumentLink, @params, cancellationToken);
         }
     }
 }

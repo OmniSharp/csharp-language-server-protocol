@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -10,9 +11,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     public static class UnregisterCapabilityExtensions
     {
-        public static async Task UnregisterCapability(this ILanguageServerClient mediator, UnregistrationParams @params)
+        public static async Task UnregisterCapability(this ILanguageServerClient mediator, UnregistrationParams @params, CancellationToken cancellationToken = default)
         {
-            await mediator.SendRequest(ClientNames.UnregisterCapability, @params);
+            await mediator.SendRequest(ClientNames.UnregisterCapability, @params, cancellationToken);
         }
     }
 }

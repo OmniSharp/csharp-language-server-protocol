@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
@@ -21,7 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             _outputHandler.Send(new Client.Notification() {
                 Method = method
-            });
+            }, CancellationToken.None);
         }
 
         public void SendNotification<T>(string method, T @params)
@@ -29,12 +30,13 @@ namespace OmniSharp.Extensions.JsonRpc
             _outputHandler.Send(new Client.Notification() {
                 Method = method,
                 Params = @params
-            });
+            }, CancellationToken.None);
         }
 
-        public async Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
+        public async Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken)
         {
             var tcs = new TaskCompletionSource<JToken>();
+
             var nextId = _serializer.GetNextId();
             _requests.TryAdd(nextId, tcs);
 
@@ -42,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 Method = method,
                 Params = @params,
                 Id = nextId
-            });
+            }, cancellationToken);
 
             try
             {
@@ -55,7 +57,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public async Task<TResponse> SendRequest<TResponse>(string method)
+        public async Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken)
         {
             var nextId = _serializer.GetNextId();
 
@@ -66,7 +68,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 Method = method,
                 Params = null,
                 Id = nextId
-            });
+            }, cancellationToken);
 
             try
             {
@@ -79,7 +81,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public async Task SendRequest<T>(string method, T @params)
+        public async Task SendRequest<T>(string method, T @params, CancellationToken cancellationToken)
         {
             var nextId = _serializer.GetNextId();
 
@@ -90,7 +92,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 Method = method,
                 Params = @params,
                 Id = nextId
-            });
+            }, cancellationToken);
 
             try
             {

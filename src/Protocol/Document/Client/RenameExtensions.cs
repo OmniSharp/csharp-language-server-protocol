@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class RenameExtensions
     {
-        public static Task<WorkspaceEdit> Rename(this ILanguageClientDocument mediator, RenameParams @params)
+        public static Task<WorkspaceEdit> Rename(this ILanguageClientDocument mediator, RenameParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<RenameParams, WorkspaceEdit>(DocumentNames.Rename, @params);
+            return mediator.SendRequest<RenameParams, WorkspaceEdit>(DocumentNames.Rename, @params, cancellationToken);
         }
     }
 }

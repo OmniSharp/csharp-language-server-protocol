@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class ImplementationExtensions
     {
-        public static Task<LocationOrLocationLinks> Implementation(this ILanguageClientDocument mediator, ImplementationParams @params)
+        public static Task<LocationOrLocationLinks> Implementation(this ILanguageClientDocument mediator, ImplementationParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<ImplementationParams, LocationOrLocationLinks>(DocumentNames.Implementation, @params);
+            return mediator.SendRequest<ImplementationParams, LocationOrLocationLinks>(DocumentNames.Implementation, @params, cancellationToken);
         }
     }
 }

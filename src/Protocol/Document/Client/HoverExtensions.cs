@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class HoverExtensions
     {
-        public static Task<Hover> Hover(this ILanguageClientDocument mediator, HoverParams @params)
+        public static Task<Hover> Hover(this ILanguageClientDocument mediator, HoverParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<HoverParams, Hover>(DocumentNames.Hover, @params);
+            return mediator.SendRequest<HoverParams, Hover>(DocumentNames.Hover, @params, cancellationToken);
         }
     }
 }

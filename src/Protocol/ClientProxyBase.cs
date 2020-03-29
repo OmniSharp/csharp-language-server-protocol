@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -16,11 +17,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public void SendNotification<T>(string method, T @params) => _responseRouter.SendNotification(method, @params);
 
-        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params) => _responseRouter.SendRequest<T, TResponse>(method, @params);
+        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken) => _responseRouter.SendRequest<T, TResponse>(method, @params, cancellationToken);
 
-        public Task<TResponse> SendRequest<TResponse>(string method) => _responseRouter.SendRequest<TResponse>(method);
+        public Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken) => _responseRouter.SendRequest<TResponse>(method, cancellationToken);
 
-        public Task SendRequest<T>(string method, T @params) => _responseRouter.SendRequest(method, @params);
+        public Task SendRequest<T>(string method, T @params, CancellationToken cancellationToken ) => _responseRouter.SendRequest(method, @params, cancellationToken);
 
         public TaskCompletionSource<JToken> GetRequest(long id) => _responseRouter.GetRequest(id);
     }
