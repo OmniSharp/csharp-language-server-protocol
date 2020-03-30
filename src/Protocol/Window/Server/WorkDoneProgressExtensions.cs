@@ -10,7 +10,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static async Task Create(this ILanguageServerWindowProgress mediator, WorkDoneProgressCreateParams @params, CancellationToken cancellationToken = default)
         {
-            await mediator.SendRequest(WindowNames.WorkDoneProgressCreate, @params, cancellationToken);
+            await mediator.SendRequest(@params, cancellationToken);
+        }
+
+        public static void Cancel(this ILanguageServerWindowProgress mediator, WorkDoneProgressCancelParams @params)
+        {
+            mediator.SendNotification(@params);
         }
     }
 }

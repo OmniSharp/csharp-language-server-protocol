@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<DocumentLink> DocumentLinkResolve(this ILanguageClientDocument mediator, DocumentLink @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentLink, DocumentLink>(DocumentNames.DocumentLinkResolve, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

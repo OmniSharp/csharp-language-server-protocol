@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static Task<MessageActionItem> ShowMessage(this ILanguageServerWindow mediator, ShowMessageRequestParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<ShowMessageRequestParams, MessageActionItem>(WindowNames.ShowMessageRequest, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
 
         public static Task<MessageActionItem> Show(this ILanguageServerWindow mediator, ShowMessageRequestParams @params, CancellationToken cancellationToken = default)

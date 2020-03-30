@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<DocumentLinkContainer> DocumentLink(this ILanguageClientDocument mediator, DocumentLinkParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentLinkParams, DocumentLinkContainer>(DocumentNames.DocumentLink, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

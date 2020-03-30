@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<CommandOrCodeActionContainer> CodeAction(this ILanguageClientDocument mediator, CodeActionParams @params, CancellationToken cancellationToken )
         {
-            return mediator.SendRequest<CodeActionParams, CommandOrCodeActionContainer>(DocumentNames.CodeAction, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         public static Task<RunInTerminalResponse> RunInTerminal(this IDebugAdapterClient mediator, RunInTerminalArguments @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<RunInTerminalArguments, RunInTerminalResponse>(RequestNames.RunInTerminal, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 

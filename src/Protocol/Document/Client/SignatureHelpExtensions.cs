@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<SignatureHelp> SignatureHelp(this ILanguageClientDocument mediator, SignatureHelpParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<SignatureHelpParams, SignatureHelp>(DocumentNames.SignatureHelp, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

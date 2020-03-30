@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<WorkspaceEdit> Rename(this ILanguageClientDocument mediator, RenameParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<RenameParams, WorkspaceEdit>(DocumentNames.Rename, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

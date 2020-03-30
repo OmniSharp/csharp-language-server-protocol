@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<TextEditContainer> DocumentRangeFormatting(this ILanguageClientDocument mediator, DocumentRangeFormattingParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentRangeFormattingParams, TextEditContainer>(DocumentNames.RangeFormatting, @params,  cancellationToken);
+            return mediator.SendRequest(@params,  cancellationToken);
         }
     }
 }

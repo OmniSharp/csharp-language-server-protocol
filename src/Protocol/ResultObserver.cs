@@ -4,6 +4,8 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -18,8 +20,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             ISerializer serializer,
             WorkDoneProgressBegin begin,
             Func<Exception, WorkDoneProgressEnd> onError,
-            Func<WorkDoneProgressEnd> onComplete)
+            Func<WorkDoneProgressEnd> onComplete,
+            CancellationToken cancellationToken)
         {
+            var disposable = new CompositeDisposable();
+
+            var worker = CreateWorker<WorkDoneProgress>(token, router, serializer, onError, onComplete, disposable);
+            worker.OnNext(begin);
+
+            return new ProgressObserver<WorkDoneProgressReport>(token, worker,
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken));
+        }
+
+        public static ProgressObserver<WorkDoneProgressReport> CreateWorkDoneProgress(
+            IResponseRouter router,
+            ISerializer serializer,
+            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError,
+            Func<WorkDoneProgressEnd> onComplete,
+            CancellationToken cancellationToken)
+        {
+            var token = new ProgressToken(Guid.NewGuid().ToString());
             var earlyEvents = new AsyncSubject<List<WorkDoneProgress>>();
             var observer = new Subject<WorkDoneProgress>();
             var disposable = new CompositeDisposable {observer, earlyEvents};
@@ -27,45 +47,41 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             var worker = CreateWorker<WorkDoneProgress>(token, router, serializer, onError, onComplete, disposable);
 
             disposable.Add(
-                observer.Scan(new List<WorkDoneProgress>() {begin}, (acc, v) =>
+                observer
+                    .Scan(new List<WorkDoneProgress>() {begin}, (acc, v) =>
                     {
                         acc.Add(v);
                         return acc;
                     })
-                    .TakeUntil(earlyEvents)
                     .Subscribe(earlyEvents.OnNext)
             );
 
             disposable.Add(
-                Observable.FromAsync(
-                    ct => router.SendRequest(WindowNames.WorkDoneProgressCreate,
-                        new WorkDoneProgressCreateParams() {Token = token,}, ct)
-                ).Subscribe(_ => { }, earlyEvents.OnCompleted)
+                Observable.FromAsync(ct => router.CreateProgress(token, ct))
+                    .Subscribe(_ => { }, e => { }, () => { earlyEvents.OnCompleted(); })
             );
 
             disposable.Add(
-                earlyEvents.SelectMany(z => z).Concat(observer).Subscribe(worker)
+                earlyEvents
+                    .SelectMany(z => z)
+                    .Concat(observer)
+                    .Subscribe(worker)
             );
 
-            return new ProgressObserver<WorkDoneProgressReport>(token, observer);
-        }
-
-        public static ProgressObserver<WorkDoneProgressReport> CreateWorkDoneProgress(IResponseRouter router, ISerializer serializer,
-            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null,
-            Func<WorkDoneProgressEnd> onComplete = null)
-        {
-            var token = new ProgressToken(Guid.NewGuid().ToString());
-            return CreateWorkDoneProgress(token, router, serializer, begin, onError, onComplete);
+            return new ProgressObserver<WorkDoneProgressReport>(token, observer,
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken));
         }
 
         public static ProgressObserver<T> Create<T>(
             ProgressToken token, IResponseRouter router,
-            ISerializer serializer)
+            ISerializer serializer,
+            CancellationToken cancellationToken)
         {
             var observer = new Subject<WorkDoneProgress>();
             var disposable = new CompositeDisposable {observer};
 
-            return new ProgressObserver<T>(token, CreateWorker<T>(token, router, serializer, disposable));
+            return new ProgressObserver<T>(token, CreateWorker<T>(token, router, serializer, disposable),
+                CancellationTokenSource.CreateLinkedTokenSource(cancellationToken));
         }
 
         private static IObserver<T> CreateWorker<T>(
@@ -80,7 +96,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 value => router.SendProgress(token.Create(value, serializer.JsonSerializer)),
                 error =>
                 {
-                    router.SendProgress(token.Create(onError(error), serializer.JsonSerializer));
+                    if (onError != null)
+                    {
+                        router.SendProgress(token.Create(onError.Invoke(error), serializer.JsonSerializer));
+                    }
+
                     disposable.Dispose();
                 },
                 () =>
@@ -105,44 +125,65 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             return Observer.Create<T>(
                 value => router.SendProgress(token.Create(value, serializer.JsonSerializer)),
-                error => disposable.Dispose(),
+                error => { disposable.Dispose(); },
                 disposable.Dispose);
         }
     }
+
     public class ProgressObserver<T> : IDisposable, IObserver<T>
     {
         public static ProgressObserver<T> Noop { get; } =
             new ProgressObserver<T>(new ProgressToken(Guid.Empty.ToString()),
-                Observer.Create<T>(x => { }));
+                Observer.Create<T>(x => { }), new CancellationTokenSource());
 
         private readonly IObserver<T> _currentObserver;
+        private readonly CancellationTokenSource _tokenSource;
 
-        internal ProgressObserver(ProgressToken token, IObserver<T> observer)
+        internal ProgressObserver(ProgressToken progressToken, IObserver<T> observer,
+            CancellationTokenSource tokenSource)
         {
             _currentObserver = observer;
-            Token = token;
+            _tokenSource = tokenSource;
+            ProgressToken = progressToken;
+            CancellationToken = _tokenSource.Token;
         }
 
-        public ProgressToken Token { get; }
+        public ProgressToken ProgressToken { get; }
+        public CancellationToken CancellationToken { get; }
 
         public void Dispose()
         {
-            _currentObserver.OnCompleted();
+            if (!_tokenSource.IsCancellationRequested)
+            {
+                _currentObserver.OnCompleted();
+                _tokenSource.Cancel();
+            }
         }
 
         public void OnCompleted()
         {
-            _currentObserver.OnCompleted();
+            if (!_tokenSource.IsCancellationRequested)
+            {
+                _currentObserver.OnCompleted();
+                _tokenSource.Cancel();
+            }
         }
 
         public void OnError(Exception error)
         {
-            _currentObserver.OnError(error);
+            if (!_tokenSource.IsCancellationRequested)
+            {
+                _currentObserver.OnError(error);
+                _tokenSource.Cancel();
+            }
         }
 
         public void OnNext(T value)
         {
-            _currentObserver.OnNext(value);
+            if (!_tokenSource.IsCancellationRequested)
+            {
+                _currentObserver.OnNext(value);
+            }
         }
     }
 }

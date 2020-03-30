@@ -638,9 +638,24 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _responseRouter.SendNotification(method, @params);
         }
 
+        public void SendNotification(IRequest @params)
+        {
+            _responseRouter.SendNotification(@params);
+        }
+
         public Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken)
         {
             return _responseRouter.SendRequest<T, TResponse>(method, @params, cancellationToken);
+        }
+
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest(@params, cancellationToken);
+        }
+
+        public Task SendRequest(IRequest @params, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest(@params, cancellationToken);
         }
 
         public Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken)

@@ -10,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     public static class RegisterCapabilityExtensions
     {
-        public static async Task RegisterCapability(this ILanguageServerClient mediator, RegistrationParams @params, CancellationToken cancellationToken = default)
+        public static Task RegisterCapability(this ILanguageServerClient mediator, RegistrationParams @params, CancellationToken cancellationToken = default)
         {
-            await mediator.SendRequest(ClientNames.RegisterCapability, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

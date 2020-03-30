@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<SymbolInformationOrDocumentSymbolContainer> DocumentSymbol(this ILanguageClientDocument mediator, DocumentSymbolParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

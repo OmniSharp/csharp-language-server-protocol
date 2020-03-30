@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<DocumentHighlightContainer> DocumentHighlight(this ILanguageClientDocument mediator, DocumentHighlightParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentHighlightParams, DocumentHighlightContainer>(DocumentNames.DocumentHighlight, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

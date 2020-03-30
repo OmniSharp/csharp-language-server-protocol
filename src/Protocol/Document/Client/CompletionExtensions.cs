@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<CompletionList> Completion(this ILanguageClientDocument mediator, CompletionParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<CompletionParams, CompletionList>(DocumentNames.Completion, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<LocationContainer> References(this ILanguageClientDocument mediator, ReferenceParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<ReferenceParams, LocationContainer>(DocumentNames.References, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

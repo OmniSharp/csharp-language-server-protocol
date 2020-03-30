@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<CodeLens> CodeLensResolve(this ILanguageClientDocument mediator, CodeLens @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<CodeLens, CodeLens>(DocumentNames.CodeLensResolve, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

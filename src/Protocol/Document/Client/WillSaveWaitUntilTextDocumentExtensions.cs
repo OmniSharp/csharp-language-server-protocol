@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task WillSaveWaitUntilTextDocument(this ILanguageClientDocument mediator, WillSaveWaitUntilTextDocumentParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest(DocumentNames.WillSaveWaitUntil, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

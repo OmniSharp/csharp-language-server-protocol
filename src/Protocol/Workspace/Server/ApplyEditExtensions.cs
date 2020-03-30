@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static Task<ApplyWorkspaceEditResponse> ApplyEdit(this ILanguageServerWorkspace mediator, ApplyWorkspaceEditParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<ApplyWorkspaceEditParams, ApplyWorkspaceEditResponse>(WorkspaceNames.ApplyEdit, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

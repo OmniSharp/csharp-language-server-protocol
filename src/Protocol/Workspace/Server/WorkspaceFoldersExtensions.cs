@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static Task<Container<WorkspaceFolder>> WorkspaceFolders(this ILanguageServerWorkspace mediator, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<Container<WorkspaceFolder>>(WorkspaceNames.WorkspaceFolders, cancellationToken);
+            return mediator.SendRequest(new WorkspaceFolderParams(), cancellationToken);
         }
     }
 }

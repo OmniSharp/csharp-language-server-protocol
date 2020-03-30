@@ -11,9 +11,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     public static class UnregisterCapabilityExtensions
     {
-        public static async Task UnregisterCapability(this ILanguageServerClient mediator, UnregistrationParams @params, CancellationToken cancellationToken = default)
+        public static Task UnregisterCapability(this ILanguageServerClient mediator, UnregistrationParams @params, CancellationToken cancellationToken = default)
         {
-            await mediator.SendRequest(ClientNames.UnregisterCapability, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

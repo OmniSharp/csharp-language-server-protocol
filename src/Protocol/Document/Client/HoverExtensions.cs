@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<Hover> Hover(this ILanguageClientDocument mediator, HoverParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<HoverParams, Hover>(DocumentNames.Hover, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

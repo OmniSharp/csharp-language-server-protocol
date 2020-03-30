@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<LocationOrLocationLinks> Declaration(this ILanguageClientDocument mediator, DeclarationParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DeclarationParams, LocationOrLocationLinks>(DocumentNames.Declaration, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

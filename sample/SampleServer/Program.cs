@@ -102,6 +102,7 @@ namespace SampleServer
                             Message = "loading done",
                             Percentage = 100,
                         });
+                        workDone.OnCompleted();
                     })
                     .OnStarted(async (languageServer, result, token) => {
                         using var manager = languageServer.ProgressManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });

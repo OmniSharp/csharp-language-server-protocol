@@ -1,7 +1,9 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(DocumentNames.SignatureHelp)]
     public class SignatureHelpParams : WorkDoneTextDocumentPositionParams, IRequest<SignatureHelp>
     {
         /// <summary>

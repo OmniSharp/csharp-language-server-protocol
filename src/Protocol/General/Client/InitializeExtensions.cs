@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<InitializeResult> Initialize(this ILanguageClient mediator, InitializeParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<InitializeParams, InitializeResult>(GeneralNames.Initialize, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

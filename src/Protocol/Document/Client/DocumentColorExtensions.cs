@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<Container<ColorPresentation>> DocumentColor(this ILanguageClientDocument mediator, DocumentColorParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentColorParams, Container<ColorPresentation>>(DocumentNames.DocumentColor, @params, cancellationToken);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }
