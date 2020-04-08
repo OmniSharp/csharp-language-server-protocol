@@ -175,5 +175,30 @@ namespace JsonRpc.Tests
                 Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
         }
+
+        [Fact]
+        public void Should_Handle_Cancelled_Tasks()
+        {
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper)))
+            {
+                var done = new CountdownEvent(2);
+                s.Start();
+                s.Add(RequestProcessType.Serial, "bogus", async () => {
+                    await Task.Delay(100);
+                    done.Signal();
+                });
+                s.Add(RequestProcessType.Serial, "somethingelse", async () => {
+                    var cts = new CancellationTokenSource();
+                    await Task.Delay(100);
+                    cts.Cancel();
+                    await Task.FromCanceled(cts.Token);
+                });
+                s.Add(RequestProcessType.Serial, "bogus", async () => {
+                    await Task.Delay(100);
+                    done.Signal();
+                });
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
+            }
+        }
     }
 }
