@@ -55,9 +55,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Start()
         {
+            _scheduler.Start();
             _outputHandler.Start();
             _inputThread.Start();
-            _scheduler.Start();
         }
 
         // don't be async: We already allocated a seperate thread for this.
