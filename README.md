@@ -1,4 +1,6 @@
-[![codecov](https://codecov.io/gh/OmniSharp/csharp-language-server-protocol/branch/master/graph/badge.svg)](https://codecov.io/gh/OmniSharp/csharp-language-server-protocol)
+[![nuget-server](https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageServer?label=OmniSharp.Extensions.LanguageServer&logo=nuget)](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageServer/)
+[![nuget-client](https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageServer?label=OmniSharp.Extensions.LanguageClient&logo=nuget)](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageClient/)
+[![codecov](https://img.shields.io/codecov/c/gh/OmniSharp/csharp-language-server-protocol?label=codecov&logo=codecov)](https://codecov.io/gh/OmniSharp/csharp-language-server-protocol)
 
 ## C# Language Server Protocol
 
