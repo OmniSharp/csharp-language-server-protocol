@@ -121,7 +121,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task ShouldScheduleMixed()
+        public void ShouldScheduleMixed()
         {
             using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
             {
@@ -147,7 +147,7 @@ namespace JsonRpc.Tests
                 s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
                 s.Add(RequestProcessType.Serial, "bogus", handlePeek);
 
-                await Task.Delay(ALONGTIME_MS);
+                done.Wait(ALONGTIME_MS);
                 peek.Should().Be(4, because: "some tasks should overlap");
                 running.Should().Be(0, because: "all tasks have to run normally");
                 done.IsSet.Should().Be(true, because: "all tasks have to run");
@@ -157,7 +157,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task ShouldScheduleMixed2()
+        public void ShouldScheduleMixed2()
         {
             using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
             {
@@ -181,7 +181,7 @@ namespace JsonRpc.Tests
                 s.Add(RequestProcessType.Serial, "bogus", handlePeek);
                 s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
 
-                await Task.Delay(ALONGTIME_MS * 2);
+                done.Wait(ALONGTIME_MS);
                 peek.Should().Be(1, because: "some tasks should overlap");
                 running.Should().Be(0, because: "all tasks have to run normally");
                 done.IsSet.Should().Be(true, because: "all tasks have to run");
