@@ -35,10 +35,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _enqueue = subject;
             _scheduler = new EventLoopScheduler(
                 _ => new Thread(_) {IsBackground = true, Name = "ProcessRequestQueue"});
-            _queue = subject
-                // .ObserveOn(scheduler)
-                // .SubscribeOn(scheduler)
-                ;
+            _queue = subject;
         }
 
         public void Start()
@@ -62,14 +59,14 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 cd.Add(observableQueue
                     .Select(item => {
-                        var (type, observable) = item;
+                        var (type, replay) = item;
 
                         if (type == RequestProcessType.Serial)
-                            return observable.Concat();
+                            return replay.Concat();
 
                         return _concurrency.HasValue
-                            ? observable.Merge(_concurrency.Value)
-                            : observable.Merge();
+                            ? replay.Merge(_concurrency.Value)
+                            : replay.Merge();
                     })
                     .Concat()
                     .Subscribe(observer)
