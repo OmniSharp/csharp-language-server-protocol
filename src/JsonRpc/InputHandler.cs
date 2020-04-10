@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _responseRouter = responseRouter;
             _serializer = serializer;
             _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory);
+            _scheduler = new ProcessScheduler(loggerFactory, null);
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
         }
 
