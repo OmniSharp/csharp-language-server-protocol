@@ -266,7 +266,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task ShouldCancelRequest()
+        public void ShouldCancelRequest()
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();
