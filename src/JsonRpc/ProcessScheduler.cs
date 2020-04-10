@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         observableQueue.OnNext((item.type, new ReplaySubject<IObservable<Unit>>(int.MaxValue)));
                     }
 
-                    observableQueue.Value.observer.OnNext(HandleRequest(item.request));
+                    observableQueue.Value.observer.OnNext(HandleRequest(item.name, item.request));
                 }));
 
                 cd.Add(observableQueue
@@ -83,12 +83,12 @@ namespace OmniSharp.Extensions.JsonRpc
                 .Subscribe(_ => { })
             );
 
-            IObservable<Unit> HandleRequest(IObservable<Unit> request)
+            IObservable<Unit> HandleRequest(string name, IObservable<Unit> request)
             {
                 return request
                     .Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>())
                     .Catch<Unit, Exception>(ex => {
-                        _logger.LogCritical(ex, "unhandled exception");
+                        _logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}", name);
                         return Observable.Empty<Unit>();
                     });
             }
