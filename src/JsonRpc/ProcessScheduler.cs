@@ -75,18 +75,23 @@ namespace OmniSharp.Extensions.JsonRpc
                     .Subscribe(observer)
                 );
 
-                static IObservable<Unit> HandleRequest(IObservable<Unit> request)
-                {
-                    return request.Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>());
-                }
-
                 return cd;
             });
 
             _disposable.Add(obs
-                .ObserveOn(ThreadPoolScheduler.Instance)
+                .ObserveOn(_scheduler)
                 .Subscribe(_ => { })
             );
+
+            IObservable<Unit> HandleRequest(IObservable<Unit> request)
+            {
+                return request
+                    .Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>())
+                    .Catch<Unit, Exception>(ex => {
+                        _logger.LogCritical(ex, "unhandled exception");
+                        return Observable.Empty<Unit>();
+                    });
+            }
         }
 
         public void Add(RequestProcessType type, string name, IObservable<Unit> request)

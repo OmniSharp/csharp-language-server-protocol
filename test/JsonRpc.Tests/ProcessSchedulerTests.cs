@@ -292,5 +292,26 @@ namespace JsonRpc.Tests
                 done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
             }
         }
+
+        [Fact]
+        public void Should_Handle_Exceptions_Tasks()
+        {
+            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
+            {
+                var done = new CountdownEvent(2);
+                s.Start();
+                s.Add(RequestProcessType.Serial, "bogus", async () => {
+                    await Task.Delay(100);
+                    done.Signal();
+                });
+                s.Add(RequestProcessType.Serial, "somethingelse", Observable.Throw<Unit>(new Exception()));
+                s.Add(RequestProcessType.Serial, "bogus", async () => {
+                    await Task.Delay(100);
+                    done.Signal();
+                });
+
+                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
+            }
+        }
     }
 }
