@@ -114,7 +114,7 @@ namespace JsonRpc.Tests
 
                 done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
                 running.Should().Be(0, because: "all tasks have to run normally");
-                peek.Should().BeGreaterThan(3, because: "a lot of tasks should overlap");
+                peek.Should().BeGreaterThan(8, because: "a lot of tasks should overlap");
                 s.Dispose();
                 // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
