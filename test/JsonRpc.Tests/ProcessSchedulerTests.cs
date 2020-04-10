@@ -47,7 +47,7 @@ namespace JsonRpc.Tests
             }
         }
 
-        [Fact(Skip = "Intermittent failure")]
+        [Fact]
         public void ShouldScheduleAwaitableTask()
         {
             using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))

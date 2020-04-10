@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IObservable<(RequestProcessType type, string name, IObservable<Unit> request)> _queue;
         private bool _disposed = false;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly EventLoopScheduler _scheduler;
+        // private readonly EventLoopScheduler _scheduler;
 
         public ProcessScheduler(ILoggerFactory loggerFactory, int? concurrency)
         {
@@ -33,8 +33,8 @@ namespace OmniSharp.Extensions.JsonRpc
             var subject = new Subject<(RequestProcessType type, string name, IObservable<Unit> request)>();
             _disposable.Add(subject);
             _enqueue = subject;
-            _scheduler = new EventLoopScheduler(
-                _ => new Thread(_) {IsBackground = true, Name = "ProcessRequestQueue"});
+            // _scheduler = new EventLoopScheduler(
+            //     _ => new Thread(_) {IsBackground = true, Name = "ProcessRequestQueue"});
             _queue = subject;
         }
 
@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.JsonRpc
             });
 
             _disposable.Add(obs
-                .ObserveOn(_scheduler)
+                // .ObserveOn(_scheduler)
                 .Subscribe(_ => { })
             );
 
