@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     [Parallel, Method(DocumentNames.Completion)]
     public interface ICompletionHandler : IJsonRpcRequestHandler<CompletionParams, CompletionList>, IRegistration<CompletionRegistrationOptions>, ICapability<CompletionCapability> { }
 
-    [Serial, Method(DocumentNames.CompletionResolve)]
+    [Parallel, Method(DocumentNames.CompletionResolve)]
     public interface ICompletionResolveHandler : ICanBeResolvedHandler<CompletionItem> { }
 
     public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler

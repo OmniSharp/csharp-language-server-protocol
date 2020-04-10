@@ -42,7 +42,8 @@ namespace JsonRpc.Tests
                 requestRouter,
                 responseRouter,
                 Substitute.For<ILoggerFactory>(),
-                new DapSerializer());
+                new DapSerializer(),
+                null);
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();

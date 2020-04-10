@@ -37,7 +37,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            ISerializer serializer
+            ISerializer serializer,
+            int? concurrency
             )
         {
             if (!input.CanRead) throw new ArgumentException($"must provide a readable stream for {nameof(input)}", nameof(input));
@@ -49,7 +50,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _responseRouter = responseRouter;
             _serializer = serializer;
             _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory, null);
+            _scheduler = new ProcessScheduler(loggerFactory, concurrency);
             _inputThread = new Thread(ProcessInputStream) { IsBackground = true, Name = "ProcessInputStream" };
         }
 
