@@ -125,21 +125,17 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
             {
+                var done = new CountdownEvent(8); // 8x s.Add
                 var running = 0;
                 var peek = 0;
-                var total = 0;
 
-                var handlePeek = Observable.Defer(() => {
+                Func<Task> handlePeek = async () => {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
-                    return Observable.FromAsync(async () => {
-                        await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                        Interlocked.Decrement(ref running);
-                        Interlocked.Increment(ref total);
-                        return Unit.Default;
-                        // done.Signal();
-                    });
-                });
+                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
+                    Interlocked.Decrement(ref running);
+                    done.Signal();
+                };
 
                 s.Start();
                 s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
@@ -154,7 +150,7 @@ namespace JsonRpc.Tests
                 await Task.Delay(ALONGTIME_MS);
                 peek.Should().Be(4, because: "some tasks should overlap");
                 running.Should().Be(0, because: "all tasks have to run normally");
-                total.Should().Be(8, because: "all tasks have to run");
+                done.IsSet.Should().Be(true, because: "all tasks have to run");
                 s.Dispose();
                 // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
@@ -165,21 +161,17 @@ namespace JsonRpc.Tests
         {
             using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
             {
+                var done = new CountdownEvent(8); // 8x s.Add
                 var running = 0;
                 var peek = 0;
-                var total = 0;
 
-                var handlePeek = Observable.Defer(() => {
+                Func<Task> handlePeek = async () => {
                     var p = Interlocked.Increment(ref running);
                     lock (this) peek = Math.Max(peek, p);
-                    return Observable.FromAsync(async () => {
-                        await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                        Interlocked.Decrement(ref running);
-                        Interlocked.Increment(ref total);
-                        return Unit.Default;
-                        // done.Signal();
-                    });
-                });
+                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
+                    Interlocked.Decrement(ref running);
+                    done.Signal();
+                };
 
                 s.Start();
                 s.Add(RequestProcessType.Serial, "bogus", handlePeek);
@@ -194,7 +186,7 @@ namespace JsonRpc.Tests
                 await Task.Delay(ALONGTIME_MS);
                 peek.Should().Be(1, because: "some tasks should overlap");
                 running.Should().Be(0, because: "all tasks have to run normally");
-                total.Should().Be(8, because: "all tasks have to run");
+                done.IsSet.Should().Be(true, because: "all tasks have to run");
                 s.Dispose();
                 // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
             }
