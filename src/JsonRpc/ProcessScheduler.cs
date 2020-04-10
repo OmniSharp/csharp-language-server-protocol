@@ -46,105 +46,42 @@ namespace OmniSharp.Extensions.JsonRpc
             var obs = Observable.Create<Unit>(observer => {
                 var cd = new CompositeDisposable();
 
-                RequestProcessType? lastType = null;
+                var observableQueue =
+                    new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer)>((
+                        RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue)));
 
-                var observableQueue = new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer)>((
-                    RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue)));
+                cd.Add(_queue.Subscribe(item => {
+                    if (observableQueue.Value.type != item.type)
+                    {
+                        observableQueue.Value.observer.OnCompleted();
+                        observableQueue.OnNext((item.type, new ReplaySubject<IObservable<Unit>>(int.MaxValue)));
+                    }
 
-                var processor = observableQueue
-                    .Select(x => {
-                        var (type, observable) = x;
+                    observableQueue.Value.observer.OnNext(HandleRequest(item.request));
+                }));
+
+                cd.Add(observableQueue
+                    .Select(item => {
+                        var (type, observable) = item;
 
                         if (type == RequestProcessType.Serial)
-                            return observable
-                                .Do(
-                                    start => _logger.LogInformation("serial next {type}", type),
-                                    () => _logger.LogInformation("serial complete {type}", type)
-                                ).Concat();
+                            return observable.Concat();
 
                         return _concurrency.HasValue
                             ? observable.Merge(_concurrency.Value)
                             : observable.Merge();
                     })
                     .Concat()
-                    .Subscribe(observer);
-                cd.Add(processor);
+                    .Subscribe(observer)
+                );
 
-                cd.Add(_queue.Subscribe(item => {
-                    var lastItem = observableQueue.Value;
-                    if (lastItem.type == item.type)
-                    {
-                        lastItem.observer.OnNext(
-                            item.request.Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>()));
-                        return;
-                    }
-
-                    lastItem.observer.OnCompleted();
-
-                    var subject = new ReplaySubject<IObservable<Unit>>(int.MaxValue);
-                    observableQueue.OnNext((item.type, subject));
-                    subject.OnNext(
-                        item.request.Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>()));
-                }));
+                static IObservable<Unit> HandleRequest(IObservable<Unit> request)
+                {
+                    return request.Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>());
+                }
 
                 return cd;
             });
-
-            var self = _queue.Do(
-                    start => _logger.LogInformation("queue {type}@{name}", start.type, start.name)
-                )
-                .DistinctUntilChanged(x => x.type)
-                .Select(item => {
-                    var type = item.type;
-                    var observable = _queue
-                            .TakeWhile(x => x.type == type)
-                            .StartWith(item)
-                            .Do(
-                                start => _logger.LogInformation("taking request {type}@{name}", start.type, start.name),
-                                () => _logger.LogInformation("completed taking request {type}", item.type)
-                            )
-                            .Select((z, i) => z.request
-                                .Do(
-                                    start => _logger.LogInformation("before request next {index} {type}@{name}", i,
-                                        z.type,
-                                        z.name),
-                                    () => _logger.LogInformation("before request complete {index} {type}@{name}", i,
-                                        z.type,
-                                        z.name)
-                                )
-                                .Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>())
-                                .Do(
-                                    start => _logger.LogInformation("after request next {index} {type}@{name}", i,
-                                        z.type,
-                                        z.name),
-                                    () => _logger.LogInformation("after request complete {index} {type}@{name}", i,
-                                        z.type,
-                                        z.name)
-                                )
-                            )
-                            .Do(
-                                start => _logger.LogInformation("request done next {type}", item.type),
-                                () => _logger.LogInformation("complete {type}", item.type)
-                            )
-                        ;
-
-                    if (item.type == RequestProcessType.Serial)
-                        return observable
-                            .Do(
-                                start => _logger.LogInformation("serial next {type}", item.type),
-                                () => _logger.LogInformation("serial complete {type}", item.type)
-                            ).Concat();
-
-                    return _concurrency.HasValue
-                        ? observable.Merge(_concurrency.Value)
-                        : observable
-                            .Merge();
-                })
-                .Concat()
-                .Do(
-                    start => _logger.LogInformation("done item"),
-                    () => _logger.LogInformation("donedone")
-                );
 
             _disposable.Add(obs
                 .ObserveOn(ThreadPoolScheduler.Instance)
