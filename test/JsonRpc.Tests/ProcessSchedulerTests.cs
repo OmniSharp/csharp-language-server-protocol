@@ -22,8 +22,6 @@ namespace JsonRpc.Tests
             _testOutputHelper = testOutputHelper;
         }
 
-        private const int SLEEPTIME_MS = 20;
-        private const int ALONGTIME_MS = 500;
         private readonly ITestOutputHelper _testOutputHelper;
 
         class AllRequestProcessTypes : TheoryData
