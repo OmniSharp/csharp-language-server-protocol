@@ -7,8 +7,11 @@ using FluentAssertions;
 using System.Collections.Generic;
 using System.Reactive;
 using System.Reactive.Linq;
+using Microsoft.Reactive.Testing;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit.Abstractions;
+using Xunit.Sdk;
+using static Microsoft.Reactive.Testing.ReactiveTest;
 
 namespace JsonRpc.Tests
 {
@@ -35,235 +38,267 @@ namespace JsonRpc.Tests
         [Theory, ClassData(typeof(AllRequestProcessTypes))]
         public void ShouldScheduleCompletedTask(RequestProcessType type)
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(1);
-                s.Start();
-                s.Add(type, "bogus", Observable.Defer(() => {
-                    done.Signal();
-                    return Observable.Return(Unit.Default);
-                }));
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-            }
-        }
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-        [Fact(Skip = "intermittent")]
-        public void ShouldScheduleAwaitableTask()
-        {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(1);
-                s.Start();
-                s.Add(RequestProcessType.Serial, "bogus", Observable.FromAsync(async () => {
-                    await Task.Yield();
-                    done.Signal();
-                }));
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-            }
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+
+            s.Start();
+            s.Add(type, "bogus", testObservable.Do(testObserver));
+
+            testScheduler.AdvanceTo(50);
+
+            testObservable.Subscriptions.Count.Should().Be(1);
+
+            testScheduler.AdvanceTo(101);
+
+            testObservable.Subscriptions.Count.Should().Be(1);
+            testObserver.Messages.Should().Contain(z => z.Value.Kind == NotificationKind.OnNext);
+            testObserver.Messages.Should().Contain(z => z.Value.Kind == NotificationKind.OnCompleted);
         }
 
         [Fact]
         public void ShouldScheduleSerialInOrder()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(3); // 3x s.Add
-                var running = 0;
-                var peek = 0;
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                Func<Task> HandlePeek = async () => {
-                    var p = Interlocked.Increment(ref running);
-                    lock (this) peek = Math.Max(peek, p);
-                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref running);
-                    done.Signal();
-                };
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
 
-                s.Start();
-                for (var i = 0; i < done.CurrentCount; i++)
-                    s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
+            s.Start();
+            for (var i = 0; i < 8; i++)
+                s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
 
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-                running.Should().Be(0, because: "all tasks have to run normally");
-                peek.Should().Be(1, because: "all tasks must not overlap");
-                s.Dispose();
-                // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
-            }
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(8);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(100, Unit.Default),
+                    OnNext(200, Unit.Default),
+                    OnNext(300, Unit.Default),
+                    OnNext(400, Unit.Default),
+                    OnNext(500, Unit.Default),
+                    OnNext(600, Unit.Default),
+                    OnNext(700, Unit.Default),
+                    OnNext(800, Unit.Default)
+                );
         }
 
         [Fact]
         public void ShouldScheduleParallelInParallel()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(8); // 8x s.Add
-                var running = 0;
-                var peek = 0;
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                Func<Task> HandlePeek = async () => {
-                    var p = Interlocked.Increment(ref running);
-                    lock (this) peek = Math.Max(peek, p);
-                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref running);
-                    done.Signal();
-                };
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
 
-                s.Start();
-                for (var i = 0; i < done.CurrentCount; i++)
-                    s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
+            s.Start();
+            for (var i = 0; i < 8; i++)
+                s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
 
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-                running.Should().Be(0, because: "all tasks have to run normally");
-                peek.Should().BeGreaterThan(8, because: "a lot of tasks should overlap");
-                s.Dispose();
-                // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
-            }
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(8);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default)
+                );
         }
 
         [Fact]
         public void ShouldScheduleMixed()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(8); // 8x s.Add
-                var running = 0;
-                var peek = 0;
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                Func<Task> handlePeek = async () => {
-                    var p = Interlocked.Increment(ref running);
-                    lock (this) peek = Math.Max(peek, p);
-                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref running);
-                    done.Signal();
-                };
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
 
-                s.Start();
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", handlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", handlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", handlePeek);
+            s.Start();
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
 
-                done.Wait(ALONGTIME_MS);
-                peek.Should().Be(4, because: "some tasks should overlap");
-                running.Should().Be(0, because: "all tasks have to run normally");
-                done.IsSet.Should().Be(true, because: "all tasks have to run");
-                s.Dispose();
-                // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
-            }
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(8);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(200, Unit.Default),
+                    OnNext(300, Unit.Default),
+                    OnNext(300, Unit.Default),
+                    OnNext(400, Unit.Default)
+                );
         }
 
         [Fact]
         public void ShouldScheduleSerial()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(4); // 8x s.Add
-                var running = 0;
-                var peek = 0;
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                Func<Task> HandlePeek = async () => {
-                    var p = Interlocked.Increment(ref running);
-                    lock (this) peek = Math.Max(peek, p);
-                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref running);
-                    done.Signal();
-                };
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
 
-                s.Start();
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
+            s.Start();
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
 
-                done.Wait(ALONGTIME_MS);
-                running.Should().Be(0, because: "all tasks have to run normally");
-                peek.Should().Be(1, because: "no tasks should overlap");
-                done.IsSet.Should().Be(true, because: "all tasks have to run");
-                s.Dispose();
-                // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
-            }
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(4);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(100, Unit.Default),
+                    OnNext(200, Unit.Default),
+                    OnNext(300, Unit.Default),
+                    OnNext(400, Unit.Default)
+                );
         }
 
         [Fact]
         public void ShouldScheduleWithConcurrency()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), 3))
-            {
-                var done = new CountdownEvent(8); // 8x s.Add
-                var running = 0;
-                var peek = 0;
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                Func<Task> HandlePeek = async () => {
-                    var p = Interlocked.Increment(ref running);
-                    lock (this) peek = Math.Max(peek, p);
-                    await Task.Delay(SLEEPTIME_MS); // give a different HandlePeek task a chance to run
-                    Interlocked.Decrement(ref running);
-                    done.Signal();
-                };
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), 3);
 
-                s.Start();
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Parallel, "bogus", HandlePeek);
-                s.Add(RequestProcessType.Serial, "bogus", HandlePeek);
+            s.Start();
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
 
-                done.Wait(ALONGTIME_MS);
-                running.Should().Be(0, because: "all tasks have to run normally");
-                peek.Should().Be(3, because: "only allow a set number of concurrent tasks");
-                done.IsSet.Should().Be(true, because: "all tasks have to run");
-                s.Dispose();
-                // Interlocked.Read(ref ((ProcessScheduler)s)._TestOnly_NonCompleteTaskCount).Should().Be(0, because: "the scheduler must not wait for tasks to complete after disposal");
-            }
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(8);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(100, Unit.Default),
+                    OnNext(200, Unit.Default),
+                    OnNext(300, Unit.Default),
+                    OnNext(400, Unit.Default),
+                    OnNext(400, Unit.Default),
+                    OnNext(500, Unit.Default)
+                );
         }
 
         [Fact]
         public void Should_Handle_Cancelled_Tasks()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(2);
-                s.Start();
-                s.Add(RequestProcessType.Serial, "bogus", async () => {
-                    await Task.Delay(100);
-                    done.Signal();
-                });
-                s.Add(RequestProcessType.Serial, "somethingelse", Observable.Throw<Unit>(new TaskCanceledException()));
-                s.Add(RequestProcessType.Serial, "bogus", async () => {
-                    await Task.Delay(100);
-                    done.Signal();
-                });
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var errorObservable = testScheduler.CreateColdObservable(
+                OnError(100, new TaskCanceledException(), Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-            }
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+
+            s.Start();
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "somethingelse", errorObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(2);
+            var messages = testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
+                .ToArray();
+
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 100);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == 200 && x.Value.Exception is OperationCanceledException);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 300);
         }
 
         [Fact]
         public void Should_Handle_Exceptions_Tasks()
         {
-            using (IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null))
-            {
-                var done = new CountdownEvent(2);
-                s.Start();
-                s.Add(RequestProcessType.Serial, "bogus", async () => {
-                    await Task.Delay(100);
-                    done.Signal();
-                });
-                s.Add(RequestProcessType.Serial, "somethingelse", Observable.Throw<Unit>(new Exception()));
-                s.Add(RequestProcessType.Serial, "bogus", async () => {
-                    await Task.Delay(100);
-                    done.Signal();
-                });
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(100, Unit.Default),
+                OnCompleted(100, Unit.Default)
+            );
+            var errorObservable = testScheduler.CreateColdObservable(
+                OnError(100, new NotSameException(), Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
 
-                done.Wait(ALONGTIME_MS).Should().Be(true, because: "all tasks have to run");
-            }
+            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+
+            s.Start();
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "somethingelse", errorObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(2);
+            var messages = testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
+                .ToArray();
+
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 100);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == 200 && x.Value.Exception is NotSameException);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 300);
+
         }
     }
 }
