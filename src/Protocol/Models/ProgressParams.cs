@@ -1,9 +1,11 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(GeneralNames.Progress)]
     public class ProgressParams : IRequest
     {
         public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)

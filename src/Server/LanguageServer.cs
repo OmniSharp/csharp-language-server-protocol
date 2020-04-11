@@ -280,25 +280,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             var handlerDisposable = _collection.Add(method, handler);
-            return RegisterHandlers(handlerDisposable);
+            return RegisterHandlers(handlerDisposable, CancellationToken.None);
         }
 
         public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
         {
             var handlerDisposable = _collection.Add(method, handlerFunc);
-            return RegisterHandlers(handlerDisposable);
+            return RegisterHandlers(handlerDisposable, CancellationToken.None);
         }
 
         public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
         {
             var handlerDisposable = _collection.Add(handlers);
-            return RegisterHandlers(handlerDisposable);
+            return RegisterHandlers(handlerDisposable, CancellationToken.None);
         }
 
         public IDisposable AddHandler(string method, Type handlerType)
         {
             var handlerDisposable = _collection.Add(method, handlerType);
-            return RegisterHandlers(handlerDisposable);
+            return RegisterHandlers(handlerDisposable, CancellationToken.None);
         }
 
         public IDisposable AddHandler<T>()
@@ -310,7 +310,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable AddHandlers(params Type[] handlerTypes)
         {
             var handlerDisposable = _collection.Add(_serviceProvider, handlerTypes);
-            return RegisterHandlers(handlerDisposable);
+            return RegisterHandlers(handlerDisposable, CancellationToken.None);
         }
 
         public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
@@ -350,7 +350,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 await _initializeComplete
                     .Select(result => _startedDelegates.Select(@delegate =>
-                            Observable.FromAsync(() => @delegate(this, result))
+                            Observable.FromAsync(() => @delegate(this, result, token))
                         )
                         .ToObservable()
                         .Merge()
@@ -370,7 +370,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
+        private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable, CancellationToken token)
         {
             var registrations = new List<Registration>();
             foreach (var descriptor in handlerDisposable.Descriptors)
@@ -389,7 +389,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     // Fire and forget to initialize the handler
                     _initializeComplete
                         .Select(result =>
-                            Observable.FromAsync(() => descriptor.StartedDelegate(this, result)))
+                            Observable.FromAsync(() => descriptor.StartedDelegate(this, result, token)))
                         .Merge()
                         .Subscribe();
                 }
@@ -464,7 +464,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
             _progressManager.Initialized(_responseRouter, _serializer, windowCapabilities);
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request)));
+            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request, token)));
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
 
@@ -578,7 +578,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
             };
 
-            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result)));
+            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result, token)));
 
             foreach (var item in _collection)
             {
@@ -638,19 +638,34 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _responseRouter.SendNotification(method, @params);
         }
 
-        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params)
+        public void SendNotification(IRequest @params)
         {
-            return _responseRouter.SendRequest<T, TResponse>(method, @params);
+            _responseRouter.SendNotification(@params);
         }
 
-        public Task<TResponse> SendRequest<TResponse>(string method)
+        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken)
         {
-            return _responseRouter.SendRequest<TResponse>(method);
+            return _responseRouter.SendRequest<T, TResponse>(method, @params, cancellationToken);
         }
 
-        public Task SendRequest<T>(string method, T @params)
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
         {
-            return _responseRouter.SendRequest(method, @params);
+            return _responseRouter.SendRequest(@params, cancellationToken);
+        }
+
+        public Task SendRequest(IRequest @params, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest(@params, cancellationToken);
+        }
+
+        public Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest<TResponse>(method, cancellationToken);
+        }
+
+        public Task SendRequest<T>(string method, T @params, CancellationToken cancellationToken)
+        {
+            return _responseRouter.SendRequest(method, @params, cancellationToken);
         }
 
         public TaskCompletionSource<JToken> GetRequest(long id)

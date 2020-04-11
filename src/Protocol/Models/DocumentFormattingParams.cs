@@ -1,10 +1,12 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+[Method(DocumentNames.Formatting)]
     public class DocumentFormattingParams : ITextDocumentIdentifierParams, IRequest<TextEditContainer>, IWorkDoneProgressParams
     {
         /// <summary>

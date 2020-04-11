@@ -1,6 +1,7 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -8,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// The parameters of a Workspace Symbol Request.
     /// </summary>
+    [Method(WorkspaceNames.WorkspaceSymbol)]
     public class WorkspaceSymbolParams : IRequest<Container<SymbolInformation>>, IWorkDoneProgressParams, IPartialItems<SymbolInformation>
     {
         /// <summary>

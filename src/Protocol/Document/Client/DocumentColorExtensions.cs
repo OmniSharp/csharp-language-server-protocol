@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentColorExtensions
     {
-        public static Task<Container<ColorPresentation>> DocumentColor(this ILanguageClientDocument mediator, DocumentColorParams @params)
+        public static Task<Container<ColorPresentation>> DocumentColor(this ILanguageClientDocument mediator, DocumentColorParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentColorParams, Container<ColorPresentation>>(DocumentNames.DocumentColor, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

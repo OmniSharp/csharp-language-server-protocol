@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     public static class RegisterCapabilityExtensions
     {
-        public static async Task RegisterCapability(this ILanguageServerClient mediator, RegistrationParams @params)
+        public static Task RegisterCapability(this ILanguageServerClient mediator, RegistrationParams @params, CancellationToken cancellationToken = default)
         {
-            await mediator.SendRequest(ClientNames.RegisterCapability, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

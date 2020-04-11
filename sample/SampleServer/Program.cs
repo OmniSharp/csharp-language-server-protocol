@@ -76,7 +76,7 @@ namespace SampleServer
                             Section = "terminal",
                         });
                     })
-                    .OnInitialize(new InitializeDelegate(async (server, request) => {
+                    .OnInitialize(async (server, request, token) => {
                         var manager = server.ProgressManager.WorkDone(request, new WorkDoneProgressBegin() {
                             Title = "Server is starting...",
                             Percentage = 10,
@@ -89,8 +89,8 @@ namespace SampleServer
                             Percentage = 20,
                             Message = "loading in progress"
                         });
-                    }))
-                    .OnInitialized(new InitializedDelegate(async (server, request, response) => {
+                    })
+                    .OnInitialized(async (server, request, response, token) => {
                         workDone.OnNext(new WorkDoneProgressReport() {
                             Percentage = 40,
                             Message = "loading almost done",
@@ -102,9 +102,10 @@ namespace SampleServer
                             Message = "loading done",
                             Percentage = 100,
                         });
-                    }))
-                    .OnStarted(async (languageServer, result) => {
-                        using var manager = await languageServer.ProgressManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
+                        workDone.OnCompleted();
+                    })
+                    .OnStarted(async (languageServer, result, token) => {
+                        using var manager = languageServer.ProgressManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
 
                         manager.OnNext(new WorkDoneProgressReport() { Message = "doing things..." });
                         await Task.Delay(10000);

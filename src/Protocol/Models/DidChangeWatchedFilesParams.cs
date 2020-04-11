@@ -1,8 +1,10 @@
 using MediatR;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(WorkspaceNames.DidChangeWatchedFiles)]
     public class DidChangeWatchedFilesParams : IRequest
     {
         /// <summary>

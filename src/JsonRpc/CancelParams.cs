@@ -4,6 +4,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
+    [Method(JsonRpcNames.CancelRequest)]
     public class CancelParams : IRequest
     {
         /// <summary>

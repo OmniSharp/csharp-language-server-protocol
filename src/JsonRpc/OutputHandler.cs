@@ -18,13 +18,14 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public OutputHandler(Stream output, ISerializer serializer)
         {
-            if (!output.CanWrite) throw new ArgumentException($"must provide a writable stream for {nameof(output)}", nameof(output));
+            if (!output.CanWrite)
+                throw new ArgumentException($"must provide a writable stream for {nameof(output)}", nameof(output));
             _output = output;
             _serializer = serializer;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
             _outputIsFinished = new TaskCompletionSource<object>();
-            _thread = new Thread(ProcessOutputQueue) { IsBackground = true, Name = "ProcessOutputQueue" };
+            _thread = new Thread(ProcessOutputQueue) {IsBackground = true, Name = "ProcessOutputQueue"};
         }
 
         public void Start()
@@ -32,9 +33,10 @@ namespace OmniSharp.Extensions.JsonRpc
             _thread.Start();
         }
 
-        public void Send(object value)
+        public void Send(object value, CancellationToken cancellationToken)
         {
-            _queue.Add(value);
+            if (!cancellationToken.IsCancellationRequested)
+                _queue.Add(value);
         }
 
         private void ProcessOutputQueue()
@@ -62,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             ms.Write(contentBytes, 0, contentBytes.Length);
                             if (!token.IsCancellationRequested)
                             {
-                                _output.Write(ms.ToArray(), 0, (int)ms.Position);
+                                _output.Write(ms.ToArray(), 0, (int) ms.Position);
                             }
                         }
 

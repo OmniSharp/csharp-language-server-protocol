@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -7,9 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
     public static class ApplyEditExtensions
     {
-        public static Task<ApplyWorkspaceEditResponse> ApplyEdit(this ILanguageServerWorkspace mediator, ApplyWorkspaceEditParams @params)
+        public static Task<ApplyWorkspaceEditResponse> ApplyEdit(this ILanguageServerWorkspace mediator, ApplyWorkspaceEditParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<ApplyWorkspaceEditParams, ApplyWorkspaceEditResponse>(WorkspaceNames.ApplyEdit, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -1,8 +1,10 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(DocumentNames.SelectionRange)]
     public class SelectionRangeParam : ITextDocumentIdentifierParams, IRequest<Container<SelectionRange>>, IWorkDoneProgressParams, IPartialItems<SelectionRange>
     {
         /// <summary>
