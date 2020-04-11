@@ -60,12 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public override bool Equals(object obj)
         {
             return obj is ProgressToken token &&
-                   EqualityComparer<long?>.Default.Equals(_long, token._long) &&
-                   _string == token._string &&
-                   IsLong == token.IsLong &&
-                   Long == token.Long &&
-                   IsString == token.IsString &&
-                   String == token.String;
+                   this.Equals(token);
         }
 
         public override int GetHashCode()
@@ -82,7 +77,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool Equals(ProgressToken other)
         {
-            return this.Equals(other);
+            return EqualityComparer<long?>.Default.Equals(_long, other._long) &&
+                   _string == other._string &&
+                   IsLong == other.IsLong &&
+                   Long == other.Long &&
+                   IsString == other.IsString &&
+                   String == other.String;
         }
 
         public bool Equals(long other)
