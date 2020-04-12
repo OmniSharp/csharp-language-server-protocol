@@ -1,3 +1,5 @@
+using System;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class DocumentNames
@@ -34,5 +36,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";
         public const string FoldingRange = "textDocument/foldingRange";
+        [Obsolete(Constants.Proposal)]
+        public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
+        [Obsolete(Constants.Proposal)]
+        public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
+        [Obsolete(Constants.Proposal)]
+        public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
+        [Obsolete(Constants.Proposal)]
+        public const string SemanticTokens = "textDocument/semanticTokens";
+        [Obsolete(Constants.Proposal)]
+        public const string SemanticTokensEdits = "textDocument/semanticTokens/edits";
+        [Obsolete(Constants.Proposal)]
+        public const string SemanticTokensRange = "textDocument/semanticTokens/range";
     }
 }

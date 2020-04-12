@@ -3,6 +3,9 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    /// <summary>
+    /// Specific capabilities for the `SymbolKind`.
+    /// </summary>
     public class SymbolKindCapability
     {
         /// <summary>

@@ -6,6 +6,7 @@ using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+#pragma warning disable 618
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
@@ -14,15 +15,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         private readonly CompletionItemKind[] _completionItemKinds;
         private readonly SymbolKind[] _documentSymbolKinds;
         private readonly SymbolKind[] _workspaceSymbolKinds;
+        private readonly SymbolTag[] _documentSymbolTags;
+        private readonly SymbolTag[] _workspaceSymbolTags;
 
         public ContractResolver(
             CompletionItemKind[] completionItemKinds,
             SymbolKind[] documentSymbolKinds,
-            SymbolKind[] workspaceSymbolKinds)
+            SymbolKind[] workspaceSymbolKinds,
+            SymbolTag[] documentSymbolTags,
+            SymbolTag[] workspaceSymbolTags)
         {
             _completionItemKinds = completionItemKinds;
             _documentSymbolKinds = documentSymbolKinds;
             _workspaceSymbolKinds = workspaceSymbolKinds;
+            _documentSymbolTags = documentSymbolTags;
+            _workspaceSymbolTags = workspaceSymbolTags;
             NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
         }
 
@@ -52,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
             var property = base.CreateProperty(member, memberSerialization);
             if (member.GetCustomAttributes<OptionalAttribute>().Any()
-             || property.DeclaringType.Name.EndsWith("Capabilities")
+                || property.DeclaringType.Name.EndsWith("Capabilities")
             )
             {
                 property.NullValueHandling = NullValueHandling.Ignore;
@@ -60,17 +67,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(CompletionItem) && property.PropertyType == typeof(CompletionItemKind))
             {
-                property.ValueProvider = new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
+                property.ValueProvider =
+                    new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
             }
 
-            if (property.DeclaringType == typeof(SymbolInformation) && property.PropertyType == typeof(SymbolKind))
+            if (property.DeclaringType == typeof(DocumentSymbol))
             {
-                property.ValueProvider = new RangeValueProvider<SymbolKind>(property.ValueProvider, _documentSymbolKinds);
+                if (property.PropertyType == typeof(SymbolKind))
+                {
+                    property.ValueProvider =
+                        new RangeValueProvider<SymbolKind>(property.ValueProvider, _documentSymbolKinds);
+                }
+
+                if (property.PropertyType == typeof(Container<SymbolTag>))
+                {
+                    property.ValueProvider = new RangeValueProvider<SymbolTag>(property.ValueProvider, _documentSymbolTags);
+                }
             }
 
-            if (property.DeclaringType == typeof(SymbolInformation) && property.PropertyType == typeof(SymbolKind))
+            if (property.DeclaringType == typeof(SymbolInformation))
             {
-                property.ValueProvider = new RangeValueProvider<SymbolKind>(property.ValueProvider, _workspaceSymbolKinds);
+                if (property.PropertyType == typeof(SymbolKind))
+                {
+                    property.ValueProvider =
+                        new RangeValueProvider<SymbolKind>(property.ValueProvider, _workspaceSymbolKinds);
+                }
+                if (property.PropertyType == typeof(Container<SymbolTag>))
+                {
+                    property.ValueProvider = new RangeValueProvider<SymbolTag>(property.ValueProvider, _workspaceSymbolTags);
+                }
             }
 
             return property;
