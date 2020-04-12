@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
@@ -6,6 +7,7 @@ using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
 #pragma warning disable 618
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
@@ -81,7 +83,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
                 if (property.PropertyType == typeof(Container<SymbolTag>))
                 {
-                    property.ValueProvider = new RangeValueProvider<SymbolTag>(property.ValueProvider, _documentSymbolTags);
+                    property.ValueProvider =
+                        new ArrayRangeValueProvider<SymbolTag>(property.ValueProvider, _documentSymbolTags);
                 }
             }
 
@@ -92,9 +95,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                     property.ValueProvider =
                         new RangeValueProvider<SymbolKind>(property.ValueProvider, _workspaceSymbolKinds);
                 }
+
                 if (property.PropertyType == typeof(Container<SymbolTag>))
                 {
-                    property.ValueProvider = new RangeValueProvider<SymbolTag>(property.ValueProvider, _workspaceSymbolTags);
+                    property.ValueProvider =
+                        new ArrayRangeValueProvider<SymbolTag>(property.ValueProvider, _workspaceSymbolTags);
                 }
             }
 
@@ -122,8 +127,44 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             public object GetValue(object target)
             {
-                var value = (T) _valueProvider.GetValue(target);
-                return _validValues.Any(z => z.Equals(value)) ? value : _defaultValue;
+                var value = _valueProvider.GetValue(target);
+                if (value is T)
+                {
+                    return _validValues.Any(z => z.Equals(value)) ? value : _defaultValue;
+                }
+
+                return _defaultValue;
+            }
+        }
+
+        class ArrayRangeValueProvider<T> : IValueProvider
+            where T : struct
+        {
+            private readonly IValueProvider _valueProvider;
+            private readonly T[] _validValues;
+            private readonly T _defaultValue;
+
+            public ArrayRangeValueProvider(IValueProvider valueProvider, T[] validValues)
+            {
+                _valueProvider = valueProvider;
+                _validValues = validValues;
+                _defaultValue = validValues[0];
+            }
+
+            public void SetValue(object target, object value)
+            {
+                _valueProvider.SetValue(target, value);
+            }
+
+            public object GetValue(object target)
+            {
+                var value = _valueProvider.GetValue(target);
+                if (value is IEnumerable<T> values)
+                {
+                    return values.Join(_validValues, z => z, z => z, (a, b) => a).ToArray();
+                }
+
+                return null;
             }
         }
     }

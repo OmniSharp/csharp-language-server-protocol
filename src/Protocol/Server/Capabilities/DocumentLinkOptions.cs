@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public static DocumentLinkOptions Of(IDocumentLinkOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new DocumentLinkOptions() {
-                ResolveProvider = options.ResolveProvider  || descriptors.Any(z => z.ImplementationType == typeof(IDocumentLinkResolveHandler)) ,
+                ResolveProvider = options.ResolveProvider  || descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)) ,
                 WorkDoneProgress = options.WorkDoneProgress,
             };
         }

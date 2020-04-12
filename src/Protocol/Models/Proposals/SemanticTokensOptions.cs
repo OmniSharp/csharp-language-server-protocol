@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             };
             if (!result.DocumentProvider.IsSupported || result.DocumentProvider.Value.Edits != true)
             {
-                var edits = descriptors.Any(z => z.ImplementationType == typeof(ISemanticTokensEditsHandler));
+                var edits = descriptors.Any(z => z.HandlerType == typeof(ISemanticTokensEditsHandler));
                 if (edits)
                 {
                     result.DocumentProvider = new Supports<SemanticTokensDocumentProviderOptions>(true,

@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public static RenameOptions Of(IRenameOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new RenameOptions() {
-                PrepareProvider = options.PrepareProvider || descriptors.Any(z => z.ImplementationType == typeof(IPrepareRenameHandler)),
+                PrepareProvider = options.PrepareProvider || descriptors.Any(z => z.HandlerType == typeof(IPrepareRenameHandler)),
                 WorkDoneProgress = options.WorkDoneProgress
             };
         }

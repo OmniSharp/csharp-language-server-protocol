@@ -146,8 +146,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ServerInfo serverInfo,
             Action<IConfigurationBuilder> configurationBuilderAction)
         {
-            var outputHandler = new OutputHandler(output, serializer);
-
             var configurationProvider = new DidChangeConfigurationProvider(this, configurationBuilderAction);
             services.AddSingleton<IJsonRpcHandler>(configurationProvider);
 
@@ -169,7 +167,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedDelegates = initializedDelegates;
             _startedDelegates = startedDelegates;
 
-            services.AddSingleton<IOutputHandler>(outputHandler);
+            services.AddSingleton<IOutputHandler>(_ => ActivatorUtilities.CreateInstance<OutputHandler>(_, output));
             services.AddSingleton(_collection);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);

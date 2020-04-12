@@ -70,9 +70,9 @@ namespace SampleServer
                 var index = 0;
                 foreach (var part in parts)
                 {
-                    if (string.IsNullOrWhiteSpace(part)) continue;
                     typesEnumerator.MoveNext();
                     modifiersEnumerator.MoveNext();
+                    if (string.IsNullOrWhiteSpace(part)) continue;
                     index = text.IndexOf(part, index, StringComparison.Ordinal);
                     builder.Push(line, index, part.Length, typesEnumerator.Current, modifiersEnumerator.Current);
                 }

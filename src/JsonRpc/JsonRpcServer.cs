@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.JsonRpc
             IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
             IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers)
         {
-            var outputHandler = new OutputHandler(output, serializer);
+            var outputHandler = new OutputHandler(output, serializer, loggerFactory.CreateLogger<OutputHandler>());
 
             services.AddLogging();
             _receiver = receiver;
