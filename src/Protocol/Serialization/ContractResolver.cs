@@ -15,23 +15,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
     class ContractResolver : DefaultContractResolver
     {
         private readonly CompletionItemKind[] _completionItemKinds;
+        private readonly CompletionItemTag[] _completionItemTags;
         private readonly SymbolKind[] _documentSymbolKinds;
         private readonly SymbolKind[] _workspaceSymbolKinds;
         private readonly SymbolTag[] _documentSymbolTags;
         private readonly SymbolTag[] _workspaceSymbolTags;
+        private readonly DiagnosticTag[] _diagnosticTags;
+        private readonly CodeActionKind[] _codeActionKinds;
 
         public ContractResolver(
             CompletionItemKind[] completionItemKinds,
+            CompletionItemTag[] completionItemTags,
             SymbolKind[] documentSymbolKinds,
             SymbolKind[] workspaceSymbolKinds,
             SymbolTag[] documentSymbolTags,
-            SymbolTag[] workspaceSymbolTags)
+            SymbolTag[] workspaceSymbolTags,
+            DiagnosticTag[] diagnosticTags,
+            CodeActionKind[] codeActionKinds)
         {
             _completionItemKinds = completionItemKinds;
+            _completionItemTags = completionItemTags;
             _documentSymbolKinds = documentSymbolKinds;
             _workspaceSymbolKinds = workspaceSymbolKinds;
             _documentSymbolTags = documentSymbolTags;
             _workspaceSymbolTags = workspaceSymbolTags;
+            _diagnosticTags = diagnosticTags;
+            _codeActionKinds = codeActionKinds;
             NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
         }
 
@@ -67,10 +76,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 property.NullValueHandling = NullValueHandling.Ignore;
             }
 
-            if (property.DeclaringType == typeof(CompletionItem) && property.PropertyType == typeof(CompletionItemKind))
+            if (property.DeclaringType == typeof(CompletionItem))
             {
-                property.ValueProvider =
-                    new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
+                if (property.PropertyType == typeof(CompletionItemKind))
+                {
+                    property.ValueProvider =
+                        new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
+                }
+
+                if (property.PropertyType == typeof(Container<CompletionItemTag>))
+                {
+                    property.ValueProvider =
+                        new ArrayRangeValueProvider<CompletionItemTag>(property.ValueProvider, _completionItemTags);
+                }
             }
 
             if (property.DeclaringType == typeof(DocumentSymbol))
@@ -85,6 +103,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 {
                     property.ValueProvider =
                         new ArrayRangeValueProvider<SymbolTag>(property.ValueProvider, _documentSymbolTags);
+                }
+            }
+
+            if (property.DeclaringType == typeof(Diagnostic))
+            {
+                if (property.PropertyType == typeof(Container<DiagnosticTag>))
+                {
+                    property.ValueProvider =
+                        new ArrayRangeValueProvider<DiagnosticTag>(property.ValueProvider, _diagnosticTags);
+                }
+            }
+
+            if (property.DeclaringType == typeof(CodeAction))
+            {
+                if (property.PropertyType == typeof(CodeActionKind))
+                {
+                    property.ValueProvider =
+                        new RangeValueProvider<CodeActionKind>(property.ValueProvider, _codeActionKinds);
                 }
             }
 
@@ -142,13 +178,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
             private readonly IValueProvider _valueProvider;
             private readonly T[] _validValues;
-            private readonly T _defaultValue;
 
             public ArrayRangeValueProvider(IValueProvider valueProvider, T[] validValues)
             {
                 _valueProvider = valueProvider;
                 _validValues = validValues;
-                _defaultValue = validValues[0];
             }
 
             public void SetValue(object target, object value)

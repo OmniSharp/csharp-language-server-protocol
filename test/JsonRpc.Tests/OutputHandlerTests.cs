@@ -17,6 +17,9 @@ namespace JsonRpc.Tests
     {
         private static (OutputHandler handler, Func<Task> wait) NewHandler(Stream Writer, Action<CancellationTokenSource> action)
         {
+
+            AppDomain.CurrentDomain.UnhandledException += (sender, args) => {
+            };
             var cts = new CancellationTokenSource();
             if (!System.Diagnostics.Debugger.IsAttached)
                 cts.CancelAfter(TimeSpan.FromSeconds(120));

@@ -28,6 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         ///  Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
-        public Supports<SemanticTokensDocumentProviderOptions> DocumentProvider { get; set; }
+        public SemanticTokensDocumentProviderOptions DocumentProvider { get; set; }
     }
 }

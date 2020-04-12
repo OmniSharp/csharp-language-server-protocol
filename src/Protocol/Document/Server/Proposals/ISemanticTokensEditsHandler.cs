@@ -404,9 +404,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
                         new SemanticTokensDocumentProviderOptions() { })
             };
             registrationOptions.RangeProvider = true;
-            if (registrationOptions.DocumentProvider.IsSupported && registrationOptions.DocumentProvider.Value != null)
+            if (registrationOptions.DocumentProvider != null)
             {
-                registrationOptions.DocumentProvider.Value.Edits = true;
+                registrationOptions.DocumentProvider.Edits = true;
             }
 
             return registry.AddHandlers(

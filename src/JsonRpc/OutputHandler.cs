@@ -77,12 +77,14 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 _outputHandler.LogTrace(ex, "Cancellation happened");
                 _outputIsFinished.TrySetException(ex);
+                // _thread.Abort(ex);
                 // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
             }
             catch (Exception e)
             {
                 _outputHandler.LogTrace(e, "Could not write to output handler, perhaps serialization failed?");
-                throw;
+                _outputIsFinished.TrySetException(e);
+                // _thread.Abort(e);
             }
         }
 

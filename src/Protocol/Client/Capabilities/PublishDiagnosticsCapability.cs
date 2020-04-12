@@ -21,5 +21,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public PublishDiagnosticsTagSupportCapability TagSupport { get; set; }
+
+        /// <summary>
+        /// Whether the client interprets the version property of the
+        /// `textDocument/publishDiagnostics` notification's parameter.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public bool VersionSupport { get; set; }
     }
 }

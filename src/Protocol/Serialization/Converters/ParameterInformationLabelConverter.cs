@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsLabel)
                 serializer.Serialize(writer, value.Label);
             if (value.IsRange)
-                serializer.Serialize(writer, value.Range);
+                serializer.Serialize(writer, new [] { value.Range.start, value.Range.end });
         }
 
         public override ParameterInformationLabel ReadJson(JsonReader reader, Type objectType, ParameterInformationLabel existingValue, bool hasExistingValue, JsonSerializer serializer)

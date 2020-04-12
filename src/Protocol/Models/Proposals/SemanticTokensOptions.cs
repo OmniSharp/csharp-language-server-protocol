@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         ///  Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
-        public Supports<SemanticTokensDocumentProviderOptions> DocumentProvider { get; set; }
+        public SemanticTokensDocumentProviderOptions DocumentProvider { get; set; }
 
         public bool WorkDoneProgress { get; set; }
 
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                 DocumentProvider = options.DocumentProvider,
                 RangeProvider = options.RangeProvider
             };
-            if (!result.DocumentProvider.IsSupported || result.DocumentProvider.Value.Edits != true)
+            if (result.DocumentProvider!= null && result.DocumentProvider.Edits != true)
             {
                 var edits = descriptors.Any(z => z.HandlerType == typeof(ISemanticTokensEditsHandler));
                 if (edits)
