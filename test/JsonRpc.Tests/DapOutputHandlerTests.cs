@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -25,7 +26,8 @@ namespace JsonRpc.Tests
 
             var handler = new OutputHandler(
                 Writer,
-                new DapSerializer());
+                new DapSerializer(),
+                NullLogger<OutputHandler>.Instance);
             handler.Start();
             return (handler, () => {
                         cts.Wait();

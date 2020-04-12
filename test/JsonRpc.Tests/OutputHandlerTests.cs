@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NSubstitute;
 using FluentAssertions;
+using Microsoft.Extensions.Logging.Abstractions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
@@ -23,7 +24,8 @@ namespace JsonRpc.Tests
 
             var handler = new OutputHandler(
                 Writer,
-                new JsonRpcSerializer());
+                new JsonRpcSerializer(),
+                NullLogger<OutputHandler>.Instance);
             handler.Start();
             return (handler, () => {
                         cts.Wait();
