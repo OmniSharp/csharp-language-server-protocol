@@ -12,11 +12,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     public class SemanticTokensLegend
     {
         private ImmutableDictionary<string, int> _stringTokenModifiers;
-        private ImmutableDictionary<SemanticTokenModifiers?, int> _enumTokenModifiers;
+        private ImmutableDictionary<SemanticTokenModifiers, int> _enumTokenModifiers;
         private ImmutableDictionary<string, int> _stringTokenTypes;
-        private ImmutableDictionary<SemanticTokenTypes?, int> _enumTokenTypes;
-        private Container<string> _tokenTypes;
-        private Container<string> _tokenModifiers;
+        private ImmutableDictionary<SemanticTokenTypes, int> _enumTokenTypes;
+        private Container<string> _tokenTypes = new Container<string>(Enum.GetNames(typeof(SemanticTokenTypes)).Select(z => char.ToLower(z[0]) + z.Substring(1)).ToArray());
+        private Container<string> _tokenModifiers = new Container<string>(Enum.GetNames(typeof(SemanticTokenModifiers)).Select(z => char.ToLower(z[0]) + z.Substring(1)).ToArray());
 
         /// <summary>
         /// The token types a server uses.
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         {
             EnsureTokenTypes();
             if (!tokenType.HasValue) return 0;
-            return _enumTokenTypes.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            return _enumTokenTypes.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
         }
 
         public int GetTokenModifiersIdentity(params string[] tokenModifiers)
@@ -108,6 +108,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                     value: Enum.TryParse<SemanticTokenTypes>(value, out var result)
                         ? new SemanticTokenTypes?(result)
                         : null, index))
+                .Where(x => x.value.HasValue)
+                .Select(z => (value: z.value.Value, z.index))
                 .ToImmutableDictionary(z => z.value, z => z.index);
         }
 
@@ -122,6 +124,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                     value: Enum.TryParse<SemanticTokenModifiers>(value, out var result)
                         ? new SemanticTokenModifiers?(result)
                         : null, index))
+                .Where(x => x.value.HasValue)
+                .Select(z => (value: z.value.Value, z.index))
                 .ToImmutableDictionary(z => z.value, z => Convert.ToInt32(Math.Pow(2, z.index)));
         }
     }

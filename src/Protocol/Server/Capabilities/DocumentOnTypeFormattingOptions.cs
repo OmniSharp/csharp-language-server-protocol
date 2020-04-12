@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -21,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> MoreTriggerCharacter { get; set; }
 
-        public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options)
+        public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new DocumentOnTypeFormattingOptions()
             {

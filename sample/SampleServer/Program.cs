@@ -60,6 +60,7 @@ namespace SampleServer
                     .WithHandler<FoldingRangeHandler>()
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
+                    .WithHandler<SemanticTokens>()
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                     .WithServices(services => {
                         services.AddSingleton(provider => {

@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -40,15 +43,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> AllCommitCharacters { get; set; }
 
-        public static CompletionOptions Of(ICompletionOptions options)
+        public static CompletionOptions Of(ICompletionOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new CompletionOptions()
             {
-                ResolveProvider = options.ResolveProvider,
+                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.ImplementationType == typeof(ICompletionResolveHandler)),
                 AllCommitCharacters = options.AllCommitCharacters,
                 TriggerCharacters = options.TriggerCharacters,
                 WorkDoneProgress = options.WorkDoneProgress,
-
             };
         }
     }

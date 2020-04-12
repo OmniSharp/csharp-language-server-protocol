@@ -1,4 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -9,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    public class SemanticTokensOptions : WorkDoneProgressOptions, ISemanticTokensOptions
+    public class SemanticTokensOptions : StaticTextDocumentRegistrationOptions, ISemanticTokensOptions
     {
         /// <summary>
         ///  The legend used by the server
@@ -29,14 +33,30 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         [Optional]
         public Supports<SemanticTokensDocumentProviderOptions> DocumentProvider { get; set; }
 
-        public static SemanticTokensOptions Of(ISemanticTokensOptions options)
+        public bool WorkDoneProgress { get; set; }
+
+        public static SemanticTokensOptions Of(ISemanticTokensOptions options,
+            IEnumerable<IHandlerDescriptor> descriptors)
         {
-            return new SemanticTokensOptions() {
+            var result = new SemanticTokensOptions() {
                 WorkDoneProgress = options.WorkDoneProgress,
-                Legend = options.Legend,
+                Legend = options.Legend ?? new SemanticTokensLegend(),
                 DocumentProvider = options.DocumentProvider,
                 RangeProvider = options.RangeProvider
             };
+            if (!result.DocumentProvider.IsSupported || result.DocumentProvider.Value.Edits != true)
+            {
+                var edits = descriptors.Any(z => z.ImplementationType == typeof(ISemanticTokensEditsHandler));
+                if (edits)
+                {
+                    result.DocumentProvider = new Supports<SemanticTokensDocumentProviderOptions>(true,
+                        new SemanticTokensDocumentProviderOptions() {
+                            Edits = true
+                        });
+                }
+            }
+
+            return result;
         }
     }
 }

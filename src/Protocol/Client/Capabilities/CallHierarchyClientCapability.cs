@@ -22,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    public class SemanticTokensCapability : DynamicCapability
+    public class SemanticTokensCapability : DynamicCapability, ConnectedCapability<ISemanticTokensHandler>,
+        ConnectedCapability<ISemanticTokensEditsHandler>, ConnectedCapability<ISemanticTokensRangeHandler>
     {
         /// <summary>
         /// The token types that the client supports.

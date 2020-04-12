@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -37,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public SaveOptions Save { get; set; }
 
-        public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options)
+        public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             var change = TextDocumentSyncKind.None;
             if (options.Any(x => x.Change != TextDocumentSyncKind.None))

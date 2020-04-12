@@ -1,5 +1,8 @@
+using System.Collections.Generic;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -16,10 +19,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public bool ResolveProvider { get; set; }
 
-        public static DocumentLinkOptions Of(IDocumentLinkOptions options)
+        public static DocumentLinkOptions Of(IDocumentLinkOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new DocumentLinkOptions() {
-                ResolveProvider = options.ResolveProvider,
+                ResolveProvider = options.ResolveProvider  || descriptors.Any(z => z.ImplementationType == typeof(IDocumentLinkResolveHandler)) ,
                 WorkDoneProgress = options.WorkDoneProgress,
             };
         }

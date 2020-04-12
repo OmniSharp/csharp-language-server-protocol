@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         public Container<string> Commands { get; set; }
 
-        public static ExecuteCommandOptions Of(IEnumerable<IExecuteCommandOptions> options)
+        public static ExecuteCommandOptions Of(IEnumerable<IExecuteCommandOptions> options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new ExecuteCommandOptions() {
                 Commands = options.SelectMany(x => x.Commands).ToArray(),

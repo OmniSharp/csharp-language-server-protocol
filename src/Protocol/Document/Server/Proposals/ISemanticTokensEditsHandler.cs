@@ -52,18 +52,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
         public virtual async Task<SemanticTokens> Handle(SemanticTokensParams request,
             CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request);
+            var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Create();
-            await Tokenize(builder, request);
+            await Tokenize(builder, request, cancellationToken);
             return builder.Commit().GetSemanticTokens();
         }
 
         public virtual async Task<SemanticTokensOrSemanticTokensEdits> Handle(SemanticTokensEditsParams request,
             CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request);
+            var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Edit(request);
-            await Tokenize(builder, request);
+            await Tokenize(builder, request, cancellationToken);
             return builder.Commit().GetSemanticTokensEdits();
         }
 
@@ -71,9 +71,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
         public virtual async Task<SemanticTokens> Handle(SemanticTokensRangeParams request,
             CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request);
+            var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Create();
-            await Tokenize(builder, request);
+            await Tokenize(builder, request, cancellationToken);
 
             return builder.Commit().GetSemanticTokens(request.Range);
         }
@@ -81,10 +81,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
         public virtual void SetCapability(SemanticTokensCapability capability) => Capability = capability;
         protected SemanticTokensCapability Capability { get; private set; }
 
-        protected abstract Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier);
+        protected abstract Task Tokenize(
+            SemanticTokensBuilder builder,
+            ITextDocumentIdentifierParams identifier,
+            CancellationToken cancellationToken);
 
-        protected abstract Task<SemanticTokensDocument>
-            GetSemanticTokensDocument(ITextDocumentIdentifierParams @params);
+        protected abstract Task<SemanticTokensDocument> GetSemanticTokensDocument(
+            ITextDocumentIdentifierParams @params, CancellationToken cancellationToken);
     }
 
     [Obsolete(Constants.Proposal)]
@@ -284,7 +287,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
                         {
                             capturing = false;
                             var overlap = ((currentCharOffset + charOffset + length) - range.End.Character);
-                            data.AddRange(lineOffset, charOffset, length -  overlap, _data[i + 3], _data[i + 4]);
+                            data.AddRange(lineOffset, charOffset, length - overlap, _data[i + 3], _data[i + 4]);
                             break;
                         }
 
@@ -389,8 +392,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
     {
         public static IDisposable OnSemanticTokensEdits(
             this ILanguageServerRegistry registry,
-            Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, Task> tokenize,
-            Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>> getSemanticTokensDocument,
+            Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, CancellationToken, Task> tokenize,
+            Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>>
+                getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions = null,
             Action<SemanticTokensCapability> setCapability = null)
         {
@@ -411,16 +415,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
 
         class DelegatingHandler : SemanticTokensHandler
         {
-            private readonly Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, Task> _tokenize;
+            private readonly Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, CancellationToken, Task>
+                _tokenize;
 
-            private readonly Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>>
+            private readonly Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>>
                 _getSemanticTokensDocument;
 
             private readonly Action<SemanticTokensCapability> _setCapability;
 
             public DelegatingHandler(
-                Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, Task> tokenize,
-                Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>> getSemanticTokensDocument,
+                Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, CancellationToken, Task> tokenize,
+                Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>>
+                    getSemanticTokensDocument,
                 Action<SemanticTokensCapability> setCapability,
                 SemanticTokensRegistrationOptions registrationOptions) : base(registrationOptions)
             {
@@ -429,11 +435,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
                 _setCapability = setCapability;
             }
 
-            protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier) =>
-                _tokenize(builder, identifier);
+            protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier,
+                CancellationToken cancellationToken) =>
+                _tokenize(builder, identifier, cancellationToken);
 
             protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(
-                ITextDocumentIdentifierParams @params) => _getSemanticTokensDocument(@params);
+                ITextDocumentIdentifierParams @params, CancellationToken cancellationToken) =>
+                _getSemanticTokensDocument(@params, cancellationToken);
 
             public override void SetCapability(SemanticTokensCapability capability) =>
                 _setCapability?.Invoke(capability);

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -5,16 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class DocumentColorOptions : StaticWorkDoneTextDocumentRegistrationOptions, IDocumentColorOptions
     {
-        /// <summary>
-        ///  Code lens has a resolve provider as well.
-        /// </summary>
-        [Optional]
-        public bool ResolveProvider { get; set; }
-
-        public static DocumentColorOptions Of(IDocumentColorOptions options)
+        public static DocumentColorOptions Of(IDocumentColorOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new DocumentColorOptions() {
-                ResolveProvider = options.ResolveProvider,
                 WorkDoneProgress = options.WorkDoneProgress,
             };
         }
