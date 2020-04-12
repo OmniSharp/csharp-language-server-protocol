@@ -2,7 +2,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class ParameterInformationLabel
     {
-        public ParameterInformationLabel((long start, long end) range)
+        public ParameterInformationLabel((int start, int end) range)
         {
             Range = range;
         }
@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             Label = label;
         }
 
-        public (long start, long end) Range { get; }
+        public (int start, int end) Range { get; }
         public bool IsRange => Label == null;
         public string Label { get; }
         public bool IsLabel => Label != null;
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new ParameterInformationLabel(label);
         }
 
-        public static implicit operator ParameterInformationLabel((long start, long end) range) {
+        public static implicit operator ParameterInformationLabel((int start, int end) range) {
             return new ParameterInformationLabel(range);
         }
     }

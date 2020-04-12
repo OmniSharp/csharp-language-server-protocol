@@ -21,22 +21,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The line of the goto target.
         /// </summary>
-        public long Line { get; set; }
+        public int Line { get; set; }
 
         /// <summary>
         /// An optional column of the goto target.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional] public int? Column { get; set; }
 
         /// <summary>
         /// An optional end line of the range covered by the goto target.
         /// </summary>
-        [Optional] public long? EndLine { get; set; }
+        [Optional] public int? EndLine { get; set; }
 
         /// <summary>
         /// An optional end column of the range covered by the goto target.
         /// </summary>
-        [Optional] public long? EndColumn { get; set; }
+        [Optional] public int? EndColumn { get; set; }
 
         /// <summary>
         /// Optional memory reference for the instruction pointer value represented by this target.

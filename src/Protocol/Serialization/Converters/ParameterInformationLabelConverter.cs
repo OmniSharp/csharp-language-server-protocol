@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var a = JArray.Load(reader);
-                return new ParameterInformationLabel((a[0].ToObject<long>(), a[1].ToObject<long>()));
+                return new ParameterInformationLabel((a[0].ToObject<int>(), a[1].ToObject<int>()));
             }
             throw new NotSupportedException();
         }

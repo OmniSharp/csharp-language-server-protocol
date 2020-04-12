@@ -30,21 +30,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The start line of the actual range covered by the breakpoint.
         /// </summary>
-        [Optional] public long? Line { get; set; }
+        [Optional] public int? Line { get; set; }
 
         /// <summary>
         /// An optional start column of the actual range covered by the breakpoint.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional] public int? Column { get; set; }
 
         /// <summary>
         /// An optional end line of the actual range covered by the breakpoint.
         /// </summary>
-        [Optional] public long? EndLine { get; set; }
+        [Optional] public int? EndLine { get; set; }
 
         /// <summary>
         /// An optional end column of the actual range covered by the breakpoint. If no end line is given, then the end column is assumed to be in the start line.
         /// </summary>
-        [Optional] public long? EndColumn { get; set; }
+        [Optional] public int? EndColumn { get; set; }
     }
 }

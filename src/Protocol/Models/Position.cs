@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         }
 
-        public Position(long line, long character)
+        public Position(int line, int character)
         {
             Line = line;
             Character = character;
@@ -20,12 +20,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Line position in a document (zero-based).
         /// </summary>
-        public long Line { get; set; }
+        public int Line { get; set; }
 
         /// <summary>
         /// Character offset on a line in a document (zero-based).
         /// </summary>
-        public long Character { get; set; }
+        public int Character { get; set; }
 
         public override bool Equals(object obj)
         {

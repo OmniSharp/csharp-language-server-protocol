@@ -26,12 +26,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// This value determines the location (in the CompletionsRequest's 'text' attribute) where the completion text is added.
         /// If missing the text is added at the location specified by the CompletionsRequest's 'column' attribute.
         /// </summary>
-        [Optional] public long? Start { get; set; }
+        [Optional] public int? Start { get; set; }
 
         /// <summary>
         /// This value determines how many characters are overwritten by the completion text.
         /// If missing the value 0 is assumed which results in the completion text being inserted.
         /// </summary>
-        [Optional] public long? Length { get; set; }
+        [Optional] public int? Length { get; set; }
     }
 }
