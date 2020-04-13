@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Reflection;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 {
@@ -11,16 +12,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [Obsolete(Constants.Proposal)]
     public class SemanticTokensLegend
     {
-        private ImmutableDictionary<string, int> _stringTokenModifiers;
-        private ImmutableDictionary<SemanticTokenModifiers, int> _enumTokenModifiers;
-        private ImmutableDictionary<string, int> _stringTokenTypes;
-        private ImmutableDictionary<SemanticTokenTypes, int> _enumTokenTypes;
+        private ImmutableDictionary<SemanticTokenModifier, int> _tokenModifiersData;
+        private ImmutableDictionary<SemanticTokenType, int> _tokenTypesData;
 
-        private Container<string> _tokenTypes = new Container<string>(Enum.GetNames(typeof(SemanticTokenTypes))
-            .Select(z => char.ToLower(z[0]) + z.Substring(1)).ToArray());
+        private Container<string> _tokenTypes = new Container<string>(SemanticTokenType
+            .Defaults
+                .Select(z => (string) z)
+                .ToArray()
+        );
 
-        private Container<string> _tokenModifiers = new Container<string>(Enum.GetNames(typeof(SemanticTokenModifiers))
-            .Select(z => char.ToLower(z[0]) + z.Substring(1)).ToArray());
+        private Container<string> _tokenModifiers = new Container<string>(
+            SemanticTokenModifier
+                .Defaults
+                .Select(z => (string) z)
+                .ToArray());
 
         /// <summary>
         /// The token types a server uses.
@@ -30,8 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             get => _tokenTypes;
             set {
                 _tokenTypes = value;
-                _enumTokenTypes = null;
-                _stringTokenTypes = null;
+                _tokenTypesData = null;
             }
         }
 
@@ -43,8 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             get => _tokenModifiers;
             set {
                 _tokenModifiers = value;
-                _enumTokenModifiers = null;
-                _stringTokenModifiers = null;
+                _tokenModifiersData = null;
             }
         }
 
@@ -52,22 +55,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         {
             EnsureTokenTypes();
             if (string.IsNullOrWhiteSpace(tokenType)) return 0;
-            return _stringTokenTypes.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            return _tokenTypesData.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
         }
 
-        public int GetTokenTypeIdentity(SemanticTokenTypes? tokenType)
+        public int GetTokenTypeIdentity(SemanticTokenType? tokenType)
         {
             EnsureTokenTypes();
             if (!tokenType.HasValue) return 0;
-            return _enumTokenTypes.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            if (string.IsNullOrWhiteSpace((tokenType.Value))) return 0;
+            return _tokenTypesData.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
         }
 
         public int GetTokenModifiersIdentity(params string[] tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
-            return tokenModifiers.Aggregate(0,
-                (acc, value) => _stringTokenModifiers.TryGetValue(value, out var tokenModifer)
+            return tokenModifiers
+                .Where(z => !string.IsNullOrWhiteSpace(z))
+                .Aggregate(0,
+                (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                     ? acc + tokenModifer
                     : acc);
         }
@@ -76,64 +82,57 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
-            return tokenModifiers.Aggregate(0,
-                (acc, value) => _stringTokenModifiers.TryGetValue(value, out var tokenModifer)
+            return tokenModifiers
+                .Where(z => !string.IsNullOrWhiteSpace(z))
+                .Aggregate(0,
+                (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                     ? acc + tokenModifer
                     : acc);
         }
 
-        public int GetTokenModifiersIdentity(params SemanticTokenModifiers[] tokenModifiers)
+        public int GetTokenModifiersIdentity(params SemanticTokenModifier[] tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
-            return tokenModifiers.Aggregate(0,
-                (acc, value) => _enumTokenModifiers.TryGetValue(value, out var tokenModifer)
+            return tokenModifiers
+                .Where(z => !string.IsNullOrWhiteSpace(z))
+                .Aggregate(0,
+                (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                     ? acc + tokenModifer
                     : acc);
         }
 
-        public int GetTokenModifiersIdentity(IEnumerable<SemanticTokenModifiers> tokenModifiers)
+        public int GetTokenModifiersIdentity(IEnumerable<SemanticTokenModifier> tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
-            return tokenModifiers.Aggregate(0,
-                (acc, value) => _enumTokenModifiers.TryGetValue(value, out var tokenModifer)
+            return tokenModifiers
+                .Where(z => !string.IsNullOrWhiteSpace(z))
+                .Aggregate(0,
+                (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                     ? acc + tokenModifer
                     : acc);
         }
 
         private void EnsureTokenTypes()
         {
-            _stringTokenTypes ??= TokenTypes
-                .Select((value, index) => (value, index))
-                .ToImmutableDictionary(z => z.value, z => z.index, StringComparer.OrdinalIgnoreCase);
-            _enumTokenTypes ??= TokenTypes
+            _tokenTypesData ??= TokenTypes
                 .Select((value, index) => (
-                    value: Enum.TryParse<SemanticTokenTypes>(value, true, out var result)
-                        ? new SemanticTokenTypes?(result)
-                        : null,
+                    value: new SemanticTokenType(value),
                     index
                 ))
-                .Where(x => x.value.HasValue)
-                .Select(z => (value: z.value.Value, z.index))
+                .Where(z => !string.IsNullOrWhiteSpace(z.value))
                 .ToImmutableDictionary(z => z.value, z => z.index);
         }
 
         private void EnsureTokenModifiers()
         {
-            _stringTokenModifiers ??= TokenModifiers
-                .Select((value, index) => (value, index))
-                .ToImmutableDictionary(z => z.value, z => Convert.ToInt32(Math.Pow(2, z.index)),
-                    StringComparer.OrdinalIgnoreCase);
-            _enumTokenModifiers ??= TokenModifiers
+            _tokenModifiersData ??= TokenModifiers
                 .Select((value, index) => (
-                    value: Enum.TryParse<SemanticTokenModifiers>(value, true, out var result)
-                        ? new SemanticTokenModifiers?(result)
-                        : null,
+                    value: new SemanticTokenModifier(value),
                     index
                 ))
-                .Where(x => x.value.HasValue)
-                .Select(z => (value: z.value.Value, z.index))
+                .Where(z => !string.IsNullOrWhiteSpace(z.value))
                 .ToImmutableDictionary(z => z.value, z => Convert.ToInt32(Math.Pow(2, z.index)));
         }
     }

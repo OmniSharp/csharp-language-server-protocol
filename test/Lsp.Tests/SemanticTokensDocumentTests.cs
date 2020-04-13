@@ -34,8 +34,8 @@ namespace Lsp.Tests
             _loggerFactory = new TestLoggerFactory(testOutputHelper);
             _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
             _legend = new SemanticTokensLegend() {
-                TokenModifiers = Enum.GetNames(typeof(SemanticTokenModifiers)),
-                TokenTypes = Enum.GetNames(typeof(SemanticTokenTypes)),
+                TokenModifiers = SemanticTokenModifier.Defaults.Select(x => x.ToString()).ToArray(),
+                TokenTypes = SemanticTokenType.Defaults.Select(x => x.ToString()).ToArray(),
             };
         }
 
@@ -54,47 +54,23 @@ namespace Lsp.Tests
             result.ResultId.Should().Be(document.Id);
             var data = Normalize(ExampleDocumentText, result.Data).ToArray();
             _logger.LogInformation("Some Data {Data}", data.AsEnumerable());
-            data.Should().ContainInOrder(
-                (NormalizedToken) "using (Member:Declaration|Abstract)",
-                (NormalizedToken) "System (Member:Declaration|Abstract)",
-                (NormalizedToken) "using (Interface:None)",
-                (NormalizedToken) "System (Namespace:Documentation)",
-                (NormalizedToken) "Collections (String:None)",
-                (NormalizedToken) "Generic (Keyword:None)",
-                (NormalizedToken) "using (Label:Documentation|Readonly)",
-                (NormalizedToken) "System (Macro:None)",
-                (NormalizedToken) "Linq (String:None)",
-                (NormalizedToken) "using (TypeParameter:Definition|Abstract|Readonly)",
-                (NormalizedToken) "System (Comment:None)",
-                (NormalizedToken) "Text (Macro:None)",
-                (NormalizedToken) "using (Number:None)",
-                (NormalizedToken) "System (Comment:None)",
-                (NormalizedToken) "Threading (Parameter:Documentation|Deprecated)",
-                (NormalizedToken) "Tasks (Number:None)",
-                (NormalizedToken) "namespace (Regexp:None)",
-                (NormalizedToken) "CSharpTutorials (Regexp:Documentation)",
-                (NormalizedToken) "{ (Comment:Abstract)",
-                (NormalizedToken) "class (Comment:None)",
-                (NormalizedToken) "Program (Namespace:Abstract)",
-                (NormalizedToken) "{ (Parameter:Documentation|Abstract)",
-                (NormalizedToken) "static (Comment:Deprecated)",
-                (NormalizedToken) "void (TypeParameter:None)",
-                (NormalizedToken) "Main (TypeParameter:None)",
-                (NormalizedToken) "string[] (Class:None)",
-                (NormalizedToken) "args (TypeParameter:None)",
-                (NormalizedToken) "{ (Comment:Documentation|Readonly)",
-                (NormalizedToken) "string (Label:Abstract|Readonly)",
-                (NormalizedToken) "message (Type:Definition|Deprecated)",
-                (NormalizedToken) "= (String:Static)",
-                (NormalizedToken) "Hello (TypeParameter:Definition|Static|Abstract)",
-                (NormalizedToken) "World!! (Type:Definition|Deprecated)",
-                (NormalizedToken) "Console (Comment:Documentation|Definition)",
-                (NormalizedToken) "WriteLine (Member:None)",
-                (NormalizedToken) "message (Comment:Documentation|Definition)",
-                (NormalizedToken) "} (Keyword:Abstract|Readonly)",
-                (NormalizedToken) "} (Variable:Documentation|Abstract)",
-                (NormalizedToken) "} (Class:Static|Deprecated)"
-            );
+            var expectedResponse = new NormalizedToken[] {
+                "using (member:static|abstract)", "System (member:static|abstract)", "using (interface:deprecated)",
+                "System (operator:documentation)", "Collections (keyword:none)", "Generic (comment:none)",
+                "using (label:documentation)", "System (macro:none)", "Linq (keyword:none)",
+                "using (enum:static|abstract)", "System (documentation:documentation|static)", "Text (macro:none)",
+                "using (string:none)", "System (documentation:none)", "Threading (parameter:documentation|definition)",
+                "Tasks (string:none)", "namespace (number:none)", "CSharpTutorials (number:documentation)",
+                "{ (documentation:static)", "class (documentation:none)", "Program (operator:abstract)",
+                "{ (parameter:documentation)", "static (documentation:deprecated)", "void (enum:none)",
+                "Main (enum:none)", "string[] (class:documentation|abstract)", "args (enum:none)",
+                "{ (documentation:documentation)", "string (label:documentation|static|readonly)",
+                "message (namespace:definition)", "= (keyword:definition|readonly)", "Hello (typeParameter:none)",
+                "World!! (namespace:definition)", "Console (documentation:documentation|declaration)",
+                "WriteLine (member:definition)", "message (documentation:documentation|declaration)",
+                "} (comment:abstract)", "} (variable:documentation|static|abstract)", "} (class:deprecated)"
+            };
+            data.Should().ContainInOrder(expectedResponse);
         }
 
         [Theory]
@@ -132,12 +108,9 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "ssage (Type:Definition|Deprecated)",
-                        "= (String:Static)",
-                        "Hello (TypeParameter:Definition|Static|Abstract)",
-                        "World!! (Type:Definition|Deprecated)",
-                        "Console (Comment:Documentation|Definition)",
-                        "WriteLi (Member:None)"
+                        "ssage (namespace:definition)", "= (keyword:definition|readonly)", "Hello (typeParameter:none)",
+                        "World!! (namespace:definition)", "Console (documentation:documentation|declaration)",
+                        "WriteLi (member:definition)"
                     }
                 );
                 Add(
@@ -152,22 +125,13 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "using (Member:Declaration|Abstract)",
-                        "System (Member:Declaration|Abstract)",
-                        "using (Interface:None)",
-                        "System (Namespace:Documentation)",
-                        "Collections (String:None)",
-                        "Generic (Keyword:None)",
-                        "using (Label:Documentation|Readonly)",
-                        "System (Macro:None)",
-                        "Linq (String:None)",
-                        "using (TypeParameter:Definition|Abstract|Readonly)",
-                        "System (Comment:None)",
-                        "Text (Macro:None)",
-                        "using (Number:None)",
-                        "System (Comment:None)",
-                        "Threading (Parameter:Documentation|Deprecated)",
-                        "Tasks (Number:None)"
+                        "using (member:static|abstract)", "System (member:static|abstract)",
+                        "using (interface:deprecated)", "System (operator:documentation)", "Collections (keyword:none)",
+                        "Generic (comment:none)", "using (label:documentation)", "System (macro:none)",
+                        "Linq (keyword:none)", "using (enum:static|abstract)",
+                        "System (documentation:documentation|static)", "Text (macro:none)", "using (string:none)",
+                        "System (documentation:none)", "Threading (parameter:documentation|definition)",
+                        "Tasks (string:none)"
                     }
                 );
                 Add(
@@ -182,9 +146,8 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "Console (Comment:Documentation|Definition)",
-                        "WriteLine (Member:None)",
-                        "message (Comment:Documentation|Definition)"
+                        "Console (documentation:documentation|declaration)", "WriteLine (member:definition)",
+                        "message (documentation:documentation|declaration)"
                     }
                 );
             }
@@ -236,67 +199,53 @@ namespace Lsp.Tests
                     ExampleDocumentText,
                     ExampleDocumentText.Replace("namespace CSharpTutorials", "namespace Something.Else.Entirely"),
                     new NormalizedToken[] {
-                        "using (Member:Declaration|Abstract)",
-                        "System (Member:Declaration|Abstract)",
-                        "using (Interface:None)",
-                        "System (Namespace:Documentation)",
-                        "Collections (String:None)",
-                        "Generic (Keyword:None)",
-                        "using (Label:Documentation|Readonly)",
-                        "System (Macro:None)",
-                        "Linq (String:None)",
-                        "using (TypeParameter:Definition|Abstract|Readonly)",
-                        "System (Comment:None)",
-                        "Text (Macro:None)",
-                        "using (Number:None)",
-                        "System (Comment:None)",
-                        "Threading (Parameter:Documentation|Deprecated)",
-                        "Tasks (Number:None)",
-                        "namespace (Variable:None)",
-                        "Something (Variable:None)",
-                        "Else (Comment:None)",
-                        "Entirely (Namespace:Documentation|Readonly)",
-                        "{ (Comment:Abstract)",
-                        "class (Comment:None)",
-                        "Program (Namespace:Abstract)",
-                        "{ (Parameter:Documentation|Abstract)",
-                        "static (Comment:Deprecated)",
-                        "void (TypeParameter:None)",
-                        "Main (TypeParameter:None)",
-                        "string[] (Class:None)",
-                        "args (TypeParameter:None)",
-                        "{ (Comment:Documentation|Readonly)",
-                        "string (Label:Abstract|Readonly)",
-                        "message (Type:Definition|Deprecated)",
-                        "= (String:Static)",
-                        "Hello (TypeParameter:Definition|Static|Abstract)",
-                        "World!! (Type:Definition|Deprecated)",
-                        "Console (Comment:Documentation|Definition)",
-                        "WriteLine (Member:None)",
-                        "message (Comment:Documentation|Definition)",
-                        "} (Keyword:Abstract|Readonly)",
-                        "} (Variable:Documentation|Abstract)",
-                        "} (Class:Static|Deprecated)"
+                        "using (member:static|abstract)", "System (member:static|abstract)",
+                        "using (interface:deprecated)", "System (operator:documentation)", "Collections (keyword:none)",
+                        "Generic (comment:none)", "using (label:documentation)", "System (macro:none)",
+                        "Linq (keyword:none)", "using (enum:static|abstract)",
+                        "System (documentation:documentation|static)", "Text (macro:none)", "using (string:none)",
+                        "System (documentation:none)", "Threading (parameter:documentation|definition)",
+                        "Tasks (string:none)", "namespace (variable:none)", "Something (variable:none)",
+                        "Else (documentation:none)", "Entirely (operator:none)", "{ (documentation:static)",
+                        "class (documentation:none)", "Program (operator:abstract)", "{ (parameter:documentation)",
+                        "static (documentation:deprecated)", "void (enum:none)", "Main (enum:none)",
+                        "string[] (class:documentation|abstract)", "args (enum:none)",
+                        "{ (documentation:documentation)", "string (label:documentation|static|readonly)",
+                        "message (namespace:definition)", "= (keyword:definition|readonly)",
+                        "Hello (typeParameter:none)", "World!! (namespace:definition)",
+                        "Console (documentation:documentation|declaration)", "WriteLine (member:definition)",
+                        "message (documentation:documentation|declaration)", "} (comment:abstract)",
+                        "} (variable:documentation|static|abstract)", "} (class:deprecated)"
                     });
-                Add("using", "using System;", new NormalizedToken[] { });
-                Add("using System;", "using", new NormalizedToken[] { });
+                Add("using", "using System;",
+                    new NormalizedToken[] {
+                        "using (member:static|abstract)", "System (member:static|abstract)"
+                    });
+                Add("using System;", "using", new NormalizedToken[] {
+                    "using (member:static|abstract)"
+                });
             }
         }
 
 
         private class TokenizationValue
         {
-            public SemanticTokenTypes? Type { get; set; }
-            public SemanticTokenModifiers[] Modifiers { get; set; }
+            public SemanticTokenType type { get; set; }
+            public SemanticTokenModifier[] Modifiers { get; set; }
         }
 
         private void Tokenize(string document, SemanticTokensBuilder builder)
         {
             var faker = new Faker<TokenizationValue>()
-                .RuleFor(z => z.Type, f => f.PickRandom<SemanticTokenTypes>().OrNull(f, 0.2f))
+                .RuleFor(z => z.type,
+                    f => f.PickRandom(SemanticTokenType.Defaults).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
+                )
                 .RuleFor(x => x.Modifiers,
                     f => Enumerable.Range(0, f.Random.Int(0, 3))
-                        .Select(z => f.PickRandom<SemanticTokenModifiers>())
+                        .Select(z =>
+                            f.PickRandom(SemanticTokenModifier.Defaults).OrNull(f, 0.2f) ??
+                            new SemanticTokenModifier("none")
+                        )
                         .ToArray()
                         .OrNull(f, 0.2f)
                 );
@@ -313,7 +262,7 @@ namespace Lsp.Tests
                     index = text.IndexOf(part, index, StringComparison.Ordinal);
                     // _logger.LogInformation("Index for part after {Index}: {Text}", index, part);
                     var item = faker.Generate();
-                    builder.Push(line, index, part.Length, item.Type, item.Modifiers);
+                    builder.Push(line, index, part.Length, item.type, item.Modifiers);
                 }
             }
         }
@@ -335,7 +284,7 @@ namespace Lsp.Tests
 
         public class NormalizedToken : IEquatable<NormalizedToken>, IEquatable<string>
         {
-            public NormalizedToken(string text, SemanticTokenTypes? type, params SemanticTokenModifiers[] modifiers)
+            public NormalizedToken(string text, SemanticTokenType type, params SemanticTokenModifier[] modifiers)
             {
                 Text = text;
                 Type = type;
@@ -351,8 +300,7 @@ namespace Lsp.Tests
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return Text == other.Text && Type == other.Type &&
-                       Modifiers.SequenceEqual(other.Modifiers ?? Array.Empty<SemanticTokenModifiers>()) == true;
+                return other.ToString() == this.ToString();
             }
 
             public override bool Equals(object obj)
@@ -362,23 +310,15 @@ namespace Lsp.Tests
                 return obj.GetType() == GetType() && Equals((NormalizedToken) obj);
             }
 
-            public override int GetHashCode() => HashCode.Combine(Text, Type ?? 0, Modifiers);
+            public override int GetHashCode() => HashCode.Combine(Text, Type, Modifiers);
 
             public override string ToString()
             {
                 var sb = new StringBuilder();
                 sb.Append(Text);
                 sb.Append(" (");
-                if (Type.HasValue)
-                {
-                    sb.Append(Type);
-                    sb.Append(":");
-                }
-                else
-                {
-                    sb.Append("None");
-                    sb.Append(":");
-                }
+                sb.Append(Type);
+                sb.Append(":");
 
                 if (Modifiers?.Any() == true)
                 {
@@ -386,7 +326,7 @@ namespace Lsp.Tests
                 }
                 else
                 {
-                    sb.Append("None");
+                    sb.Append("none");
                 }
 
                 sb.Append(")");
@@ -399,16 +339,13 @@ namespace Lsp.Tests
                 var item = value.Split(' ');
                 var other = item[1].Trim('(', ')').Split(':');
 
-
-                return new NormalizedToken(item[0],
-                    Enum.TryParse<SemanticTokenTypes>(other[0], out var t) ? new SemanticTokenTypes?(t) : null,
-                    other[1] == "None"
-                        ? null
-                        : other[1].Split('|')
-                            .Select(Enum.Parse<SemanticTokenModifiers>)
-                            .ToArray()
+                return new NormalizedToken(
+                    item[0],
+                    other[0],
+                    other[1].Split('|')
+                        .Select(x => new SemanticTokenModifier(x))
+                        .ToArray()
                 );
-                //System (Struct:Declaration|Abstract)
             }
 
             public static bool operator ==(NormalizedToken left, NormalizedToken right) => Equals(left, right);
@@ -416,8 +353,8 @@ namespace Lsp.Tests
             public static bool operator !=(NormalizedToken left, NormalizedToken right) => !Equals(left, right);
 
             public string Text { get; }
-            public SemanticTokenTypes? Type { get; }
-            public SemanticTokenModifiers[] Modifiers { get; }
+            public SemanticTokenType Type { get; }
+            public SemanticTokenModifier[] Modifiers { get; }
         }
 
         private IReadOnlyList<NormalizedToken> Normalize(string document, IReadOnlyList<int> values)
@@ -450,13 +387,13 @@ namespace Lsp.Tests
                 line.Substring(characterOffset, textToken.length),
                 _legend.TokenTypes
                     .Where((x, i) => i == textToken.type)
-                    .Select(Enum.Parse<SemanticTokenTypes>)
+                    .Select(x => new SemanticTokenType(x))
                     .First(),
                 _legend.TokenModifiers
                     .Where((x, i) =>
                         (textToken.modifiers & Convert.ToInt32(Math.Pow(2, i))) == Convert.ToInt32(Math.Pow(2, i))
                     )
-                    .Select(Enum.Parse<SemanticTokenModifiers>)
+                    .Select(x => new SemanticTokenModifier(x))
                     .ToArray()
             );
         }

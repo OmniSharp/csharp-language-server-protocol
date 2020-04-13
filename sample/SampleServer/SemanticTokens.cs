@@ -58,8 +58,8 @@ namespace SampleServer
         protected override async Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier,
             CancellationToken cancellationToken)
         {
-            using var typesEnumerator = RotateEnum<SemanticTokenTypes>().GetEnumerator();
-            using var modifiersEnumerator = RotateEnum<SemanticTokenModifiers>().GetEnumerator();
+            using var typesEnumerator = RotateEnum<SemanticTokenType>().GetEnumerator();
+            using var modifiersEnumerator = RotateEnum<SemanticTokenModifier>().GetEnumerator();
             // you would normally get this from a common source that is managed by current open editor, current active editor, etc.
             var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(identifier), cancellationToken);
             await Task.Yield();

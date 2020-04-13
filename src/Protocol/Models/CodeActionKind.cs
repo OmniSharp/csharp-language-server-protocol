@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
@@ -7,8 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A set of predefined code action kinds
     /// </summary>
-    [JsonConverter(typeof(CodeActionKindConverter))]
-    public struct CodeActionKind
+    [DebuggerDisplay("{_value}")]
+    [JsonConverter(typeof(EnumLikeStringConverter))]
+    public struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
     {
         /// <summary>
         /// Base kind for quickfix actions: ''
@@ -76,9 +78,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public static readonly CodeActionKind SourceOrganizeImports = new CodeActionKind("source.organizeImports");
 
+        private readonly string _value;
+
         public CodeActionKind(string kind)
         {
-            Kind = kind;
+            _value = kind;
         }
 
         public static implicit operator CodeActionKind(string kind)
@@ -88,9 +92,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator string(CodeActionKind kind)
         {
-            return kind.Kind;
+            return kind._value;
         }
 
-        public string Kind { get; }
+        public override string ToString() => _value;
+        public bool Equals(CodeActionKind other) => _value == other._value;
+
+        public override bool Equals(object obj) => obj is CodeActionKind other && Equals(other);
+
+        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
+
+        public static bool operator ==(CodeActionKind left, CodeActionKind right) => left.Equals(right);
+
+        public static bool operator !=(CodeActionKind left, CodeActionKind right) => !left.Equals(right);
+    }
+
+    public interface IEnumLikeString
+    {
     }
 }

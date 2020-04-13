@@ -114,15 +114,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
             _data = ImmutableArray<int>.Empty.ToBuilder();
         }
 
-        public void Push(int line, int @char, int length, SemanticTokenTypes? tokenType,
-            params SemanticTokenModifiers[] tokenModifiers)
+        public void Push(int line, int @char, int length, SemanticTokenType? tokenType,
+            params SemanticTokenModifier[] tokenModifiers)
         {
             Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType),
                 _legend.GetTokenModifiersIdentity(tokenModifiers));
         }
 
-        public void Push(int line, int @char, int length, SemanticTokenTypes? tokenType,
-            IEnumerable<SemanticTokenModifiers> tokenModifiers)
+        public void Push(int line, int @char, int length, SemanticTokenType? tokenType,
+            IEnumerable<SemanticTokenModifier> tokenModifiers)
         {
             Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType),
                 _legend.GetTokenModifiersIdentity(tokenModifiers));

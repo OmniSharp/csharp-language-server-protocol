@@ -5,22 +5,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class CodeActionKindConverter : JsonConverter<CodeActionKind>
+    class EnumLikeStringConverter : JsonConverter<IEnumLikeString>
     {
-        public override void WriteJson(JsonWriter writer, CodeActionKind value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, IEnumLikeString value, JsonSerializer serializer)
         {
-            new JValue(value.Kind).WriteTo(writer);
+            new JValue(value.ToString()).WriteTo(writer);
         }
 
-        public override CodeActionKind ReadJson(JsonReader reader, Type objectType, CodeActionKind existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override IEnumLikeString ReadJson(JsonReader reader, Type objectType, IEnumLikeString existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
         {
-            switch (reader.TokenType)
-            {
-                case JsonToken.String:
-                    return new CodeActionKind((string)reader.Value);
-            }
-
-            return new CodeActionKind(null);
+            return reader.TokenType switch {
+                JsonToken.String => (IEnumLikeString) Activator.CreateInstance(objectType, (string) reader.Value),
+                _ => (IEnumLikeString) Activator.CreateInstance(objectType, null)
+            };
         }
 
         public override bool CanRead => true;
