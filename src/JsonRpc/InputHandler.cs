@@ -105,7 +105,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     if (length == 0 || length >= int.MaxValue)
                     {
-                        HandleRequest(string.Empty);
+                        HandleRequest(string.Empty, CancellationToken.None);
                     }
                     else
                     {
@@ -119,7 +119,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                         // TODO sometimes: encoding should be based on the respective header (including the wrong "utf8" value)
                         var payload = System.Text.Encoding.UTF8.GetString(requestBuffer);
-                        HandleRequest(payload);
+                        HandleRequest(payload, CancellationToken.None);
                     }
                 }
                 catch (IOException)
@@ -130,7 +130,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private void HandleRequest(string request)
+        private void HandleRequest(string request, CancellationToken cancellationToken)
         {
             JToken payload;
             try
@@ -139,13 +139,13 @@ namespace OmniSharp.Extensions.JsonRpc
             }
             catch
             {
-                _outputHandler.Send(new ParseError());
+                _outputHandler.Send(new ParseError(), cancellationToken);
                 return;
             }
 
             if (!_receiver.IsValid(payload))
             {
-                _outputHandler.Send(new InvalidRequest());
+                _outputHandler.Send(new InvalidRequest(), cancellationToken);
                 return;
             }
 
@@ -187,12 +187,12 @@ namespace OmniSharp.Extensions.JsonRpc
                         async () => {
                             try
                             {
-                                var result = await _requestRouter.RouteRequest(descriptor, item.Request, CancellationToken.None);
+                                var result = await _requestRouter.RouteRequest(descriptor, item.Request, cancellationToken);
                                 if (result.IsError && result.Error is RequestCancelled)
                                 {
                                     return;
                                 }
-                                _outputHandler.Send(result.Value);
+                                _outputHandler.Send(result.Value, cancellationToken);
                             }
                             catch (Exception e)
                             {
@@ -231,7 +231,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 if (item.IsError)
                 {
                     // TODO:
-                    _outputHandler.Send(item.Error);
+                    _outputHandler.Send(item.Error, cancellationToken);
                 }
             }
 

@@ -1,10 +1,12 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(DocumentNames.DocumentLink)]
     public class DocumentLinkParams : ITextDocumentIdentifierParams, IRequest<DocumentLinkContainer>, IWorkDoneProgressParams, IPartialItems<DocumentLink>
     {
         /// <summary>

@@ -155,13 +155,13 @@ namespace JsonRpc.Tests
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
                 cts => {
-                    outputHandler.When(x => x.Send(Arg.Any<object>()))
+                    outputHandler.When(x => x.Send(Arg.Any<object>(), Arg.Any<CancellationToken>()))
                         .Do(x => {
                             cts.Cancel();
                         });
                 }))
             {
-                outputHandler.Received().Send(Arg.Is<object>(x => x == response));
+                outputHandler.Received().Send(Arg.Is<object>(x => x == response), Arg.Any<CancellationToken>());
             }
         }
 
@@ -187,13 +187,13 @@ namespace JsonRpc.Tests
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
                 cts => {
-                    outputHandler.When(x => x.Send(Arg.Any<object>()))
+                    outputHandler.When(x => x.Send(Arg.Any<object>(), Arg.Any<CancellationToken>()))
                         .Do(x => {
                             cts.Cancel();
                         });
                 }))
             {
-                outputHandler.Received().Send(Arg.Is<object>(x => x == error));
+                outputHandler.Received().Send(Arg.Is<object>(x => x == error), Arg.Any<CancellationToken>());
             }
         }
 

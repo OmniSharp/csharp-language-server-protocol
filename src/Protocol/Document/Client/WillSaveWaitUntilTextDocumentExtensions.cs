@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class WillSaveWaitUntilTextDocumentExtensions
     {
-        public static Task WillSaveWaitUntilTextDocument(this ILanguageClientDocument mediator, WillSaveWaitUntilTextDocumentParams @params)
+        public static Task WillSaveWaitUntilTextDocument(this ILanguageClientDocument mediator, WillSaveWaitUntilTextDocumentParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest(DocumentNames.WillSaveWaitUntil, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -1,8 +1,10 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(DocumentNames.FoldingRange)]
     public class FoldingRangeRequestParam : ITextDocumentIdentifierParams, IRequest<Container<FoldingRange>>, IWorkDoneProgressParams, IPartialItems<FoldingRange>
     {
         /// <summary>
