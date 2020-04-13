@@ -1,3 +1,4 @@
+using System.Threading;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class CodeActionExtensions
     {
-        public static Task<CommandOrCodeActionContainer> CodeAction(this ILanguageClientDocument mediator, CodeActionParams @params)
+        public static Task<CommandOrCodeActionContainer> CodeAction(this ILanguageClientDocument mediator, CodeActionParams @params, CancellationToken cancellationToken )
         {
-            return mediator.SendRequest<CodeActionParams, CommandOrCodeActionContainer>(DocumentNames.CodeAction, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

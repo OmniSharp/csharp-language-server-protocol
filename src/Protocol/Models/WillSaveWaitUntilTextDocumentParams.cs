@@ -1,10 +1,12 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     ///  The parameters send in a will save text document notification.
     /// </summary>
+    [Method(DocumentNames.WillSaveWaitUntil)]
     public class WillSaveWaitUntilTextDocumentParams : IRequest<TextEditContainer>
     {
         /// <summary>

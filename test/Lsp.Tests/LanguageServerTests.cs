@@ -79,7 +79,7 @@ namespace Lsp.Tests
         {
             var startupInterface = Substitute.For(new [] {typeof(IOnStarted), typeof(IDidChangeConfigurationHandler) }, Array.Empty<object>()) as IOnStarted;
             var startedDelegate = Substitute.For<StartedDelegate>();
-            startedDelegate(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>()).Returns(Task.CompletedTask);
+            startedDelegate(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>(), Arg.Any<CancellationToken>()).Returns(Task.CompletedTask);
             var process = new NamedPipeServerProcess(Guid.NewGuid().ToString("N"), LoggerFactory);
             await process.Start();
             var client = new LanguageClient(LoggerFactory, process);
@@ -106,8 +106,8 @@ namespace Lsp.Tests
             );
             using var server = await serverStart;
 
-            _ = startedDelegate.Received(4)(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>());
-            _ = startupInterface.Received(1).OnStarted(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>());
+            _ = startedDelegate.Received(4)(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>(), Arg.Any<CancellationToken>());
+            _ = startupInterface.Received(1).OnStarted(Arg.Any<ILanguageServer>(), Arg.Any<InitializeResult>(), Arg.Any<CancellationToken>());
         }
     }
 }

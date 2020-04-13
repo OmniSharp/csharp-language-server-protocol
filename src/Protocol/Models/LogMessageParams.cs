@@ -1,9 +1,11 @@
 using MediatR;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Method(WindowNames.LogMessage)]
     public class LogMessageParams : IRequest
     {
         /// <summary>

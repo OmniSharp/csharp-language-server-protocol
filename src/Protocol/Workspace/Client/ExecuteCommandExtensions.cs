@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -6,9 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class ExecuteCommandExtensions
     {
-        public static Task ExecuteCommand(this ILanguageClientWorkspace router, ExecuteCommandParams @params)
+        public static Task ExecuteCommand(this ILanguageClientWorkspace router, ExecuteCommandParams @params, CancellationToken cancellationToken = default)
         {
-            return router.SendRequest(WorkspaceNames.ExecuteCommand, @params);
+            return router.SendRequest(WorkspaceNames.ExecuteCommand, @params, cancellationToken);
         }
     }
 }

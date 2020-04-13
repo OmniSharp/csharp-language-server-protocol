@@ -55,7 +55,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 88\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":true,\"command\":\"command\",\"body\":{}}";
                 received.Should().Be(send);
@@ -86,7 +86,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 51\r\n\r\n{\"seq\":1,\"type\":\"event\",\"event\":\"method\",\"body\":{}}";
                 received.Should().Be(send);
@@ -118,7 +118,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 60\r\n\r\n{\"seq\":1,\"type\":\"request\",\"command\":\"method\",\"arguments\":{}}";
                 received.Should().Be(send);
@@ -146,7 +146,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 76\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":false,\"message\":\"data\"}";
                 received.Should().Be(send);

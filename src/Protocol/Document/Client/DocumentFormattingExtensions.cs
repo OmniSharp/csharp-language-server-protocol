@@ -1,3 +1,4 @@
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -9,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     public static class DocumentFormattingExtensions
     {
-        public static Task<TextEditContainer> DocumentFormatting(this ILanguageClientDocument mediator, DocumentFormattingParams @params)
+        public static Task<TextEditContainer> DocumentFormatting(this ILanguageClientDocument mediator, DocumentFormattingParams @params, CancellationToken cancellationToken = default)
         {
-            return mediator.SendRequest<DocumentFormattingParams, TextEditContainer>(DocumentNames.Formatting, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

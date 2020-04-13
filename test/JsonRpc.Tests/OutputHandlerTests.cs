@@ -56,7 +56,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 35\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":1}";
                 received.Should().Be(send);
@@ -88,7 +88,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 47\r\n\r\n{\"jsonrpc\":\"2.0\",\"method\":\"method\",\"params\":{}}";
                 received.Should().Be(send);
@@ -120,7 +120,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 54\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"method\",\"params\":{}}";
                 received.Should().Be(send);
@@ -148,7 +148,7 @@ namespace JsonRpc.Tests
             using (handler)
             {
 
-                handler.Send(value);
+                handler.Send(value, CancellationToken.None);
                 await wait();
                 const string send = "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":1,\"data\":{},\"message\":\"something\"}}";
                 received.Should().Be(send);

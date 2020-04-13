@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -25,7 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
+            Func<TState, Exception, string> formatter)
         {
             if (logLevel < _logLevelGetter())
                 return;
@@ -35,7 +39,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _responseRouter.Window.Log(new LogMessageParams()
                 {
                     Type = messageType,
-                    Message = _categoryName + ": " + formatter(state, exception) + (exception != null ? " - " + exception.ToString() : "")
+                    Message = _categoryName + ": " + formatter(state, exception) +
+                              (exception != null ? " - " + exception : "") + " | " +
+                              //Hopefully this isn't too expensive in the long run
+                              (state is IEnumerable<KeyValuePair<string, object>> dict
+                                  ? string.Join(" ", dict.Where(z => z.Key != "{OriginalFormat}").Select(z => $"{z.Key}='{z.Value}'"))
+                                  : JsonConvert.SerializeObject(state).Replace("\"", "'")
+                              )
                 });
             }
         }
@@ -59,6 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     messageType = MessageType.Info;
                     return true;
             }
+
             messageType = MessageType.Log;
             return false;
         }
