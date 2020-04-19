@@ -300,7 +300,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             {
                 if (connection.IsOpen)
                 {
-                    connection.SendEmptyNotification("shutdown");
+                    await connection.SendEmptyRequest("shutdown");
                     connection.SendEmptyNotification("exit");
                     connection.Disconnect(flushOutgoing: true);
                 }
