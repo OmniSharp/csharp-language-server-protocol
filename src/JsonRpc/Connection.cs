@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.JsonRpc
     public class Connection : IDisposable
     {
         private readonly IInputHandler _inputHandler;
-        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
 
         public Connection(
             Stream input,
@@ -17,10 +16,9 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            ISerializer serializer)
+            ISerializer serializer,
+            int? concurrency)
         {
-            _requestRouter = requestRouter;
-
             _inputHandler = new InputHandler(
                 input,
                 outputHandler,
@@ -29,7 +27,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 requestRouter,
                 responseRouter,
                 loggerFactory,
-                serializer
+                serializer,
+                concurrency
             );
         }
 

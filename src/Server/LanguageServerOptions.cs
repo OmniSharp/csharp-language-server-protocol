@@ -38,6 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
         internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } = new Action<IConfigurationBuilder>(_ => { });
         internal bool AddDefaultLoggingProvider { get; set; }
+        public int? Concurrency { get; set; }
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();

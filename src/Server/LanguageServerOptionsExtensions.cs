@@ -86,6 +86,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
+        /// <summary>
+        /// Set maximum number of allowed parallel actions
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="concurrency"></param>
+        /// <returns></returns>
+        public static LanguageServerOptions WithConcurrency(this LanguageServerOptions options, int? concurrency)
+        {
+            options.Concurrency = concurrency;
+            return options;
+        }
+
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
         {
             options.InitializeDelegates.Add(@delegate);
