@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 }
 
                 // Get the stringified Uri.
-                var key = new Uri((string)reader.Value, UriKind.RelativeOrAbsolute);
+                var key = new Uri(DocumentUri.NormalizePath((string)reader.Value), UriKind.RelativeOrAbsolute);
                 if (!key.IsAbsoluteUri)
                 {
                     throw new JsonSerializationException($"The Uri must be absolute. Given: {reader.Value}");

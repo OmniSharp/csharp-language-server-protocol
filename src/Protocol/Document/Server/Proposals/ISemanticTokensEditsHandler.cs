@@ -64,7 +64,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals
             return builder.Commit().GetSemanticTokensEdits();
         }
 
-        // TODO: Is this correct?
         public virtual async Task<SemanticTokens> Handle(SemanticTokensRangeParams request,
             CancellationToken cancellationToken)
         {

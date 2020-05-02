@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 fileSystemPath = fileSystemPath.Replace('/', '\\');
             }
 
-            return fileSystemPath;
+            return NormalizePath(fileSystemPath);
         }
 
         /// <summary>
@@ -78,16 +78,47 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </returns>
         public static Uri FromFileSystemPath(string fileSystemPath)
         {
+            fileSystemPath = NormalizePath(fileSystemPath);
+
             if (string.IsNullOrWhiteSpace(fileSystemPath))
-                throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'fileSystemPath'.", nameof(fileSystemPath));
+                throw new ArgumentException(
+                    "Argument cannot be null, empty, or entirely composed of whitespace: 'fileSystemPath'.",
+                    nameof(fileSystemPath));
 
             if (!Path.IsPathRooted(fileSystemPath))
-                throw new ArgumentException($"Path '{fileSystemPath}' is not an absolute path.", nameof(fileSystemPath));
+                throw new ArgumentException($"Path '{fileSystemPath}' is not an absolute path.",
+                    nameof(fileSystemPath));
 
             if (Path.DirectorySeparatorChar == '\\')
                 return new Uri("file:///" + fileSystemPath.Replace('\\', '/'));
 
-            return new Uri("file://" + fileSystemPath);
+            return NormalizeUri(new Uri("file://" + fileSystemPath));
+        }
+
+        /// <summary>
+        /// Vscode has a special uri serialization this will normalize that.
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
+        public static Uri NormalizeUri(Uri uri)
+        {
+            // On windows of the Uri contains %3a local path
+            // doesn't come out as a proper windows path
+            return uri.Segments[1].IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1
+                ? new Uri(uri.AbsoluteUri.Replace("%3a", ":").Replace("%3A", ":"))
+                : uri;
+        }
+
+        /// <summary>
+        /// Vscode has a special uri serialization this will normalize that.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static string NormalizePath(string path)
+        {
+            if (path.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
+                return path.Replace("%3a", ":").Replace("%3A", ":");
+            return path;
         }
     }
 }

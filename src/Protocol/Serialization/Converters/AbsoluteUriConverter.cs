@@ -12,6 +12,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     /// <see cref="UriKind.RelativeOrAbsolute"/> which treats UNC paths as relative. NuGet.Core uses
     /// <see cref="UriKind.Absolute"/> which treats UNC paths as absolute. For more details, see:
     /// https://github.com/JamesNK/Newtonsoft.Json/issues/2128
+    ///
+    /// Also VSCode has special handing for how uris are serialized on windows with the paths
+    /// having `c:\` serialized as `C%3A\`
     /// </summary>
     class AbsoluteUriConverter : JsonConverter<Uri>
     {
@@ -23,7 +26,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
             else if (reader.TokenType == JsonToken.String)
             {
-                var uri = new Uri((string)reader.Value, UriKind.RelativeOrAbsolute);
+                var value = DocumentUri.NormalizePath((string)reader.Value);
+                var uri = new Uri(value, UriKind.RelativeOrAbsolute);
                 if (!uri.IsAbsoluteUri)
                 {
                     throw new JsonSerializationException($"The Uri must be absolute. Given: {reader.Value}");
@@ -67,7 +71,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 }
 
                 // Lastly add the remaining parts of the URL
-                builder.Append(value.PathAndQuery);
+                builder.Append(DocumentUri.NormalizePath(value.PathAndQuery));
+
                 writer.WriteValue(builder.ToString());
             }
             else
