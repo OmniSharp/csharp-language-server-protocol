@@ -21,6 +21,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [Optional]
-        public TagSupportCapability TagSupport { get; set; }
+        public Supports<TagSupportCapability> TagSupport { get; set; }
     }
 }

@@ -149,7 +149,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 {
                     documentSymbolKinds = symbolKindSet.ToArray();
                 }
-                var valueSet = symbol?.TagSupport?.ValueSet;
+                var valueSet = symbol?.TagSupport.Value?.ValueSet;
                 if (valueSet != null)
                 {
                     documentSymbolTags = valueSet.ToArray();
@@ -164,7 +164,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 {
                     workspaceSymbolKinds = symbolKindSet.ToArray();
                 }
-                var tagSupportSet = symbol?.TagSupport?.ValueSet;
+                var tagSupportSet = symbol?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet != null)
                 {
                     workspaceSymbolTags = tagSupportSet.ToArray();
