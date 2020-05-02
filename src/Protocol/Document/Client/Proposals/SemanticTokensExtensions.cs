@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -10,23 +11,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Client.Proposals
     public static class SemanticTokensExtensions
     {
         public static Task<SemanticTokens> SemanticTokens(this ILanguageClientDocument mediator,
-            SemanticTokensParams @params)
+            SemanticTokensParams @params, CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<SemanticTokensParams, SemanticTokens>(DocumentNames.SemanticTokens, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
 
         public static Task<SemanticTokensOrSemanticTokensEdits> SemanticTokensEdits(
-            this ILanguageClientDocument mediator, SemanticTokensEditsParams @params)
+            this ILanguageClientDocument mediator, SemanticTokensEditsParams @params, CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<SemanticTokensEditsParams, SemanticTokensOrSemanticTokensEdits>(
-                DocumentNames.SemanticTokensEdits, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
 
-        public static Task<Container<SemanticTokens>> SemanticTokensRange(this ILanguageClientDocument mediator,
-            SemanticTokensRangeParams @params)
+        public static Task<SemanticTokens> SemanticTokensRange(this ILanguageClientDocument mediator,
+            SemanticTokensRangeParams @params, CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<SemanticTokensRangeParams, Container<SemanticTokens>>(
-                DocumentNames.SemanticTokensRange, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

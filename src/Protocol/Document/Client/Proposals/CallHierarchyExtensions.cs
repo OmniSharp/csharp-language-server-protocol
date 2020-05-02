@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -10,24 +11,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Client.Proposals
     public static class CallHierarchyExtensions
     {
         public static Task<Container<CallHierarchyItem>> PrepareCallHierarchy(this ILanguageClientDocument mediator,
-            CallHierarchyPrepareParams @params)
+            CallHierarchyPrepareParams @params, CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<CallHierarchyPrepareParams, Container<CallHierarchyItem>>(
-                DocumentNames.PrepareCallHierarchy, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
 
         public static Task<Container<CallHierarchyIncomingCall>> CallHierarchyIncomingCalls(
-            this ILanguageClientDocument mediator, CallHierarchyIncomingCallsParams @params)
+            this ILanguageClientDocument mediator, CallHierarchyIncomingCallsParams @params,
+            CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<CallHierarchyIncomingCallsParams, Container<CallHierarchyIncomingCall>>(
-                DocumentNames.CallHierarchyIncoming, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
 
         public static Task<Container<CallHierarchyOutgoingCall>> CallHierarchyOutgoingCalls(
-            this ILanguageClientDocument mediator, CallHierarchyOutgoingCallsParams @params)
+            this ILanguageClientDocument mediator, CallHierarchyOutgoingCallsParams @params,
+            CancellationToken cancellationToken)
         {
-            return mediator.SendRequest<CallHierarchyOutgoingCallsParams, Container<CallHierarchyOutgoingCall>>(
-                DocumentNames.CallHierarchyIncoming, @params);
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -134,7 +134,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                     completionItemKinds = valueSet.ToArray();
                 }
 
-                var tagSupportSet = completion?.CompletionItem?.TagSupport?.ValueSet;
+                var tagSupportSet = completion?.CompletionItem?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet != null)
                 {
                     completionItemTags = tagSupportSet.ToArray();
@@ -174,7 +174,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             if (clientCapabilities?.TextDocument?.PublishDiagnostics.IsSupported == true)
             {
                 var publishDiagnostics = clientCapabilities?.TextDocument?.PublishDiagnostics.Value;
-                var tagValueSet = publishDiagnostics.TagSupport.ValueSet;
+                var tagValueSet = publishDiagnostics.TagSupport.Value?.ValueSet;
                 if (tagValueSet != null)
                 {
                     diagnosticTags = tagValueSet.ToArray();
