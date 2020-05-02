@@ -43,7 +43,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         [Optional]
         public bool PreselectSupport { get; set; }
 
-
         /// <summary>
         /// Client supports the tag property on a completion item. Clients supporting
         /// tags have to handle unknown tags gracefully. Clients especially need to
@@ -53,6 +52,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public CompletionItemTagSupportCapability TagSupport { get; set; }
+        public Supports<CompletionItemTagSupportCapability> TagSupport { get; set; }
     }
 }

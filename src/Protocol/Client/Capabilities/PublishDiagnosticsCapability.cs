@@ -20,6 +20,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public PublishDiagnosticsTagSupportCapability TagSupport { get; set; }
+        public Supports<PublishDiagnosticsTagSupportCapability> TagSupport { get; set; }
     }
 }
