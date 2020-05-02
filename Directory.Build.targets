@@ -38,5 +38,6 @@
         <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0"/>
         <PackageReference Update="Bogus" Version="29.0.1"/>
         <PackageReference Update="Snapper" Version="2.2.4"/>
+        <PackageReference Update="Xunit.SkippableFact" Version="1.4.8" />
     </ItemGroup>
 </Project>
