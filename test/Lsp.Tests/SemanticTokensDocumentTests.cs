@@ -55,20 +55,20 @@ namespace Lsp.Tests
             var data = Normalize(ExampleDocumentText, result.Data).ToArray();
             _logger.LogInformation("Some Data {Data}", data.AsEnumerable());
             var expectedResponse = new NormalizedToken[] {
-                "using (member:static|abstract)", "System (member:static|abstract)", "using (interface:deprecated)",
-                "System (operator:documentation)", "Collections (keyword:none)", "Generic (comment:none)",
-                "using (label:documentation)", "System (macro:none)", "Linq (keyword:none)",
-                "using (enum:static|abstract)", "System (documentation:documentation|static)", "Text (macro:none)",
-                "using (string:none)", "System (documentation:none)", "Threading (parameter:documentation|definition)",
-                "Tasks (string:none)", "namespace (number:none)", "CSharpTutorials (number:documentation)",
-                "{ (documentation:static)", "class (documentation:none)", "Program (operator:abstract)",
-                "{ (parameter:documentation)", "static (documentation:deprecated)", "void (enum:none)",
-                "Main (enum:none)", "string[] (class:documentation|abstract)", "args (enum:none)",
-                "{ (documentation:documentation)", "string (label:documentation|static|readonly)",
-                "message (namespace:definition)", "= (keyword:definition|readonly)", "Hello (typeParameter:none)",
-                "World!! (namespace:definition)", "Console (documentation:documentation|declaration)",
-                "WriteLine (member:definition)", "message (documentation:documentation|declaration)",
-                "} (comment:abstract)", "} (variable:documentation|static|abstract)", "} (class:deprecated)"
+                "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
+                "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
+                "using (property:none)", "System (documentation:definition|abstract)",
+                "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
+                "Text (documentation:definition|abstract)", "using (documentation:none)",
+                "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
+                "Tasks (documentation:none)", "namespace (documentation:abstract)",
+                "CSharpTutorials (documentation:none)", "{ (type:documentation)", "class (label:none)",
+                "Program (documentation:none)", "{ (documentation:none)", "static (number:documentation)",
+                "void (function:none)", "Main (function:none)", "string[] (function:documentation|static)",
+                "args (function:none)", "{ (struct:declaration|abstract)", "string (type:none)", "message (class:none)",
+                "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)", "Console (struct:definition)",
+                "WriteLine (parameter:definition|readonly)", "message (struct:definition)", "} (regexp:none)",
+                "} (class:static|abstract)", "} (enum:declaration|definition)"
             };
             data.Should().ContainInOrder(expectedResponse);
         }
@@ -108,9 +108,8 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "ssage (namespace:definition)", "= (keyword:definition|readonly)", "Hello (typeParameter:none)",
-                        "World!! (namespace:definition)", "Console (documentation:documentation|declaration)",
-                        "WriteLi (member:definition)"
+                        "ssage (class:none)", "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)",
+                        "Console (struct:definition)", "WriteLi (parameter:definition|readonly)"
                     }
                 );
                 Add(
@@ -125,13 +124,13 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "using (member:static|abstract)", "System (member:static|abstract)",
-                        "using (interface:deprecated)", "System (operator:documentation)", "Collections (keyword:none)",
-                        "Generic (comment:none)", "using (label:documentation)", "System (macro:none)",
-                        "Linq (keyword:none)", "using (enum:static|abstract)",
-                        "System (documentation:documentation|static)", "Text (macro:none)", "using (string:none)",
-                        "System (documentation:none)", "Threading (parameter:documentation|definition)",
-                        "Tasks (string:none)"
+                        "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
+                        "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
+                        "using (property:none)", "System (documentation:definition|abstract)",
+                        "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
+                        "Text (documentation:definition|abstract)", "using (documentation:none)",
+                        "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
+                        "Tasks (documentation:none)"
                     }
                 );
                 Add(
@@ -142,12 +141,12 @@ namespace Lsp.Tests
                         },
                         End = new Position() {
                             Line = 14,
-                            Character = 31
+                            Character = 30
                         }
                     },
                     new NormalizedToken[] {
-                        "Console (documentation:documentation|declaration)", "WriteLine (member:definition)",
-                        "message (documentation:documentation|declaration)"
+                        "Console (struct:definition)", "WriteLine (parameter:definition|readonly)",
+                        "message (struct:definition)"
                     }
                 );
             }
@@ -199,23 +198,22 @@ namespace Lsp.Tests
                     ExampleDocumentText,
                     ExampleDocumentText.Replace("namespace CSharpTutorials", "namespace Something.Else.Entirely"),
                     new NormalizedToken[] {
-                        "using (member:static|abstract)", "System (member:static|abstract)",
-                        "using (interface:deprecated)", "System (operator:documentation)", "Collections (keyword:none)",
-                        "Generic (comment:none)", "using (label:documentation)", "System (macro:none)",
-                        "Linq (keyword:none)", "using (enum:static|abstract)",
-                        "System (documentation:documentation|static)", "Text (macro:none)", "using (string:none)",
-                        "System (documentation:none)", "Threading (parameter:documentation|definition)",
-                        "Tasks (string:none)", "namespace (variable:none)", "Something (variable:none)",
-                        "Else (documentation:none)", "Entirely (operator:none)", "{ (documentation:static)",
-                        "class (documentation:none)", "Program (operator:abstract)", "{ (parameter:documentation)",
-                        "static (documentation:deprecated)", "void (enum:none)", "Main (enum:none)",
-                        "string[] (class:documentation|abstract)", "args (enum:none)",
-                        "{ (documentation:documentation)", "string (label:documentation|static|readonly)",
-                        "message (namespace:definition)", "= (keyword:definition|readonly)",
-                        "Hello (typeParameter:none)", "World!! (namespace:definition)",
-                        "Console (documentation:documentation|declaration)", "WriteLine (member:definition)",
-                        "message (documentation:documentation|declaration)", "} (comment:abstract)",
-                        "} (variable:documentation|static|abstract)", "} (class:deprecated)"
+                        "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
+                        "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
+                        "using (property:none)", "System (documentation:definition|abstract)",
+                        "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
+                        "Text (documentation:definition|abstract)", "using (documentation:none)",
+                        "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
+                        "Tasks (documentation:none)", "namespace (function:readonly)", "Something (function:readonly)",
+                        "Else (class:abstract)", "Entirely (regexp:documentation|abstract|deprecated)",
+                        "{ (type:documentation)", "class (label:none)", "Program (documentation:none)",
+                        "{ (documentation:none)", "static (number:documentation)", "void (function:none)",
+                        "Main (function:none)", "string[] (function:documentation|static)", "args (function:none)",
+                        "{ (struct:declaration|abstract)", "string (type:none)", "message (class:none)",
+                        "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)",
+                        "Console (struct:definition)", "WriteLine (parameter:definition|readonly)",
+                        "message (struct:definition)", "} (regexp:none)", "} (class:static|abstract)",
+                        "} (enum:declaration|definition)"
                     });
                 Add("using", "using System;",
                     new NormalizedToken[] {
@@ -407,7 +405,7 @@ namespace Lsp.Tests
             }
         }
 
-        internal const string ExampleDocumentText = @"using System;
+        internal static string ExampleDocumentText = @"using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -425,6 +423,6 @@ namespace CSharpTutorials
         }
     }
 }
-";
+".Replace("\r\n", "\n");
     }
 }

@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task<Container<SymbolInformation>> WorkspaceSymbol(this ILanguageClientWorkspace router, WorkspaceSymbolParams @params, CancellationToken cancellationToken = default)
         {
-            return router.SendRequest<WorkspaceSymbolParams, Container<SymbolInformation>>(WorkspaceNames.WorkspaceSymbol, @params, cancellationToken);
+            return router.SendRequest(@params, cancellationToken);
         }
     }
 }
