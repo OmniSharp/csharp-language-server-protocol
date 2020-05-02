@@ -161,7 +161,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                         return new JsonRpc.Client.Response(request.Id, responseValue, request);
                     }
-                    catch (TaskCanceledException)
+                    catch (OperationCanceledException)
                     {
                         _logger.LogDebug("Request {Id} was cancelled", id);
                         return new RequestCancelled();

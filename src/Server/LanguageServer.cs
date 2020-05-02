@@ -55,6 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly SupportedCapabilities _supportedCapabilities;
         private Task _initializingTask;
         private readonly ILanguageServerConfiguration _configuration;
+        private readonly int? _concurrency;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -119,7 +120,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.AddDefaultLoggingProvider,
                 options.ProgressManager,
                 options.ServerInfo,
-                options.ConfigurationBuilderAction
+                options.ConfigurationBuilderAction,
+                options.Concurrency
             );
         }
 
@@ -144,7 +146,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             bool addDefaultLoggingProvider,
             ProgressManager progressManager,
             ServerInfo serverInfo,
-            Action<IConfigurationBuilder> configurationBuilderAction)
+            Action<IConfigurationBuilder> configurationBuilderAction,
+            int? concurrency)
         {
             var configurationProvider = new DidChangeConfigurationProvider(this, configurationBuilderAction);
             services.AddSingleton<IJsonRpcHandler>(configurationProvider);
@@ -233,7 +236,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
+            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input, concurrency);
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 

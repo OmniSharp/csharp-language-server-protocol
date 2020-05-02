@@ -76,6 +76,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 property.NullValueHandling = NullValueHandling.Ignore;
             }
 
+            if (typeof(ISupports).IsAssignableFrom(property.PropertyType))
+            {
+                property.ValueProvider = new SupportsValueProvider(property.ValueProvider);
+            }
+
             if (property.DeclaringType == typeof(CompletionItem))
             {
                 if (property.PropertyType == typeof(CompletionItemKind))
@@ -140,6 +145,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             }
 
             return property;
+        }
+
+        class SupportsValueProvider : IValueProvider
+        {
+            private readonly IValueProvider _valueProvider;
+            public SupportsValueProvider(IValueProvider valueProvider)
+            {
+                _valueProvider = valueProvider;
+            }
+            public void SetValue(object target, object value)
+            {
+                _valueProvider.SetValue(target, value);
+            }
+
+            public object GetValue(object target)
+            {
+                return _valueProvider.GetValue(target) switch {
+                    ISupports supports when supports.IsSupported => supports,
+                    _ => null
+                };
+            }
         }
 
         class RangeValueProvider<T> : IValueProvider

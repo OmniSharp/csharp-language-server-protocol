@@ -44,7 +44,8 @@ namespace JsonRpc.Tests
                 requestRouter,
                 responseRouter,
                 Substitute.For<ILoggerFactory>(),
-                new JsonRpcSerializer());
+                new JsonRpcSerializer(),
+                null);
             handler.Start();
             cts.Wait();
             Task.Delay(10).Wait();
@@ -265,7 +266,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task ShouldCancelRequest()
+        public void ShouldCancelRequest()
         {
             var inputStream = new MemoryStream(Encoding.ASCII.GetBytes("Content-Length: 2\r\n\r\n{}"));
             var outputHandler = Substitute.For<IOutputHandler>();

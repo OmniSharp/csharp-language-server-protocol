@@ -353,6 +353,17 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         }
 
         /// <summary>
+        ///     Send an empty request to the language server.
+        /// </summary>
+        /// <param name="method">
+        ///     The request method name.
+        /// </param>
+        public Task SendEmptyRequest(string method)
+        {
+            return SendRequest(method, EmptyRequest.Instance);
+        }
+
+        /// <summary>
         ///     Send a request to the language server.
         /// </summary>
         /// <param name="method">

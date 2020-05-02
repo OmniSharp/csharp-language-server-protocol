@@ -14,6 +14,7 @@
         <PackageReference Include="XunitXml.TestLogger" />
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="coverlet.msbuild" />
+        <PackageReference Include="Microsoft.Reactive.Testing" />
         <PackageReference Include="Bogus" />
         <PackageReference Include="Snapper" />
     </ItemGroup>

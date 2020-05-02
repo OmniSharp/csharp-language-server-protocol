@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
             else
             {
-                serializer.Serialize(writer, null);
+                writer.WriteNull();
             }
         }
 
