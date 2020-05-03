@@ -27,6 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc
         internal List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> NamedServiceHandlers { get; set; } = new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
         internal List<Type> HandlerTypes { get; set; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
+        internal int? Concurrency { get; set; }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

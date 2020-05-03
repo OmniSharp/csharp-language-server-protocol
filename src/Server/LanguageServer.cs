@@ -236,7 +236,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input, concurrency);
+            _connection = new Connection(
+                input,
+                _serviceProvider.GetRequiredService<IOutputHandler>(),
+                receiver,
+                requestProcessIdentifier,
+                _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
+                _responseRouter,
+                _serviceProvider.GetRequiredService<ILoggerFactory>(),
+                serializer,
+                concurrency
+            );
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 

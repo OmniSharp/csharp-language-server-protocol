@@ -51,7 +51,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     .Distinct().Concat(options.HandlerAssemblies),
                 options.Handlers,
                 options.NamedHandlers,
-                options.NamedServiceHandlers
+                options.NamedServiceHandlers,
+                options.Concurrency
             );
 
             await server.Initialize();
@@ -70,7 +71,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IEnumerable<Assembly> assemblies,
             IEnumerable<IJsonRpcHandler> handlers,
             IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
-            IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers)
+            IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers,
+            int? concurrency)
         {
             var outputHandler = new OutputHandler(output, serializer, loggerFactory.CreateLogger<OutputHandler>());
 
@@ -126,7 +128,17 @@ namespace OmniSharp.Extensions.JsonRpc
             _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
             _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(_requestRouter));
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input);
+            _connection = new Connection(
+                input,
+                outputHandler,
+                receiver,
+                requestProcessIdentifier,
+                _requestRouter,
+                _responseRouter,
+                loggerFactory,
+                serializer,
+                concurrency
+            );
         }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
