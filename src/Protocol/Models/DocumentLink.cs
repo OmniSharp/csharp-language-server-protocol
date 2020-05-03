@@ -24,8 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
         [Optional]
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri Target { get; set; }
+        public DocumentUri Target { get; set; }
 
         /// </summary>
         /// A data entry field that is preserved on a document link between a

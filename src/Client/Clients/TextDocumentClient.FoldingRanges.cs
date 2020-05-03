@@ -13,28 +13,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
     public partial class TextDocumentClient
     {
         /// <summary>
-        ///     Request document folding ranges.
-        /// </summary>
-        /// <param name="filePath">
-        ///     The full file-system path of the text document.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     An optional <see cref="CancellationToken"/> that can be used to cancel the request.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
-        /// </returns>
-        public Task<Container<FoldingRange>> FoldingRanges(string filePath, CancellationToken cancellationToken = default(CancellationToken))
-        {
-            if (string.IsNullOrWhiteSpace(filePath))
-                throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
-
-            var documentUri = DocumentUri.FromFileSystemPath(filePath);
-
-            return FoldingRanges(documentUri, cancellationToken);
-        }
-
-        /// <summary>
         ///     Request document highlights at the specified document position.
         /// </summary>
         /// <param name="documentUri">
@@ -52,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <returns>
         ///     A <see cref="Task{TResult}"/> that resolves to the completions or <c>null</c> if no document highlights are available at the specified position.
         /// </returns>
-        public async Task<Container<FoldingRange>> FoldingRanges(Uri documentUri, CancellationToken cancellationToken = default(CancellationToken))
+        public async Task<Container<FoldingRange>> FoldingRanges(DocumentUri documentUri, CancellationToken cancellationToken = default(CancellationToken))
         {
             var request = new FoldingRangeRequestParam {
                 TextDocument = new TextDocumentItem {

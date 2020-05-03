@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// </summary>
         /// <param name="scopeUri"></param>
         /// <returns></returns>
-        Task<IScopedConfiguration> GetScopedConfiguration(Uri scopeUri);
+        Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri);
 
         /// <summary>
         /// Attempt to get an existing scoped configuration so that it can be disposed
@@ -33,6 +34,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         /// <param name="scopeUri"></param>
         /// <param name="configuration"></param>
         /// <returns></returns>
-        bool TryGetScopedConfiguration(Uri scopeUri, out IScopedConfiguration configuration);
+        bool TryGetScopedConfiguration(DocumentUri scopeUri, out IScopedConfiguration configuration);
     }
 }

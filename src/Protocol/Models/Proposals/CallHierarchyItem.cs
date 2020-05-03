@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// <summary>
         /// The resource identifier of this item.
         /// </summary>
-        public string Uri { get; set; }
+        public DocumentUri Uri { get; set; }
 
         /// <summary>
         /// The range enclosing this symbol not including leading/trailing whitespace but everything else, e.g. comments and code.

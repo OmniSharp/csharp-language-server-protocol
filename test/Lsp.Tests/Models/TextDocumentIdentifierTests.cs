@@ -24,19 +24,6 @@ namespace Lsp.Tests.Models
         }
 
         [Fact]
-        public void Should_Fail_To_Serialize_When_Given_A_Non_Relative_Uri()
-        {
-            var serializer = new Serializer(ClientVersion.Lsp3);
-            var model = new TextDocumentIdentifier()
-            {
-                Uri = new Uri("./abc23.cs", UriKind.Relative),
-            };
-
-            Action a = () => serializer.SerializeObject(model);
-            a.Should().Throw<JsonSerializationException>();
-        }
-
-        [Fact]
         public void Should_Fail_To_Deserialize_When_Given_A_Non_Relative_Uri()
         {
             var serializer = new Serializer(ClientVersion.Lsp3);
@@ -56,7 +43,7 @@ namespace Lsp.Tests.Models
                 ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""
             }");
 
-            result.Uri.Should().Be(new Uri("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1", UriKind.Absolute));
+            result.Uri.Should().Be(new DocumentUri("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1"));
         }
     }
 }

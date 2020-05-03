@@ -111,6 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
+            ReplaceConverter(converters, new DocumentUriConverter());
             base.AddOrReplaceConverters(converters);
         }
 

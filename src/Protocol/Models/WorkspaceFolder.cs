@@ -9,8 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The associated URI for this workspace folder.
         /// </summary>
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri Uri { get; set; }
+        public DocumentUri Uri { get; set; }
 
         /// <summary>
         /// The name of the workspace folder. Defaults to the uri's basename.

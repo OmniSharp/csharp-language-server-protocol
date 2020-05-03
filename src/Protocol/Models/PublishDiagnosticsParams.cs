@@ -14,8 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         ///  The URI for which diagnostic information is reported.
         /// </summary>
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri Uri { get; set; }
+        public DocumentUri Uri { get; set; }
 
         /// <summary>
         /// Optional the version number of the document the diagnostics are published for.

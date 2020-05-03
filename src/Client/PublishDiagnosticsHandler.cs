@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
@@ -16,5 +17,5 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     /// <remarks>
     ///     The diagnostics should replace any previously published diagnostics for the specified document.
     /// </remarks>
-    public delegate void PublishDiagnosticsHandler(Uri documentUri, List<Diagnostic> diagnostics);
+    public delegate void PublishDiagnosticsHandler(DocumentUri documentUri, List<Diagnostic> diagnostics);
 }

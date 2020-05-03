@@ -7,20 +7,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public class TextDocumentAttributes : IEquatable<TextDocumentAttributes>
     {
-        public TextDocumentAttributes(Uri uri, string languageId)
+        public TextDocumentAttributes(DocumentUri uri, string languageId)
         {
             Uri = uri;
             LanguageId = languageId;
         }
 
-        public TextDocumentAttributes(Uri uri, string scheme, string languageId)
+        public TextDocumentAttributes(DocumentUri uri, string scheme, string languageId)
         {
             Uri = uri;
             Scheme = scheme;
             LanguageId = languageId;
         }
 
-        public Uri Uri { get; }
+        public DocumentUri Uri { get; }
         public string Scheme { get; }
         public string LanguageId { get; }
 
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public bool Equals(TextDocumentAttributes other)
         {
             return other != null &&
-                   EqualityComparer<Uri>.Default.Equals(Uri, other.Uri) &&
+                   DocumentUri.Comparer.Equals(Uri, other.Uri) &&
                    Scheme == other.Scheme &&
                    LanguageId == other.LanguageId;
         }
@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public override int GetHashCode()
         {
             var hashCode = -918855467;
-            hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(Uri);
+            hashCode = hashCode * -1521134295 + DocumentUri.Comparer.GetHashCode(Uri);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Scheme);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LanguageId);
             return hashCode;

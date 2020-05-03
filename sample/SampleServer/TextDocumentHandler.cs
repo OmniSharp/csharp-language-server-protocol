@@ -98,7 +98,7 @@ namespace SampleServer
             };
         }
 
-        public TextDocumentAttributes GetTextDocumentAttributes(Uri uri)
+        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
         {
             return new TextDocumentAttributes(uri, "csharp");
         }

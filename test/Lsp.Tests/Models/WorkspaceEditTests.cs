@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
         {
             var model = new WorkspaceEdit()
             {
-                Changes = new Dictionary<Uri, IEnumerable<TextEdit>>() {
+                Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>() {
                         {
                             new Uri("file:///abc/123/d.cs"), new [] {
                                 new TextEdit() {

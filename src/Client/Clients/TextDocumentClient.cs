@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients
@@ -53,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <returns>
         ///     A <see cref="Task{TResult}"/> representing the request.
         /// </returns>
-        async Task<TResponse> PositionalRequest<TResponse>(string method, Uri documentUri, int line, int column, CancellationToken cancellationToken)
+        async Task<TResponse> PositionalRequest<TResponse>(string method, DocumentUri documentUri, int line, int column, CancellationToken cancellationToken)
         {
             if (string.IsNullOrWhiteSpace(method))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(method)}.", nameof(method));

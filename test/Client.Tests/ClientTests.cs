@@ -495,7 +495,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             var receivedDiagnosticsNotification = new TaskCompletionSource<object>();
 
-            Uri actualDocumentUri = null;
+            DocumentUri actualDocumentUri = null;
             List<Diagnostic> actualDiagnostics = null;
             LanguageClient.TextDocument.OnPublishDiagnostics((documentUri, diagnostics) => {
                 actualDocumentUri = documentUri;
