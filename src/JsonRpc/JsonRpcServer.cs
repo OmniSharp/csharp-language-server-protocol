@@ -197,29 +197,19 @@ namespace OmniSharp.Extensions.JsonRpc
             _responseRouter.SendNotification(@params);
         }
 
-        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken)
-        {
-            return _responseRouter.SendRequest<T, TResponse>(method, @params, cancellationToken);
-        }
-
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
         {
             return _responseRouter.SendRequest(@params, cancellationToken);
         }
 
-        public Task SendRequest(IRequest @params, CancellationToken cancellationToken)
+        public IResponseRouterReturns SendRequest<T>(string method, T @params)
         {
-            return _responseRouter.SendRequest(@params, cancellationToken);
+            return _responseRouter.SendRequest<T>(method, @params);
         }
 
-        public Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken)
+        public IResponseRouterReturns SendRequest(string method)
         {
-            return _responseRouter.SendRequest<TResponse>(method, cancellationToken);
-        }
-
-        public Task SendRequest<T>(string method, T @params, CancellationToken cancellationToken)
-        {
-            return _responseRouter.SendRequest(method, @params, cancellationToken);
+            return _responseRouter.SendRequest(method);
         }
 
         public TaskCompletionSource<JToken> GetRequest(long id)

@@ -17,18 +17,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public void SendNotification(string method) => _responseRouter.SendNotification(method);
 
         public void SendNotification<T>(string method, T @params) => _responseRouter.SendNotification(method, @params);
-        public void SendNotification(IRequest @params) => _responseRouter.SendNotification(@params);
 
-        public Task<TResponse> SendRequest<T, TResponse>(string method, T @params, CancellationToken cancellationToken) => _responseRouter.SendRequest<T, TResponse>(method, @params, cancellationToken);
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken) => _responseRouter.SendRequest(@params, cancellationToken);
-        public Task SendRequest(IRequest @params, CancellationToken cancellationToken)
-        {
-            return _responseRouter.SendRequest(@params, cancellationToken);
-        }
+        public void SendNotification(IRequest request) => _responseRouter.SendNotification(request);
 
-        public Task<TResponse> SendRequest<TResponse>(string method, CancellationToken cancellationToken) => _responseRouter.SendRequest<TResponse>(method, cancellationToken);
+        public IResponseRouterReturns SendRequest<T>(string method, T @params) => _responseRouter.SendRequest(method, @params);
 
-        public Task SendRequest<T>(string method, T @params, CancellationToken cancellationToken ) => _responseRouter.SendRequest(method, @params, cancellationToken);
+        public IResponseRouterReturns SendRequest(string method) => _responseRouter.SendRequest(method);
+
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
 
         public TaskCompletionSource<JToken> GetRequest(long id) => _responseRouter.GetRequest(id);
     }
