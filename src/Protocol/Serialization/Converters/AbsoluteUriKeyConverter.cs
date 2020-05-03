@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                     }
 
                     // Lastly add the remaining parts of the URL
-                    builder.Append(uri.PathAndQuery);
+                    builder.Append(DocumentUri.NormalizePath(uri.PathAndQuery));
                     writer.WritePropertyName(builder.ToString());
                 }
                 else

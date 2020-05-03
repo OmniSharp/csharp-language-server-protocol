@@ -92,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (Path.DirectorySeparatorChar == '\\')
                 return new Uri("file:///" + fileSystemPath.Replace('\\', '/'));
 
-            return NormalizeUri(new Uri("file://" + fileSystemPath));
+            return NormalizeUri("file://" + fileSystemPath);
         }
 
         /// <summary>
@@ -100,13 +100,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
-        public static Uri NormalizeUri(Uri uri)
+        public static Uri NormalizeUri(string uri)
         {
             // On windows of the Uri contains %3a local path
             // doesn't come out as a proper windows path
-            return uri.Segments[1].IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1
-                ? new Uri(uri.AbsoluteUri.Replace("%3a", ":").Replace("%3A", ":"))
-                : uri;
+            return new Uri(Uri.UnescapeDataString(uri));
         }
 
         /// <summary>
@@ -116,9 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         public static string NormalizePath(string path)
         {
-            if (path.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
-                return path.Replace("%3a", ":").Replace("%3A", ":");
-            return path;
+            return Uri.UnescapeDataString(path);
         }
     }
 }

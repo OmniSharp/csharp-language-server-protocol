@@ -56,7 +56,7 @@ namespace Lsp.Tests.Models
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
                 TextDocument = new TextDocumentIdentifier() {
                     // 树 - Chinese for tree
-                    Uri = new Uri("file:///test/123/%E6%A0%91.cs")
+                    Uri = new Uri("file:///test/123/树.cs")
                 }
             };
             var result = Fixture.SerializeObject(model);
