@@ -8,8 +8,16 @@ using static System.IO.Path;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    /// <summary>
+    /// This class describes a document uri as defined by https://microsoft.github.io/language-server-protocol/specifications/specification-current/#uri
+    /// </summary>
+    /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
     public class DocumentUri : IEquatable<DocumentUri>
     {
+        /// <summary>
+        /// Create a new document uri
+        /// </summary>
+        /// <param name="url"></param>
         public DocumentUri(string url)
         {
             var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
@@ -54,16 +62,45 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 queryIndex = fragmentIndex;
             }
 
-            Path = Uri.UnescapeDataString(url.Substring(authorityIndex + 1, queryIndex - (authorityIndex))).TrimStart('/');
+            Path = Uri.UnescapeDataString(url.Substring(authorityIndex + 1, queryIndex - (authorityIndex)))
+                .TrimStart('/');
         }
 
-
+        /// <summary>
+        /// The path
+        /// </summary>
+        /// <remarks>This does not contain the leading / for unix file systems.</remarks>
         public string Path { get; }
+
+        /// <summary>
+        /// The scheme of this uri
+        /// </summary>
+        /// <remarks>could be something other than http or https or file like custom uris the editor supports</remarks>
         public string Scheme { get; }
+
+        /// <summary>
+        /// The authority of the uri
+        /// </summary>
+        /// <remarks>generally is empty for language server protocol purposes</remarks>
         public string Authority { get; }
+
+        /// <summary>
+        /// The query string of the uri
+        /// </summary>
+        /// <remarks>generally is empty for language server protocol purposes</remarks>
         public string Query { get; }
+
+        /// <summary>
+        /// The fragment of the uri
+        /// </summary>
+        /// <remarks>generally is empty for language server protocol purposes</remarks>
         public string Fragment { get; }
 
+        /// <summary>
+        /// Convert the uri to a <see cref="Uri"/>
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>This will produce a uri where asian and cyrillic characters will be encoded</remarks>
         public Uri ToUri()
         {
             if (Authority.IndexOf(':') > -1)
@@ -90,16 +127,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }.Uri;
         }
 
+        /// <summary>
+        /// Convert this uri to a proper uri string.
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public override string ToString() =>
             $"{Scheme}{SchemeDelimiter}{Authority}/{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
 
-
+        /// <summary>
+        /// Gets the file system path prefixed with / for unix platforms
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public string GetFileSystemPath()
         {
             // The language server protocol represents "C:\Foo\Bar" as "file:///c:/foo/bar".
-            return Path.IndexOf(':') == -1 ? "/" + Path : Combine(Path.TrimStart('/')).Replace('/', '\\');
+            return Path.IndexOf(':') == -1 ? "/" + Path : Path.Replace('/', '\\');
         }
 
+        /// <inheritdoc />
         public bool Equals(DocumentUri other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -115,6 +162,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                    string.Equals(Fragment, other.Fragment, comparison);
         }
 
+        /// <inheritdoc />
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj)) return false;
@@ -122,6 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return obj.GetType() == GetType() && Equals((DocumentUri) obj);
         }
 
+        /// <inheritdoc />
         public override int GetHashCode()
         {
             // It's possible mac can have case insensitive file systems... we can always come back and change this.
@@ -139,8 +188,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
+        /// <summary>
+        /// Check if two uris are equal
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static bool operator ==(DocumentUri left, DocumentUri right) => Equals(left, right);
 
+        /// <summary>
+        /// Check if two uris are not equal
+        /// </summary>
+        /// <param name="left"></param>
+        /// <param name="right"></param>
+        /// <returns></returns>
         public static bool operator !=(DocumentUri left, DocumentUri right) => !Equals(left, right);
 
         /// <summary>
@@ -159,12 +220,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         public static explicit operator Uri(DocumentUri uri) => uri.ToUri();
 
+        /// <summary>
+        /// Automatically convert a string to a uri for both filesystem paths or uris in a string
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public static implicit operator DocumentUri(string url) => From(url);
 
+        /// <summary>
+        /// Automatically convert a uri to a document uri
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         public static implicit operator DocumentUri(Uri uri) => From(uri);
 
+        /// <summary>
+        /// Create a new document uri based on the given url
+        /// </summary>
+        /// <param name="url"></param>
+        /// <returns></returns>
         public static DocumentUri Parse(string url) => new DocumentUri(url);
 
+        /// <summary>
+        /// Create a new document uri from the given <see cref="Uri"/>
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         public static DocumentUri From(Uri uri)
         {
             if (uri.OriginalString.IndexOf("%3A", StringComparison.OrdinalIgnoreCase) > -1)
@@ -177,9 +258,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return new DocumentUri(uri.ToString());
         }
 
+        /// <summary>
+        /// Create a new document uri from a string
+        /// </summary>
+        /// <param name="uri"></param>
+        /// <returns></returns>
         public static DocumentUri From(string uri) => new DocumentUri(uri);
 
+        /// <summary>
+        /// The file scheme
+        /// </summary>
         public static readonly string UriSchemeFile = Uri.UriSchemeFile;
+
+        /// <summary>
+        /// The scheme delimiter
+        /// </summary>
         public static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
 
         /// <summary>
@@ -191,7 +284,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         ///     The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
-        public static string GetFileSystemPath(ITextDocumentIdentifierParams textDocumentIdentifierParams) => GetFileSystemPath(textDocumentIdentifierParams.TextDocument.Uri);
+        public static string GetFileSystemPath(ITextDocumentIdentifierParams textDocumentIdentifierParams) =>
+            GetFileSystemPath(textDocumentIdentifierParams.TextDocument.Uri);
 
         /// <summary>
         ///     Get the local file-system path for the specified document URI.
@@ -202,7 +296,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         ///     The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
-        public static string GetFileSystemPath(TextDocumentIdentifier textDocumentIdentifier) => GetFileSystemPath(textDocumentIdentifier.Uri);
+        public static string GetFileSystemPath(TextDocumentIdentifier textDocumentIdentifier) =>
+            GetFileSystemPath(textDocumentIdentifier.Uri);
 
         /// <summary>
         ///     Get the local file-system path for the specified document URI.
@@ -248,6 +343,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public int GetHashCode(DocumentUri obj) => obj.GetHashCode();
         }
 
+        /// <summary>
+        /// A default comparer that can be used for equality
+        /// </summary>
         public static IEqualityComparer<DocumentUri> Comparer { get; } = new DocumentUriEqualityComparer();
     }
 }
