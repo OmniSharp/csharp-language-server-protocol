@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     {
         public static Task ExecuteCommand(this ILanguageClientWorkspace router, ExecuteCommandParams @params, CancellationToken cancellationToken = default)
         {
-            return router.SendRequest(WorkspaceNames.ExecuteCommand, @params, cancellationToken);
+            return router.SendRequest(@params, cancellationToken);
         }
     }
 }
