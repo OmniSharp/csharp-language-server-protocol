@@ -16,11 +16,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (delimiterIndex == -1)
             {
                 url = Uri.UnescapeDataString(url);
-                if (!IsPathRooted(url))
-                    throw new ArgumentException($"Path '{url}' is not an absolute path.", nameof(url));
 
                 if (DirectorySeparatorChar == '\\')
                     url = url.Replace(DirectorySeparatorChar, AltDirectorySeparatorChar);
+                
                 Scheme = UriSchemeFile;
                 Authority = string.Empty;
                 Query = string.Empty;
