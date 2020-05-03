@@ -15,10 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
             if (delimiterIndex == -1)
             {
-                url = Uri.UnescapeDataString(url);
-
-                if (DirectorySeparatorChar == '\\')
-                    url = url.Replace(DirectorySeparatorChar, AltDirectorySeparatorChar);
+                url = Uri.UnescapeDataString(url).Replace('\\', '/');
 
                 Scheme = UriSchemeFile;
                 Authority = string.Empty;
