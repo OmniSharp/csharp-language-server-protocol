@@ -1,3 +1,5 @@
+using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -13,6 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The kind of this symbol.
         /// </summary>
         public SymbolKind Kind { get; set; }
+
+        /// <summary>
+        /// Tags for this completion item.
+        ///
+        /// @since 3.16.0 - Proposed state
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        [Optional]
+        public Container<SymbolTag> Tags { get; set; }
 
         /// <summary>
         /// Indicates if this item is deprecated.

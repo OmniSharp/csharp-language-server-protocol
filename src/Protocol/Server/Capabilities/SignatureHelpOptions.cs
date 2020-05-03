@@ -1,5 +1,7 @@
+using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -28,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> RetriggerCharacters { get; set; }
 
-        public static SignatureHelpOptions Of(ISignatureHelpOptions options)
+        public static SignatureHelpOptions Of(ISignatureHelpOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new SignatureHelpOptions() { TriggerCharacters = options.TriggerCharacters, RetriggerCharacters = options.RetriggerCharacters, WorkDoneProgress = options.WorkDoneProgress };
         }

@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -24,8 +25,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private DidChangeConfigurationCapability _capability;
         private readonly ConfigurationRoot _configuration;
 
-        private readonly ConcurrentDictionary<Uri, DisposableConfiguration> _openScopes =
-            new ConcurrentDictionary<Uri, DisposableConfiguration>();
+        private readonly ConcurrentDictionary<DocumentUri, DisposableConfiguration> _openScopes =
+            new ConcurrentDictionary<DocumentUri, DisposableConfiguration>();
 
         public DidChangeConfigurationProvider(ILanguageServer server, Action<IConfigurationBuilder> configurationBuilderAction)
         {
@@ -132,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 .Build();
         }
 
-        public async Task<IScopedConfiguration> GetScopedConfiguration(Uri scopeUri)
+        public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri)
         {
             var scopes = _server.Services.GetServices<ConfigurationItem>().ToArray();
             if (scopes.Length == 0)
@@ -157,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return config;
         }
 
-        public bool TryGetScopedConfiguration(Uri scopeUri, out IScopedConfiguration disposable)
+        public bool TryGetScopedConfiguration(DocumentUri scopeUri, out IScopedConfiguration disposable)
         {
             var result = _openScopes.TryGetValue(scopeUri, out var c);
             if (result)

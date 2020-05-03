@@ -25,22 +25,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The line within the file of the frame. If source is null or doesn't exist, line is 0 and must be ignored.
         /// </summary>
-        public long Line { get; set; }
+        public int Line { get; set; }
 
         /// <summary>
         /// The column within the line. If source is null or doesn't exist, column is 0 and must be ignored.
         /// </summary>
-        public long Column { get; set; }
+        public int Column { get; set; }
 
         /// <summary>
         /// An optional end line of the range covered by the stack frame.
         /// </summary>
-        [Optional] public long? EndLine { get; set; }
+        [Optional] public int? EndLine { get; set; }
 
         /// <summary>
         /// An optional end column of the range covered by the stack frame.
         /// </summary>
-        [Optional] public long? EndColumn { get; set; }
+        [Optional] public int? EndColumn { get; set; }
 
         /// <summary>
         /// Optional memory reference for the current instruction pointer in this frame.

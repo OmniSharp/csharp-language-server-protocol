@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             /// <typeparam name="TInterface"></typeparam>
             /// <typeparam name="TOptions"></typeparam>
             /// <returns></returns>
-            TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
+            TOptions Get<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class;
 
             /// <summary>
@@ -63,19 +63,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             /// <typeparam name="TOptions"></typeparam>
             /// <param name="action"></param>
             /// <returns></returns>
-            TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
+            TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class;
         }
 
         private class NullOptionsGetter : IOptionsGetter
         {
-            public TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
+            public TOptions Get<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
                 return null;
             }
 
-            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
+            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
                 return null;
@@ -93,11 +93,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _supportsProgress = supportsProgress;
             }
 
-            public TOptions Get<TInterface, TOptions>(Func<TInterface, TOptions> action)
+            public TOptions Get<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
                 var value = _collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
                     .FirstOrDefault(x => x != null);
                 if (value is IWorkDoneProgressOptions wdpo)
                 {
@@ -106,24 +106,28 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 return value;
             }
 
-            public Supports<TOptions> Can<TInterface, TOptions>(Func<TInterface, TOptions> action)
+            public Supports<TOptions> Can<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
                 var options = _collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl) : null)
+                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
                     .FirstOrDefault(x => x != null);
+                if (options is IWorkDoneProgressOptions wdpo)
+                {
+                    wdpo.WorkDoneProgress = _supportsProgress;
+                }
                 if (options == null)
                     return Supports.OfBoolean<TOptions>(false);
 
                 return options;
             }
 
-            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, TOptions> action)
+            public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
                 var value = action(_collection
                     .Select(x => x.RegistrationOptions is TInterface cl ? cl : default)
-                    .Where(x => x != null));
+                    .Where(x => x != null), _collection);
 
                 if (value is IWorkDoneProgressOptions wdpo)
                 {

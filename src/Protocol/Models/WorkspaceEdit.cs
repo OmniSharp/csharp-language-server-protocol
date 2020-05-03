@@ -13,8 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Holds changes to existing resources.
         /// </summary>
         [Optional]
-        [JsonConverter(typeof(AbsoluteUriKeyConverter<IEnumerable<TextEdit>>))]
-        public IDictionary<Uri, IEnumerable<TextEdit>> Changes { get; set; }
+        public IDictionary<DocumentUri, IEnumerable<TextEdit>> Changes { get; set; }
+
         /// <summary>
         /// An array of `TextDocumentEdit`s to express changes to n different text documents
         /// where each text document edit addresses a specific version of a text document.

@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsLabel)
                 serializer.Serialize(writer, value.Label);
             if (value.IsRange)
-                serializer.Serialize(writer, value.Range);
+                serializer.Serialize(writer, new [] { value.Range.start, value.Range.end });
         }
 
         public override ParameterInformationLabel ReadJson(JsonReader reader, Type objectType, ParameterInformationLabel existingValue, bool hasExistingValue, JsonSerializer serializer)
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var a = JArray.Load(reader);
-                return new ParameterInformationLabel((a[0].ToObject<long>(), a[1].ToObject<long>()));
+                return new ParameterInformationLabel((a[0].ToObject<int>(), a[1].ToObject<int>()));
             }
             throw new NotSupportedException();
         }

@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         }
 
-        public TextDocumentIdentifier(Uri uri)
+        public TextDocumentIdentifier(DocumentUri uri)
         {
             Uri = uri;
         }
@@ -20,7 +20,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document's URI.
         /// </summary>
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri Uri { get; set; }
+        public DocumentUri Uri { get; set; }
     }
 }

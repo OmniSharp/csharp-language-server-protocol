@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -14,11 +16,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<CodeActionKind> CodeActionKinds { get; set; }
 
-        public static CodeActionOptions Of(ICodeActionOptions options)
+        public static CodeActionOptions Of(ICodeActionOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new CodeActionOptions() {
                 CodeActionKinds = options.CodeActionKinds,
-                WorkDoneProgress = options.WorkDoneProgress
+                WorkDoneProgress = options.WorkDoneProgress,
             };
         }
     }

@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
@@ -20,91 +23,109 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public TextDocumentSync TextDocumentSync { get; set; }
+
         /// <summary>
         ///  The server provides hover support.
         /// </summary>
         [Optional]
         public BooleanOr<HoverOptions> HoverProvider { get; set; }
+
         /// <summary>
         ///  The server provides completion support.
         /// </summary>
         [Optional]
         public CompletionOptions CompletionProvider { get; set; }
+
         /// <summary>
         ///  The server provides signature help support.
         /// </summary>
         [Optional]
         public SignatureHelpOptions SignatureHelpProvider { get; set; }
+
         /// <summary>
         ///  The server provides goto definition support.
         /// </summary>
         [Optional]
         public BooleanOr<DefinitionOptions> DefinitionProvider { get; set; }
+
         /// <summary>
         ///  The server provides find references support.
         /// </summary>
         [Optional]
         public BooleanOr<ReferencesOptions> ReferencesProvider { get; set; }
+
         /// <summary>
         ///  The server provides document highlight support.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentHighlightOptions> DocumentHighlightProvider { get; set; }
+
         /// <summary>
         ///  The server provides document symbol support.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentSymbolOptions> DocumentSymbolProvider { get; set; }
+
         /// <summary>
         ///  The server provides workspace symbol support.
         /// </summary>
         [Optional]
         public BooleanOr<WorkspaceSymbolOptions> WorkspaceSymbolProvider { get; set; }
+
         /// <summary>
         ///  The server provides code actions.
         /// </summary>
         [Optional]
         public BooleanOr<CodeActionOptions> CodeActionProvider { get; set; }
+
         /// <summary>
         ///  The server provides code lens.
         /// </summary>
         [Optional]
         public CodeLensOptions CodeLensProvider { get; set; }
+
         /// <summary>
         ///  The server provides document formatting.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentFormattingOptions> DocumentFormattingProvider { get; set; }
+
         /// <summary>
         ///  The server provides document range formatting.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentRangeFormattingOptions> DocumentRangeFormattingProvider { get; set; }
+
         /// <summary>
         ///  The server provides document formatting on typing.
         /// </summary>
         [Optional]
         public DocumentOnTypeFormattingOptions DocumentOnTypeFormattingProvider { get; set; }
+
         /// <summary>
         ///  The server provides rename support.
         /// </summary>
         [Optional]
         public BooleanOr<RenameOptions> RenameProvider { get; set; }
+
         /// <summary>
         ///  The server provides document link support.
         /// </summary>
         [Optional]
         public DocumentLinkOptions DocumentLinkProvider { get; set; }
+
         /// <summary>
         ///  The server provides execute command support.
         /// </summary>
         [Optional]
         public ExecuteCommandOptions ExecuteCommandProvider { get; set; }
+
         /// <summary>
         ///  Experimental server capabilities.
         /// </summary>
         [Optional]
         public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
+
         /// <summary>
         /// The server provides Goto Type Definition support.
         ///
@@ -112,6 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public BooleanOr<TypeDefinitionOptions> TypeDefinitionProvider { get; set; }
+
         /// <summary>
         /// The server provides Goto Implementation support.
         ///
@@ -119,6 +141,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public BooleanOr<ImplementationOptions> ImplementationProvider { get; set; }
+
         /// <summary>
         /// The server provides color provider support.
         ///
@@ -126,6 +149,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// </summary>
         [Optional]
         public BooleanOr<DocumentColorOptions> ColorProvider { get; set; }
+
+        /// <summary>
+        /// The server provides Call Hierarchy support.
+        /// </summary>
+        [Optional]
+        [Obsolete(Constants.Proposal)]
+        public BooleanOr<CallHierarchyOptions> CallHierarchyProvider { get; set; }
+
+        /// <summary>
+        /// The server provides Call Hierarchy support.
+        /// </summary>
+        [Optional]
+        [Obsolete(Constants.Proposal)]
+        public SemanticTokensOptions SemanticTokensProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.
@@ -147,6 +184,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.14.0
         /// </summary>
         public BooleanOr<DeclarationOptions> DeclarationProvider { get; set; }
+
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>

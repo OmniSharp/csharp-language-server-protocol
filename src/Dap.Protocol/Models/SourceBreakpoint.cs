@@ -10,12 +10,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The source line of the breakpoint or logpoint.
         /// </summary>
-        public long Line { get; set; }
+        public int Line { get; set; }
 
         /// <summary>
         /// An optional source column of the breakpoint.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional] public int? Column { get; set; }
 
         /// <summary>
         /// An optional expression for conditional breakpoints.

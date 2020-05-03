@@ -54,5 +54,17 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             return registry.AddHandler(method, _ => new DelegatingNotificationHandler(_.GetRequiredService<ISerializer>(), handler));
         }
+
+        /// <summary>
+        /// Set maximum number of allowed parallel actions
+        /// </summary>
+        /// <param name="options"></param>
+        /// <param name="concurrency"></param>
+        /// <returns></returns>
+        public static JsonRpcServerOptions WithConcurrency(this JsonRpcServerOptions options, int? concurrency)
+        {
+            options.Concurrency = concurrency;
+            return options;
+        }
     }
 }

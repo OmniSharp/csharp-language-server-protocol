@@ -36,8 +36,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public string RootPath
         {
-            get { return RootUri?.AbsolutePath; }
-            set { RootUri = value == null ? null : new Uri($"file://{value}"); }
+            get { return RootUri?.GetFileSystemPath(); }
+            set { RootUri = value == null ? null : DocumentUri.FromFileSystemPath(value); }
         }
 
         /// <summary>
@@ -45,8 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// folder is open. If both `rootPath` and `rootUri` are set
         /// `rootUri` wins.
         /// </summary>
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri RootUri { get; set; }
+        public DocumentUri RootUri { get; set; }
 
         /// <summary>
         /// User provided initialization options.

@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -11,17 +12,19 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Stream _output;
         private readonly ISerializer _serializer;
+        private readonly ILogger<OutputHandler> _outputHandler;
         private readonly Thread _thread;
         private readonly BlockingCollection<object> _queue;
         private readonly CancellationTokenSource _cancel;
         private readonly TaskCompletionSource<object> _outputIsFinished;
 
-        public OutputHandler(Stream output, ISerializer serializer)
+        public OutputHandler(Stream output, ISerializer serializer, ILogger<OutputHandler> outputHandler)
         {
             if (!output.CanWrite)
                 throw new ArgumentException($"must provide a writable stream for {nameof(output)}", nameof(output));
             _output = output;
             _serializer = serializer;
+            _outputHandler = outputHandler;
             _queue = new BlockingCollection<object>();
             _cancel = new CancellationTokenSource();
             _outputIsFinished = new TaskCompletionSource<object>();
@@ -72,14 +75,14 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                 }
             }
-            catch (OperationCanceledException ex)
+            catch (OperationCanceledException ex) when (ex.CancellationToken != token)
             {
-                if (ex.CancellationToken != token)
-                    _outputIsFinished.TrySetException(ex);
-                // else ignore. Exceptions: OperationCanceledException - The CancellationToken has been canceled.
+                _outputHandler.LogTrace(ex, "Cancellation happened");
+                _outputIsFinished.TrySetException(ex);
             }
             catch (Exception e)
             {
+                _outputHandler.LogTrace(e, "Could not write to output handler, perhaps serialization failed?");
                 _outputIsFinished.TrySetException(e);
             }
         }

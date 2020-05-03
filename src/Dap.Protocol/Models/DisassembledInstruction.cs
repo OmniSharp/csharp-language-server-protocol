@@ -35,21 +35,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The line within the source location that corresponds to this instruction, if any.
         /// </summary>
-        [Optional] public long? Line { get; set; }
+        [Optional] public int? Line { get; set; }
 
         /// <summary>
         /// The column within the line that corresponds to this instruction, if any.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional] public int? Column { get; set; }
 
         /// <summary>
         /// The end line of the range that corresponds to this instruction, if any.
         /// </summary>
-        [Optional] public long? EndLine { get; set; }
+        [Optional] public int? EndLine { get; set; }
 
         /// <summary>
         /// The end column of the range that corresponds to this instruction, if any.
         /// </summary>
-        [Optional] public long? EndColumn { get; set; }
+        [Optional] public int? EndColumn { get; set; }
     }
 }

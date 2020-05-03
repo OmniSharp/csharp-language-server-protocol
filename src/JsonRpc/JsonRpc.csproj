@@ -7,6 +7,7 @@
         <PackageDescription>Primitives for working with JsonRpc.  This library is used as the base for communication with language servers</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
+        <PackageReference Include="System.Collections.Immutable" />
         <PackageReference Include="System.Reactive" />
         <PackageReference Include="Microsoft.Extensions.Logging" />
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />

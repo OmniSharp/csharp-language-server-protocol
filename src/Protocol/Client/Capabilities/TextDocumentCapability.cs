@@ -1,3 +1,4 @@
+using System;
 using System.ComponentModel;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -122,5 +123,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Capabilities specific to `textDocument/publishDiagnostics`.
         /// </summary>
         public Supports<PublishDiagnosticsCapability> PublishDiagnostics { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/callHierarchy`.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public Supports<CallHierarchyCapability> CallHierarchy { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/semanticTokens`
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public Supports<SemanticTokensCapability> SemanticTokens { get; set; }
     }
 }

@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The resource to create.
         /// </summary>
-        public string Uri { get; set; }
+        public DocumentUri Uri { get; set; }
         /// <summary>
         /// Additional Options
         /// </summary>

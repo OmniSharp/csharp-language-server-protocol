@@ -35,9 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException("Argument cannot be null, empty, or entirely composed of whitespace: 'filePath'.", nameof(filePath));
 
-            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
-
-            return Hover(documentUri, line, column, cancellationToken);
+            return Hover(DocumentUri.FromFileSystemPath(filePath), line, column, cancellationToken);
         }
 
         /// <summary>
@@ -58,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <returns>
         ///     A <see cref="Task{TResult}"/> that resolves to the hover information or <c>null</c> if no hover information is available at the specified position.
         /// </returns>
-        public Task<Hover> Hover(Uri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
+        public Task<Hover> Hover(DocumentUri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
             return PositionalRequest<Hover>(DocumentNames.Hover, documentUri, line, column, cancellationToken);
         }

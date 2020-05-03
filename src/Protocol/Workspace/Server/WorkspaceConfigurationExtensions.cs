@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
     {
         public static Task<Container<JToken>> WorkspaceConfiguration(this ILanguageServerWorkspace router, ConfigurationParams @params, CancellationToken cancellationToken = default)
         {
-            return router.SendRequest<ConfigurationParams, Container<JToken>>(WorkspaceNames.WorkspaceConfiguration, @params, cancellationToken);
+            return router.SendRequest(@params, cancellationToken);
         }
     }
 }

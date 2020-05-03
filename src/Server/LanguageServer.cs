@@ -27,6 +27,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
@@ -148,8 +149,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Action<IConfigurationBuilder> configurationBuilderAction,
             int? concurrency)
         {
-            var outputHandler = new OutputHandler(output, serializer);
-
             var configurationProvider = new DidChangeConfigurationProvider(this, configurationBuilderAction);
             services.AddSingleton<IJsonRpcHandler>(configurationProvider);
 
@@ -171,7 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedDelegates = initializedDelegates;
             _startedDelegates = startedDelegates;
 
-            services.AddSingleton<IOutputHandler>(outputHandler);
+            services.AddSingleton<IOutputHandler>(_ => ActivatorUtilities.CreateInstance<OutputHandler>(_, output));
             services.AddSingleton(_collection);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
@@ -237,7 +236,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = ActivatorUtilities.CreateInstance<Connection>(_serviceProvider, input, concurrency);
+            _connection = new Connection(
+                input,
+                _serviceProvider.GetRequiredService<IOutputHandler>(),
+                receiver,
+                requestProcessIdentifier,
+                _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
+                _responseRouter,
+                _serviceProvider.GetRequiredService<ILoggerFactory>(),
+                serializer,
+                concurrency
+            );
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 
@@ -380,6 +389,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 if (descriptor.AllowsDynamicRegistration)
                 {
+                    if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
+                    {
+                        wdpo.WorkDoneProgress = _progressManager.IsSupported;
+                    }
                     registrations.Add(new Registration() {
                         Id = descriptor.Id.ToString(),
                         Method = descriptor.Method,
@@ -458,14 +471,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             _supportedCapabilities.Add(supportedCapabilities);
 
-            AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
-
             ClientSettings.Capabilities ??= new ClientCapabilities();
             var textDocumentCapabilities =
                 ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
             _progressManager.Initialized(_responseRouter, _serializer, windowCapabilities);
+
+            AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
 
             await Task.WhenAll(_initializeDelegates.Select(c => c(this, request, token)));
 
@@ -518,6 +531,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     .Get<ISelectionRangeOptions, SelectionRangeOptions>(SelectionRangeOptions.Of),
                 DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration)
                     .Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
+#pragma warning disable 618
+                CallHierarchyProvider = ccp.GetStaticOptions(textDocumentCapabilities.CallHierarchy)
+                    .Get<ICallHierarchyOptions, CallHierarchyOptions>(CallHierarchyOptions.Of),
+                SemanticTokensProvider = ccp.GetStaticOptions(textDocumentCapabilities.SemanticTokens)
+                    .Get<ISemanticTokensOptions, SemanticTokensOptions>(SemanticTokensOptions.Of),
+#pragma warning restore 618
             };
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))

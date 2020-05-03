@@ -52,21 +52,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Optional start line of the range covered by this scope.
         /// </summary>
-        [Optional] public long? Line { get; set; }
+        [Optional] public int? Line { get; set; }
 
         /// <summary>
         /// Optional start column of the range covered by this scope.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional] public int? Column { get; set; }
 
         /// <summary>
         /// Optional end line of the range covered by this scope.
         /// </summary>
-        [Optional] public long? EndLine { get; set; }
+        [Optional] public int? EndLine { get; set; }
 
         /// <summary>
         /// Optional end column of the range covered by this scope.
         /// </summary>
-        [Optional] public long? EndColumn { get; set; }
+        [Optional] public int? EndColumn { get; set; }
     }
 }

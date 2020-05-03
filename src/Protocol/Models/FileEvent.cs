@@ -13,8 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         ///  The file's URI.
         /// </summary>
-        [JsonConverter(typeof(AbsoluteUriConverter))]
-        public Uri Uri { get; set; }
+        public DocumentUri Uri { get; set; }
 
         /// <summary>
         ///  The change type.

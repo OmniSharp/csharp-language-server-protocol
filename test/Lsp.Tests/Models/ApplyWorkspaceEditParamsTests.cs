@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
         {
             var model = new ApplyWorkspaceEditParams() {
                 Edit = new WorkspaceEdit() {
-                    Changes = new Dictionary<Uri, IEnumerable<TextEdit>>() {
+                    Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>() {
                         {
                             new Uri("file:///abc/123/d.cs"), new [] {
                                 new TextEdit() {
@@ -47,10 +47,10 @@ namespace Lsp.Tests.Models
         {
             var model = new ApplyWorkspaceEditParams() {
                 Edit = new WorkspaceEdit() {
-                    Changes = new Dictionary<Uri, IEnumerable<TextEdit>>() {
+                    Changes = new Dictionary<DocumentUri, IEnumerable<TextEdit>>() {
                         {
                             // Mörkö
-                            new Uri("file:///abc/123/M%C3%B6rk%C3%B6.cs"), new [] {
+                            new Uri("file:///abc/bc/123/Mörkö.cs"), new [] {
                                 new TextEdit() {
                                     NewText = "new text",
                                     Range = new Range(new Position(1, 1), new Position(2,2))

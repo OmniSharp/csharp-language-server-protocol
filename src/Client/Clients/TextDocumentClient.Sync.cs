@@ -63,9 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
-            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
-
-            DidOpen(documentUri, languageId, text, version);
+            DidOpen(DocumentUri.FromFileSystemPath(filePath), languageId, text, version);
         }
 
         /// <summary>
@@ -83,7 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <param name="version">
         ///     The document version (optional).
         /// </param>
-        public void DidOpen(Uri documentUri, string languageId, string text, int version = 0)
+        public void DidOpen(DocumentUri documentUri, string languageId, string text, int version = 0)
         {
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
@@ -157,9 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (string.IsNullOrWhiteSpace(filePath))
                 throw new ArgumentException($"Argument cannot be null, empty, or entirely composed of whitespace: {nameof(filePath)}.", nameof(filePath));
 
-            Uri documentUri = DocumentUri.FromFileSystemPath(filePath);
-
-            DidChange(documentUri, languageId, text, version);
+            DidChange(DocumentUri.FromFileSystemPath(filePath), languageId, text, version);
         }
 
         /// <summary>
@@ -180,7 +176,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <remarks>
         ///     This style of notification is used when the client does not support partial updates (i.e. one or more updates with an associated range).
         /// </remarks>
-        public void DidChange(Uri documentUri, string languageId, string text, int version = 0)
+        public void DidChange(DocumentUri documentUri, string languageId, string text, int version = 0)
         {
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
@@ -224,7 +220,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <param name="documentUri">
         ///     The document URI.
         /// </param>
-        public void DidClose(Uri documentUri)
+        public void DidClose(DocumentUri documentUri)
         {
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
@@ -260,7 +256,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// <param name="documentUri">
         ///     The document URI.
         /// </param>
-        public void DidSave(Uri documentUri)
+        public void DidSave(DocumentUri documentUri)
         {
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));

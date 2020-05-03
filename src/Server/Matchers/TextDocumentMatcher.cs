@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             return Enumerable.Empty<ILspHandlerDescriptor>();
         }
 
-        private List<TextDocumentAttributes> GetTextDocumentAttributes(Uri uri)
+        private List<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
         {
             return _textDocumentIdentifiers
                 .Select(x => x.GetTextDocumentAttributes(uri))

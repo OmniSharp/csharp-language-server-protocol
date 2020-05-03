@@ -68,9 +68,7 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts => {
                     reciever.When(x => x.IsValid(Arg.Any<JToken>()))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
                 reciever.Received().IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
@@ -100,9 +98,9 @@ namespace JsonRpc.Tests
                 }))
             {
                 reciever.Received();
-                threadName.Should().Be("ProcessInputStream", because: "it is easier to find it in the Threads pane by it's name");
+                threadName.Should().Be("ProcessInputStream",
+                    because: "it is easier to find it in the Threads pane by it's name");
             }
-
         }
 
         [Fact]
@@ -122,12 +120,42 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts => {
                     reciever.When(x => x.IsValid(Arg.Any<JToken>()))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
                 reciever.Received().IsValid(Arg.Is<JToken>(x => x["utf8"].ToString() == "ä"));
+            }
+        }
+
+        [Theory]
+        [InlineData("{\"changes\": [{\"uri\": \"file:///Mörkö.cs\",\"type\": 1}]}")]
+        [InlineData("{\"textDocument\": {\"uri\": \"file://abc/123/树.cs\"}}")]
+        public void ShouldPassAdditionalUtf8EncodedReqeusts(string data)
+        {
+            var inputStream =
+                new MemoryStream(
+                    Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetBytes(data).Length}\r\n\r\n{data}"));
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var reciever = Substitute.For<IReceiver>();
+
+            using (NewHandler(
+                inputStream,
+                outputHandler,
+                reciever,
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IResponseRouter>(),
+                cts => {
+                    reciever.When(x => x.IsValid(Arg.Any<JToken>()))
+                        .Do(x => { cts.Cancel(); });
+                }))
+            {
+                var calls = reciever.ReceivedCalls();
+                var call = calls.Single();
+                call.GetMethodInfo().Name.Should().Be("IsValid");
+                call.GetArguments()[0].Should().BeAssignableTo<JToken>();
+                var arg = call.GetArguments()[0] as JToken;
+                arg.ToString().Should().Be(JToken.Parse(data).ToString());
             }
         }
 
@@ -142,7 +170,7 @@ namespace JsonRpc.Tests
             var req = new Request(1, "abc", null);
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] { req }, false));
+                .Returns(c => (new Renor[] {req}, false));
 
             var response = new Response(1, req);
 
@@ -158,9 +186,7 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts => {
                     outputHandler.When(x => x.Send(Arg.Any<object>(), Arg.Any<CancellationToken>()))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
                 outputHandler.Received().Send(Arg.Is<object>(x => x == response), Arg.Any<CancellationToken>());
@@ -178,7 +204,7 @@ namespace JsonRpc.Tests
             var error = new RpcError(1, new ErrorMessage(1, "abc"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] { error }, false));
+                .Returns(c => (new Renor[] {error}, false));
 
 
             using (NewHandler(
@@ -190,9 +216,7 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts => {
                     outputHandler.When(x => x.Send(Arg.Any<object>(), Arg.Any<CancellationToken>()))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
                 outputHandler.Received().Send(Arg.Is<object>(x => x == error), Arg.Any<CancellationToken>());
@@ -210,7 +234,7 @@ namespace JsonRpc.Tests
             var notification = new Notification("abc", null);
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] { notification }, false));
+                .Returns(c => (new Renor[] {notification}, false));
 
             using (NewHandler(
                 inputStream,
@@ -220,13 +244,13 @@ namespace JsonRpc.Tests
                 incomingRequestRouter,
                 Substitute.For<IResponseRouter>(),
                 cts => {
-                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<IHandlerDescriptor>(), Arg.Any<Notification>(), CancellationToken.None))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                    incomingRequestRouter.When(x => x.RouteNotification(Arg.Any<IHandlerDescriptor>(),
+                            Arg.Any<Notification>(), CancellationToken.None))
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
-                await incomingRequestRouter.Received().RouteNotification(Arg.Any<IHandlerDescriptor>(), notification, CancellationToken.None);
+                await incomingRequestRouter.Received().RouteNotification(Arg.Any<IHandlerDescriptor>(), notification,
+                    CancellationToken.None);
             }
         }
 
@@ -241,7 +265,7 @@ namespace JsonRpc.Tests
             var response = new OmniSharp.Extensions.JsonRpc.Server.ServerResponse(1L, JToken.Parse("{}"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] { response }, true));
+                .Returns(c => (new Renor[] {response}, true));
 
             var tcs = new TaskCompletionSource<JToken>();
             responseRouter.GetRequest(1L).Returns(tcs);
@@ -255,9 +279,7 @@ namespace JsonRpc.Tests
                 responseRouter,
                 cts => {
                     responseRouter.When(x => x.GetRequest(Arg.Any<long>()))
-                        .Do(x => {
-                            cts.CancelAfter(1);
-                        });
+                        .Do(x => { cts.CancelAfter(1); });
                 }))
             {
                 responseRouter.Received().GetRequest(1L);
@@ -281,7 +303,7 @@ namespace JsonRpc.Tests
             var cancel = new Notification(JsonRpcNames.CancelRequest, JObject.Parse("{\"id\":1}"));
             reciever.IsValid(Arg.Any<JToken>()).Returns(true);
             reciever.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] { req, cancel }, false));
+                .Returns(c => (new Renor[] {req, cancel}, false));
 
             incomingRequestRouter.When(z => z.CancelRequest(Arg.Any<object>()));
             incomingRequestRouter.GetDescriptor(cancel).Returns(cancelDescription);
@@ -302,9 +324,7 @@ namespace JsonRpc.Tests
                 Substitute.For<IResponseRouter>(),
                 cts => {
                     outputHandler.When(x => x.Send(Arg.Any<object>(), Arg.Any<CancellationToken>()))
-                        .Do(x => {
-                            cts.Cancel();
-                        });
+                        .Do(x => { cts.Cancel(); });
                 }))
             {
                 incomingRequestRouter.Received().CancelRequest(1L);

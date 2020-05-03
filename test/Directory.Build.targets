@@ -15,6 +15,9 @@
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="coverlet.msbuild" />
         <PackageReference Include="Microsoft.Reactive.Testing" />
+        <PackageReference Include="Bogus" />
+        <PackageReference Include="Snapper" />
+        <PackageReference Include="Xunit.SkippableFact" />
     </ItemGroup>
     <Import Project="$([MSBuild]::GetPathOfFileAbove('Directory.Build.targets', '$(MSBuildThisFileDirectory)../'))" />
 </Project>

@@ -13,16 +13,53 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsString) serializer.Serialize(writer, value.String);
         }
 
-        public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue,
+            bool hasExistingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.String)
             {
-                return new DiagnosticCode((string)reader.Value);
+                return new DiagnosticCode((string) reader.Value);
             }
+
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new DiagnosticCode((long)reader.Value);
+                return new DiagnosticCode((long) reader.Value);
             }
+
+            return null;
+        }
+
+        public override bool CanRead => true;
+    }
+
+    class NullableDiagnosticCodeConverter : JsonConverter<DiagnosticCode?>
+    {
+        public override void WriteJson(JsonWriter writer, DiagnosticCode? value, JsonSerializer serializer)
+        {
+            if (!value.HasValue)
+            {
+                writer.WriteNull();
+            }
+            else
+            {
+                if (value.Value.IsLong) serializer.Serialize(writer, value.Value.Long);
+                if (value.Value.IsString) serializer.Serialize(writer, value.Value.String);
+            }
+        }
+
+        public override DiagnosticCode? ReadJson(JsonReader reader, Type objectType, DiagnosticCode? existingValue,
+            bool hasExistingValue, JsonSerializer serializer)
+        {
+            if (reader.TokenType == JsonToken.String)
+            {
+                return new DiagnosticCode((string) reader.Value);
+            }
+
+            if (reader.TokenType == JsonToken.Integer)
+            {
+                return new DiagnosticCode((long) reader.Value);
+            }
+
             return null;
         }
 

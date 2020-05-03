@@ -9,7 +9,6 @@ using System;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Protocol;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -496,7 +495,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 
             var receivedDiagnosticsNotification = new TaskCompletionSource<object>();
 
-            Uri actualDocumentUri = null;
+            DocumentUri actualDocumentUri = null;
             List<Diagnostic> actualDiagnostics = null;
             LanguageClient.TextDocument.OnPublishDiagnostics((documentUri, diagnostics) => {
                 actualDocumentUri = documentUri;

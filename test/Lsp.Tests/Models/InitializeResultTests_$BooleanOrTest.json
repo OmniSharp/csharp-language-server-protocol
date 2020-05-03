@@ -30,7 +30,6 @@
             ]
         },
         "colorProvider": {
-            "resolveProvider": false,
             "workDoneProgress": false,
             "id": "foo",
             "documentSelector": [

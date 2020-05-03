@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions() => _options;
         TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions() => _options;
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions() => _changeOptions;
-        public abstract TextDocumentAttributes GetTextDocumentAttributes(Uri uri);
+        public abstract TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri);
         public abstract Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             Func<DidCloseTextDocumentParams, CancellationToken, Task<Unit>> onCloseHandler,
             Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> onChangeHandler,
             Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> onSaveHandler,
-            Func<Uri, TextDocumentAttributes> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             TextDocumentSaveRegistrationOptions registrationOptions = null,
             Action<SynchronizationCapability> setCapability = null)
         {
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             private readonly Func<DidCloseTextDocumentParams, CancellationToken, Task<Unit>> _onCloseHandler;
             private readonly Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> _onChangeHandler;
             private readonly Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> _onSaveHandler;
-            private readonly Func<Uri, TextDocumentAttributes> _getTextDocumentAttributes;
+            private readonly Func<DocumentUri, TextDocumentAttributes> _getTextDocumentAttributes;
             private readonly Action<SynchronizationCapability> _setCapability;
 
             public DelegatingHandler(
@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
                 Func<DidCloseTextDocumentParams, CancellationToken, Task<Unit>> onCloseHandler,
                 Func<DidChangeTextDocumentParams, CancellationToken, Task<Unit>> onChangeHandler,
                 Func<DidSaveTextDocumentParams, CancellationToken, Task<Unit>> onSaveHandler,
-                Func<Uri, TextDocumentAttributes> getTextDocumentAttributes,
+                Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
                 Action<SynchronizationCapability> setCapability,
                 TextDocumentSaveRegistrationOptions registrationOptions,
                 TextDocumentSyncKind kind) : base(kind, registrationOptions)
@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
             public override Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken) => _onChangeHandler.Invoke(request, cancellationToken);
             public override Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken) => _onSaveHandler.Invoke(request, cancellationToken);
             public override Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken) => _onCloseHandler.Invoke(request, cancellationToken);
-            public override TextDocumentAttributes GetTextDocumentAttributes(Uri uri) => _getTextDocumentAttributes.Invoke(uri);
+            public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => _getTextDocumentAttributes.Invoke(uri);
             public override void SetCapability(SynchronizationCapability capability) => _setCapability?.Invoke(capability);
         }
     }

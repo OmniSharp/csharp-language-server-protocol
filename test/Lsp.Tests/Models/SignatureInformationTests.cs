@@ -47,7 +47,7 @@ namespace Lsp.Tests.Models
 
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureInformation>(expected);
             deresult.Should().BeEquivalentTo(model, x => x
-                .ComparingByMembers<ValueTuple<long, long>>()
+                .ComparingByMembers<ValueTuple<int, int>>()
                 .ComparingByMembers<ParameterInformation>()
                 .ComparingByMembers<ParameterInformationLabel>()
                 .ComparingByMembers<SignatureInformation>()
