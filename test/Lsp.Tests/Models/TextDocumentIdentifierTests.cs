@@ -24,18 +24,6 @@ namespace Lsp.Tests.Models
         }
 
         [Fact]
-        public void Should_Fail_To_Deserialize_When_Given_A_Non_Relative_Uri()
-        {
-            var serializer = new Serializer(ClientVersion.Lsp3);
-            var json = @"{
-                ""uri"":""./0b0jnxg2.kgh.ps1""
-            }";
-
-            Action a = () => serializer.DeserializeObject<TextDocumentIdentifier>(json);
-            a.Should().Throw<JsonSerializationException>();
-        }
-
-        [Fact]
         public void Should_Deserialize_For_Example_Value()
         {
             var serializer = new Serializer(ClientVersion.Lsp3);

@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 if (DirectorySeparatorChar == '\\')
                     url = url.Replace(DirectorySeparatorChar, AltDirectorySeparatorChar);
-                
+
                 Scheme = UriSchemeFile;
                 Authority = string.Empty;
                 Query = string.Empty;
