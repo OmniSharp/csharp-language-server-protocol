@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Authority = string.Empty;
                 Query = string.Empty;
                 Fragment = string.Empty;
-                Path = Uri.UnescapeDataString(url).TrimStart('/');
+                Path = Uri.UnescapeDataString(url);
 
                 return;
             }
@@ -62,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 queryIndex = fragmentIndex;
             }
 
-            Path = Uri.UnescapeDataString(url.Substring(authorityIndex + 1, queryIndex - (authorityIndex)))
-                .TrimStart('/');
+            Path = Uri.UnescapeDataString(url.Substring(authorityIndex, queryIndex - (authorityIndex) + 1));
         }
 
         /// <summary>
@@ -133,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public override string ToString() =>
-            $"{Scheme}{SchemeDelimiter}{Authority}/{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+            $"{Scheme}{SchemeDelimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
 
         /// <summary>
         /// Gets the file system path prefixed with / for unix platforms
@@ -143,7 +142,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public string GetFileSystemPath()
         {
             // The language server protocol represents "C:\Foo\Bar" as "file:///c:/foo/bar".
-            return Path.IndexOf(':') == -1 ? "/" + Path : Path.Replace('/', '\\');
+            return Path.IndexOf(':') == -1 ? Path : Path.Replace('/', '\\');
         }
 
         /// <inheritdoc />
