@@ -10,7 +10,7 @@ namespace Lsp.Tests
     {
         public class StringUris : IEnumerable<object[]>
         {
-            private const string WindowsPath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
+            private const string WindowsPath = "file://c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
             private const string UnixPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
 
             private IEnumerable<(string, DocumentUri)> AddPaths(string path)
@@ -55,7 +55,7 @@ namespace Lsp.Tests
 
         public class Uris : IEnumerable<object[]>
         {
-            private const string WindowsPath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
+            private const string WindowsPath = "file://c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
             private const string UnixPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
 
             private IEnumerable<(Uri, DocumentUri)> AddPaths(string path)
@@ -149,7 +149,7 @@ namespace Lsp.Tests
             private const string UnixSourcePath = "/usr/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
 
             private const string WindowsDestinationPath =
-                "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
+                "file://c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
 
             private const string UnixDestinationPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs";
 
