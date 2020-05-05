@@ -23,13 +23,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
             if (delimiterIndex == -1)
             {
-                url = Uri.UnescapeDataString(url).Replace('\\', '/');
+                // Unc path
+                if (url.StartsWith("\\\\"))
+                {
+                    var authorityEndIndex = url.IndexOf('\\', 2);
+                    Authority = url.Substring(2, authorityEndIndex - 2);
+                    url = url.Substring(authorityEndIndex);
+                    // Path = Uri.UnescapeDataString(url);
+                }
+                else
+                {
+                    Authority = string.Empty;
+                }
+
+                url = url.Replace('\\', '/');
 
                 Scheme = UriSchemeFile;
-                Authority = string.Empty;
                 Query = string.Empty;
                 Fragment = string.Empty;
-                Path = Uri.UnescapeDataString(url).TrimStart('/');
+                Path = Uri.UnescapeDataString(url.StartsWith("/") ? url : "/" + url);
 
                 return;
             }
@@ -39,6 +51,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             var authorityIndex = url.IndexOf('/', delimiterIndex + SchemeDelimiter.Length);
             Authority = url.Substring(delimiterIndex + SchemeDelimiter.Length,
                 authorityIndex - (delimiterIndex + SchemeDelimiter.Length));
+
+            // this is a possible windows path without the proper tripple slash
+            // file://c:/some/path.file.cs
+            // We need deal with this case.
+            if (Authority.IndexOf(':') > -1 || Authority.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                Authority = string.Empty;
+                authorityIndex = delimiterIndex + SchemeDelimiter.Length;
+            }
 
             var fragmentIndex = url.IndexOf('#');
             if (fragmentIndex > -1)
@@ -62,8 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 queryIndex = fragmentIndex;
             }
 
-            Path = Uri.UnescapeDataString(url.Substring(authorityIndex + 1, queryIndex - (authorityIndex)))
-                .TrimStart('/');
+            Path = Uri.UnescapeDataString(url.Substring(authorityIndex, queryIndex - (authorityIndex) + 1));
         }
 
         /// <summary>
@@ -133,7 +153,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public override string ToString() =>
-            $"{Scheme}{SchemeDelimiter}{Authority}/{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+            $"{Scheme}{SchemeDelimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
 
         /// <summary>
         /// Gets the file system path prefixed with / for unix platforms
@@ -143,7 +163,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public string GetFileSystemPath()
         {
             // The language server protocol represents "C:\Foo\Bar" as "file:///c:/foo/bar".
-            return Path.IndexOf(':') == -1 ? "/" + Path : Path.Replace('/', '\\');
+            if (Path.IndexOf(':') == -1 && !(Scheme == UriSchemeFile && !string.IsNullOrWhiteSpace(Authority)))
+                return Path;
+            if (!string.IsNullOrWhiteSpace(Authority))
+                return $"\\\\{Authority}{Path}".Replace('/', '\\');
+            return Path.TrimStart('/').Replace('/', '\\');
         }
 
         /// <inheritdoc />

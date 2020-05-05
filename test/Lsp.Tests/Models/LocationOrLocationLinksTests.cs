@@ -67,7 +67,7 @@ namespace Lsp.Tests.Models
             {
                 TargetSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
                 TargetRange = new Range(new Position(1, 1), new Position(3, 3)),
-                TargetUri = new Uri("file://asdfasdf/a.tst"),
+                TargetUri = new Uri("file:///asdfasdf/a.tst"),
                 OriginSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
             });
             var result = Fixture.SerializeObject(model);
@@ -87,7 +87,7 @@ namespace Lsp.Tests.Models
             {
                 TargetSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
                 TargetRange = new Range(new Position(1, 1), new Position(3, 3)),
-                TargetUri = new Uri("file://asdfasdf/a.tst"),
+                TargetUri = new Uri("file:///asdfasdf/a.tst"),
                 OriginSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
 
             },
@@ -95,7 +95,7 @@ namespace Lsp.Tests.Models
             {
                 TargetSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
                 TargetRange = new Range(new Position(1, 1), new Position(3, 3)),
-                TargetUri = new Uri("file://asdfasdf/a.tst"),
+                TargetUri = new Uri("file:///asdfasdf/a.tst"),
                 OriginSelectionRange = new Range(new Position(1, 1), new Position(3, 3)),
 
             });

@@ -17,7 +17,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [ClassData(typeof(DocumentUriTestData.StringUris))]
+        [ClassData(typeof(DocumentUriTests.WindowsPathStringUris))]
+        [ClassData(typeof(DocumentUriTests.WindowsPathAltStringUris))]
+        [ClassData(typeof(DocumentUriTests.UncPathStringUris))]
+        [ClassData(typeof(DocumentUriTests.UnixPathStringUris))]
         public void Should_Deserialize_VSCode_Style_Uris(string uri, DocumentUri expected)
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
@@ -29,7 +32,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [ClassData(typeof(DocumentUriTestData.StringUris))]
+        [ClassData(typeof(DocumentUriTests.WindowsPathStringUris))]
+        [ClassData(typeof(DocumentUriTests.WindowsPathAltStringUris))]
+        [ClassData(typeof(DocumentUriTests.UncPathStringUris))]
+        [ClassData(typeof(DocumentUriTests.UnixPathStringUris))]
         public void Should_Serialize_VSCode_Style_Uris(string uri, DocumentUri expected)
         {
             _testOutputHelper.WriteLine($"Given: {uri}");

@@ -30,7 +30,7 @@ namespace Lsp.Tests.Models
         {
             var model = new CodeLensParams() {
                 // UNC path with Chinese character for tree.
-                TextDocument = new TextDocumentIdentifier(new Uri("\\\\abc\\123\\树.cs")),
+                TextDocument = new TextDocumentIdentifier(DocumentUri.FromFileSystemPath("\\\\abc\\123\\树.cs")),
             };
             var result = Fixture.SerializeObject(model);
 

@@ -78,11 +78,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (HasLanguage && HasPattern && HasScheme)
             {
-                return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.Path);
+                return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
             if (HasLanguage && HasPattern)
             {
-                return Language == attributes.LanguageId && _minimatcher.IsMatch(attributes.Uri.Path);
+                return Language == attributes.LanguageId && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
             if (HasLanguage && HasScheme)
             {
@@ -90,7 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
             if (HasPattern && HasScheme)
             {
-                return Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.Path);
+                return Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
             if (HasLanguage)
             {
@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
             if (HasPattern)
             {
-                return _minimatcher.IsMatch(attributes.Uri.Path);
+                return _minimatcher.IsMatch(attributes.Uri.ToString());
             }
 
             return false;
