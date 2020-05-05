@@ -1,7 +1,7 @@
 ﻿{
     "textDocument": {
         "version": 0,
-        "uri": "file://C:/abc/Mörkö.cs"
+        "uri": "file:///C:/abc/Mörkö.cs"
     },
     "contentChanges": [
         {

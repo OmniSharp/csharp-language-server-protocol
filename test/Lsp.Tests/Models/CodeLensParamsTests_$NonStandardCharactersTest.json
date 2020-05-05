@@ -1,5 +1,5 @@
 ﻿{
     "textDocument": {
-        "uri": "file:///abc/123/树.cs"
+        "uri": "file://abc/123/树.cs"
     }
 }
