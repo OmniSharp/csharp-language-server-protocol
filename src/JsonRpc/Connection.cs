@@ -1,6 +1,8 @@
 using System;
 using System.IO;
+using System.IO.Pipelines;
 using Microsoft.Extensions.Logging;
+using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -9,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IInputHandler _inputHandler;
 
         public Connection(
-            Stream input,
+            PipeReader input,
             IOutputHandler outputHandler,
             IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,

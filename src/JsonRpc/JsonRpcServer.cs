@@ -15,6 +15,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using System.Reactive.Disposables;
+using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -74,7 +75,7 @@ namespace OmniSharp.Extensions.JsonRpc
             IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers,
             int? concurrency)
         {
-            var outputHandler = new OutputHandler(output, serializer, loggerFactory.CreateLogger<OutputHandler>());
+            var outputHandler = new OutputHandler(output.UsePipeWriter(), serializer, loggerFactory.CreateLogger<OutputHandler>());
 
             services.AddLogging();
             _receiver = receiver;
@@ -129,7 +130,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(_requestRouter));
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = new Connection(
-                input,
+                input.UsePipeReader(),
                 outputHandler,
                 receiver,
                 requestProcessIdentifier,

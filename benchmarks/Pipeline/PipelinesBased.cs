@@ -1,28 +1,32 @@
-using System;
+﻿using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reactive;
-using System.Reactive.Concurrency;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.JsonRpc.Server.Messages;
-using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
+using Newtonsoft.Json.Linq;
 
-namespace OmniSharp.Extensions.JsonRpc
+namespace Pipeline
 {
-    public class InputHandler : IInputHandler
+    public class PipelinesBased
     {
+        public PipelinesBased(PipeReader pipeReader)
+        {
+            _pipeReader = pipeReader;
+            _contentLengthData = "Content-Length".Select(x => (byte) x).ToArray();
+            _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
+            _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
+            _contentLengthValueBuffer = new byte[20]; // Max string length of the long value
+            _contentLengthValueMemory =
+                new Memory<byte>(_contentLengthValueBuffer); // Max string length of the long value
+        }
+
+
         public static readonly byte[] HeadersFinished =
             new byte[] {(byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n'}.ToArray();
 
@@ -33,68 +37,16 @@ namespace OmniSharp.Extensions.JsonRpc
         public static readonly int ContentLengthLength = 14;
 
         private readonly PipeReader _pipeReader;
-        private readonly IOutputHandler _outputHandler;
-        private readonly IReceiver _receiver;
-        private readonly IRequestProcessIdentifier _requestProcessIdentifier;
-        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
-        private readonly IResponseRouter _responseRouter;
-        private readonly ISerializer _serializer;
-        private readonly ILogger<InputHandler> _logger;
-        private readonly ProcessScheduler _scheduler;
         private readonly Memory<byte> _headersBuffer;
         private readonly Memory<byte> _contentLengthBuffer;
         private readonly byte[] _contentLengthValueBuffer;
         private readonly Memory<byte> _contentLengthValueMemory;
-        private readonly CancellationTokenSource _stopProcessing;
-        private readonly CompositeDisposable _disposable;
-
-        public InputHandler(
-            PipeReader pipeReader,
-            IOutputHandler outputHandler,
-            IReceiver receiver,
-            IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter<IHandlerDescriptor> requestRouter,
-            IResponseRouter responseRouter,
-            ILoggerFactory loggerFactory,
-            ISerializer serializer,
-            int? concurrency
-        )
-        {
-            _pipeReader = pipeReader;
-            _outputHandler = outputHandler;
-            _receiver = receiver;
-            _requestProcessIdentifier = requestProcessIdentifier;
-            _requestRouter = requestRouter;
-            _responseRouter = responseRouter;
-            _serializer = serializer;
-            _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory, concurrency,
-                new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"}));
-            _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
-            _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
-            _contentLengthValueBuffer = new byte[20]; // Max string length of the long value
-            _contentLengthValueMemory =
-                new Memory<byte>(_contentLengthValueBuffer); // Max string length of the long value
-            _stopProcessing = new CancellationTokenSource();
-
-
-            _disposable = new CompositeDisposable {
-                Disposable.Create(() => _stopProcessing.Cancel()),
-                _stopProcessing,
-                Disposable.Create(() => _pipeReader?.Complete()),
-                _scheduler,
-            };
-        }
-
-        public void Start()
-        {
-            ProcessInputStream(_stopProcessing.Token).ContinueWith(x => {
-                if (x.IsFaulted) _logger.LogCritical(x.Exception, "unhandled exception");
-            });
-        }
+        private byte[] _contentLengthData;
 
         private bool TryParseHeaders(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
         {
+            // TODO: This might be simplified with SequenceReader...
+            // Not sure we can move to purely .netstandard 2.1
             if (buffer.Length < MinBuffer || buffer.Length < HeadersFinishedLength)
             {
                 line = default;
@@ -211,7 +163,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     // Reset the array otherwise smaller numbers will be inflated;
                     for (var i = 0; i < lengthSlice.Length; i++) _contentLengthValueMemory.Span[i] = 0;
 
-                    _logger.LogError("Unable to get length from content length header...");
+                    // _logger.LogError("Unable to get length from content length header...");
                     return false;
                 }
                 else
@@ -272,115 +224,6 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private void HandleRequest(in ReadOnlySequence<byte> request)
         {
-            JToken payload;
-            try
-            {
-                using var textReader = new StreamReader(request.AsStream());
-                using var reader = new JsonTextReader(textReader);
-                payload = JToken.Load(reader);
-            }
-            catch
-            {
-                _outputHandler.Send(new ParseError());
-                return;
-            }
-
-            if (!_receiver.IsValid(payload))
-            {
-                _outputHandler.Send(new InvalidRequest());
-                return;
-            }
-
-            var (requests, hasResponse) = _receiver.GetRequests(payload);
-            if (hasResponse)
-            {
-                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
-                {
-                    var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
-                    if (id < 0) continue;
-
-                    var tcs = _responseRouter.GetRequest(id);
-                    if (tcs is null) continue;
-
-                    if (response is ServerResponse serverResponse)
-                    {
-                        tcs.SetResult(serverResponse.Result);
-                    }
-                    else if (response is ServerError serverError)
-                    {
-                        tcs.SetException(new JsonRpcException(serverError));
-                    }
-                }
-
-                return;
-            }
-
-            foreach (var item in requests)
-            {
-                if (item.IsRequest)
-                {
-                    var descriptor = _requestRouter.GetDescriptor(item.Request);
-                    if (descriptor is null) continue;
-                    var type = _requestProcessIdentifier.Identify(descriptor);
-                    _requestRouter.StartRequest(item.Request.Id);
-                    _scheduler.Add(
-                        type,
-                        item.Request.Method,
-                        Observable.FromAsync(async (ct) => {
-                                var result =
-                                    await _requestRouter.RouteRequest(descriptor, item.Request, ct);
-                                if (result.IsError && result.Error is RequestCancelled)
-                                {
-                                    return;
-                                }
-
-                                _outputHandler.Send(result.Value);
-                            }
-                        ));
-                }
-
-                if (item.IsNotification)
-                {
-                    var descriptor = _requestRouter.GetDescriptor(item.Notification);
-                    if (descriptor is null) continue;
-
-                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
-                    if (descriptor.Method == JsonRpcNames.CancelRequest)
-                    {
-                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                        if (cancelParams == null)
-                        {
-                            continue;
-                        }
-
-                        _requestRouter.CancelRequest(cancelParams.Id);
-                        continue;
-                    }
-
-                    var type = _requestProcessIdentifier.Identify(descriptor);
-                    _scheduler.Add(
-                        type,
-                        item.Notification.Method,
-                        DoNotification(descriptor, item.Notification)
-                    );
-                }
-
-                if (item.IsError)
-                {
-                    // TODO:
-                    _outputHandler.Send(item.Error);
-                }
-            }
-
-            IObservable<Unit> DoNotification(IHandlerDescriptor descriptor, Notification notification)
-            {
-                return Observable.FromAsync((ct) => _requestRouter.RouteNotification(descriptor, notification, ct));
-            }
-        }
-
-        public void Dispose()
-        {
-            _disposable.Dispose();
         }
     }
 }

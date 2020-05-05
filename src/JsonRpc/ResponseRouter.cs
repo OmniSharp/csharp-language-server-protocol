@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             OutputHandler.Send(new Client.Notification() {
                 Method = method
-            }, CancellationToken.None);
+            });
         }
 
         public void SendNotification<T>(string method, T @params)
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc
             OutputHandler.Send(new Client.Notification() {
                 Method = method,
                 Params = @params
-            }, CancellationToken.None);
+            });
         }
 
         public void SendNotification(IRequest @params)
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     Method = _method,
                     Params = _params,
                     Id = nextId
-                }, cancellationToken);
+                });
 
                 try
                 {

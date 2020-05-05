@@ -4,7 +4,7 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
         <AssemblyName>OmniSharp.Extensions.JsonRpc</AssemblyName>
         <RootNamespace>OmniSharp.Extensions.JsonRpc</RootNamespace>
-        <PackageDescription>Primitives for working with JsonRpc.  This library is used as the base for communication with language servers</PackageDescription>
+        <PackageDescription>Primitives for working with JsonRpc. This library is used as the base for communication with language servers</PackageDescription>
     </PropertyGroup>
     <ItemGroup>
         <PackageReference Include="System.Collections.Immutable" />
@@ -16,5 +16,7 @@
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="MediatR" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
+        <PackageReference Include="System.IO.Pipelines" />
+        <PackageReference Include="Nerdbank.Streams" />
     </ItemGroup>
 </Project>

@@ -27,6 +27,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Nerdbank.Streams;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
@@ -170,7 +171,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedDelegates = initializedDelegates;
             _startedDelegates = startedDelegates;
 
-            services.AddSingleton<IOutputHandler>(_ => ActivatorUtilities.CreateInstance<OutputHandler>(_, output));
+            services.AddSingleton<IOutputHandler>(_ => ActivatorUtilities.CreateInstance<OutputHandler>(_, output.UsePipeWriter()));
             services.AddSingleton(_collection);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
@@ -237,7 +238,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = new Connection(
-                input,
+                input.UsePipeReader(),
                 _serviceProvider.GetRequiredService<IOutputHandler>(),
                 receiver,
                 requestProcessIdentifier,

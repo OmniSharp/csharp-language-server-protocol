@@ -15,37 +15,20 @@ using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class ProcessScheduler : IScheduler
+    class ProcessScheduler : IDisposable
     {
-        private readonly int? _concurrency;
-        private readonly ILogger<ProcessScheduler> _logger;
         private readonly IObserver<(RequestProcessType type, string name, IObservable<Unit> request)> _enqueue;
-        private readonly IObservable<(RequestProcessType type, string name, IObservable<Unit> request)> _queue;
-        private bool _disposed = false;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly System.Reactive.Concurrency.IScheduler _scheduler;
 
-        public ProcessScheduler(ILoggerFactory loggerFactory, int? concurrency) : this(loggerFactory, concurrency,
-            new EventLoopScheduler(
-                _ => new Thread(_) {IsBackground = true, Name = "ProcessRequestQueue"}))
+        public ProcessScheduler(ILoggerFactory loggerFactory, int? concurrency, IScheduler scheduler)
         {
-        }
-
-        internal ProcessScheduler(ILoggerFactory loggerFactory, int? concurrency,
-            System.Reactive.Concurrency.IScheduler scheduler)
-        {
-            _concurrency = concurrency;
-            _logger = loggerFactory.CreateLogger<ProcessScheduler>();
+            var concurrency1 = concurrency;
+            var logger = loggerFactory.CreateLogger<ProcessScheduler>();
 
             var subject = new Subject<(RequestProcessType type, string name, IObservable<Unit> request)>();
             _disposable.Add(subject);
             _enqueue = subject;
-            _scheduler = scheduler;
-            _queue = subject;
-        }
 
-        public void Start()
-        {
             var obs = Observable.Create<Unit>(observer => {
                 var cd = new CompositeDisposable();
 
@@ -53,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer)>((
                         RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue)));
 
-                cd.Add(_queue.Subscribe(item => {
+                cd.Add(subject.Subscribe(item => {
                     if (observableQueue.Value.type != item.type)
                     {
                         observableQueue.Value.observer.OnCompleted();
@@ -70,8 +53,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         if (type == RequestProcessType.Serial)
                             return replay.Concat();
 
-                        return _concurrency.HasValue
-                            ? replay.Merge(_concurrency.Value)
+                        return concurrency1.HasValue
+                            ? replay.Merge(concurrency1.Value)
                             : replay.Merge();
                     })
                     .Concat()
@@ -82,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc
             });
 
             _disposable.Add(obs
-                // .ObserveOn(_scheduler)
+                .ObserveOn(scheduler)
                 .Subscribe(_ => { })
             );
 
@@ -91,7 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 return request
                     .Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>())
                     .Catch<Unit, Exception>(ex => {
-                        _logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}",
+                        logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}",
                             name);
                         return Observable.Empty<Unit>();
                     });
@@ -105,8 +88,6 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            if (_disposed) return;
-            _disposed = true;
             _disposable.Dispose();
         }
     }

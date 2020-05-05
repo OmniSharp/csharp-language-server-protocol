@@ -24,7 +24,7 @@ namespace Lsp.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request)), Arg.Any<CancellationToken>()))
+                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request))))
                 .Do(call =>
                 {
                     var tcs = router.GetRequest((long) call.Arg<Request>().Id);
@@ -47,7 +47,7 @@ namespace Lsp.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request)), Arg.Any<CancellationToken>()))
+                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request))))
                 .Do(call =>
                 {
                     var tcs = router.GetRequest((long) call.Arg<Request>().Id);
