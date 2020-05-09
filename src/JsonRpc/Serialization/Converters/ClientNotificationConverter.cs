@@ -1,31 +1,30 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
 {
     public class ClientNotificationConverter : JsonConverter<Notification>
     {
-        public override bool CanRead => false;
-        public override Notification ReadJson(JsonReader reader, Type objectType, Notification existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override Notification Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Notification value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Notification value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("jsonrpc");
-            writer.WriteValue("2.0");
+            writer.WriteStringValue("2.0");
             writer.WritePropertyName("method");
-            writer.WriteValue(value.Method);
+            writer.WriteStringValue(value.Method);
             if (value.Params != null)
             {
                 writer.WritePropertyName("params");
-                serializer.Serialize(writer, value.Params);
+                JsonSerializer.Serialize(writer, value.Params, options);
             }
+
             writer.WriteEndObject();
         }
     }

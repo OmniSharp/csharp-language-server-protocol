@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace OmniSharp.Extensions.JsonRpc.Server.Messages
+﻿namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
     public interface IErrorMessage
     {
@@ -8,7 +6,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 
         string Message { get; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        // JSONTODO
+        // [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         object Data { get; }
     }
 }

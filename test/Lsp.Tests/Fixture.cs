@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 

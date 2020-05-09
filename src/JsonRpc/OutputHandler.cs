@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.IO;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;

@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             Id = error.Id;
         }
 
-        public JToken Error { get; }
+        public JsonElement Error { get; }
         public object Id { get; }
     }
 }

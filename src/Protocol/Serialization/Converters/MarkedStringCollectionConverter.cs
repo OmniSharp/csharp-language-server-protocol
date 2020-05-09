@@ -1,27 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class MarkedStringCollectionConverter : JsonConverter<Container<MarkedString>>
     {
-        public override void WriteJson(JsonWriter writer, Container<MarkedString> value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Container<MarkedString> value, JsonSerializerOptions options)
         {
             var v = value.ToArray();
             if (v.Length == 1)
             {
-                serializer.Serialize(writer, v[0]);
+                  JsonSerializer.Serialize(writer, v[0], options);
                 return;
             }
 
-            serializer.Serialize(writer, v);
+              JsonSerializer.Serialize(writer, v, options);
         }
 
-        public override Container<MarkedString> ReadJson(JsonReader reader, Type objectType, Container<MarkedString> existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override Container<MarkedString> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
@@ -39,6 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new Container<MarkedString>();
         }
 
-        public override bool CanRead => true;
+
     }
 }

@@ -1,7 +1,4 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
+﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// This enumeration defines all possible conditions when a thrown exception should result in a break.

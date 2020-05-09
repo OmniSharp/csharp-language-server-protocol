@@ -1,21 +1,19 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class LocationOrLocationLinkConverter : JsonConverter<LocationOrLocationLink>
     {
-        public override void WriteJson(JsonWriter writer, LocationOrLocationLink value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, LocationOrLocationLink value, JsonSerializerOptions options)
         {
             if (value.IsLocation)
-                serializer.Serialize(writer, value.Location);
+                  JsonSerializer.Serialize(writer, value.Location, options);
             if (value.IsLocationLink)
-                serializer.Serialize(writer, value.LocationLink);
+                  JsonSerializer.Serialize(writer, value.LocationLink, options);
         }
 
-        public override LocationOrLocationLink ReadJson(JsonReader reader, Type objectType, LocationOrLocationLink existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override LocationOrLocationLink Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("uri"))
@@ -28,6 +26,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override bool CanRead => true;
+
     }
 }

@@ -3,7 +3,6 @@ using System.Linq;
 using System.Reflection;
 using MediatR;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 

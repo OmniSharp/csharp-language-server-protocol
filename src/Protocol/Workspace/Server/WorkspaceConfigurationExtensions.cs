@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 // ReSharper disable once CheckNamespace

@@ -1,21 +1,19 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class CommandOrCodeActionConverter : JsonConverter<CommandOrCodeAction>
     {
-        public override void WriteJson(JsonWriter writer, CommandOrCodeAction value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, CommandOrCodeAction value, JsonSerializerOptions options)
         {
             if (value.IsCodeAction)
             {
-                serializer.Serialize(writer, value.CodeAction);
+                  JsonSerializer.Serialize(writer, value.CodeAction, options);
             }
             else if (value.IsCommand)
             {
-                serializer.Serialize(writer, value.Command);
+                  JsonSerializer.Serialize(writer, value.Command, options);
             }
             else
             {
@@ -23,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override CommandOrCodeAction ReadJson(JsonReader reader, Type objectType, CommandOrCodeAction existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override CommandOrCodeAction Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var result = JObject.Load(reader);
 
@@ -39,6 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override bool CanRead => true;
+
     }
 }

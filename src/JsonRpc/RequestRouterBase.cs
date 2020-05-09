@@ -9,8 +9,8 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             if (descriptor.IsDelegatingHandler)
                             {
                                 // new DelegatingRequest();
-                                var o = notification.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                                var o = JsonSerializer.Deserialize(notification.Params, descriptor.Params.GetGenericArguments()[0], _serializer.Options);
                                 @params = Activator.CreateInstance(descriptor.Params, new object[] { o });
                             }
                             else

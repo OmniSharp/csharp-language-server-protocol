@@ -1,9 +1,6 @@
-using System;
 using System.IO;
 using System.IO.Pipelines;
-using System.Threading;
 using System.Threading.Tasks;
-using NSubstitute;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
 using OmniSharp.Extensions.JsonRpc;

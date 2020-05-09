@@ -1,13 +1,9 @@
 using System;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;

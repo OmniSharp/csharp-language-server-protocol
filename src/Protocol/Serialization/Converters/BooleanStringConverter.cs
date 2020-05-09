@@ -1,19 +1,17 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class BooleanStringConverter : JsonConverter<BooleanString>
     {
-        public override void WriteJson(JsonWriter writer, BooleanString value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, BooleanString value, JsonSerializerOptions options)
         {
-            if (value.IsBool) serializer.Serialize(writer, value.Bool);
-            if (value.IsString) serializer.Serialize(writer, value.String);
+            if (value.IsBool)   JsonSerializer.Serialize(writer, value.Bool, options);
+            if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
         }
 
-        public override BooleanString ReadJson(JsonReader reader, Type objectType, BooleanString existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BooleanString Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             switch (reader.TokenType)
             {
@@ -26,6 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new BooleanString();
         }
 
-        public override bool CanRead => true;
+
     }
 }

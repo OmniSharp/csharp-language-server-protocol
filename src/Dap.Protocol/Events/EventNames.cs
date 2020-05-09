@@ -1,8 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading;
-
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
     public static class EventNames

@@ -3,15 +3,12 @@
 // #see https://github.com/NuGet/NuGet.Server
 
 using System;
-using System.Text;
-using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class DocumentUriConverter : JsonConverter<DocumentUri>
     {
-        public override DocumentUri ReadJson(JsonReader reader, Type objectType, DocumentUri existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override DocumentUri Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.Null)
             {
@@ -32,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             throw new JsonSerializationException("The JSON value must be a string.");
         }
 
-        public override void WriteJson(JsonWriter writer, DocumentUri value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DocumentUri value, JsonSerializerOptions options)
         {
             if (value == null)
             {

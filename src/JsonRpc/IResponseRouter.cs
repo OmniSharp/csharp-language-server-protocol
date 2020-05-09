@@ -1,7 +1,8 @@
+using System;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,6 +14,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IResponseRouterReturns SendRequest<T>(string method, T @params);
         IResponseRouterReturns SendRequest(string method);
         Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken);
-        TaskCompletionSource<JToken> GetRequest(long id);
+        TaskCompletionSource<Memory<byte>> GetRequest(long id);
     }
 }

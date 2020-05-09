@@ -2,7 +2,6 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable CheckNamespace
 

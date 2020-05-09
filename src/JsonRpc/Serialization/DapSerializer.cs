@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization

@@ -1,19 +1,18 @@
 using System;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
 {
     class NumberStringConverter : JsonConverter<NumberString>
     {
-        public override void WriteJson(JsonWriter writer, NumberString value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, NumberString value, JsonSerializerOptions options)
         {
-            if (value.IsLong) serializer.Serialize(writer, value.Long);
-            else if (value.IsString) serializer.Serialize(writer, value.String);
+            if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+            else if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
             else writer.WriteNull();
         }
 
-        public override NumberString ReadJson(JsonReader reader, Type objectType, NumberString existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override NumberString Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -28,6 +27,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
             return new NumberString();
         }
 
-        public override bool CanRead => true;
+
     }
 }

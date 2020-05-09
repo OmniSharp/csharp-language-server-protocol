@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -8,29 +8,25 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class Receiver : IReceiver
     {
-        public bool IsValid(JToken container)
+        private readonly JsonElement _emptyObject;
+
+        public Receiver()
         {
-            // request must be an object or array
-            if (container is JObject)
-            {
-                return true;
-            }
-
-            if (container is JArray array)
-            {
-                return array.Count > 0;
-            }
-
-            return false;
+            using var document =  JsonDocument.Parse("{}");
+            _emptyObject = document.RootElement;
+        }
+        public bool IsValid(JsonElement container)
+        {
+            return container .ValueKind == JsonValueKind.Object || container.ValueKind == JsonValueKind.Array && container.EnumerateArray().Any();
         }
 
-        public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
+        public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JsonElement container)
         {
             var results = new List<Renor>();
 
-            if (container is JArray)
+            if (container.ValueKind == JsonValueKind.Array)
             {
-                results.AddRange(container.Select(GetRenor));
+                results.AddRange(container.EnumerateArray().Select(GetRenor));
             }
             else
             {
@@ -39,67 +35,65 @@ namespace OmniSharp.Extensions.JsonRpc
             return (results, results.Any(z => z.IsResponse));
         }
 
-        protected virtual Renor GetRenor(JToken @object)
+        protected virtual Renor GetRenor(JsonElement request)
         {
-            if (!(@object is JObject request))
+            if (request.ValueKind != JsonValueKind.Object)
             {
                 return new InvalidRequest(null, "Not an object");
             }
 
-            var protocol = request["jsonrpc"]?.Value<string>();
-            if (protocol != "2.0")
+            if (request.TryGetProperty("jsonrpc", out var protocol) && protocol.GetString() == "2.0")
             {
                 return new InvalidRequest(null, "Unexpected protocol");
             }
 
             object requestId = null;
             bool hasRequestId;
-            if (hasRequestId = request.TryGetValue("id", out var id))
+            if (hasRequestId = request.TryGetProperty("id", out var id))
             {
-                var idString = id.Type == JTokenType.String ? (string)id : null;
-                var idLong = id.Type == JTokenType.Integer ? (long?)id : null;
+                var idString = id.ValueKind == JsonValueKind.String ? id.GetString() : null;
+                var idLong = id.ValueKind == JsonValueKind.Null ? id.GetInt64() as long? : null;
                 requestId = idString ?? (idLong.HasValue ? (object)idLong.Value : null);
             }
 
-            if (hasRequestId && request.TryGetValue("result", out var response))
+            if (hasRequestId && request.TryGetProperty("result", out var response))
             {
                 return new ServerResponse(requestId, response);
             }
 
-            if (hasRequestId && request.TryGetValue("error", out var errorResponse))
+            if (hasRequestId && request.TryGetProperty("error", out var errorResponse))
             {
                 // TODO: this doesn't seem right.
                 return new ServerError(requestId, errorResponse);
             }
 
-            var method = request["method"]?.Value<string>();
-            if (string.IsNullOrWhiteSpace(method))
+            if (request.TryGetProperty("method", out var method) && string.IsNullOrWhiteSpace(method.GetString()))
             {
                 return new InvalidRequest(requestId, "Method not set");
             }
 
-            var hasParams = request.TryGetValue("params", out var @params);
-            if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object && @params?.Type != JTokenType.Null)
+            var hasParams = request.TryGetProperty("params", out var @params);
+            if (hasParams && @params.ValueKind != JsonValueKind.Array && @params.ValueKind != JsonValueKind.Object && @params.ValueKind != JsonValueKind.Null)
             {
                 return new InvalidRequest(requestId, "Invalid params");
             }
 
             // Special case params such that if we get a null value (from a non spec compliant system)
             // that we don't fall over and throw an error.
-            if (@params?.Type == JTokenType.Null)
+            if (@params.ValueKind == JsonValueKind.Null)
             {
-                @params = new JObject();
+                @params = _emptyObject;
             }
 
             // id == request
             // !id == notification
             if (!hasRequestId)
             {
-                return new Notification(method, @params);
+                return new Notification(method.GetString(), @params);
             }
             else
             {
-                return new Request(requestId, method, @params);
+                return new Request(requestId, method.GetString(), @params);
             }
         }
     }

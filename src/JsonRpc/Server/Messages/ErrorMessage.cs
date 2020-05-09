@@ -1,9 +1,7 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 {
-    [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
+    // JSONTODO
+    // [JsonObject(NamingStrategyType = typeof(CamelCaseNamingStrategy))]
     public class ErrorMessage : IErrorMessage
     {
         public ErrorMessage(int code, string message)
@@ -12,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
             Message = message;
         }
 
-        [JsonConstructor]
+        // [JsonConstructor]
         public ErrorMessage(int code, string message, object data)
         {
             Code = code;
@@ -22,7 +20,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
 
         public int Code { get; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        // JSONTODO
+        // [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Data { get; }
 
         public string Message { get; }

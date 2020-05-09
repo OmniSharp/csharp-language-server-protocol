@@ -1,8 +1,5 @@
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable CheckNamespace

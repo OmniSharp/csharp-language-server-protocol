@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class NumberEnumConverter : JsonConverter
     {
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             new JValue(value).WriteTo(writer);
         }
@@ -17,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return Enum.Parse(Nullable.GetUnderlyingType(objectType) ?? objectType, reader.Value.ToString());
         }
 
-        public override bool CanRead => true;
+
 
         public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsEnum;
     }

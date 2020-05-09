@@ -1,8 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading;
-using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
 {
@@ -10,21 +11,14 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
     {
         private long _id = 0;
 
-        protected virtual JsonSerializer CreateSerializer()
+        protected virtual JsonSerializerOptions CreateSerializerSettings()
         {
-            var serializer = JsonSerializer.CreateDefault();
-            AddOrReplaceConverters(serializer.Converters);
-            return _jsonSerializer = serializer;
-        }
-
-        protected virtual JsonSerializerSettings CreateSerializerSettings()
-        {
-            var settings = JsonConvert.DefaultSettings != null ? JsonConvert.DefaultSettings() : new JsonSerializerSettings();
+            var settings = new JsonSerializerOptions();
             AddOrReplaceConverters(settings.Converters);
-            return _settings = settings;
+            return _options = settings;
         }
 
-        protected internal static void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
+        protected internal void ReplaceConverter<T>(ICollection<JsonConverter> converters, T item)
             where T : JsonConverter
         {
             var existingConverters = converters.OfType<T>().ToArray();
@@ -36,27 +30,9 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             converters.Add(item);
         }
 
-        private JsonSerializer _jsonSerializer;
-        public JsonSerializer JsonSerializer => _jsonSerializer ?? ( CreateSerializer() );
+        private JsonSerializerOptions _options;
+        public JsonSerializerOptions Options => _options ?? ( CreateSerializerSettings() );
 
-
-        private JsonSerializerSettings _settings;
-        public JsonSerializerSettings Settings => _settings ?? ( CreateSerializerSettings() );
-
-        public string SerializeObject(object value)
-        {
-            return JsonConvert.SerializeObject(value, Settings);
-        }
-
-        public object DeserializeObject(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, Settings);
-        }
-
-        public T DeserializeObject<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, Settings);
-        }
         public long GetNextId()
         {
             return Interlocked.Increment(ref _id);

@@ -1,19 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class CompletionListConverter : JsonConverter<CompletionList>
     {
-        public override void WriteJson(JsonWriter writer, CompletionList value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, CompletionList value, JsonSerializerOptions options)
         {
             if (!value.IsIncomplete)
             {
-                serializer.Serialize(writer, value.Items.ToArray());
+                  JsonSerializer.Serialize(writer, value.Items.ToArray(), options);
                 return;
             }
 
@@ -25,13 +23,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             writer.WriteStartArray();
             foreach (var item in value.Items)
             {
-                serializer.Serialize(writer, item);
+                  JsonSerializer.Serialize(writer, item, options);
             }
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
 
-        public override CompletionList ReadJson(JsonReader reader, Type objectType, CompletionList existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override CompletionList Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
@@ -44,6 +42,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new CompletionList(items, result["isIncomplete"].Value<bool>());
         }
 
-        public override bool CanRead => true;
+
     }
 }

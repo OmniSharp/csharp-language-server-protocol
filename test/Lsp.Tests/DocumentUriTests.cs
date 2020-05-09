@@ -4,8 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 using Xunit.Abstractions;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Buffers;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Mime;
+﻿using System.Buffers;
 using System.Text;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
@@ -10,10 +6,7 @@ using System.IO.Pipelines;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using BenchmarkDotNet.Engines;
 using BenchmarkDotNet.Jobs;
-using Nerdbank.Streams;
-using Newtonsoft.Json.Linq;
 
 namespace Pipeline
 {

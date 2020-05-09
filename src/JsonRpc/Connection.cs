@@ -1,8 +1,6 @@
 using System;
-using System.IO;
 using System.IO.Pipelines;
 using Microsoft.Extensions.Logging;
-using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

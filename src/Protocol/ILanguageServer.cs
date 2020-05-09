@@ -1,4 +1,3 @@
-using System;
 using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable once CheckNamespace

@@ -1,21 +1,19 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class ParameterInformationLabelConverter : JsonConverter<ParameterInformationLabel>
     {
-        public override void WriteJson(JsonWriter writer, ParameterInformationLabel value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, ParameterInformationLabel value, JsonSerializerOptions options)
         {
             if (value.IsLabel)
-                serializer.Serialize(writer, value.Label);
+                  JsonSerializer.Serialize(writer, value.Label, options);
             if (value.IsRange)
-                serializer.Serialize(writer, new [] { value.Range.start, value.Range.end });
+                  JsonSerializer.Serialize(writer, new [] { value.Range.start, value.Range.end }, options);
         }
 
-        public override ParameterInformationLabel ReadJson(JsonReader reader, Type objectType, ParameterInformationLabel existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override ParameterInformationLabel Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.String)
             {
@@ -29,6 +27,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             throw new NotSupportedException();
         }
 
-        public override bool CanRead => true;
+
     }
 }

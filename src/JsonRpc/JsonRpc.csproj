@@ -13,7 +13,8 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
-        <PackageReference Include="Newtonsoft.Json" />
+<!--        <PackageReference Include="Newtonsoft.Json" />-->
+        <PackageReference Include="System.Text.Json" />
         <PackageReference Include="MediatR" />
         <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
         <PackageReference Include="System.IO.Pipelines" />

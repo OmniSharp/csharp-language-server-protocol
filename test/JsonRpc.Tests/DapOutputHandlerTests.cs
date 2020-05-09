@@ -1,17 +1,12 @@
-using System;
 using System.IO;
 using System.IO.Pipelines;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
-using Nerdbank.Streams;
 using Newtonsoft.Json.Linq;
-using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 

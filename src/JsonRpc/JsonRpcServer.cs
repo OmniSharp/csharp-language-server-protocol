@@ -2,18 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.JsonRpc;
 using System.Reactive.Disposables;
 using Nerdbank.Streams;
 
@@ -213,7 +207,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return _responseRouter.SendRequest(method);
         }
 
-        public TaskCompletionSource<JToken> GetRequest(long id)
+        public TaskCompletionSource<Memory<byte>> GetRequest(long id)
         {
             return _responseRouter.GetRequest(id);
         }

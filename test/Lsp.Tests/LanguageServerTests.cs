@@ -1,22 +1,18 @@
 using System;
 using System.IO;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Client.Processes;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using ILanguageServer = OmniSharp.Extensions.LanguageServer.Server.ILanguageServer;
 
 namespace Lsp.Tests

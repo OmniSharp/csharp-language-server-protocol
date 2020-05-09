@@ -7,14 +7,11 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
@@ -270,7 +267,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private void HandleRequest(in ReadOnlySequence<byte> request)
+        protected virtual  void HandleRequest(in ReadOnlySequence<byte> request)
         {
             JToken payload;
             try

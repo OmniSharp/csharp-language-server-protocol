@@ -1,7 +1,5 @@
 using System;
 using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
@@ -14,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         private static readonly MethodInfo ReadJsonGenericMethod = typeof(BooleanOrConverter)
             .GetTypeInfo()
             .GetMethod(nameof(ReadJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             if (value == null) return;
             WriteJsonGenericMethod.MakeGenericMethod(value.GetType().GetTypeInfo().GenericTypeArguments[0])
@@ -31,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
             if (value.IsValue)
             {
-                serializer.Serialize(writer, value.Value);
+                  JsonSerializer.Serialize(writer, value.Value, options);
                 return;
             }
 
@@ -60,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new BooleanOr<T>(default(T));
         }
 
-        public override bool CanRead => true;
+
 
         public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsGenericType && objectType.GetTypeInfo().GetGenericTypeDefinition() == typeof(BooleanOr<>);
     }

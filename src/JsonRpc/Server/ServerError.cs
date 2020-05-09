@@ -1,14 +1,14 @@
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class ServerError : ResponseBase
     {
-        public ServerError(object id, JToken result) : base(id)
+        public ServerError(object id, JsonElement result) : base(id)
         {
             Error = result;
         }
 
-        public JToken Error { get; set; }
+        public JsonElement Error { get; set; }
     }
 }

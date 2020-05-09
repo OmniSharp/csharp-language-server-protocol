@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.JsonRpc
             string method,
             Func<T, Task> handler)
         {
-            return registry.AddHandler(method, _ => new DelegatingRequestHandler<T>(_.GetRequiredService<ISerializer>(), (x, ct) => handler(x)));
+            return registry.AddHandler(method, _ => new DelegatingRequestHandler<T>((x, ct) => handler(x)));
         }
 
         public static IDisposable OnRequest<T>(
@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
             string method,
             Func<T, CancellationToken, Task> handler)
         {
-            return registry.AddHandler(method, _ => new DelegatingRequestHandler<T>(_.GetRequiredService<ISerializer>(), handler));
+            return registry.AddHandler(method, _ => new DelegatingRequestHandler<T>(handler));
         }
 
         public static IDisposable OnNotification<T>(

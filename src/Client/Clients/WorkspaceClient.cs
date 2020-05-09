@@ -1,5 +1,4 @@
 using System;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Clients

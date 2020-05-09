@@ -1,6 +1,5 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models

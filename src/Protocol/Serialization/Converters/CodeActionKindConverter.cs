@@ -1,13 +1,11 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class EnumLikeStringConverter : JsonConverter<IEnumLikeString>
     {
-        public override void WriteJson(JsonWriter writer, IEnumLikeString value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, IEnumLikeString value, JsonSerializerOptions options)
         {
             new JValue(value.ToString()).WriteTo(writer);
         }
@@ -22,6 +20,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             };
         }
 
-        public override bool CanRead => true;
+
     }
 }

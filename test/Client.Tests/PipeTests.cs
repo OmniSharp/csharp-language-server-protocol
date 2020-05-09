@@ -1,9 +1,4 @@
-﻿using System;
-using System.IO.Pipes;
-using System.Threading.Tasks;
-using Xunit;
-using System.Threading;
-using Xunit.Abstractions;
+﻿using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
 {

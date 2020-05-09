@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 

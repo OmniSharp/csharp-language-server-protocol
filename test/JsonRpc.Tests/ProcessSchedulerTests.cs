@@ -1,12 +1,10 @@
 using System;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
 using System.Collections.Generic;
 using System.Reactive;
-using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Microsoft.Reactive.Testing;
 using OmniSharp.Extensions.JsonRpc;

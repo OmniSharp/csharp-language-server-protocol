@@ -1,21 +1,18 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class ProgressTokenConverter : JsonConverter<ProgressToken>
     {
-        public override void WriteJson(JsonWriter writer, ProgressToken value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, ProgressToken value, JsonSerializerOptions options)
         {
-            if (value.IsLong) serializer.Serialize(writer, value.Long);
-            else if (value.IsString) serializer.Serialize(writer, value.String);
+            if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+            else if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
             else writer.WriteNull();
         }
 
-        public override ProgressToken ReadJson(JsonReader reader, Type objectType, ProgressToken existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override ProgressToken Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -30,6 +27,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new ProgressToken(string.Empty);
         }
 
-        public override bool CanRead => true;
+
     }
 }

@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class TextDocumentSync

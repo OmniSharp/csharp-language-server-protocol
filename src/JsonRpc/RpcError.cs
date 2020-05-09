@@ -1,12 +1,10 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class RpcError
     {
-        [JsonConstructor]
+        // [JsonConstructor]
         public RpcError(object id, ErrorMessage message)
         {
             Id = id;

@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Text.Json;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
@@ -8,76 +10,84 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class DapReceiver : IReceiver
     {
-        public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
+        private readonly JsonElement _emptyObject;
+        private readonly JsonElement _noneObject;
+
+        public DapReceiver()
+        {
+            using var document =  JsonDocument.Parse("{}");
+            _emptyObject = document.RootElement;
+            _noneObject = new JsonElement();
+        }
+
+        public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JsonElement container)
         {
             var result = GetRenor(container);
             return (new[] { result }, result.IsResponse);
         }
 
-        public bool IsValid(JToken container)
+        public bool IsValid(JsonElement container)
         {
-            if (container is JObject)
-            {
-                return true;
-            }
-
-            return false;
+            return container.ValueKind == JsonValueKind.Object;
         }
 
-        protected virtual Renor GetRenor(JToken @object)
+        protected virtual Renor GetRenor(JsonElement request)
         {
-            if (!( @object is JObject request ))
+            if (request.ValueKind != JsonValueKind.Object)
             {
                 return new InvalidRequest(null, "Not an object");
             }
 
-            if (!request.TryGetValue("seq", out var id))
+            if (!request.TryGetProperty("seq", out var id))
             {
                 return new InvalidRequest(null, "No sequence given");
             }
 
-            if (!request.TryGetValue("type", out var type))
+            if (!request.TryGetProperty("type", out var type))
             {
                 return new InvalidRequest(null, "No type given");
             }
-            var sequence = id.Value<long>();
-            var messageType = type.Value<string>();
+
+            var sequence = id.GetInt64();
+            var messageType = type.GetString();
 
             if (messageType == "event")
             {
-                if (!request.TryGetValue("event", out var @event))
+                if (!request.TryGetProperty("event", out var @event))
                 {
                     return new InvalidRequest(null, "No event given");
                 }
-                return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null);
+                return new Notification(@event.GetString(), request.TryGetProperty("body", out var body) ? body  : _noneObject);
             }
+
             if (messageType == "request")
             {
-                if (!request.TryGetValue("command", out var command))
+                if (!request.TryGetProperty("command", out var command))
                 {
                     return new InvalidRequest(null, "No command given");
                 }
-                return new Request(sequence, command.Value<string>(), request.TryGetValue("arguments", out var body) ? body : new JObject());
+                return new Request(sequence, command.GetString(), request.TryGetProperty("arguments", out var body) ? body : _emptyObject);
             }
+
             if (messageType == "response")
             {
-                if (!request.TryGetValue("request_seq", out var request_seq))
+                if (!request.TryGetProperty("request_seq", out var request_seq))
                 {
                     return new InvalidRequest(null, "No request_seq given");
                 }
-                if (!request.TryGetValue("command", out var command))
+                if (!request.TryGetProperty("command", out var command))
                 {
                     return new InvalidRequest(null, "No command given");
                 }
-                if (!request.TryGetValue("success", out var success))
+                if (!request.TryGetProperty("success", out var success))
                 {
                     return new InvalidRequest(null, "No success given");
                 }
 
-                var bodyValue = request.TryGetValue("body", out var body) ? body : null;
+                var bodyValue = request.TryGetProperty("body", out var body) ? body : _noneObject;
 
-                var requestSequence = request_seq.Value<long>();
-                var successValue = success.Value<bool>();
+                var requestSequence = request_seq.GetInt64();
+                var successValue = success.GetBoolean();
 
                 if (successValue)
                 {

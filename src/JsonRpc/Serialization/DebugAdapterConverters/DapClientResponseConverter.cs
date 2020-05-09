@@ -1,6 +1,6 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
@@ -14,31 +14,29 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             _serializer = serializer;
         }
 
-        public override bool CanRead => false;
-        public override Response ReadJson(JsonReader reader, Type objectType, Response existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override Response Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Response value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Response value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
-            writer.WriteValue(_serializer.GetNextId());
+            JsonSerializer.Serialize(writer, _serializer.GetNextId(), options);
             writer.WritePropertyName("type");
-            writer.WriteValue("response");
+            writer.WriteStringValue("response");
             writer.WritePropertyName("request_seq");
-            writer.WriteValue(value.Id);
+            JsonSerializer.Serialize(writer, value.Id, options);
             // TODO: Dynamically set this based on handler execution.
             writer.WritePropertyName("success");
-            writer.WriteValue(true);
+            writer.WriteBooleanValue(true);
             writer.WritePropertyName("command");
-            writer.WriteValue(value.Request?.Method);
+            writer.WriteStringValue(value.Request?.Method);
             if (value.Result != null)
             {
                 writer.WritePropertyName("body");
-                serializer.Serialize(writer, value.Result);
+                  JsonSerializer.Serialize(writer, value.Result, options);
             }
             writer.WriteEndObject();
         }

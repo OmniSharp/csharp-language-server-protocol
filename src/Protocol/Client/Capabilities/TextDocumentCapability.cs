@@ -1,7 +1,4 @@
 using System;
-using System.ComponentModel;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {

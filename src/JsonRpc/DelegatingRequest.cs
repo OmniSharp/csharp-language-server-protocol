@@ -1,9 +1,10 @@
-using Newtonsoft.Json.Linq;
+using System;
+using System.Text.Json;
 using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DelegatingRequest<T> : IRequest<JToken>, IRequest
+    public class DelegatingRequest<T> : IRequest<Memory<byte>>, IRequest
     {
         public DelegatingRequest(T value)
         {

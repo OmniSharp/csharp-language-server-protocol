@@ -1,12 +1,10 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public interface IMethodWithParams
     {
         string Method { get; }
-        JToken Params { get; }
+        JsonElement Params { get; }
     }
 }

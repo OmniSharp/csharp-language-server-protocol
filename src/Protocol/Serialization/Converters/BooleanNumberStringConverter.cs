@@ -1,21 +1,19 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class BooleanNumberStringConverter : JsonConverter<BooleanNumberString>
     {
-        public override void WriteJson(JsonWriter writer, BooleanNumberString value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, BooleanNumberString value, JsonSerializerOptions options)
         {
-            if (value.IsBool) serializer.Serialize(writer, value.Bool);
-            else if (value.IsLong) serializer.Serialize(writer, value.Long);
-            else if (value.IsString) serializer.Serialize(writer, value.String);
+            if (value.IsBool)   JsonSerializer.Serialize(writer, value.Bool, options);
+            else if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+            else if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
             else writer.WriteNull();
         }
 
-        public override BooleanNumberString ReadJson(JsonReader reader, Type objectType, BooleanNumberString existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override BooleanNumberString Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -35,6 +33,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new BooleanNumberString();
         }
 
-        public override bool CanRead => true;
+
     }
 }

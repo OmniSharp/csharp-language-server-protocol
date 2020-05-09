@@ -1,6 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
@@ -8,15 +6,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     [Obsolete(Constants.Proposal)]
     public class SemanticTokensPartialResultOrSemanticTokensEditsPartialResultConverter : JsonConverter<SemanticTokensPartialResultOrSemanticTokensEditsPartialResult>
     {
-        public override void WriteJson(JsonWriter writer, SemanticTokensPartialResultOrSemanticTokensEditsPartialResult value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, SemanticTokensPartialResultOrSemanticTokensEditsPartialResult value, JsonSerializerOptions options)
         {
             if (value.IsSemanticTokensPartialResult)
             {
-                serializer.Serialize(writer, value.SemanticTokensPartialResult);
+                  JsonSerializer.Serialize(writer, value.SemanticTokensPartialResult, options);
             }
             else if (value.IsSemanticTokensEditsPartialResult)
             {
-                serializer.Serialize(writer, value.SemanticTokensEditsPartialResult);
+                  JsonSerializer.Serialize(writer, value.SemanticTokensEditsPartialResult, options);
             }
             else
             {
@@ -24,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override SemanticTokensPartialResultOrSemanticTokensEditsPartialResult ReadJson(JsonReader reader, Type objectType, SemanticTokensPartialResultOrSemanticTokensEditsPartialResult existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SemanticTokensPartialResultOrSemanticTokensEditsPartialResult Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("start"))
@@ -37,6 +35,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override bool CanRead => true;
+
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
@@ -8,15 +6,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     [Obsolete(Constants.Proposal)]
     public class SemanticTokensOrSemanticTokensEditsConverter : JsonConverter<SemanticTokensOrSemanticTokensEdits>
     {
-        public override void WriteJson(JsonWriter writer, SemanticTokensOrSemanticTokensEdits value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, SemanticTokensOrSemanticTokensEdits value, JsonSerializerOptions options)
         {
             if (value.IsSemanticTokens)
             {
-                serializer.Serialize(writer, value.SemanticTokens);
+                  JsonSerializer.Serialize(writer, value.SemanticTokens, options);
             }
             else if (value.IsSemanticTokensEdits)
             {
-                serializer.Serialize(writer, value.SemanticTokensEdits);
+                  JsonSerializer.Serialize(writer, value.SemanticTokensEdits, options);
             }
             else
             {
@@ -24,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override SemanticTokensOrSemanticTokensEdits ReadJson(JsonReader reader, Type objectType, SemanticTokensOrSemanticTokensEdits existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SemanticTokensOrSemanticTokensEdits Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("data"))
@@ -37,6 +35,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override bool CanRead => true;
+
     }
 }

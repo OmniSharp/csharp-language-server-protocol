@@ -1,13 +1,11 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class StringOrMarkupContentConverter : JsonConverter<StringOrMarkupContent>
     {
-        public override void WriteJson(JsonWriter writer, StringOrMarkupContent value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, StringOrMarkupContent value, JsonSerializerOptions options)
         {
             if (value.HasString)
             {
@@ -15,11 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
             else
             {
-                serializer.Serialize(writer, value.MarkupContent);
+                  JsonSerializer.Serialize(writer, value.MarkupContent, options);
             }
         }
 
-        public override StringOrMarkupContent ReadJson(JsonReader reader, Type objectType, StringOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override StringOrMarkupContent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.StartObject)
             {
@@ -39,6 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return "";
         }
 
-        public override bool CanRead => true;
+
     }
 }

@@ -1,27 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class LocationOrLocationLinksConverter : JsonConverter<LocationOrLocationLinks>
     {
-        public override void WriteJson(JsonWriter writer, LocationOrLocationLinks value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, LocationOrLocationLinks value, JsonSerializerOptions options)
         {
             var v = value.ToArray();
             if (v.Length == 1 && v[0].IsLocation)
             {
-                serializer.Serialize(writer, v[0]);
+                  JsonSerializer.Serialize(writer, v[0], options);
                 return;
             }
 
-            serializer.Serialize(writer, v);
+              JsonSerializer.Serialize(writer, v, options);
         }
 
-        public override LocationOrLocationLinks ReadJson(JsonReader reader, Type objectType, LocationOrLocationLinks existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override LocationOrLocationLinks Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
@@ -35,6 +33,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new LocationOrLocationLinks();
         }
 
-        public override bool CanRead => true;
+
     }
 }

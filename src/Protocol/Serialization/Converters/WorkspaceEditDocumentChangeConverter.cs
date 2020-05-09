@@ -1,26 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class WorkspaceEditDocumentChangeConverter : JsonConverter<WorkspaceEditDocumentChange>
     {
-        public override void WriteJson(JsonWriter writer, WorkspaceEditDocumentChange value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, WorkspaceEditDocumentChange value, JsonSerializerOptions options)
         {
-            if (value.IsCreateFile) serializer.Serialize(writer, value.CreateFile);
-            if (value.IsDeleteFile) serializer.Serialize(writer, value.DeleteFile);
-            if (value.IsRenameFile) serializer.Serialize(writer, value.RenameFile);
-            if (value.IsTextDocumentEdit) serializer.Serialize(writer, value.TextDocumentEdit);
+            if (value.IsCreateFile)   JsonSerializer.Serialize(writer, value.CreateFile, options);
+            if (value.IsDeleteFile)   JsonSerializer.Serialize(writer, value.DeleteFile, options);
+            if (value.IsRenameFile)   JsonSerializer.Serialize(writer, value.RenameFile, options);
+            if (value.IsTextDocumentEdit)   JsonSerializer.Serialize(writer, value.TextDocumentEdit, options);
         }
 
-        public override WorkspaceEditDocumentChange ReadJson(JsonReader reader, Type objectType, WorkspaceEditDocumentChange existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override WorkspaceEditDocumentChange Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("kind"))
@@ -44,17 +37,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override bool CanRead => true;
+
     }
 
     class ValueTupleContractResolver<T1, T2> : JsonConverter<ValueTuple<T1, T2>>
     {
-        public override void WriteJson(JsonWriter writer, (T1, T2) value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, (T1, T2) value, JsonSerializerOptions options)
         {
-            serializer.Serialize(writer, new object[] { value.Item1, value.Item2 });
+              JsonSerializer.Serialize(writer, new object[] { value.Item1, value.Item2 }, options);
         }
 
-        public override (T1, T2) ReadJson(JsonReader reader, Type objectType, (T1, T2) existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override (T1, T2) Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             var a = JArray.Load(reader);
             return (a.ToObject<T1>(), a.ToObject<T2>());

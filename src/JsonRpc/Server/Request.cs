@@ -1,6 +1,4 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
@@ -9,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         internal Request(
             object id,
             string method,
-            JToken @params)
+            JsonElement @params)
         {
             Id = id;
             Method = method;
@@ -20,6 +18,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JToken Params { get; }
+        public JsonElement? Params { get; }
     }
 }

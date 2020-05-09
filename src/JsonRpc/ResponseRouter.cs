@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,8 +13,8 @@ namespace OmniSharp.Extensions.JsonRpc
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
 
-        internal readonly ConcurrentDictionary<long, TaskCompletionSource<JToken>> Requests =
-            new ConcurrentDictionary<long, TaskCompletionSource<JToken>>();
+        internal readonly ConcurrentDictionary<long, TaskCompletionSource<Memory<byte>>> Requests =
+            new ConcurrentDictionary<long, TaskCompletionSource<Memory<byte>>>();
 
         internal static readonly ConcurrentDictionary<Type, string> MethodCache =
             new ConcurrentDictionary<Type, string>();
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public TaskCompletionSource<JToken> GetRequest(long id)
+        public TaskCompletionSource<Memory<byte>> GetRequest(long id)
         {
             Requests.TryGetValue(id, out var source);
             return source;
@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.JsonRpc
             public async Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken)
             {
                 var nextId = _router.Serializer.GetNextId();
-                var tcs = new TaskCompletionSource<JToken>();
+                var tcs = new TaskCompletionSource<Memory<byte>>();
                 _router.Requests.TryAdd(nextId, tcs);
 
                 _router.OutputHandler.Send(new Client.Request() {
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return (TResponse) (object) Unit.Value;
                     }
 
-                    return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
+                    return JsonSerializer.Deserialize<TResponse>(result.Span, _router.Serializer.Options);
                 }
                 finally
                 {

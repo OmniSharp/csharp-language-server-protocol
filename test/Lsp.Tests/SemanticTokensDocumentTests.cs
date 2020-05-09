@@ -1,14 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using Bogus;
 using Bogus.Extensions;
 using FluentAssertions;
-using FluentAssertions.Equivalency;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;

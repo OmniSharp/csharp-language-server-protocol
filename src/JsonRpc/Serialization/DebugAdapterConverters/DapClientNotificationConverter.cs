@@ -1,6 +1,6 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
@@ -14,28 +14,26 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
             _serializer = serializer;
         }
 
-        public override bool CanRead => false;
-
-        public override Notification ReadJson(JsonReader reader, Type objectType, Notification existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override Notification Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Notification value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Notification value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
-            writer.WriteValue(_serializer.GetNextId());
+            JsonSerializer.Serialize(writer, _serializer.GetNextId(), options);
             writer.WritePropertyName("type");
-            writer.WriteValue("event");
+            writer.WriteStringValue("event");
             writer.WritePropertyName("event");
-            writer.WriteValue(value.Method);
+            writer.WriteStringValue(value.Method);
             if (value.Params != null)
             {
                 writer.WritePropertyName("body");
-                serializer.Serialize(writer, value.Params);
+                JsonSerializer.Serialize(writer, value.Params, options);
             }
+
             writer.WriteEndObject();
         }
     }

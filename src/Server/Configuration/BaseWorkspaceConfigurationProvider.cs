@@ -4,8 +4,6 @@ using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {

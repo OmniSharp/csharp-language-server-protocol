@@ -1,20 +1,17 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class DiagnosticCodeConverter : JsonConverter<DiagnosticCode>
     {
-        public override void WriteJson(JsonWriter writer, DiagnosticCode value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DiagnosticCode value, JsonSerializerOptions options)
         {
-            if (value.IsLong) serializer.Serialize(writer, value.Long);
-            if (value.IsString) serializer.Serialize(writer, value.String);
+            if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+            if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
         }
 
-        public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override DiagnosticCode Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.String)
             {
@@ -29,12 +26,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return null;
         }
 
-        public override bool CanRead => true;
+
     }
 
     class NullableDiagnosticCodeConverter : JsonConverter<DiagnosticCode?>
     {
-        public override void WriteJson(JsonWriter writer, DiagnosticCode? value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, DiagnosticCode? value, JsonSerializerOptions options)
         {
             if (!value.HasValue)
             {
@@ -42,13 +39,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
             else
             {
-                if (value.Value.IsLong) serializer.Serialize(writer, value.Value.Long);
-                if (value.Value.IsString) serializer.Serialize(writer, value.Value.String);
+                if (value.Value.IsLong)   JsonSerializer.Serialize(writer, value.Value.Long, options);
+                if (value.Value.IsString)   JsonSerializer.Serialize(writer, value.Value.String, options);
             }
         }
 
-        public override DiagnosticCode? ReadJson(JsonReader reader, Type objectType, DiagnosticCode? existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override DiagnosticCode? Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.String)
             {
@@ -63,6 +59,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return null;
         }
 
-        public override bool CanRead => true;
+
     }
 }

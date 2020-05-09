@@ -1,7 +1,5 @@
 using System;
 using System.Reflection;
-using Newtonsoft.Json;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
@@ -22,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             .GetTypeInfo()
             .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, object value, JsonSerializerOptions options)
         {
             var isSupported = value?.GetType().GetTypeInfo()
                 ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
@@ -65,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 .Invoke(null, new[] {target});
         }
 
-        public override bool CanRead => true;
+
 
         public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsGenericType && objectType.GetGenericTypeDefinition() == typeof(Supports<>);
     }

@@ -1,28 +1,30 @@
 using System;
-using Newtonsoft.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
 {
     public class ErrorMessageConverter : JsonConverter<ErrorMessage>
     {
-        public override void WriteJson(JsonWriter writer, ErrorMessage value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, ErrorMessage value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("code");
-            writer.WriteValue(value.Code);
+            writer.WriteNumberValue(value.Code);
             if (value.Data != null)
             {
                 writer.WritePropertyName("data");
-                serializer.Serialize(writer, value.Data);
+                JsonSerializer.Serialize(writer, value.Data, options);
             }
+
             writer.WritePropertyName("message");
-            writer.WriteValue(value.Message);
+            writer.WriteStringValue(value.Message);
             writer.WriteEndObject();
         }
 
-        public override ErrorMessage ReadJson(JsonReader reader, Type objectType, ErrorMessage existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException();
-
-        public override bool CanRead => false;
+        public override ErrorMessage
+            Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options) =>
+            throw new NotImplementedException();
     }
 }

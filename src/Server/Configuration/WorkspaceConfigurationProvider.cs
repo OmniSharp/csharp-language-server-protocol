@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
+﻿using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {

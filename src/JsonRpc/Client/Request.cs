@@ -1,6 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
     public class Request
@@ -9,7 +6,8 @@ namespace OmniSharp.Extensions.JsonRpc.Client
 
         public string Method { get; set; }
 
-        [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
+        // JSONTODO
+        // [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public object Params { get; set; }
     }
 }

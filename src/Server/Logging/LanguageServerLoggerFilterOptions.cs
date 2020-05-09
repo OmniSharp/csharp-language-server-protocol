@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Logging
         internal void Set(LoggerFilterOptions options)
         {
             CurrentValue = options;
-            _onChange?.Invoke(options, Options.DefaultName);
+            _onChange?.Invoke(options.DefaultName);
         }
 
         private class ChangeTrackerDisposable : IDisposable

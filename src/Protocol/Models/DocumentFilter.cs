@@ -1,8 +1,5 @@
 using System.Collections.Generic;
 using Minimatch;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models

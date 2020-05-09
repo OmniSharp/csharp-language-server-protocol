@@ -1,25 +1,23 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     public class MarkedStringsOrMarkupContentConverter : JsonConverter<MarkedStringsOrMarkupContent>
     {
-        public override void WriteJson(JsonWriter writer, MarkedStringsOrMarkupContent value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, MarkedStringsOrMarkupContent value, JsonSerializerOptions options)
         {
             if (value.HasMarkupContent)
             {
-                serializer.Serialize(writer, value.MarkupContent);
+                  JsonSerializer.Serialize(writer, value.MarkupContent, options);
             }
             else
             {
-                serializer.Serialize(writer, value.MarkedStrings);
+                  JsonSerializer.Serialize(writer, value.MarkedStrings, options);
             }
         }
 
-        public override MarkedStringsOrMarkupContent ReadJson(JsonReader reader, Type objectType, MarkedStringsOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override MarkedStringsOrMarkupContent Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.StartObject)
             {
@@ -39,6 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new MarkedStringsOrMarkupContent("");
         }
 
-        public override bool CanRead => true;
+
     }
 }

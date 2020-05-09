@@ -1,33 +1,32 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
 {
     class DapClientRequestConverter : JsonConverter<Request>
     {
-        public override bool CanRead => false;
-        public override Request ReadJson(JsonReader reader, Type objectType, Request existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override Request Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Request value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, Request value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
-            writer.WriteValue(value.Id);
+            JsonSerializer.Serialize(writer, value.Id, options);
             writer.WritePropertyName("type");
-            writer.WriteValue("request");
+            writer.WriteStringValue("request");
             writer.WritePropertyName("command");
-            writer.WriteValue(value.Method);
+            writer.WriteStringValue(value.Method);
             if (value.Params != null)
             {
                 writer.WritePropertyName("arguments");
-                serializer.Serialize(writer, value.Params);
+                JsonSerializer.Serialize(writer, value.Params, options);
             }
+
             writer.WriteEndObject();
         }
     }

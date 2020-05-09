@@ -1,47 +1,63 @@
 using System;
-using System.Reflection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
 {
     public class RpcErrorConverter : JsonConverter<RpcError>
     {
-        public override void WriteJson(JsonWriter writer, RpcError value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, RpcError value, JsonSerializerOptions options)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("jsonrpc");
-            writer.WriteValue("2.0");
+            writer.WriteStringValue("2.0");
             if (value.Id != null)
             {
                 writer.WritePropertyName("id");
-                writer.WriteValue(value.Id);
+                JsonSerializer.Serialize(writer, value.Id, options);
             }
+
             writer.WritePropertyName("error");
-            serializer.Serialize(writer, value.Error);
+            JsonSerializer.Serialize(writer, value.Error, options);
             writer.WriteEndObject();
         }
 
-        public override RpcError ReadJson(JsonReader reader, Type objectType, RpcError existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override RpcError Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
-
-            var obj = JObject.Load(reader);
-
             object requestId = null;
-            if (obj.TryGetValue("id", out var id))
+            ErrorMessage data = null;
+
+            if (reader.TokenType != JsonTokenType.StartObject)
             {
-                var idString = id.Type == JTokenType.String ? (string) id : null;
-                var idLong = id.Type == JTokenType.Integer ? (long?) id : null;
-                requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
+                throw new NotSupportedException();
             }
 
-            ErrorMessage data = null;
-            if (obj.TryGetValue("error", out var dataToken))
+            string currentProperty = null;
+            while (reader.Read())
             {
-                var errorMessageType = typeof(ErrorMessage);
-                data = dataToken.ToObject< ErrorMessage>(serializer);
+                if (currentProperty?.Equals("id", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    requestId = reader.TokenType switch {
+                        JsonTokenType.String => reader.GetString(),
+                        JsonTokenType.Number => reader.GetInt64(),
+                        _ => null
+                    };
+                    currentProperty = null;
+                    continue;
+                }
+
+                if (currentProperty?.Equals("error", StringComparison.OrdinalIgnoreCase) == true)
+                {
+                    currentProperty = null;
+                    data = JsonSerializer.Deserialize<ErrorMessage>(ref reader, options);
+                    continue;
+                }
+
+                currentProperty = reader.TokenType switch {
+                    JsonTokenType.PropertyName => reader.GetString(),
+                    _ => null
+                };
             }
 
             return new RpcError(requestId, data);

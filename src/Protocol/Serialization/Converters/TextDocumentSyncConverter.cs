@@ -1,17 +1,15 @@
 using System;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
     class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
     {
-        public override void WriteJson(JsonWriter writer, TextDocumentSync value, JsonSerializer serializer)
+        public override void Write(Utf8JsonWriter writer, TextDocumentSync value, JsonSerializerOptions options)
         {
             if (value.HasOptions)
             {
-                serializer.Serialize(writer, value.Options);
+                  JsonSerializer.Serialize(writer, value.options);
             }
             else if (value.HasKind)
             {
@@ -19,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override TextDocumentSync Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
         {
             if (reader.TokenType == JsonToken.Integer)
             {
@@ -29,6 +27,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>(serializer));
         }
 
-        public override bool CanRead => true;
+
     }
 }

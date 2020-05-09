@@ -1,10 +1,6 @@
-﻿using System;
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
+﻿using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
