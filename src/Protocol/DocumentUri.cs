@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
+using System.Text.RegularExpressions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using static System.IO.Path;
 
@@ -14,17 +15,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
     public class DocumentUri : IEquatable<DocumentUri>
     {
+        public static Regex WindowsPath =
+            new Regex("^\\w(?:\\:|%3a)[\\\\|\\/]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+        public string _delimiter = SchemeDelimiter;
+
         /// <summary>
         /// Create a new document uri
         /// </summary>
-        /// <param name="url"></param>
+        /// <param name="url"></param> add .
         public DocumentUri(string url)
         {
+            var uncMatch= false;
             var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
-            if (delimiterIndex == -1)
+            if ((uncMatch = url.StartsWith("\\\\")) || (url.StartsWith("/")) || (WindowsPath.IsMatch(url)))
             {
                 // Unc path
-                if (url.StartsWith("\\\\"))
+                if (uncMatch)
                 {
                     var authorityEndIndex = url.IndexOf('\\', 2);
                     Authority = url.Substring(2, authorityEndIndex - 2);
@@ -42,24 +49,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Query = string.Empty;
                 Fragment = string.Empty;
                 Path = Uri.UnescapeDataString(url.StartsWith("/") ? url : "/" + url);
-
                 return;
             }
 
-            Scheme = url.Substring(0, delimiterIndex);
-
-            var authorityIndex = url.IndexOf('/', delimiterIndex + SchemeDelimiter.Length);
-            Authority = url.Substring(delimiterIndex + SchemeDelimiter.Length,
-                authorityIndex - (delimiterIndex + SchemeDelimiter.Length));
-
-            // this is a possible windows path without the proper tripple slash
-            // file://c:/some/path.file.cs
-            // We need deal with this case.
-            if (Authority.IndexOf(':') > -1 || Authority.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
+            int authorityIndex;
+            if (delimiterIndex == -1)
             {
+                delimiterIndex = url.IndexOf(':');
+                authorityIndex = delimiterIndex + 1;
                 Authority = string.Empty;
-                authorityIndex = delimiterIndex + SchemeDelimiter.Length;
+                _delimiter = ":";
             }
+            else
+            {
+                var delimiterSize = SchemeDelimiter.Length;
+                authorityIndex = url.IndexOf('/', delimiterIndex + delimiterSize);
+                Authority = url.Substring(delimiterIndex + delimiterSize,
+                    authorityIndex - (delimiterIndex + delimiterSize));
+
+                // this is a possible windows path without the proper tripple slash
+                // file://c:/some/path.file.cs
+                // We need deal with this case.
+                if (Authority.IndexOf(':') > -1 || Authority.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
+                {
+                    Authority = string.Empty;
+                    authorityIndex = delimiterIndex + delimiterSize;
+                }
+            }
+
+            Scheme = url.Substring(0, delimiterIndex);
 
             var fragmentIndex = url.IndexOf('#');
             if (fragmentIndex > -1)
@@ -153,7 +171,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public override string ToString() =>
-            $"{Scheme}{SchemeDelimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+            $"{Scheme}{_delimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
 
         /// <summary>
         /// Gets the file system path prefixed with / for unix platforms
