@@ -15,20 +15,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
     public class DocumentUri : IEquatable<DocumentUri>
     {
-        public static Regex WindowsPath =
-            new Regex("^\\w(?:\\:|%3a)[\\\\|\\/]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        private static readonly Regex WindowsPath =
+            new Regex(@"^\w(?:\:|%3a)[\\|\/]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
-        public string _delimiter = SchemeDelimiter;
+        private readonly string _delimiter = SchemeDelimiter;
 
         /// <summary>
         /// Create a new document uri
         /// </summary>
-        /// <param name="url"></param> add .
+        /// <param name="url"></param>
         public DocumentUri(string url)
         {
-            var uncMatch= false;
+            var uncMatch = false;
             var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
-            if ((uncMatch = url.StartsWith("\\\\")) || (url.StartsWith("/")) || (WindowsPath.IsMatch(url)))
+            if ((uncMatch = url.StartsWith(@"\\")) || (url.StartsWith("/")) || (WindowsPath.IsMatch(url)))
             {
                 // Unc path
                 if (uncMatch)
@@ -170,8 +170,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         /// <returns></returns>
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
-        public override string ToString() =>
-            $"{Scheme}{_delimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+        public override string ToString()
+        {
+            if (string.IsNullOrWhiteSpace(_stringValue))
+            {
+                _stringValue =
+                    $"{Scheme}{_delimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+            }
+
+            return _stringValue;
+        }
 
         /// <summary>
         /// Gets the file system path prefixed with / for unix platforms
@@ -184,7 +192,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (Path.IndexOf(':') == -1 && !(Scheme == UriSchemeFile && !string.IsNullOrWhiteSpace(Authority)))
                 return Path;
             if (!string.IsNullOrWhiteSpace(Authority))
-                return $"\\\\{Authority}{Path}".Replace('/', '\\');
+                return $@"\\{Authority}{Path}".Replace('/', '\\');
             return Path.TrimStart('/').Replace('/', '\\');
         }
 
@@ -316,6 +324,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// The scheme delimiter
         /// </summary>
         public static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
+
+        private string _stringValue;
 
         /// <summary>
         ///     Get the local file-system path for the specified document URI.
