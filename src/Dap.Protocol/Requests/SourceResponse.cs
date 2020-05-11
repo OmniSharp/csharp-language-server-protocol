@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -12,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional content type(mime type) of the source.
         /// </summary>
-        [Optional] public string MimeType { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string MimeType { get; set; }
     }
 
 }

@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -22,16 +23,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Format to use for the rendered values in this column. TBD how the format strings looks like.
         /// </summary>
-        [Optional] public string Format { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Format { get; set; }
 
         /// <summary>
         /// Datatype of values in this column.  Defaults to 'string' if not specified.
         /// </summary>
-        [Optional] public ColumnDescriptorType Type { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public ColumnDescriptorType Type { get; set; }
 
         /// <summary>
         /// Width of this column in characters (hint only).
         /// </summary>
-        [Optional] public long? Width { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? Width { get; set; }
     }
 }

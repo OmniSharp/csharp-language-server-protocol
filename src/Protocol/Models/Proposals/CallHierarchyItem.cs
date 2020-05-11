@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -25,13 +26,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// <summary>
         /// Tags for this item.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<SymbolTag> Tags { get; set; }
 
         /// <summary>
         /// More detail for this item, e.g. the signature of a function.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Detail { get; set; }
 
         /// <summary>

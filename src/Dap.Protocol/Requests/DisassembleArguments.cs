@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
 
@@ -13,13 +14,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional offset(in bytes) to be applied to the reference location before disassembling.Can be negative.
         /// </summary>
-        [Optional] public long? Offset { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? Offset { get; set; }
 
         /// <summary>
         /// Optional offset(in instructions) to be applied after the byte offset(if any) before disassembling.Can be negative.
         /// </summary>
 
-        [Optional] public long? InstructionOffset { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? InstructionOffset { get; set; }
 
         /// <summary>
         /// Number of instructions to disassemble starting at the specified location and offset.An adapter must return exactly this number of instructions - any unavailable instructions should be replaced with an implementation-defined 'invalid instruction' value.
@@ -29,7 +30,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// If true, the adapter should attempt to resolve memory addresses and other values to symbolic names.
         /// </summary>
-        [Optional] public bool? ResolveSymbols { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? ResolveSymbols { get; set; }
     }
 
 }

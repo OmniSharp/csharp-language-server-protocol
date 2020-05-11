@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -31,10 +32,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             {
                 string handlerType = null;
                 string handlerKey = null;
-                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                if (canBeResolved.Data.ValueKind == JsonValueKind.Object)
                 {
-                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
-                    handlerKey = canBeResolved.Data?[PrivateHandlerKey]?.ToString();
+                    handlerType = canBeResolved.Data.TryGetProperty(PrivateHandlerTypeName, out var ht)
+                        ? ht.GetString()
+                        : null;
+                    handlerKey = canBeResolved.Data.TryGetProperty(PrivateHandlerKey, out var hk)
+                        ? hk.GetString()
+                        : null;
                 }
 
                 if (string.IsNullOrWhiteSpace(handlerType) &&

@@ -1,5 +1,6 @@
 using System;
 using System.Buffers;
+using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -8,6 +9,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -30,25 +32,24 @@ namespace OmniSharp.Extensions.JsonRpc
         public static readonly int ContentLengthLength = 14;
 
         private readonly PipeReader _pipeReader;
-        private readonly IOutputHandler _outputHandler;
-        private readonly IReceiver _receiver;
+        protected readonly IOutputHandler _outputHandler;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
         private readonly IResponseRouter _responseRouter;
         private readonly ISerializer _serializer;
         private readonly ILogger<InputHandler> _logger;
-        private readonly ProcessScheduler _scheduler;
+        internal readonly ProcessScheduler _scheduler;
         private readonly Memory<byte> _headersBuffer;
         private readonly Memory<byte> _contentLengthBuffer;
         private readonly byte[] _contentLengthValueBuffer;
         private readonly Memory<byte> _contentLengthValueMemory;
         private readonly CancellationTokenSource _stopProcessing;
         private readonly CompositeDisposable _disposable;
+        private readonly JsonReaderOptions _readerOptions;
 
         public InputHandler(
             PipeReader pipeReader,
             IOutputHandler outputHandler,
-            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
@@ -59,7 +60,6 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             _pipeReader = pipeReader;
             _outputHandler = outputHandler;
-            _receiver = receiver;
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
@@ -73,6 +73,10 @@ namespace OmniSharp.Extensions.JsonRpc
             _contentLengthValueMemory =
                 new Memory<byte>(_contentLengthValueBuffer); // Max string length of the long value
             _stopProcessing = new CancellationTokenSource();
+            _readerOptions = new JsonReaderOptions() {
+                AllowTrailingCommas = false,
+                CommentHandling = JsonCommentHandling.Disallow,
+            };
 
 
             _disposable = new CompositeDisposable {
@@ -205,6 +209,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         for (var i = 0; i < lengthSlice.Length; i++) _contentLengthValueMemory.Span[i] = 0;
                         return true;
                     }
+
                     // Reset the array otherwise smaller numbers will be inflated;
                     for (var i = 0; i < lengthSlice.Length; i++) _contentLengthValueMemory.Span[i] = 0;
 
@@ -267,112 +272,200 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        protected virtual  void HandleRequest(in ReadOnlySequence<byte> request)
+        protected virtual void HandleRequest(in ReadOnlySequence<byte> request)
         {
-            JToken payload;
-            try
-            {
-                using var textReader = new StreamReader(request.AsStream());
-                using var reader = new JsonTextReader(textReader);
-                payload = JToken.Load(reader);
-            }
-            catch
-            {
-                _outputHandler.Send(new ParseError());
-                return;
-            }
+            var count = 0;
+            var reader = new Utf8JsonReader(request, _readerOptions);
 
-            if (!_receiver.IsValid(payload))
+            while (reader.Read())
             {
-                _outputHandler.Send(new InvalidRequest());
-                return;
-            }
-
-            var (requests, hasResponse) = _receiver.GetRequests(payload);
-            if (hasResponse)
-            {
-                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
+                if (reader.TokenType == JsonTokenType.StartArray)
                 {
-                    var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
-                    if (id < 0) continue;
-
-                    var tcs = _responseRouter.GetRequest(id);
-                    if (tcs is null) continue;
-
-                    if (response is ServerResponse serverResponse)
-                    {
-                        tcs.SetResult(serverResponse.Result);
-                    }
-                    else if (response is ServerError serverError)
-                    {
-                        tcs.SetException(new JsonRpcException(serverError));
-                    }
+                    continue;
                 }
 
-                return;
+                if (reader.TokenType == JsonTokenType.EndArray)
+                {
+                    continue;
+                }
+
+                if (reader.TokenType == JsonTokenType.StartObject)
+                {
+                    HandleRequestObject(request, ref reader);
+                }
+
+                if (reader.TokenType == JsonTokenType.EndObject)
+                {
+                    count++;
+                }
             }
 
-            foreach (var item in requests)
+            void HandleRequestObject(in ReadOnlySequence<byte> requestData, ref Utf8JsonReader jsonReader)
             {
-                if (item.IsRequest)
+                if (jsonReader.TokenType != JsonTokenType.StartObject)
                 {
-                    var descriptor = _requestRouter.GetDescriptor(item.Request);
-                    if (descriptor is null) continue;
-                    var type = _requestProcessIdentifier.Identify(descriptor);
-                    _requestRouter.StartRequest(item.Request.Id);
-                    _scheduler.Add(
-                        type,
-                        item.Request.Method,
-                        Observable.FromAsync(async (ct) => {
-                                var result =
-                                    await _requestRouter.RouteRequest(descriptor, item.Request, ct);
-                                if (result.IsError && result.Error is RequestCancelled)
+                    throw new NotSupportedException("the reader must be processing an object");
+                }
+
+                object requestId = null;
+                ReadOnlySequence<byte> data = default;
+                string method = null;
+                bool isResponse = false;
+                bool isError = false;
+
+                while (jsonReader.Read())
+                {
+                    if (jsonReader.TokenType == JsonTokenType.PropertyName)
+                    {
+                        var propertyName = jsonReader.GetString();
+                        jsonReader.Read();
+                        switch (propertyName)
+                        {
+                            case "jsonrpc":
+                                if (jsonReader.TokenType != JsonTokenType.String || jsonReader.GetString() != "2.0")
                                 {
-                                    return;
+                                    _outputHandler.Send(new InvalidRequest(null, "Unexpected protocol"));
                                 }
 
-                                _outputHandler.Send(result.Value);
+                                break;
+                            case "method":
+                                method = jsonReader.GetString();
+                                break;
+                            case "id":
+                                requestId = jsonReader.TokenType switch {
+                                    JsonTokenType.Number => jsonReader.GetInt64(),
+                                    JsonTokenType.String => jsonReader.GetString(),
+                                    _ => null,
+                                };
+                                break;
+                            case "params":
+                            case "result":
+                            case "error":
+                            {
+                                isError = propertyName == "error";
+                                isResponse = propertyName == "result" || isError;
+                                if (propertyName == "params" && jsonReader.TokenType != JsonTokenType.StartArray &&
+                                    jsonReader.TokenType != JsonTokenType.StartObject &&
+                                    jsonReader.TokenType != JsonTokenType.Null)
+                                {
+                                    _outputHandler.Send(new InvalidRequest(requestId, "Invalid params"));
+                                    continue;
+                                }
+
+                                var start = jsonReader.Position;
+                                jsonReader.Skip();
+                                var end = jsonReader.Position;
+                                @data = requestData.Slice(start, end);
                             }
-                        ));
+                                break;
+                        }
+                    }
                 }
 
-                if (item.IsNotification)
+                if (string.IsNullOrWhiteSpace(method))
                 {
-                    var descriptor = _requestRouter.GetDescriptor(item.Notification);
-                    if (descriptor is null) continue;
+                    _outputHandler.Send(new InvalidRequest(requestId, "Method not set"));
+                }
 
-                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
-                    if (descriptor.Method == JsonRpcNames.CancelRequest)
+                if (isResponse)
+                {
+                    if (requestId == null ||
+                        !(requestId is long id) && !long.TryParse(requestId.ToString(), out id)) return;
+
+                    var pendingResponse = _responseRouter.GetRequest(id);
+                    if (pendingResponse == null)
                     {
-                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                        if (cancelParams == null)
-                        {
-                            continue;
-                        }
-
-                        _requestRouter.CancelRequest(cancelParams.Id);
-                        continue;
+                        return;
                     }
 
-                    var type = _requestProcessIdentifier.Identify(descriptor);
-                    _scheduler.Add(
-                        type,
-                        item.Notification.Method,
-                        DoNotification(descriptor, item.Notification)
-                    );
-                }
+                    if (!isError)
+                    {
+                        if (EqualityComparer<ReadOnlySequence<byte>>.Default.Equals(data, default))
+                        {
+                            pendingResponse.SetResult(null);
+                            return;
+                        }
 
-                if (item.IsError)
+                        var innerReader = new Utf8JsonReader(@data, _readerOptions);
+                        pendingResponse.SetResult(pendingResponse.IsVoid
+                            ? null
+                            : JsonSerializer.Deserialize(ref innerReader, pendingResponse.ResponseType, _serializer.Options));
+                    }
+                    else
+                    {
+                        if (EqualityComparer<ReadOnlySequence<byte>>.Default.Equals(data, default))
+                        {
+                            pendingResponse.SetException(new JsonRpcException(new ServerError(requestId, new JsonElement())));
+                            return;
+                        }
+
+                        pendingResponse.SetException(new JsonRpcException(new ServerError(requestId, JsonDocument.Parse(data).RootElement)));
+                    }
+                }
+                else
                 {
-                    // TODO:
-                    _outputHandler.Send(item.Error);
+                    var paramsType = _requestRouter.GetParamsType(method);
+                    object @params = null;
+                    if (!EqualityComparer<ReadOnlySequence<byte>>.Default.Equals(data, default))
+                    {
+                        var innerReader = new Utf8JsonReader(@data, _readerOptions);
+                        @params = JsonSerializer.Deserialize(ref innerReader, paramsType, _serializer.Options);
+                    }
+                    if (requestId != null)
+                    {
+                        var request = new Request(requestId, method, @params);
+                        var descriptor = _requestRouter.GetDescriptor(request);
+                        if (descriptor is null) return;
+                        HandleRequest(descriptor, request);
+                    }
+                    else
+                    {
+                        var notification = new Notification(method, @params);
+                        var descriptor = _requestRouter.GetDescriptor(notification);
+                        if (descriptor is null) return;
+
+                        // We need to special case cancellation so that we can cancel any request that is currently in flight.
+                        if (descriptor.Method == JsonRpcNames.CancelRequest && notification.Params is CancelParams cancelParams)
+                        {
+                            _requestRouter.CancelRequest(cancelParams.Id);
+                            return;
+                        }
+
+                        HandleNotification(descriptor, notification);
+                    }
                 }
             }
+        }
 
-            IObservable<Unit> DoNotification(IHandlerDescriptor descriptor, Notification notification)
-            {
-                return Observable.FromAsync((ct) => _requestRouter.RouteNotification(descriptor, notification, ct));
-            }
+        protected virtual void HandleNotification(IHandlerDescriptor descriptor, Notification notification)
+        {
+            var type = _requestProcessIdentifier.Identify(descriptor);
+            _scheduler.Add(
+                type,
+                notification.Method,
+                Observable.FromAsync((ct) => _requestRouter.RouteNotification(descriptor, notification, ct))
+            );
+        }
+
+        protected virtual void  HandleRequest(IHandlerDescriptor descriptor, Request request)
+        {
+            var type = _requestProcessIdentifier.Identify(descriptor);
+            _requestRouter.StartRequest(request.Id);
+            _scheduler.Add(
+                type,
+                request.Method,
+                Observable.FromAsync(async (ct) =>
+                    {
+                        var result =
+                            await _requestRouter.RouteRequest(descriptor, request, ct);
+                        if (result.IsError && result.Error is RequestCancelled)
+                        {
+                            return;
+                        }
+
+                        _outputHandler.Send(result.Value);
+                    }
+                ));
         }
 
         public void Dispose()

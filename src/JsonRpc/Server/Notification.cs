@@ -1,12 +1,11 @@
+using System;
 using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class Notification : IMethodWithParams
     {
-        internal Notification(
-            string method,
-            JsonElement @params)
+        internal Notification(string method, object @params)
         {
             Method = method;
             Params = @params;
@@ -14,6 +13,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JsonElement Params { get; }
+        public object Params { get; }
     }
 }

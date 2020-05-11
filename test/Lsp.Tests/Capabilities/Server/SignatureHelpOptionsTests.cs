@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -18,7 +19,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureHelpOptions>(expected);
+            var deresult = JsonSerializer.Deserialize<SignatureHelpOptions>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
     }

@@ -1,5 +1,10 @@
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(JsonConverter))]
     public struct DiagnosticCode
     {
         public DiagnosticCode(long value)
@@ -37,6 +42,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator string(DiagnosticCode value)
         {
             return value.IsString ? value.String : null;
+        }
+
+        class Converter : JsonConverter<DiagnosticCode>
+        {
+            public override void Write(Utf8JsonWriter writer, DiagnosticCode value, JsonSerializerOptions options)
+            {
+                if (value.IsLong) JsonSerializer.Serialize(writer, value.Long, options);
+                if (value.IsString) JsonSerializer.Serialize(writer, value.String, options);
+            }
+
+            public override DiagnosticCode Read(ref Utf8JsonReader reader, Type typeToConvert,
+                JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.String)
+                {
+                    return new DiagnosticCode(reader.GetString());
+                }
+
+                if (reader.TokenType == JsonTokenType.Number)
+                {
+                    return new DiagnosticCode(reader.GetInt64());
+                }
+
+                return null;
+            }
         }
     }
 }

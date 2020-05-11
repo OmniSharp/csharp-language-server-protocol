@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -33,7 +34,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeActionParams>(expected);
+            var deresult = JsonSerializer.Deserialize<CodeActionParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -61,7 +62,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeActionParams>(expected);
+            var deresult = JsonSerializer.Deserialize<CodeActionParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
     }

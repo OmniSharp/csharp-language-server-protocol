@@ -1,8 +1,12 @@
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(Converter))]
     public class RangeOrPlaceholderRange
     {
-
         private Range _range;
         private PlaceholderRange _placeholderRange;
         public RangeOrPlaceholderRange(Range value)
@@ -55,6 +59,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator RangeOrPlaceholderRange(Range value)
         {
             return new RangeOrPlaceholderRange(value);
+        }
+
+        class Converter : JsonConverter<RangeOrPlaceholderRange>
+        {
+            public override void Write(Utf8JsonWriter writer, RangeOrPlaceholderRange value, JsonSerializerOptions options)
+            {
+                if (value.IsRange)
+                {
+                    JsonSerializer.Serialize(writer, value.Range, options);
+                }
+                else
+                {
+                    JsonSerializer.Serialize(writer, value.PlaceholderRange, options);
+                }
+            }
+
+            public override RangeOrPlaceholderRange Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                return new RangeOrPlaceholderRange((Range) null);
+            }
         }
     }
 }

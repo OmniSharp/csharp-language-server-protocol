@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// 'registers': Scope contains registers. Only a single 'registers' scope should be returned from a 'scopes' request.
         /// etc.
         /// </summary>
-        [Optional] public string PresentationHint { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string PresentationHint { get; set; }
 
         /// <summary>
         /// The variables of this scope can be retrieved by passing the value of variablesReference to the VariablesRequest.
@@ -31,13 +32,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// The long of named variables in this scope.
         /// The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
         /// </summary>
-        [Optional] public long? NamedVariables { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? NamedVariables { get; set; }
 
         /// <summary>
         /// The long of indexed variables in this scope.
         /// The client can use this optional information to present the variables in a paged UI and fetch them in chunks.
         /// </summary>
-        [Optional] public long? IndexedVariables { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? IndexedVariables { get; set; }
 
         /// <summary>
         /// If true, the long of variables in this scope is large or expensive to retrieve.
@@ -47,26 +48,26 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Optional source for this scope.
         /// </summary>
-        [Optional] public Source Source { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Source Source { get; set; }
 
         /// <summary>
         /// Optional start line of the range covered by this scope.
         /// </summary>
-        [Optional] public int? Line { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? Line { get; set; }
 
         /// <summary>
         /// Optional start column of the range covered by this scope.
         /// </summary>
-        [Optional] public int? Column { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? Column { get; set; }
 
         /// <summary>
         /// Optional end line of the range covered by this scope.
         /// </summary>
-        [Optional] public int? EndLine { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndLine { get; set; }
 
         /// <summary>
         /// Optional end column of the range covered by this scope.
         /// </summary>
-        [Optional] public int? EndColumn { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndColumn { get; set; }
     }
 }

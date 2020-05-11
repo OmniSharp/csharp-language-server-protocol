@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -11,14 +12,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// Since 3.8.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CodeActionLiteralSupportCapability CodeActionLiteralSupport { get; set; }
 
         /// <summary>
         /// Whether code action supports the `isPreferred` property.
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool IsPreferredSupport { get; set; }
     }
 }

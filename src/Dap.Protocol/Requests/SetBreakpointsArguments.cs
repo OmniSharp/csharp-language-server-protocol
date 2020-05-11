@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -15,18 +16,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The code locations of the breakpoints.
         /// </summary>
-        [Optional] public Container<SourceBreakpoint> Breakpoints { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Container<SourceBreakpoint> Breakpoints { get; set; }
 
         /// <summary>
         /// Deprecated: The code locations of the breakpoints.
         /// </summary>
         [Obsolete("Deprecated")]
-        [Optional] public Container<long> Lines { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Container<long> Lines { get; set; }
 
         /// <summary>
         /// A value of true indicates that the underlying source has been modified which results in new breakpoint locations.
         /// </summary>
-        [Optional] public bool? SourceModified { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? SourceModified { get; set; }
     }
 
 }

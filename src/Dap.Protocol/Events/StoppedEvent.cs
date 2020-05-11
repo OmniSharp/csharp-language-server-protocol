@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
 
@@ -15,29 +16,29 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The full reason for the event, e.g. 'Paused on exception'. This string is shown in the UI as is and must be translated.
         /// </summary>
-        [Optional] public string Description { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Description { get; set; }
 
         /// <summary>
         /// The thread which was stopped.
         /// </summary>
-        [Optional] public long? ThreadId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? ThreadId { get; set; }
 
         /// <summary>
         /// A value of true hints to the frontend that this event should not change the focus.
         /// </summary>
-        [Optional] public bool? PreserveFocusHint { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? PreserveFocusHint { get; set; }
 
         /// <summary>
         /// Additional information. E.g. if reason is 'exception', text contains the exception name. This string is shown in the UI.
         /// </summary>
-        [Optional] public string Text { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Text { get; set; }
 
         /// <summary>
         /// If 'allThreadsStopped' is true, a debug adapter can announce that all threads have stopped.
         /// - The client should use this information to enable that all threads can be expanded to access their stacktraces.
         /// - If the attribute is missing or false, only the thread with the given threadId can be expanded.
         /// </summary>
-        [Optional] public bool? AllThreadsStopped { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? AllThreadsStopped { get; set; }
     }
 
 }

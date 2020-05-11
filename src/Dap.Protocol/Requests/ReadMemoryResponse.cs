@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -12,12 +13,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The number of unreadable bytes encountered after the last successfully read byte. This can be used to determine the number of bytes that must be skipped before a subsequent 'readMemory' request will succeed.
         /// </summary>
-        [Optional] public long? UnreadableBytes { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? UnreadableBytes { get; set; }
 
         /// <summary>
         /// The bytes read from memory, encoded using base64.
         /// </summary>
-        [Optional] public string Data { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Data { get; set; }
     }
 
 }

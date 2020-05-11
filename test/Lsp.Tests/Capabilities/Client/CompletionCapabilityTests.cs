@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -15,7 +16,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionCapability>(expected);
+            var deresult = JsonSerializer.Deserialize<CompletionCapability>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
     }

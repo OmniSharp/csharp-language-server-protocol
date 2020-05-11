@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -51,7 +52,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
+            var deresult = JsonSerializer.Deserialize<TextDocumentClientCapabilities>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
@@ -63,7 +64,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
+            var deresult = JsonSerializer.Deserialize<TextDocumentClientCapabilities>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
     }

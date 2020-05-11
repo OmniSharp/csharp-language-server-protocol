@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using Minimatch;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -9,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A language id, like `typescript`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Language { get; set; }
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A Uri [scheme](#Uri.scheme), like `file` or `untitled`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Scheme { get; set; }
 
         /// <summary>
@@ -33,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A glob pattern, like `*.{ts,js}`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Pattern
         {
             get => _pattern;

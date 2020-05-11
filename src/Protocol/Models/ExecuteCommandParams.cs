@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -15,11 +17,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Arguments that the command should be invoked with.
         /// </summary>
-        [Optional]
-        public JArray Arguments { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
+        public JsonElement Arguments { get; set; }
 
         /// <inheritdoc />
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ProgressToken WorkDoneToken { get; set; }
     }
 }

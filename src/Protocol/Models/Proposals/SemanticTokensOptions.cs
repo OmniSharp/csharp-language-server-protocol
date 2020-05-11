@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -24,13 +25,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         ///  Server supports providing semantic tokens for a specific range
         ///  of a document.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool RangeProvider { get; set; }
 
         /// <summary>
         ///  Server supports providing semantic tokens for a full document.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public SemanticTokensDocumentProviderOptions DocumentProvider { get; set; }
 
         public bool WorkDoneProgress { get; set; }

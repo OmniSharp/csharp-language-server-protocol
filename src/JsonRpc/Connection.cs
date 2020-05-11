@@ -6,30 +6,12 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class Connection : IDisposable
     {
+        private readonly IInputHandler _handler;
         private readonly IInputHandler _inputHandler;
 
-        public Connection(
-            PipeReader input,
-            IOutputHandler outputHandler,
-            IReceiver receiver,
-            IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter<IHandlerDescriptor> requestRouter,
-            IResponseRouter responseRouter,
-            ILoggerFactory loggerFactory,
-            ISerializer serializer,
-            int? concurrency)
+        public Connection(IInputHandler handler)
         {
-            _inputHandler = new InputHandler(
-                input,
-                outputHandler,
-                receiver,
-                requestProcessIdentifier,
-                requestRouter,
-                responseRouter,
-                loggerFactory,
-                serializer,
-                concurrency
-            );
+            _handler = handler;
         }
 
         public void Open()

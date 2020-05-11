@@ -1,5 +1,16 @@
+using System;
+using System.Buffers;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [JsonConverter(typeof(Supports.PropertyConverter<WorkspaceClientCapabilities>))]
     public class WorkspaceClientCapabilities
     {
         /// <summary>

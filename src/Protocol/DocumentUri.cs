@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
@@ -9,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// This class describes a document uri as defined by https://microsoft.github.io/language-server-protocol/specifications/specification-current/#uri
     /// </summary>
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
+    [JsonConverter(typeof(Converter))]
     public class DocumentUri : IEquatable<DocumentUri>
     {
         /// <summary>
@@ -368,5 +371,40 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A default comparer that can be used for equality
         /// </summary>
         public static IEqualityComparer<DocumentUri> Comparer { get; } = new DocumentUriEqualityComparer();
+
+        class Converter : JsonConverter<DocumentUri>
+        {
+            public override DocumentUri Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.Null)
+                {
+                    return null;
+                }
+                if (reader.TokenType == JsonTokenType.String)
+                {
+                    try
+                    {
+                        return DocumentUri.Parse(reader.GetString());
+                    }
+                    catch (ArgumentException ex)
+                    {
+                        throw new JsonException("Could not deserialize document uri", ex);
+                    }
+                }
+
+                throw new JsonException("The JSON value must be a string.");
+            }
+
+            public override void Write(Utf8JsonWriter writer, DocumentUri value, JsonSerializerOptions options)
+            {
+                if (value == null)
+                {
+                    writer.WriteNullValue();
+                    return;
+                }
+
+                writer.WriteStringValue(value.ToString());
+            }
+        }
     }
 }

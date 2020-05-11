@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -11,11 +12,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The completion context. This is only available it the client specifies to send
         /// this using `Capability.textDocument.completion.contextSupport === true`
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CompletionContext Context { get; set; }
 
         /// <inheritdoc />
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ProgressToken PartialResultToken { get; set; }
     }
 }

@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
@@ -9,20 +11,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
         {
             ReplaceConverter(converters, new NumberStringConverter());
             base.AddOrReplaceConverters(converters);
-        }
-
-        protected override JsonSerializer CreateSerializer()
-        {
-            var serializer = base.CreateSerializer();
-            serializer.ContractResolver = new ContractResolver();
-            return serializer;
-        }
-
-        protected override JsonSerializerSettings CreateSerializerSettings()
-        {
-            var settings = base.CreateSerializerSettings();
-            settings.ContractResolver = new ContractResolver();
-            return settings;
         }
     }
 }

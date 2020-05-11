@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -24,7 +25,7 @@ namespace Lsp.Tests.Models
             {
                 Capabilities = new ClientCapabilities()
                 {
-                    Experimental = new Dictionary<string, JToken>() { { "abc", "test" } },
+                    Experimental = new Dictionary<string, JsonElement>() { { "abc", JsonDocument.Parse("test").RootElement } },
                     TextDocument = new TextDocumentClientCapabilities()
                     {
                         CodeAction = new CodeActionCapability() { DynamicRegistration = true },
@@ -82,7 +83,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<InitializeParams>(expected);
+            var deresult = JsonSerializer.Deserialize<InitializeParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
     }

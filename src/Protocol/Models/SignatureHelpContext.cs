@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// This is undefined when `triggerKind !== SignatureHelpTriggerKind.TriggerCharacter`
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string TriggerCharacter { get; set; }
 
         /// <summary>
@@ -36,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The `activeSignatureHelp` has its `SignatureHelp.activeSignature` field updated based on
         /// the user navigating through available signatures.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public SignatureHelp ActiveSignatureHelp { get; set; }
     }
 }

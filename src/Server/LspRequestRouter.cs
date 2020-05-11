@@ -29,6 +29,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _handlerMatchers = handlerMatchers;
         }
 
+        public override Type GetParamsType(string method) => _collection.FirstOrDefault(x => x.Method == method)?.Params;
+
         public override ILspHandlerDescriptor GetDescriptor(Notification notification)
         {
             return FindDescriptor(notification);
@@ -44,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return FindDescriptor(instance.Method, instance.Params);
         }
 
-        private ILspHandlerDescriptor FindDescriptor(string method, JToken @params)
+        private ILspHandlerDescriptor FindDescriptor(string method, object @params)
         {
             _logger.LogDebug("Finding descriptor for {Method}", method);
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
@@ -56,11 +58,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             if (@params == null || descriptor.Params == null) return descriptor;
 
-            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
-
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-            return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
+            return _handlerMatchers.SelectMany(strat => strat.FindHandler(@params, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 
         IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Notification notification) => GetDescriptor(notification);

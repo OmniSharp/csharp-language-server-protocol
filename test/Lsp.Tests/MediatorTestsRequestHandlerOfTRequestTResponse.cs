@@ -67,7 +67,7 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, "textDocument/codeAction", @params);
 
             var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(request, CancellationToken.None);
             mediator.CancelRequest(id);

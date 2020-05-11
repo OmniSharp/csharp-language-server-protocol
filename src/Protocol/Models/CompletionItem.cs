@@ -1,6 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -18,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The kind of this completion item. Based of the kind
         /// an icon is chosen by the editor.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CompletionItemKind Kind { get; set; }
 
         /// <summary>
@@ -32,19 +39,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Detail { get; set; }
 
         /// <summary>
         /// A human-readable string that represents a doc-comment.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public StringOrMarkupContent Documentation { get; set; }
 
         /// <summary>
         /// Indicates if this item is deprecated.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool Deprecated { get; set; }
 
         /// <summary>
@@ -54,14 +61,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// tool / client decides which item that is. The rule is that the *first*
         /// item of those that match best is selected.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool Preselect { get; set; }
 
         /// <summary>
         /// A string that shoud be used when comparing this item
         /// with other items. When `falsy` the label is used.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string SortText { get; set; }
 
         /// <summary>
@@ -69,7 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// completion items. When `falsy` the label is used.
         /// </summary>
 
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string FilterText { get; set; }
 
         /// <summary>
@@ -77,14 +84,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// this completion. When `falsy` the label is used.
         /// </summary>
 
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string InsertText { get; set; }
 
         /// <summary>
         /// The format of the insert text. The format applies to both the `insertText` property
         /// and the `newText` property of a provided `textEdit`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public InsertTextFormat InsertTextFormat { get; set; }
 
         /// <summary>
@@ -94,7 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// *Note:* The range of the edit must be a single line range and it must contain the position at which completion
         /// has been requested.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public TextEdit TextEdit { get; set; }
 
         /// <summary>
@@ -102,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// selecting this completion. Edits must not overlap with the main edit
         /// nor with themselves.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public TextEditContainer AdditionalTextEdits { get; set; }
 
         /// <summary>
@@ -110,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// then type that character. *Note* that all commit characters should have `length=1` and that superfluous
         /// characters will be ignored.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> CommitCharacters { get; set; }
 
         /// <summary>
@@ -118,14 +125,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// additional modifications to the current document should be described with the
         /// additionalTextEdits-property.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Command Command { get; set; }
 
         /// <summary>
         /// An data entry field that is preserved on a completion item between
         /// a completion and a completion resolve request.
         /// </summary>
-        [Optional]
-        public JToken Data { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
+        public JsonElement Data { get; set; }
     }
 }

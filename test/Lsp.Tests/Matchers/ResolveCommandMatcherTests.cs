@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -92,7 +93,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(new CodeLens()
             {
-                Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } }))
             },
                     new List<HandlerDescriptor> {
                         new HandlerDescriptor(DocumentNames.CodeLensResolve,
@@ -163,7 +164,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem()
             {
-                Data = new Uri("file:///c%3A/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs")
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new Uri("file:///c%3A/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs")))
             },
                     new List<HandlerDescriptor> {
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -197,7 +198,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem()
             {
-                Data = JToken.FromObject(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } })
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } }))
             },
                     new List<HandlerDescriptor> {
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -249,7 +250,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem()
             {
-                Data = new JObject()
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize("{}"))
             },
                     new List<HandlerDescriptor> {
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -296,7 +297,7 @@ namespace Lsp.Tests.Matchers
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem()
             {
-                Data = new JObject()
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize("{}"))
             },
                     new List<HandlerDescriptor> {
                         new HandlerDescriptor(DocumentNames.CompletionResolve,
@@ -353,7 +354,7 @@ namespace Lsp.Tests.Matchers
 
             var item = new CompletionItem()
             {
-                Data = JObject.FromObject(new { hello = "world" })
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new { hello = "world" }))
             };
             var list = new CompletionList(new[] { item });
 
@@ -366,9 +367,12 @@ namespace Lsp.Tests.Matchers
             response.Should().BeEquivalentTo(list);
             (response as CompletionList).Items.Should().Contain(item);
             var responseItem = (response as CompletionList).Items.First();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
-            responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
+            (responseItem.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerTypeName, out var value)
+                ? value.GetString()
+                : "").Should().NotBeNullOrEmpty();
+            (responseItem.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerKey, out value) ? value.GetString() : string.Empty).Should()
+                .NotBeNullOrEmpty();
+            (responseItem.Data.TryGetProperty("data", out value) ? value.TryGetProperty("hello", out value) ? value.GetString() : string.Empty : string.Empty).Should().Be("world");
         }
 
         [Fact]
@@ -397,7 +401,7 @@ namespace Lsp.Tests.Matchers
 
             var item = new CodeLens()
             {
-                Data = JObject.FromObject(new { hello = "world" })
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new { hello = "world" }))
             };
             var list = new CodeLensContainer(new[] { item });
 
@@ -410,9 +414,12 @@ namespace Lsp.Tests.Matchers
             response.Should().BeEquivalentTo(list);
             (response as CodeLensContainer).Should().Contain(item);
             var responseItem = (response as CodeLensContainer).First();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerTypeName].Value<string>().Should().NotBeNullOrEmpty();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerKey].Value<string>().Should().NotBeNullOrEmpty();
-            responseItem.Data["data"]["hello"].Value<string>().Should().Be("world");
+            (responseItem.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerTypeName, out var value)
+                ? value.GetString()
+                : "").Should().NotBeNullOrEmpty();
+            (responseItem.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerKey, out value) ? value.GetString() : string.Empty).Should()
+                .NotBeNullOrEmpty();
+            (responseItem.Data.TryGetProperty("data", out value) ? value.TryGetProperty("hello", out value) ? value.GetString() : string.Empty : string.Empty).Should().Be("world");
         }
 
         [Fact]
@@ -441,17 +448,17 @@ namespace Lsp.Tests.Matchers
 
             var item = new CodeLens()
             {
-                Data = JObject.FromObject(new { data = new { hello = "world" } })
+                Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(new { data = new { hello = "world" } }))
             };
-            item.Data[ResolveCommandMatcher.PrivateHandlerTypeName] = resolveHandler.GetType().FullName;
+            (item.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerTypeName, out var value) ? value.GetString() : string.Empty).Should().Be(resolveHandler.GetType().FullName);
 
             // When
             var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
             response.Should().BeEquivalentTo(item);
-            item.Data?[ResolveCommandMatcher.PrivateHandlerTypeName].Should().BeNull();
-            item.Data["hello"].Value<string>().Should().Be("world");
+            (item.Data.TryGetProperty(ResolveCommandMatcher.PrivateHandlerTypeName, out value) ? value.GetString() : string.Empty).Should().BeNull();
+            (item.Data.TryGetProperty("data", out value) ? value.TryGetProperty("hello", out value) ? value.GetString() : string.Empty : string.Empty).Should().Be("world");
         }
     }
 }

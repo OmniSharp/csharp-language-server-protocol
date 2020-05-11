@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -19,13 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The human-readable doc-comment of this signature. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public StringOrMarkupContent Documentation { get; set; }
 
         /// <summary>
         /// The parameters of this signature.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<ParameterInformation> Parameters { get; set; }
     }
 }

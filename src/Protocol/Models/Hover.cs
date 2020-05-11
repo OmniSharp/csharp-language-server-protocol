@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// An optional range is a range inside a text document
         /// that is used to visualize a hover, e.g. by changing the background color.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Range Range { get; set; }
     }
 }

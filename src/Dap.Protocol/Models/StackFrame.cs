@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The optional source of the frame.
         /// </summary>
-        [Optional] public Source Source { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Source Source { get; set; }
 
         /// <summary>
         /// The line within the file of the frame. If source is null or doesn't exist, line is 0 and must be ignored.
@@ -35,26 +36,26 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An optional end line of the range covered by the stack frame.
         /// </summary>
-        [Optional] public int? EndLine { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndLine { get; set; }
 
         /// <summary>
         /// An optional end column of the range covered by the stack frame.
         /// </summary>
-        [Optional] public int? EndColumn { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndColumn { get; set; }
 
         /// <summary>
         /// Optional memory reference for the current instruction pointer in this frame.
         /// </summary>
-        [Optional] public string InstructionPointerReference { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string InstructionPointerReference { get; set; }
 
         /// <summary>
         /// The module associated with this frame, if any.
         /// </summary>
-        [Optional] public NumberString? ModuleId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public NumberString? ModuleId { get; set; }
 
         /// <summary>
         /// An optional hint for how to present this frame in the UI. A value of 'label' can be used to indicate that the frame is an artificial frame that is used as a visual label or separator. A value of 'subtle' can be used to change the appearance of a frame in a 'subtle' way.
         /// </summary>
-        [Optional] public StackFramePresentationHint PresentationHint { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public StackFramePresentationHint PresentationHint { get; set; }
     }
 }

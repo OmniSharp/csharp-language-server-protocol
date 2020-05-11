@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string TriggerCharacter { get; set; }
     }
 }

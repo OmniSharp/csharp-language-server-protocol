@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The total number of modules available.
         /// </summary>
-        [Optional] public long? TotalModules { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? TotalModules { get; set; }
     }
 
 }

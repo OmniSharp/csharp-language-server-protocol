@@ -1,8 +1,9 @@
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ResourceOperationKind
     {
         /// <summary>

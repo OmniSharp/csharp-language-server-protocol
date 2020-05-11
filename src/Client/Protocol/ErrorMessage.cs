@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     Optional data associated with the message.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public JToken Data { get; set; }
     }
 }

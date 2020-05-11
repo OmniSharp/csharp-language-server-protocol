@@ -1,8 +1,9 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum CompletionTriggerKind
     {
         /// <summary>

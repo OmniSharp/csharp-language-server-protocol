@@ -10,7 +10,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly HandlerCollection _collection;
 
-
         public RequestRouter(HandlerCollection collection, ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
             : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<RequestRouter>())
         {
@@ -26,6 +25,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             return _collection.FirstOrDefault(x => x.Method == instance.Method);
         }
+
+        public override Type GetParamsType(string method) =>
+            _collection.FirstOrDefault(x => x.Method == method)?.Params;
 
         public override IHandlerDescriptor GetDescriptor(Notification notification)
         {

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -18,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public FormattingOptions Options { get; set; }
 
         /// <inheritdoc />
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ProgressToken WorkDoneToken { get; set; }
     }
 }

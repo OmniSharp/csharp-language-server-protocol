@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -10,6 +11,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Display the value in hex.
         /// </summary>
-        [Optional] public bool? Hex { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? Hex { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -20,9 +21,9 @@ namespace Lsp.Tests.Capabilities.Client
         {
             var model = new ClientCapabilities()
             {
-                Experimental = new Dictionary<string, JToken>()
+                Experimental = new Dictionary<string, JsonElement>()
                 {
-                    {  "abc", "test" }
+                    {  "abc", JsonDocument.Parse("test").RootElement }
                 },
                 TextDocument = new TextDocumentClientCapabilities()
                 {
@@ -91,7 +92,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
+            var deresult = JsonSerializer.Deserialize<ClientCapabilities>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model, o => o
                 .ConfigureForSupports(Logger));
         }
@@ -99,7 +100,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Theory, JsonFixture]
         public void Github_Issue_75(string expected)
         {
-            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
+            Action a = () => JsonSerializer.Deserialize<ClientCapabilities>(expected, Serializer.Instance.Options);
             a.Should().NotThrow();
         }
     }

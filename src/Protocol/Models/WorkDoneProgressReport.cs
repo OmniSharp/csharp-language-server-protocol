@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Clients that don't support cancellation or don't support control the button's
         /// enablement state are allowed to ignore the setting.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool? Cancellable { get; set; }
 
         /// <summary>
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
         /// If unset, the previous progress message (if any) is still valid.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Message { get; set; }
 
         /// <summary>
@@ -37,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The value should be steadily rising. Clients are free to ignore values
         /// that are not following this rule.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public double? Percentage { get; set; }
     }
 }

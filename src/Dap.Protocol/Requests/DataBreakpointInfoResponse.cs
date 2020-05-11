@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
@@ -18,12 +19,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional attribute listing the available access types for a potential data breakpoint.A UI frontend could surface this information.
         /// </summary>
-        [Optional] public Container<DataBreakpointAccessType> AccessTypes { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Container<DataBreakpointAccessType> AccessTypes { get; set; }
 
         /// <summary>
         /// Optional attribute indicating that a potential data breakpoint could be persisted across sessions.
         /// </summary>
-        [Optional] public bool? CanPersist { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? CanPersist { get; set; }
     }
 
 }

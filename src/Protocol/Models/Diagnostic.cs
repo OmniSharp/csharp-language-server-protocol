@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -13,20 +14,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The diagnostic's severity. Can be omitted. If omitted it is up to the
         /// client to interpret diagnostics as error, warning, info or hint.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public DiagnosticSeverity? Severity { get; set; }
 
         /// <summary>
         /// The diagnostic's code. Can be omitted.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public DiagnosticCode? Code { get; set; }
 
         /// <summary>
         /// A human-readable string describing the source of this
         /// diagnostic, e.g. 'typescript' or 'super lint'.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Source { get; set; }
 
         /// <summary>
@@ -39,14 +40,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<DiagnosticTag> Tags { get; set; }
 
         /// <summary>
         /// An array of related diagnostic information, e.g. when symbol-names within
         /// a scope collide all definitions can be marked via this property.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<DiagnosticRelatedInformation> RelatedInformation { get; set; }
     }
 }

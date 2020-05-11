@@ -1,7 +1,6 @@
-﻿using FluentAssertions;
-using Newtonsoft.Json;
+﻿using System.Text.Json;
+using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,10 +24,7 @@ namespace Lsp.Tests
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
-            var serializer = new JsonSerializerSettings() {
-                Converters = {new DocumentUriConverter()}
-            };
-            JsonConvert.DeserializeObject<DocumentUri>($"\"{uri}\"", serializer).Should().Be(expected);
+            JsonSerializer.Deserialize<DocumentUri>($"\"{uri}\"").Should().Be(expected);
         }
 
         [Theory]
@@ -40,10 +36,7 @@ namespace Lsp.Tests
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
-            var serializer = new JsonSerializerSettings() {
-                Converters = {new DocumentUriConverter()}
-            };
-            JsonConvert.SerializeObject(new DocumentUri(uri), serializer).Trim('"').Should().Be(expected.ToString());
+            JsonSerializer.Serialize(new DocumentUri(uri)).Trim('"').Should().Be(expected.ToString());
         }
     }
 }

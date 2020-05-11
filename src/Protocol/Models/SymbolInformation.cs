@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -21,13 +22,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.16.0 - Proposed state
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<SymbolTag> Tags { get; set; }
 
         /// <summary>
         /// Indicates if this item is deprecated.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool Deprecated { get; set; }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the symbol containing this symbol.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string ContainerName { get; set; }
     }
 }

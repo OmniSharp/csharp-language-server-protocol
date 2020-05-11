@@ -1,6 +1,8 @@
+using System.Text.Json.Serialization;
+
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [JsonConverter(typeof(StringEnumConverter))]
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum RunInTerminalArgumentsKind
     {
         Integrated,

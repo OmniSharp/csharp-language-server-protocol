@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -109,7 +110,7 @@ namespace SampleServer
                                 Section = "terminal",
                             });
 
-                        var baseConfig = new JObject();
+                        var baseConfig = new Dictionary<string, string>();
                         foreach (var config in languageServer.Configuration.AsEnumerable())
                         {
                             baseConfig.Add(config.Key, config.Value);
@@ -117,7 +118,7 @@ namespace SampleServer
 
                         logger.LogInformation("Base Config: {Config}", baseConfig);
 
-                        var scopedConfig = new JObject();
+                        var scopedConfig = new Dictionary<string, string>();
                         foreach (var config in configuration.AsEnumerable())
                         {
                             scopedConfig.Add(config.Key, config.Value);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -28,30 +29,6 @@ namespace SampleServer
         })
         {
             _logger = logger;
-        }
-
-        public override async Task<OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals.SemanticTokens> Handle(
-            SemanticTokensParams request, CancellationToken cancellationToken)
-        {
-            var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
-            return result;
-        }
-
-        public override async Task<OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals.SemanticTokens> Handle(
-            SemanticTokensRangeParams request, CancellationToken cancellationToken)
-        {
-            var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
-            return result;
-        }
-
-        public override async Task<SemanticTokensOrSemanticTokensEdits> Handle(SemanticTokensEditsParams request,
-            CancellationToken cancellationToken)
-        {
-            var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
-            return result;
         }
 
         protected override async Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier,

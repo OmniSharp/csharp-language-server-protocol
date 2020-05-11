@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Actions not of this kind are filtered out by the client before being shown. So servers
         /// can omit computing them.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<CodeActionKind> Only { get; set; }
     }
 }

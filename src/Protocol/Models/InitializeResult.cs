@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
@@ -15,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         ///  @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ServerInfo ServerInfo { get; set; }
     }
 }

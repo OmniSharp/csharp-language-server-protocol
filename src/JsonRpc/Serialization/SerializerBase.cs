@@ -13,7 +13,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 
         protected virtual JsonSerializerOptions CreateSerializerSettings()
         {
-            var settings = new JsonSerializerOptions();
+            var settings = new JsonSerializerOptions() {
+                IgnoreNullValues = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
+                DictionaryKeyPolicy = JsonNamingPolicy.CamelCase,
+            };
             AddOrReplaceConverters(settings.Converters);
             return _options = settings;
         }
@@ -27,16 +31,18 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
                 foreach (var converter in existingConverters)
                     converters.Remove(converter);
             }
+
             converters.Add(item);
         }
 
         private JsonSerializerOptions _options;
-        public JsonSerializerOptions Options => _options ?? ( CreateSerializerSettings() );
+        public JsonSerializerOptions Options => _options ?? (CreateSerializerSettings());
 
         public long GetNextId()
         {
             return Interlocked.Increment(ref _id);
         }
+
         protected abstract void AddOrReplaceConverters(ICollection<JsonConverter> converters);
     }
 }

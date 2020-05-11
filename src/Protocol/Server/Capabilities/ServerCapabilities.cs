@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -16,117 +18,117 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  Defines how text documents are synced. Is either a detailed structure defining each notification or
         ///  for backwards compatibility the TextDocumentSyncKind number.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public TextDocumentSync TextDocumentSync { get; set; }
 
         /// <summary>
         ///  The server provides hover support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<HoverOptions> HoverProvider { get; set; }
 
         /// <summary>
         ///  The server provides completion support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CompletionOptions CompletionProvider { get; set; }
 
         /// <summary>
         ///  The server provides signature help support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public SignatureHelpOptions SignatureHelpProvider { get; set; }
 
         /// <summary>
         ///  The server provides goto definition support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DefinitionOptions> DefinitionProvider { get; set; }
 
         /// <summary>
         ///  The server provides find references support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<ReferencesOptions> ReferencesProvider { get; set; }
 
         /// <summary>
         ///  The server provides document highlight support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DocumentHighlightOptions> DocumentHighlightProvider { get; set; }
 
         /// <summary>
         ///  The server provides document symbol support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DocumentSymbolOptions> DocumentSymbolProvider { get; set; }
 
         /// <summary>
         ///  The server provides workspace symbol support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<WorkspaceSymbolOptions> WorkspaceSymbolProvider { get; set; }
 
         /// <summary>
         ///  The server provides code actions.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<CodeActionOptions> CodeActionProvider { get; set; }
 
         /// <summary>
         ///  The server provides code lens.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CodeLensOptions CodeLensProvider { get; set; }
 
         /// <summary>
         ///  The server provides document formatting.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DocumentFormattingOptions> DocumentFormattingProvider { get; set; }
 
         /// <summary>
         ///  The server provides document range formatting.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DocumentRangeFormattingOptions> DocumentRangeFormattingProvider { get; set; }
 
         /// <summary>
         ///  The server provides document formatting on typing.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public DocumentOnTypeFormattingOptions DocumentOnTypeFormattingProvider { get; set; }
 
         /// <summary>
         ///  The server provides rename support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<RenameOptions> RenameProvider { get; set; }
 
         /// <summary>
         ///  The server provides document link support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public DocumentLinkOptions DocumentLinkProvider { get; set; }
 
         /// <summary>
         ///  The server provides execute command support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ExecuteCommandOptions ExecuteCommandProvider { get; set; }
 
         /// <summary>
         ///  Experimental server capabilities.
         /// </summary>
-        [Optional]
-        public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
+        public IDictionary<string, JsonElement> Experimental { get; set; } = new Dictionary<string, JsonElement>();
 
         /// <summary>
         /// The server provides Goto Type Definition support.
         ///
         /// Since 3.6.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<TypeDefinitionOptions> TypeDefinitionProvider { get; set; }
 
         /// <summary>
@@ -134,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// Since 3.6.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<ImplementationOptions> ImplementationProvider { get; set; }
 
         /// <summary>
@@ -142,20 +144,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// Since 3.6.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public BooleanOr<DocumentColorOptions> ColorProvider { get; set; }
 
         /// <summary>
         /// The server provides Call Hierarchy support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         [Obsolete(Constants.Proposal)]
         public BooleanOr<CallHierarchyOptions> CallHierarchyProvider { get; set; }
 
         /// <summary>
         /// The server provides Call Hierarchy support.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         [Obsolete(Constants.Proposal)]
         public SemanticTokensOptions SemanticTokensProvider { get; set; }
 
@@ -183,7 +185,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         /// Workspace specific server capabilities
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public WorkspaceServerCapabilities Workspace { get; set; }
     }
 }

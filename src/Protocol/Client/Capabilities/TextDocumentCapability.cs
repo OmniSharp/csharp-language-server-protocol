@@ -1,7 +1,9 @@
 using System;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [JsonConverter(typeof(Supports.PropertyConverter<TextDocumentClientCapabilities>))]
     public class TextDocumentClientCapabilities
     {
         public Supports<SynchronizationCapability> Synchronization { get; set; }

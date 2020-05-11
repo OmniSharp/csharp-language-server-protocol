@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -13,13 +14,14 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialSymbolKinds()
         {
+
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new SymbolInformation()
+            var json = JsonSerializer.Serialize(new SymbolInformation()
             {
                 Kind = SymbolKind.Event
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<SymbolInformation>(json);
+            var result = JsonSerializer.Deserialize<SymbolInformation>(json, serializer.Options);
             result.Kind.Should().Be(SymbolKind.Event);
         }
 
@@ -27,12 +29,13 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialSymbolTags()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new SymbolInformation()
+
+            var json = JsonSerializer.Serialize(new SymbolInformation()
             {
                 Tags = new Container<SymbolTag>(SymbolTag.Deprecated)
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<SymbolInformation>(json);
+            var result = JsonSerializer.Deserialize<SymbolInformation>(json);
             result.Tags.Should().Contain(SymbolTag.Deprecated);
         }
 
@@ -40,6 +43,7 @@ namespace Lsp.Tests
         public void CustomBehavior_When_SymbolKind_Defined_By_Client()
         {
             var serializer = new Serializer();
+
             serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities()
             {
                 TextDocument = new TextDocumentClientCapabilities
@@ -55,18 +59,19 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new DocumentSymbol()
+            var json = JsonSerializer.Serialize(new DocumentSymbol()
             {
                 Kind = SymbolKind.Event
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<DocumentSymbol>(json);
+            var result = JsonSerializer.Deserialize<DocumentSymbol>(json, serializer.Options);
             result.Kind.Should().Be(SymbolKind.Class);
         }
 
         [Fact]
         public void CustomBehavior_When_SymbolTag_Defined_By_Client()
         {
+
             var serializer = new Serializer();
             serializer.SetClientCapabilities(ClientVersion.Lsp3, new ClientCapabilities()
             {
@@ -82,12 +87,12 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new DocumentSymbol()
+            var json = JsonSerializer.Serialize(new DocumentSymbol()
             {
                 Tags = new Container<SymbolTag>(SymbolTag.Deprecated)
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<DocumentSymbol>(json);
+            var result = JsonSerializer.Deserialize<DocumentSymbol>(json, serializer.Options);
             result.Tags.Should().BeEmpty();
         }
     }

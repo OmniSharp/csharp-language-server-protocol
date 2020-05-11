@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -33,10 +35,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             .Cast<DiagnosticTag>()
             .ToArray();
 
-        private static readonly CodeActionKind[] DefaultCodeActionKinds = typeof(CodeActionKind).GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Select(z => z.GetValue(null) )
+        private static readonly CodeActionKind[] DefaultCodeActionKinds = typeof(CodeActionKind)
+            .GetFields(BindingFlags.Static | BindingFlags.Public)
+            .Select(z => z.GetValue(null))
             .Cast<CodeActionKind>()
             .ToArray();
+
+        private CodeActionKind[] _codeActionKinds;
+        private CompletionItemTag[] _completionItemTags;
+        private CompletionItemKind[] _completionItemKinds;
+        private SymbolKind[] _documentSymbolKinds;
+        private SymbolTag[] _documentSymbolTags;
+        private SymbolKind[] _workspaceSymbolKinds;
+        private SymbolTag[] _workspaceSymbolTags;
+        private DiagnosticTag[] _diagnosticTags;
 
         public ClientVersion ClientVersion { get; private set; }
 
@@ -49,81 +61,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         public Serializer(ClientVersion clientVersion)
         {
             ClientVersion = clientVersion;
-        }
-
-
-        protected override JsonSerializer CreateSerializer()
-        {
-            var serializer = base.CreateSerializer();
-            serializer.ContractResolver = new ContractResolver(
-                DefaultCompletionItemKinds,
-                DefaultCompletionItemTags,
-                DefaultSymbolKinds,
-                DefaultSymbolKinds,
-                DefaultSymbolTags,
-                DefaultSymbolTags,
-                DefaultDiagnosticTags,
-                DefaultCodeActionKinds
-            );
-            return serializer;
-        }
-
-        protected override JsonSerializerSettings CreateSerializerSettings()
-        {
-            var settings = base.CreateSerializerSettings();
-            settings.ContractResolver = new ContractResolver(
-                DefaultCompletionItemKinds,
-                DefaultCompletionItemTags,
-                DefaultSymbolKinds,
-                DefaultSymbolKinds,
-                DefaultSymbolTags,
-                DefaultSymbolTags,
-                DefaultDiagnosticTags,
-                DefaultCodeActionKinds
-            );
-            return settings;
+            _completionItemKinds = DefaultCompletionItemKinds;
+            _completionItemTags = DefaultCompletionItemTags;
+            _documentSymbolKinds = DefaultSymbolKinds;
+            _documentSymbolTags = DefaultSymbolTags;
+            _workspaceSymbolKinds = DefaultSymbolKinds;
+            _workspaceSymbolTags = DefaultSymbolTags;
+            _diagnosticTags = DefaultDiagnosticTags;
+            _codeActionKinds = DefaultCodeActionKinds;
         }
 
         protected override void AddOrReplaceConverters(ICollection<JsonConverter> converters)
         {
-            ReplaceConverter(converters, new SupportsConverter());
-            ReplaceConverter(converters, new CompletionListConverter());
-            ReplaceConverter(converters, new DiagnosticCodeConverter());
-            ReplaceConverter(converters, new NullableDiagnosticCodeConverter());
-            ReplaceConverter(converters, new LocationOrLocationLinksConverter());
-            ReplaceConverter(converters, new MarkedStringCollectionConverter());
-            ReplaceConverter(converters, new MarkedStringConverter());
-            ReplaceConverter(converters, new StringOrMarkupContentConverter());
-            ReplaceConverter(converters, new TextDocumentSyncConverter());
-            ReplaceConverter(converters, new BooleanNumberStringConverter());
-            ReplaceConverter(converters, new BooleanStringConverter());
-            ReplaceConverter(converters, new BooleanOrConverter());
-            ReplaceConverter(converters, new ProgressTokenConverter());
-            ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
-            ReplaceConverter(converters, new CommandOrCodeActionConverter());
-            ReplaceConverter(converters, new SemanticTokensOrSemanticTokensEditsConverter());
-            ReplaceConverter(converters, new SemanticTokensPartialResultOrSemanticTokensEditsPartialResultConverter());
-            ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
-            ReplaceConverter(converters, new LocationOrLocationLinkConverter());
-            ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());
-            ReplaceConverter(converters, new ParameterInformationLabelConverter());
             ReplaceConverter(converters, new ValueTupleContractResolver<long, long>());
-            ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
-            ReplaceConverter(converters, new DocumentUriConverter());
+            ReplaceConverter(Options.Converters, new CodeActionConverter(_codeActionKinds));
+            ReplaceConverter(Options.Converters,
+                new CompletionItemConverter(_completionItemKinds, _completionItemTags));
+            ReplaceConverter(Options.Converters, new DiagnosticConverter(_diagnosticTags));
+            ReplaceConverter(Options.Converters,
+                new DocumentSymbolConverter(_documentSymbolKinds, _documentSymbolTags));
+            ReplaceConverter(Options.Converters,
+                new SymbolInformationConverter(_workspaceSymbolKinds, _workspaceSymbolTags));
             base.AddOrReplaceConverters(converters);
         }
 
         public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
         {
-            var completionItemKinds = DefaultCompletionItemKinds;
-            var completionItemTags = DefaultCompletionItemTags;
-            var documentSymbolKinds = DefaultSymbolKinds;
-            var documentSymbolTags = DefaultSymbolTags;
-            var workspaceSymbolKinds = DefaultSymbolKinds;
-            var workspaceSymbolTags = DefaultSymbolTags;
-            var diagnosticTags = DefaultDiagnosticTags;
-            var codeActionKinds = DefaultCodeActionKinds;
+            ;
 
             if (clientCapabilities?.TextDocument?.Completion.IsSupported == true)
             {
@@ -131,13 +96,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var valueSet = completion?.CompletionItemKind?.ValueSet;
                 if (valueSet != null)
                 {
-                    completionItemKinds = valueSet.ToArray();
+                    _completionItemKinds = valueSet.ToArray();
                 }
 
                 var tagSupportSet = completion?.CompletionItem?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet != null)
                 {
-                    completionItemTags = tagSupportSet.ToArray();
+                    _completionItemTags = tagSupportSet.ToArray();
                 }
             }
 
@@ -147,12 +112,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
                 if (symbolKindSet != null)
                 {
-                    documentSymbolKinds = symbolKindSet.ToArray();
+                    _documentSymbolKinds = symbolKindSet.ToArray();
                 }
+
                 var valueSet = symbol?.TagSupport.Value?.ValueSet;
                 if (valueSet != null)
                 {
-                    documentSymbolTags = valueSet.ToArray();
+                    _documentSymbolTags = valueSet.ToArray();
                 }
             }
 
@@ -162,12 +128,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
                 if (symbolKindSet != null)
                 {
-                    workspaceSymbolKinds = symbolKindSet.ToArray();
+                    _workspaceSymbolKinds = symbolKindSet.ToArray();
                 }
+
                 var tagSupportSet = symbol?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet != null)
                 {
-                    workspaceSymbolTags = tagSupportSet.ToArray();
+                    _workspaceSymbolTags = tagSupportSet.ToArray();
                 }
             }
 
@@ -177,7 +144,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var tagValueSet = publishDiagnostics.TagSupport.Value?.ValueSet;
                 if (tagValueSet != null)
                 {
-                    diagnosticTags = tagValueSet.ToArray();
+                    _diagnosticTags = tagValueSet.ToArray();
                 }
             }
 
@@ -187,34 +154,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var kindValueSet = codeActions.CodeActionLiteralSupport?.CodeActionKind?.ValueSet;
                 if (kindValueSet != null)
                 {
-                    codeActionKinds = kindValueSet.ToArray();
+                    _codeActionKinds = kindValueSet.ToArray();
                 }
             }
 
-
-            AddOrReplaceConverters(Settings.Converters);
-            Settings.ContractResolver = new ContractResolver(
-                completionItemKinds,
-                completionItemTags,
-                documentSymbolKinds,
-                workspaceSymbolKinds,
-                documentSymbolTags,
-                workspaceSymbolTags,
-                diagnosticTags,
-                codeActionKinds
-            );
-
-            AddOrReplaceConverters(JsonSerializer.Converters);
-            JsonSerializer.ContractResolver = new ContractResolver(
-                completionItemKinds,
-                completionItemTags,
-                documentSymbolKinds,
-                workspaceSymbolKinds,
-                documentSymbolTags,
-                workspaceSymbolTags,
-                diagnosticTags,
-                codeActionKinds
-            );
+            AddOrReplaceConverters(Options.Converters);
         }
     }
 }

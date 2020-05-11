@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Descriptive text for the exception provided by the debug adapter.
         /// </summary>
-        [Optional] public string Description { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Description { get; set; }
 
         /// <summary>
         /// Mode that caused the exception notification to be raised.
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Detailed information about the exception.
         /// </summary>
-        [Optional] public ExceptionDetails Details { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public ExceptionDetails Details { get; set; }
     }
 
 }

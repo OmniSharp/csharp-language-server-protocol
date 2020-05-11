@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -12,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// presented in the user interface for example on an undo
         /// stack to undo the workspace edit.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Label { get; set; }
         /// <summary>
         /// The edits to apply.

@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(Converter))]
     public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {
         private long? _long;
@@ -51,9 +54,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new ProgressToken(value);
         }
 
-        public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer)
+        public ProgressParams Create<T>(T value)
         {
-            return ProgressParams.Create<T>(this, value, jsonSerializer);
+            return ProgressParams.Create<T>(this, value);
         }
 
         public override bool Equals(object obj)
@@ -92,6 +95,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public bool Equals(string other)
         {
             return this.IsString && this.String == other;
+        }
+
+
+        class Converter : JsonConverter<ProgressToken>
+        {
+            public override void Write(Utf8JsonWriter writer, ProgressToken value, JsonSerializerOptions options)
+            {
+                if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+                else if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
+                else writer.WriteNullValue();
+            }
+
+            public override ProgressToken Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.Number)
+                {
+                    return new ProgressToken(reader.GetInt64());
+                }
+
+                if (reader.TokenType == JsonTokenType.String)
+                {
+                    return new ProgressToken(reader.GetString());
+                }
+
+                return new ProgressToken(string.Empty);
+            }
         }
     }
 }

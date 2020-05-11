@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -29,41 +30,41 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         ///
         /// Logical full path to the module. The exact definition is implementation defined, but usually this would be a full path to the on-disk file for the module.
         /// </summary>
-        [Optional] public string Path { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Path { get; set; }
 
         /// <summary>
         /// True if the module is optimized.
         /// </summary>
-        [Optional] public bool? IsOptimized { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? IsOptimized { get; set; }
 
         /// <summary>
         /// True if the module is considered 'user code' by a debugger that supports 'Just My Code'.
         /// </summary>
-        [Optional] public bool? IsUserCode { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? IsUserCode { get; set; }
 
         /// <summary>
         /// Version of Module.
         /// </summary>
-        [Optional] public string Version { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Version { get; set; }
 
         /// <summary>
         /// User understandable description of if symbols were found for the module (ex: 'Symbols Loaded', 'Symbols not found', etc.
         /// </summary>
-        [Optional] public string SymbolStatus { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string SymbolStatus { get; set; }
 
         /// <summary>
         /// Logical full path to the symbol file. The exact definition is implementation defined.
         /// </summary>
-        [Optional] public string SymbolFilePath { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string SymbolFilePath { get; set; }
 
         /// <summary>
         /// Module created or modified.
         /// </summary>
-        [Optional] public string DateTimeStamp { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string DateTimeStamp { get; set; }
 
         /// <summary>
         /// Address range covered by this module.
         /// </summary>
-        [Optional] public string AddressRange { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string AddressRange { get; set; }
     }
 }

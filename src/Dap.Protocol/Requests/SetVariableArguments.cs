@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -24,7 +25,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Specifies details on how to format the response value.
         /// </summary>
-        [Optional] public ValueFormat Format { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public ValueFormat Format { get; set; }
     }
 
 }

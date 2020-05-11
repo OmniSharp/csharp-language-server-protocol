@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
 
@@ -8,7 +9,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Reference to the Variable container if the data breakpoint is requested for a child of the container.
         /// </summary>
-        [Optional] public long? VariablesReference { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? VariablesReference { get; set; }
 
         /// <summary>
         /// The name of the Variable's child to obtain data breakpoint information for. If variableReference isn’t provided, this can be an expression.

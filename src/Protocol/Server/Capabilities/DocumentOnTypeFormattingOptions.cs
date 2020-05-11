@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -18,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// <summary>
         ///  More trigger characters.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> MoreTriggerCharacter { get; set; }
 
         public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors)

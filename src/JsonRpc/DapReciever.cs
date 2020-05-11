@@ -8,15 +8,14 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class DapReceiver : IReceiver
+    public class DapReceiver// : IReceiver
     {
-        private readonly JsonElement _emptyObject;
+        private readonly JsonDocument _emptyObject;
         private readonly JsonElement _noneObject;
 
         public DapReceiver()
         {
-            using var document =  JsonDocument.Parse("{}");
-            _emptyObject = document.RootElement;
+            _emptyObject = JsonDocument.Parse("{}");
             _noneObject = new JsonElement();
         }
 
@@ -66,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     return new InvalidRequest(null, "No command given");
                 }
-                return new Request(sequence, command.GetString(), request.TryGetProperty("arguments", out var body) ? body : _emptyObject);
+                return new Request(sequence, command.GetString(), request.TryGetProperty("arguments", out var body) ? body : _emptyObject.RootElement);
             }
 
             if (messageType == "response")

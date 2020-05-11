@@ -1,4 +1,5 @@
 using System;
+using System.Buffers;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -16,6 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
     public interface IRequestRouter<TDescriptor> : IRequestRouter
     {
+        Type GetParamsType(string method);
         TDescriptor GetDescriptor(Notification notification);
         TDescriptor GetDescriptor(Request request);
         Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token);

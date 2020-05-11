@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.Text.Json;
+using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -12,13 +13,12 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialSymbolKinds()
         {
-            var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CodeAction()
+            var json = JsonSerializer.Serialize(new CodeAction()
             {
                 Kind = CodeActionKind.Source
-            });
+            }, Serializer.Instance.Options);
 
-            var result = serializer.DeserializeObject<CodeAction>(json);
+            var result = JsonSerializer.Deserialize<CodeAction>(json, Serializer.Instance.Options);
             result.Kind.Should().Be(CodeActionKind.Source);
         }
 
@@ -42,12 +42,12 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new CodeAction()
+            var json = JsonSerializer.Serialize(new CodeAction()
             {
                 Kind = CodeActionKind.QuickFix
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<CodeAction>(json);
+            var result = JsonSerializer.Deserialize<CodeAction>(json, serializer.Options);
             result.Kind.Should().Be(CodeActionKind.RefactorInline);
         }
     }

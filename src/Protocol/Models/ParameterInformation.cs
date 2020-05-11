@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -18,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The human-readable doc-comment of this parameter. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public StringOrMarkupContent Documentation { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -12,14 +14,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
-        [JsonProperty("command")]
+        [JsonPropertyName("command")]
         public string Name { get; set; }
 
         /// <summary>
         /// Arguments that the command handler should be
         /// invoked with.
         /// </summary>
-        [Optional]
-        public JArray Arguments { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
+        public JsonElement? Arguments { get; set; }
     }
 }

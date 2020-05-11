@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -8,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Holds changes to existing resources.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public IDictionary<DocumentUri, IEnumerable<TextEdit>> Changes { get; set; }
 
         /// <summary>
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If a client neither supports `documentChanges` nor `workspace.workspaceEdit.resourceOperations` then
         /// only plain `TextEdit`s using the `changes` property are supported.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<WorkspaceEditDocumentChange> DocumentChanges { get; set; }
     }
 }

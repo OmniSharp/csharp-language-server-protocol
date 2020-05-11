@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -7,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// @since 3.15.0
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum DiagnosticTag
     {
         /// <summary>

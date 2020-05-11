@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// 'dataBreakpoint': Indicates that a data breakpoint is registered for the object.
         /// etc.
         /// </summary>
-        [Optional] public string Kind { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Kind { get; set; }
 
         /// <summary>
         /// Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
@@ -37,12 +38,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// 'hasSideEffects': Indicates that the evaluation had side effects.
         /// etc.
         /// </summary>
-        [Optional] public Container<string> Attributes { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Container<string> Attributes { get; set; }
 
         /// <summary>
         /// Visibility of variable. Before introducing additional values, try to use the listed values.
         /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
         /// </summary>
-        [Optional] public string Visibility { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Visibility { get; set; }
     }
 }

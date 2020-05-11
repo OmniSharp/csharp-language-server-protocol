@@ -40,12 +40,13 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters
 
             if (reader.TokenType != JsonTokenType.StartObject)
             {
-                throw new NotSupportedException();
+                throw new JsonException("Expected an object");
             }
 
             string currentProperty = null;
             while (reader.Read())
             {
+                if (reader.TokenType == JsonTokenType.EndObject) { reader.Read(); break;}
                 if (currentProperty?.Equals("id", StringComparison.OrdinalIgnoreCase) == true)
                 {
                     requestId = reader.TokenType switch {

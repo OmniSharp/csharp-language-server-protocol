@@ -36,12 +36,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithReciever(this LanguageServerOptions options, ILspReceiver receiver)
-        {
-            options.Receiver = receiver;
-            return options;
-        }
-
         public static LanguageServerOptions WithHandler<T>(this LanguageServerOptions options)
             where T : class, IJsonRpcHandler
         {

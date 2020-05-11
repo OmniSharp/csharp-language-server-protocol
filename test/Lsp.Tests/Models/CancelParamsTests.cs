@@ -1,6 +1,8 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
 namespace Lsp.Tests.Models
@@ -17,7 +19,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer(ClientVersion.Lsp3).DeserializeObject<CancelParams>(expected);
+            var deresult = JsonSerializer.Deserialize<CancelParams>(expected, new Serializer(ClientVersion.Lsp3).Options);
             deresult.Should().BeEquivalentTo(model);
         }
     }

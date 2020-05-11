@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -39,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         {
             // null means we need to re-read the configuration
             // https://github.com/Microsoft/vscode-languageserver-node/issues/380
-            if (request.Settings == null || request.Settings.Type == JTokenType.Null)
+            if (request.Settings.ValueKind == JsonValueKind.Undefined  || request.Settings.ValueKind == JsonValueKind.Null)
             {
                 await GetWorkspaceConfiguration();
                 return Unit.Value;

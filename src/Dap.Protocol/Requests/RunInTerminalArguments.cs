@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -10,12 +11,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// What kind of terminal to launch.
         /// </summary>
-        [Optional] public RunInTerminalArgumentsKind Kind { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public RunInTerminalArgumentsKind Kind { get; set; }
 
         /// <summary>
         /// Optional title of the terminal.
         /// </summary>
-        [Optional] public string Title { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Title { get; set; }
 
         /// <summary>
         /// Working directory of the command.
@@ -30,7 +31,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Environment key-value pairs that are added to or removed from the default environment.
         /// </summary>
-        [Optional] public IDictionary<string, string> Env { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public IDictionary<string, string> Env { get; set; }
 
         public override bool Equals(object obj)
         {

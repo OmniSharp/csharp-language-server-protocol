@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -7,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class StaticWorkDoneTextDocumentRegistrationOptions : StaticTextDocumentRegistrationOptions, IWorkDoneProgressOptions
     {
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         /// <inheritdoc />
         public bool WorkDoneProgress { get; set; }
     }

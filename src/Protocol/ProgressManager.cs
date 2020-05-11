@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Reactive.Subjects;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -21,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private readonly ConcurrentDictionary<ProgressToken, IDisposable> _activeObservers
             = new ConcurrentDictionary<ProgressToken, IDisposable>();
 
-        private readonly ConcurrentDictionary<ProgressToken, ISubject<JToken>> _activeObservables
-            = new ConcurrentDictionary<ProgressToken, ISubject<JToken>>();
+        private readonly ConcurrentDictionary<ProgressToken, ISubject<object>> _activeObservables
+            = new ConcurrentDictionary<ProgressToken, ISubject<object>>();
 
         public void Initialized(IResponseRouter router, ISerializer serializer,
             WindowClientCapabilities windowClientCapabilities)

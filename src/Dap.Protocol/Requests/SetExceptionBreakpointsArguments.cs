@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -14,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Configuration options for selected exceptions.
         /// </summary>
-        [Optional] public Container<ExceptionOptions> ExceptionOptions { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public Container<ExceptionOptions> ExceptionOptions { get; set; }
     }
 
 }

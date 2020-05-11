@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -20,14 +21,14 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>(expected);
+            var deresult = JsonSerializer.Deserialize<CompletionItemCapability>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
         public void TagSupportTrue()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>("{\"tagSupport\":true}");
+            var deresult = JsonSerializer.Deserialize<CompletionItemCapability>("{\"tagSupport\":true}", Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(new CompletionItemCapability() {
                 TagSupport = new Supports<CompletionItemTagSupportCapability>(true)
             });
@@ -36,7 +37,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Fact]
         public void TagSupportObject()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>("{\"tagSupport\":{\"valueSet\": [1]}}");
+            var deresult = JsonSerializer.Deserialize<CompletionItemCapability>("{\"tagSupport\":{\"valueSet\": [1]}}", Serializer.Instance.Options);
             deresult.TagSupport.IsSupported.Should().Be(true);
             deresult.TagSupport.Value.ValueSet.Should().Contain(CompletionItemTag.Deprecated);
         }

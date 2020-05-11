@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
@@ -5,6 +6,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
     public interface IMethodWithParams
     {
         string Method { get; }
-        JsonElement Params { get; }
+        object Params { get; }
     }
 }

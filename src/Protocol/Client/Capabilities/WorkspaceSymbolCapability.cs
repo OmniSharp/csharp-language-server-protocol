@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -9,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public SymbolKindCapability SymbolKind { get; set; }
 
         /// <summary>
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.16.0
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Supports<TagSupportCapability> TagSupport { get; set; }
     }
 }

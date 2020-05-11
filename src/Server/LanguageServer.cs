@@ -23,6 +23,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using System.Reactive.Disposables;
+using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Nerdbank.Streams;
@@ -40,7 +41,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
         private readonly ProgressManager _progressManager;
-        private readonly ILspReceiver _receiver;
         private readonly ISerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IHandlerCollection _collection;
@@ -55,6 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private Task _initializingTask;
         private readonly ILanguageServerConfiguration _configuration;
         private readonly int? _concurrency;
+        private readonly LspInputHandler _inputHandler;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -100,7 +101,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return new LanguageServer(
                 options.Input,
                 options.Output,
-                options.Receiver,
                 options.RequestProcessIdentifier,
                 options.Serializer,
                 options.Services,
@@ -127,7 +127,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal LanguageServer(
             Stream input,
             Stream output,
-            ILspReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             ISerializer serializer,
             IServiceCollection services,
@@ -158,7 +157,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
             _serverInfo = serverInfo;
-            _receiver = receiver;
             _progressManager = progressManager;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
@@ -175,8 +173,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
             services.AddSingleton(requestProcessIdentifier);
-            services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReceiver>(receiver);
-            services.AddSingleton<ILspReceiver>(receiver);
 
             foreach (var item in handlers)
             {
@@ -235,10 +231,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = new Connection(
+
+            _inputHandler = new LspInputHandler(
                 input.UsePipeReader(),
                 _serviceProvider.GetRequiredService<IOutputHandler>(),
-                receiver,
                 requestProcessIdentifier,
                 _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _responseRouter,
@@ -246,6 +242,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 serializer,
                 concurrency
             );
+            _connection = new Connection(_inputHandler);
 
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 
@@ -586,8 +583,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
+            Experimental = serverCapabilities.Experimental;
 
-            _receiver.Initialized();
+            _inputHandler.Initialized();
 
             var result = ServerSettings = new InitializeResult() {
                 Capabilities = serverCapabilities,
@@ -679,7 +677,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _responseRouter.SendRequest(@params, cancellationToken);
         }
 
-        public TaskCompletionSource<JToken> GetRequest(long id)
+        public IPendingResponse GetRequest(long id)
         {
             return _responseRouter.GetRequest(id);
         }
@@ -694,6 +692,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _disposable?.Dispose();
         }
 
-        public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
+        public IDictionary<string, JsonElement> Experimental { get; private set; } = new Dictionary<string, JsonElement>();
     }
 }

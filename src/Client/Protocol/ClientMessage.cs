@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The request / response Id, if the message represents a request or a response.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public object Id { get; set; }
 
         /// <summary>
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Protocol
         /// <summary>
         ///     The request / notification message, if the message represents a request or a notification.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public JToken Params { get; set; }
 
         /// <summary>

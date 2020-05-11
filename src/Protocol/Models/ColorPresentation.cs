@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -15,13 +16,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// this presentation for the color.  When `falsy` the [label](#ColorPresentation.label)
         /// is used.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public TextEdit TextEdit { get; set; }
         /// <summary>
         /// An optional array of additional [text edits](#TextEdit) that are applied when
         /// selecting this color presentation. Edits must not overlap with the main [edit](#ColorPresentation.textEdit) nor with themselves.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public TextEditContainer AdditionalTextEdits { get; set; }
     }
 }

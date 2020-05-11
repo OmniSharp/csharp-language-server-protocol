@@ -20,7 +20,6 @@ namespace OmniSharp.Extensions.JsonRpc
         public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
         public ISerializer Serializer { get; set; } = new JsonRpcSerializer();
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
-        public IReceiver Receiver { get; set; } = new Receiver();
         public IServiceCollection Services { get; set; } = new ServiceCollection();
         internal List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         internal List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } = new List<(string name, IJsonRpcHandler handler)>();

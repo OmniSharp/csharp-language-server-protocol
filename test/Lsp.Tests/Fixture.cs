@@ -2,9 +2,12 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
+using System.Text.Json;
+using Nerdbank.Streams;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 
 namespace Lsp.Tests
@@ -25,17 +28,7 @@ namespace Lsp.Tests
 
         private static string SerializeObjectInternal(object value, Type type, ISerializer serializer)
         {
-            var sb = new StringBuilder(256);
-            var sw = new StringWriter(sb, CultureInfo.InvariantCulture);
-            using (var jsonWriter = new JsonTextWriter(sw))
-            {
-                jsonWriter.Formatting = Formatting.Indented;
-                jsonWriter.Indentation = 4;
-
-                serializer.JsonSerializer.Serialize(jsonWriter, value, type);
-            }
-
-            return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd();//?.Replace("\n", "\r\n");
+            return JsonSerializer.Serialize(value, type)?.Replace("\r\n", "\n")?.TrimEnd();//?.Replace("\n", "\r\n");
         }
     }
 }

@@ -1,5 +1,10 @@
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(Converter))]
     public struct BooleanNumberString
     {
         private long? _long;
@@ -74,6 +79,42 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator BooleanNumberString(bool value)
         {
             return new BooleanNumberString(value);
+        }
+
+        class Converter : JsonConverter<BooleanNumberString>
+        {
+            public override void Write(Utf8JsonWriter writer, BooleanNumberString value, JsonSerializerOptions options)
+            {
+                if (value.IsBool)   JsonSerializer.Serialize(writer, value.Bool, options);
+                else if (value.IsLong)   JsonSerializer.Serialize(writer, value.Long, options);
+                else if (value.IsString)   JsonSerializer.Serialize(writer, value.String, options);
+                else writer.WriteNullValue();
+            }
+
+            public override BooleanNumberString Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.Number)
+                {
+                    return new BooleanNumberString(reader.GetInt64());
+                }
+
+                if (reader.TokenType == JsonTokenType.String)
+                {
+                    return new BooleanNumberString(reader.GetString());
+                }
+
+                if (reader.TokenType == JsonTokenType.False)
+                {
+                    return new BooleanNumberString(false);
+                }
+
+                if (reader.TokenType == JsonTokenType.True)
+                {
+                    return new BooleanNumberString(true);
+                }
+
+                return new BooleanNumberString();
+            }
         }
     }
 }

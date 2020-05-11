@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ClientInfo ClientInfo { get; set; }
 
         /// <summary>
@@ -29,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @deprecated in favour of rootUri.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string RootPath
         {
             get { return RootUri?.GetFileSystemPath(); }
@@ -56,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public InitializeTrace Trace { get; set; } = InitializeTrace.Off;
 
         /// <summary>
@@ -70,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
 
         /// <inheritdoc />
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public ProgressToken WorkDoneToken { get; set; }
     }
 }

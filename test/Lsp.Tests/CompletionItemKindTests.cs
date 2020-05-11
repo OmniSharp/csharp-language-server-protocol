@@ -1,3 +1,4 @@
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -13,11 +14,12 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemKinds()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CompletionItem() {
-                Kind = CompletionItemKind.Event
-            });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var json = JsonSerializer.Serialize(new CompletionItem() {
+                Kind = CompletionItemKind.Event
+            }, serializer.Options);
+
+            var result = JsonSerializer.Deserialize<CompletionItem>(json, serializer.Options);
             result.Kind.Should().Be(CompletionItemKind.Event);
         }
 
@@ -25,11 +27,12 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemTags()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CompletionItem() {
-                Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
-            });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var json = JsonSerializer.Serialize(new CompletionItem() {
+                Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
+            }, serializer.Options);
+
+            var result = JsonSerializer.Deserialize<CompletionItem>(json, serializer.Options);
             result.Tags.Should().Contain(CompletionItemTag.Deprecated);
         }
 
@@ -48,11 +51,11 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = JsonSerializer.Serialize(new CompletionItem() {
                 Kind = CompletionItemKind.Event
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = JsonSerializer.Deserialize<CompletionItem>(json, serializer.Options);
             result.Kind.Should().Be(CompletionItemKind.Class);
         }
 
@@ -73,11 +76,11 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = JsonSerializer.Serialize(new CompletionItem() {
                 Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
-            });
+            }, serializer.Options);
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = JsonSerializer.Deserialize<CompletionItem>(json, serializer.Options);
             result.Tags.Should().BeEmpty();
         }
     }

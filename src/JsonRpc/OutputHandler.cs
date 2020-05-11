@@ -1,4 +1,6 @@
 using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Pipelines;
 using System.Reactive.Concurrency;
@@ -6,9 +8,12 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -20,6 +25,9 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Subject<object> _queue;
         private readonly TaskCompletionSource<object> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
+        private readonly JsonWriterOptions _writerOptions;
+        private static readonly byte[] ContentLengthHeader = Encoding.UTF8.GetBytes("Content-Length: ");
+        private static readonly byte[] EndHeaders = Encoding.UTF8.GetBytes("\r\n\r\n");
 
         public OutputHandler(PipeWriter pipeWriter, ISerializer serializer, ILogger<OutputHandler> logger)
         {
@@ -28,6 +36,11 @@ namespace OmniSharp.Extensions.JsonRpc
             _logger = logger;
             _queue = new Subject<object>();
             _outputIsFinished = new TaskCompletionSource<object>();
+            _writerOptions = new JsonWriterOptions() {
+                Encoder = JavaScriptEncoder.Default,
+                Indented = false,
+                SkipValidation = false
+            };
 
             _disposable = new CompositeDisposable {
                 _queue
@@ -60,14 +73,14 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             try
             {
-                // TODO: this will be part of the serialization refactor to make streaming first class
-                var content = _serializer.SerializeObject(value);
-                var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
+                using var sequence = new Sequence<byte>();
+                await using var jsonWriter = new Utf8JsonWriter(sequence, _writerOptions);
+                JsonSerializer.Serialize(jsonWriter, _serializer.Options);
 
-                await _pipeWriter.WriteAsync(
-                    Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"),
-                    cancellationToken);
-                await _pipeWriter.WriteAsync(contentBytes, cancellationToken);
+                await _pipeWriter.WriteAsync(ContentLengthHeader, cancellationToken);
+                await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes(sequence.Length.ToString()), cancellationToken);
+                await _pipeWriter.WriteAsync(EndHeaders, cancellationToken);
+                await _pipeWriter.WriteAsync(sequence.GetMemory(0), cancellationToken);
                 await _pipeWriter.FlushAsync(cancellationToken);
             }
             catch (OperationCanceledException ex) when (ex.CancellationToken != cancellationToken)

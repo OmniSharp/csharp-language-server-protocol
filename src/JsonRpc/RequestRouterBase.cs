@@ -60,12 +60,11 @@ namespace OmniSharp.Extensions.JsonRpc
                             if (descriptor.IsDelegatingHandler)
                             {
                                 // new DelegatingRequest();
-                                var o = JsonSerializer.Deserialize(notification.Params, descriptor.Params.GetGenericArguments()[0], _serializer.Options);
-                                @params = Activator.CreateInstance(descriptor.Params, new object[] { o });
+                                @params = Activator.CreateInstance(descriptor.Params, new object[] { notification.Params });
                             }
                             else
                             {
-                                @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                                @params = notification.Params;
                             }
 
                             await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
@@ -124,16 +123,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         try
                         {
                             _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
-                            if (descriptor.IsDelegatingHandler)
-                            {
-                                // new DelegatingRequest();
-                                var o = request.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                                @params = Activator.CreateInstance(descriptor.Params, new object[] { o });
-                            }
-                            else
-                            {
-                                @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
-                            }
+                            @params = descriptor.IsDelegatingHandler ? Activator.CreateInstance(descriptor.Params, new object[] { request.Params }) : request.Params;
                         }
                         catch (Exception cannotDeserializeRequestParams)
                         {
@@ -229,6 +219,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public abstract TDescriptor GetDescriptor(Notification notification);
         public abstract TDescriptor GetDescriptor(Request request);
+        public abstract Type GetParamsType(string method);
 
         private static readonly MethodInfo SendRequestUnit = typeof(RequestRouterBase<TDescriptor>)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)

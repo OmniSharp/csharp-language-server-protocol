@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -43,8 +44,8 @@ namespace Lsp.Tests.Capabilities.Server
                 {
                     Commands = new string[] { "command1", "command2" }
                 },
-                Experimental = new Dictionary<string, JToken>() {
-                    { "abc", "123" }
+                Experimental = new Dictionary<string, JsonElement>() {
+                    { "abc", JsonDocument.Parse("123").RootElement }
                 },
                 HoverProvider = true,
                 ReferencesProvider = true,
@@ -74,7 +75,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
+            var deresult = JsonSerializer.Deserialize<ServerCapabilities>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -90,7 +91,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
+            var deresult = JsonSerializer.Deserialize<ServerCapabilities>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
     }

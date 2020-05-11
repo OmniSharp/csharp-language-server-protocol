@@ -84,7 +84,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Notification(DocumentNames.DidSave, @params);
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
@@ -112,7 +112,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Notification(DocumentNames.DidSave, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Notification(DocumentNames.DidSave, @params);
 
             await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
@@ -143,7 +143,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, DocumentNames.CodeAction, @params);
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
@@ -188,7 +188,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cake"))
             };
 
-            var request = new Request(id, DocumentNames.CodeAction, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, DocumentNames.CodeAction, @params);
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
@@ -227,7 +227,7 @@ namespace Lsp.Tests
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
-            var request = new Request(id, DocumentNames.CodeLens, JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, DocumentNames.CodeLens, @params);
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 

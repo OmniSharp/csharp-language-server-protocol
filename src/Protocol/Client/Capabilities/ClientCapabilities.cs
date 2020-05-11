@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
@@ -22,6 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Experimental client capabilities.
         /// </summary>
-        public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();
+        public IDictionary<string, JsonElement> Experimental { get; set; } = new Dictionary<string, JsonElement>();
     }
 }

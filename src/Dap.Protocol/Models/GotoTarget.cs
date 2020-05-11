@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -26,21 +27,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An optional column of the goto target.
         /// </summary>
-        [Optional] public int? Column { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? Column { get; set; }
 
         /// <summary>
         /// An optional end line of the range covered by the goto target.
         /// </summary>
-        [Optional] public int? EndLine { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndLine { get; set; }
 
         /// <summary>
         /// An optional end column of the range covered by the goto target.
         /// </summary>
-        [Optional] public int? EndColumn { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public int? EndColumn { get; set; }
 
         /// <summary>
         /// Optional memory reference for the instruction pointer value represented by this target.
         /// </summary>
-        [Optional] public string InstructionPointerReference { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string InstructionPointerReference { get; set; }
     }
 }

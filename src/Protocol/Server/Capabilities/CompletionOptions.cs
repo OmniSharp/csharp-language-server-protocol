@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -15,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// The server provides support to resolve additional
         /// information for a completion item.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool ResolveProvider { get; set; }
 
         /// <summary>
@@ -28,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> TriggerCharacters { get; set; }
 
         /// <summary>
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// @since 3.2.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> AllCommitCharacters { get; set; }
 
         public static CompletionOptions Of(ICompletionOptions options, IEnumerable<IHandlerDescriptor> descriptors)

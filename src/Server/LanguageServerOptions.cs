@@ -26,7 +26,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public ServerInfo ServerInfo { get; set; }
         public ISerializer Serializer { get; set; } = Protocol.Serialization.Serializer.Instance;
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
-        public ILspReceiver Receiver { get; set; } = new LspReceiver();
         public IServiceCollection Services { get; set; } = new ServiceCollection();
         internal List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         internal List<ITextDocumentIdentifier> TextDocumentIdentifiers { get; set; } = new List<ITextDocumentIdentifier>();

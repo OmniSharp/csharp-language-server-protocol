@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -5,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A document highlight kind.
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum DocumentHighlightKind
     {
         /// <summary>

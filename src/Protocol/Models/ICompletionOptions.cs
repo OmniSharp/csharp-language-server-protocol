@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -8,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The server provides support to resolve additional
         /// information for a completion item.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         bool ResolveProvider { get; set; }
 
         /// <summary>
@@ -21,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// If code complete should automatically be trigger on characters not being valid inside
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         Container<string> TriggerCharacters { get; set; }
 
         /// <summary>
@@ -31,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.2.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         Container<string> AllCommitCharacters { get; set; }
     }
 }

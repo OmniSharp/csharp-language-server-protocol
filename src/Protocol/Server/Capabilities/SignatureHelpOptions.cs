@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -14,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// The characters that trigger signature help
         /// automatically.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> TriggerCharacters { get; set; }
 
         /// <summary>
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<string> RetriggerCharacters { get; set; }
 
         public static SignatureHelpOptions Of(ISignatureHelpOptions options, IEnumerable<IHandlerDescriptor> descriptors)

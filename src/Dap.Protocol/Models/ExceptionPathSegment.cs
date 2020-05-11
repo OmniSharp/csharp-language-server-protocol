@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Text.Json.Serialization;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -10,7 +11,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// If false or missing this segment matches the names provided, otherwise it matches anything except the names provided.
         /// </summary>
-        [Optional] public bool? Negate { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? Negate { get; set; }
 
         /// <summary>
         /// Depending on the value of 'negate' the names that should match or not match.

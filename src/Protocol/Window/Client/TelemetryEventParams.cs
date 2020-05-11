@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -10,6 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     public class TelemetryEventParams : IRequest
     {
         [JsonExtensionData]
-        private IDictionary<string, JToken> Data { get; set; }
+        private IDictionary<string, JsonElement> Data { get; set; }
     }
 }

@@ -4,8 +4,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -52,7 +50,7 @@ namespace Lsp.Tests
 
             var id = Guid.NewGuid().ToString();
             var @params = new ExecuteCommandParams() { Command = "123" };
-            var request = new Request(id, "workspace/executeCommand", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, "workspace/executeCommand", @params);
 
             var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(request, CancellationToken.None);
             mediator.CancelRequest(id);

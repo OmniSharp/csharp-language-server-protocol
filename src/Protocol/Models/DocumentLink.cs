@@ -1,3 +1,5 @@
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -19,15 +21,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public DocumentUri Target { get; set; }
 
         /// </summary>
         /// A data entry field that is preserved on a document link between a
         /// DocumentLinkRequest and a DocumentLinkResolveRequest.
         /// </summary>
-        [Optional]
-        public JToken Data { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
+        public JsonElement Data { get; set; }
 
         /// <summary>
         /// The tooltip text when you hover over this link.
@@ -38,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Tooltip { get; set; }
     }
 }

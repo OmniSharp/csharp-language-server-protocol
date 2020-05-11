@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -7,12 +8,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The process ID.
         /// </summary>
-        [Optional] public long? ProcessId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? ProcessId { get; set; }
 
         /// <summary>
         /// The process ID of the terminal shell.
         /// </summary>
-        [Optional] public long? ShellProcessId { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? ShellProcessId { get; set; }
     }
 
 }

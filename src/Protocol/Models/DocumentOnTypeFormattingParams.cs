@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The character that has been typed.
         /// </summary>
-        [JsonProperty("ch")]
+        [JsonPropertyName("ch")]
         public string Character { get; set; }
 
         /// <summary>

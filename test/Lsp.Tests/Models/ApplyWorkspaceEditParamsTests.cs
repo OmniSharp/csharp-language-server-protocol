@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -37,7 +38,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ApplyWorkspaceEditParams>(expected);
+            var deresult = JsonSerializer.Deserialize<ApplyWorkspaceEditParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -67,7 +68,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ApplyWorkspaceEditParams>(expected);
+            var deresult = JsonSerializer.Deserialize<ApplyWorkspaceEditParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -138,7 +139,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ApplyWorkspaceEditParams>(expected);
+            var deresult = JsonSerializer.Deserialize<ApplyWorkspaceEditParams>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model, x => x
                 .ComparingByMembers<WorkspaceEditDocumentChange>()
             //.ComparingByMembers<CreateFile>()

@@ -6,12 +6,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [Method(GeneralNames.Progress)]
     public class ProgressParams : IRequest
     {
-        public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)
+        public static ProgressParams Create<T>(ProgressToken token, T value)
         {
             return new ProgressParams()
             {
                 Token = token,
-                Value = JToken.FromObject(value, jsonSerializer)
+                Value = value
             };
         }
 
@@ -23,6 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The progress data.
         /// </summary>
-        public JToken Value { get; set; }
+        public object Value { get; set; }
     }
 }

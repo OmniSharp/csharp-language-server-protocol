@@ -25,6 +25,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
 
-        public TaskCompletionSource<JToken> GetRequest(long id) => _responseRouter.GetRequest(id);
+        public IPendingResponse GetRequest(long id) => _responseRouter.GetRequest(id);
     }
 }

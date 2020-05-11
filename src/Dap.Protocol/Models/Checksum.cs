@@ -1,4 +1,6 @@
-﻿namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
+﻿using System.Text.Json.Serialization;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     /// <summary>
     /// The checksum of an item calculated by the specified algorithm.
@@ -14,7 +16,7 @@
         /// <summary>
         /// Value of the checksum.
         /// </summary>
-        [JsonProperty("checksum")]
+        [JsonPropertyName("checksum")]
         public string Value { get; set; }
     }
 }

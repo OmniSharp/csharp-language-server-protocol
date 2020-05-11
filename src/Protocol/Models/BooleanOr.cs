@@ -1,7 +1,62 @@
+using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    public static class BooleanOr
+    {
+        class BooleanOrConverter<T> : JsonConverter<BooleanOr<T>>
+        {
+            public override BooleanOr<T> Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+            {
+                if (reader.TokenType == JsonTokenType.False)
+                {
+                    return new BooleanOr<T>(false);
+                }
+                if (reader.TokenType == JsonTokenType.True)
+                {
+                    return new BooleanOr<T>(true);
+                }
+
+                if (reader.TokenType == JsonTokenType.StartObject)
+                {
+                    return new BooleanOr<T>(JsonSerializer.Deserialize<T>(ref reader, options));
+                }
+
+                return new BooleanOr<T>(default(T));
+            }
+
+            public override void Write(Utf8JsonWriter writer, BooleanOr<T> value, JsonSerializerOptions options)
+            {
+                if (value.IsBool)
+                {
+                    JsonSerializer.Serialize(writer, value.Bool, options);
+                    return;
+                }
+
+                if (value.IsValue)
+                {
+                    JsonSerializer.Serialize(writer, value.Value, options);
+                    return;
+                }
+
+                writer.WriteNullValue();
+            }
+        }
+
+        internal class ConverterFactory : JsonConverterFactory
+        {
+            public override bool CanConvert(Type objectType) => objectType.GetTypeInfo().IsGenericType && objectType.GetTypeInfo().GetGenericTypeDefinition() == typeof(BooleanOr<>);
+
+            public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options) =>
+                Activator.CreateInstance(typeof(BooleanOrConverter<>).MakeGenericType(typeToConvert)) as JsonConverter;
+        }
+    }
+
+    [JsonConverter(typeof(BooleanOr.ConverterFactory))]
     public class BooleanOr<T>
     {
         private T _value;

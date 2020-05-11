@@ -8,13 +8,38 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
+    public interface IPendingResponse
+    {
+        Type ResponseType { get; }
+        void SetResult(object value);
+        void SetException(Exception e);
+        bool IsVoid { get; }
+    }
+
+    class PendingResponse : IPendingResponse
+    {
+        private readonly TaskCompletionSource<object> _completionSource;
+
+        public PendingResponse(Type responseType, TaskCompletionSource<object> completionSource)
+        {
+            _completionSource = completionSource;
+            ResponseType = responseType;
+        }
+
+        public Type ResponseType { get; }
+        public void SetResult(object value) => _completionSource.SetResult(value);
+
+        public void SetException(Exception e) => _completionSource.SetException(e);
+        public bool IsVoid => ResponseType == typeof(Unit);
+    }
+
     public class ResponseRouter : IResponseRouter
     {
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
 
-        internal readonly ConcurrentDictionary<long, TaskCompletionSource<Memory<byte>>> Requests =
-            new ConcurrentDictionary<long, TaskCompletionSource<Memory<byte>>>();
+        internal readonly ConcurrentDictionary<long, IPendingResponse> Requests =
+            new ConcurrentDictionary<long, IPendingResponse>();
 
         internal static readonly ConcurrentDictionary<Type, string> MethodCache =
             new ConcurrentDictionary<Type, string>();
@@ -60,7 +85,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public TaskCompletionSource<Memory<byte>> GetRequest(long id)
+        public IPendingResponse GetRequest(long id)
         {
             Requests.TryGetValue(id, out var source);
             return source;
@@ -99,8 +124,9 @@ namespace OmniSharp.Extensions.JsonRpc
             public async Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken)
             {
                 var nextId = _router.Serializer.GetNextId();
-                var tcs = new TaskCompletionSource<Memory<byte>>();
-                _router.Requests.TryAdd(nextId, tcs);
+                var tcs = new TaskCompletionSource<object>();
+                var pendingResponse = new PendingResponse(typeof(TResponse), tcs);
+                _router.Requests.TryAdd(nextId, pendingResponse);
 
                 _router.OutputHandler.Send(new Client.Request() {
                     Method = _method,
@@ -116,7 +142,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return (TResponse) (object) Unit.Value;
                     }
 
-                    return JsonSerializer.Deserialize<TResponse>(result.Span, _router.Serializer.Options);
+                    return (TResponse) result;
                 }
                 finally
                 {

@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -15,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// logging or to provide a suitable error for a request that
         /// triggered the edit.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string FailureReason { get; set; }
     }
 }

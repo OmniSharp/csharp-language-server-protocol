@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -18,7 +19,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentIdentifier>(expected);
+            var deresult = JsonSerializer.Deserialize<TextDocumentIdentifier>(expected, Serializer.Instance.Options);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -26,7 +27,7 @@ namespace Lsp.Tests.Models
         public void Should_Deserialize_For_Example_Value()
         {
             var serializer = new Serializer(ClientVersion.Lsp3);
-            var result = serializer.DeserializeObject<TextDocumentIdentifier>(@"{
+            var result = JsonSerializer.Deserialize<TextDocumentIdentifier>(@"{
                 ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""
             }");
 

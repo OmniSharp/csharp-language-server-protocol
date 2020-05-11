@@ -1,10 +1,11 @@
 using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Flags]
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum WatchKind
     {
         /// <summary>

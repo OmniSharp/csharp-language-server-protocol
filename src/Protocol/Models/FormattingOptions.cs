@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// Value-object describing what options formatting should use.
     /// </summary>
-    [JsonDictionary]
+    // [JsonDictionary]
     public class FormattingOptions : Dictionary<string, BooleanNumberString>
     {
         /// <summary>

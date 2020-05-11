@@ -1,3 +1,4 @@
+using System.Text.Json;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -9,6 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         ///  The actual changed settings
         /// </summary>
-        public JToken Settings { get; set; }
+        public JsonElement Settings { get; set; }
     }
 }

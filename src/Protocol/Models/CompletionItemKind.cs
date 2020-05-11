@@ -1,3 +1,6 @@
+using System;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -5,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// The kind of a completion entry.
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum CompletionItemKind
     {
         Text = 1,
@@ -34,4 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         Operator = 24,
         TypeParameter = 25,
     }
+
+
 }

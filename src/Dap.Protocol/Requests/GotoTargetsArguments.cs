@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// An optional column location for which the goto targets are determined.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public long? Column { get; set; }
     }
 
 }

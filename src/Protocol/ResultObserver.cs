@@ -92,12 +92,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             IDisposable disposable)
         {
             return Observer.Create<T>(
-                value => router.SendProgress(token.Create(value, serializer.JsonSerializer)),
+                value => router.SendProgress(token.Create(value)),
                 error =>
                 {
                     if (onError != null)
                     {
-                        router.SendProgress(token.Create(onError.Invoke(error), serializer.JsonSerializer));
+                        router.SendProgress(token.Create(onError.Invoke(error)));
                     }
 
                     disposable.Dispose();
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         return;
                     }
 
-                    router.SendProgress(token.Create(result, serializer.JsonSerializer));
+                    router.SendProgress(token.Create(result));
                     disposable.Dispose();
                 });
         }
@@ -123,7 +123,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             IDisposable disposable)
         {
             return Observer.Create<T>(
-                value => router.SendProgress(token.Create(value, serializer.JsonSerializer)),
+                value => router.SendProgress(token.Create(value)),
                 error => { disposable.Dispose(); },
                 disposable.Dispose);
         }

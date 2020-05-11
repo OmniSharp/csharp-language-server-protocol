@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -14,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// Used to filter code actions.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public CodeActionKind Kind { get; set; }
 
         /// <summary>
@@ -26,19 +27,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool IsPreferred { get; set; }
 
         /// <summary>
         /// The diagnostics that this code action resolves.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<Diagnostic> Diagnostics { get; set; }
 
         /// <summary>
         /// The workspace edit this code action performs.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public WorkspaceEdit Edit { get; set; }
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// provides an edit and a command, first the edit is
         /// executed and then the command.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Command Command { get; set; }
     }
 }

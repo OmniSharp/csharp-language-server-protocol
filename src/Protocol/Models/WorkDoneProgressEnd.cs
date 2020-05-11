@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -13,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Optional, a final message indicating to for example indicate the outcome
         /// of the operation.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Message { get; set; }
     }
 }

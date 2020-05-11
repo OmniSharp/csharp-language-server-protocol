@@ -1,3 +1,4 @@
+using System;
 using System.Text.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Server
@@ -7,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         internal Request(
             object id,
             string method,
-            JsonElement @params)
+            object @params)
         {
             Id = id;
             Method = method;
@@ -18,6 +19,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JsonElement? Params { get; }
+        public object Params { get; }
     }
 }

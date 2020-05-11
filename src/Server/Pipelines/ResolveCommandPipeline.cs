@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Reflection;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -28,12 +29,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             if (request is ICanBeResolved canBeResolved)
             {
                 string handlerType = null;
-                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
-                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
+                if (canBeResolved.Data.ValueKind == JsonValueKind.Object)
+                    handlerType = canBeResolved.Data.TryGetProperty(PrivateHandlerTypeName, out var value)
+                        ? value.GetString()
+                        : null;
 
                 if (!string.IsNullOrWhiteSpace(handlerType))
                 {
-                    canBeResolved.Data = canBeResolved.Data["data"];
+                    canBeResolved.Data = canBeResolved.Data.TryGetProperty("data", out var data) ? data : new JsonElement();
                 }
             }
 
@@ -53,11 +56,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                     // Originally we were going to change Data to be a JObject instead of JToken
                     // This allows us to leave data alone by simply wrapping it
                     // Since we're always going to intercept these items, we can control this.
-                    var data = new JObject();
+
+                    var data = new Dictionary<string, object>();
                     data["data"] = item.Data;
                     data[PrivateHandlerTypeName] = _descriptor.ImplementationType.FullName;
                     data[PrivateHandlerKey] = handlerDescriptor.Key;
-                    item.Data = data;
+                    // Is there a better way to create a JsonElement here?
+                    item.Data = JsonSerializer.Deserialize<JsonElement>(JsonSerializer.Serialize(item));
                 }
             }
 

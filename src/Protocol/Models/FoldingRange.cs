@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -15,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The zero-based character offset from where the folded range starts. If not defined, defaults to the length of the start line.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public long? StartCharacter { get; set; }
 
         /// <summary>
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The zero-based character offset before the folded range ends. If not defined, defaults to the length of the end line.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public long? EndCharacter { get; set; }
 
         /// <summary>
@@ -34,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// is used to categorize folding ranges and used by commands like 'Fold all comments'. See
         /// [FoldingRangeKind](#FoldingRangeKind) for an enumeration of standardized kinds.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public FoldingRangeKind? Kind { get; set; }
     }
 }

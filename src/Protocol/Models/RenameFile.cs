@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -14,15 +15,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The old (existing) location.
         /// </summary>
-        public string OldUri { get; set; }
+        public DocumentUri OldUri { get; set; }
         /// <summary>
         /// The new location.
         /// </summary>
-        public string NewUri { get; set; }
+        public DocumentUri NewUri { get; set; }
         /// <summary>
         /// Rename Options.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public RenameFileOptions Options { get; set; }
     }
 }

@@ -1,4 +1,5 @@
 using System;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// More detail for this symbol, e.g the signature of a function. If not provided the
         /// name is used.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public string Detail { get; set; }
 
         /// <summary>
@@ -33,13 +34,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.16.0 - Proposed state
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<SymbolTag> Tags { get; set; }
 
         /// <summary>
         /// Indicates if this symbol is deprecated.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public bool Deprecated { get; set; }
 
         /// <summary>
@@ -58,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Children of this symbol, e.g. properties of a class.
         /// </summary>
-        [Optional]
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)]
         public Container<DocumentSymbol> Children { get; set; }
     }
 }

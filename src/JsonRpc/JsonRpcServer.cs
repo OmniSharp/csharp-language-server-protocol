@@ -18,7 +18,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Connection _connection;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
-        private readonly IReceiver _receiver;
         private readonly ISerializer _serializer;
         private readonly HandlerCollection _collection;
         private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers = new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
@@ -37,7 +36,6 @@ namespace OmniSharp.Extensions.JsonRpc
             var server = new JsonRpcServer(
                 options.Input,
                 options.Output,
-                options.Receiver,
                 options.RequestProcessIdentifier,
                 options.LoggerFactory,
                 options.Serializer,
@@ -58,7 +56,6 @@ namespace OmniSharp.Extensions.JsonRpc
         internal JsonRpcServer(
             Stream input,
             Stream output,
-            IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             ILoggerFactory loggerFactory,
             ISerializer serializer,
@@ -72,7 +69,6 @@ namespace OmniSharp.Extensions.JsonRpc
             var outputHandler = new OutputHandler(output.UsePipeWriter(), serializer, loggerFactory.CreateLogger<OutputHandler>());
 
             services.AddLogging();
-            _receiver = receiver;
             _serializer = serializer;
             _collection = new HandlerCollection();
 
@@ -81,7 +77,6 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddSingleton(_serializer);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
             services.AddSingleton(requestProcessIdentifier);
-            services.AddSingleton(_receiver);
             services.AddSingleton(loggerFactory);
 
             services.AddJsonRpcMediatR(assemblies);
@@ -123,10 +118,9 @@ namespace OmniSharp.Extensions.JsonRpc
             _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
             _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(_requestRouter));
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = new Connection(
+            var inputHandler = new InputHandler(
                 input.UsePipeReader(),
                 outputHandler,
-                receiver,
                 requestProcessIdentifier,
                 _requestRouter,
                 _responseRouter,
@@ -134,6 +128,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 serializer,
                 concurrency
             );
+            _connection = new Connection(inputHandler);
         }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
@@ -207,7 +202,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return _responseRouter.SendRequest(method);
         }
 
-        public TaskCompletionSource<Memory<byte>> GetRequest(long id)
+        public IPendingResponse GetRequest(long id)
         {
             return _responseRouter.GetRequest(id);
         }

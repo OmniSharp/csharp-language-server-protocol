@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
@@ -22,26 +23,26 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An object used as a dictionary for looking up the variables in the format string.
         /// </summary>
-        [Optional] public IDictionary<string, string> Variables { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public IDictionary<string, string> Variables { get; set; }
 
         /// <summary>
         /// If true send to telemetry.
         /// </summary>
-        [Optional] public bool? SendTelemetry { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? SendTelemetry { get; set; }
 
         /// <summary>
         /// If true show user.
         /// </summary>
-        [Optional] public bool? ShowUser { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public bool? ShowUser { get; set; }
 
         /// <summary>
         /// An optional url where additional information about this message can be found.
         /// </summary>
-        [Optional] public string Url { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string Url { get; set; }
 
         /// <summary>
         /// An optional label that is presented to the user as the UI for opening the url.
         /// </summary>
-        [Optional] public string UrlLabel { get; set; }
+        [JsonIgnore(Condition = JsonIgnoreCondition.WhenNull)] public string UrlLabel { get; set; }
     }
 }

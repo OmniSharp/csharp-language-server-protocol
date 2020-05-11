@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -6,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Defines whether the insert text in a completion item should be interpreted as
     /// plain text or a snippet.
     /// </summary>
-    [JsonConverter(typeof(NumberEnumConverter))]
+    [JsonConverter(typeof(JsonNumberEnumConverter))]
     public enum InsertTextFormat
     {
         /// <summary>
