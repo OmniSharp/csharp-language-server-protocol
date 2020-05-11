@@ -220,6 +220,52 @@ namespace Lsp.Tests
         }
 
         [Theory]
+        [ClassData(typeof(ResourceStringUris))]
+        public void Should_Handle_Resource_String_Uris(string uri, string expected)
+        {
+            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Expected: {expected}");
+            new DocumentUri(uri).ToString().Should().Be(expected);
+        }
+
+        public class ResourceStringUris : IEnumerable<object[]>
+        {
+            private const string ResourcePath = "untitled:Untitled-1";
+            private const string ResourcePathWithPath = "untitled:Untitled-1/some/path";
+
+            protected IEnumerable<(string, string)> AddPaths(params string[] paths)
+            {
+                foreach (var path in paths)
+                {
+                    yield return (path.Replace("c:", "c%3A"), path);
+                    yield return (path.Replace("c:", "c%3a"), path);
+                    yield return (path, path);
+                }
+            }
+
+            public IEnumerator<object[]> GetEnumerator()
+            {
+                foreach (var (source, destination) in AddPaths(
+                    ResourcePath,
+                    ResourcePath.Replace("Untitled", "Пространствоимен"),
+                    ResourcePath.Replace("Untitled", "汉字漢字"),
+                    ResourcePath.Replace("Untitled", "のはでした"),
+                    ResourcePath.Replace("Untitled", "コンサート"),
+                    ResourcePathWithPath,
+                    ResourcePathWithPath.Replace("Untitled", "Пространствоимен"),
+                    ResourcePathWithPath.Replace("Untitled", "汉字漢字"),
+                    ResourcePathWithPath.Replace("Untitled", "のはでした"),
+                    ResourcePathWithPath.Replace("Untitled", "コンサート")
+                ))
+                {
+                    yield return new object[] {source, destination};
+                }
+            }
+
+            IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        }
+
+        [Theory]
         [ClassData(typeof(WindowsPathUris))]
         public void Should_Handle_Windows_Uris(Uri uri, DocumentUri expected)
         {
@@ -535,11 +581,13 @@ namespace Lsp.Tests
         {
             protected IEnumerable<(string, DocumentUri)> AddPaths(params string[] paths)
             {
-                foreach (var path in paths)
+                foreach (var expectedPath in paths)
                 {
-                    yield return (path.Replace("c:", "c%3A"), path);
-                    yield return (path.Replace("c:", "c%3a"), path);
-                    yield return (path, path);
+                    if (expectedPath.Replace("c:", "c%3A") != expectedPath)
+                        yield return (expectedPath.Replace("c:", "c%3A"), expectedPath);
+                    if (expectedPath.Replace("c:", "c%3a") != expectedPath)
+                        yield return (expectedPath.Replace("c:", "c%3a"), expectedPath);
+                    yield return (expectedPath, expectedPath);
                 }
             }
 
