@@ -21,7 +21,7 @@ using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class InputHandler : IInputHandler
+    public class InputHandler : IInputHandler, IDisposable
     {
         public static readonly byte[] HeadersFinished =
             new byte[] {(byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n'}.ToArray();
@@ -77,11 +77,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 new Memory<byte>(_contentLengthValueBuffer); // Max string length of the long value
             _stopProcessing = new CancellationTokenSource();
 
-
             _disposable = new CompositeDisposable {
                 Disposable.Create(() => _stopProcessing.Cancel()),
                 _stopProcessing,
-                Disposable.Create(() => _pipeReader?.Complete()),
                 _scheduler,
             };
         }
@@ -381,6 +379,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public void Dispose()
         {
             _disposable.Dispose();
+            _pipeReader.Complete();
         }
     }
 }

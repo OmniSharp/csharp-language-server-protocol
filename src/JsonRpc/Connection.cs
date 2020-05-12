@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class Connection : IDisposable
     {
-        private readonly IInputHandler _inputHandler;
+        private readonly InputHandler _inputHandler;
 
         public Connection(
             PipeReader input,
