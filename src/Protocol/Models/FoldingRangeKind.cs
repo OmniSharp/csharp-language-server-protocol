@@ -1,10 +1,13 @@
 using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// Enum of known range kinds
     /// </summary>
+    [JsonConverter(typeof(StringEnumConverter))]
     public enum FoldingRangeKind
     {
         /// <summary>
