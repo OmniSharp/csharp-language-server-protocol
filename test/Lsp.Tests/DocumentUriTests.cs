@@ -123,10 +123,14 @@ namespace Lsp.Tests
                 {
                     foreach (var (source, destination) in AddPaths(
                         WindowsPath,
-                        WindowsPath.Replace("Namespace", "Пространствоимен"),
-                        WindowsPath.Replace("Namespace", "汉字漢字"),
-                        WindowsPath.Replace("Namespace", "のはでした"),
-                        WindowsPath.Replace("Namespace", "コンサート")
+                        // Пространствоимен
+                        WindowsPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                        // 汉字漢字
+                        WindowsPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                        // のはでした
+                        WindowsPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                        // コンサート
+                        WindowsPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                     ))
                     {
                         yield return new object[] {source, destination};
@@ -152,10 +156,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     WindowsPathAlt,
-                    WindowsPathAlt.Replace("Namespace", "Пространствоимен"),
-                    WindowsPathAlt.Replace("Namespace", "汉字漢字"),
-                    WindowsPathAlt.Replace("Namespace", "のはでした"),
-                    WindowsPathAlt.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    WindowsPathAlt.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    WindowsPathAlt.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    WindowsPathAlt.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    WindowsPathAlt.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {source, destination};
@@ -180,10 +188,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     UncPath,
-                    UncPath.Replace("Namespace", "Пространствоимен"),
-                    UncPath.Replace("Namespace", "汉字漢字"),
-                    UncPath.Replace("Namespace", "のはでした"),
-                    UncPath.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    UncPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    UncPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    UncPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    UncPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {source, destination};
@@ -208,10 +220,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     UnixPath,
-                    UnixPath.Replace("Namespace", "Пространствоимен"),
-                    UnixPath.Replace("Namespace", "汉字漢字"),
-                    UnixPath.Replace("Namespace", "のはでした"),
-                    UnixPath.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    UnixPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    UnixPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    UnixPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    UnixPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {source, destination};
@@ -247,15 +263,23 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     ResourcePath,
-                    ResourcePath.Replace("Untitled", "Пространствоимен"),
-                    ResourcePath.Replace("Untitled", "汉字漢字"),
-                    ResourcePath.Replace("Untitled", "のはでした"),
-                    ResourcePath.Replace("Untitled", "コンサート"),
+                    // Пространствоимен
+                    ResourcePath.Replace("Untitled", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    ResourcePath.Replace("Untitled", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    ResourcePath.Replace("Untitled", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    ResourcePath.Replace("Untitled", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88"),
                     ResourcePathWithPath,
-                    ResourcePathWithPath.Replace("Untitled", "Пространствоимен"),
-                    ResourcePathWithPath.Replace("Untitled", "汉字漢字"),
-                    ResourcePathWithPath.Replace("Untitled", "のはでした"),
-                    ResourcePathWithPath.Replace("Untitled", "コンサート")
+                    // Пространствоимен
+                    ResourcePathWithPath.Replace("Untitled", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    ResourcePathWithPath.Replace("Untitled", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    ResourcePathWithPath.Replace("Untitled", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    ResourcePathWithPath.Replace("Untitled", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {source, destination};
@@ -282,10 +306,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     WindowsPath,
-                    WindowsPath.Replace("Namespace", "Пространствоимен"),
-                    WindowsPath.Replace("Namespace", "汉字漢字"),
-                    WindowsPath.Replace("Namespace", "のはでした"),
-                    WindowsPath.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    WindowsPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    WindowsPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    WindowsPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    WindowsPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {new Uri(source), destination};
@@ -310,10 +338,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     UncPath,
-                    UncPath.Replace("Namespace", "Пространствоимен"),
-                    UncPath.Replace("Namespace", "汉字漢字"),
-                    UncPath.Replace("Namespace", "のはでした"),
-                    UncPath.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    UncPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    UncPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    UncPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    UncPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {new Uri(source), destination};
@@ -338,10 +370,14 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in AddPaths(
                     UnixPath,
-                    UnixPath.Replace("Namespace", "Пространствоимен"),
-                    UnixPath.Replace("Namespace", "汉字漢字"),
-                    UnixPath.Replace("Namespace", "のはでした"),
-                    UnixPath.Replace("Namespace", "コンサート")
+                    // Пространствоимен
+                    UnixPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
+                    // 汉字漢字
+                    UnixPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
+                    // のはでした
+                    UnixPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
+                    // コンサート
+                    UnixPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")
                 ))
                 {
                     yield return new object[] {new Uri(source), destination};
@@ -370,13 +406,13 @@ namespace Lsp.Tests
                 foreach (var (source, destination) in
                     AddPaths(WindowsSourcePath, WindowsDestinationPath)
                         .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "Пространствоимен"),
-                            WindowsDestinationPath.Replace("Namespace", "Пространствоимен")))
+                            WindowsDestinationPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD")))
                         .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "汉字漢字"),
-                            WindowsDestinationPath.Replace("Namespace", "汉字漢字")))
+                            WindowsDestinationPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97")))
                         .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "のはでした"),
-                            WindowsDestinationPath.Replace("Namespace", "のはでした")))
+                            WindowsDestinationPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F")))
                         .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "コンサート"),
-                            WindowsDestinationPath.Replace("Namespace", "コンサート")))
+                            WindowsDestinationPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")))
                 )
                 {
                     yield return new object[] {source, destination};
@@ -406,13 +442,13 @@ namespace Lsp.Tests
                 foreach (var (source, destination) in
                     AddPaths(UncSourcePath, UncDestinationPath)
                         .Concat(AddPaths(UncSourcePath.Replace("Namespace", "Пространствоимен"),
-                            UncDestinationPath.Replace("Namespace", "Пространствоимен")))
+                            UncDestinationPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD")))
                         .Concat(AddPaths(UncSourcePath.Replace("Namespace", "汉字漢字"),
-                            UncDestinationPath.Replace("Namespace", "汉字漢字")))
+                            UncDestinationPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97")))
                         .Concat(AddPaths(UncSourcePath.Replace("Namespace", "のはでした"),
-                            UncDestinationPath.Replace("Namespace", "のはでした")))
+                            UncDestinationPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F")))
                         .Concat(AddPaths(UncSourcePath.Replace("Namespace", "コンサート"),
-                            UncDestinationPath.Replace("Namespace", "コンサート")))
+                            UncDestinationPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")))
                 )
                 {
                     yield return new object[] {source, destination};
@@ -439,13 +475,13 @@ namespace Lsp.Tests
                 foreach (var (source, destination) in
                     AddPaths(UnixSourcePath, UnixDestinationPath)
                         .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "Пространствоимен"),
-                            UnixDestinationPath.Replace("Namespace", "Пространствоимен")))
+                            UnixDestinationPath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD")))
                         .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "汉字漢字"),
-                            UnixDestinationPath.Replace("Namespace", "汉字漢字")))
+                            UnixDestinationPath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97")))
                         .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "のはでした"),
-                            UnixDestinationPath.Replace("Namespace", "のはでした")))
+                            UnixDestinationPath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F")))
                         .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "コンサート"),
-                            UnixDestinationPath.Replace("Namespace", "コンサート")))
+                            UnixDestinationPath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88")))
                 )
                 {
                     yield return new object[] {source, destination};
@@ -474,13 +510,13 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in
                     AddPaths(WindowsSourcePath, WindowsDestinationPath)
-                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "Пространствоимен"),
+                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
                             WindowsDestinationPath.Replace("Namespace", "Пространствоимен")))
-                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "汉字漢字"),
+                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
                             WindowsDestinationPath.Replace("Namespace", "汉字漢字")))
-                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "のはでした"),
+                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
                             WindowsDestinationPath.Replace("Namespace", "のはでした")))
-                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "コンサート"),
+                        .Concat(AddPaths(WindowsSourcePath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88"),
                             WindowsDestinationPath.Replace("Namespace", "コンサート")))
                 )
                 {
@@ -515,13 +551,13 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in
                     AddPaths(UncSourcePath, UncDestinationPath)
-                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "Пространствоимен"),
+                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
                             UncDestinationPath.Replace("Namespace", "Пространствоимен")))
-                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "汉字漢字"),
+                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
                             UncDestinationPath.Replace("Namespace", "汉字漢字")))
-                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "のはでした"),
+                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
                             UncDestinationPath.Replace("Namespace", "のはでした")))
-                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "コンサート"),
+                        .Concat(AddPaths(UncSourcePath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88"),
                             UncDestinationPath.Replace("Namespace", "コンサート")))
                 )
                 {
@@ -556,13 +592,13 @@ namespace Lsp.Tests
             {
                 foreach (var (source, destination) in
                     AddPaths(UnixSourcePath, UnixDestinationPath)
-                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "Пространствоимен"),
+                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "%D0%9F%D1%80%D0%BE%D1%81%D1%82%D1%80%D0%B0%D0%BD%D1%81%D1%82%D0%B2%D0%BE%D0%B8%D0%BC%D0%B5%D0%BD"),
                             UnixDestinationPath.Replace("Namespace", "Пространствоимен")))
-                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "汉字漢字"),
+                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "%E6%B1%89%E5%AD%97%E6%BC%A2%E5%AD%97"),
                             UnixDestinationPath.Replace("Namespace", "汉字漢字")))
-                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "のはでした"),
+                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "%E3%81%AE%E3%81%AF%E3%81%A7%E3%81%97%E3%81%9F"),
                             UnixDestinationPath.Replace("Namespace", "のはでした")))
-                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "コンサート"),
+                        .Concat(AddPaths(UnixSourcePath.Replace("Namespace", "%E3%82%B3%E3%83%B3%E3%82%B5%E3%83%BC%E3%83%88"),
                             UnixDestinationPath.Replace("Namespace", "コンサート")))
                 )
                 {

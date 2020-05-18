@@ -175,7 +175,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (string.IsNullOrWhiteSpace(_stringValue))
             {
                 _stringValue =
-                    $"{Scheme}{_delimiter}{Authority}{Path}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Query)}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Fragment)}";
+                    $"{Scheme}{_delimiter}{Authority}{Uri.EscapeUriString(Path)}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Uri.EscapeDataString(Query))}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Uri.EscapeDataString(Fragment))}";
             }
 
             return _stringValue;
