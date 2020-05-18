@@ -128,8 +128,10 @@ namespace JsonRpc.Tests
         }
 
         [Theory]
-        [InlineData("{\"changes\": [{\"uri\": \"file:///Mörkö.cs\",\"type\": 1}]}")]
-        [InlineData("{\"textDocument\": {\"uri\": \"file://abc/123/树.cs\"}}")]
+        // Mörkö
+        [InlineData("{\"changes\": [{\"uri\": \"file:///M%C3%B6rk%C3%B6.cs\",\"type\": 1}]}")]
+        // 树
+        [InlineData("{\"textDocument\": {\"uri\": \"file://abc/123/%E6%A0%91.cs\"}}")]
         public void ShouldPassAdditionalUtf8EncodedReqeusts(string data)
         {
             var inputStream =

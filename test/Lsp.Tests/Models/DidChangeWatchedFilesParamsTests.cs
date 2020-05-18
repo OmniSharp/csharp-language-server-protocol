@@ -38,7 +38,7 @@ namespace Lsp.Tests.Models
                     new FileEvent() {
                         Type = FileChangeType.Created,
                         // Mörkö
-                        Uri = new Uri("file:///Mörkö.cs")
+                        Uri = new Uri("file:///M%C3%B6rk%C3%B6.cs")
                     }
                 }
             };
