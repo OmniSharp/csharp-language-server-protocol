@@ -200,7 +200,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                 // TODO: Should we rethrow or swallow?
                                 // If an exception happens... the whole system could be in a bad state, hence this throwing currently.
                                 throw;
-                            }
+                            }docum
                         }
                     );
                 }
