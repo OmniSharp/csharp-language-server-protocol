@@ -47,7 +47,7 @@ namespace Lsp.Tests.Models
                     }
                 },
                 TextDocument = new VersionedTextDocumentIdentifier() {
-                    Uri = DocumentUri.FromFileSystemPath("C:\\abc\\Mörkö.cs")
+                    Uri = DocumentUri.FromFileSystemPath("c:\\abc\\Mörkö.cs")
                 }
             };
             var result = Fixture.SerializeObject(model);

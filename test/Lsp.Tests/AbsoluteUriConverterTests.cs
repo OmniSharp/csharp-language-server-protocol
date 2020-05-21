@@ -21,14 +21,14 @@ namespace Lsp.Tests
         [ClassData(typeof(DocumentUriTests.WindowsPathAltStringUris))]
         [ClassData(typeof(DocumentUriTests.UncPathStringUris))]
         [ClassData(typeof(DocumentUriTests.UnixPathStringUris))]
-        public void Should_Deserialize_VSCode_Style_Uris(string uri, DocumentUri expected)
+        public void Should_Deserialize_VSCode_Style_Uris(string uri, string expected)
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             var serializer = new JsonSerializerSettings() {
                 Converters = {new DocumentUriConverter()}
             };
-            JsonConvert.DeserializeObject<DocumentUri>($"\"{uri}\"", serializer).Should().Be(expected);
+            JsonConvert.DeserializeObject<DocumentUri>($"\"{uri}\"", serializer).ToString().Should().Be(expected);
         }
 
         [Theory]
@@ -36,14 +36,14 @@ namespace Lsp.Tests
         [ClassData(typeof(DocumentUriTests.WindowsPathAltStringUris))]
         [ClassData(typeof(DocumentUriTests.UncPathStringUris))]
         [ClassData(typeof(DocumentUriTests.UnixPathStringUris))]
-        public void Should_Serialize_VSCode_Style_Uris(string uri, DocumentUri expected)
+        public void Should_Serialize_VSCode_Style_Uris(string uri, string expected)
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             var serializer = new JsonSerializerSettings() {
                 Converters = {new DocumentUriConverter()}
             };
-            JsonConvert.SerializeObject(new DocumentUri(uri), serializer).Trim('"').Should().Be(expected.ToString());
+            JsonConvert.SerializeObject(DocumentUri.Parse(uri), serializer).Trim('"').Should().Be(expected);
         }
     }
 }

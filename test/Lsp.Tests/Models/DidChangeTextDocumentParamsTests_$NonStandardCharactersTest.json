@@ -1,7 +1,7 @@
 ﻿{
     "textDocument": {
         "version": 0,
-        "uri": "file:///C:/abc/M%C3%B6rk%C3%B6.cs"
+        "uri": "file:///c:/abc/M%C3%B6rk%C3%B6.cs"
     },
     "contentChanges": [
         {
