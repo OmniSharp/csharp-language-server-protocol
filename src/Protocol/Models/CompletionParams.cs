@@ -1,14 +1,11 @@
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.Completion)]
-    public class CompletionParams : WorkDoneTextDocumentPositionParams, IRequest<CompletionList>, IPartialItems<CompletionItem>
+    [Method(TextDocumentNames.Completion, Direction.ClientToServer)]
+    public class CompletionParams : WorkDoneTextDocumentPositionParams, IPartialItemsRequest<CompletionList, CompletionItem>
     {
         /// <summary>
         /// The completion context. This is only available it the client specifies to send

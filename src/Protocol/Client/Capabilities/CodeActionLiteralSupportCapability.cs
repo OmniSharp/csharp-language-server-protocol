@@ -2,7 +2,6 @@
 {
     public class CodeActionLiteralSupportCapability
     {
-
         /// <summary>
         /// The code action kind is support with the following value
         /// set.

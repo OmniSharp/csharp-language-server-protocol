@@ -1,24 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
-using System.Reactive.Disposables;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
     public class TestLanguageServerRegistry : IJsonRpcHandlerRegistry
     {
@@ -90,7 +83,7 @@ namespace Lsp.Tests
             registry.Populate(collection, ServiceProvider);
 
             var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -110,7 +103,7 @@ namespace Lsp.Tests
             registry.Populate(collection, ServiceProvider);
 
             var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -129,7 +122,7 @@ namespace Lsp.Tests
             registry.Populate(collection, ServiceProvider);
 
             var notification = new Notification("$/my/something/awesome", "123123123123");
-            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None, CancellationToken.None);
 
             method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -148,7 +141,7 @@ namespace Lsp.Tests
             registry.Populate(collection, ServiceProvider);
 
             var notification = new Notification("$/my/something/awesome", null);
-            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None, CancellationToken.None);
 
             method.Received(1).Invoke();
         }

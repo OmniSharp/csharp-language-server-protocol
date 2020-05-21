@@ -10,8 +10,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    [Method(DocumentNames.CallHierarchyIncoming)]
-    public class CallHierarchyIncomingCallsParams : IWorkDoneProgressParams, IPartialItems<CallHierarchyItem>, IRequest<Container<CallHierarchyIncomingCall>>
+    [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
+    public class CallHierarchyIncomingCallsParams : IWorkDoneProgressParams, IPartialItemsRequest<CallHierarchyIncomingCall>
     {
         public CallHierarchyItem Item { get; set; }
         public ProgressToken WorkDoneToken { get; set; }

@@ -4,8 +4,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.DocumentColor)]
-    public class DocumentColorParams : IRequest<Container<ColorPresentation>>, IWorkDoneProgressParams, IPartialItems<ColorPresentation>
+    [Method(TextDocumentNames.DocumentColor, Direction.ClientToServer)]
+    public class DocumentColorParams : IPartialItemsRequest<ColorPresentation>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The text document.

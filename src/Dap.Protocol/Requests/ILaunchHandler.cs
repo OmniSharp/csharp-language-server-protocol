@@ -1,35 +1,39 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Launch)]
-    public interface ILaunchHandler : IJsonRpcRequestHandler<LaunchRequestArguments, LaunchResponse> { }
+    [Parallel, Method(RequestNames.Launch, Direction.ClientToServer)]
+    public interface ILaunchHandler : IJsonRpcRequestHandler<LaunchRequestArguments, LaunchResponse>
+    {
+    }
 
     public abstract class LaunchHandler : ILaunchHandler
     {
-        public abstract Task<LaunchResponse> Handle(LaunchRequestArguments request, CancellationToken cancellationToken);
+        public abstract Task<LaunchResponse>
+            Handle(LaunchRequestArguments request, CancellationToken cancellationToken);
     }
 
-    public static class LaunchHandlerExtensions
+    public static class LaunchExtensions
     {
-        public static IDisposable OnLaunch(this IDebugAdapterRegistry registry, Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>> handler)
+        public static IDisposable OnLaunch(this IDebugAdapterServerRegistry registry,
+            Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Launch, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : LaunchHandler
+        public static IDisposable OnLaunch(this IDebugAdapterServerRegistry registry,
+            Func<LaunchRequestArguments, Task<LaunchResponse>> handler)
         {
-            private readonly Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>> _handler;
+            return registry.AddHandler(RequestNames.Launch, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<LaunchResponse> Handle(LaunchRequestArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<LaunchResponse> RequestLaunch(this IDebugAdapterClient mediator, LaunchRequestArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

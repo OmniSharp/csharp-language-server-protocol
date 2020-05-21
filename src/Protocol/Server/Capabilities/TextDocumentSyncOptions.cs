@@ -1,8 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -45,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
             {
                 change = options
                         .Where(x => x.Change != TextDocumentSyncKind.None)
-                        .Min(z => z.Change);
+                        .Min<ITextDocumentSyncOptions, TextDocumentSyncKind>(z => z.Change);
             }
             return new TextDocumentSyncOptions()
             {

@@ -4,8 +4,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.Implementation)]
-    public class ImplementationParams : WorkDoneTextDocumentPositionParams, IRequest<LocationOrLocationLinks>, IPartialItems<LocationOrLocationLink>
+    [Method(TextDocumentNames.Implementation, Direction.ClientToServer)]
+    public class ImplementationParams : WorkDoneTextDocumentPositionParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>
     {
         /// <inheritdoc />
         [Optional]

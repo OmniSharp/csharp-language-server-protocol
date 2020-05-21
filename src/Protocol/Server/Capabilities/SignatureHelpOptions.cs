@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;

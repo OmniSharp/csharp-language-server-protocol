@@ -5,7 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
@@ -22,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
         public bool ShutdownRequested { get; private set; }
         public Task WasShutDown => Shutdown.ToTask();
 
-        public async Task<Unit> Handle(EmptyRequest request, CancellationToken token)
+        public async Task<Unit> Handle(ShutdownParams request, CancellationToken token)
         {
             await Task.Yield(); // Ensure shutdown handler runs asynchronously.
 

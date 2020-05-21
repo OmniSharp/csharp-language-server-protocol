@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     return new ServerResponse(requestSequence, bodyValue);
                 }
-                return new ServerError(requestSequence, bodyValue);
+                return new ServerError(requestSequence, bodyValue.ToObject<ServerErrorResult>());
             }
 
             throw new NotSupportedException($"Message type {messageType} is not supported");

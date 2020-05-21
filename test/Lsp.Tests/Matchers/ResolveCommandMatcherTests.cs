@@ -8,13 +8,14 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
+using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -59,8 +60,8 @@ namespace Lsp.Tests.Matchers
         {
             // Given
             var resolveHandler = Substitute.For<ICodeLensHandler>();
-            var handlerDescriptor = new HandlerDescriptor(
-                        DocumentNames.CodeLens,
+            var handlerDescriptor = new LspHandlerDescriptor(
+                        TextDocumentNames.CodeLens,
                         "Key",
                         resolveHandler,
                         resolveHandler.GetType(),
@@ -94,8 +95,8 @@ namespace Lsp.Tests.Matchers
             {
                 Data = JToken.FromObject(new { handlerType = typeof(ICodeLensResolveHandler).FullName, data = new { a = 1 } })
             },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CodeLensResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CodeLensResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -105,7 +106,7 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { }),
-                        new HandlerDescriptor(DocumentNames.CodeLensResolve,
+                        new LspHandlerDescriptor(TextDocumentNames.CodeLensResolve,
                             "Key2",
                             resolveHandler2,
                             typeof(ICodeLensResolveHandler),
@@ -133,8 +134,8 @@ namespace Lsp.Tests.Matchers
 
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem() { },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -165,8 +166,8 @@ namespace Lsp.Tests.Matchers
             {
                 Data = new Uri("file:///c%3A/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs")
             },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -199,8 +200,8 @@ namespace Lsp.Tests.Matchers
             {
                 Data = JToken.FromObject(new { handlerType = typeof(ICompletionResolveHandler).FullName, data = new { a = 1 } })
             },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -210,7 +211,7 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { }),
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2,
                             typeof(ICompletionResolveHandler),
@@ -251,8 +252,8 @@ namespace Lsp.Tests.Matchers
             {
                 Data = new JObject()
             },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -262,7 +263,7 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { }),
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2 as IJsonRpcHandler,
                             typeof(ICompletionResolveHandler),
@@ -298,8 +299,8 @@ namespace Lsp.Tests.Matchers
             {
                 Data = new JObject()
             },
-                    new List<HandlerDescriptor> {
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                    new List<LspHandlerDescriptor> {
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key",
                             resolveHandler,
                             resolveHandler.GetType(),
@@ -309,7 +310,7 @@ namespace Lsp.Tests.Matchers
                             false,
                             null,
                             () => { }),
-                        new HandlerDescriptor(DocumentNames.CompletionResolve,
+                        new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2 as IJsonRpcHandler,
                             typeof(ICompletionResolveHandler),
@@ -336,8 +337,8 @@ namespace Lsp.Tests.Matchers
                 typeof(ICompletionResolveHandler)
             }, new object[0]);
             (resolveHandler as ICompletionResolveHandler).CanResolve(Arg.Any<CompletionItem>()).Returns(true);
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.Completion,
+            var descriptor = new LspHandlerDescriptor(
+                            TextDocumentNames.Completion,
                             "Key",
                             resolveHandler as IJsonRpcHandler,
                             resolveHandler.GetType(),
@@ -380,8 +381,8 @@ namespace Lsp.Tests.Matchers
                 typeof(ICodeLensResolveHandler)
             }, new object[0]);
             (resolveHandler as ICodeLensResolveHandler).CanResolve(Arg.Any<CodeLens>()).Returns(true);
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.CodeLens,
+            var descriptor = new LspHandlerDescriptor(
+                            TextDocumentNames.CodeLens,
                             "Key",
                             resolveHandler as IJsonRpcHandler,
                             resolveHandler.GetType(),
@@ -424,8 +425,8 @@ namespace Lsp.Tests.Matchers
                 typeof(ICodeLensResolveHandler)
             }, new object[0]);
             (resolveHandler as ICodeLensResolveHandler).CanResolve(Arg.Any<CodeLens>()).Returns(true);
-            var descriptor = new HandlerDescriptor(
-                            DocumentNames.CodeLensResolve,
+            var descriptor = new LspHandlerDescriptor(
+                            TextDocumentNames.CodeLensResolve,
                             "Key",
                             resolveHandler as IJsonRpcHandler,
                             resolveHandler.GetType(),

@@ -1,8 +1,10 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
+[Method(EventNames.Stopped, Direction.ServerToClient)]
     public class StoppedEvent : IRequest
     {
         /// <summary>

@@ -7,7 +7,7 @@ using System.Threading;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     using Logging;
 

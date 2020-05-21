@@ -5,7 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
 {
@@ -24,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Handlers
         public IObservable<int> Exit { get; }
 
 
-        public async Task<Unit> Handle(EmptyRequest request, CancellationToken token)
+        public async Task<Unit> Handle(ExitParams request, CancellationToken token)
         {
             await Task.Yield();
 

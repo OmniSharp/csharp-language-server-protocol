@@ -1,6 +1,4 @@
-using System;
 using FluentAssertions;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -24,7 +22,7 @@ namespace Lsp.Tests.Models
                     }
                 },
                 TextDocument = new VersionedTextDocumentIdentifier() {
-
+                    Uri = "/somepath/to/a/file.ext",
                 }
             };
             var result = Fixture.SerializeObject(model);
@@ -47,7 +45,7 @@ namespace Lsp.Tests.Models
                     }
                 },
                 TextDocument = new VersionedTextDocumentIdentifier() {
-                    Uri = DocumentUri.FromFileSystemPath("C:\\abc\\Mörkö.cs")
+                    Uri = DocumentUri.FromFileSystemPath("c:\\abc\\Mörkö.cs")
                 }
             };
             var result = Fixture.SerializeObject(model);

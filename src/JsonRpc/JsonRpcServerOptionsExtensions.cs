@@ -1,8 +1,11 @@
 using System;
 using System.IO;
+using System.IO.Pipelines;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nerdbank.Streams;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -10,13 +13,31 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public static JsonRpcServerOptions WithInput(this JsonRpcServerOptions options, Stream input)
         {
+            options.Input = input.UsePipeReader();
+            return options;
+        }
+        public static JsonRpcServerOptions WithInput(this JsonRpcServerOptions options, PipeReader input)
+        {
             options.Input = input;
             return options;
         }
 
         public static JsonRpcServerOptions WithOutput(this JsonRpcServerOptions options, Stream output)
         {
+            options.Output = output.UsePipeWriter();
+            return options;
+        }
+
+        public static JsonRpcServerOptions WithOutput(this JsonRpcServerOptions options, PipeWriter output)
+        {
             options.Output = output;
+            return options;
+        }
+
+        public static JsonRpcServerOptions WithPipe(this JsonRpcServerOptions options, Pipe pipe)
+        {
+            options.Input = pipe.Reader;
+            options.Output = pipe.Writer;
             return options;
         }
 
@@ -38,7 +59,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return options;
         }
 
-        public static JsonRpcServerOptions WithReciever(this JsonRpcServerOptions options, IReceiver receiver)
+        public static JsonRpcServerOptions WithReceiver(this JsonRpcServerOptions options, IReceiver receiver)
         {
             options.Receiver = receiver;
             return options;
@@ -79,6 +100,18 @@ namespace OmniSharp.Extensions.JsonRpc
         public static JsonRpcServerOptions WithServices(this JsonRpcServerOptions options, Action<IServiceCollection> servicesAction)
         {
             servicesAction(options.Services);
+            return options;
+        }
+
+        public static JsonRpcServerOptions WithErrorHandler(this JsonRpcServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
+        {
+            options.OnServerError = handler;
+            return options;
+        }
+
+        public static JsonRpcServerOptions WithContentModifiedSupport(this JsonRpcServerOptions options, bool supportsContentModified)
+        {
+            options.SupportsContentModified = supportsContentModified;
             return options;
         }
     }

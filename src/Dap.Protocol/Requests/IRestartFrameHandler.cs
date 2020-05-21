@@ -1,35 +1,39 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.RestartFrame)]
-    public interface IRestartFrameHandler : IJsonRpcRequestHandler<RestartFrameArguments, RestartFrameResponse> { }
+    [Parallel, Method(RequestNames.RestartFrame, Direction.ClientToServer)]
+    public interface IRestartFrameHandler : IJsonRpcRequestHandler<RestartFrameArguments, RestartFrameResponse>
+    {
+    }
 
     public abstract class RestartFrameHandler : IRestartFrameHandler
     {
-        public abstract Task<RestartFrameResponse> Handle(RestartFrameArguments request, CancellationToken cancellationToken);
+        public abstract Task<RestartFrameResponse> Handle(RestartFrameArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class RestartFrameHandlerExtensions
+    public static class RestartFrameExtensions
     {
-        public static IDisposable OnRestartFrame(this IDebugAdapterRegistry registry, Func<RestartFrameArguments, CancellationToken, Task<RestartFrameResponse>> handler)
+        public static IDisposable OnRestartFrame(this IDebugAdapterServerRegistry registry,
+            Func<RestartFrameArguments, CancellationToken, Task<RestartFrameResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.RestartFrame, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : RestartFrameHandler
+        public static IDisposable OnRestartFrame(this IDebugAdapterServerRegistry registry,
+            Func<RestartFrameArguments, Task<RestartFrameResponse>> handler)
         {
-            private readonly Func<RestartFrameArguments, CancellationToken, Task<RestartFrameResponse>> _handler;
+            return registry.AddHandler(RequestNames.RestartFrame, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<RestartFrameArguments, CancellationToken, Task<RestartFrameResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<RestartFrameResponse> Handle(RestartFrameArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<RestartFrameResponse> RequestRestartFrame(this IDebugAdapterClient mediator, RestartFrameArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

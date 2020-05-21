@@ -7,7 +7,8 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
@@ -39,9 +40,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             }
 
             var response = await next();
+            cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (_descriptor is HandlerDescriptor handlerDescriptor &&
+            if (_descriptor is LspHandlerDescriptor handlerDescriptor &&
                 response is IEnumerable<ICanBeResolved> canBeResolveds &&
                 _descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(_descriptor.ImplementationType) == true)
             {

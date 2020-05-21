@@ -1,35 +1,38 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Source)]
-    public interface ISourceHandler : IJsonRpcRequestHandler<SourceArguments, SourceResponse> { }
+    [Parallel, Method(RequestNames.Source, Direction.ClientToServer)]
+    public interface ISourceHandler : IJsonRpcRequestHandler<SourceArguments, SourceResponse>
+    {
+    }
 
     public abstract class SourceHandler : ISourceHandler
     {
         public abstract Task<SourceResponse> Handle(SourceArguments request, CancellationToken cancellationToken);
     }
 
-    public static class SourceHandlerExtensions
+    public static class SourceExtensions
     {
-        public static IDisposable OnSource(this IDebugAdapterRegistry registry, Func<SourceArguments, CancellationToken, Task<SourceResponse>> handler)
+        public static IDisposable OnSource(this IDebugAdapterServerRegistry registry,
+            Func<SourceArguments, CancellationToken, Task<SourceResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Source, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : SourceHandler
+        public static IDisposable OnSource(this IDebugAdapterServerRegistry registry,
+            Func<SourceArguments, Task<SourceResponse>> handler)
         {
-            private readonly Func<SourceArguments, CancellationToken, Task<SourceResponse>> _handler;
+            return registry.AddHandler(RequestNames.Source, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<SourceArguments, CancellationToken, Task<SourceResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<SourceResponse> Handle(SourceArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<SourceResponse> RequestSource(this IDebugAdapterClient mediator, SourceArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

@@ -1,17 +1,45 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
+
+    [Parallel, Method(EventNames.Exited, Direction.ServerToClient)]
+    public interface IExitedHandler : IJsonRpcNotificationHandler<ExitedEvent> { }
+
+    public abstract class ExitedHandler : IExitedHandler
+    {
+        public abstract Task<Unit> Handle(ExitedEvent request, CancellationToken cancellationToken);
+    }
+
     public static class ExitedExtensions
     {
-        public static void SendExited(this IDebugClient mediator, ExitedEvent @event)
+        public static IDisposable OnExited(this IDebugAdapterClientRegistry registry, Action<ExitedEvent> handler)
         {
-            mediator.SendNotification(EventNames.Exited, @event);
+            return registry.AddHandler(EventNames.Exited, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnExited(this IDebugAdapterClientRegistry registry, Action<ExitedEvent, CancellationToken> handler)
+        {
+            return registry.AddHandler(EventNames.Exited, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnExited(this IDebugAdapterClientRegistry registry, Func<ExitedEvent, Task> handler)
+        {
+            return registry.AddHandler(EventNames.Exited, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnExited(this IDebugAdapterClientRegistry registry, Func<ExitedEvent, CancellationToken, Task> handler)
+        {
+            return registry.AddHandler(EventNames.Exited, NotificationHandler.For(handler));
+        }
+
+        public static void SendExited(this IDebugAdapterServer mediator, ExitedEvent @params)
+        {
+            mediator.SendNotification(@params);
         }
     }
 }

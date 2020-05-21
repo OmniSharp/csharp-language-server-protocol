@@ -1,32 +1,26 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.LanguageServer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
-using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Server.Messages;
+using OmniSharp.Extensions.LanguageServer.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests
@@ -57,7 +51,7 @@ namespace Lsp.Tests
                     return new CommandOrCodeActionContainer();
                 });
 
-            var collection = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler };
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
@@ -75,12 +69,12 @@ namespace Lsp.Tests
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(request, CancellationToken.None);
+            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest( mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
             mediator.CancelRequest(id);
             var result = await response;
 
             result.IsError.Should().BeTrue();
-            result.Error.Should().BeEquivalentTo(new RequestCancelled());
+            result.Error.Should().BeEquivalentTo(new RequestCancelled(id));
         }
     }
 }

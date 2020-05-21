@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(GeneralNames.Progress)]
+    [Method(GeneralNames.Progress, Direction.Bidirectional)]
     public class ProgressParams : IRequest
     {
         public static ProgressParams Create<T>(ProgressToken token, T value, JsonSerializer jsonSerializer)

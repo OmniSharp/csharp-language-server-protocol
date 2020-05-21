@@ -66,10 +66,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new ServerResponse(requestId, response);
             }
 
-            if (hasRequestId && request.TryGetValue("error", out var errorResponse))
+            if (request.TryGetValue("error", out var errorResponse))
             {
                 // TODO: this doesn't seem right.
-                return new ServerError(requestId, errorResponse);
+                return new ServerError(requestId, errorResponse.ToObject<ServerErrorResult>());
             }
 
             var method = request["method"]?.Value<string>();

@@ -1,7 +1,9 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.ExceptionInfo, Direction.ClientToServer)]
     public class ExceptionInfoArguments : IRequest<ExceptionInfoResponse>
     {
         /// <summary>
@@ -9,5 +11,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public long ThreadId { get; set; }
     }
-
 }

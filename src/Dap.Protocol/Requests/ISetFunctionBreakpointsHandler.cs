@@ -1,35 +1,41 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.SetFunctionBreakpoints)]
-    public interface ISetFunctionBreakpointsHandler : IJsonRpcRequestHandler<SetFunctionBreakpointsArguments, SetFunctionBreakpointsResponse> { }
+    [Parallel, Method(RequestNames.SetFunctionBreakpoints, Direction.ClientToServer)]
+    public interface
+        ISetFunctionBreakpointsHandler : IJsonRpcRequestHandler<SetFunctionBreakpointsArguments,
+            SetFunctionBreakpointsResponse>
+    {
+    }
 
     public abstract class SetFunctionBreakpointsHandler : ISetFunctionBreakpointsHandler
     {
-        public abstract Task<SetFunctionBreakpointsResponse> Handle(SetFunctionBreakpointsArguments request, CancellationToken cancellationToken);
+        public abstract Task<SetFunctionBreakpointsResponse> Handle(SetFunctionBreakpointsArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class SetFunctionBreakpointsHandlerExtensions
+    public static class SetFunctionBreakpointsExtensions
     {
-        public static IDisposable OnSetFunctionBreakpoints(this IDebugAdapterRegistry registry, Func<SetFunctionBreakpointsArguments, CancellationToken, Task<SetFunctionBreakpointsResponse>> handler)
+        public static IDisposable OnSetFunctionBreakpoints(this IDebugAdapterServerRegistry registry,
+            Func<SetFunctionBreakpointsArguments, CancellationToken, Task<SetFunctionBreakpointsResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.SetFunctionBreakpoints, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : SetFunctionBreakpointsHandler
+        public static IDisposable OnSetFunctionBreakpoints(this IDebugAdapterServerRegistry registry,
+            Func<SetFunctionBreakpointsArguments, Task<SetFunctionBreakpointsResponse>> handler)
         {
-            private readonly Func<SetFunctionBreakpointsArguments, CancellationToken, Task<SetFunctionBreakpointsResponse>> _handler;
+            return registry.AddHandler(RequestNames.SetFunctionBreakpoints, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<SetFunctionBreakpointsArguments, CancellationToken, Task<SetFunctionBreakpointsResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<SetFunctionBreakpointsResponse> Handle(SetFunctionBreakpointsArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<SetFunctionBreakpointsResponse> RequestSetFunctionBreakpoints(this IDebugAdapterClient mediator, SetFunctionBreakpointsArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

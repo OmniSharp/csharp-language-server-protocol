@@ -1,11 +1,9 @@
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.DidChange)]
+    [Method(TextDocumentNames.DidChange, Direction.ClientToServer)]
     public class DidChangeTextDocumentParams : IRequest
     {
         /// <summary>

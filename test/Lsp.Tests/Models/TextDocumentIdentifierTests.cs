@@ -1,6 +1,5 @@
 using System;
 using FluentAssertions;
-using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -31,7 +30,7 @@ namespace Lsp.Tests.Models
                 ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""
             }");
 
-            result.Uri.Should().Be(new DocumentUri("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1"));
+            result.Uri.Should().Be(DocumentUri.Parse("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1"));
         }
     }
 }

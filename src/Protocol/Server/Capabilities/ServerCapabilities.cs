@@ -1,13 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {

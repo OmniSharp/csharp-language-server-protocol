@@ -1,8 +1,10 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.StepIn, Direction.ClientToServer)]
     public class StepInArguments : IRequest<StepInResponse>
     {
         /// <summary>

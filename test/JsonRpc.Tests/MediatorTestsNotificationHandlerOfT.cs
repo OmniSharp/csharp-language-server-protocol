@@ -1,12 +1,10 @@
 using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
@@ -46,7 +44,7 @@ namespace JsonRpc.Tests
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await router.RouteNotification(router.GetDescriptor(notification), notification, CancellationToken.None);
+            await router.RouteNotification(router.GetDescriptor(notification), notification, CancellationToken.None, CancellationToken.None);
 
             await cancelRequestHandler.Received(1).Handle(Arg.Any<CancelParams>(), Arg.Any<CancellationToken>());
         }

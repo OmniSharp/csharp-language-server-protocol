@@ -1,14 +1,29 @@
+using System;
 using System.Collections.Generic;
 using Minimatch;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentFilter
+    public class DocumentFilter : IEquatable<DocumentFilter>
     {
+        public static DocumentFilter ForPattern(string wildcard)
+        {
+            return new DocumentFilter() { Pattern = wildcard };
+        }
+
+        public static DocumentFilter ForLanguage(string language)
+        {
+            return new DocumentFilter() { Language = language };
+        }
+
+        public static DocumentFilter ForScheme(string scheme)
+        {
+            return new DocumentFilter() { Scheme = scheme };
+        }
+
         /// <summary>
         /// A language id, like `typescript`.
         /// </summary>
@@ -107,20 +122,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
             return false;
         }
-
-        public static DocumentFilter ForPattern(string wildcard)
+        public bool Equals(DocumentFilter other)
         {
-            return new DocumentFilter() { Pattern = wildcard };
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return _pattern == other._pattern && Language == other.Language && Scheme == other.Scheme;
         }
 
-        public static DocumentFilter ForLanguage(string language)
+        public override bool Equals(object obj)
         {
-            return new DocumentFilter() { Language = language };
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((DocumentFilter) obj);
         }
 
-        public static DocumentFilter ForScheme(string scheme)
+        public override int GetHashCode()
         {
-            return new DocumentFilter() { Scheme = scheme };
+            unchecked
+            {
+                var hashCode = (_pattern != null ? _pattern.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Language != null ? Language.GetHashCode() : 0);
+                hashCode = (hashCode * 397) ^ (Scheme != null ? Scheme.GetHashCode() : 0);
+                return hashCode;
+            }
         }
+
+        public static bool operator ==(DocumentFilter left, DocumentFilter right) => Equals(left, right);
+
+        public static bool operator !=(DocumentFilter left, DocumentFilter right) => !Equals(left, right);
     }
 }

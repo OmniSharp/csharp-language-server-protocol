@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals

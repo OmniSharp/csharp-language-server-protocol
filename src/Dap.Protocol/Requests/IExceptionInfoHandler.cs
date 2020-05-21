@@ -1,36 +1,39 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.ExceptionInfo)]
-    public interface IExceptionInfoHandler : IJsonRpcRequestHandler<ExceptionInfoArguments, ExceptionInfoResponse> { }
+    [Parallel, Method(RequestNames.ExceptionInfo, Direction.ClientToServer)]
+    public interface IExceptionInfoHandler : IJsonRpcRequestHandler<ExceptionInfoArguments, ExceptionInfoResponse>
+    {
+    }
 
     public abstract class ExceptionInfoHandler : IExceptionInfoHandler
     {
-        public abstract Task<ExceptionInfoResponse> Handle(ExceptionInfoArguments request, CancellationToken cancellationToken);
+        public abstract Task<ExceptionInfoResponse> Handle(ExceptionInfoArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class ExceptionInfoHandlerExtensions
+    public static class ExceptionInfoExtensions
     {
-        public static IDisposable OnExceptionInfo(this IDebugAdapterRegistry registry, Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> handler)
+        public static IDisposable OnExceptionInfo(this IDebugAdapterServerRegistry registry,
+            Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ExceptionInfoHandler
+        public static IDisposable OnExceptionInfo(this IDebugAdapterServerRegistry registry,
+            Func<ExceptionInfoArguments, Task<ExceptionInfoResponse>> handler)
         {
-            private readonly Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> _handler;
+            return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ExceptionInfoResponse> Handle(ExceptionInfoArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ExceptionInfoResponse> RequestExceptionInfo(this IDebugAdapterClient mediator, ExceptionInfoArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
-
 }

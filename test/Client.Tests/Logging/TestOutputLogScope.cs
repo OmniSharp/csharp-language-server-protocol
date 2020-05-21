@@ -1,7 +1,7 @@
 using System;
 using System.Threading;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>
     ///     Log scope for <see cref="TestOutputLogger"/>.

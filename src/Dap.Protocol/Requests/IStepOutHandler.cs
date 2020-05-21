@@ -1,35 +1,38 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.StepOut)]
-    public interface IStepOutHandler : IJsonRpcRequestHandler<StepOutArguments, StepOutResponse> { }
+    [Parallel, Method(RequestNames.StepOut, Direction.ClientToServer)]
+    public interface IStepOutHandler : IJsonRpcRequestHandler<StepOutArguments, StepOutResponse>
+    {
+    }
 
     public abstract class StepOutHandler : IStepOutHandler
     {
         public abstract Task<StepOutResponse> Handle(StepOutArguments request, CancellationToken cancellationToken);
     }
 
-    public static class StepOutHandlerExtensions
+    public static class StepOutExtensions
     {
-        public static IDisposable OnStepOut(this IDebugAdapterRegistry registry, Func<StepOutArguments, CancellationToken, Task<StepOutResponse>> handler)
+        public static IDisposable OnStepOut(this IDebugAdapterServerRegistry registry,
+            Func<StepOutArguments, CancellationToken, Task<StepOutResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.StepOut, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : StepOutHandler
+        public static IDisposable OnStepOut(this IDebugAdapterServerRegistry registry,
+            Func<StepOutArguments, Task<StepOutResponse>> handler)
         {
-            private readonly Func<StepOutArguments, CancellationToken, Task<StepOutResponse>> _handler;
+            return registry.AddHandler(RequestNames.StepOut, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<StepOutArguments, CancellationToken, Task<StepOutResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<StepOutResponse> Handle(StepOutArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<StepOutResponse> RequestStepOut(this IDebugAdapterClient mediator, StepOutArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

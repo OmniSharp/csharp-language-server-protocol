@@ -11,6 +11,7 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
+        <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>
     <ItemGroup>

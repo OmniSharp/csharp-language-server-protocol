@@ -8,18 +8,20 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
     class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler,
-        IOnStarted, ILanguageServerConfiguration
+        IOnServerStarted, ILanguageServerConfiguration
     {
         private readonly ILanguageServer _server;
         private DidChangeConfigurationCapability _capability;
@@ -56,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void SetCapability(DidChangeConfigurationCapability capability) => _capability = capability;
 
-        Task IOnStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
+        Task IOnServerStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
 
         private async Task GetWorkspaceConfiguration()
         {
@@ -64,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (configurationItems.Length == 0) return;
 
             {
-                var configurations = (await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                     Items = configurationItems
                 })).ToArray();
 
@@ -83,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                         _openScopes.Keys.Select(scopeUri => new ConfigurationItem() { ScopeUri = scopeUri, Section = scope.Section })
                     ).ToArray();
 
-                var configurations = (await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                     Items = scopedConfigurationItems
                 })).ToArray();
 
@@ -118,7 +120,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return new ConfigurationBuilder().AddInMemoryCollection(_configuration.AsEnumerable()).Build();
             }
 
-            var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                 Items = items
             });
             var data = items.Zip(configurations,
@@ -139,7 +141,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
-            var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                 Items = scopes.Select(z => new ConfigurationItem() { Section = z.Section, ScopeUri = scopeUri }).ToArray()
             });
 

@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     [DebuggerDisplay("{_value}")]
     [JsonConverter(typeof(EnumLikeStringConverter))]
-    public struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
+    public readonly struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
     {
         /// <summary>
         /// Base kind for quickfix actions: ''

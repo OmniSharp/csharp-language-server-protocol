@@ -5,8 +5,8 @@ using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {

@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using ServerRequest = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace OmniSharp.Extensions.JsonRpc.Client

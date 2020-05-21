@@ -1,9 +1,11 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.Source, Direction.ClientToServer)]
     public class SourceArguments : IRequest<SourceResponse>
     {
         /// <summary>

@@ -1,18 +1,14 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using Castle.Core.Logging;
 using FluentAssertions;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
-using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
+using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -65,8 +61,8 @@ namespace Lsp.Tests.Matchers
 
             // When
             var result = handlerMatcher.FindHandler(new ExecuteCommandParams { Command = "Command" },
-                new List<HandlerDescriptor> {
-                    new HandlerDescriptor("workspace/executeCommand",
+                new List<LspHandlerDescriptor> {
+                    new LspHandlerDescriptor("workspace/executeCommand",
                         "Key",
                         executeCommandHandler,
                         executeCommandHandler.GetType(),

@@ -1,35 +1,40 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.TerminateThreads)]
-    public interface ITerminateThreadsHandler : IJsonRpcRequestHandler<TerminateThreadsArguments, TerminateThreadsResponse> { }
+    [Parallel, Method(RequestNames.TerminateThreads, Direction.ClientToServer)]
+    public interface
+        ITerminateThreadsHandler : IJsonRpcRequestHandler<TerminateThreadsArguments, TerminateThreadsResponse>
+    {
+    }
 
     public abstract class TerminateThreadsHandler : ITerminateThreadsHandler
     {
-        public abstract Task<TerminateThreadsResponse> Handle(TerminateThreadsArguments request, CancellationToken cancellationToken);
+        public abstract Task<TerminateThreadsResponse> Handle(TerminateThreadsArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class TerminateThreadsHandlerExtensions
+    public static class TerminateThreadsExtensions
     {
-        public static IDisposable OnTerminateThreads(this IDebugAdapterRegistry registry, Func<TerminateThreadsArguments, CancellationToken, Task<TerminateThreadsResponse>> handler)
+        public static IDisposable OnTerminateThreads(this IDebugAdapterServerRegistry registry,
+            Func<TerminateThreadsArguments, CancellationToken, Task<TerminateThreadsResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.TerminateThreads, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : TerminateThreadsHandler
+        public static IDisposable OnTerminateThreads(this IDebugAdapterServerRegistry registry,
+            Func<TerminateThreadsArguments, Task<TerminateThreadsResponse>> handler)
         {
-            private readonly Func<TerminateThreadsArguments, CancellationToken, Task<TerminateThreadsResponse>> _handler;
+            return registry.AddHandler(RequestNames.TerminateThreads, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<TerminateThreadsArguments, CancellationToken, Task<TerminateThreadsResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<TerminateThreadsResponse> Handle(TerminateThreadsArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<TerminateThreadsResponse> RequestTerminateThreads(this IDebugAdapterClient mediator, TerminateThreadsArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

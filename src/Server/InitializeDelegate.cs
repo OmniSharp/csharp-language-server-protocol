@@ -1,14 +1,17 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using DynamicData;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public delegate Task InitializeDelegate(ILanguageServer server, InitializeParams request, CancellationToken cancellationToken);
-    public delegate Task StartedDelegate(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken);
 
-    public interface IOnStarted
+    public interface IWorkspaceFolders
     {
-        Task OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken);
+        IObservable<WorkspaceFolder> Refresh();
+        IObservableList<WorkspaceFolder> WorkspaceFolders { get; }
     }
 }

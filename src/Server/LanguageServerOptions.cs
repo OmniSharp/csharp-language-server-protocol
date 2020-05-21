@@ -1,32 +1,35 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
+using System.IO.Pipelines;
 using System.Reactive.Disposables;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public class LanguageServerOptions : ILanguageServerRegistry
+    public class LanguageServerOptions : ILanguageServerRegistry, IJsonRpcServerOptions
     {
         public LanguageServerOptions()
         {
         }
 
-        public ProgressManager ProgressManager { get; } = new ProgressManager();
-        public Stream Input { get; set; }
-        public Stream Output { get; set; }
+        public PipeReader Input { get; set; }
+        public PipeWriter Output { get; set; }
         public ServerInfo ServerInfo { get; set; }
-        public ISerializer Serializer { get; set; } = Protocol.Serialization.Serializer.Instance;
+        public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
         public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
-        public ILspReceiver Receiver { get; set; } = new LspReceiver();
+        public ILspServerReceiver Receiver { get; set; } = new LspServerReceiver();
         public IServiceCollection Services { get; set; } = new ServiceCollection();
         internal List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         internal List<ITextDocumentIdentifier> TextDocumentIdentifiers { get; set; } = new List<ITextDocumentIdentifier>();
@@ -39,10 +42,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } = new Action<IConfigurationBuilder>(_ => { });
         internal bool AddDefaultLoggingProvider { get; set; }
         public int? Concurrency { get; set; }
+        public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
+        public bool SupportsContentModified { get; set; } = true;
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
-        internal readonly List<StartedDelegate> StartedDelegates = new List<StartedDelegate>();
+        internal readonly List<OnServerStartedDelegate> StartedDelegates = new List<OnServerStartedDelegate>();
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
@@ -65,6 +70,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable AddHandler<T>() where T : IJsonRpcHandler
         {
             HandlerTypes.Add(typeof(T));
+            return Disposable.Empty;
+        }
+
+        public IDisposable AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler
+        {
+            NamedServiceHandlers.Add((HandlerTypeDescriptorHelper.GetMethodName<T>(), _ => handlerFunc(_)));
             return Disposable.Empty;
         }
 

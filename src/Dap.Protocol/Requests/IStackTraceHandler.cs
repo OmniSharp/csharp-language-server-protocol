@@ -1,35 +1,39 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.StackTrace)]
-    public interface IStackTraceHandler : IJsonRpcRequestHandler<StackTraceArguments, StackTraceResponse> { }
+    [Parallel, Method(RequestNames.StackTrace, Direction.ClientToServer)]
+    public interface IStackTraceHandler : IJsonRpcRequestHandler<StackTraceArguments, StackTraceResponse>
+    {
+    }
 
     public abstract class StackTraceHandler : IStackTraceHandler
     {
-        public abstract Task<StackTraceResponse> Handle(StackTraceArguments request, CancellationToken cancellationToken);
+        public abstract Task<StackTraceResponse> Handle(StackTraceArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class StackTraceHandlerExtensions
+    public static class StackTraceExtensions
     {
-        public static IDisposable OnStackTrace(this IDebugAdapterRegistry registry, Func<StackTraceArguments, CancellationToken, Task<StackTraceResponse>> handler)
+        public static IDisposable OnStackTrace(this IDebugAdapterServerRegistry registry,
+            Func<StackTraceArguments, CancellationToken, Task<StackTraceResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.StackTrace, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : StackTraceHandler
+        public static IDisposable OnStackTrace(this IDebugAdapterServerRegistry registry,
+            Func<StackTraceArguments, Task<StackTraceResponse>> handler)
         {
-            private readonly Func<StackTraceArguments, CancellationToken, Task<StackTraceResponse>> _handler;
+            return registry.AddHandler(RequestNames.StackTrace, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<StackTraceArguments, CancellationToken, Task<StackTraceResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<StackTraceResponse> Handle(StackTraceArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<StackTraceResponse> RequestStackTrace(this IDebugAdapterClient mediator, StackTraceArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

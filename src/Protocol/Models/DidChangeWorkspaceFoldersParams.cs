@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(WorkspaceNames.WorkspaceFolders)]
+    [Method(WorkspaceNames.DidChangeWorkspaceFolders, Direction.ClientToServer)]
     public class DidChangeWorkspaceFoldersParams : IRequest
     {
         /// <summary>

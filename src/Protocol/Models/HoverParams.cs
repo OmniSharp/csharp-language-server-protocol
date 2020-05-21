@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.Hover)]
+    [Method(TextDocumentNames.Hover, Direction.ClientToServer)]
     public class HoverParams : WorkDoneTextDocumentPositionParams, IRequest<Hover>, IWorkDoneProgressParams
     {
     }

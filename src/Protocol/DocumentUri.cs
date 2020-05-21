@@ -1,137 +1,59 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
 using System.Runtime.Versioning;
 using System.Text.RegularExpressions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.IO.Path;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     /// <summary>
+    /// Uniform Resource Identifier (URI) http://tools.ietf.org/html/rfc3986.
+    /// This class is a simple parser which creates the basic component parts
+    /// (http://tools.ietf.org/html/rfc3986#section-3) with minimal validation
+    /// and encoding.
+    ///
+    /// ```txt
+    ///       foo://example.com:8042/over/there?name=ferret#nose
+    ///       \_/   \______________/\_________/ \_________/ \__/
+    ///        |           |            |            |        |
+    ///     scheme     authority       path        query   fragment
+    ///        |   _____________________|__
+    ///       / \ /                        \
+    ///       urn:example:animal:ferret:nose
+    /// ```
+    /// </summary>
+    /// <summary>
     /// This class describes a document uri as defined by https://microsoft.github.io/language-server-protocol/specifications/specification-current/#uri
     /// </summary>
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
-    public class DocumentUri : IEquatable<DocumentUri>
+    public partial class DocumentUri : IEquatable<DocumentUri>
     {
-        private static readonly Regex WindowsPath =
-            new Regex(@"^\w(?:\:|%3a)[\\|\/]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-        private readonly string _delimiter = SchemeDelimiter;
-
         /// <summary>
-        /// Create a new document uri
+        /// scheme is the "http' part of 'http://www.msft.com/some/path?query#fragment".
+        /// The part before the first colon.
         /// </summary>
-        /// <param name="url"></param>
-        public DocumentUri(string url)
-        {
-            var uncMatch = false;
-            var delimiterIndex = url.IndexOf(SchemeDelimiter, StringComparison.Ordinal);
-            if ((uncMatch = url.StartsWith(@"\\")) || (url.StartsWith("/")) || (WindowsPath.IsMatch(url)))
-            {
-                // Unc path
-                if (uncMatch)
-                {
-                    var authorityEndIndex = url.IndexOf('\\', 2);
-                    Authority = url.Substring(2, authorityEndIndex - 2);
-                    url = url.Substring(authorityEndIndex);
-                    // Path = Uri.UnescapeDataString(url);
-                }
-                else
-                {
-                    Authority = string.Empty;
-                }
-
-                url = url.Replace('\\', '/');
-
-                Scheme = UriSchemeFile;
-                Query = string.Empty;
-                Fragment = string.Empty;
-                Path = Uri.UnescapeDataString(url.StartsWith("/") ? url : "/" + url);
-                return;
-            }
-
-            int authorityIndex;
-            if (delimiterIndex == -1)
-            {
-                delimiterIndex = url.IndexOf(':');
-                authorityIndex = delimiterIndex + 1;
-                Authority = string.Empty;
-                _delimiter = ":";
-            }
-            else
-            {
-                var delimiterSize = SchemeDelimiter.Length;
-                authorityIndex = url.IndexOf('/', delimiterIndex + delimiterSize);
-                Authority = url.Substring(delimiterIndex + delimiterSize,
-                    authorityIndex - (delimiterIndex + delimiterSize));
-
-                // this is a possible windows path without the proper tripple slash
-                // file://c:/some/path.file.cs
-                // We need deal with this case.
-                if (Authority.IndexOf(':') > -1 || Authority.IndexOf("%3a", StringComparison.OrdinalIgnoreCase) > -1)
-                {
-                    Authority = string.Empty;
-                    authorityIndex = delimiterIndex + delimiterSize;
-                }
-            }
-
-            Scheme = url.Substring(0, delimiterIndex);
-
-            var fragmentIndex = url.IndexOf('#');
-            if (fragmentIndex > -1)
-            {
-                Fragment = Uri.UnescapeDataString(url.Substring(fragmentIndex + 1));
-            }
-            else
-            {
-                Fragment = string.Empty;
-                fragmentIndex = url.Length - 1;
-            }
-
-            var queryIndex = url.IndexOf('?');
-            if (queryIndex > -1)
-            {
-                Query = Uri.UnescapeDataString(url.Substring(queryIndex + 1, fragmentIndex - (queryIndex + 1)));
-            }
-            else
-            {
-                Query = string.Empty;
-                queryIndex = fragmentIndex;
-            }
-
-            Path = Uri.UnescapeDataString(url.Substring(authorityIndex, queryIndex - (authorityIndex) + 1));
-        }
-
-        /// <summary>
-        /// The path
-        /// </summary>
-        /// <remarks>This does not contain the leading / for unix file systems.</remarks>
-        public string Path { get; }
-
-        /// <summary>
-        /// The scheme of this uri
-        /// </summary>
-        /// <remarks>could be something other than http or https or file like custom uris the editor supports</remarks>
         public string Scheme { get; }
 
         /// <summary>
-        /// The authority of the uri
+        /// authority is the "www.msft.com' part of 'http://www.msft.com/some/path?query#fragment".
+        /// The part between the first double slashes and the next slash.
         /// </summary>
-        /// <remarks>generally is empty for language server protocol purposes</remarks>
         public string Authority { get; }
 
         /// <summary>
-        /// The query string of the uri
+        /// path is the "/some/path' part of 'http://www.msft.com/some/path?query#fragment".
         /// </summary>
-        /// <remarks>generally is empty for language server protocol purposes</remarks>
+        public string Path { get; }
+
+        /// <summary>
+        /// query is the "query' part of 'http://www.msft.com/some/path?query#fragment".
+        /// </summary>
         public string Query { get; }
 
         /// <summary>
-        /// The fragment of the uri
+        /// fragment is the "fragment' part of 'http://www.msft.com/some/path?query#fragment".
         /// </summary>
-        /// <remarks>generally is empty for language server protocol purposes</remarks>
         public string Fragment { get; }
 
         /// <summary>
@@ -141,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <remarks>This will produce a uri where asian and cyrillic characters will be encoded</remarks>
         public Uri ToUri()
         {
-            if (Authority.IndexOf(':') > -1)
+            if (Authority.IndexOf(":") > -1)
             {
                 var parts = Authority.Split(':');
                 var host = parts[0];
@@ -165,20 +87,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }.Uri;
         }
 
+        // ---- printing/externalize ---------------------------
+
         /// <summary>
-        /// Convert this uri to a proper uri string.
+        /// Creates a string representation for this URI. It's guaranteed that calling
+        /// `URI.parse` with the result of this function creates an URI which is equal
+        /// to this URI.
+        ///
+        /// * The result shall *not* be used for display purposes but for externalization or transport.
+        /// * The result will be encoded using the percentage encoding and encoding happens mostly
+        /// ignore the scheme-specific encoding rules.
+        ///
+        /// @param skipEncoding Do not encode the result, default is `false`
         /// </summary>
-        /// <returns></returns>
-        /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(_stringValue))
-            {
-                _stringValue =
-                    $"{Scheme}{_delimiter}{Authority}{Uri.EscapeUriString(Path)}{(string.IsNullOrWhiteSpace(Query) ? "" : "?" + Uri.EscapeDataString(Query))}{(string.IsNullOrWhiteSpace(Fragment) ? "" : "#" + Uri.EscapeDataString(Fragment))}";
-            }
+            return _asFormatted(this, false);
+        }
 
-            return _stringValue;
+        public string ToUnencodedString()
+        {
+            return _asFormatted(this, true);
         }
 
         /// <summary>
@@ -186,15 +115,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         /// <returns></returns>
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
-        public string GetFileSystemPath()
-        {
-            // The language server protocol represents "C:\Foo\Bar" as "file:///c:/foo/bar".
-            if (Path.IndexOf(':') == -1 && !(Scheme == UriSchemeFile && !string.IsNullOrWhiteSpace(Authority)))
-                return Path;
-            if (!string.IsNullOrWhiteSpace(Authority))
-                return $@"\\{Authority}{Path}".Replace('/', '\\');
-            return Path.TrimStart('/').Replace('/', '\\');
-        }
+        public string GetFileSystemPath() => UriToFsPath(this, false);
 
         /// <inheritdoc />
         public bool Equals(DocumentUri other)
@@ -239,6 +160,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
+        /// Deconstruct the document uri into it's different parts
+        /// </summary>
+        /// <param name="scheme"></param>
+        /// <param name="authority"></param>
+        /// <param name="path"></param>
+        /// <param name="query"></param>
+        /// <param name="fragment"></param>
+        /// <returns></returns>
+        public void Deconstruct(out string scheme, out string authority, out string path, out string query,
+            out string fragment)
+        {
+            scheme = Scheme;
+            authority = Authority;
+            path =  Path;
+            query = Query;
+            fragment = Fragment;
+        }
+
+        /// <summary>
         /// Check if two uris are equal
         /// </summary>
         /// <param name="left"></param>
@@ -255,7 +195,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static bool operator !=(DocumentUri left, DocumentUri right) => !Equals(left, right);
 
         /// <summary>
-        /// Convert this uri into a <see cref="String"/>.
+        /// Convert this uri into a <see cref="string"/>.
         /// </summary>
         /// <param name="uri"></param>
         /// <remarks>This is explicit because to string gives the schema string with file:// but if you want the file system you use <see cref="GetFileSystemPath()"/></remarks>
@@ -285,47 +225,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static implicit operator DocumentUri(Uri uri) => From(uri);
 
         /// <summary>
-        /// Create a new document uri based on the given url
-        /// </summary>
-        /// <param name="url"></param>
-        /// <returns></returns>
-        public static DocumentUri Parse(string url) => new DocumentUri(url);
-
-        /// <summary>
         /// Create a new document uri from the given <see cref="Uri"/>
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
         public static DocumentUri From(Uri uri)
         {
-            if (uri.OriginalString.IndexOf("%3A", StringComparison.OrdinalIgnoreCase) > -1)
-                return new DocumentUri(uri.OriginalString);
-            if (uri.Scheme == UriSchemeFile)
+            if (uri.OriginalString.IndexOf(EncodeTable[CharCode.Colon], StringComparison.OrdinalIgnoreCase) > -1)
+                return From(uri.OriginalString);
+            if (uri.Scheme == Uri.UriSchemeFile)
             {
-                return new DocumentUri(uri.LocalPath);
+                return From(uri.LocalPath);
             }
 
-            return new DocumentUri(uri.ToString());
+            return From(uri.ToString());
         }
 
         /// <summary>
         /// Create a new document uri from a string
         /// </summary>
-        /// <param name="uri"></param>
+        /// <param name="url"></param>
         /// <returns></returns>
-        public static DocumentUri From(string uri) => new DocumentUri(uri);
+        public static DocumentUri From(string url)
+        {
+            if (url.StartsWith(@"\\") || (url.StartsWith("/")) || WindowsPath.IsMatch(url))
+            {
+                return File(url);
+            }
 
-        /// <summary>
-        /// The file scheme
-        /// </summary>
-        public static readonly string UriSchemeFile = Uri.UriSchemeFile;
-
-        /// <summary>
-        /// The scheme delimiter
-        /// </summary>
-        public static readonly string SchemeDelimiter = Uri.SchemeDelimiter;
-
-        private string _stringValue;
+            return Parse(url);
+        }
 
         /// <summary>
         ///     Get the local file-system path for the specified document URI.
@@ -365,7 +294,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (documentUri == null)
                 throw new ArgumentNullException(nameof(documentUri));
 
-            if (documentUri.Scheme != "file")
+            if (documentUri.Scheme != Uri.UriSchemeFile)
                 return null;
 
             return documentUri.GetFileSystemPath();
@@ -399,5 +328,129 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A default comparer that can be used for equality
         /// </summary>
         public static IEqualityComparer<DocumentUri> Comparer { get; } = new DocumentUriEqualityComparer();
+
+        // for a while we allowed uris *without* schemes and this is the migration
+        // for them, e.g. an uri without scheme and without strict-mode warns and falls
+        // back to the file-scheme. that should cause the least carnage and still be a
+        // clear warning
+
+        // implements a bit of https://tools.ietf.org/html/rfc3986#section-5
+
+
+        // reserved characters: https://tools.ietf.org/html/rfc3986#section-2.2
+
+        // --- decode
+
+        /// <summary>
+        /// @internal
+        /// </summary>
+        public DocumentUri(string scheme, string authority, string path, string query, string fragment,
+            bool? strict = null)
+        {
+            Scheme = SchemeFix(scheme, strict);
+            Authority = authority ?? Empty;
+            Path = ReferenceResolution(Scheme, path ?? Empty);
+            Query = query ?? Empty;
+            Fragment = fragment ?? Empty;
+
+            _validateUri(this, strict);
+        }
+
+        // ---- parse & validate ------------------------
+
+        /// <summary>
+        /// Creates a new URI from a string, e.g. `http://www.msft.com/some/path`,
+        /// `file:///usr/home`, or `scheme:with/path`.
+        ///
+        /// @param value A string which represents an URI (see `URI#toString`).
+        /// </summary>
+        public static DocumentUri Parse(string value, bool strict = false)
+        {
+            var match = Regexp.Match(value);
+            if (!match.Success)
+            {
+                return new DocumentUri(Empty, Empty, Empty, Empty, Empty);
+            }
+
+            return new DocumentUri(
+                match.Groups[2].Value ?? Empty,
+                PercentDecode(match.Groups[4].Value ?? Empty),
+                PercentDecode(match.Groups[5].Value ?? Empty),
+                PercentDecode(match.Groups[7].Value ?? Empty),
+                PercentDecode(match.Groups[9].Value ?? Empty),
+                strict
+            );
+        }
+
+        /// <summary>
+        /// Creates a new URI from a file system path, e.g. `c:\my\files`,
+        /// `/usr/home`, or `\\server\share\some\path`.
+        ///
+        /// The *difference* between `URI#parse` and `URI#file` is that the latter treats the argument
+        /// as path, not as stringified-uri. E.g. `URI.file(path)` is **not the same as**
+        /// `URI.parse("file://" + path)` because the path might contain characters that are
+        /// interpreted (# and ?). See the following sample:
+        ///
+        /// @param path A file system path (see `URI#fsPath`)
+        /// </summary>
+        public static DocumentUri File(string path)
+        {
+            var authority = Empty;
+
+            // normalize to fwd-slashes on windows,
+            // on other systems bwd-slashes are valid
+            // filename character, eg /f\oo/ba\r.txt
+            if (path[0] != Slash)
+            {
+                path = path.Replace('\\', Slash);
+            }
+
+            // check for authority as used in UNC shares
+            // or use the path as given
+            if (path[0] == Slash && path[1] == Slash)
+            {
+                var idx = path.IndexOf(Slash, 2);
+                if (idx == -1)
+                {
+                    authority = path.Substring(2);
+                    path = StrSlash;
+                }
+                else
+                {
+                    authority = path.Substring(2, idx - 2);
+                    path = path.Substring(idx);
+                    if (string.IsNullOrWhiteSpace(path)) path = StrSlash;
+                }
+            }
+
+            if (path.IndexOf("%3A", StringComparison.OrdinalIgnoreCase) > -1)
+            {
+                path = path.Replace("%3a", ":").Replace("%3A", ":");
+            }
+
+            return new DocumentUri("file", authority, path, Empty, Empty, null);
+        }
+
+        public DocumentUri With(DocumentUriComponents components)
+        {
+            return new DocumentUri(
+                components.Scheme ?? Scheme,
+                components.Authority ?? Authority,
+                components.Path ?? Path,
+                components.Query ?? Query,
+                components.Fragment ?? Fragment
+            );
+        }
+
+        public static DocumentUri From(DocumentUriComponents components)
+        {
+            return new DocumentUri(
+                components.Scheme ?? string.Empty,
+                components.Authority ?? string.Empty,
+                components.Path ?? string.Empty,
+                components.Query ?? string.Empty,
+                components.Fragment ?? string.Empty
+            );
+        }
     }
 }

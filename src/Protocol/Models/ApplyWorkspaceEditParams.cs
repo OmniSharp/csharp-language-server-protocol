@@ -1,12 +1,10 @@
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(WorkspaceNames.ApplyEdit)]
+    [Method(WorkspaceNames.ApplyEdit, Direction.ServerToClient)]
     public class ApplyWorkspaceEditParams : IRequest<ApplyWorkspaceEditResponse>
     {
         /// <summary>

@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -13,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///  The id used to register the request. The id can be used to deregister
         ///  the request again.
         /// </summary>
-        public BooleanString Id { get; set; }
+        public string Id { get; set; }
 
         /// <summary>
         ///  The method / capability to register for.

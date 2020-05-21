@@ -1,22 +1,17 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
-using Xunit.Sdk;
 
 namespace JsonRpc.Tests
 {
@@ -60,7 +55,7 @@ namespace JsonRpc.Tests
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = await router.RouteRequest(router.GetDescriptor(request), request, CancellationToken.None);
+            var response = await router.RouteRequest(router.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }

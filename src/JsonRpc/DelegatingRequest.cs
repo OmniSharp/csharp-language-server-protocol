@@ -5,11 +5,11 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class DelegatingRequest<T> : IRequest<JToken>, IRequest
     {
-        public DelegatingRequest(T value)
+        public DelegatingRequest(object value)
         {
-            Value = value;
+            Value = typeof(T) == typeof(Unit) || value is Unit ? new JObject() : JToken.FromObject(value);
         }
 
-        public T Value { get; }
+        public JToken Value { get; }
     }
 }

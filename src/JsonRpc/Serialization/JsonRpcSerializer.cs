@@ -1,8 +1,6 @@
 using System.Collections.Generic;
-using System.Text;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
-using OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization
 {

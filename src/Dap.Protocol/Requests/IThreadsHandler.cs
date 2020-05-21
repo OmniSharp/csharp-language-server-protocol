@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Threads)]
-    public interface IThreadsHandler : IJsonRpcRequestHandler<ThreadsArguments, ThreadsResponse> { }
+    [Parallel, Method(RequestNames.Threads, Direction.ClientToServer)]
+    public interface IThreadsHandler : IJsonRpcRequestHandler<ThreadsArguments, ThreadsResponse>
+    {
+    }
 
     public abstract class ThreadsHandler : IThreadsHandler
     {
         public abstract Task<ThreadsResponse> Handle(ThreadsArguments request, CancellationToken cancellationToken);
     }
 
-    public static class ThreadsHandlerExtensions
+    public static class ThreadsExtensions
     {
-        public static IDisposable OnThreads(this IDebugAdapterRegistry registry, Func<ThreadsArguments, CancellationToken, Task<ThreadsResponse>> handler)
+        public static IDisposable OnThreads(this IDebugAdapterServerRegistry registry,
+            Func<ThreadsArguments, CancellationToken, Task<ThreadsResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Threads, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ThreadsHandler
+        public static IDisposable OnThreads(this IDebugAdapterServerRegistry registry,
+            Func<ThreadsArguments, Task<ThreadsResponse>> handler)
         {
-            private readonly Func<ThreadsArguments, CancellationToken, Task<ThreadsResponse>> _handler;
+            return registry.AddHandler(RequestNames.Threads, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ThreadsArguments, CancellationToken, Task<ThreadsResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ThreadsResponse> Handle(ThreadsArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ThreadsResponse> RequestThreads(this IDebugAdapterClient mediator, ThreadsArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

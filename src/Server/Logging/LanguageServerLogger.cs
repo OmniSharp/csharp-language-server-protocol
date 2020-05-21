@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Disposables;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
@@ -23,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IDisposable BeginScope<TState>(TState state)
         {
-            return new ImmutableDisposable();
+            return new CompositeDisposable();
         }
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();

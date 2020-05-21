@@ -1,8 +1,10 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.Disassemble, Direction.ClientToServer)]
     public class DisassembleArguments : IRequest<DisassembleResponse>
     {
         /// <summary>

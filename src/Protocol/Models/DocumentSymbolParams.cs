@@ -1,13 +1,11 @@
 using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.DocumentSymbol)]
-    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IRequest<SymbolInformationOrDocumentSymbolContainer>, IWorkDoneProgressParams, IPartialItems<SymbolInformationOrDocumentSymbol>
+    [Method(TextDocumentNames.DocumentSymbol, Direction.ClientToServer)]
+    public class DocumentSymbolParams : ITextDocumentIdentifierParams, IPartialItemsRequest<SymbolInformationOrDocumentSymbolContainer, SymbolInformationOrDocumentSymbol>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The text document.
