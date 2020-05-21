@@ -287,7 +287,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 value = uri.Path;
             }
 
-            if (WindowsPath.IsMatch(value) || value.StartsWith("//"))
+            if (WindowsPath.IsMatch(value) || value.StartsWith("\\\\"))
             {
                 return value.Replace("/", "\\");
             }
