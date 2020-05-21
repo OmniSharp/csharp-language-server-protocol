@@ -158,7 +158,7 @@ namespace Lsp.Tests
         [ClassData(typeof(WindowsPathUris))]
         public void Should_Handle_Windows_Uris(Uri uri, string expected)
         {
-            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Given: {uri.OriginalString}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             DocumentUri.From(uri).ToString().Should().Be(expected);
         }
@@ -173,7 +173,7 @@ namespace Lsp.Tests
         [ClassData(typeof(UncPathUris))]
         public void Should_Handle_Unc_Uris(Uri uri, string expected)
         {
-            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Given: {uri.OriginalString}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             DocumentUri.From(uri).ToString().Should().Be(expected);
         }
@@ -188,7 +188,7 @@ namespace Lsp.Tests
         [ClassData(typeof(UnixPathUris))]
         public void Should_Handle_Unix_Uris(Uri uri, string expected)
         {
-            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Given: {uri.OriginalString}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             DocumentUri.From(uri).ToString().Should().Be(expected);
         }
@@ -254,7 +254,7 @@ namespace Lsp.Tests
         [ClassData(typeof(WindowsFileUriToFileSystem))]
         public void Should_Normalize_Windows_Uris(Uri uri, string expected)
         {
-            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Given: {uri.OriginalString}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             DocumentUri.GetFileSystemPath(uri).Should().Be(expected);
         }
@@ -271,7 +271,7 @@ namespace Lsp.Tests
         [ClassData(typeof(UncFileUriToFileSystem))]
         public void Should_Normalize_Unc_Uris(Uri uri, string expected)
         {
-            _testOutputHelper.WriteLine($"Given: {uri}");
+            _testOutputHelper.WriteLine($"Given: {uri.OriginalString}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
             DocumentUri.GetFileSystemPath(uri).Should().Be(expected);
         }
