@@ -175,7 +175,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             scheme = Scheme;
             authority = Authority;
-            path = Path;
+            path =  Path;
             query = Query;
             fragment = Fragment;
         }

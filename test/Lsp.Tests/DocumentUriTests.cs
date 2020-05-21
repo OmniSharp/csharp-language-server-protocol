@@ -20,6 +20,18 @@ namespace Lsp.Tests
             _testOutputHelper = testOutputHelper;
         }
 
+        [Fact]
+        public void IsEquatable()
+        {
+            var uri1 = DocumentUri.Parse("file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs");
+            var uri2 = DocumentUri.Parse("file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/Namespaces.cs");
+            var uri3 = DocumentUri.Parse("file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/NotNamespaces.cs");
+            uri1.Should().Be(uri2);
+            uri1.Should().NotBe(uri3);
+            (uri1 == uri2).Should().BeTrue();
+            (uri1 != uri2).Should().BeFalse();
+        }
+
         [Theory]
         [ClassData(typeof(WindowsFileSystemPaths))]
         public void Should_Handle_Windows_File_System_Paths(string uri, string expected)
