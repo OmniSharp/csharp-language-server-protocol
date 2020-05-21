@@ -20,7 +20,7 @@ namespace Lsp.Tests
             _testOutputHelper = testOutputHelper;
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsFileSystemPaths))]
         public void Should_Handle_Windows_File_System_Paths(string uri, string expected)
         {
@@ -36,7 +36,7 @@ namespace Lsp.Tests
             public WindowsFileSystemPaths() : base(WindowsPath, "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UncFileSystemPaths))]
         public void Should_Handle_Unc_File_System_Paths(string uri, string expected)
         {
@@ -52,7 +52,7 @@ namespace Lsp.Tests
             public UncFileSystemPaths() : base(UncPath, "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UnixFileSystemPaths))]
         public void Should_Handle_Unix_File_System_Paths(string uri, string expected)
         {
@@ -68,7 +68,7 @@ namespace Lsp.Tests
             public UnixFileSystemPaths() : base(UnixPath, "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsPathStringUris))]
         public void Should_Handle_Windows_String_Uris(string uri, string expected)
         {
@@ -84,7 +84,7 @@ namespace Lsp.Tests
             public WindowsPathStringUris() : base(WindowsPath, WindowsPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsPathAltStringUris))]
         public void Should_Handle_Windows_Alt_String_Uris(string uri, string expected)
         {
@@ -100,7 +100,7 @@ namespace Lsp.Tests
             public WindowsPathAltStringUris() : base(WindowsPathAlt, WindowsPathAlt) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UncPathStringUris))]
         public void Should_Handle_Unc_String_Uris(string uri, string expected)
         {
@@ -116,7 +116,7 @@ namespace Lsp.Tests
             public UncPathStringUris() : base(UncPath, UncPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UnixPathStringUris))]
         public void Should_Handle_Unix_String_Uris(string uri, string expected)
         {
@@ -132,7 +132,7 @@ namespace Lsp.Tests
             public UnixPathStringUris() : base(UnixPath, UnixPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(ResourceStringUris))]
         [ClassData(typeof(ResourceStringUrisWithPaths))]
         public void Should_Handle_Resource_String_Uris(string uri, string expected)
@@ -154,7 +154,7 @@ namespace Lsp.Tests
             public ResourceStringUrisWithPaths() : base(ResourcePathWithPath, ResourcePathWithPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsPathUris))]
         public void Should_Handle_Windows_Uris(Uri uri, string expected)
         {
@@ -169,7 +169,7 @@ namespace Lsp.Tests
             public WindowsPathUris() : base(WindowsPath, WindowsPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UncPathUris))]
         public void Should_Handle_Unc_Uris(Uri uri, string expected)
         {
@@ -184,7 +184,7 @@ namespace Lsp.Tests
             public UncPathUris() : base(UncPath, UncPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UnixPathUris))]
         public void Should_Handle_Unix_Uris(Uri uri, string expected)
         {
@@ -199,7 +199,7 @@ namespace Lsp.Tests
             public UnixPathUris() : base(UnixPath, UnixPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsFileSystemToFileUri))]
         public void Should_Normalize_Windows_FileSystem_Paths(string uri, string expected)
         {
@@ -216,7 +216,7 @@ namespace Lsp.Tests
             public WindowsFileSystemToFileUri() : base(WindowsSourcePath, WindowsDestinationPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UncFileSystemToFileUri))]
         public void Should_Normalize_Unc_FileSystem_Paths(string uri, string expected)
         {
@@ -233,7 +233,7 @@ namespace Lsp.Tests
             public UncFileSystemToFileUri() : base(UncSourcePath, UncDestinationPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UnixFileSystemToFileUri))]
         public void Should_Normalize_Unix_FileSystem_Paths(string uri, string expected)
         {
@@ -250,7 +250,7 @@ namespace Lsp.Tests
             public UnixFileSystemToFileUri() : base(UnixSourcePath, UnixDestinationPath) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(WindowsFileUriToFileSystem))]
         public void Should_Normalize_Windows_Uris(Uri uri, string expected)
         {
@@ -267,7 +267,7 @@ namespace Lsp.Tests
             public WindowsFileUriToFileSystem() : base(WindowsSourcePath, WindowsDestinationPath, false) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UncFileUriToFileSystem))]
         public void Should_Normalize_Unc_Uris(Uri uri, string expected)
         {
@@ -284,7 +284,7 @@ namespace Lsp.Tests
             public UncFileUriToFileSystem() : base(UncSourcePath, UncDestinationPath, false) { }
         }
 
-        [Theory(Skip = "Some sort of strange failure on CI")]
+        [Theory]
         [ClassData(typeof(UnixFileUriToFileSystem))]
         public void Should_Normalize_Unix_Uris(Uri uri, string expected)
         {
