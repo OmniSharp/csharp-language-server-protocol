@@ -233,7 +233,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         public static DocumentUri From(Uri uri)
         {
-            if (uri.OriginalString.IndexOf("%3A", StringComparison.OrdinalIgnoreCase) > -1)
+            if (uri.OriginalString.IndexOf(EncodeTable[CharCode.Colon], StringComparison.OrdinalIgnoreCase) > -1)
                 return From(uri.OriginalString);
             if (uri.Scheme == Uri.UriSchemeFile)
             {
@@ -402,7 +402,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             // normalize to fwd-slashes on windows,
             // on other systems bwd-slashes are valid
             // filename character, eg /f\oo/ba\r.txt
-            if (IsWindows)
+            if (path[0] != Slash)
             {
                 path = path.Replace('\\', Slash);
             }

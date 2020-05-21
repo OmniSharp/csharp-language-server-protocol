@@ -40,8 +40,8 @@ namespace Lsp.Tests
             }
             else
             {
-                DocumentUri.File("c:\\win\\path").ToString().Should().Be("file:///c:%5Cwin%5Cpath");
-                DocumentUri.File("c:\\win/path").ToString().Should().Be("file:///c:%5Cwin/path");
+                DocumentUri.File("/usr/win\\path").ToString().Should().Be("file:///usr/win%5Cpath");
+                DocumentUri.File("/usr/win/path").ToString().Should().Be("file:///usr/win/path");
             }
         }
 
@@ -469,21 +469,16 @@ namespace Lsp.Tests
                 value.ToString().Should().Be(value2.ToString());
             };
 
-            test("file:///c:/alex.txt",
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "c:\\alex.txt" : "c:/alex.txt");
+            test("file:///c:/alex.txt", "c:\\alex.txt");
             test(
                 "file:///c:/Source/Z%C3%BCrich%20or%20Zurich%20(%CB%88zj%CA%8A%C9%99r%C9%AAk,/Code/resources/app/plugins",
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "c:\\Source\\Zürich or Zurich (ˈzjʊərɪk,\\Code\\resources\\app\\plugins"
-                    : "c:/Source/Zürich or Zurich (ˈzjʊərɪk,/Code/resources/app/plugins");
-            test("file://monacotools/folder/isi.txt",
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "\\\\monacotools\\folder\\isi.txt"
-                    : "//monacotools/folder/isi.txt");
-            test("file://monacotools1/certificates/SSL/",
-                RuntimeInformation.IsOSPlatform(OSPlatform.Windows)
-                    ? "\\\\monacotools1\\certificates\\SSL\\"
-                    : "//monacotools1/certificates/SSL/");
+                "c:\\Source\\Zürich or Zurich (ˈzjʊərɪk,\\Code\\resources\\app\\plugins");
+            test(
+                "file://monacotools/folder/isi.txt",
+                "\\\\monacotools\\folder\\isi.txt");
+            test(
+                "file://monacotools1/certificates/SSL/",
+                "\\\\monacotools1\\certificates\\SSL\\");
         }
 
         [Fact(DisplayName = "URI - http, query & toString")]

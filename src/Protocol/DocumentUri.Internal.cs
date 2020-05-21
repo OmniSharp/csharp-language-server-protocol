@@ -261,7 +261,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             if (!string.IsNullOrWhiteSpace(uri.Authority) && uri.Path.Length > 1 && uri.Scheme == "file")
             {
                 // unc path: file://shares/c$/far/boo
-                value = $"//{uri.Authority}{uri.Path}";
+                value = $@"\\{uri.Authority}{uri.Path}";
             }
             else if (
                 uri.Path.Length >= 3
