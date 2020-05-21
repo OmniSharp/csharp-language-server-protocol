@@ -43,7 +43,7 @@ namespace Lsp.Tests
             var serializer = new JsonSerializerSettings() {
                 Converters = {new DocumentUriConverter()}
             };
-            JsonConvert.SerializeObject(new DocumentUri(uri), serializer).Trim('"').Should().Be(expected.ToString());
+            JsonConvert.SerializeObject(DocumentUri.Parse(uri), serializer).Trim('"').Should().Be(expected.ToString());
         }
     }
 }
