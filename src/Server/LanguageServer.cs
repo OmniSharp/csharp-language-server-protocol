@@ -196,7 +196,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<IServerWorkDoneManager, ServerWorkDoneManager>();
             services.AddSingleton<IJsonRpcHandler>(_ => _.GetRequiredService<IServerWorkDoneManager>() as IJsonRpcHandler);
 
-            _serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
+            _disposable.Add(serviceProvider);
+            _serviceProvider = serviceProvider;
             collection.SetServiceProvider(_serviceProvider);
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();

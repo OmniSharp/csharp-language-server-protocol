@@ -28,6 +28,12 @@ namespace OmniSharp.Extensions.JsonRpc
         public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         public bool SupportsContentModified { get; set; }
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
+        internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
+
+        public void RegisterForDisposal(IDisposable disposable)
+        {
+            CompositeDisposable.Add(disposable);
+        }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

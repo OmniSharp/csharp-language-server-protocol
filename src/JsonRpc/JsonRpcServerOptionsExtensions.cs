@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public static JsonRpcServerOptions WithInput(this JsonRpcServerOptions options, Stream input)
         {
             options.Input = input.UsePipeReader();
+            options.RegisterForDisposal(input);
             return options;
         }
         public static JsonRpcServerOptions WithInput(this JsonRpcServerOptions options, PipeReader input)
@@ -25,6 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public static JsonRpcServerOptions WithOutput(this JsonRpcServerOptions options, Stream output)
         {
             options.Output = output.UsePipeWriter();
+            options.RegisterForDisposal(output);
             return options;
         }
 

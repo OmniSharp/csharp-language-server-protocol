@@ -50,6 +50,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
         internal readonly List<OnServerStartedDelegate> StartedDelegates = new List<OnServerStartedDelegate>();
 
+        internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
+
+        public void RegisterForDisposal(IDisposable disposable)
+        {
+            CompositeDisposable.Add(disposable);
+        }
+
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
             NamedHandlers.Add((method, handler));

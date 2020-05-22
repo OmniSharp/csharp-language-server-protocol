@@ -415,6 +415,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             _disposable.Dispose();
             _pipeReader.Complete();
+            _outputHandler.Dispose();
         }
     }
 }

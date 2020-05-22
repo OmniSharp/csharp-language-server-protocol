@@ -15,6 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Connection _connection;
         private readonly HandlerCollection _collection;
+        private readonly CompositeDisposable _disposable;
 
         private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers =
             new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
@@ -47,6 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var receiver = options.Receiver;
             var serializer = options.Serializer;
             _collection = new HandlerCollection();
+            _disposable = options.CompositeDisposable;
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
@@ -82,7 +84,9 @@ namespace OmniSharp.Extensions.JsonRpc
                     services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
             }
 
-            _serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
+            _disposable.Add(serviceProvider);
+            _serviceProvider = serviceProvider;
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
             _collection.Add(serviceHandlers);
@@ -112,6 +116,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 options.SupportsContentModified,
                 options.Concurrency
             );
+            _disposable.Add(_connection);
         }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
@@ -194,7 +199,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            _connection?.Dispose();
+            _disposable.Dispose();
         }
     }
 }

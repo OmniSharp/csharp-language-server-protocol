@@ -20,6 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions WithInput(this LanguageServerOptions options, Stream input)
         {
             options.Input = input.UsePipeReader();
+            options.RegisterForDisposal(input);
             return options;
         }
         public static LanguageServerOptions WithInput(this LanguageServerOptions options, PipeReader input)
@@ -31,6 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions WithOutput(this LanguageServerOptions options, Stream output)
         {
             options.Output = output.UsePipeWriter();
+            options.RegisterForDisposal(output);
             return options;
         }
 

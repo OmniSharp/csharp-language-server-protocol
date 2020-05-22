@@ -15,5 +15,6 @@ namespace OmniSharp.Extensions.JsonRpc
         Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         bool SupportsContentModified { get; set; }
         TimeSpan MaximumRequestTimeout { get; set; }
+        void RegisterForDisposal(IDisposable disposable);
     }
 }

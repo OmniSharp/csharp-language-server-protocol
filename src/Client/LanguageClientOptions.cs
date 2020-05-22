@@ -83,6 +83,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         public bool SupportsContentModified { get; set; } = true;
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
+        internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
+
+        public void RegisterForDisposal(IDisposable disposable)
+        {
+            CompositeDisposable.Add(disposable);
+        }
 
         // internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         // internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();

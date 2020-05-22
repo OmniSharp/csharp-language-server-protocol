@@ -120,7 +120,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _trace = options.Trace;
             _initializationOptions = options.InitializationOptions;
 
-
             var registrationManager = new RegistrationManager(serializer);
             _registrationManager = registrationManager;
             if (options.DynamicRegistration)
@@ -202,7 +201,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             services.AddSingleton(_registrationManager);
             services.AddSingleton(_workspaceFoldersManager);
 
-            _serviceProvider = services.BuildServiceProvider();
+            var serviceProvider = services.BuildServiceProvider();
+            _disposable.Add(serviceProvider);
+            _serviceProvider = serviceProvider;
             collection.SetServiceProvider(_serviceProvider);
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
