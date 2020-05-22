@@ -35,7 +35,7 @@ namespace JsonRpc.Tests
 
             await router.RouteNotification(router.GetDescriptor(notification), notification, CancellationToken.None, CancellationToken.None);
 
-            await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), CancellationToken.None);
+            await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
         }
 
     }
