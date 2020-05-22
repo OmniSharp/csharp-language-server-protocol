@@ -24,7 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
             IServiceProvider serviceProvider,
-            IServiceScopeFactory serviceScopeFactory) : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<LspRequestRouter>())
+            IServiceScopeFactory serviceScopeFactory,
+            RequestRouterOptions options) : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<LspRequestRouter>(), options)
         {
             _collection = collection;
             _handlerMatchers = handlerMatchers;

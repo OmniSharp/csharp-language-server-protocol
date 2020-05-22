@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
@@ -14,13 +15,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
     class ClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
     {
-        private readonly IResponseRouter _router;
+        private readonly ILanguageClient _router;
         private readonly ISerializer _serializer;
         private readonly IProgressManager _progressManager;
         private bool _supported;
         private readonly ISourceCache<IProgressObservable<WorkDoneProgress>, ProgressToken> _pendingWork;
 
-        public ClientWorkDoneManager(IResponseRouter router, ISerializer serializer, IProgressManager progressManager)
+        public ClientWorkDoneManager(ILanguageClient router, ISerializer serializer, IProgressManager progressManager)
         {
             _router = router;
             _serializer = serializer;
@@ -40,9 +41,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 
         public IProgressObservable<WorkDoneProgress> Monitor(ProgressToken progressToken)
         {
-            var data = _progressManager.Monitor(progressToken, Parse);
+            var currentValue = _pendingWork.Lookup(progressToken);
+            if (_pendingWork.Lookup(progressToken).HasValue)
+            {
+                return currentValue.Value;
+            }
+
+            var data = new WorkDoneObservable(
+                _progressManager.Monitor(progressToken, Parse),
+                Disposable.Create(() => _router.Window.SendWorkDoneProgressCancel(progressToken))
+            );
             _pendingWork.AddOrUpdate(data);
-            data.Subscribe(_ => { }, () => { _pendingWork.RemoveKey(data.ProgressToken); });
+            data.Subscribe(_ => { }, () => {
+                _pendingWork.RemoveKey(data.ProgressToken);
+                _pendingWork.Dispose();
+            });
             return data;
         }
 
@@ -62,5 +75,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
                 _ => throw new NotSupportedException("Unknown work done progress event")
             };
         }
+    }
+
+    class WorkDoneObservable : IProgressObservable<WorkDoneProgress>
+    {
+        private readonly IProgressObservable<WorkDoneProgress> _progressObservable;
+        private readonly IDisposable _triggerCancellation;
+
+        public WorkDoneObservable(IProgressObservable<WorkDoneProgress> progressObservable, IDisposable triggerCancellation)
+        {
+            _progressObservable = progressObservable;
+            _triggerCancellation = triggerCancellation;
+        }
+
+        public ProgressToken ProgressToken => _progressObservable.ProgressToken;
+
+        public Type ParamsType => _progressObservable.ParamsType;
+
+        public void Dispose()
+        {
+            _triggerCancellation.Dispose();
+            _progressObservable.Dispose();
+        }
+
+        public IDisposable Subscribe(IObserver<WorkDoneProgress> observer) => _progressObservable.Subscribe(observer);
     }
 }

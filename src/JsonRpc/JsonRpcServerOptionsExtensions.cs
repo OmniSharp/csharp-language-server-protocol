@@ -114,5 +114,11 @@ namespace OmniSharp.Extensions.JsonRpc
             options.SupportsContentModified = supportsContentModified;
             return options;
         }
+
+        public static JsonRpcServerOptions WithMaximumRequestTimeout(this JsonRpcServerOptions options, TimeSpan maximumRequestTimeout)
+        {
+            options.MaximumRequestTimeout = maximumRequestTimeout;
+            return options;
+        }
     }
 }

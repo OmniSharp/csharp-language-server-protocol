@@ -138,6 +138,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReceiver>(options.Receiver);
             services.AddSingleton<ILspServerReceiver>(options.Receiver);
+            services.AddSingleton(new RequestRouterOptions() {
+                MaximumRequestTimeout = options.MaximumRequestTimeout
+            });
 
             foreach (var item in options.Handlers)
             {

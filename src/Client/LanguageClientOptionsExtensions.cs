@@ -249,5 +249,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             options.SupportsContentModified = supportsContentModified;
             return options;
         }
+
+        public static LanguageClientOptions WithMaximumRequestTimeout(this LanguageClientOptions options, TimeSpan maximumRequestTimeout)
+        {
+            options.MaximumRequestTimeout = maximumRequestTimeout;
+            return options;
+        }
     }
 }

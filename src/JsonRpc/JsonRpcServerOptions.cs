@@ -27,6 +27,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public int? Concurrency { get; set; }
         public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         public bool SupportsContentModified { get; set; }
+        public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {

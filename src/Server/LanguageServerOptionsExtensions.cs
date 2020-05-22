@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.IO.Pipelines;
 using System.Reflection;
@@ -166,6 +167,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions WithContentModifiedSupport(this LanguageServerOptions options, bool supportsContentModified)
         {
             options.SupportsContentModified = supportsContentModified;
+            return options;
+        }
+
+        public static LanguageServerOptions WithMaximumRequestTimeout(this LanguageServerOptions options, TimeSpan maximumRequestTimeout)
+        {
+            options.MaximumRequestTimeout = maximumRequestTimeout;
             return options;
         }
     }

@@ -4,7 +4,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class Notification : IMethodWithParams
     {
-        internal Notification(
+        public Notification(
             string method,
             JToken @params)
         {

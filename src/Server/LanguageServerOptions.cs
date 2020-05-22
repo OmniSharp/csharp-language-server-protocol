@@ -44,6 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public int? Concurrency { get; set; }
         public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         public bool SupportsContentModified { get; set; } = true;
+        public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
 
         internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();

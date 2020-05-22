@@ -14,5 +14,6 @@ namespace OmniSharp.Extensions.JsonRpc
         int? Concurrency { get; set; }
         Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
         bool SupportsContentModified { get; set; }
+        TimeSpan MaximumRequestTimeout { get; set; }
     }
 }

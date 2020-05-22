@@ -19,14 +19,16 @@ namespace OmniSharp.Extensions.JsonRpc
         protected readonly ISerializer _serializer;
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly ILogger _logger;
+        private readonly RequestRouterOptions _options;
         private readonly ConcurrentDictionary<string, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)> _requests = new ConcurrentDictionary<string, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)>();
 
 
-        public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger)
+        public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger, RequestRouterOptions options)
         {
             _serializer = serializer;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
+            _options = options;
             ServiceProvider = serviceProvider;
         }
 
@@ -46,11 +48,16 @@ namespace OmniSharp.Extensions.JsonRpc
                     context.Descriptor = descriptor;
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
+                    var cancellationTokenSource = new CancellationTokenSource();
+                    cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
+                    token.Register(cancellationTokenSource.Cancel);
+                    contentModifiedToken.Register(cancellationTokenSource.Cancel);
+
                     try
                     {
                         if (descriptor.Params is null)
                         {
-                            await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
+                            await HandleNotification(mediator, descriptor, EmptyRequest.Instance, cancellationTokenSource.Token);
                         }
                         else
                         {
@@ -67,7 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                 @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
                             }
 
-                            await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                            await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), cancellationTokenSource.Token);
                         }
                     }
                     catch (OperationCanceledException)
@@ -108,6 +115,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         value = (new CancellationTokenSource(), descriptor);
                         _requests.TryAdd(id, value);
                     }
+                    value.cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
                     token.Register(value.cancellationTokenSource.Cancel);
                     contentModifiedToken.Register(value.cancellationTokenSource.Cancel);
 
