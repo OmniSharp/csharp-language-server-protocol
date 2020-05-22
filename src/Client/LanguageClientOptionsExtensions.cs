@@ -164,19 +164,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        // public static LanguageClientOptions OnInitialize(this LanguageClientOptions options, InitializeDelegate @delegate)
-        // {
-        //     options.InitializeDelegates.Add(@delegate);
-        //     return options;
-        // }
-        //
-        //
-        // public static LanguageClientOptions OnInitialized(this LanguageClientOptions options, InitializedDelegate @delegate)
-        // {
-        //     options.InitializedDelegates.Add(@delegate);
-        //     return options;
-        // }
-
         public static LanguageClientOptions OnStarted(this LanguageClientOptions options,
             OnClientStartedDelegate @delegate)
         {

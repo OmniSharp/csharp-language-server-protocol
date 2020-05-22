@@ -23,8 +23,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         {
             foreach (var item in supports)
             {
-                if (!_supports.TryGetValue(item.ValueType, out _))
-                    _supports.Add(item.ValueType, item.Value);
+                if (_supports.TryGetValue(item.ValueType, out _))
+                    _supports.Remove(item.ValueType);
+                _supports.Add(item.ValueType, item.Value);
             }
         }
 

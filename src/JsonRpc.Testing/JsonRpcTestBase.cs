@@ -14,9 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public JsonRpcTestBase(JsonRpcTestOptions testOptions)
         {
             TestOptions = testOptions;
-            Disposable = new CompositeDisposable();
-            Disposable.Add(testOptions.ClientLoggerFactory);
-            Disposable.Add(testOptions.ServerLoggerFactory);
+            Disposable = new CompositeDisposable {testOptions.ClientLoggerFactory, testOptions.ServerLoggerFactory};
 
             _cancellationTokenSource = new CancellationTokenSource();
             if (!Debugger.IsAttached)

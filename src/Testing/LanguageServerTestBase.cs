@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.IO.Pipelines;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -20,23 +21,20 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     public abstract class LanguageServerTestBase : JsonRpcTestBase
     {
         private ILanguageClient _client;
-        private ILanguageServer _server;
 
         public LanguageServerTestBase(JsonRpcTestOptions jsonRpcTestOptions) : base(jsonRpcTestOptions)
         {
         }
 
-        protected abstract void ConfigureServer(LanguageServerOptions options);
+        protected abstract (Stream reader, Stream writer) SetupServer();
 
-        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction =null)
-        {
-            var clientPipe = new Pipe();
-            var serverPipe = new Pipe();
-
+        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
+        {se
             _client = LanguageClient.PreInit(options => {
+                var (reader, writer) = SetupServer();
                 options
-                    .WithInput(serverPipe.Reader)
-                    .WithOutput(clientPipe.Writer)
+                    .WithInput(reader)
+                    .WithOutput(writer)
                     .ConfigureLogging(x => {
                         x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
@@ -47,36 +45,11 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 clientOptionsAction?.Invoke(options);
             });
 
-            _server = LanguageServer.Server.LanguageServer.PreInit(options => {
-                options
-                    .ConfigureLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
-                        x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
-                    })
-                    .Services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler);
-                ConfigureServer(options);
-            });
-
             Disposable.Add(_client);
-            Disposable.Add(_server);
 
-            return await ObservableEx.ForkJoin(
-                Observable.FromAsync(_client.Initialize),
-                Observable.FromAsync(_server.Initialize),
-                (a, b) => _client
-            ).ToTask(CancellationToken);
-        }
+            await _client.Initialize(CancellationToken);
 
-        protected ILanguageServer GetServer()
-        {
-            if (_server == null)
-            {
-                throw new NotSupportedException("InitializeClient must have happened already");
-            }
-
-            return _server;
+            return _client;
         }
     }
 }
