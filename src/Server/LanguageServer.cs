@@ -24,10 +24,15 @@ using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 
@@ -40,7 +45,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ServerExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
-        private readonly ProgressManager _progressManager;
         private readonly ILspReceiver _receiver;
         private readonly ISerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
@@ -54,8 +58,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IServiceProvider _serviceProvider;
         private readonly SupportedCapabilities _supportedCapabilities;
         private Task _initializingTask;
-        private readonly ILanguageServerConfiguration _configuration;
         private readonly int? _concurrency;
+        private readonly IServerWorkDoneManager _workDoneManager;
+        private Protocol.Server.ILanguageServerConfiguration _configuration1;
 
         public static Task<ILanguageServer> From(Action<LanguageServerOptions> optionsAction)
         {
@@ -118,7 +123,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 options.StartedDelegates,
                 options.LoggingBuilderAction,
                 options.AddDefaultLoggingProvider,
-                options.ProgressManager,
                 options.ServerInfo,
                 options.ConfigurationBuilderAction,
                 options.Concurrency
@@ -144,7 +148,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<StartedDelegate> startedDelegates,
             Action<ILoggingBuilder> loggingBuilderAction,
             bool addDefaultLoggingProvider,
-            ProgressManager progressManager,
             ServerInfo serverInfo,
             Action<IConfigurationBuilder> configurationBuilderAction,
             int? concurrency)
@@ -153,14 +156,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             services.AddSingleton<IJsonRpcHandler>(configurationProvider);
 
             services.AddSingleton<IConfiguration>(configurationProvider);
-            services.AddSingleton(_configuration = configurationProvider);
+            services.AddSingleton(Configuration = configurationProvider);
 
             services.AddLogging(builder => loggingBuilderAction(builder));
             services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageServerLoggerFilterOptions>();
 
             _serverInfo = serverInfo;
             _receiver = receiver;
-            _progressManager = progressManager;
             _serializer = serializer;
             _supportedCapabilities = new SupportedCapabilities();
             _textDocumentIdentifiers = new TextDocumentIdentifiers();
@@ -230,12 +232,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
             }
 
-            services.AddSingleton(_progressManager);
+            services.AddSingleton<IProgressManager, ProgressManager>();
+            services.AddSingleton<IJsonRpcHandler>(_ => _.GetRequiredService<IProgressManager>() as IJsonRpcHandler);
+            services.AddSingleton<IServerWorkDoneManager, ServerWorkDoneManager>();
+            services.AddSingleton<IJsonRpcHandler>(_ => _.GetRequiredService<IServerWorkDoneManager>() as IJsonRpcHandler);
+
             _serviceProvider = services.BuildServiceProvider();
             collection.SetServiceProvider(_serviceProvider);
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            ProgressManager = _serviceProvider.GetRequiredService<IProgressManager>();
+            _workDoneManager = _serviceProvider.GetRequiredService<IServerWorkDoneManager>();
             _connection = new Connection(
                 input,
                 _serviceProvider.GetRequiredService<IOutputHandler>(),
@@ -251,14 +259,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _exitHandler = new ServerExitHandler(_shutdownHandler);
 
             // We need to at least create Window here in case any handler does loggin in their constructor
-            Document = new LanguageServerDocument(_responseRouter);
-            Client = new LanguageServerClient(_responseRouter);
-            Window = new LanguageServerWindow(_responseRouter);
-            Workspace = new LanguageServerWorkspace(_responseRouter);
+            TextDocument = new TextDocumentLanguageServer(this, _serviceProvider);
+            Client = new ClientLanguageServer(this, _serviceProvider);
+            Window = new WindowLanguageServer(this, _serviceProvider);
+            Workspace = new WorkspaceLanguageServer(this, _serviceProvider);
 
             _disposable.Add(
                 AddHandlers(this, _shutdownHandler, _exitHandler,
-                    new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter), _progressManager)
+                    new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter))
             );
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
@@ -277,17 +285,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        public ILanguageServerDocument Document { get; }
-        public ILanguageServerClient Client { get; }
-        public ILanguageServerWindow Window { get; }
-        public ILanguageServerWorkspace Workspace { get; }
-        public ProgressManager ProgressManager => _progressManager;
+        public ITextDocumentLanguageServer TextDocument { get; }
+        public IClientLanguageServer Client { get; }
+        public IGeneralLanguageServer General { get; }
+        public IWindowLanguageServer Window { get; }
+        public IWorkspaceLanguageServer Workspace { get; }
+        public IProgressManager ProgressManager { get; }
+
+        public IServerWorkDoneManager WorkDoneManager => _workDoneManager;
 
         public InitializeParams ClientSettings { get; private set; }
         public InitializeResult ServerSettings { get; private set; }
 
         public IServiceProvider Services => _serviceProvider;
-        public ILanguageServerConfiguration Configuration => _configuration;
+        public ILanguageServerConfiguration Configuration { get; }
 
         public IDisposable AddHandler(string method, IJsonRpcHandler handler)
         {
@@ -317,6 +328,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             where T : IJsonRpcHandler
         {
             return AddHandlers(typeof(T));
+        }
+
+        public IDisposable AddHandler<T>(Func<IServiceProvider, T> factory)
+            where T : IJsonRpcHandler
+        {
+            return AddHandlers(factory(_serviceProvider));
         }
 
         public IDisposable AddHandlers(params Type[] handlerTypes)
@@ -391,7 +408,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
                     {
-                        wdpo.WorkDoneProgress = _progressManager.IsSupported;
+                        wdpo.WorkDoneProgress = _workDoneManager.IsSupported;
                     }
                     registrations.Add(new Registration() {
                         Id = descriptor.Id.ToString(),
@@ -476,7 +493,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
-            _progressManager.Initialized(_responseRouter, _serializer, windowCapabilities);
+            _workDoneManager.Initialized(windowCapabilities);
 
             AddHandlers(_serviceProvider.GetServices<IJsonRpcHandler>().ToArray());
 
@@ -696,5 +713,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
+        public object GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
     }
 }

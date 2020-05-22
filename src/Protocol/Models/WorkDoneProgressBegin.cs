@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class WorkDoneProgressBegin : WorkDoneProgress
     {
-        public WorkDoneProgressBegin() : base("begin") { }
+        public WorkDoneProgressBegin() : base(WorkDoneProgressKind.Begin) { }
 
         /// <summary>
         /// Mandatory title of the progress operation. Used to briefly inform about
@@ -24,16 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public bool? Cancellable { get; set; }
-
-        /// <summary>
-        /// Optional, more detailed associated progress message. Contains
-        /// complementary information to the `title`.
-        ///
-        /// Examples: "3/25 files", "project/src/module2", "node_modules/some_dep".
-        /// If unset, the previous progress message (if any) is still valid.
-        /// </summary>
-        [Optional]
-        public string Message { get; set; }
 
         /// <summary>
         /// Optional progress percentage to display (value 100 is considered 100%).

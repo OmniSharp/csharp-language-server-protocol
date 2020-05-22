@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Modules)]
-    public interface IModulesHandler : IJsonRpcRequestHandler<ModulesArguments, ModulesResponse> { }
+    [Parallel, Method(RequestNames.Modules, Direction.ClientToServer)]
+    public interface IModulesHandler : IJsonRpcRequestHandler<ModulesArguments, ModulesResponse>
+    {
+    }
 
     public abstract class ModulesHandler : IModulesHandler
     {
         public abstract Task<ModulesResponse> Handle(ModulesArguments request, CancellationToken cancellationToken);
     }
 
-    public static class ModulesHandlerExtensions
+    public static class ModulesExtensions
     {
-        public static IDisposable OnModules(this IDebugAdapterRegistry registry, Func<ModulesArguments, CancellationToken, Task<ModulesResponse>> handler)
+        public static IDisposable OnModules(this IDebugAdapterServerRegistry registry,
+            Func<ModulesArguments, CancellationToken, Task<ModulesResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Modules, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ModulesHandler
+        public static IDisposable OnModules(this IDebugAdapterServerRegistry registry,
+            Func<ModulesArguments, Task<ModulesResponse>> handler)
         {
-            private readonly Func<ModulesArguments, CancellationToken, Task<ModulesResponse>> _handler;
+            return registry.AddHandler(RequestNames.Modules, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ModulesArguments, CancellationToken, Task<ModulesResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ModulesResponse> Handle(ModulesArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ModulesResponse> RequestModules(this IDebugAdapterClient mediator, ModulesArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

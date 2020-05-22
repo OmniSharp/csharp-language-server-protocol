@@ -1,5 +1,5 @@
 using System;
-using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -9,6 +9,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public Supports(bool? isSupported, T value)
         {
             _isSupported = isSupported;
+            Value = value;
+        }
+        public Supports(T value)
+        {
+            _isSupported = true;
             Value = value;
         }
 
@@ -30,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public static implicit operator Supports<T>(T value)
         {
-            return new Supports<T>(true, value);
+            return new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default), value);
         }
     }
 
@@ -39,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static Supports<T> OfValue<T>(T value)
             where T : class
         {
-            return new Supports<T>(value != null, value);
+            return new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default), value);
         }
 
         public static Supports<T> OfBoolean<T>(bool? isSupported)

@@ -2,13 +2,11 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using OmniSharp.Extensions.JsonRpc;
 
-// ReSharper disable CheckNamespace
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    [Parallel, Method(JsonRpcNames.CancelRequest)]
+    [Parallel, Method(JsonRpcNames.CancelRequest, Direction.Bidirectional)]
     public interface ICancelRequestHandler : IJsonRpcNotificationHandler<CancelParams> { }
 
     public abstract class CancelRequestHandler : ICancelRequestHandler
@@ -16,23 +14,20 @@ namespace OmniSharp.Extensions.JsonRpc
         public abstract Task<Unit> Handle(CancelParams request, CancellationToken cancellationToken);
     }
 
-    public static class CancelRequestHandlerExtensions
+    public static class CancelRequestExtensions
     {
-        public static IDisposable OnCancelRequest(this IJsonRpcHandlerRegistry registry, Func<CancelParams, CancellationToken, Task<Unit>> handler)
+        public static IDisposable OnCancelRequest(
+            this IJsonRpcHandlerRegistry registry,
+            Action<CancelParams> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(JsonRpcNames.CancelRequest, NotificationHandler.For(handler));
         }
 
-        class DelegatingHandler : CancelRequestHandler
+        public static IDisposable OnCancelRequest(
+            this IJsonRpcHandlerRegistry registry,
+            Func<CancelParams, Task> handler)
         {
-            private readonly Func<CancelParams, CancellationToken, Task<Unit>> _handler;
-
-            public DelegatingHandler(Func<CancelParams, CancellationToken, Task<Unit>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<Unit> Handle(CancelParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+            return registry.AddHandler(JsonRpcNames.CancelRequest, NotificationHandler.For(handler));
         }
     }
 }

@@ -1,7 +1,9 @@
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.StepBack, Direction.ClientToServer)]
     public class StepBackArguments : IRequest<StepBackResponse>
     {
         /// <summary>

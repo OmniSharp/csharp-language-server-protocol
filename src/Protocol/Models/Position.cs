@@ -1,7 +1,5 @@
 using System;
 using System.Collections.Generic;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -55,6 +53,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static bool operator !=(Position position1, Position position2)
         {
             return !(position1 == position2);
+        }
+
+        public static implicit operator Position((int line, int character) value)
+        {
+            return new Position(value.line, value.character);
         }
     }
 }

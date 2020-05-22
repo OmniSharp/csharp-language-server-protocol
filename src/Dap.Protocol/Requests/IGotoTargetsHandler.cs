@@ -5,32 +5,35 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.GotoTargets)]
-    public interface IGotoTargetsHandler : IJsonRpcRequestHandler<GotoTargetsArguments, GotoTargetsResponse> { }
+    [Parallel, Method(RequestNames.GotoTargets, Direction.ClientToServer)]
+    public interface IGotoTargetsHandler : IJsonRpcRequestHandler<GotoTargetsArguments, GotoTargetsResponse>
+    {
+    }
 
 
     public abstract class GotoTargetsHandler : IGotoTargetsHandler
     {
-        public abstract Task<GotoTargetsResponse> Handle(GotoTargetsArguments request, CancellationToken cancellationToken);
+        public abstract Task<GotoTargetsResponse> Handle(GotoTargetsArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class GotoTargetsHandlerExtensions
+    public static class GotoTargetsExtensions
     {
-        public static IDisposable OnGotoTargets(this IDebugAdapterRegistry registry, Func<GotoTargetsArguments, CancellationToken, Task<GotoTargetsResponse>> handler)
+        public static IDisposable OnGotoTargets(this IDebugAdapterServerRegistry registry,
+            Func<GotoTargetsArguments, CancellationToken, Task<GotoTargetsResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.GotoTargets, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : GotoTargetsHandler
+        public static IDisposable OnGotoTargets(this IDebugAdapterServerRegistry registry,
+            Func<GotoTargetsArguments, Task<GotoTargetsResponse>> handler)
         {
-            private readonly Func<GotoTargetsArguments, CancellationToken, Task<GotoTargetsResponse>> _handler;
+            return registry.AddHandler(RequestNames.GotoTargets, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<GotoTargetsArguments, CancellationToken, Task<GotoTargetsResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<GotoTargetsResponse> Handle(GotoTargetsArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<GotoTargetsResponse> RequestGotoTargets(this IDebugAdapterClient mediator, GotoTargetsArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

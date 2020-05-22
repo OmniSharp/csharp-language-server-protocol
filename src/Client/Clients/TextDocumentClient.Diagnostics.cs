@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
             if (handler == null)
                 throw new ArgumentNullException(nameof(handler));
 
-            return Client.HandleNotification<PublishDiagnosticsParams>(DocumentNames.PublishDiagnostics, notification =>
+            return Client.HandleNotification<PublishDiagnosticsParams>(TextDocumentNames.PublishDiagnostics, notification =>
             {
                 if (notification.Diagnostics == null)
                 if (notification.Diagnostics == null)

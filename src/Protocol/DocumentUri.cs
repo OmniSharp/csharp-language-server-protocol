@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Runtime.InteropServices;
-using System.Runtime.Versioning;
-using System.Text.RegularExpressions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using static System.IO.Path;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {

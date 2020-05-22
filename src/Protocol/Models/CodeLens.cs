@@ -1,7 +1,5 @@
 using MediatR;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -14,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A code lens is _unresolved_ when no command is associated to it. For performance
     /// reasons the creation of a code lens and resolving should be done in two stages.
     /// </summary>
-    [Method(DocumentNames.CodeLensResolve)]
+    [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
     public class CodeLens : ICanBeResolved, IRequest<CodeLens>
     {
         /// <summary>

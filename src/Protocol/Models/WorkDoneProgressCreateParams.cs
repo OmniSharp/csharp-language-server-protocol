@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(WindowNames.WorkDoneProgressCreate)]
+    [Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
     public class WorkDoneProgressCreateParams : IRequest
     {
         /// <summary>

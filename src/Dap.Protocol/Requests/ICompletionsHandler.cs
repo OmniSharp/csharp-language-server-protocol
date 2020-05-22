@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Completions)]
+    [Parallel, Method(RequestNames.Completions, Direction.ClientToServer)]
     public interface ICompletionsHandler : IJsonRpcRequestHandler<CompletionsArguments, CompletionsResponse> { }
 
     public abstract class CompletionsHandler : ICompletionsHandler
@@ -13,23 +13,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public abstract Task<CompletionsResponse> Handle(CompletionsArguments request, CancellationToken cancellationToken);
     }
 
-    public static class CompletionsHandlerExtensions
+    public static class CompletionsExtensions
     {
-        public static IDisposable OnCompletions(this IDebugAdapterRegistry registry, Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> handler)
+        public static IDisposable OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Completions, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : CompletionsHandler
+        public static IDisposable OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, Task<CompletionsResponse>> handler)
         {
-            private readonly Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> _handler;
+            return registry.AddHandler(RequestNames.Completions, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<CompletionsResponse> Handle(CompletionsArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<CompletionsResponse> RequestCompletions(this IDebugAdapterClient mediator, CompletionsArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 

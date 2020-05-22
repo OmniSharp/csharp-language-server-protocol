@@ -1,7 +1,5 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -38,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
                 }
             };
 
-            return await Client.SendRequest<Container<FoldingRange>>(DocumentNames.FoldingRange, request, cancellationToken).ConfigureAwait(false);
+            return await Client.SendRequest<Container<FoldingRange>>(TextDocumentNames.FoldingRange, request, cancellationToken).ConfigureAwait(false);
         }
     }
 }

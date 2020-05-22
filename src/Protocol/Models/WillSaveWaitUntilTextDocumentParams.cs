@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     ///  The parameters send in a will save text document notification.
     /// </summary>
-    [Method(DocumentNames.WillSaveWaitUntil)]
+    [Method(TextDocumentNames.WillSaveWaitUntil, Direction.ClientToServer)]
     public class WillSaveWaitUntilTextDocumentParams : IRequest<TextEditContainer>
     {
         /// <summary>

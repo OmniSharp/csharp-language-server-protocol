@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -58,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </returns>
         public Task<Hover> Hover(DocumentUri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<Hover>(DocumentNames.Hover, documentUri, line, column, cancellationToken);
+            return PositionalRequest<Hover>(TextDocumentNames.Hover, documentUri, line, column, cancellationToken);
         }
     }
 }

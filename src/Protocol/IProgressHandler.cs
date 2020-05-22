@@ -1,52 +1,126 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-
-// ReSharper disable CheckNamespace
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method(GeneralNames.Progress)]
-    public interface IProgressHandler : IJsonRpcNotificationHandler<ProgressParams> { }
+    [Parallel, Method(GeneralNames.Progress, Direction.Bidirectional)]
+    public interface IProgressHandler : IJsonRpcNotificationHandler<ProgressParams>
+    {
+    }
 
     public abstract class ProgressHandler : IProgressHandler
     {
         public abstract Task<Unit> Handle(ProgressParams request, CancellationToken cancellationToken);
     }
 
-    public static class ProgressHandlerExtensions
+    public static class ProgressExtensions
     {
         public static IDisposable OnProgress(
             this ILanguageServerRegistry registry,
-            Func<ProgressParams, CancellationToken, Task<Unit>> handler)
+            Action<ProgressParams, CancellationToken> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
+
+        public static IDisposable OnProgress(
+            this ILanguageServerRegistry registry,
+            Func<ProgressParams, CancellationToken, Task> handler)
+        {
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnProgress(
+            this ILanguageServerRegistry registry,
+            Action<ProgressParams> handler)
+        {
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnProgress(
+            this ILanguageServerRegistry registry,
+            Func<ProgressParams, Task> handler)
+        {
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
+
         public static IDisposable OnProgress(
             this ILanguageClientRegistry registry,
-            Func<ProgressParams, CancellationToken, Task<Unit>> handler)
+            Action<ProgressParams, CancellationToken> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        class DelegatingHandler : ProgressHandler
+        public static IDisposable OnProgress(
+            this ILanguageClientRegistry registry,
+            Func<ProgressParams, CancellationToken, Task> handler)
         {
-            private readonly Func<ProgressParams, CancellationToken, Task<Unit>> _handler;
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
 
-            public DelegatingHandler(
-                Func<ProgressParams, CancellationToken, Task<Unit>> handler)
-            {
-                _handler = handler;
-            }
+        public static IDisposable OnProgress(
+            this ILanguageClientRegistry registry,
+            Action<ProgressParams> handler)
+        {
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
 
-            public override Task<Unit> Handle(ProgressParams request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static IDisposable OnProgress(
+            this ILanguageClientRegistry registry,
+            Func<ProgressParams, Task> handler)
+        {
+            return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
+        }
 
+        public static void SendProgress(this IGeneralLanguageClient registry, ProgressParams @params)
+        {
+            registry.SendNotification(@params);
+        }
+
+        public static void SendProgress(this IGeneralLanguageServer registry, ProgressParams @params)
+        {
+            registry.SendNotification(@params);
+        }
+
+        public static IRequestProgressObservable<TItem, TResponse> RequestProgress<TResponse, TItem>(this IClientProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default)
+        {
+            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
+            @params.PartialResultToken = resultToken;
+
+            return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
+        }
+
+        public static IRequestProgressObservable<IEnumerable<TItem>, TResponse> RequestProgress<TResponse, TItem>(this IClientProxy requestRouter, IPartialItemsRequest<TResponse, TItem> @params, Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken = default)
+            where TResponse : IEnumerable<TItem>
+        {
+            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
+            @params.PartialResultToken = resultToken;
+
+            return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
+        }
+
+        public static IRequestProgressObservable<TItem, TResponse> RequestProgress<TResponse, TItem>(this IServerProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default)
+        {
+            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
+            @params.PartialResultToken = resultToken;
+
+            return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
+        }
+
+        public static IRequestProgressObservable<IEnumerable<TItem>, TResponse> RequestProgress<TResponse, TItem>(this IServerProxy requestRouter, IPartialItemsRequest<TResponse, TItem> @params, Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken = default)
+            where TResponse : IEnumerable<TItem>
+        {
+            var resultToken = new ProgressToken(Guid.NewGuid().ToString());
+            @params.PartialResultToken = resultToken;
+
+            return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
         }
     }
 }

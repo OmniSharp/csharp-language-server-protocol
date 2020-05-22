@@ -1,7 +1,7 @@
 ﻿using System;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Server.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
@@ -28,11 +28,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// The token types that the client supports.
         /// </summary>
-        public Container<string> TokenTypes { get; set; }
+        public Container<SemanticTokenType> TokenTypes { get; set; }
 
         /// <summary>
         /// The token modifiers that the client supports.
         /// </summary>
-        public Container<string> TokenModifiers { get; set; }
+        public Container<SemanticTokenModifier> TokenModifiers { get; set; }
     }
 }

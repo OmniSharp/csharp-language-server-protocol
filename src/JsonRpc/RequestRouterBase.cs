@@ -9,7 +9,6 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
-using Newtonsoft.Json.Linq;
 using System.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc

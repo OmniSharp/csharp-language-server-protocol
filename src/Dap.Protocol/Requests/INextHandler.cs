@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Next)]
-    public interface INextHandler : IJsonRpcRequestHandler<NextArguments, NextResponse> { }
+    [Parallel, Method(RequestNames.Next, Direction.ClientToServer)]
+    public interface INextHandler : IJsonRpcRequestHandler<NextArguments, NextResponse>
+    {
+    }
 
     public abstract class NextHandler : INextHandler
     {
         public abstract Task<NextResponse> Handle(NextArguments request, CancellationToken cancellationToken);
     }
 
-    public static class NextHandlerExtensions
+    public static class NextExtensions
     {
-        public static IDisposable OnNext(this IDebugAdapterRegistry registry, Func<NextArguments, CancellationToken, Task<NextResponse>> handler)
+        public static IDisposable OnNext(this IDebugAdapterServerRegistry registry,
+            Func<NextArguments, CancellationToken, Task<NextResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : NextHandler
+        public static IDisposable OnNext(this IDebugAdapterServerRegistry registry,
+            Func<NextArguments, Task<NextResponse>> handler)
         {
-            private readonly Func<NextArguments, CancellationToken, Task<NextResponse>> _handler;
+            return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<NextArguments, CancellationToken, Task<NextResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<NextResponse> Handle(NextArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<NextResponse> RequestNext(this IDebugAdapterClient mediator, NextArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

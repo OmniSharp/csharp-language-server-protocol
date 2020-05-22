@@ -2,9 +2,9 @@ using System;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -63,7 +63,7 @@ namespace Lsp.Tests
         [InlineData(typeof(IDidOpenTextDocumentHandler))]
         [InlineData(typeof(IDidSaveTextDocumentHandler))]
         [InlineData(typeof(IDocumentFormattingHandler))]
-        [InlineData(typeof(IDocumentOnTypeFormatHandler))]
+        [InlineData(typeof(IDocumentOnTypeFormattingHandler))]
         [InlineData(typeof(IDocumentRangeFormattingHandler))]
         [InlineData(typeof(IWillSaveWaitUntilTextDocumentHandler))]
         [InlineData(typeof(IExitHandler))]

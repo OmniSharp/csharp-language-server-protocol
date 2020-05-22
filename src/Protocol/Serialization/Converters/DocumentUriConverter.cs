@@ -3,7 +3,6 @@
 // #see https://github.com/NuGet/NuGet.Server
 
 using System;
-using System.Text;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters

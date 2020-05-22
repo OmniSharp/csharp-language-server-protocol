@@ -1,5 +1,3 @@
-using Newtonsoft.Json;
-
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public struct BooleanNumberString

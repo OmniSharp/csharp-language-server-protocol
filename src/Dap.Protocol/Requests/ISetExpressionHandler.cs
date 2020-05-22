@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.SetExpression)]
-    public interface ISetExpressionHandler : IJsonRpcRequestHandler<SetExpressionArguments, SetExpressionResponse> { }
+    [Parallel, Method(RequestNames.SetExpression, Direction.ClientToServer)]
+    public interface ISetExpressionHandler : IJsonRpcRequestHandler<SetExpressionArguments, SetExpressionResponse>
+    {
+    }
 
     public abstract class SetExpressionHandler : ISetExpressionHandler
     {
-        public abstract Task<SetExpressionResponse> Handle(SetExpressionArguments request, CancellationToken cancellationToken);
+        public abstract Task<SetExpressionResponse> Handle(SetExpressionArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class SetExpressionHandlerExtensions
+    public static class SetExpressionExtensions
     {
-        public static IDisposable OnSetExpression(this IDebugAdapterRegistry registry, Func<SetExpressionArguments, CancellationToken, Task<SetExpressionResponse>> handler)
+        public static IDisposable OnSetExpression(this IDebugAdapterServerRegistry registry,
+            Func<SetExpressionArguments, CancellationToken, Task<SetExpressionResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.SetExpression, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : SetExpressionHandler
+        public static IDisposable OnSetExpression(this IDebugAdapterServerRegistry registry,
+            Func<SetExpressionArguments, Task<SetExpressionResponse>> handler)
         {
-            private readonly Func<SetExpressionArguments, CancellationToken, Task<SetExpressionResponse>> _handler;
+            return registry.AddHandler(RequestNames.SetExpression, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<SetExpressionArguments, CancellationToken, Task<SetExpressionResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<SetExpressionResponse> Handle(SetExpressionArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<SetExpressionResponse> RequestSetExpression(this IDebugAdapterClient mediator, SetExpressionArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

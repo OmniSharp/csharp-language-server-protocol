@@ -7,7 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
@@ -20,7 +20,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
         }
 
-        public ProgressManager ProgressManager { get; } = new ProgressManager();
         public Stream Input { get; set; }
         public Stream Output { get; set; }
         public ServerInfo ServerInfo { get; set; }
@@ -79,5 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             TextDocumentIdentifierTypes.Add(typeof(T));
             return Disposable.Empty;
         }
+
+        public IDisposable AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler => throw new NotImplementedException();
     }
 }

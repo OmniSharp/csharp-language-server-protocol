@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.ReverseContinue)]
-    public interface IReverseContinueHandler : IJsonRpcRequestHandler<ReverseContinueArguments, ReverseContinueResponse> { }
+    [Parallel, Method(RequestNames.ReverseContinue, Direction.ClientToServer)]
+    public interface IReverseContinueHandler : IJsonRpcRequestHandler<ReverseContinueArguments, ReverseContinueResponse>
+    {
+    }
 
     public abstract class ReverseContinueHandler : IReverseContinueHandler
     {
-        public abstract Task<ReverseContinueResponse> Handle(ReverseContinueArguments request, CancellationToken cancellationToken);
+        public abstract Task<ReverseContinueResponse> Handle(ReverseContinueArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class ReverseContinueHandlerExtensions
+    public static class ReverseContinueExtensions
     {
-        public static IDisposable OnReverseContinue(this IDebugAdapterRegistry registry, Func<ReverseContinueArguments, CancellationToken, Task<ReverseContinueResponse>> handler)
+        public static IDisposable OnReverseContinue(this IDebugAdapterServerRegistry registry,
+            Func<ReverseContinueArguments, CancellationToken, Task<ReverseContinueResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.ReverseContinue, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ReverseContinueHandler
+        public static IDisposable OnReverseContinue(this IDebugAdapterServerRegistry registry,
+            Func<ReverseContinueArguments, Task<ReverseContinueResponse>> handler)
         {
-            private readonly Func<ReverseContinueArguments, CancellationToken, Task<ReverseContinueResponse>> _handler;
+            return registry.AddHandler(RequestNames.ReverseContinue, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ReverseContinueArguments, CancellationToken, Task<ReverseContinueResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ReverseContinueResponse> Handle(ReverseContinueArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ReverseContinueResponse> RequestReverseContinue(this IDebugAdapterClient mediator, ReverseContinueArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

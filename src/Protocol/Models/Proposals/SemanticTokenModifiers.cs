@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -19,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [JsonConverter(typeof(EnumLikeStringConverter))]
     [Obsolete(Constants.Proposal)]
     [DebuggerDisplay("{_value}")]
-    public struct SemanticTokenModifier : IEquatable<SemanticTokenModifier>, IEnumLikeString
+    public readonly struct SemanticTokenModifier : IEquatable<SemanticTokenModifier>, IEnumLikeString
     {
         private static readonly Lazy<IReadOnlyList<SemanticTokenModifier>> _defaults =
             new Lazy<IReadOnlyList<SemanticTokenModifier>>(

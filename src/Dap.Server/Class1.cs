@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Dap.Server
+﻿namespace Dap.Server
 {
     public class Class1
     {

@@ -1,5 +1,4 @@
-﻿using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server.Messages;
+﻿using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

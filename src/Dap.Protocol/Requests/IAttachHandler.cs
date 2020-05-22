@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Attach)]
+    [Parallel, Method(RequestNames.Attach, Direction.ClientToServer)]
     public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse> { }
 
     public abstract class AttachHandler : IAttachHandler
@@ -13,23 +13,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public abstract Task<AttachResponse> Handle(AttachRequestArguments request, CancellationToken cancellationToken);
     }
 
-    public static class AttachHandlerExtensions
+    public static class AttachExtensions
     {
-        public static IDisposable OnAttach(this IDebugAdapterRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler)
+        public static IDisposable OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : AttachHandler
+        public static IDisposable OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler)
         {
-            private readonly Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> _handler;
+            return registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<AttachResponse> Handle(AttachRequestArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

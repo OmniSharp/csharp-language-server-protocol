@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Variables)]
-    public interface IVariablesHandler : IJsonRpcRequestHandler<VariablesArguments, VariablesResponse> { }
+    [Parallel, Method(RequestNames.Variables, Direction.ClientToServer)]
+    public interface IVariablesHandler : IJsonRpcRequestHandler<VariablesArguments, VariablesResponse>
+    {
+    }
 
     public abstract class VariablesHandler : IVariablesHandler
     {
         public abstract Task<VariablesResponse> Handle(VariablesArguments request, CancellationToken cancellationToken);
     }
 
-    public static class VariablesHandlerExtensions
+    public static class VariablesExtensions
     {
-        public static IDisposable OnVariables(this IDebugAdapterRegistry registry, Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> handler)
+        public static IDisposable OnVariables(this IDebugAdapterServerRegistry registry,
+            Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : VariablesHandler
+        public static IDisposable OnVariables(this IDebugAdapterServerRegistry registry,
+            Func<VariablesArguments, Task<VariablesResponse>> handler)
         {
-            private readonly Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> _handler;
+            return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<VariablesResponse> Handle(VariablesArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<VariablesResponse> RequestVariables(this IDebugAdapterClient mediator, VariablesArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

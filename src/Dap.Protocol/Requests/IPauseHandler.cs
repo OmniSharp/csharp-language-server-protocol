@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Pause)]
-    public interface IPauseHandler : IJsonRpcRequestHandler<PauseArguments, PauseResponse> { }
+    [Parallel, Method(RequestNames.Pause, Direction.ClientToServer)]
+    public interface IPauseHandler : IJsonRpcRequestHandler<PauseArguments, PauseResponse>
+    {
+    }
 
     public abstract class PauseHandler : IPauseHandler
     {
         public abstract Task<PauseResponse> Handle(PauseArguments request, CancellationToken cancellationToken);
     }
 
-    public static class PauseHandlerExtensions
+    public static class PauseExtensions
     {
-        public static IDisposable OnPause(this IDebugAdapterRegistry registry, Func<PauseArguments, CancellationToken, Task<PauseResponse>> handler)
+        public static IDisposable OnPause(this IDebugAdapterServerRegistry registry,
+            Func<PauseArguments, CancellationToken, Task<PauseResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Pause, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : PauseHandler
+        public static IDisposable OnPause(this IDebugAdapterServerRegistry registry,
+            Func<PauseArguments, Task<PauseResponse>> handler)
         {
-            private readonly Func<PauseArguments, CancellationToken, Task<PauseResponse>> _handler;
+            return registry.AddHandler(RequestNames.Pause, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<PauseArguments, CancellationToken, Task<PauseResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<PauseResponse> Handle(PauseArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<PauseResponse> RequestPause(this IDebugAdapterClient mediator, PauseArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

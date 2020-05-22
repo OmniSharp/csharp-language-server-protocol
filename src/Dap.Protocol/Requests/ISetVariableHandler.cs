@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.SetVariable)]
-    public interface ISetVariableHandler : IJsonRpcRequestHandler<SetVariableArguments, SetVariableResponse> { }
+    [Parallel, Method(RequestNames.SetVariable, Direction.ClientToServer)]
+    public interface ISetVariableHandler : IJsonRpcRequestHandler<SetVariableArguments, SetVariableResponse>
+    {
+    }
 
     public abstract class SetVariableHandler : ISetVariableHandler
     {
-        public abstract Task<SetVariableResponse> Handle(SetVariableArguments request, CancellationToken cancellationToken);
+        public abstract Task<SetVariableResponse> Handle(SetVariableArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class SetVariableHandlerExtensions
+    public static class SetVariableExtensions
     {
-        public static IDisposable OnSetVariable(this IDebugAdapterRegistry registry, Func<SetVariableArguments, CancellationToken, Task<SetVariableResponse>> handler)
+        public static IDisposable OnSetVariable(this IDebugAdapterServerRegistry registry,
+            Func<SetVariableArguments, CancellationToken, Task<SetVariableResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.SetVariable, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : SetVariableHandler
+        public static IDisposable OnSetVariable(this IDebugAdapterServerRegistry registry,
+            Func<SetVariableArguments, Task<SetVariableResponse>> handler)
         {
-            private readonly Func<SetVariableArguments, CancellationToken, Task<SetVariableResponse>> _handler;
+            return registry.AddHandler(RequestNames.SetVariable, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<SetVariableArguments, CancellationToken, Task<SetVariableResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<SetVariableResponse> Handle(SetVariableArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<SetVariableResponse> RequestSetVariable(this IDebugAdapterClient mediator, SetVariableArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

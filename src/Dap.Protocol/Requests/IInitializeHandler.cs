@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Initialize)]
-    public interface IInitializeHandler : IJsonRpcRequestHandler<InitializeRequestArguments, InitializeResponse> { }
+    [Parallel, Method(RequestNames.Initialize, Direction.ClientToServer)]
+    public interface IInitializeHandler : IJsonRpcRequestHandler<InitializeRequestArguments, InitializeResponse>
+    {
+    }
 
     public abstract class InitializeHandler : IInitializeHandler
     {
-        public abstract Task<InitializeResponse> Handle(InitializeRequestArguments request, CancellationToken cancellationToken);
+        public abstract Task<InitializeResponse> Handle(InitializeRequestArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class InitializeHandlerExtensions
+    public static class InitializeExtensions
     {
-        public static IDisposable OnInitialize(this IDebugAdapterRegistry registry, Func<InitializeRequestArguments, CancellationToken, Task<InitializeResponse>> handler)
+        public static IDisposable OnInitialize(this IDebugAdapterServerRegistry registry,
+            Func<InitializeRequestArguments, CancellationToken, Task<InitializeResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Initialize, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : InitializeHandler
+        public static IDisposable OnInitialize(this IDebugAdapterServerRegistry registry,
+            Func<InitializeRequestArguments, Task<InitializeResponse>> handler)
         {
-            private readonly Func<InitializeRequestArguments, CancellationToken, Task<InitializeResponse>> _handler;
+            return registry.AddHandler(RequestNames.Initialize, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<InitializeRequestArguments, CancellationToken, Task<InitializeResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<InitializeResponse> Handle(InitializeRequestArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<InitializeResponse> RequestInitialize(this IDebugAdapterClient mediator, InitializeRequestArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

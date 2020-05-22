@@ -1,6 +1,3 @@
-using MediatR;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -9,8 +6,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Params for the CodeActionRequest
     /// </summary>
-    [Method(DocumentNames.CodeAction)]
-    public class CodeActionParams : ITextDocumentIdentifierParams, IRequest<CommandOrCodeActionContainer>, IWorkDoneProgressParams, IPartialItems<CodeActionOrCommand>
+    [Method(TextDocumentNames.CodeAction, Direction.ClientToServer)]
+    public class CodeActionParams : ITextDocumentIdentifierParams, IPartialItemsRequest<CommandOrCodeActionContainer, CommandOrCodeAction>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The document in which the command was invoked.

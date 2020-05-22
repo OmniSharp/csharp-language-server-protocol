@@ -1,11 +1,10 @@
 using MediatR;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(ClientNames.UnregisterCapability)]
+    [Method(ClientNames.UnregisterCapability, Direction.ServerToClient)]
     public class UnregistrationParams : IRequest
     {
         public UnregistrationContainer Unregisterations { get; set; }

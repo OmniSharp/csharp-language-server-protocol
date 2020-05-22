@@ -2,9 +2,11 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
+    [Method(EventNames.Output, Direction.ServerToClient)]
     public class OutputEvent : IRequest
     {
         /// <summary>

@@ -1,13 +1,11 @@
 using MediatR;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(WorkspaceNames.ExecuteCommand)]
+    [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
     public class ExecuteCommandParams : IRequest, IWorkDoneProgressParams
     {
         /// <summary>
