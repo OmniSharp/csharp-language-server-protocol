@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -96,7 +97,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
+                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(10000));
             });
 
             server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams() {
@@ -109,14 +110,27 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
+            await Task.Delay(1000);
+
             _diagnostics.Should().HaveCount(1);
         }
 
-        private ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>> _diagnostics = new ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>>();
+        private readonly ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>> _diagnostics = new ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>>();
 
         private void ConfigureClient(LanguageClientOptions options)
         {
-            options.OnPublishDiagnostics((request, ct) => { _diagnostics.AddOrUpdate(request.Uri, (a) => request.Diagnostics, (a, b) => request.Diagnostics); });
+            options.OnPublishDiagnostics(async (request, ct) => {
+                try
+                {
+                    TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical("start");
+                    await Task.Delay(500, ct);
+                    _diagnostics.AddOrUpdate(request.Uri, (a) => request.Diagnostics, (a, b) => request.Diagnostics);
+                }
+                catch (Exception e)
+                {
+                    TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical(e, "error");
+                }
+            });
         }
 
         private void ConfigureServer(LanguageServerOptions options)

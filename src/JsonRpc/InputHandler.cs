@@ -311,7 +311,6 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                     else if (response is ServerError serverError)
                     {
-
                         tcs.SetException(DefaultErrorParser(_requestRouter.GetRequestDescriptor(response.Id), serverError, _getException));
                     }
                 }
