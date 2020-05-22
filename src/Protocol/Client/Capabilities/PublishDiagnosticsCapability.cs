@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Capabilities specific to `textDocument/publishDiagnostics`.
     /// </summary>
-    public class PublishDiagnosticsCapability
+    public class PublishDiagnosticsCapability: ICapability
     {
         /// <summary>
         /// Whether the clients accepts diagnostics with related information.

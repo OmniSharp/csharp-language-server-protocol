@@ -20,7 +20,7 @@ namespace SampleServer
         static async Task MainAsync(string[] args)
         {
             // Debugger.Launch();
-            // while (!System.Diagnostics.Debugger.IsAttached)
+            // while (!Debugger.IsAttached)
             // {
             //     await Task.Delay(100);
             // }
@@ -66,7 +66,7 @@ namespace SampleServer
                         });
                     })
                     .OnInitialize(async (server, request, token) => {
-                        var manager = server.ProgressManager.WorkDone(request, new WorkDoneProgressBegin() {
+                        var manager = server.WorkDoneManager.For(request, new WorkDoneProgressBegin() {
                             Title = "Server is starting...",
                             Percentage = 10,
                         });
@@ -94,7 +94,7 @@ namespace SampleServer
                         workDone.OnCompleted();
                     })
                     .OnStarted(async (languageServer, result, token) => {
-                        using var manager = languageServer.ProgressManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
+                        using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
 
                         manager.OnNext(new WorkDoneProgressReport() { Message = "doing things..." });
                         await Task.Delay(10000);

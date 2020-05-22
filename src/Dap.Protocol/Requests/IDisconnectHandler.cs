@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Disconnect)]
-    public interface IDisconnectHandler : IJsonRpcRequestHandler<DisconnectArguments, DisconnectResponse> { }
+    [Parallel, Method(RequestNames.Disconnect, Direction.ClientToServer)]
+    public interface IDisconnectHandler : IJsonRpcRequestHandler<DisconnectArguments, DisconnectResponse>
+    {
+    }
 
     public abstract class DisconnectHandler : IDisconnectHandler
     {
-        public abstract Task<DisconnectResponse> Handle(DisconnectArguments request, CancellationToken cancellationToken);
+        public abstract Task<DisconnectResponse> Handle(DisconnectArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class DisconnectHandlerExtensions
+    public static class DisconnectExtensions
     {
-        public static IDisposable OnDisconnect(this IDebugAdapterRegistry registry, Func<DisconnectArguments, CancellationToken, Task<DisconnectResponse>> handler)
+        public static IDisposable OnDisconnect(this IDebugAdapterServerRegistry registry,
+            Func<DisconnectArguments, CancellationToken, Task<DisconnectResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Disconnect, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : DisconnectHandler
+        public static IDisposable OnDisconnect(this IDebugAdapterServerRegistry registry,
+            Func<DisconnectArguments, Task<DisconnectResponse>> handler)
         {
-            private readonly Func<DisconnectArguments, CancellationToken, Task<DisconnectResponse>> _handler;
+            return registry.AddHandler(RequestNames.Disconnect, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<DisconnectArguments, CancellationToken, Task<DisconnectResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<DisconnectResponse> Handle(DisconnectArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<DisconnectResponse> RequestDisconnect(this IDebugAdapterClient mediator, DisconnectArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

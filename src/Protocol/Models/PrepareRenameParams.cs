@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.PrepareRename)]
+    [Method(TextDocumentNames.PrepareRename, Direction.ClientToServer)]
     public class PrepareRenameParams : TextDocumentPositionParams, IRequest<RangeOrPlaceholderRange>
     {
     }

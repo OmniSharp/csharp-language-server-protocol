@@ -1,8 +1,10 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
+    [Method(EventNames.Module, Direction.ServerToClient)]
     public class ModuleEvent : IRequest
     {
 

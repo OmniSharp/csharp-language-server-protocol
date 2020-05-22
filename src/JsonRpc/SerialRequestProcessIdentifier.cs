@@ -1,5 +1,3 @@
-using OmniSharp.Extensions.JsonRpc.Server;
-
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class SerialRequestProcessIdentifier : IRequestProcessIdentifier

@@ -5,32 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Disassemble)]
-    public interface IDisassembleHandler : IJsonRpcRequestHandler<DisassembleArguments, DisassembleResponse> { }
+    [Parallel, Method(RequestNames.Disassemble, Direction.ClientToServer)]
+    public interface IDisassembleHandler : IJsonRpcRequestHandler<DisassembleArguments, DisassembleResponse>
+    {
+    }
 
     public abstract class DisassembleHandler : IDisassembleHandler
     {
-        public abstract Task<DisassembleResponse> Handle(DisassembleArguments request, CancellationToken cancellationToken);
+        public abstract Task<DisassembleResponse> Handle(DisassembleArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class DisassembleHandlerExtensions
+    public static class DisassembleExtensions
     {
-        public static IDisposable OnDisassemble(this IDebugAdapterRegistry registry, Func<DisassembleArguments, CancellationToken, Task<DisassembleResponse>> handler)
+        public static IDisposable OnDisassemble(this IDebugAdapterServerRegistry registry,
+            Func<DisassembleArguments, CancellationToken, Task<DisassembleResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Disassemble, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : DisassembleHandler
+        public static IDisposable OnDisassemble(this IDebugAdapterServerRegistry registry,
+            Func<DisassembleArguments, Task<DisassembleResponse>> handler)
         {
-            private readonly Func<DisassembleArguments, CancellationToken, Task<DisassembleResponse>> _handler;
+            return registry.AddHandler(RequestNames.Disassemble, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<DisassembleArguments, CancellationToken, Task<DisassembleResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<DisassembleResponse> Handle(DisassembleArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<DisassembleResponse> RequestDisassemble(this IDebugAdapterClient mediator, DisassembleArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
-
 }

@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Handlers
 {

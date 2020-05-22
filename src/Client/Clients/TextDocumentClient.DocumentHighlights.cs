@@ -1,7 +1,5 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -32,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </returns>
         public Task<DocumentHighlightContainer> DocumentHighlights(DocumentUri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<DocumentHighlightContainer>(DocumentNames.DocumentHighlight, documentUri, line, column, cancellationToken);
+            return PositionalRequest<DocumentHighlightContainer>(TextDocumentNames.DocumentHighlight, documentUri, line, column, cancellationToken);
         }
     }
 }

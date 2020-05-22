@@ -5,31 +5,33 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.StepBack)]
-    public interface IStepBackHandler : IJsonRpcRequestHandler<StepBackArguments, StepBackResponse> { }
+    [Parallel, Method(RequestNames.StepBack, Direction.ClientToServer)]
+    public interface IStepBackHandler : IJsonRpcRequestHandler<StepBackArguments, StepBackResponse>
+    {
+    }
 
     public abstract class StepBackHandler : IStepBackHandler
     {
         public abstract Task<StepBackResponse> Handle(StepBackArguments request, CancellationToken cancellationToken);
     }
 
-    public static class StepBackHandlerExtensions
+    public static class StepBackExtensions
     {
-        public static IDisposable OnStepBack(this IDebugAdapterRegistry registry, Func<StepBackArguments, CancellationToken, Task<StepBackResponse>> handler)
+        public static IDisposable OnStepBack(this IDebugAdapterServerRegistry registry,
+            Func<StepBackArguments, CancellationToken, Task<StepBackResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.StepBack, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : StepBackHandler
+        public static IDisposable OnStepBack(this IDebugAdapterServerRegistry registry,
+            Func<StepBackArguments, Task<StepBackResponse>> handler)
         {
-            private readonly Func<StepBackArguments, CancellationToken, Task<StepBackResponse>> _handler;
+            return registry.AddHandler(RequestNames.StepBack, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<StepBackArguments, CancellationToken, Task<StepBackResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<StepBackResponse> Handle(StepBackArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<StepBackResponse> RequestStepBack(this IDebugAdapterClient mediator, StepBackArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

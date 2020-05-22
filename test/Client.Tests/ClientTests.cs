@@ -1,5 +1,4 @@
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
@@ -67,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             const int column = 5;
             var expectedHoverContent = new MarkedStringsOrMarkupContent("123", "456", "789");
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(DocumentNames.Hover, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, Hover>(TextDocumentNames.Hover, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(AbsoluteDocumentPath,
@@ -147,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(DocumentNames.Completion, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, CompletionList>(TextDocumentNames.Completion, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -216,7 +215,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 }
             };
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, SignatureHelp>(DocumentNames.SignatureHelp, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, SignatureHelp>(TextDocumentNames.SignatureHelp, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -281,7 +280,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                     },
                 }));
 
-            ServerDispatcher.HandleRequest<TextDocumentPositionParams, LocationOrLocationLinks>(DocumentNames.Definition, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<TextDocumentPositionParams, LocationOrLocationLinks>(TextDocumentNames.Definition, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -339,7 +338,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                     },
                 });
 
-            ServerDispatcher.HandleRequest<DocumentHighlightParams, DocumentHighlightContainer>(DocumentNames.DocumentHighlight, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<DocumentHighlightParams, DocumentHighlightContainer>(TextDocumentNames.DocumentHighlight, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -390,7 +389,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             var expectedSymbols = new SymbolInformationOrDocumentSymbolContainer(
                 new SymbolInformationOrDocumentSymbol(documentSymbol));
 
-            ServerDispatcher.HandleRequest<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<DocumentSymbolParams, SymbolInformationOrDocumentSymbolContainer>(TextDocumentNames.DocumentSymbol, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
 
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -400,7 +399,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
             var documentSymbolParams = new DocumentSymbolParams {
                 TextDocument = new TextDocumentIdentifier(expectedDocumentUri)
             };
-            var symbols = await LanguageClient.SendRequest<SymbolInformationOrDocumentSymbolContainer>(DocumentNames.DocumentSymbol, documentSymbolParams);
+            var symbols = await LanguageClient.SendRequest<SymbolInformationOrDocumentSymbolContainer>(TextDocumentNames.DocumentSymbol, documentSymbolParams);
 
             var actualSymbols = symbols.ToArray();
             Assert.Collection(actualSymbols, actualSymbol => {
@@ -438,7 +437,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                     EndCharacter = 2,
                 });
 
-            ServerDispatcher.HandleRequest<FoldingRangeRequestParam, Container<FoldingRange>>(DocumentNames.FoldingRange, (request, cancellationToken) => {
+            ServerDispatcher.HandleRequest<FoldingRangeRequestParam, Container<FoldingRange>>(TextDocumentNames.FoldingRange, (request, cancellationToken) => {
                 Assert.NotNull(request.TextDocument);
                 Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
                 return Task.FromResult(expectedFoldingRanges);
@@ -504,7 +503,7 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
                 receivedDiagnosticsNotification.SetResult(null);
             });
 
-            ServerConnection.SendNotification(DocumentNames.PublishDiagnostics, new PublishDiagnosticsParams {
+            ServerConnection.SendNotification(TextDocumentNames.PublishDiagnostics, new PublishDiagnosticsParams {
                 Uri = DocumentUri.FromFileSystemPath(documentPath),
                 Diagnostics = expectedDiagnostics
             });

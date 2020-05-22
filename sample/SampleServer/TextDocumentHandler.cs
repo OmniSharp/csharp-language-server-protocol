@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
@@ -7,10 +6,13 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace SampleServer
 {
@@ -104,11 +106,11 @@ namespace SampleServer
         }
     }
 
-    class MyDocumentSymbolHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.DocumentSymbolHandler
+    class MyDocumentSymbolHandler : DocumentSymbolHandler
     {
-        public MyDocumentSymbolHandler(ProgressManager progressManager) : base(new DocumentSymbolRegistrationOptions() {
+        public MyDocumentSymbolHandler() : base(new DocumentSymbolRegistrationOptions() {
             DocumentSelector = DocumentSelector.ForLanguage("csharp")
-        }, progressManager)
+        })
         {
         }
 
@@ -155,26 +157,31 @@ namespace SampleServer
         }
     }
 
-    class MyWorkspaceSymbolsHandler : OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkspaceSymbolsHandler
+    class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
     {
+        private readonly IServerWorkDoneManager _manager;
+        private readonly IServerWorkDoneManager _serverWorkDoneManager;
+        private readonly IProgressManager _progressManager;
         private readonly ILogger<MyWorkspaceSymbolsHandler> logger;
 
-        public MyWorkspaceSymbolsHandler(ProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
-            base(new WorkspaceSymbolRegistrationOptions() { }, progressManager)
+        public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
+            base(new WorkspaceSymbolRegistrationOptions() { })
         {
+            _serverWorkDoneManager = serverWorkDoneManager;
+            _progressManager = progressManager;
             this.logger = logger;
         }
 
         public override async Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request,
             CancellationToken cancellationToken)
         {
-            using var reporter = ProgressManager.WorkDone(request, new WorkDoneProgressBegin() {
+            using var reporter = _serverWorkDoneManager.For(request, new WorkDoneProgressBegin() {
                 Cancellable = true,
                 Message = "This might take a while...",
                 Title = "Some long task....",
                 Percentage = 0
             });
-            using var partialResults = ProgressManager.For(request, cancellationToken);
+            using var partialResults = _progressManager.For(request, cancellationToken);
             if (partialResults != null)
             {
                 await Task.Delay(2000, cancellationToken);

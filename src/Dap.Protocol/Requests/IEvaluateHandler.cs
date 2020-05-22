@@ -5,8 +5,10 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Evaluate)]
-    public interface IEvaluateHandler : IJsonRpcRequestHandler<EvaluateArguments, EvaluateResponse> { }
+    [Parallel, Method(RequestNames.Evaluate, Direction.ClientToServer)]
+    public interface IEvaluateHandler : IJsonRpcRequestHandler<EvaluateArguments, EvaluateResponse>
+    {
+    }
 
 
     public abstract class EvaluateHandler : IEvaluateHandler
@@ -14,23 +16,23 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public abstract Task<EvaluateResponse> Handle(EvaluateArguments request, CancellationToken cancellationToken);
     }
 
-    public static class EvaluateHandlerExtensions
+    public static class EvaluateExtensions
     {
-        public static IDisposable OnEvaluate(this IDebugAdapterRegistry registry, Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> handler)
+        public static IDisposable OnEvaluate(this IDebugAdapterServerRegistry registry,
+            Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : EvaluateHandler
+        public static IDisposable OnEvaluate(this IDebugAdapterServerRegistry registry,
+            Func<EvaluateArguments, Task<EvaluateResponse>> handler)
         {
-            private readonly Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> _handler;
+            return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<EvaluateResponse> Handle(EvaluateArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<EvaluateResponse> RequestEvaluate(this IDebugAdapterClient mediator, EvaluateArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

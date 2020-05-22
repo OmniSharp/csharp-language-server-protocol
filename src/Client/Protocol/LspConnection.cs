@@ -12,9 +12,7 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
 using OmniSharp.Extensions.LanguageServer.Client.Handlers;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using JsonRpcMessages = OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 

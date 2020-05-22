@@ -7,37 +7,19 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class DelegatingNotificationHandler<T> : IJsonRpcNotificationHandler<DelegatingNotification<T>>
     {
-        private readonly Action<T> _handler;
         private readonly ISerializer _serializer;
+        private readonly Func<T, CancellationToken, Task> _handler;
 
-        public DelegatingNotificationHandler(ISerializer serializer, Action<T> handler)
+        public DelegatingNotificationHandler( ISerializer serializer, Func<T, CancellationToken, Task> handler)
         {
-            _handler = handler;
             _serializer = serializer;
-        }
-
-        public Task<Unit> Handle(DelegatingNotification<T> request, CancellationToken cancellationToken)
-        {
-            _handler.Invoke(request.Value);
-            return Unit.Task;
-        }
-    }
-
-    public class DelegatingNotificationHandler : IJsonRpcNotificationHandler<DelegatingNotification<object>>
-    {
-        private readonly Action _handler;
-        private readonly ISerializer _serializer;
-
-        public DelegatingNotificationHandler(ISerializer serializer, Action handler)
-        {
             _handler = handler;
-            _serializer = serializer;
         }
 
-        public Task<Unit> Handle(DelegatingNotification<object> request, CancellationToken cancellationToken)
+        public async Task<Unit> Handle(DelegatingNotification<T> request, CancellationToken cancellationToken)
         {
-            _handler.Invoke();
-            return Unit.Task;
+            await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken);
+            return Unit.Value;
         }
     }
 }

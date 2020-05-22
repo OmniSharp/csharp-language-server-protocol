@@ -1,15 +1,18 @@
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.Launch, Direction.ClientToServer)]
     public class LaunchRequestArguments : IRequest<LaunchResponse>
     {
         /// <summary>
         /// If noDebug is true the launch request should launch the program without enabling debugging.
         /// </summary>
-        [Optional] public bool? NoDebug { get; set; }
+        [Optional]
+        public bool? NoDebug { get; set; }
 
         /// <summary>
         /// Optional data from the previous, restarted session.
@@ -19,5 +22,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         [Optional]
         public JToken Restart { get; set; }
     }
-
 }

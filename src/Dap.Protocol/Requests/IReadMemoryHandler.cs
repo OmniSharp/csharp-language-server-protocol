@@ -5,32 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.ReadMemory)]
-    public interface IReadMemoryHandler : IJsonRpcRequestHandler<ReadMemoryArguments, ReadMemoryResponse> { }
+    [Parallel, Method(RequestNames.ReadMemory, Direction.ClientToServer)]
+    public interface IReadMemoryHandler : IJsonRpcRequestHandler<ReadMemoryArguments, ReadMemoryResponse>
+    {
+    }
 
     public abstract class ReadMemoryHandler : IReadMemoryHandler
     {
-        public abstract Task<ReadMemoryResponse> Handle(ReadMemoryArguments request, CancellationToken cancellationToken);
+        public abstract Task<ReadMemoryResponse> Handle(ReadMemoryArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class ReadMemoryHandlerExtensions
+    public static class ReadMemoryExtensions
     {
-        public static IDisposable OnReadMemory(this IDebugAdapterRegistry registry, Func<ReadMemoryArguments, CancellationToken, Task<ReadMemoryResponse>> handler)
+        public static IDisposable OnReadMemory(this IDebugAdapterServerRegistry registry,
+            Func<ReadMemoryArguments, CancellationToken, Task<ReadMemoryResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.ReadMemory, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ReadMemoryHandler
+        public static IDisposable OnReadMemory(this IDebugAdapterServerRegistry registry,
+            Func<ReadMemoryArguments, Task<ReadMemoryResponse>> handler)
         {
-            private readonly Func<ReadMemoryArguments, CancellationToken, Task<ReadMemoryResponse>> _handler;
+            return registry.AddHandler(RequestNames.ReadMemory, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ReadMemoryArguments, CancellationToken, Task<ReadMemoryResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ReadMemoryResponse> Handle(ReadMemoryArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ReadMemoryResponse> RequestReadMemory(this IDebugAdapterClient mediator, ReadMemoryArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
-
 }

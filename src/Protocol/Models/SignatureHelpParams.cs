@@ -3,7 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [Method(DocumentNames.SignatureHelp)]
+    [Method(TextDocumentNames.SignatureHelp, Direction.ClientToServer)]
     public class SignatureHelpParams : WorkDoneTextDocumentPositionParams, IRequest<SignatureHelp>
     {
         /// <summary>

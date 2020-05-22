@@ -1,10 +1,5 @@
-using System;
 using System.Collections.Generic;
-using System.Threading;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
-using OmniSharp.Extensions.JsonRpc.Serialization.DebugAdapterConverters;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
 {

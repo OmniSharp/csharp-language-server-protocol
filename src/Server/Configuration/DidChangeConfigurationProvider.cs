@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (configurationItems.Length == 0) return;
 
             {
-                var configurations = (await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                     Items = configurationItems
                 })).ToArray();
 
@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                         _openScopes.Keys.Select(scopeUri => new ConfigurationItem() { ScopeUri = scopeUri, Section = scope.Section })
                     ).ToArray();
 
-                var configurations = (await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                     Items = scopedConfigurationItems
                 })).ToArray();
 
@@ -118,7 +118,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return new ConfigurationBuilder().AddInMemoryCollection(_configuration.AsEnumerable()).Build();
             }
 
-            var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                 Items = items
             });
             var data = items.Zip(configurations,
@@ -139,7 +139,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
-            var configurations = await _server.Workspace.WorkspaceConfiguration(new ConfigurationParams() {
+            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
                 Items = scopes.Select(z => new ConfigurationItem() { Section = z.Section, ScopeUri = scopeUri }).ToArray()
             });
 

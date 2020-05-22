@@ -1,20 +1,17 @@
 using System;
 using System.Linq;
-using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Xunit;
 using HandlerCollection = OmniSharp.Extensions.LanguageServer.Server.HandlerCollection;
 using System.Collections.Generic;
 using MediatR;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using TextDocumentIdentifiers = OmniSharp.Extensions.LanguageServer.Server.TextDocumentIdentifiers;
 
 namespace Lsp.Tests
 {
@@ -53,10 +50,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData(DocumentNames.DidOpen, 4)]
-        [InlineData(DocumentNames.DidChange, 4)]
-        [InlineData(DocumentNames.DidClose, 4)]
-        [InlineData(DocumentNames.DidSave, 4)]
+        [InlineData(TextDocumentNames.DidOpen, 4)]
+        [InlineData(TextDocumentNames.DidChange, 4)]
+        [InlineData(TextDocumentNames.DidClose, 4)]
+        [InlineData(TextDocumentNames.DidSave, 4)]
         public void Should_Contain_AllDefinedTextDocumentSyncMethods(string key, int count)
         {
             var handler = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers());
@@ -112,10 +109,10 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [InlineData(DocumentNames.DidOpen, 8)]
-        [InlineData(DocumentNames.DidChange, 8)]
-        [InlineData(DocumentNames.DidClose, 8)]
-        [InlineData(DocumentNames.DidSave, 8)]
+        [InlineData(TextDocumentNames.DidOpen, 8)]
+        [InlineData(TextDocumentNames.DidChange, 8)]
+        [InlineData(TextDocumentNames.DidClose, 8)]
+        [InlineData(TextDocumentNames.DidSave, 8)]
         public void Should_Contain_AllDefinedMethods_ForDifferentKeys(string key, int count)
         {
             var handler = new HandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers());
@@ -219,7 +216,7 @@ namespace Lsp.Tests
                         DocumentSelector = new DocumentSelector() { }
                     });
 
-            yield return new object[] { DocumentNames.CodeLensResolve, codeLensHandler };
+            yield return new object[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
             var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler) }, new object[0]);
             ((IDocumentLinkHandler)documentLinkHandler).GetRegistrationOptions()
@@ -227,7 +224,7 @@ namespace Lsp.Tests
                     DocumentSelector = new DocumentSelector() { }
                 });
 
-            yield return new object[] { DocumentNames.DocumentLinkResolve, documentLinkHandler };
+            yield return new object[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
             var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler) }, new object[0]);
             ((ICompletionHandler)completionHandler).GetRegistrationOptions()
@@ -235,7 +232,7 @@ namespace Lsp.Tests
                     DocumentSelector = new DocumentSelector() { }
                 });
 
-            yield return new object[] { DocumentNames.CompletionResolve, completionHandler };
+            yield return new object[] { TextDocumentNames.CompletionResolve, completionHandler };
         }
     }
 }

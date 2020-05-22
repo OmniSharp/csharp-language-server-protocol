@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    [Method(DocumentNames.PrepareCallHierarchy)]
+    [Method(TextDocumentNames.PrepareCallHierarchy, Direction.ClientToServer)]
     public class CallHierarchyPrepareParams : WorkDoneTextDocumentPositionParams, IRequest<Container<CallHierarchyItem>>
     {
     }

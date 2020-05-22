@@ -5,31 +5,34 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.LoadedSources)]
-    public interface ILoadedSourcesHandler : IJsonRpcRequestHandler<LoadedSourcesArguments, LoadedSourcesResponse> { }
+    [Parallel, Method(RequestNames.LoadedSources, Direction.ClientToServer)]
+    public interface ILoadedSourcesHandler : IJsonRpcRequestHandler<LoadedSourcesArguments, LoadedSourcesResponse>
+    {
+    }
 
     public abstract class LoadedSourcesHandler : ILoadedSourcesHandler
     {
-        public abstract Task<LoadedSourcesResponse> Handle(LoadedSourcesArguments request, CancellationToken cancellationToken);
+        public abstract Task<LoadedSourcesResponse> Handle(LoadedSourcesArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class LoadedSourcesHandlerExtensions
+    public static class LoadedSourcesExtensions
     {
-        public static IDisposable OnLoadedSources(this IDebugAdapterRegistry registry, Func<LoadedSourcesArguments, CancellationToken, Task<LoadedSourcesResponse>> handler)
+        public static IDisposable OnLoadedSources(this IDebugAdapterServerRegistry registry,
+            Func<LoadedSourcesArguments, CancellationToken, Task<LoadedSourcesResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.LoadedSources, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : LoadedSourcesHandler
+        public static IDisposable OnLoadedSources(this IDebugAdapterServerRegistry registry,
+            Func<LoadedSourcesArguments, Task<LoadedSourcesResponse>> handler)
         {
-            private readonly Func<LoadedSourcesArguments, CancellationToken, Task<LoadedSourcesResponse>> _handler;
+            return registry.AddHandler(RequestNames.LoadedSources, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<LoadedSourcesArguments, CancellationToken, Task<LoadedSourcesResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<LoadedSourcesResponse> Handle(LoadedSourcesArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<LoadedSourcesResponse> RequestLoadedSources(this IDebugAdapterClient mediator, LoadedSourcesArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

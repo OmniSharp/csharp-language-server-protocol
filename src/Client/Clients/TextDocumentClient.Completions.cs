@@ -1,7 +1,5 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client.Utilities;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -32,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Clients
         /// </returns>
         public Task<CompletionList> Completions(DocumentUri documentUri, int line, int column, CancellationToken cancellationToken = default(CancellationToken))
         {
-            return PositionalRequest<CompletionList>(DocumentNames.Completion, documentUri, line, column, cancellationToken);
+            return PositionalRequest<CompletionList>(TextDocumentNames.Completion, documentUri, line, column, cancellationToken);
         }
     }
 }

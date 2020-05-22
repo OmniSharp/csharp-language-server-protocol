@@ -1,12 +1,8 @@
 using System;
 using System.Collections.Generic;
-using Autofac;
 using FluentAssertions;
-using FluentAssertions.Primitives;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;

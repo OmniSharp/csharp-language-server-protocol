@@ -1,5 +1,4 @@
 ﻿using System.Linq;
-using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -11,7 +10,6 @@ using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using Xunit;
 using Notification = OmniSharp.Extensions.JsonRpc.Client.Notification;
-using Unit = MediatR.Unit;
 
 namespace Lsp.Tests
 {

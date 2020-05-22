@@ -66,8 +66,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public override int GetHashCode()
         {
             var hashCode = 1456509845;
-            hashCode = hashCode * -1521134295 + EqualityComparer<long?>.Default.GetHashCode(_long);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(_string);
             hashCode = hashCode * -1521134295 + IsLong.GetHashCode();
             hashCode = hashCode * -1521134295 + Long.GetHashCode();
             hashCode = hashCode * -1521134295 + IsString.GetHashCode();
@@ -77,9 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool Equals(ProgressToken other)
         {
-            return EqualityComparer<long?>.Default.Equals(_long, other._long) &&
-                   _string == other._string &&
-                   IsLong == other.IsLong &&
+            return IsLong == other.IsLong &&
                    Long == other.Long &&
                    IsString == other.IsString &&
                    String == other.String;

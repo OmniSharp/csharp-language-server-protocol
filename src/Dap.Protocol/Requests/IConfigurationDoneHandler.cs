@@ -5,31 +5,35 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.ConfigurationDone)]
-    public interface IConfigurationDoneHandler : IJsonRpcRequestHandler<ConfigurationDoneArguments, ConfigurationDoneResponse> { }
+    [Parallel, Method(RequestNames.ConfigurationDone, Direction.ClientToServer)]
+    public interface
+        IConfigurationDoneHandler : IJsonRpcRequestHandler<ConfigurationDoneArguments, ConfigurationDoneResponse>
+    {
+    }
 
     public abstract class ConfigurationDoneHandler : IConfigurationDoneHandler
     {
-        public abstract Task<ConfigurationDoneResponse> Handle(ConfigurationDoneArguments request, CancellationToken cancellationToken);
+        public abstract Task<ConfigurationDoneResponse> Handle(ConfigurationDoneArguments request,
+            CancellationToken cancellationToken);
     }
 
-    public static class ConfigurationDoneHandlerExtensions
+    public static class ConfigurationDoneExtensions
     {
-        public static IDisposable OnConfigurationDone(this IDebugAdapterRegistry registry, Func<ConfigurationDoneArguments, CancellationToken, Task<ConfigurationDoneResponse>> handler)
+        public static IDisposable OnConfigurationDone(this IDebugAdapterServerRegistry registry,
+            Func<ConfigurationDoneArguments, CancellationToken, Task<ConfigurationDoneResponse>> handler)
         {
-            return registry.AddHandlers(new DelegatingHandler(handler));
+            return registry.AddHandler(RequestNames.ConfigurationDone, RequestHandler.For(handler));
         }
 
-        class DelegatingHandler : ConfigurationDoneHandler
+        public static IDisposable OnConfigurationDone(this IDebugAdapterServerRegistry registry,
+            Func<ConfigurationDoneArguments, Task<ConfigurationDoneResponse>> handler)
         {
-            private readonly Func<ConfigurationDoneArguments, CancellationToken, Task<ConfigurationDoneResponse>> _handler;
+            return registry.AddHandler(RequestNames.ConfigurationDone, RequestHandler.For(handler));
+        }
 
-            public DelegatingHandler(Func<ConfigurationDoneArguments, CancellationToken, Task<ConfigurationDoneResponse>> handler)
-            {
-                _handler = handler;
-            }
-
-            public override Task<ConfigurationDoneResponse> Handle(ConfigurationDoneArguments request, CancellationToken cancellationToken) => _handler.Invoke(request, cancellationToken);
+        public static Task<ConfigurationDoneResponse> RequestConfigurationDone(this IDebugAdapterClient mediator, ConfigurationDoneArguments @params, CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
         }
     }
 }

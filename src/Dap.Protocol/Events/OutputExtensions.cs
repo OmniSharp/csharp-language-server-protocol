@@ -1,17 +1,44 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
+    [Parallel, Method(EventNames.Output, Direction.ServerToClient)]
+    public interface IOutputHandler : IJsonRpcNotificationHandler<OutputEvent> { }
+
+    public abstract class OutputHandler : IOutputHandler
+    {
+        public abstract Task<Unit> Handle(OutputEvent request, CancellationToken cancellationToken);
+    }
+
     public static class OutputExtensions
     {
-        public static void SendOutput(this IDebugClient mediator, OutputEvent @event)
+        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent> handler)
         {
-            mediator.SendNotification(EventNames.Output, @event);
+            return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent, CancellationToken> handler)
+        {
+            return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, Task> handler)
+        {
+            return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
+        }
+
+        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, CancellationToken, Task> handler)
+        {
+            return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
+        }
+
+        public static void SendOutput(this IDebugAdapterServer mediator, OutputEvent @params)
+        {
+            mediator.SendNotification(@params);
         }
     }
 }

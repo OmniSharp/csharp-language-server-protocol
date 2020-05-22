@@ -1,8 +1,10 @@
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
+    [Method(RequestNames.SetFunctionBreakpoints, Direction.ClientToServer)]
     public class SetFunctionBreakpointsArguments : IRequest<SetFunctionBreakpointsResponse>
     {
         /// <summary>
