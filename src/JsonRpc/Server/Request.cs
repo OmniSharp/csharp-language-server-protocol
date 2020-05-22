@@ -4,7 +4,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 {
     public class Request : IMethodWithParams
     {
-        internal Request(
+        public Request(
             object id,
             string method,
             JToken @params)

@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -13,15 +11,14 @@ using System.Reactive.Disposables;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-
     public class JsonRpcServer : IJsonRpcServer
     {
         private readonly Connection _connection;
-        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
-        private readonly IReceiver _receiver;
-        private readonly ISerializer _serializer;
         private readonly HandlerCollection _collection;
-        private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers = new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
+
+        private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers =
+            new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
+
         private readonly IResponseRouter _responseRouter;
         private readonly IServiceProvider _serviceProvider;
 
@@ -34,63 +31,39 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static async Task<IJsonRpcServer> From(JsonRpcServerOptions options)
         {
-            var server = new JsonRpcServer(
-                options.Input,
-                options.Output,
-                options.Receiver,
-                options.RequestProcessIdentifier,
-                options.LoggerFactory,
-                options.Serializer,
-                options.Services,
-                options.HandlerTypes.Select(x => x.Assembly)
-                    .Distinct().Concat(options.HandlerAssemblies),
-                options.Handlers,
-                options.NamedHandlers,
-                options.NamedServiceHandlers,
-                options.Concurrency
-            );
+            var server = new JsonRpcServer(options);
 
             await server.Initialize();
 
             return server;
         }
 
-        internal JsonRpcServer(
-            Stream input,
-            Stream output,
-            IReceiver receiver,
-            IRequestProcessIdentifier requestProcessIdentifier,
-            ILoggerFactory loggerFactory,
-            ISerializer serializer,
-            IServiceCollection services,
-            IEnumerable<Assembly> assemblies,
-            IEnumerable<IJsonRpcHandler> handlers,
-            IEnumerable<(string name, IJsonRpcHandler handler)> namedHandlers,
-            IEnumerable<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> namedServiceHandlers,
-            int? concurrency)
+        internal JsonRpcServer(JsonRpcServerOptions options)
         {
-            var outputHandler = new OutputHandler(output, serializer, loggerFactory.CreateLogger<OutputHandler>());
-
+            var outputHandler = new OutputHandler(options.Output, options.Serializer,
+                options.LoggerFactory.CreateLogger<OutputHandler>());
+            var services = options.Services;
             services.AddLogging();
-            _receiver = receiver;
-            _serializer = serializer;
+            var receiver = options.Receiver;
+            var serializer = options.Serializer;
             _collection = new HandlerCollection();
 
             services.AddSingleton<IOutputHandler>(outputHandler);
             services.AddSingleton(_collection);
-            services.AddSingleton(_serializer);
-            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(_serializer);
-            services.AddSingleton(requestProcessIdentifier);
-            services.AddSingleton(_receiver);
-            services.AddSingleton(loggerFactory);
+            services.AddSingleton(serializer);
+            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(serializer);
+            services.AddSingleton(options.RequestProcessIdentifier);
+            services.AddSingleton(receiver);
+            services.AddSingleton(options.LoggerFactory);
 
-            services.AddJsonRpcMediatR(assemblies);
+            services.AddJsonRpcMediatR(options.HandlerAssemblies);
             services.AddSingleton<IJsonRpcServer>(this);
             services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
 
             var foundHandlers = services
-                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) && x.ServiceType != typeof(IJsonRpcHandler))
+                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) &&
+                            x.ServiceType != typeof(IJsonRpcHandler))
                 .ToArray();
 
             // Handlers are created at the start and maintained as a singleton
@@ -110,29 +83,31 @@ namespace OmniSharp.Extensions.JsonRpc
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
             _collection.Add(serviceHandlers);
-            _collection.Add(handlers.ToArray());
-            foreach (var (name, handler) in namedHandlers)
+            _collection.Add(options.Handlers.ToArray());
+            foreach (var (name, handler) in options.NamedHandlers)
             {
-            _collection.Add(name, handler);
+                _collection.Add(name, handler);
             }
-            foreach (var (name, handlerFunc) in namedServiceHandlers)
+
+            foreach (var (name, handlerFunc) in options.NamedServiceHandlers)
             {
                 _collection.Add(name, handlerFunc(_serviceProvider));
             }
 
-            _requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
-            _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(_requestRouter));
+            var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
+            _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(requestRouter));
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = new Connection(
-                input,
+                options.Input,
                 outputHandler,
-                receiver,
-                requestProcessIdentifier,
-                _requestRouter,
+                options.Receiver,
+                options.RequestProcessIdentifier,
+                requestRouter,
                 _responseRouter,
-                loggerFactory,
-                serializer,
-                concurrency
+                options.LoggerFactory,
+                options.OnServerError,
+                options.SupportsContentModified,
+                options.Concurrency
             );
         }
 
@@ -154,7 +129,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable AddHandler(string method, Type handlerType)
         {
-            return _collection.Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler);
+            return _collection.Add(method,
+                ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler);
         }
 
         public IDisposable AddHandler<T>()
@@ -167,8 +143,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             return _collection.Add(
                 handlerTypes
-                .Select(handlerType => ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)
-                .ToArray());
+                    .Select(handlerType =>
+                        ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)
+                    .ToArray());
         }
 
         private async Task Initialize()
@@ -199,7 +176,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IResponseRouterReturns SendRequest<T>(string method, T @params)
         {
-            return _responseRouter.SendRequest<T>(method, @params);
+            return _responseRouter.SendRequest(method, @params);
         }
 
         public IResponseRouterReturns SendRequest(string method)

@@ -1,0 +1,17 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <AssemblyName>OmniSharp.Extensions.DebugAdapter.Testing</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.DebugAdapter.Testing</RootNamespace>
+        <PackageDescription>You can use this package to test a debug adapter protocol client or server</PackageDescription>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\JsonRpc.Testing\JsonRpc.Testing.csproj" />
+        <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
+        <ProjectReference Include="..\Dap.Client\Dap.Client.csproj" />
+        <ProjectReference Include="..\Dap.Server\Dap.Server.csproj" />
+    </ItemGroup>
+</Project>

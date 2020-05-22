@@ -12,7 +12,7 @@ namespace NSubstitute
     {
         private readonly SerilogLoggerProvider _loggerProvider;
 
-        public TestLoggerFactory(ITestOutputHelper testOutputHelper)
+        public TestLoggerFactory(ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}")
         {
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()

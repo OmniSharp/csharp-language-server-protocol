@@ -1,7 +1,6 @@
 using System;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace Lsp.Tests
 {

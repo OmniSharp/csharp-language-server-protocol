@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json;
@@ -11,14 +9,14 @@ using Xunit;
 
 namespace JsonRpc.Tests.Server
 {
-    public class SpecifictionRecieverTests
+    public class SpecifictionReceiverTests
     {
         [Theory]
         [ClassData(typeof(SpecificationMessages))]
-        public void ShouldRespond_AsExpected(string json, Renor[] request)
+        public void ShouldRespond_AsExpected2(string json, Renor[] request)
         {
-            var reciever = new Receiver();
-            var (requests, _) = reciever.GetRequests(JToken.Parse(json));
+            var receiver = new Receiver();
+            var (requests, _) = receiver.GetRequests(JToken.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
 
@@ -34,9 +32,9 @@ namespace JsonRpc.Tests.Server
 
         class SpecificationMessages : TheoryData<string, Renor[]>
         {
-            public override IEnumerable<ValueTuple<string, Renor[]>> GetValues()
+            public SpecificationMessages()
             {
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": [42, 23], ""id"": 1}",
                     new Renor[]
                     {
@@ -44,21 +42,21 @@ namespace JsonRpc.Tests.Server
                     }
                 );
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""subtrahend"": 23, ""minuend"": 42}, ""id"": 3}",
                     new Renor[]
                     {
                         new Request(3, "subtract", JObject.FromObject(new {subtrahend = 23, minuend = 42}))
                     });
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": {""minuend"": 42, ""subtrahend"": 23 }, ""id"": 4}",
                     new Renor[]
                     {
                         new Request(4, "subtract", JObject.FromObject(new {minuend = 42, subtrahend = 23}))
                     });
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""id"": 4}",
                     new Renor[]
                     {
@@ -69,21 +67,21 @@ namespace JsonRpc.Tests.Server
                 //      If present, parameters for the rpc call MUST be provided as a Structured value.
                 // Some clients may serialize params as null, instead of omitting it
                 // We're going to pretend we never got the null in the first place.
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""subtract"", ""params"": null, ""id"": 4}",
                     new Renor[]
                     {
                         new Request(4, "subtract", new JObject())
                     });
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""update"", ""params"": [1,2,3,4,5]}",
                     new Renor[]
                     {
                         new Notification("update", new JArray(new [] {1,2,3,4,5}))
                     });
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar""}",
                     new Renor[]
                     {
@@ -94,43 +92,35 @@ namespace JsonRpc.Tests.Server
                 //      If present, parameters for the rpc call MUST be provided as a Structured value.
                 // Some clients may serialize params as null, instead of omitting it
                 // We're going to pretend we never got the null in the first place.
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": ""foobar"", ""params"": null}",
                     new Renor[]
                     {
                         new Notification("foobar", new JObject())
                     });
 
-                yield return (
+                Add (
                     @"{""jsonrpc"":""2.0"",""method"":""initialized"",""params"":{}}",
                     new Renor[] {
                         new Notification("initialized", new JObject()),
                     }
                 );
 
-                yield return (
+                Add (
                     @"{""jsonrpc"": ""2.0"", ""method"": 1, ""params"": ""bar""}",
                     new Renor[]
                     {
                         new InvalidRequest("Invalid params")
                     });
 
-                // TODO: Use case should be outside reciever
-                //yield return (
-                //    @"[]",
-                //    new[]
-                //    {
-                //        new InvalidRequest("No Requests")
-                //    });
-
-                yield return (
+                Add (
                     @"[1]",
                     new Renor[]
                     {
                         new InvalidRequest("Not an object")
                     });
 
-                yield return (
+                Add (
                     @"[1,2,3]",
                     new Renor[]
                     {
@@ -139,7 +129,7 @@ namespace JsonRpc.Tests.Server
                         new InvalidRequest("Not an object")
                     });
 
-                yield return (
+                Add (
                     @"[
                         {""jsonrpc"": ""2.0"", ""method"": ""sum"", ""params"": [1,2,4], ""id"": ""1""},
                         {""jsonrpc"": ""2.0"", ""method"": ""notify_hello"", ""params"": [7]},
@@ -157,6 +147,18 @@ namespace JsonRpc.Tests.Server
                         new Request("5", "foo.get", JObject.FromObject(new {name = "myself"})),
                         new Request("9", "get_data", null),
                     });
+
+                Add (
+                    @"[
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null},
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null},
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null}
+                    ]",
+                    new Renor[] {
+                        new ServerError(new ServerErrorResult(-32600, "Invalid Request")),
+                        new ServerError(new ServerErrorResult(-32600, "Invalid Request")),
+                        new ServerError(new ServerErrorResult(-32600, "Invalid Request")),
+                    });
             }
         }
 
@@ -164,21 +166,21 @@ namespace JsonRpc.Tests.Server
         [ClassData(typeof(InvalidMessages))]
         public void Should_ValidateInvalidMessages(string json, bool expected)
         {
-            var reciever = new Receiver();
-            var result = reciever.IsValid(JToken.Parse(json));
+            var receiver = new Receiver();
+            var result = receiver.IsValid(JToken.Parse(json));
             result.Should().Be(expected);
         }
 
         class InvalidMessages : TheoryData<string, bool>
         {
-            public override IEnumerable<ValueTuple<string, bool>> GetValues()
+            public InvalidMessages()
             {
-                yield return (@"[]", false);
-                yield return (@"""""", false);
-                yield return (@"1", false);
-                yield return (@"true", false);
-                yield return (@"[{}]", true);
-                yield return (@"{}", true);
+                Add (@"[]", false);
+                Add (@"""""", false);
+                Add (@"1", false);
+                Add (@"true", false);
+                Add (@"[{}]", true);
+                Add (@"{}", true);
             }
         }
     }

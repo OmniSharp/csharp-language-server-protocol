@@ -1,10 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
+using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace JsonRpc.Tests.Server
 {
@@ -14,8 +18,8 @@ namespace JsonRpc.Tests.Server
         [ClassData(typeof(SimpleTestMessages))]
         public void ShouldParse_SimpleMessages(string message, Type outputType, object expectedResult)
         {
-            var reciever = new Receiver();
-            var (requests, _) = reciever.GetRequests(JToken.Parse(message));
+            var receiver = new Receiver();
+            var (requests, _) = receiver.GetRequests(JToken.Parse(message));
             var result = requests.Single().Request;
 
             result.Id.Should().Be(expectedResult);
@@ -27,21 +31,49 @@ namespace JsonRpc.Tests.Server
 
         class SimpleTestMessages : TheoryData<string, Type, object>
         {
-            public override IEnumerable<ValueTuple<string, Type, object>> GetValues()
+            public SimpleTestMessages()
             {
-                yield return (
+                Add (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": ""canbestring"" }",
                     typeof(string),
                     "canbestring" as object);
-                yield return (
+                Add (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": 12345 }",
                     typeof(long),
                     12345L as object);
-                yield return (
+                Add (
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": null }",
                     typeof(object),
                     (object)null);
             }
+        }
+    }
+
+    public class ServerShouldThrowCorrectExceptions : JsonRpcServerTestBase
+    {
+        public ServerShouldThrowCorrectExceptions(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        {
+        }
+
+        class Data
+        {
+            public string Value { get; set; }
+        }
+
+        [Fact]
+        public async Task Should_Throw_Method_Not_Supported()
+        {
+            var (client, server) = await Initialize(
+                clientOptions => {
+                },
+                serverOptions => {
+                    serverOptions.OnRequest("method", async (Data data) => new Data() { Value = data.Value});
+                });
+
+            Func<Task> action = () => client.SendRequest("method2", new Data() {
+                Value = "Echo"
+            }).Returning<Data>(CancellationToken);
+            await action.Should().ThrowAsync<MethodNotSupportedException>();
         }
     }
 }

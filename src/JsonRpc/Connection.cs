@@ -1,22 +1,25 @@
 using System;
-using System.IO;
+using System.IO.Pipelines;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class Connection : IDisposable
     {
-        private readonly IInputHandler _inputHandler;
+        private readonly InputHandler _inputHandler;
+        public bool IsOpen { get; private set; }
 
         public Connection(
-            Stream input,
+            PipeReader input,
             IOutputHandler outputHandler,
             IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            ISerializer serializer,
+            Func<ServerError, IHandlerDescriptor, Exception> getException,
+            bool supportContentModified,
             int? concurrency)
         {
             _inputHandler = new InputHandler(
@@ -27,7 +30,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 requestRouter,
                 responseRouter,
                 loggerFactory,
-                serializer,
+                getException,
+                supportContentModified,
                 concurrency
             );
         }
@@ -36,11 +40,13 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             // TODO: Throw if called twice?
             _inputHandler.Start();
+            IsOpen = true;
         }
 
         public void Dispose()
         {
             _inputHandler?.Dispose();
+            IsOpen = false;
         }
     }
 }

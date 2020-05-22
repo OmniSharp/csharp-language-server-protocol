@@ -37,9 +37,16 @@ namespace OmniSharp.Extensions.JsonRpc
                         typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
                         typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                     );
+
+                IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerInterface) || handlerInterface
+                                     .GetInterfaces().Any(z =>
+                                         z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+                IsRequest = !IsNotification;
             }
 
             public IJsonRpcHandler Handler { get; }
+            public bool IsNotification { get; }
+            public bool IsRequest { get; }
             public Type HandlerType { get; }
             public Type ImplementationType { get; }
             public string Method { get; }

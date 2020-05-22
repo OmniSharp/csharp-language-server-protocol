@@ -3,6 +3,7 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
         <PackageReference Include="Rocket.Surgery.MSBuild.SourceLink" Version="0.3.1" PrivateAssets="All"/>
+        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
         <PackageReference Update="GitVersion.Tool" Version="5.2.4"/>
@@ -39,6 +40,8 @@
         <PackageReference Update="Bogus" Version="29.0.1"/>
         <PackageReference Update="Snapper" Version="2.2.4"/>
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.8" />
+        <PackageReference Update="System.IO.Pipelines" Version="4.7.1"/>
+        <PackageReference Update="Nerdbank.Streams" Version="2.4.60" />
         <PackageReference Update="DynamicData" Version="6.14.18" />
     </ItemGroup>
 </Project>

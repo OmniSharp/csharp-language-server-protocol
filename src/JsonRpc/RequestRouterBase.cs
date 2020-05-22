@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc
         protected readonly ISerializer _serializer;
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly ILogger _logger;
-        private readonly ConcurrentDictionary<string, CancellationTokenSource> _requests = new ConcurrentDictionary<string, CancellationTokenSource>();
+        private readonly ConcurrentDictionary<string, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)> _requests = new ConcurrentDictionary<string, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)>();
 
 
         public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger)
@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IServiceProvider ServiceProvider { get; }
 
-        public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token)
+        public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token, CancellationToken contentModifiedToken)
         {
             using (_logger.TimeDebug("Routing Notification {Method}", notification.Method))
             {
@@ -70,6 +70,15 @@ namespace OmniSharp.Extensions.JsonRpc
                             await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
                         }
                     }
+                    catch (OperationCanceledException)
+                    {
+                        if (contentModifiedToken.IsCancellationRequested)
+                        {
+                            _logger.LogTrace("Notification was abandoned due to content be modified");
+                            return;
+                        }
+                        _logger.LogTrace("Notification was cancelled");
+                    }
                     catch (Exception e)
                     {
                         _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
@@ -78,7 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public virtual async Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token)
+        public virtual async Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token, CancellationToken contentModifiedToken)
         {
             using (_logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method))
             {
@@ -94,28 +103,25 @@ namespace OmniSharp.Extensions.JsonRpc
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
                     var id = GetId(request.Id);
-                    if (!_requests.TryGetValue(id, out var cts))
+                    if (!_requests.TryGetValue(id, out var value))
                     {
-                        cts = new CancellationTokenSource();
-                        _requests.TryAdd(id, cts);
+                        value = (new CancellationTokenSource(), descriptor);
+                        _requests.TryAdd(id, value);
                     }
-                    token.Register(cts.Cancel);
+                    token.Register(value.cancellationTokenSource.Cancel);
+                    contentModifiedToken.Register(value.cancellationTokenSource.Cancel);
 
                     // TODO: Try / catch for Internal Error
                     try
                     {
-                        if (cts.IsCancellationRequested)
-                        {
-                            _logger.LogDebug("Request {Id} was cancelled", id);
-                            return new RequestCancelled();
-                        }
+                        value.cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                         // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
                         // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
                         // https://stackoverflow.com/a/864860
                         if (EqualityComparer<TDescriptor>.Default.Equals(descriptor, default))
                         {
-                            _logger.LogDebug("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
+                            _logger.LogTrace("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
                             return new MethodNotFound(request.Id, request.Method);
                         }
 
@@ -140,8 +146,12 @@ namespace OmniSharp.Extensions.JsonRpc
                             return new InvalidParams(request.Id);
                         }
 
-                        var result = HandleRequest(mediator, descriptor, @params ?? EmptyRequest.Instance, cts.Token);
+                        value.cancellationTokenSource.Token.ThrowIfCancellationRequested();
+
+                        var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), value.cancellationTokenSource.Token);
                         await result;
+
+                        value.cancellationTokenSource.Token.ThrowIfCancellationRequested();
 
                         object responseValue = null;
                         if (result.GetType().GetTypeInfo().IsGenericType)
@@ -162,8 +172,13 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                     catch (OperationCanceledException)
                     {
-                        _logger.LogDebug("Request {Id} was cancelled", id);
-                        return new RequestCancelled();
+                        if (contentModifiedToken.IsCancellationRequested)
+                        {
+                            _logger.LogTrace("Request {Id} was abandoned due to content be modified", id);
+                            return new ContentModified(id);
+                        }
+                        _logger.LogTrace("Request {Id} was cancelled", id);
+                        return new RequestCancelled(id);
                     }
                     catch (RpcErrorException e)
                     {
@@ -188,17 +203,22 @@ namespace OmniSharp.Extensions.JsonRpc
             if (_requests.TryGetValue(GetId(id), out var cts))
             {
                 _logger.LogTrace("Request {Id} was cancelled", id);
-                cts.Cancel();
+                cts.cancellationTokenSource.Cancel();
             }
             else
             {
-                _logger.LogDebug("Request {Id} was not found to cancel, stubbing it in.", id);
+                _logger.LogTrace("Request {Id} was not found to cancel, stubbing it in.", id);
             }
         }
 
-        public void StartRequest(object id)
+        public void StartRequest(object id, IHandlerDescriptor descriptor)
         {
-            _requests.TryAdd(GetId(id), new CancellationTokenSource());
+            _requests.TryAdd(GetId(id), (new CancellationTokenSource(), descriptor));
+        }
+
+        public IHandlerDescriptor GetRequestDescriptor(object id)
+        {
+            return _requests.TryGetValue(GetId(id), out var item) ? item.descriptor : null;
         }
 
         private string GetId(object id)
@@ -214,16 +234,6 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             return id?.ToString();
-        }
-
-        Task IRequestRouter.RouteNotification(Notification notification, CancellationToken token)
-        {
-            return RouteNotification(GetDescriptor(notification), notification, token);
-        }
-
-        Task<ErrorResponse> IRequestRouter.RouteRequest(Request request, CancellationToken token)
-        {
-            return RouteRequest(GetDescriptor(request), request, token);
         }
 
         public abstract TDescriptor GetDescriptor(Notification notification);

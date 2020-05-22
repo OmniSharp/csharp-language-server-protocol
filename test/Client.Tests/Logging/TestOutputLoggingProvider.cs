@@ -3,7 +3,7 @@ using System;
 using Xunit.Abstractions;
 using System.Collections.Concurrent;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>
     ///     A provider for loggers that send log events to Xunit test output.

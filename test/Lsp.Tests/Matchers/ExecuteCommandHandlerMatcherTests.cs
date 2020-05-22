@@ -4,9 +4,8 @@ using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using OmniSharp.Extensions.LanguageServer.Server;
-using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using Xunit;
 using Xunit.Abstractions;
@@ -60,8 +59,8 @@ namespace Lsp.Tests.Matchers
 
             // When
             var result = handlerMatcher.FindHandler(new ExecuteCommandParams { Command = "Command" },
-                new List<HandlerDescriptor> {
-                    new HandlerDescriptor("workspace/executeCommand",
+                new List<LspHandlerDescriptor> {
+                    new LspHandlerDescriptor("workspace/executeCommand",
                         "Key",
                         executeCommandHandler,
                         executeCommandHandler.GetType(),

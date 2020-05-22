@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IInputHandler : IDisposable
+    public interface IInputHandler
     {
         void Start();
     }

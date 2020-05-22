@@ -1,11 +1,15 @@
 using System;
 using System.IO;
+using System.IO.Pipelines;
 using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Nerdbank.Streams;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -14,13 +18,31 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         public static LanguageServerOptions WithInput(this LanguageServerOptions options, Stream input)
         {
+            options.Input = input.UsePipeReader();
+            return options;
+        }
+        public static LanguageServerOptions WithInput(this LanguageServerOptions options, PipeReader input)
+        {
             options.Input = input;
             return options;
         }
 
         public static LanguageServerOptions WithOutput(this LanguageServerOptions options, Stream output)
         {
+            options.Output = output.UsePipeWriter();
+            return options;
+        }
+
+        public static LanguageServerOptions WithOutput(this LanguageServerOptions options, PipeWriter output)
+        {
             options.Output = output;
+            return options;
+        }
+
+        public static LanguageServerOptions WithPipe(this LanguageServerOptions options, Pipe pipe)
+        {
+            options.Input = pipe.Reader;
+            options.Output = pipe.Writer;
             return options;
         }
 
@@ -36,9 +58,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithReciever(this LanguageServerOptions options, ILspReceiver receiver)
+        public static LanguageServerOptions WithReceiver(this LanguageServerOptions options, ILspServerReceiver serverReceiver)
         {
-            options.Receiver = receiver;
+            options.Receiver = serverReceiver;
             return options;
         }
 
@@ -111,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, StartedDelegate @delegate)
+        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, OnServerStartedDelegate @delegate)
         {
             options.StartedDelegates.Add(@delegate);
             return options;
@@ -132,6 +154,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions ConfigureConfiguration(this LanguageServerOptions options, Action<IConfigurationBuilder> builderAction)
         {
             options.ConfigurationBuilderAction = builderAction;
+            return options;
+        }
+
+        public static LanguageServerOptions WithErrorHandler(this LanguageServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
+        {
+            options.OnServerError = handler;
+            return options;
+        }
+
+        public static LanguageServerOptions WithContentModifiedSupport(this LanguageServerOptions options, bool supportsContentModified)
+        {
+            options.SupportsContentModified = supportsContentModified;
             return options;
         }
     }

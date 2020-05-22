@@ -1,4 +1,4 @@
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
     ///     A test response.

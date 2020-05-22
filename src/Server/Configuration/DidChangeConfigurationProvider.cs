@@ -14,12 +14,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
     class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler,
-        IOnStarted, ILanguageServerConfiguration
+        IOnServerStarted, ILanguageServerConfiguration
     {
         private readonly ILanguageServer _server;
         private DidChangeConfigurationCapability _capability;
@@ -56,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void SetCapability(DidChangeConfigurationCapability capability) => _capability = capability;
 
-        Task IOnStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
+        Task IOnServerStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
 
         private async Task GetWorkspaceConfiguration()
         {
