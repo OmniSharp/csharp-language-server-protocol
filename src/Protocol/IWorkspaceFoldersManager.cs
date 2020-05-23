@@ -1,4 +1,5 @@
-﻿using DynamicData;
+﻿using System;
+using System.Collections.Generic;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
@@ -10,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         void Remove(DocumentUri uri);
         void Remove(string name);
         void Remove(WorkspaceFolder workspaceFolder);
-        IObservableList<WorkspaceFolder> WorkspaceFolders { get; }
+        IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders { get; }
+        IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders { get; }
     }
 }

@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using DynamicData;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -14,37 +15,21 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     class WorkspaceFoldersManager : IWorkspaceFoldersHandler, IWorkspaceFoldersManager, IDisposable
     {
-        private readonly ISourceCache<WorkspaceFolder, DocumentUri> _workspaceFolders;
-        private readonly IDisposable _subscription;
+        private readonly ILanguageClient _client;
+        private readonly ConcurrentDictionary<DocumentUri, WorkspaceFolder> _workspaceFolders;
+        private readonly ReplaySubject<IEnumerable<WorkspaceFolder>> _workspaceFoldersSubject;
 
         public WorkspaceFoldersManager(ILanguageClient client)
         {
-            _workspaceFolders = new SourceCache<WorkspaceFolder, DocumentUri>(x => x.Uri);
-            _subscription = _workspaceFolders
-                .Connect()
-                .Subscribe(z => {
-                    var updates = z.Where(x => x.Reason == ChangeReason.Update)
-                        .Where(z => z.Previous.HasValue)
-                        .ToArray();
-                    var adds = z.Where(z => z.Reason == ChangeReason.Add)
-                        .Select(z => z.Current)
-                        .Concat(updates.Select(z => z.Current));
-                    var removes = z.Where(z => z.Reason == ChangeReason.Remove)
-                        .Select(z => z.Current)
-                        .Concat(updates.Select(z => z.Previous.Value));
-                    client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
-                        Event = new WorkspaceFoldersChangeEvent() {
-                            Added = new Container<WorkspaceFolder>(adds),
-                            Removed = new Container<WorkspaceFolder>(removes)
-                        }
-                    });
-                });
+            _client = client;
+            _workspaceFolders = new ConcurrentDictionary<DocumentUri, WorkspaceFolder>(DocumentUri.Comparer);
+            _workspaceFoldersSubject = new ReplaySubject<IEnumerable<WorkspaceFolder>>(1);
         }
 
         Task<Container<WorkspaceFolder>> IRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>>.
             Handle(WorkspaceFolderParams request, CancellationToken cancellationToken)
         {
-            return Task.FromResult(new Container<WorkspaceFolder>(_workspaceFolders.Items));
+            return Task.FromResult(new Container<WorkspaceFolder>(_workspaceFolders.Values));
         }
 
         public void Add(DocumentUri uri, string name)
@@ -54,37 +39,80 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public void Add(IEnumerable<WorkspaceFolder> workspaceFolders)
         {
-            _workspaceFolders.AddOrUpdate(workspaceFolders);
+            if (!workspaceFolders.Any()) return;
+
+            foreach (var item in workspaceFolders)
+            {
+                _workspaceFolders.AddOrUpdate(item.Uri, _ => item, (a, b) => item);
+            }
+
+            _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                Event = new WorkspaceFoldersChangeEvent() {
+                    Added = new Container<WorkspaceFolder>(workspaceFolders)
+                }
+            });
+            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
         }
 
         public void Add(params WorkspaceFolder[] workspaceFolders)
         {
-            _workspaceFolders.AddOrUpdate(workspaceFolders);
+            if (!workspaceFolders.Any()) return;
+
+            foreach (var item in workspaceFolders)
+            {
+                _workspaceFolders.AddOrUpdate(item.Uri, _ => item, (a, b) => item);
+            }
+
+            _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                Event = new WorkspaceFoldersChangeEvent() {
+                    Added = new Container<WorkspaceFolder>(workspaceFolders)
+                }
+            });
+            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
         }
 
         public void Remove(DocumentUri uri)
         {
-            var folder = _workspaceFolders.Items.Where(x => x.Uri == uri);
-            _workspaceFolders.AddOrUpdate(folder);
+            if (_workspaceFolders.TryRemove(uri, out var item))
+            {
+                _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                    Event = new WorkspaceFoldersChangeEvent() {
+                        Removed = new Container<WorkspaceFolder>(item)
+                    }
+                });
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
         }
 
         public void Remove(string name)
         {
-            var folder = _workspaceFolders.Items.Where(x => x.Name == name);
-            _workspaceFolders.AddOrUpdate(folder);
+            var items = _workspaceFolders.Values.Where(z => z.Name == name).ToArray();
+            if (items.Length > 0)
+            {
+                foreach (var item in items)
+                {
+                    _workspaceFolders.TryRemove(item.Uri, out _);
+                }
+                _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                    Event = new WorkspaceFoldersChangeEvent() {
+                        Removed = new Container<WorkspaceFolder>(items)
+                    }
+                });
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
         }
 
         public void Remove(WorkspaceFolder workspaceFolder)
         {
-            _workspaceFolders.Remove(workspaceFolder);
+            Remove(workspaceFolder.Uri);
         }
 
-        public IObservableList<WorkspaceFolder> WorkspaceFolders => _workspaceFolders.Connect().RemoveKey().AsObservableList();
+        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject;
+
+        public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
         public void Dispose()
         {
-            _subscription.Dispose();
-            _workspaceFolders.Dispose();
         }
     }
 }

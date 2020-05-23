@@ -36,7 +36,7 @@ namespace Lsp.Tests.Integration
 
             await Events.SettleNext();
 
-            client.RegistrationManager.Registrations.Items.Should().Contain(x =>
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "csharp")
             );
         }
@@ -58,7 +58,7 @@ namespace Lsp.Tests.Integration
 
             await Settle().Take(2);
 
-            client.RegistrationManager.Registrations.Items.Should().Contain(x =>
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
             );
         }
@@ -84,7 +84,7 @@ namespace Lsp.Tests.Integration
 
             await Settle().Take(2);
 
-            client.RegistrationManager.Registrations.Items.Should().NotContain(x =>
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
             );
         }
@@ -113,7 +113,7 @@ namespace Lsp.Tests.Integration
                             return Task.CompletedTask;
                         });
                 });
-            client.RegistrationManager.Registrations.Items.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokens);
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokens);
         }
 
         [Fact]
@@ -173,7 +173,7 @@ namespace Lsp.Tests.Integration
                 }
             }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration));
 
-            client.RegistrationManager.Registrations.Items.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokens);
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokens);
         }
 
         private void ConfigureClient(LanguageClientOptions options)

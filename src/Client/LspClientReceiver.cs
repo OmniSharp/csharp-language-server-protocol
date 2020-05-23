@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     newResults.Add(item);
                 }
                 else if (item.IsNotification &&
-                         HandlerTypeDescriptorHelper.IsMethodName(item.Request.Method,
+                         HandlerTypeDescriptorHelper.IsMethodName(item.Notification.Method,
                              typeof(IShowMessageHandler),
                              typeof(ILogMessageHandler),
                              typeof(ITelemetryEventHandler))

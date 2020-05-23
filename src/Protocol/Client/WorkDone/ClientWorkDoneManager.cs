@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
-using DynamicData;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -19,15 +20,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
         private readonly ISerializer _serializer;
         private readonly IProgressManager _progressManager;
         private bool _supported;
-        private readonly ISourceCache<IProgressObservable<WorkDoneProgress>, ProgressToken> _pendingWork;
+        private readonly ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>> _pendingWork;
 
         public ClientWorkDoneManager(ILanguageClient router, ISerializer serializer, IProgressManager progressManager)
         {
             _router = router;
             _serializer = serializer;
             _progressManager = progressManager;
-            _pendingWork = new SourceCache<IProgressObservable<WorkDoneProgress>, ProgressToken>(x => x.ProgressToken);
-            PendingWork = _pendingWork.AsObservableCache();
+            _pendingWork = new ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>>();
         }
 
         public void Initialize(WindowClientCapabilities windowClientCapabilities)
@@ -37,24 +37,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
         }
 
         public bool IsSupported => _supported;
-        public IObservableCache<IProgressObservable<WorkDoneProgress>, ProgressToken> PendingWork { get; }
 
         public IProgressObservable<WorkDoneProgress> Monitor(ProgressToken progressToken)
         {
-            var currentValue = _pendingWork.Lookup(progressToken);
-            if (_pendingWork.Lookup(progressToken).HasValue)
+            if (_pendingWork.TryGetValue(progressToken, out var currentValue))
             {
-                return currentValue.Value;
+                return currentValue;
             }
 
             var data = new WorkDoneObservable(
                 _progressManager.Monitor(progressToken, Parse),
                 Disposable.Create(() => _router.Window.SendWorkDoneProgressCancel(progressToken))
             );
-            _pendingWork.AddOrUpdate(data);
+            _pendingWork.AddOrUpdate(progressToken, x => data, (a, b) => data);
             data.Subscribe(_ => { }, () => {
-                _pendingWork.RemoveKey(data.ProgressToken);
-                _pendingWork.Dispose();
+                if (_pendingWork.TryRemove(data.ProgressToken, out var item))
+                {
+                    item.Dispose();
+                }
             });
             return data;
         }

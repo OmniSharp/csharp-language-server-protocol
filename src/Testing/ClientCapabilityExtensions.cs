@@ -9,7 +9,9 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     {
         public static LanguageClientOptions EnableAllCapabilities( this LanguageClientOptions options)
         {
-            var capabilities = typeof(ICapability).Assembly.GetExportedTypes().Where(z => typeof(ICapability).IsAssignableFrom(z));
+            var capabilities = typeof(ICapability).Assembly.GetExportedTypes()
+                .Where(z => typeof(ICapability).IsAssignableFrom(z))
+                .Where(z => z.IsClass && !z.IsAbstract);
             foreach (var item in capabilities)
             {
                 options.WithCapability(Activator.CreateInstance(item, Array.Empty<object>()) as ICapability);

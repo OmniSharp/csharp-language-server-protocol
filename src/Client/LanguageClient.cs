@@ -128,7 +128,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             }
 
             var workspaceFoldersManager = new WorkspaceFoldersManager(this);
-            workspaceFoldersManager.Add(options.Folders);
             _workspaceFoldersManager = workspaceFoldersManager;
             if (options.WorkspaceFolders)
             {
@@ -230,6 +229,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             Window = new WindowLanguageClient(this, _serviceProvider);
             Workspace = new WorkspaceLanguageClient(this, _serviceProvider);
 
+            workspaceFoldersManager.Add(options.Folders);
+
             _disposable.Add(_collection.Add(new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter)));
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
@@ -288,7 +289,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 ClientInfo = _clientInfo,
                 RootUri = _rootUri,
                 RootPath = _rootUri?.GetFileSystemPath(),
-                WorkspaceFolders = new Container<WorkspaceFolder>(_workspaceFoldersManager.WorkspaceFolders.Items),
+                WorkspaceFolders = new Container<WorkspaceFolder>(_workspaceFoldersManager.CurrentWorkspaceFolders),
                 InitializationOptions = _initializationOptions
             };
             RegisterCapabilities(@params.Capabilities);

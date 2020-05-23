@@ -12,29 +12,59 @@ using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
-    public class ConnectionTests
-    {
-        public void Test()
-        {
-            var streamIn = Substitute.For<TextReader>();
-            var streamOut = Substitute.For<TextWriter>();
-
-            //var connection = new Connection(
-            //    streamIn,
-            //    streamOut,
-            //    new SerialRequestProcessIdentifier()
-            //);
-        }
-    }
-
     public class JsonRpcServerTests : JsonRpcServerTestBase
     {
-        public JsonRpcServerTests(ITestOutputHelper testOutputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(testOutputHelper)) { }
+        public JsonRpcServerTests(ITestOutputHelper testOutputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(testOutputHelper))
+        {
+        }
 
-        private string _pipeName = Guid.NewGuid().ToString();
+        private readonly string _pipeName = Guid.NewGuid().ToString();
 
         [Fact]
-        public async Task Can_Reconnect_To_A_Pipe()
+        public async Task Can_Connect_To_Stdio()
+        {
+            var (client, server) = await Initialize(clientOptions => {
+                clientOptions
+                    .WithInput(Console.OpenStandardInput().UsePipeReader())
+                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
+            }, serverOptions => {
+                serverOptions
+                    .WithInput(Console.OpenStandardInput().UsePipeReader())
+                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
+            });
+        }
+
+        [Fact]
+        public async Task Can_Connect_To_A_Named_Pipe()
+        {
+            var serverPipe = new NamedPipeServerStream(
+                pipeName: _pipeName,
+                direction: PipeDirection.InOut,
+                maxNumberOfServerInstances: 1,
+                transmissionMode: PipeTransmissionMode.Byte,
+                options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+            var clientPipe = new NamedPipeClientStream(
+                ".",
+                _pipeName,
+                PipeDirection.InOut,
+                PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+            );
+
+            var (client, server) = await Initialize(clientOptions => {
+                clientOptions
+                    .WithInput(clientPipe)
+                    .WithOutput(clientPipe);
+            }, serverOptions => {
+                serverOptions
+                    .WithInput(serverPipe)
+                    .WithOutput(serverPipe);
+            });
+
+            await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
+        }
+
+        [Fact]
+        public async Task Can_Reconnect_To_A_Named_Pipe()
         {
             {
                 var serverPipe = new NamedPipeServerStream(
@@ -97,35 +127,6 @@ namespace JsonRpc.Tests
 
                 await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
             }
-        }
-
-        [Fact]
-        public async Task Can_Connect_To_A_Pipe()
-        {
-            var serverPipe = new NamedPipeServerStream(
-                pipeName: _pipeName ,
-                direction: PipeDirection.InOut,
-                maxNumberOfServerInstances: 1,
-                transmissionMode: PipeTransmissionMode.Byte,
-                options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
-            var clientPipe = new NamedPipeClientStream(
-                ".",
-                _pipeName ,
-                PipeDirection.InOut,
-                PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
-            );
-
-            var (client, server) = await Initialize(clientOptions => {
-                clientOptions
-                    .WithInput(clientPipe.UsePipeReader())
-                    .WithOutput(clientPipe.UsePipeWriter());
-            }, serverOptions => {
-                serverOptions
-                    .WithInput(serverPipe.UsePipeReader())
-                    .WithOutput(serverPipe.UsePipeWriter());
-            });
-
-            await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
         }
     }
 }
