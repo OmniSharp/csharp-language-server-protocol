@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -47,11 +48,9 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
 
             var items = new List<CodeLens>();
-            client.TextDocument.RequestCodeLens(new CodeLensParams() {
+            await client.TextDocument.RequestCodeLens(new CodeLensParams() {
                 TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-            }, CancellationToken).Subscribe(x => items.AddRange(x));
-
-            await SettleNext();
+            }, CancellationToken).ForEachAsync(x => items.AddRange(x));
 
             items.Should().HaveCount(3);
             items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
