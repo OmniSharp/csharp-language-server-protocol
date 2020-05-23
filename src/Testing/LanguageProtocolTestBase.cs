@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         {
         }
 
-        protected virtual void ConfigureClientInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, LanguageClientOptions options)
+        protected virtual void ConfigureClientInputOutput(PipeReader serverOutput, PipeWriter clientInput, LanguageClientOptions options)
         {
-            options.WithInput(inMemoryReader).WithOutput(inMemoryWriter);
+            options.WithInput(serverOutput).WithOutput(clientInput);
         }
 
-        protected virtual void ConfigureServerInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, LanguageServerOptions options)
+        protected virtual void ConfigureServerInputOutput(PipeReader clientOutput, PipeWriter serverInput, LanguageServerOptions options)
         {
-            options.WithInput(inMemoryReader).WithOutput(inMemoryWriter);
+            options.WithInput(clientOutput).WithOutput(serverInput);
         }
 
         protected virtual async Task<(ILanguageClient client, ILanguageServer server)> Initialize(

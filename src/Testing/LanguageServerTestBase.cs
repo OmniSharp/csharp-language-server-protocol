@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         {
         }
 
-        protected abstract (Stream reader, Stream writer) SetupServer();
+        protected abstract (Stream clientOutput, Stream serverInput) SetupServer();
 
         protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
         {

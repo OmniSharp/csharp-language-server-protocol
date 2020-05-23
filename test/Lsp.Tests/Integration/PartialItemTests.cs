@@ -52,6 +52,7 @@ namespace Lsp.Tests.Integration
             }, CancellationToken).Subscribe(x => items.AddRange(x));
 
             await SettleNext();
+            await SettleNext();
 
             items.Should().HaveCount(3);
             items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
