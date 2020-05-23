@@ -92,9 +92,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Start()
         {
+            _disposable.Add(
             Observable.FromAsync(() => ProcessInputStream(_stopProcessing.Token))
                 .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
-                .Subscribe(_inputActive);
+                .Subscribe(_inputActive)
+            );
         }
 
         public async Task StopAsync()
@@ -300,11 +302,13 @@ namespace OmniSharp.Extensions.JsonRpc
             catch (Exception e)
             {
                 var outerException = new InputProcessingException(Encoding.UTF8.GetString(buffer.ToArray()), e);
-                await _outputHandler.StopAsync();
-                await _pipeReader.CompleteAsync();
-
                 _unhandledInputProcessException(outerException);
                 throw outerException;
+            }
+            finally
+            {
+                await _outputHandler.StopAsync();
+                await _pipeReader.CompleteAsync();
             }
         }
 
