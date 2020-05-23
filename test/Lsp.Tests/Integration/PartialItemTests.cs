@@ -24,7 +24,7 @@ namespace Lsp.Tests.Integration
     {
         public PartialItemTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
             .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
+            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(500))
         )
         {
         }
@@ -51,7 +51,6 @@ namespace Lsp.Tests.Integration
                 TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
             }, CancellationToken).Subscribe(x => items.AddRange(x));
 
-            await SettleNext();
             await SettleNext();
 
             items.Should().HaveCount(3);
