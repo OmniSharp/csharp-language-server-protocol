@@ -44,7 +44,7 @@ namespace JsonRpc.Tests
                     transmissionMode: PipeTransmissionMode.Byte,
                     options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
                 var clientPipe = new NamedPipeClientStream(
-                    "localhost",
+                    ".",
                     _pipeName,
                     PipeDirection.InOut,
                     PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
@@ -77,7 +77,7 @@ namespace JsonRpc.Tests
                     transmissionMode: PipeTransmissionMode.Byte,
                     options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
                 var clientPipe = new NamedPipeClientStream(
-                    "localhost",
+                    ".",
                     _pipeName,
                     PipeDirection.InOut,
                     PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
@@ -109,7 +109,7 @@ namespace JsonRpc.Tests
                 transmissionMode: PipeTransmissionMode.Byte,
                 options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
             var clientPipe = new NamedPipeClientStream(
-                "localhost",
+                ".",
                 _pipeName ,
                 PipeDirection.InOut,
                 PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
