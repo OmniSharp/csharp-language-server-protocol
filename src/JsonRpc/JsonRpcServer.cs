@@ -112,7 +112,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 requestRouter,
                 _responseRouter,
                 options.LoggerFactory,
-                options.OnServerError,
+                options.OnUnhandledException ?? (e => {  }),
+                options.CreateResponseException,
                 options.SupportsContentModified,
                 options.Concurrency
             );

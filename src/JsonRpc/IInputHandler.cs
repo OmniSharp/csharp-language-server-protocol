@@ -1,7 +1,10 @@
-﻿namespace OmniSharp.Extensions.JsonRpc
+﻿using System.Threading.Tasks;
+
+namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IInputHandler
     {
         void Start();
+        Task StopAsync();
     }
 }

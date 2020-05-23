@@ -35,14 +35,19 @@ namespace OmniSharp.Extensions.JsonRpc
                     .Concat()
                     .ObserveOn(new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}))
                     .Subscribe(),
-                _queue,
-                Disposable.Create(() => _pipeWriter?.Complete())
+                _queue
             };
         }
 
         public void Send(object value)
         {
             _queue.OnNext(value);
+        }
+
+        public async Task StopAsync()
+        {
+            await _pipeWriter.CompleteAsync();
+            _disposable.Dispose();
         }
 
         /// <summary>

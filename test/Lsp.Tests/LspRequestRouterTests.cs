@@ -11,7 +11,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using Xunit;
 using Xunit.Abstractions;
@@ -310,57 +309,6 @@ namespace Lsp.Tests
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
 
             await handler.Received(1).Handle(Arg.Any<ShutdownParams>(), Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task ShouldHandle_Request_WithNullParameters()
-        {
-            bool wasShutDown = false;
-
-            var shutdownHandler = new ServerShutdownHandler();
-            shutdownHandler.Shutdown.Subscribe(shutdownRequested => { wasShutDown = true; });
-
-            var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
-                    {shutdownHandler};
-            AutoSubstitute.Provide<IHandlerCollection>(collection);
-            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
-            var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
-
-            JToken
-                @params = JValue
-                    .CreateNull(); // If the "params" property present but null, this will be JTokenType.Null.
-
-            var id = Guid.NewGuid().ToString();
-            var request = new Request(id, GeneralNames.Shutdown, @params);
-
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
-
-            Assert.True(wasShutDown, "WasShutDown");
-        }
-
-        [Fact]
-        public async Task ShouldHandle_Request_WithMissingParameters()
-        {
-            bool wasShutdown = false;
-            var shutdownHandler = new ServerShutdownHandler();
-            shutdownHandler.Shutdown.Subscribe(shutdownRequested => { wasShutdown = true; });
-
-            var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
-                    {shutdownHandler};
-            AutoSubstitute.Provide<IHandlerCollection>(collection);
-            AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
-            var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
-
-            JToken @params = null; // If the "params" property was missing entirely, this will be null.
-
-            var id = Guid.NewGuid().ToString();
-            var request = new Request(id, GeneralNames.Shutdown, @params);
-
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
-
-            Assert.True(shutdownHandler.ShutdownRequested, "WasShutDown");
         }
     }
 }

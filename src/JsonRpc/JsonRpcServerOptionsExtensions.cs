@@ -105,9 +105,15 @@ namespace OmniSharp.Extensions.JsonRpc
             return options;
         }
 
-        public static JsonRpcServerOptions WithErrorHandler(this JsonRpcServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
+        public static JsonRpcServerOptions WithResponseExceptionFactory(this JsonRpcServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
         {
-            options.OnServerError = handler;
+            options.CreateResponseException = handler;
+            return options;
+        }
+
+        public static JsonRpcServerOptions WithUnhandledExceptionHandler(this JsonRpcServerOptions options, Action<Exception> handler)
+        {
+            options.OnUnhandledException = handler;
             return options;
         }
 

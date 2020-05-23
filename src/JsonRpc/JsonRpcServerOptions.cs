@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO.Pipelines;
 using System.Reactive.Disposables;
 using System.Reflection;
@@ -25,7 +26,8 @@ namespace OmniSharp.Extensions.JsonRpc
         internal List<Type> HandlerTypes { get; } = new List<Type>();
         internal List<Assembly> HandlerAssemblies { get; } = new List<Assembly>();
         public int? Concurrency { get; set; }
-        public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
+        public Func<ServerError, IHandlerDescriptor, Exception> CreateResponseException { get; set; }
+        public Action<Exception> OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; }
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
         internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();

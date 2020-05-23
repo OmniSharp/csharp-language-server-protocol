@@ -12,7 +12,8 @@ namespace OmniSharp.Extensions.JsonRpc
         IServiceCollection Services { get; set; }
         IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         int? Concurrency { get; set; }
-        Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
+        Action<Exception> OnUnhandledException { get; set; }
+        Func<ServerError, IHandlerDescriptor, Exception> CreateResponseException { get; set; }
         bool SupportsContentModified { get; set; }
         TimeSpan MaximumRequestTimeout { get; set; }
         void RegisterForDisposal(IDisposable disposable);

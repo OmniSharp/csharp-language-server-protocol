@@ -1,5 +1,6 @@
 using System;
 using System.IO.Pipelines;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Server;
 
@@ -18,6 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
+            Action<Exception> onUnhandledException,
             Func<ServerError, IHandlerDescriptor, Exception> getException,
             bool supportContentModified,
             int? concurrency)
@@ -30,6 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 requestRouter,
                 responseRouter,
                 loggerFactory,
+                onUnhandledException,
                 getException,
                 supportContentModified,
                 concurrency
@@ -42,6 +45,8 @@ namespace OmniSharp.Extensions.JsonRpc
             _inputHandler.Start();
             IsOpen = true;
         }
+
+        public Task StopAsync() => _inputHandler.StopAsync();
 
         public void Dispose()
         {

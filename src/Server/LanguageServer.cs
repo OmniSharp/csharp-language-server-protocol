@@ -15,7 +15,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Server.Handlers;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
@@ -39,12 +38,10 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination,
+    public partial class LanguageServer : ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination,
         IDisposable
     {
         private readonly Connection _connection;
-        private readonly ServerShutdownHandler _shutdownHandler = new ServerShutdownHandler();
-        private readonly ServerExitHandler _exitHandler;
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
         private readonly IServerWorkDoneManager _serverWorkDoneManager;
@@ -213,12 +210,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _responseRouter,
                 _serviceProvider.GetRequiredService<ILoggerFactory>(),
-                options.OnServerError,
+                options.OnUnhandledException  ?? (e => { ForcefulShutdown(); }),
+                options.CreateResponseException,
                 options.SupportsContentModified,
                 options.Concurrency
             );
-
-            _exitHandler = new ServerExitHandler(_shutdownHandler);
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             TextDocument = new TextDocumentLanguageServer(this, _serviceProvider);
@@ -228,8 +224,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Workspace = new WorkspaceLanguageServer(this, _serviceProvider);
 
             _disposable.Add(
-                _collection.Add(this, _shutdownHandler, _exitHandler,
-                    new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter))
+                _collection.Add(this, new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter))
             );
 
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
@@ -263,71 +258,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IServerWorkDoneManager WorkDoneManager => _serverWorkDoneManager;
         public ILanguageServerConfiguration Configuration { get; }
-
-        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
-        {
-            var handlerDisposable = _collection.Add(method, handler);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
-        {
-            var handlerDisposable = _collection.Add(method, handlerFunc);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddHandler(Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
-        {
-            var instance = handlerFunc(_serviceProvider);
-            var handlerDisposable = _collection.Add(HandlerTypeDescriptorHelper.GetMethodName(instance.GetType()), instance);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
-        {
-            var handlerDisposable = _collection.Add(handlers);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddHandler(string method, Type handlerType)
-        {
-            var handlerDisposable = _collection.Add(method, handlerType);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddHandler<T>()
-            where T : IJsonRpcHandler
-        {
-            return AddHandlers(typeof(T));
-        }
-
-        public IDisposable AddHandler<T>(Func<IServiceProvider, T> factory)
-            where T : IJsonRpcHandler
-        {
-            return AddHandlers(factory(_serviceProvider));
-        }
-
-        public IDisposable AddHandlers(params Type[] handlerTypes)
-        {
-            var handlerDisposable = _collection.Add(_serviceProvider, handlerTypes);
-            return RegisterHandlers(handlerDisposable);
-        }
-
-        public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
-        {
-            var cd = new CompositeDisposable();
-            foreach (var textDocumentIdentifier in handlers)
-            {
-                cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
-            }
-
-            return cd;
-        }
-
-        public IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier
-        {
-            return _textDocumentIdentifiers.Add(ActivatorUtilities.CreateInstance<T>(_serviceProvider));
-        }
 
         public async Task Initialize(CancellationToken token)
         {
@@ -371,48 +301,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _initializeComplete.OnError(e);
                 throw;
             }
-        }
-
-        private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable)
-        {
-            var registrations = new List<Registration>();
-            foreach (var descriptor in handlerDisposable.Descriptors)
-            {
-                if (descriptor.AllowsDynamicRegistration)
-                {
-                    if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
-                    {
-                        wdpo.WorkDoneProgress = _serverWorkDoneManager.IsSupported;
-                    }
-
-                    registrations.Add(new Registration() {
-                        Id = descriptor.Id.ToString(),
-                        Method = descriptor.Method,
-                        RegisterOptions = descriptor.RegistrationOptions
-                    });
-                }
-
-                if (descriptor.OnServerStartedDelegate != null)
-                {
-                    // Fire and forget to initialize the handler
-                    _initializeComplete
-                        .Select(result =>
-                            Observable.FromAsync((ct) => descriptor.OnServerStartedDelegate(this, result, ct)))
-                        .Merge()
-                        .Subscribe();
-                }
-            }
-
-            // Fire and forget
-            DynamicallyRegisterHandlers(registrations.ToArray()).ToObservable().Subscribe();
-
-            return new CompositeDisposable(
-                handlerDisposable,
-                Disposable.Create(() => {
-                    Client.UnregisterCapability(new UnregistrationParams() {
-                        Unregisterations = registrations.ToArray()
-                    }).ToObservable().Subscribe();
-                }));
         }
 
         async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(
@@ -643,9 +531,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await Client.RegisterCapability(@params);
         }
-
-        public IObservable<bool> Shutdown => _shutdownHandler.Shutdown;
-        public IObservable<int> Exit => _exitHandler.Exit;
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
         public void SendNotification(string method)
@@ -683,8 +568,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return _responseRouter.GetRequest(id);
         }
 
-        public Task WasShutDown => _shutdownHandler.WasShutDown;
-        public Task WaitForExit => _exitHandler.WaitForExit;
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
         public void Dispose()

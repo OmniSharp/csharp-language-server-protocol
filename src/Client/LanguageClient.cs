@@ -217,7 +217,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _responseRouter,
                 _serviceProvider.GetRequiredService<ILoggerFactory>(),
-                options.OnServerError,
+                options.OnUnhandledException ?? (e => {  }),
+                options.CreateResponseException,
                 options.SupportsContentModified,
                 options.Concurrency
             );
@@ -376,6 +377,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 this.SendExit();
             }
 
+            await _connection.StopAsync();
             _connection.Dispose();
         }
 

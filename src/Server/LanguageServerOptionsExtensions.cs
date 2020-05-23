@@ -160,9 +160,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithErrorHandler(this LanguageServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
+        public static LanguageServerOptions WithResponseExceptionFactory(this LanguageServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
         {
-            options.OnServerError = handler;
+            options.CreateResponseException = handler;
+            return options;
+        }
+
+        public static LanguageServerOptions WithUnhandledExceptionHandler(this LanguageServerOptions options, Action<Exception> handler)
+        {
+            options.OnUnhandledException = handler;
             return options;
         }
 

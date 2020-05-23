@@ -80,7 +80,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         internal bool AddDefaultLoggingProvider { get; set; }
         public int? Concurrency { get; set; }
-        public Func<ServerError, IHandlerDescriptor, Exception> OnServerError { get; set; }
+        public Func<ServerError, IHandlerDescriptor, Exception> CreateResponseException { get; set; }
+        public Action<Exception> OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; } = true;
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
         internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();

@@ -7,6 +7,8 @@ using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
         private readonly IResponseRouter _responseRouter;
+        private readonly Action<Exception> _unhandledInputProcessException;
         private readonly Func<ServerError, IHandlerDescriptor, Exception> _getException;
         private readonly ILogger<InputHandler> _logger;
         private readonly ProcessScheduler _scheduler;
@@ -45,6 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Memory<byte> _contentLengthValueMemory;
         private readonly CancellationTokenSource _stopProcessing;
         private readonly CompositeDisposable _disposable;
+        private readonly AsyncSubject<Unit> _inputActive;
 
         public InputHandler(
             PipeReader pipeReader,
@@ -54,6 +58,7 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
+            Action<Exception> unhandledInputProcessException,
             Func<ServerError, IHandlerDescriptor, Exception> getException,
             bool supportContentModified,
             int? concurrency
@@ -65,10 +70,10 @@ namespace OmniSharp.Extensions.JsonRpc
             _requestProcessIdentifier = requestProcessIdentifier;
             _requestRouter = requestRouter;
             _responseRouter = responseRouter;
+            _unhandledInputProcessException = unhandledInputProcessException;
             _getException = getException;
             _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory, supportContentModified, concurrency,
-                 new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"}));
+            _scheduler = new ProcessScheduler(loggerFactory, supportContentModified, concurrency, TaskPoolScheduler.Default);
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
             _contentLengthValueBuffer = new byte[20]; // Max string length of the long value
@@ -81,14 +86,31 @@ namespace OmniSharp.Extensions.JsonRpc
                 _stopProcessing,
                 _scheduler,
             };
+
+            _inputActive = new AsyncSubject<Unit>();
         }
 
         public void Start()
         {
-            ProcessInputStream(_stopProcessing.Token).ContinueWith(x => {
-                if (x.IsFaulted) _logger.LogCritical(x.Exception, "unhandled exception");
-            });
+            Observable.FromAsync(() => ProcessInputStream(_stopProcessing.Token))
+                .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
+                .Subscribe(_inputActive);
         }
+
+        public async Task StopAsync()
+        {
+            await _outputHandler.StopAsync();
+            await _pipeReader.CompleteAsync();
+        }
+
+        public void Dispose()
+        {
+            _disposable.Dispose();
+            _pipeReader.Complete();
+            _outputHandler.Dispose();
+        }
+
+        public Task InputCompleted => _inputActive.ToTask();
 
         private bool TryParseHeaders(ref ReadOnlySequence<byte> buffer, out ReadOnlySequence<byte> line)
         {
@@ -109,7 +131,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     return false;
                 }
 
-                var next = buffer.Slice(start.Value, buffer.GetPosition(4, start.Value));
+                var next = buffer.Slice(start.Value, buffer.GetPosition(HeadersFinishedLength, start.Value));
                 next.CopyTo(rentedSpan);
                 if (IsEqual(rentedSpan, HeadersFinished))
                 {
@@ -222,55 +244,68 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             // some time to attach a debugger
             // System.Threading.Thread.Sleep(TimeSpan.FromSeconds(5));
-
-            var headersParsed = false;
-            long length = 0;
-            do
+            ReadOnlySequence<byte> buffer = default;
+            try
             {
-                var result = await _pipeReader.ReadAsync(cancellationToken);
-                var buffer = result.Buffer;
 
-                var dataParsed = true;
+                var headersParsed = false;
+                long length = 0;
                 do
                 {
-                    dataParsed = false;
-                    if (!headersParsed)
+                    var result = await _pipeReader.ReadAsync(cancellationToken);
+                    buffer = result.Buffer;
+
+                    var dataParsed = true;
+                    do
                     {
-                        if (TryParseHeaders(ref buffer, out var line))
+                        dataParsed = false;
+                        if (!headersParsed)
                         {
-                            if (TryParseContentLength(ref line, out length))
+                            if (TryParseHeaders(ref buffer, out var line))
                             {
-                                headersParsed = true;
+                                if (TryParseContentLength(ref line, out length))
+                                {
+                                    headersParsed = true;
+                                }
                             }
                         }
-                    }
 
-                    if (headersParsed && length == 0)
-                    {
-                        HandleRequest(new ReadOnlySequence<byte>(Array.Empty<byte>()));
-                        headersParsed = false;
-                    }
-
-                    if (headersParsed)
-                    {
-                        if (TryParseBodyString(length, ref buffer, out var line))
+                        if (headersParsed && length == 0)
                         {
+                            HandleRequest(new ReadOnlySequence<byte>(Array.Empty<byte>()));
                             headersParsed = false;
-                            length = 0;
-                            HandleRequest(line);
-                            dataParsed = true;
                         }
+
+                        if (headersParsed)
+                        {
+                            if (TryParseBodyString(length, ref buffer, out var line))
+                            {
+                                headersParsed = false;
+                                length = 0;
+                                HandleRequest(line);
+                                dataParsed = true;
+                            }
+                        }
+                    } while (!buffer.IsEmpty && dataParsed);
+
+                    _pipeReader.AdvanceTo(buffer.Start, buffer.End);
+
+                    // Stop reading if there's no more data coming.
+                    if (result.IsCompleted && buffer.IsEmpty)
+                    {
+                        break;
                     }
-                } while (!buffer.IsEmpty && dataParsed);
+                } while (!cancellationToken.IsCancellationRequested);
+            }
+            catch (Exception e)
+            {
+                var outerException = new InputProcessingException(Encoding.UTF8.GetString(buffer.ToArray()), e);
+                await _outputHandler.StopAsync();
+                await _pipeReader.CompleteAsync();
 
-                _pipeReader.AdvanceTo(buffer.Start, buffer.End);
-
-                // Stop reading if there's no more data coming.
-                if (result.IsCompleted && buffer.IsEmpty)
-                {
-                    break;
-                }
-            } while (!cancellationToken.IsCancellationRequested);
+                _unhandledInputProcessException(outerException);
+                throw outerException;
+            }
         }
 
         private void HandleRequest(in ReadOnlySequence<byte> request)
@@ -409,12 +444,13 @@ namespace OmniSharp.Extensions.JsonRpc
                      )
             };
         }
+    }
 
-        public void Dispose()
+    public class InputProcessingException : Exception
+    {
+        public InputProcessingException(string message, Exception innerException) : base($"There was an error processing input the contents of the buffer were '{message}'", innerException)
         {
-            _disposable.Dispose();
-            _pipeReader.Complete();
-            _outputHandler.Dispose();
+
         }
     }
 }

@@ -1,14 +1,19 @@
 using System;
+using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -20,17 +25,15 @@ namespace JsonRpc.Tests
     [Collection("InputHandlers")]
     public class InputHandlerTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
         private readonly TestLoggerFactory _loggerFactory;
+        private readonly Action<Exception> _unhandledException = Substitute.For<Action<Exception>>();
 
         public InputHandlerTests(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
-
-            _loggerFactory = new TestLoggerFactory(_testOutputHelper);
+            _loggerFactory = new TestLoggerFactory(testOutputHelper);
         }
 
-        private static InputHandler NewHandler(
+        private InputHandler NewHandler(
             PipeReader inputStream,
             IOutputHandler outputHandler,
             IReceiver receiver,
@@ -47,6 +50,7 @@ namespace JsonRpc.Tests
                 requestRouter,
                 responseRouter,
                 loggerFactory,
+                _unhandledException,
                 null,
                 true,
                 null
@@ -204,6 +208,52 @@ namespace JsonRpc.Tests
             receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
         }
 
+        [Fact]
+        public async Task Should_Handle_Header_Terminiator_Being_Incomplete()
+        {
+            var pipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.ThreadPool, writerScheduler: PipeScheduler.Inline, useSynchronizationContext:false));
+
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = Substitute.For<IReceiver>();
+
+            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                _loggerFactory, Substitute.For<IResponseRouter>());
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromMinutes(5));
+            var processTask = handler.ProcessInputStream(cts.Token);
+
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Leng"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("th: 2\r"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("\n\r\n{}"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Cont"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("ent-Length: 2\r\n\r\n{}"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("\n{"));
+            await pipe.Writer.FlushAsync();
+            await Task.Delay(50);
+            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("}"));
+            await pipe.Writer.FlushAsync();
+
+            await pipe.Writer.CompleteAsync();
+            await processTask;
+
+            receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+        }
+
         [Theory]
         // Mörkö
         [InlineData("{\"changes\": [{\"uri\": \"file:///M%C3%B6rk%C3%B6.cs\",\"type\": 1}]}")]
@@ -270,7 +320,7 @@ namespace JsonRpc.Tests
 
             var outputHandler = Substitute.For<IOutputHandler>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(pipe.Reader, outputHandler,  receiver,
                 Substitute.For<IRequestProcessIdentifier>(),
                 incomingRequestRouter,
                 _loggerFactory,
@@ -286,6 +336,168 @@ namespace JsonRpc.Tests
             await processTask;
 
             incomingRequestRouter.Received().CancelRequest(1L);
+        }
+
+        [Theory]
+        [ClassData(typeof(JsonRpcLogs))]
+        public async Task Should_Parse_Logs(string name, Func<PipeReader> createPipeReader, ILookup<string, string> messageTypes)
+        {
+            var logger = _loggerFactory.CreateLogger<InputHandlerTests>();
+            using var scope = logger.BeginScope(name);
+
+            logger.LogInformation("Start");
+
+            var reader = createPipeReader();
+            var receiver = new Receiver();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var responseRouter = Substitute.For<IResponseRouter>();
+
+            using var handler = NewHandler(reader, outputHandler, receiver,
+                new ParallelRequestProcessIdentifier(),
+                incomingRequestRouter,
+                _loggerFactory,
+                responseRouter
+            );
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromMinutes(1));
+            var processTask = handler.ProcessInputStream(cts.Token);
+
+            await processTask;
+
+            foreach (var group in messageTypes)
+            {
+                {
+                    var count = group.Count(x => x == "request");
+                    await incomingRequestRouter.Received(count).RouteRequest(
+                        Arg.Any<IHandlerDescriptor>(),
+                        Arg.Is<Request>(n => group.Key == n.Method),
+                        Arg.Any<CancellationToken>(),
+                        Arg.Any<CancellationToken>()
+                    );
+                }
+
+
+                {
+                    var count = group.Count(x => x == "notification");
+                    await incomingRequestRouter.Received(count).RouteNotification(
+                        Arg.Any<IHandlerDescriptor>(),
+                        Arg.Is<Notification>(n => group.Key == n.Method),
+                        Arg.Any<CancellationToken>(),
+                        Arg.Any<CancellationToken>()
+                    );
+                }
+            }
+
+            logger.LogInformation("End");
+
+        }
+
+        class JsonRpcLogs : TheoryData<string, Func<PipeReader>, ILookup<string, string>>
+        {
+            public JsonRpcLogs()
+            {
+                var assembly = GetType().Assembly;
+                foreach (var streamName in assembly.GetManifestResourceNames().Where(z => z.EndsWith(".jsrpc")))
+                {
+                    var data = GetData(assembly, streamName);
+
+                    var msgTypes = data.Select(z => {
+                        if (z.MsgKind.EndsWith("response"))
+                        {
+                            return (type:"response", kind:z.MsgType);
+                        }
+
+                        if (z.MsgKind.EndsWith("request"))
+                        {
+                            return (type:"request", kind:z.MsgType);
+                        }
+
+                        if (z.MsgKind.EndsWith("notification"))
+                        {
+                            return (type: "notification", kind:z.MsgType);
+                        }
+
+                        return (type:null, kind:null);
+                    })
+                        .ToLookup(z => z.kind, z => z.type);
+
+                    Add(streamName, () => CreateReader(data), msgTypes );
+                }
+            }
+
+            DataItem[] GetData(Assembly assembly, string name)
+            {
+                var stream = assembly.GetManifestResourceStream(name);
+                using var streamReader = new StreamReader(stream);
+                using var jsonReader = new JsonTextReader(streamReader);
+                var serializer = new JsonSerializer();
+                return serializer.Deserialize<DataItem[]>(jsonReader);
+            }
+
+            PipeReader CreateReader(DataItem[] data)
+            {
+                var outputData = data
+                    .Select<DataItem, object>(z => {
+                        if (z.MsgKind.EndsWith("response"))
+                        {
+                            return new Response(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
+                        }
+
+                        if (z.MsgKind.EndsWith("request"))
+                        {
+                            return new OmniSharp.Extensions.JsonRpc.Client.Request() {
+                                Id = z.MsgId,
+                                Method = z.MsgType,
+                                Params = z.Arg
+                            };
+                        }
+
+                        if (z.MsgKind.EndsWith("notification"))
+                        {
+                            return new OmniSharp.Extensions.JsonRpc.Client.Notification() {
+                                Method = z.MsgType,
+                                Params = z.Arg
+                            };
+                        }
+
+                        throw new NotSupportedException("unknown message kind " + z.MsgKind);
+                    });
+
+                var pipeIn = new Pipe();
+
+                var _serializer = new JsonRpcSerializer();
+
+                Task.Run(async () => {
+                    foreach (var item in outputData)
+                    {
+
+                        var content = _serializer.SerializeObject(item);
+                        var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
+
+                        await pipeIn.Writer.WriteAsync(
+                            Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"));
+                        await pipeIn.Writer.WriteAsync(contentBytes);
+                        await pipeIn.Writer.FlushAsync();
+                    }
+
+                    await pipeIn.Writer.CompleteAsync();
+                });
+
+
+                return pipeIn.Reader;
+            }
+
+            class DataItem
+            {
+                public string Time { get; set; }
+                public string Msg { get; set; }
+                public string MsgKind { get; set; }
+                public string MsgType { get; set; }
+                public string MsgId { get; set; }
+                public JToken Arg { get; set; }
+            }
         }
     }
 }
