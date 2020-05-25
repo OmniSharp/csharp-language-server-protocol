@@ -12,8 +12,8 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
     /// </summary>
     public abstract class JsonRpcServerTestBase : JsonRpcTestBase
     {
-        private IJsonRpcServer _client;
-        private IJsonRpcServer _server;
+        private JsonRpcServer _client;
+        private JsonRpcServer _server;
 
         public JsonRpcServerTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {
@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             options.WithInput(inMemoryReader).WithOutput(inMemoryWriter);
         }
 
-        protected virtual async Task<(IJsonRpcServer client, IJsonRpcServer server)> Initialize(
+        protected virtual async Task<(JsonRpcServer client, JsonRpcServer server)> Initialize(
             Action<JsonRpcServerOptions> clientOptionsAction,
             Action<JsonRpcServerOptions> serverOptionsAction)
         {
@@ -47,7 +47,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                     });
                 ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
                 clientOptionsAction(options);
-            });
+            }, CancellationToken);
 
             var serverTask = JsonRpcServer.From(options => {
                 options
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                     });
                 ConfigureServerInputOutput(clientPipe.Reader, serverPipe.Writer, options);
                 serverOptionsAction(options);
-            });
+            }, CancellationToken);
 
             await Task.WhenAll(clientTask, serverTask);
             _client = clientTask.Result;

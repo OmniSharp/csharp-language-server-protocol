@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class StackTraceExtensions
     {
-        public static IDisposable OnStackTrace(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStackTrace(this IDebugAdapterServerRegistry registry,
             Func<StackTraceArguments, CancellationToken, Task<StackTraceResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StackTrace, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnStackTrace(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStackTrace(this IDebugAdapterServerRegistry registry,
             Func<StackTraceArguments, Task<StackTraceResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StackTrace, RequestHandler.For(handler));

@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     class LspHandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<LspHandlerDescriptor>
     {
         private readonly Action _disposeAction;
+        private readonly Func<bool> _allowsDynamicRegistration;
 
         public LspHandlerDescriptor(
             string method,
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type @params,
             Type registrationType,
             object registrationOptions,
-            bool allowsDynamicRegistration,
+            Func<bool> allowsDynamicRegistration,
             Type capabilityType,
             Action disposeAction)
         {
@@ -37,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Params = @params;
             RegistrationType = registrationType;
             RegistrationOptions = registrationOptions;
-            AllowsDynamicRegistration = allowsDynamicRegistration;
+            _allowsDynamicRegistration = allowsDynamicRegistration;
             CapabilityType = capabilityType;
 
             var requestInterface = @params?.GetInterfaces()
@@ -82,7 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public bool HasRegistration => RegistrationType != null;
         public Type RegistrationType { get; }
         public object RegistrationOptions { get; }
-        public bool AllowsDynamicRegistration { get; }
+        public bool AllowsDynamicRegistration => _allowsDynamicRegistration();
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }

@@ -50,11 +50,13 @@ namespace Lsp.Tests.Integration
 
             await Events.SettleNext();
 
-            server.OnCompletion(
-                (@params, token) => Task.FromResult(new CompletionList()),
-                registrationOptions: new CompletionRegistrationOptions() {
-                    DocumentSelector = DocumentSelector.ForLanguage("vb")
-                });
+            server.Register(x => x
+                .OnCompletion(
+                    (@params, token) => Task.FromResult(new CompletionList()),
+                    registrationOptions: new CompletionRegistrationOptions() {
+                        DocumentSelector = DocumentSelector.ForLanguage("vb")
+                    })
+            );
 
             await Settle().Take(2);
 
@@ -72,11 +74,12 @@ namespace Lsp.Tests.Integration
 
             await Events.SettleNext();
 
-            var disposable = server.OnCompletion(
+            var disposable = server.Register(x => x.OnCompletion(
                 (@params, token) => Task.FromResult(new CompletionList()),
                 registrationOptions: new CompletionRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("vb")
-                });
+                })
+            );
 
             await Events.SettleNext();
 

@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class InitializedExtensions
     {
-        public static IDisposable OnInitialized(this IDebugAdapterClientRegistry registry, Action<InitializedEvent> handler)
+        public static IDebugAdapterClientRegistry OnInitialized(this IDebugAdapterClientRegistry registry, Action<InitializedEvent> handler)
         {
             return registry.AddHandler(EventNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this IDebugAdapterClientRegistry registry, Action<InitializedEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnInitialized(this IDebugAdapterClientRegistry registry, Action<InitializedEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this IDebugAdapterClientRegistry registry, Func<InitializedEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnInitialized(this IDebugAdapterClientRegistry registry, Func<InitializedEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this IDebugAdapterClientRegistry registry, Func<InitializedEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnInitialized(this IDebugAdapterClientRegistry registry, Func<InitializedEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Initialized, NotificationHandler.For(handler));
         }

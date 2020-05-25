@@ -1,4 +1,6 @@
-﻿namespace OmniSharp.Extensions.JsonRpc
+﻿using System;
+
+namespace OmniSharp.Extensions.JsonRpc
 {
     /// <summary>
     /// A simple marker interface to use for storing handlings (which will be cast out later)

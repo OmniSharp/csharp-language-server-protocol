@@ -30,8 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class ExecuteCommandExtensions
     {
-        public static IDisposable OnExecuteCommand(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnExecuteCommand(this ILanguageServerRegistry registry,
             Func<ExecuteCommandParams, ExecuteCommandCapability, CancellationToken, Task>
                 handler,
             ExecuteCommandRegistrationOptions registrationOptions)
@@ -42,8 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     ExecuteCommandRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnExecuteCommand(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnExecuteCommand(this ILanguageServerRegistry registry,
             Func<ExecuteCommandParams, ExecuteCommandCapability, Task> handler,
             ExecuteCommandRegistrationOptions registrationOptions)
         {
@@ -53,8 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     ExecuteCommandRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnExecuteCommand(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnExecuteCommand(this ILanguageServerRegistry registry,
             Func<ExecuteCommandParams, CancellationToken, Task> handler,
             ExecuteCommandRegistrationOptions registrationOptions)
         {
@@ -64,8 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     ExecuteCommandRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnExecuteCommand(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnExecuteCommand(this ILanguageServerRegistry registry,
             Func<ExecuteCommandParams, Task> handler,
             ExecuteCommandRegistrationOptions registrationOptions)
         {

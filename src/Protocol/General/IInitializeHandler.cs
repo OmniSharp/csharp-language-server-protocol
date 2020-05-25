@@ -21,16 +21,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static class InitializeExtensions
     {
-        public static IDisposable OnInitialize(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnInitialize(this ILanguageServerRegistry registry,
             Func<InitializeParams, CancellationToken, Task<InitializeResult>>
                 handler)
         {
             return registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnInitialize(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnInitialize(this ILanguageServerRegistry registry,
             Func<InitializeParams, Task<InitializeResult>> handler)
         {
             return registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));

@@ -42,6 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
         {
             if (!descriptor.HasCapability) return;
+            if (descriptor.CapabilityType == null ||!handler.GetType().IsInstanceOfType(descriptor.CapabilityType)) return;
 
             if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
             {

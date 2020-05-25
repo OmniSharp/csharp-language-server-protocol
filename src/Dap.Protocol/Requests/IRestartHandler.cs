@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class RestartExtensions
     {
-        public static IDisposable OnRestart(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnRestart(this IDebugAdapterServerRegistry registry,
             Func<RestartArguments, CancellationToken, Task<RestartResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Restart, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnRestart(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnRestart(this IDebugAdapterServerRegistry registry,
             Func<RestartArguments, Task<RestartResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Restart, RequestHandler.For(handler));

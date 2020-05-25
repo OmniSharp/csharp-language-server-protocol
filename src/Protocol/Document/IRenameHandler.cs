@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class RenameExtensions
     {
-        public static IDisposable OnRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry,
             Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit>>
                 handler,
             RenameRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     RenameRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry,
             Func<RenameParams, CancellationToken, Task<WorkspaceEdit>> handler,
             RenameRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     RenameRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry,
             Func<RenameParams, Task<WorkspaceEdit>> handler,
             RenameRegistrationOptions registrationOptions)
         {

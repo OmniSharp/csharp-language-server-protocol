@@ -27,45 +27,45 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace Lsp.Tests
 {
-    public class TestLanguageServerRegistry : ILanguageServerRegistry
+    public class TestLanguageServerRegistry :  JsonRpcOptionsRegistryBase<ILanguageServerRegistry>, ILanguageServerRegistry
     {
         internal List<IJsonRpcHandler> Handlers = new List<IJsonRpcHandler>();
 
         public OmniSharp.Extensions.JsonRpc.ISerializer Serializer => new Serializer();
 
-        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
+        public ILanguageServerRegistry AddHandler(string method, IJsonRpcHandler handler)
         {
             Handlers.Add(handler);
-            return Disposable.Empty;
+            return this;
         }
 
-        public IDisposable AddHandler<T>() where T : IJsonRpcHandler
+        public ILanguageServerRegistry AddHandler<T>() where T : IJsonRpcHandler
         {
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        public ILanguageServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
+        public ILanguageServerRegistry AddHandlers(params IJsonRpcHandler[] handlers)
         {
             Handlers.AddRange(handlers);
-            return Disposable.Empty;
+            return this;
         }
 
-        public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
+        public ILanguageServerRegistry AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
         {
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier
+        public ILanguageServerRegistry AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier
         {
-            throw new NotImplementedException();
+            return this;
         }
 
-        public IDisposable AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler
+        public ILanguageServerRegistry AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler
         {
             var sp = new ServiceCollection()
                 .AddSingleton(Substitute
@@ -75,7 +75,7 @@ namespace Lsp.Tests
                 .AddSingleton(new CodeActionRegistrationOptions())
                 .BuildServiceProvider();
             Handlers.Add(handlerFunc(sp));
-            return Disposable.Empty;
+            return this;
         }
     }
 

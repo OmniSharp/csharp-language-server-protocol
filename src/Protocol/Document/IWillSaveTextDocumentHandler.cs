@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class WillSaveTextDocumentExtensions
     {
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveTextDocumentParams, CancellationToken, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveTextDocumentParams, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -62,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Action<WillSaveTextDocumentParams, SynchronizationCapability, CancellationToken> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -76,8 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     }, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Action<WillSaveTextDocumentParams, CancellationToken> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -90,8 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     }, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveTextDocument(this ILanguageServerRegistry registry,
             Action<WillSaveTextDocumentParams> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {

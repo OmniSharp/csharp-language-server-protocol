@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class ColorPresentationExtensions
     {
-        public static IDisposable OnColorPresentation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnColorPresentation(this ILanguageServerRegistry registry,
             Func<ColorPresentationParams, ColorProviderCapability, CancellationToken, Task<Container<ColorPresentation>>>
                 handler,
             DocumentColorRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentColorRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnColorPresentation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnColorPresentation(this ILanguageServerRegistry registry,
             Func<ColorPresentationParams, CancellationToken, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentColorRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnColorPresentation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnColorPresentation(this ILanguageServerRegistry registry,
             Func<ColorPresentationParams, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {

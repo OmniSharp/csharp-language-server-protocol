@@ -41,8 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
     public static class FoldingRangeExtensions
     {
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Func<FoldingRangeRequestParam, FoldingRangeCapability, CancellationToken, Task<Container<FoldingRange>>>
                 handler,
             FoldingRangeRegistrationOptions registrationOptions)
@@ -54,8 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     FoldingRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions)
         {
@@ -65,8 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     FoldingRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Func<FoldingRangeRequestParam, Task<Container<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions)
         {
@@ -76,8 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     FoldingRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability,
                 CancellationToken> handler, FoldingRangeRegistrationOptions registrationOptions)
         {
@@ -89,8 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         registrationOptions, _.GetService<IProgressManager>(), x => new Container<FoldingRange>(x)));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability>
                 handler,
             FoldingRangeRegistrationOptions registrationOptions)
@@ -103,8 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         registrationOptions, _.GetService<IProgressManager>(), x => new Container<FoldingRange>(x)));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, CancellationToken> handler,
             FoldingRangeRegistrationOptions registrationOptions)
         {
@@ -116,8 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         _.GetService<IProgressManager>(), x => new Container<FoldingRange>(x)));
         }
 
-        public static IDisposable OnFoldingRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry,
             Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>> handler,
             FoldingRangeRegistrationOptions registrationOptions)
         {

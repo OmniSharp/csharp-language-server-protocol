@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class CompletionsExtensions
     {
-        public static IDisposable OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> handler)
+        public static IDebugAdapterServerRegistry OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, CancellationToken, Task<CompletionsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Completions, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, Task<CompletionsResponse>> handler)
+        public static IDebugAdapterServerRegistry OnCompletions(this IDebugAdapterServerRegistry registry, Func<CompletionsArguments, Task<CompletionsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Completions, RequestHandler.For(handler));
         }

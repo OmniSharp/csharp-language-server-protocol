@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class SetBreakpointsExtensions
     {
-        public static IDisposable OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
             Func<SetBreakpointsArguments, CancellationToken, Task<SetBreakpointsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.SetBreakpoints, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
             Func<SetBreakpointsArguments, Task<SetBreakpointsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.SetBreakpoints, RequestHandler.For(handler));

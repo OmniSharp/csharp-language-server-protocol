@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 
     public static class UnregisterCapabilityExtensions
     {
-        public static IDisposable OnUnregisterCapability(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnUnregisterCapability(this ILanguageClientRegistry registry,
             Func<UnregistrationParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(ClientNames.UnregisterCapability, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnUnregisterCapability(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnUnregisterCapability(this ILanguageClientRegistry registry,
             Func<UnregistrationParams, Task> handler)
         {
             return registry.AddHandler(ClientNames.UnregisterCapability, RequestHandler.For(handler));

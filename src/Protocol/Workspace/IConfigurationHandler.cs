@@ -19,16 +19,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class ConfigurationExtensions
     {
-        public static IDisposable OnConfiguration(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnConfiguration(this ILanguageClientRegistry registry,
             Func<ConfigurationParams, CancellationToken, Task<Container<JToken>>>
                 handler)
         {
             return registry.AddHandler(WorkspaceNames.Configuration, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnConfiguration(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnConfiguration(this ILanguageClientRegistry registry,
             Func<ConfigurationParams, Task<Container<JToken>>> handler)
         {
             return registry.AddHandler(WorkspaceNames.Configuration, RequestHandler.For(handler));

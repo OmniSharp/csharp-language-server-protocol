@@ -19,29 +19,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static class ShowMessageExtensions
     {
-        public static IDisposable OnShowMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessage(this ILanguageClientRegistry registry,
             Action<ShowMessageParams> handler)
         {
             return registry.AddHandler(WindowNames.ShowMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnShowMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessage(this ILanguageClientRegistry registry,
             Action<ShowMessageParams, CancellationToken> handler)
         {
             return registry.AddHandler(WindowNames.ShowMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnShowMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessage(this ILanguageClientRegistry registry,
             Func<ShowMessageParams, Task> handler)
         {
             return registry.AddHandler(WindowNames.ShowMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnShowMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessage(this ILanguageClientRegistry registry,
             Func<ShowMessageParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WindowNames.ShowMessage, NotificationHandler.For(handler));

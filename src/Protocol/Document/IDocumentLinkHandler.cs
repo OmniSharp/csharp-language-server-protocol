@@ -45,8 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DocumentLinkExtensions
     {
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer>> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -59,8 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     registrationOptions));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, DocumentLinkCapability, CancellationToken, Task<DocumentLink>> resolveHandler,
@@ -71,22 +69,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link, cap, token) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                    new LanguageProtocolDelegatingHandlers.Request<DocumentLinkParams, DocumentLinkContainer, DocumentLinkCapability,
-                        DocumentLinkRegistrationOptions>(
-                        handler,
-                        registrationOptions)),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
-                    new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
-                        resolveHandler,
-                        canResolve,
-                        registrationOptions))
-            );
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
+                        new LanguageProtocolDelegatingHandlers.Request<DocumentLinkParams, DocumentLinkContainer, DocumentLinkCapability,
+                            DocumentLinkRegistrationOptions>(
+                            handler,
+                            registrationOptions))
+                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
+                            resolveHandler,
+                            canResolve,
+                            registrationOptions))
+                ;
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer>> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -99,8 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     registrationOptions));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
@@ -111,22 +106,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link, token) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
                     new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
                         DocumentLinkRegistrationOptions>(
                         handler,
-                        registrationOptions)),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        registrationOptions)).AddHandler(TextDocumentNames.DocumentLinkResolve,
                     new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
                         resolveHandler,
                         canResolve,
                         registrationOptions))
-            );
+                ;
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer>> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -139,8 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     registrationOptions));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, Task<DocumentLink>> resolveHandler,
@@ -151,22 +142,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                    new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
-                        DocumentLinkRegistrationOptions>(
-                        handler,
-                        registrationOptions)),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
-                    new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                        resolveHandler,
-                        canResolve,
-                        registrationOptions))
-            );
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
+                        new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
+                            DocumentLinkRegistrationOptions>(
+                            handler,
+                            registrationOptions))
+                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                            resolveHandler,
+                            canResolve,
+                            registrationOptions))
+                ;
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, DocumentLinkCapability, CancellationToken> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -181,8 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     x => new DocumentLinkContainer(x)));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, DocumentLinkCapability, CancellationToken> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, DocumentLinkCapability, CancellationToken, Task<DocumentLink>> resolveHandler,
@@ -193,24 +181,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link, cap, token) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                    _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink, DocumentLinkCapability,
-                        DocumentLinkRegistrationOptions>(
-                        handler,
-                        registrationOptions,
-                        _.GetRequiredService<IProgressManager>(),
-                        x => new DocumentLinkContainer(x))),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
-                    new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
-                        resolveHandler,
-                        canResolve,
-                        registrationOptions))
-            );
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink, DocumentLinkCapability,
+                            DocumentLinkRegistrationOptions>(
+                            handler,
+                            registrationOptions,
+                            _.GetRequiredService<IProgressManager>(),
+                            x => new DocumentLinkContainer(x)))
+                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
+                            resolveHandler,
+                            canResolve,
+                            registrationOptions))
+                ;
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, CancellationToken> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -225,8 +211,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     x => new DocumentLinkContainer(x)));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, CancellationToken> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
@@ -237,24 +222,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link, token) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                    _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
-                        DocumentLinkRegistrationOptions>(
-                        handler,
-                        registrationOptions,
-                        _.GetRequiredService<IProgressManager>(),
-                        x => new DocumentLinkContainer(x))),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
-                    new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                        resolveHandler,
-                        canResolve,
-                        registrationOptions))
-            );
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
+                            DocumentLinkRegistrationOptions>(
+                            handler,
+                            registrationOptions,
+                            _.GetRequiredService<IProgressManager>(),
+                            x => new DocumentLinkContainer(x)))
+                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                            resolveHandler,
+                            canResolve,
+                            registrationOptions))
+                ;
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>> handler,
             DocumentLinkRegistrationOptions registrationOptions)
         {
@@ -269,8 +252,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     x => new DocumentLinkContainer(x)));
         }
 
-        public static IDisposable OnDocumentLink(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>> handler,
             Func<DocumentLink, bool> canResolve,
             Func<DocumentLink, Task<DocumentLink>> resolveHandler,
@@ -281,23 +263,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             canResolve ??= item => registrationOptions.ResolveProvider;
             resolveHandler ??= (link) => Task.FromException<DocumentLink>(new NotImplementedException());
 
-            return new CompositeDisposable(
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                    _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
-                        DocumentLinkRegistrationOptions>(
-                        handler,
-                        registrationOptions,
-                        _.GetRequiredService<IProgressManager>(),
-                        x => new DocumentLinkContainer(x))),
-                registry.AddHandler(TextDocumentNames.DocumentLinkResolve,
-                    new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                        resolveHandler,
-                        canResolve,
-                        registrationOptions))
-            );
+            return registry.AddHandler(TextDocumentNames.DocumentLink,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
+                            DocumentLinkRegistrationOptions>(
+                            handler,
+                            registrationOptions,
+                            _.GetRequiredService<IProgressManager>(),
+                            x => new DocumentLinkContainer(x)))
+                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                            resolveHandler,
+                            canResolve,
+                            registrationOptions))
+                ;
         }
 
-        public static  IRequestProgressObservable<IEnumerable<DocumentLink>, DocumentLinkContainer> RequestDocumentLink(this ITextDocumentLanguageClient mediator, DocumentLinkParams @params,
+        public static IRequestProgressObservable<IEnumerable<DocumentLink>, DocumentLinkContainer> RequestDocumentLink(this ITextDocumentLanguageClient mediator,
+            DocumentLinkParams @params,
             CancellationToken cancellationToken = default)
         {
             return mediator.ProgressManager.MonitorUntil(@params, x => new DocumentLinkContainer(x), cancellationToken);

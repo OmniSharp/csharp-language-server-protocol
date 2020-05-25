@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Pipelines;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -17,5 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc
         bool SupportsContentModified { get; set; }
         TimeSpan MaximumRequestTimeout { get; set; }
         void RegisterForDisposal(IDisposable disposable);
+        IDisposable RegisteredDisposables { get; }
+        IEnumerable<Assembly> Assemblies { get; }
     }
 }

@@ -19,29 +19,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static class WorkDoneProgressCancelExtensions
     {
-        public static IDisposable OnWorkDoneProgressCancel(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkDoneProgressCancel(this ILanguageServerRegistry registry,
             Action<WorkDoneProgressCancelParams, CancellationToken> handler)
         {
             return registry.AddHandler(WindowNames.WorkDoneProgressCancel, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnWorkDoneProgressCancel(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkDoneProgressCancel(this ILanguageServerRegistry registry,
             Action<WorkDoneProgressCancelParams> handler)
         {
             return registry.AddHandler(WindowNames.WorkDoneProgressCancel, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnWorkDoneProgressCancel(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkDoneProgressCancel(this ILanguageServerRegistry registry,
             Func<WorkDoneProgressCancelParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WindowNames.WorkDoneProgressCancel, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnWorkDoneProgressCancel(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkDoneProgressCancel(this ILanguageServerRegistry registry,
             Func<WorkDoneProgressCancelParams, Task> handler)
         {
             return registry.AddHandler(WindowNames.WorkDoneProgressCancel, NotificationHandler.For(handler));

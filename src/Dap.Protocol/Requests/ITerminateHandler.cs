@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class TerminateExtensions
     {
-        public static IDisposable OnTerminate(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnTerminate(this IDebugAdapterServerRegistry registry,
             Func<TerminateArguments, CancellationToken, Task<TerminateResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Terminate, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnTerminate(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnTerminate(this IDebugAdapterServerRegistry registry,
             Func<TerminateArguments, Task<TerminateResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Terminate, RequestHandler.For(handler));

@@ -19,13 +19,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ConfigurationDoneExtensions
     {
-        public static IDisposable OnConfigurationDone(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnConfigurationDone(this IDebugAdapterServerRegistry registry,
             Func<ConfigurationDoneArguments, CancellationToken, Task<ConfigurationDoneResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ConfigurationDone, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnConfigurationDone(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnConfigurationDone(this IDebugAdapterServerRegistry registry,
             Func<ConfigurationDoneArguments, Task<ConfigurationDoneResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ConfigurationDone, RequestHandler.For(handler));

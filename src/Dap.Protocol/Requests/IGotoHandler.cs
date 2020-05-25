@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class GotoExtensions
     {
-        public static IDisposable OnGoto(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnGoto(this IDebugAdapterServerRegistry registry,
             Func<GotoArguments, CancellationToken, Task<GotoResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Goto, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnGoto(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnGoto(this IDebugAdapterServerRegistry registry,
             Func<GotoArguments, Task<GotoResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Goto, RequestHandler.For(handler));

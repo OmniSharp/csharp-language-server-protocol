@@ -26,8 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class DidChangeWorkspaceFoldersExtensions
     {
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Action<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderCapability, CancellationToken> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
@@ -38,8 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     }));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Action<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderCapability> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
@@ -47,24 +45,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWorkspaceFolderCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Action<DidChangeWorkspaceFoldersParams, CancellationToken> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Action<DidChangeWorkspaceFoldersParams> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Func<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderCapability, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
@@ -72,8 +67,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWorkspaceFolderCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Func<DidChangeWorkspaceFoldersParams, DidChangeWorkspaceFolderCapability, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
@@ -81,16 +75,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWorkspaceFolderCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Func<DidChangeWorkspaceFoldersParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeWorkspaceFolders(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWorkspaceFolders(this ILanguageServerRegistry registry,
             Func<DidChangeWorkspaceFoldersParams, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeWorkspaceFolders,

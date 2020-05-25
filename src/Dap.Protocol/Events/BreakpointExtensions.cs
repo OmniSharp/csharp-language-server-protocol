@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class BreakpointExtensions
     {
-        public static IDisposable OnBreakpoint(this IDebugAdapterClientRegistry registry, Action<BreakpointEvent> handler)
+        public static IDebugAdapterClientRegistry OnBreakpoint(this IDebugAdapterClientRegistry registry, Action<BreakpointEvent> handler)
         {
             return registry.AddHandler(EventNames.Breakpoint, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnBreakpoint(this IDebugAdapterClientRegistry registry, Action<BreakpointEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnBreakpoint(this IDebugAdapterClientRegistry registry, Action<BreakpointEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Breakpoint, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnBreakpoint(this IDebugAdapterClientRegistry registry, Func<BreakpointEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnBreakpoint(this IDebugAdapterClientRegistry registry, Func<BreakpointEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Breakpoint, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnBreakpoint(this IDebugAdapterClientRegistry registry, Func<BreakpointEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnBreakpoint(this IDebugAdapterClientRegistry registry, Func<BreakpointEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Breakpoint, NotificationHandler.For(handler));
         }

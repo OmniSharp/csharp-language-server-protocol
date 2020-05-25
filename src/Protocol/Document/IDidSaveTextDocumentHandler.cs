@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DidSaveTextDocumentExtensions
     {
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Action<DidSaveTextDocumentParams, SynchronizationCapability> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Action<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Action<DidSaveTextDocumentParams> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -62,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Action<DidSaveTextDocumentParams, CancellationToken> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -73,8 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Func<DidSaveTextDocumentParams, SynchronizationCapability, Task> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -84,8 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Func<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -95,8 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Func<DidSaveTextDocumentParams, Task> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {
@@ -106,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentSaveRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidSaveTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidSaveTextDocument(this ILanguageServerRegistry registry,
             Func<DidSaveTextDocumentParams, CancellationToken, Task> handler,
             TextDocumentSaveRegistrationOptions registrationOptions)
         {

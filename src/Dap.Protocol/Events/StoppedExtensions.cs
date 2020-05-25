@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class StoppedExtensions
     {
-        public static IDisposable OnStopped(this IDebugAdapterClientRegistry registry, Action<StoppedEvent> handler)
+        public static IDebugAdapterClientRegistry OnStopped(this IDebugAdapterClientRegistry registry, Action<StoppedEvent> handler)
         {
             return registry.AddHandler(EventNames.Stopped, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnStopped(this IDebugAdapterClientRegistry registry, Action<StoppedEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnStopped(this IDebugAdapterClientRegistry registry, Action<StoppedEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Stopped, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnStopped(this IDebugAdapterClientRegistry registry, Func<StoppedEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnStopped(this IDebugAdapterClientRegistry registry, Func<StoppedEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Stopped, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnStopped(this IDebugAdapterClientRegistry registry, Func<StoppedEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnStopped(this IDebugAdapterClientRegistry registry, Func<StoppedEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Stopped, NotificationHandler.For(handler));
         }

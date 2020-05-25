@@ -2,7 +2,7 @@ using System;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IJsonRpcServer : IResponseRouter, IDisposable, IJsonRpcHandlerRegistry
+    public interface IJsonRpcServer : IResponseRouter, IJsonRpcHandlerInstance<IJsonRpcServerRegistry>
     {
 
     }

@@ -9,6 +9,8 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.Core;
+using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
@@ -348,8 +350,12 @@ namespace Lsp.Tests
                     {
                         if (method.Name == GetOnMethodName(_descriptor))
                         {
-                            var registrySub = Substitute.For(new Type[] {method.GetParameters()[0].ParameterType},
-                                Array.Empty<object>());
+                            var registrySub = Substitute.For(new Type[] {method.GetParameters()[0].ParameterType}, Array.Empty<object>());
+                            SubstitutionContext.Current.GetCallRouterFor(registrySub).SetReturnForType(
+                                method.GetParameters()[0].ParameterType,
+                                (IReturn) new ReturnValue(registrySub)
+                            );
+                            // registrySub.ReturnsForAll(x => registrySub);
 
                             method.Invoke(null,
                                 new[] {
@@ -362,9 +368,9 @@ namespace Lsp.Tests
                                     .ToArray());
 
                             registrySub.Received().ReceivedCalls()
-                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry.AddHandler) && z.GetArguments().Length == 2 &&
-                                          z.GetArguments()[0].Equals(_descriptor.Method)).Should()
-                                .BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
+                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) && z.GetArguments().Length == 2 &&
+                                          z.GetArguments()[0].Equals(_descriptor.Method))
+                                .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
 
                             if (_descriptor.HasRegistration && method.GetParameters().Length == 3)
                             {

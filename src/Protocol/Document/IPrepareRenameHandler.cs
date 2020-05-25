@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class PrepareRenameExtensions
     {
-        public static IDisposable OnPrepareRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnPrepareRename(this ILanguageServerRegistry registry,
             Func<PrepareRenameParams, RenameCapability, CancellationToken, Task<RangeOrPlaceholderRange>>
                 handler)
         {
@@ -37,15 +36,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 new LanguageProtocolDelegatingHandlers.RequestCapability<PrepareRenameParams, RangeOrPlaceholderRange, RenameCapability>(handler));
         }
 
-        public static IDisposable OnPrepareRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnPrepareRename(this ILanguageServerRegistry registry,
             Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange>> handler)
         {
             return registry.AddHandler(TextDocumentNames.PrepareRename, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnPrepareRename(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnPrepareRename(this ILanguageServerRegistry registry,
             Func<PrepareRenameParams, Task<RangeOrPlaceholderRange>> handler)
         {
             return registry.AddHandler(TextDocumentNames.PrepareRename, RequestHandler.For(handler));

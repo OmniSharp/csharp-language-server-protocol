@@ -27,25 +27,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static class ExitExtensions
     {
-        public static IDisposable OnExit(this ILanguageServerRegistry registry, Action<ExitParams> handler)
+        public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Action<ExitParams> handler)
         {
             return registry.AddHandler(GeneralNames.Exit,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnExit(this ILanguageServerRegistry registry, Func<ExitParams, Task> handler)
+        public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Exit,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnExit(this ILanguageServerRegistry registry, Action<ExitParams, CancellationToken> handler)
+        public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Action<ExitParams, CancellationToken> handler)
         {
             return registry.AddHandler(GeneralNames.Exit,
                 NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnExit(this ILanguageServerRegistry registry, Func<ExitParams, CancellationToken, Task> handler)
+        public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Exit,
                 NotificationHandler.For(handler));

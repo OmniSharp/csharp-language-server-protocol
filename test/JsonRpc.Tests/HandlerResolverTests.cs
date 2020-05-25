@@ -34,7 +34,7 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IInlineJsonRpcNotificationHandler), "notification")]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key)
         {
-            var handler = new HandlerCollection();
+            var handler = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>());
             handler.Add((IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]));
             handler._handlers.Should().Contain(x => x.Method == key);
         }
@@ -46,7 +46,7 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IInlineJsonRpcNotificationHandler), "notification", null)]
         public void Should_Have_CorrectParams(Type requestHandler, string key, Type expected)
         {
-            var handler = new HandlerCollection();
+            var handler = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>());
             handler.Add((IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]));
             handler.First(x => x.Method == key).Params.Should().IsSameOrEqualTo(expected);
         }

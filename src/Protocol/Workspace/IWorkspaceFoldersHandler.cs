@@ -18,16 +18,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class WorkspaceFoldersExtensions
     {
-        public static IDisposable OnWorkspaceFolders(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnWorkspaceFolders(this ILanguageClientRegistry registry,
             Func<WorkspaceFolderParams, CancellationToken, Task<Container<WorkspaceFolder>>>
                 handler)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceFolders, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnWorkspaceFolders(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnWorkspaceFolders(this ILanguageClientRegistry registry,
             Func<WorkspaceFolderParams, Task<Container<WorkspaceFolder>>> handler)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceFolders, RequestHandler.For(handler));

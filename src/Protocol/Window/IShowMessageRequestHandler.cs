@@ -18,16 +18,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static class ShowMessageRequestExtensions
     {
-        public static IDisposable OnShowMessageRequest(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessageRequest(this ILanguageClientRegistry registry,
             Func<ShowMessageRequestParams, CancellationToken, Task<MessageActionItem>>
                 handler)
         {
             return registry.AddHandler(WindowNames.ShowMessageRequest, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnShowMessageRequest(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnShowMessageRequest(this ILanguageClientRegistry registry,
             Func<ShowMessageRequestParams, Task<MessageActionItem>> handler)
         {
             return registry.AddHandler(WindowNames.ShowMessageRequest, RequestHandler.For(handler));

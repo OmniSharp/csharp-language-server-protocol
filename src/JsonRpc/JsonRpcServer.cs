@@ -1,45 +1,50 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using System.Reactive.Disposables;
+using System.Threading;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class JsonRpcServer : IJsonRpcServer
+    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer, IDisposable
     {
         private readonly Connection _connection;
         private readonly HandlerCollection _collection;
         private readonly CompositeDisposable _disposable;
-
-        private readonly List<(string method, Func<IServiceProvider, IJsonRpcHandler>)> _namedHandlers =
-            new List<(string method, Func<IServiceProvider, IJsonRpcHandler>)>();
-
-        private readonly IResponseRouter _responseRouter;
         private readonly IServiceProvider _serviceProvider;
 
-        public static Task<IJsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction)
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, CancellationToken cancellationToken)
         {
             var options = new JsonRpcServerOptions();
             optionsAction(options);
-            return From(options);
+            return From(options, cancellationToken);
+        }
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction)
+        {
+            var options = new JsonRpcServerOptions();
+            optionsAction(options);
+            return From(options, CancellationToken.None);
         }
 
-        public static async Task<IJsonRpcServer> From(JsonRpcServerOptions options)
+        public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken)
         {
             var server = new JsonRpcServer(options);
 
-            await server.Initialize();
+            await server.Initialize(cancellationToken);
 
             return server;
         }
 
-        internal JsonRpcServer(JsonRpcServerOptions options)
+        public static Task<JsonRpcServer> From(JsonRpcServerOptions options)
+        {
+            return From(options, CancellationToken.None);
+        }
+
+        internal JsonRpcServer(JsonRpcServerOptions options) : base(options)
         {
             var outputHandler = new OutputHandler(options.Output, options.Serializer,
                 options.LoggerFactory.CreateLogger<OutputHandler>());
@@ -47,13 +52,11 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddLogging();
             var receiver = options.Receiver;
             var serializer = options.Serializer;
-            _collection = new HandlerCollection();
             _disposable = options.CompositeDisposable;
 
             services.AddSingleton<IOutputHandler>(outputHandler);
-            services.AddSingleton(_collection);
             services.AddSingleton(serializer);
-            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(serializer);
+            services.AddSingleton(serializer);
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton(receiver);
             services.AddSingleton(options.LoggerFactory);
@@ -61,56 +64,31 @@ namespace OmniSharp.Extensions.JsonRpc
                 MaximumRequestTimeout = options.MaximumRequestTimeout
             });
 
-            services.AddJsonRpcMediatR(options.HandlerAssemblies);
+            services.AddJsonRpcMediatR(options.Assemblies);
             services.AddSingleton<IJsonRpcServer>(this);
             services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
             services.AddSingleton<IResponseRouter, ResponseRouter>();
+            _collection = new HandlerCollection();
+            services.AddSingleton(_collection);
+            services.AddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>());
 
-            var foundHandlers = services
-                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) &&
-                            x.ServiceType != typeof(IJsonRpcHandler))
-                .ToArray();
-
-            // Handlers are created at the start and maintained as a singleton
-            foreach (var handler in foundHandlers)
-            {
-                services.Remove(handler);
-
-                if (handler.ImplementationFactory != null)
-                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationFactory));
-                else if (handler.ImplementationInstance != null)
-                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationInstance));
-                else
-                    services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
-            }
+            EnsureAllHandlersAreRegistered();
 
             var serviceProvider = services.BuildServiceProvider();
             _disposable.Add(serviceProvider);
             _serviceProvider = serviceProvider;
-
-            var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
-            _collection.Add(serviceHandlers);
-            _collection.Add(options.Handlers.ToArray());
-            foreach (var (name, handler) in options.NamedHandlers)
-            {
-                _collection.Add(name, handler);
-            }
-
-            foreach (var (name, handlerFunc) in options.NamedServiceHandlers)
-            {
-                _collection.Add(name, handlerFunc(_serviceProvider));
-            }
+            HandlersManager = _collection;
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
             _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(requestRouter));
-            _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            var router = ResponseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = new Connection(
                 options.Input,
                 outputHandler,
                 options.Receiver,
                 options.RequestProcessIdentifier,
                 requestRouter,
-                _responseRouter,
+                router,
                 options.LoggerFactory,
                 options.OnUnhandledException ?? (e => {  }),
                 options.CreateResponseException,
@@ -118,89 +96,28 @@ namespace OmniSharp.Extensions.JsonRpc
                 options.Concurrency
             );
             _disposable.Add(_connection);
+            _collection.Add(_serviceProvider.GetRequiredService<IEnumerable<IJsonRpcHandler>>().ToArray());
         }
 
-        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
-        {
-            return _collection.Add(method, handler);
-        }
-
-        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
-        {
-            _namedHandlers.Add((method, handlerFunc));
-            return Disposable.Empty;
-        }
-
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
-        {
-            return _collection.Add(handlers);
-        }
-
-        public IDisposable AddHandler(string method, Type handlerType)
-        {
-            return _collection.Add(method,
-                ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler);
-        }
-
-        public IDisposable AddHandler<T>()
-            where T : IJsonRpcHandler
-        {
-            return AddHandlers(typeof(T));
-        }
-
-        public IDisposable AddHandlers(params Type[] handlerTypes)
-        {
-            return _collection.Add(
-                handlerTypes
-                    .Select(handlerType =>
-                        ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)
-                    .ToArray());
-        }
-
-        private async Task Initialize()
+        private async Task Initialize(CancellationToken cancellationToken)
         {
             await Task.Yield();
             _connection.Open();
-        }
-
-        public void SendNotification(string method)
-        {
-            _responseRouter.SendNotification(method);
-        }
-
-        public void SendNotification<T>(string method, T @params)
-        {
-            _responseRouter.SendNotification(method, @params);
-        }
-
-        public void SendNotification(IRequest @params)
-        {
-            _responseRouter.SendNotification(@params);
-        }
-
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
-        {
-            return _responseRouter.SendRequest(@params, cancellationToken);
-        }
-
-        public IResponseRouterReturns SendRequest<T>(string method, T @params)
-        {
-            return _responseRouter.SendRequest(method, @params);
-        }
-
-        public IResponseRouterReturns SendRequest(string method)
-        {
-            return _responseRouter.SendRequest(method);
-        }
-
-        public TaskCompletionSource<JToken> GetRequest(long id)
-        {
-            return _responseRouter.GetRequest(id);
         }
 
         public void Dispose()
         {
             _disposable.Dispose();
         }
+
+        public IDisposable Register(Action<IJsonRpcServerRegistry> registryAction)
+        {
+            var manager = new CompositeHandlersManager(_collection);
+            registryAction(new JsonRpcServerRegistry(_serviceProvider, manager));
+            return manager.GetDisposable();
+        }
+
+        protected override IResponseRouter ResponseRouter { get; }
+        protected override IHandlersManager HandlersManager { get; }
     }
 }

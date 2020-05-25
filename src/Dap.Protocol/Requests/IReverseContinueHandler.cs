@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ReverseContinueExtensions
     {
-        public static IDisposable OnReverseContinue(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnReverseContinue(this IDebugAdapterServerRegistry registry,
             Func<ReverseContinueArguments, CancellationToken, Task<ReverseContinueResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ReverseContinue, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnReverseContinue(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnReverseContinue(this IDebugAdapterServerRegistry registry,
             Func<ReverseContinueArguments, Task<ReverseContinueResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ReverseContinue, RequestHandler.For(handler));

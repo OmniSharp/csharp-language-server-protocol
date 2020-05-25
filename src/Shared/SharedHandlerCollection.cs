@@ -45,6 +45,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return GetEnumerator();
         }
 
+        IDisposable IHandlersManager.Add(IJsonRpcHandler handler) => Add(handler);
+
+        IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler) => Add(method, handler);
+
         public LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler)
         {
             var descriptor = GetDescriptor(method, handler.GetType(), handler);
@@ -188,8 +192,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 @params,
                 registrationType,
                 registrationOptions,
-                registrationType != null && _supportedCapabilities.AllowsDynamicRegistration(capabilityType),
-                 capabilityType?.IsInstanceOfType(handler) == true ? capabilityType : null,
+                (registrationType ==  null ? (Func<bool>) (() => false) : (() => _supportedCapabilities.AllowsDynamicRegistration(capabilityType))),
+                capabilityType,
                 () => {
                     _handlers.RemoveWhere(d => d.Handler == handler);
                 });

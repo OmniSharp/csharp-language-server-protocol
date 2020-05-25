@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class DidChangeWatchedFilesExtensions
     {
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Action<DidChangeWatchedFilesParams, DidChangeWatchedFilesCapability, CancellationToken> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Action<DidChangeWatchedFilesParams, DidChangeWatchedFilesCapability> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Action<DidChangeWatchedFilesParams, CancellationToken> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -62,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Action<DidChangeWatchedFilesParams> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -73,8 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Func<DidChangeWatchedFilesParams, DidChangeWatchedFilesCapability, CancellationToken, Task> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -84,8 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Func<DidChangeWatchedFilesParams, DidChangeWatchedFilesCapability, Task> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -95,8 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Func<DidChangeWatchedFilesParams, CancellationToken, Task> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {
@@ -106,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeWatchedFilesRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeWatchedFiles(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeWatchedFiles(this ILanguageServerRegistry registry,
             Func<DidChangeWatchedFilesParams, Task> handler,
             DidChangeWatchedFilesRegistrationOptions registrationOptions)
         {

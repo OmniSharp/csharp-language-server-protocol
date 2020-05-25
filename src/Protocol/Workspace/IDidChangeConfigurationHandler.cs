@@ -26,8 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class DidChangeConfigurationExtensions
     {
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Action<DidChangeConfigurationParams, DidChangeConfigurationCapability, CancellationToken> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration,
@@ -38,8 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     }));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Action<DidChangeConfigurationParams, DidChangeConfigurationCapability> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration,
@@ -47,22 +45,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeConfigurationCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Action<DidChangeConfigurationParams, CancellationToken> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Action<DidChangeConfigurationParams> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Func<DidChangeConfigurationParams, DidChangeConfigurationCapability, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration,
@@ -70,8 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeConfigurationCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Func<DidChangeConfigurationParams, DidChangeConfigurationCapability, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration,
@@ -79,15 +73,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     DidChangeConfigurationCapability>(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Func<DidChangeConfigurationParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnDidChangeConfiguration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeConfiguration(this ILanguageServerRegistry registry,
             Func<DidChangeConfigurationParams, Task> handler)
         {
             return registry.AddHandler(WorkspaceNames.DidChangeConfiguration, NotificationHandler.For(handler));

@@ -20,13 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 
     public static class RegisterCapabilityExtensions
     {
-        public static IDisposable OnRegisterCapability(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry,
             Func<RegistrationParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(ClientNames.RegisterCapability, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnRegisterCapability(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnRegisterCapability(this ILanguageClientRegistry registry,
             Func<RegistrationParams, Task> handler)
         {
             return registry.AddHandler(ClientNames.RegisterCapability, RequestHandler.For(handler));

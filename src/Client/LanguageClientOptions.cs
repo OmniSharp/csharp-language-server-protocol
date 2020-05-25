@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -20,12 +22,8 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    public class LanguageClientOptions : ILanguageClientRegistry, IJsonRpcServerOptions
+    public class LanguageClientOptions : LanguageProtocolRpcOptionsBase<LanguageClientOptions>, ILanguageClientRegistry
     {
-        public LanguageClientOptions()
-        {
-        }
-
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities() {
             Experimental = new Dictionary<string, JToken>(),
             Window = new WindowClientCapabilities(),
@@ -33,13 +31,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             TextDocument = new TextDocumentClientCapabilities()
         };
 
-        public PipeReader Input { get; set; }
-        public PipeWriter Output { get; set; }
         public ClientInfo ClientInfo { get; set; }
         public DocumentUri RootUri { get; set; }
         public bool WorkspaceFolders { get; set; } = true;
         public bool DynamicRegistration { get; set; } = true;
         public bool ProgressTokens { get; set; } = true;
+        internal List<WorkspaceFolder> Folders { get; set; } = new List<WorkspaceFolder>();
 
         public string RootPath
         {
@@ -52,89 +49,56 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public object InitializationOptions { get; set; }
 
         public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
-
-        public IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
         public ILspClientReceiver Receiver { get; set; } = new LspClientReceiver();
-        public IServiceCollection Services { get; set; } = new ServiceCollection();
-        internal List<WorkspaceFolder> Folders { get; set; } = new List<WorkspaceFolder>();
-        internal List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
-
-        internal List<ITextDocumentIdentifier> TextDocumentIdentifiers { get; set; } =
-            new List<ITextDocumentIdentifier>();
-
-        internal List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } =
-            new List<(string name, IJsonRpcHandler handler)>();
-
-        internal List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>
-            NamedServiceHandlers { get; set; } =
-            new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
-
-        internal List<Type> HandlerTypes { get; set; } = new List<Type>();
-        internal List<Type> TextDocumentIdentifierTypes { get; set; } = new List<Type>();
-        internal List<Assembly> HandlerAssemblies { get; set; } = new List<Assembly>();
         internal List<ICapability> SupportedCapabilities { get; set; } = new List<ICapability>();
-        internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = new Action<ILoggingBuilder>(_ => { });
 
-        internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } =
-            new Action<IConfigurationBuilder>(_ => { });
-
-        internal bool AddDefaultLoggingProvider { get; set; }
-        public int? Concurrency { get; set; }
-        public Func<ServerError, IHandlerDescriptor, Exception> CreateResponseException { get; set; }
-        public Action<Exception> OnUnhandledException { get; set; }
-        public bool SupportsContentModified { get; set; } = true;
-        public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
-        internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
-
-        public void RegisterForDisposal(IDisposable disposable)
-        {
-            CompositeDisposable.Add(disposable);
-        }
-
-        // internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
-        // internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
         internal readonly List<OnClientStartedDelegate> StartedDelegates = new List<OnClientStartedDelegate>();
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, IJsonRpcHandler handler) => this.AddHandler(method, handler);
 
-        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
-        {
-            NamedHandlers.Add((method, handler));
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc) => this.AddHandler(method, handlerFunc);
 
-        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
-        {
-            NamedServiceHandlers.Add((method, handlerFunc));
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandlers(params IJsonRpcHandler[] handlers) => this.AddHandlers(handlers);
 
-        public IDisposable AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler
-        {
-            NamedServiceHandlers.Add((HandlerTypeDescriptorHelper.GetMethodName<T>(), _ => handlerFunc(_)));
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc) => this.AddHandler(handlerFunc);
 
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
-        {
-            Handlers.AddRange(handlers);
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler<THandler>(THandler handler) => this.AddHandler(handler);
 
-        public IDisposable AddHandler<T>() where T : IJsonRpcHandler
-        {
-            HandlerTypes.Add(typeof(T));
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler<TTHandler>() => this.AddHandler<TTHandler>();
 
-        public IDisposable AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
-        {
-            TextDocumentIdentifiers.AddRange(handlers);
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler<TTHandler>(string method) => this.AddHandler<TTHandler>(method);
 
-        public IDisposable AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier
-        {
-            TextDocumentIdentifierTypes.Add(typeof(T));
-            return Disposable.Empty;
-        }
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(Type type) => this.AddHandler(type);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, Type type) => this.AddHandler(method, type);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<Task<TResponse>> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<CancellationToken, Task<TResponse>> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, Task> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => this.OnRequest(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<CancellationToken, Task> handler) => this.OnRequest<TParams>(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Action handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams> handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, Task> handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<CancellationToken, Task> handler) => this.OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<Task> handler) => this.OnNotification(method, handler);
+
+        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
     }
 }

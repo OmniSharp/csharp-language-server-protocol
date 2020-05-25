@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
@@ -13,38 +14,50 @@ using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
-    public class TestLanguageServerRegistry : IJsonRpcHandlerRegistry
+    public class TestLanguageServerRegistry : JsonRpcCommonMethodsBase<IJsonRpcServerRegistry>, IJsonRpcServerRegistry
     {
         private List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         private List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } = new List<(string name, IJsonRpcHandler handler)>();
-        private List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> NamedServiceHandlers { get; set; } = new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
+
+        private List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> NamedServiceHandlers { get; set; } =
+            new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
 
         public TestLanguageServerRegistry()
         {
         }
 
-        public IDisposable AddHandler(string method, IJsonRpcHandler handler)
+        public override IJsonRpcServerRegistry AddHandler(string method, IJsonRpcHandler handler)
         {
             NamedHandlers.Add((method, handler));
-            return Disposable.Empty;
+            return this;
         }
 
-        public IDisposable AddHandler<T>() where T : IJsonRpcHandler
+        public override IJsonRpcServerRegistry AddHandler<THandler>(THandler handler) => throw new NotImplementedException();
+
+        public override IJsonRpcServerRegistry AddHandler<T>()
         {
             throw new NotImplementedException();
         }
 
-        public IDisposable AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method) => throw new NotImplementedException();
+
+        public override IJsonRpcServerRegistry AddHandler(Type type) => throw new NotImplementedException();
+
+        public override IJsonRpcServerRegistry AddHandler(string method, Type type) => throw new NotImplementedException();
+
+        public override IJsonRpcServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
         {
             NamedServiceHandlers.Add((method, handlerFunc));
-            return Disposable.Empty;
+            return this;
         }
 
-        public IDisposable AddHandlers(params IJsonRpcHandler[] handlers)
+        public override IJsonRpcServerRegistry AddHandlers(params IJsonRpcHandler[] handlers)
         {
             Handlers.AddRange(handlers);
-            return Disposable.Empty;
+            return this;
         }
+
+        public override IJsonRpcServerRegistry AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc) => throw new NotImplementedException();
 
         public void Populate(HandlerCollection collection, IServiceProvider serviceProvider)
         {
@@ -53,25 +66,27 @@ namespace JsonRpc.Tests
             {
                 collection.Add(name, handler);
             }
+
             foreach (var (name, handlerFunc) in NamedServiceHandlers)
             {
                 collection.Add(name, handlerFunc(serviceProvider));
             }
         }
     }
+
     public class RequestRouterTests : AutoTestBase
     {
         public RequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] { typeof(RequestRouterTests).Assembly })
+                .AddJsonRpcMediatR(new[] {typeof(RequestRouterTests).Assembly})
                 .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection() { };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -91,7 +106,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection() { };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -111,7 +126,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection() { };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -130,7 +145,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection() { };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

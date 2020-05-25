@@ -18,45 +18,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public static class LanguageClientOptionsExtensions
     {
-        public static LanguageClientOptions WithInput(this LanguageClientOptions options, Stream input)
-        {
-            options.Input = input.UsePipeReader();
-            options.RegisterForDisposal(input);
-            return options;
-        }
-        public static LanguageClientOptions WithInput(this LanguageClientOptions options, PipeReader input)
-        {
-            options.Input = input;
-            return options;
-        }
-
-        public static LanguageClientOptions WithOutput(this LanguageClientOptions options, Stream output)
-        {
-            options.Output = output.UsePipeWriter();
-            options.RegisterForDisposal(output);
-            return options;
-        }
-
-        public static LanguageClientOptions WithOutput(this LanguageClientOptions options, PipeWriter output)
-        {
-            options.Output = output;
-            return options;
-        }
-
-        public static LanguageClientOptions WithPipe(this LanguageClientOptions options, Pipe pipe)
-        {
-            options.Input = pipe.Reader;
-            options.Output = pipe.Writer;
-            return options;
-        }
-
-        public static LanguageClientOptions WithRequestProcessIdentifier(this LanguageClientOptions options,
-            IRequestProcessIdentifier requestProcessIdentifier)
-        {
-            options.RequestProcessIdentifier = requestProcessIdentifier;
-            return options;
-        }
-
         public static LanguageClientOptions WithSerializer(this LanguageClientOptions options, ISerializer serializer)
         {
             options.Serializer = serializer;
@@ -67,38 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ILspClientReceiver serverReceiver)
         {
             options.Receiver = serverReceiver;
-            return options;
-        }
-
-        public static LanguageClientOptions WithHandler<T>(this LanguageClientOptions options)
-            where T : class, IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler, T>();
-            return options;
-        }
-
-        public static LanguageClientOptions WithHandler<T>(this LanguageClientOptions options, T handler)
-            where T : IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler>(handler);
-            return options;
-        }
-
-        public static LanguageClientOptions WithHandlersFrom(this LanguageClientOptions options, Type type)
-        {
-            options.HandlerTypes.Add(type);
-            return options;
-        }
-
-        public static LanguageClientOptions WithHandlersFrom(this LanguageClientOptions options, TypeInfo typeInfo)
-        {
-            options.HandlerTypes.Add(typeInfo.AsType());
-            return options;
-        }
-
-        public static LanguageClientOptions WithHandlersFrom(this LanguageClientOptions options, Assembly assembly)
-        {
-            options.HandlerAssemblies.Add(assembly);
             return options;
         }
 
@@ -149,18 +78,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static LanguageClientOptions WithClientCapabilities(this LanguageClientOptions options, ClientCapabilities clientCapabilities)
         {
             options.ClientCapabilities = clientCapabilities;
-            return options;
-        }
-
-        /// <summary>
-        /// Set maximum number of allowed parallel actions
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="concurrency"></param>
-        /// <returns></returns>
-        public static LanguageClientOptions WithConcurrency(this LanguageClientOptions options, int? concurrency)
-        {
-            options.Concurrency = concurrency;
             return options;
         }
 
@@ -224,30 +141,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static LanguageClientOptions DisableProgressTokens(this LanguageClientOptions options)
         {
             options.ProgressTokens = false;
-            return options;
-        }
-
-        public static LanguageClientOptions WithResponseExceptionFactory(this LanguageClientOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
-        {
-            options.CreateResponseException = handler;
-            return options;
-        }
-
-        public static LanguageClientOptions WithUnhandledExceptionHandler(this LanguageClientOptions options, Action<Exception> handler)
-        {
-            options.OnUnhandledException = handler;
-            return options;
-        }
-
-        public static LanguageClientOptions WithContentModifiedSupport(this LanguageClientOptions options, bool supportsContentModified)
-        {
-            options.SupportsContentModified = supportsContentModified;
-            return options;
-        }
-
-        public static LanguageClientOptions WithMaximumRequestTimeout(this LanguageClientOptions options, TimeSpan maximumRequestTimeout)
-        {
-            options.MaximumRequestTimeout = maximumRequestTimeout;
             return options;
         }
     }

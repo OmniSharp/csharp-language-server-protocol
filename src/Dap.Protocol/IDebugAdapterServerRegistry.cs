@@ -3,8 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
-    public interface IDebugAdapterServerRegistry : IJsonRpcHandlerRegistry
+    public interface IDebugAdapterServerRegistry : IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>
     {
-        IDisposable AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler;
     }
 }

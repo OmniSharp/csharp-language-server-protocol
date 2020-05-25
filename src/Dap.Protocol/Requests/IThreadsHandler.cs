@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ThreadsExtensions
     {
-        public static IDisposable OnThreads(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnThreads(this IDebugAdapterServerRegistry registry,
             Func<ThreadsArguments, CancellationToken, Task<ThreadsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Threads, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnThreads(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnThreads(this IDebugAdapterServerRegistry registry,
             Func<ThreadsArguments, Task<ThreadsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Threads, RequestHandler.For(handler));

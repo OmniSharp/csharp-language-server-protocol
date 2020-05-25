@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
-    internal interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>
+    internal interface IHandlerCollection : IEnumerable<ILspHandlerDescriptor>, IHandlersManager
     {
         LspHandlerDescriptorDisposable Add(params IJsonRpcHandler[] handlers);
         LspHandlerDescriptorDisposable Add(params Type[] handlerTypes);

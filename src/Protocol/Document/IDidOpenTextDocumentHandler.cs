@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DidOpenTextDocumentExtensions
     {
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Action<DidOpenTextDocumentParams, SynchronizationCapability> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Action<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Action<DidOpenTextDocumentParams> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -62,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Action<DidOpenTextDocumentParams, CancellationToken> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -73,8 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Func<DidOpenTextDocumentParams, SynchronizationCapability, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -84,8 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Func<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -95,8 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Func<DidOpenTextDocumentParams, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -106,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidOpenTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidOpenTextDocument(this ILanguageServerRegistry registry,
             Func<DidOpenTextDocumentParams, CancellationToken, Task> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {

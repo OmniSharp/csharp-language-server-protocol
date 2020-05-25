@@ -81,8 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Obsolete(Constants.Proposal)]
     public static class SemanticTokensExtensions
     {
-        public static IDisposable OnSemanticTokens(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSemanticTokens(this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> tokenize,
             Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions)
@@ -102,8 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 new DelegatingHandler(tokenize, getSemanticTokensDocument, registrationOptions));
         }
 
-        public static IDisposable OnSemanticTokens(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSemanticTokens(this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, CancellationToken, Task> tokenize,
             Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions)
@@ -125,8 +123,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                     registrationOptions));
         }
 
-        public static IDisposable OnSemanticTokens(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSemanticTokens(this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, Task> tokenize,
             Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>> getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions)

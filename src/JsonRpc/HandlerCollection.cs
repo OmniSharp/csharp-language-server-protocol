@@ -9,11 +9,18 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    [DebuggerDisplay("{Method}")]
-    public class HandlerCollection : IEnumerable<IHandlerDescriptor>
+    public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
         internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
 
+        public HandlerCollection() { }
+
+        public HandlerCollection(IEnumerable<IJsonRpcHandler> handlers)
+        {
+            Add(handlers.ToArray());
+        }
+
+        [DebuggerDisplay("{Method}")]
         internal class HandlerInstance : IHandlerDescriptor, IDisposable
         {
             private readonly Action _disposeAction;
@@ -82,10 +89,13 @@ namespace OmniSharp.Extensions.JsonRpc
             var cd = new CompositeDisposable();
             foreach (var handler in handlers)
             {
+                if (_handlers.Any(z => z.Handler == handler)) continue;
                 cd.Add(Add(GetMethodName(handler.GetType()), handler));
             }
             return cd;
         }
+
+        IDisposable IHandlersManager.Add(IJsonRpcHandler handler) => Add(handler);
 
         public IDisposable Add(string method, IJsonRpcHandler handler)
         {

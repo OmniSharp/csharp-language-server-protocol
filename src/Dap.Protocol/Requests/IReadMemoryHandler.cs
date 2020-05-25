@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ReadMemoryExtensions
     {
-        public static IDisposable OnReadMemory(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnReadMemory(this IDebugAdapterServerRegistry registry,
             Func<ReadMemoryArguments, CancellationToken, Task<ReadMemoryResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ReadMemory, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnReadMemory(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnReadMemory(this IDebugAdapterServerRegistry registry,
             Func<ReadMemoryArguments, Task<ReadMemoryResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ReadMemory, RequestHandler.For(handler));

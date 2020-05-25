@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class InitializeExtensions
     {
-        public static IDisposable OnInitialize(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnInitialize(this IDebugAdapterServerRegistry registry,
             Func<InitializeRequestArguments, CancellationToken, Task<InitializeResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Initialize, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnInitialize(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnInitialize(this IDebugAdapterServerRegistry registry,
             Func<InitializeRequestArguments, Task<InitializeResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Initialize, RequestHandler.For(handler));

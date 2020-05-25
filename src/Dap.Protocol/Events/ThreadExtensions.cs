@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class ThreadExtensions
     {
-        public static IDisposable OnThread(this IDebugAdapterClientRegistry registry, Action<ThreadEvent> handler)
+        public static IDebugAdapterClientRegistry OnThread(this IDebugAdapterClientRegistry registry, Action<ThreadEvent> handler)
         {
             return registry.AddHandler(EventNames.Thread, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnThread(this IDebugAdapterClientRegistry registry, Action<ThreadEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnThread(this IDebugAdapterClientRegistry registry, Action<ThreadEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Thread, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnThread(this IDebugAdapterClientRegistry registry, Func<ThreadEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnThread(this IDebugAdapterClientRegistry registry, Func<ThreadEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Thread, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnThread(this IDebugAdapterClientRegistry registry, Func<ThreadEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnThread(this IDebugAdapterClientRegistry registry, Func<ThreadEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Thread, NotificationHandler.For(handler));
         }

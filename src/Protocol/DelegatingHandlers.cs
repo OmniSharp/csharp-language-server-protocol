@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+
     public static class LanguageProtocolDelegatingHandlers
     {
         public sealed class Request<TParams, TResult, TCapability, TRegistrationOptions> :

@@ -19,22 +19,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static class InitializedExtensions
     {
-        public static IDisposable OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams> handler)
+        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams, CancellationToken> handler)
+        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams, CancellationToken> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, Task> handler)
+        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, CancellationToken, Task> handler)
+        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }

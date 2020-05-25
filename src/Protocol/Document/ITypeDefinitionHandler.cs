@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class TypeDefinitionExtensions
     {
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Func<TypeDefinitionParams, TypeDefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>>
                 handler,
             TypeDefinitionRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TypeDefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Func<TypeDefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             TypeDefinitionRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TypeDefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Func<TypeDefinitionParams, Task<LocationOrLocationLinks>> handler,
             TypeDefinitionRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TypeDefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Action<TypeDefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, TypeDefinitionCapability,
                 CancellationToken> handler,
             TypeDefinitionRegistrationOptions registrationOptions)
@@ -79,8 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Action<TypeDefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, TypeDefinitionCapability>
                 handler,
             TypeDefinitionRegistrationOptions registrationOptions)
@@ -93,8 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Action<TypeDefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler,
             TypeDefinitionRegistrationOptions registrationOptions)
         {
@@ -106,8 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnTypeDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTypeDefinition(this ILanguageServerRegistry registry,
             Action<TypeDefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler,
             TypeDefinitionRegistrationOptions registrationOptions)
         {

@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class DisconnectExtensions
     {
-        public static IDisposable OnDisconnect(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnDisconnect(this IDebugAdapterServerRegistry registry,
             Func<DisconnectArguments, CancellationToken, Task<DisconnectResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Disconnect, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnDisconnect(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnDisconnect(this IDebugAdapterServerRegistry registry,
             Func<DisconnectArguments, Task<DisconnectResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Disconnect, RequestHandler.For(handler));

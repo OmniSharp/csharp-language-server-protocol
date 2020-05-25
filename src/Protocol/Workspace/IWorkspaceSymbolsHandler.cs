@@ -32,8 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class WorkspaceSymbolsExtensions
     {
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>>>
                 handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
@@ -44,8 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     WorkspaceSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, Task<Container<SymbolInformation>>> handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
         {
@@ -55,8 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     WorkspaceSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Func<WorkspaceSymbolParams, CancellationToken, Task<Container<SymbolInformation>>> handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
         {
@@ -66,8 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     WorkspaceSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Func<WorkspaceSymbolParams, Task<Container<SymbolInformation>>> handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
         {
@@ -77,8 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                     WorkspaceSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, WorkspaceSymbolRegistrationOptions registrationOptions)
         {
             registrationOptions ??= new WorkspaceSymbolRegistrationOptions();
@@ -90,8 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                         x => new Container<SymbolInformation>(x)));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability>
                 handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
@@ -105,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                         x => new Container<SymbolInformation>(x)));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
         {
@@ -119,8 +112,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
                         x => new Container<SymbolInformation>(x)));
         }
 
-        public static IDisposable OnWorkspaceSymbols(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry,
             Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>> handler,
             WorkspaceSymbolRegistrationOptions registrationOptions)
         {

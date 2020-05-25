@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class ModuleExtensions
     {
-        public static IDisposable OnModule(this IDebugAdapterClientRegistry registry, Action<ModuleEvent> handler)
+        public static IDebugAdapterClientRegistry OnModule(this IDebugAdapterClientRegistry registry, Action<ModuleEvent> handler)
         {
             return registry.AddHandler(EventNames.Module, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnModule(this IDebugAdapterClientRegistry registry, Action<ModuleEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnModule(this IDebugAdapterClientRegistry registry, Action<ModuleEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Module, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnModule(this IDebugAdapterClientRegistry registry, Func<ModuleEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnModule(this IDebugAdapterClientRegistry registry, Func<ModuleEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Module, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnModule(this IDebugAdapterClientRegistry registry, Func<ModuleEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnModule(this IDebugAdapterClientRegistry registry, Func<ModuleEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Module, NotificationHandler.For(handler));
         }

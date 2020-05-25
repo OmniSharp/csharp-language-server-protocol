@@ -17,38 +17,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerOptionsExtensions
     {
-        public static LanguageServerOptions WithInput(this LanguageServerOptions options, Stream input)
-        {
-            options.Input = input.UsePipeReader();
-            options.RegisterForDisposal(input);
-            return options;
-        }
-        public static LanguageServerOptions WithInput(this LanguageServerOptions options, PipeReader input)
-        {
-            options.Input = input;
-            return options;
-        }
-
-        public static LanguageServerOptions WithOutput(this LanguageServerOptions options, Stream output)
-        {
-            options.Output = output.UsePipeWriter();
-            options.RegisterForDisposal(output);
-            return options;
-        }
-
-        public static LanguageServerOptions WithOutput(this LanguageServerOptions options, PipeWriter output)
-        {
-            options.Output = output;
-            return options;
-        }
-
-        public static LanguageServerOptions WithPipe(this LanguageServerOptions options, Pipe pipe)
-        {
-            options.Input = pipe.Reader;
-            options.Output = pipe.Writer;
-            return options;
-        }
-
         public static LanguageServerOptions WithRequestProcessIdentifier(this LanguageServerOptions options, IRequestProcessIdentifier requestProcessIdentifier)
         {
             options.RequestProcessIdentifier = requestProcessIdentifier;
@@ -61,65 +29,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions WithReceiver(this LanguageServerOptions options, ILspServerReceiver serverReceiver)
-        {
-            options.Receiver = serverReceiver;
-            return options;
-        }
-
-        public static LanguageServerOptions WithHandler<T>(this LanguageServerOptions options)
-            where T : class, IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler, T>();
-            return options;
-        }
-
-        public static LanguageServerOptions WithHandler<T>(this LanguageServerOptions options, T handler)
-            where T : IJsonRpcHandler
-        {
-            options.Services.AddSingleton<IJsonRpcHandler>(handler);
-            return options;
-        }
-
-        public static LanguageServerOptions WithHandlersFrom(this LanguageServerOptions options, Type type)
-        {
-            options.HandlerTypes.Add(type);
-            return options;
-        }
-
-        public static LanguageServerOptions WithHandlersFrom(this LanguageServerOptions options, TypeInfo typeInfo)
-        {
-            options.HandlerTypes.Add(typeInfo.AsType());
-            return options;
-        }
-
-        public static LanguageServerOptions WithHandlersFrom(this LanguageServerOptions options, Assembly assembly)
-        {
-            options.HandlerAssemblies.Add(assembly);
-            return options;
-        }
-
-        public static LanguageServerOptions WithServices(this LanguageServerOptions options, Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
         public static LanguageServerOptions WithServerInfo(this LanguageServerOptions options, ServerInfo serverInfo)
         {
             options.ServerInfo = serverInfo;
-            return options;
-        }
-
-        /// <summary>
-        /// Set maximum number of allowed parallel actions
-        /// </summary>
-        /// <param name="options"></param>
-        /// <param name="concurrency"></param>
-        /// <returns></returns>
-        public static LanguageServerOptions WithConcurrency(this LanguageServerOptions options, int? concurrency)
-        {
-            options.Concurrency = concurrency;
             return options;
         }
 
@@ -157,30 +69,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static LanguageServerOptions ConfigureConfiguration(this LanguageServerOptions options, Action<IConfigurationBuilder> builderAction)
         {
             options.ConfigurationBuilderAction = builderAction;
-            return options;
-        }
-
-        public static LanguageServerOptions WithResponseExceptionFactory(this LanguageServerOptions options, Func<ServerError, IHandlerDescriptor, Exception> handler)
-        {
-            options.CreateResponseException = handler;
-            return options;
-        }
-
-        public static LanguageServerOptions WithUnhandledExceptionHandler(this LanguageServerOptions options, Action<Exception> handler)
-        {
-            options.OnUnhandledException = handler;
-            return options;
-        }
-
-        public static LanguageServerOptions WithContentModifiedSupport(this LanguageServerOptions options, bool supportsContentModified)
-        {
-            options.SupportsContentModified = supportsContentModified;
-            return options;
-        }
-
-        public static LanguageServerOptions WithMaximumRequestTimeout(this LanguageServerOptions options, TimeSpan maximumRequestTimeout)
-        {
-            options.MaximumRequestTimeout = maximumRequestTimeout;
             return options;
         }
     }

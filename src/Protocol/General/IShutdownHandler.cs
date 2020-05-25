@@ -27,8 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static class ShutdownExtensions
     {
-        public static IDisposable OnShutdown(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnShutdown(this ILanguageServerRegistry registry,
             Func<ShutdownParams, CancellationToken, Task>
                 handler)
         {
@@ -39,8 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
                 }));
         }
 
-        public static IDisposable OnShutdown(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnShutdown(this ILanguageServerRegistry registry,
             Func<ShutdownParams, Task>
                 handler)
         {

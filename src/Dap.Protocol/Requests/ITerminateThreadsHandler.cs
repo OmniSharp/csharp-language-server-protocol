@@ -19,13 +19,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class TerminateThreadsExtensions
     {
-        public static IDisposable OnTerminateThreads(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnTerminateThreads(this IDebugAdapterServerRegistry registry,
             Func<TerminateThreadsArguments, CancellationToken, Task<TerminateThreadsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.TerminateThreads, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnTerminateThreads(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnTerminateThreads(this IDebugAdapterServerRegistry registry,
             Func<TerminateThreadsArguments, Task<TerminateThreadsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.TerminateThreads, RequestHandler.For(handler));

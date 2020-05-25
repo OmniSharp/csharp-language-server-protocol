@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class LoadedSourcesExtensions
     {
-        public static IDisposable OnLoadedSources(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnLoadedSources(this IDebugAdapterServerRegistry registry,
             Func<LoadedSourcesArguments, CancellationToken, Task<LoadedSourcesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.LoadedSources, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnLoadedSources(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnLoadedSources(this IDebugAdapterServerRegistry registry,
             Func<LoadedSourcesArguments, Task<LoadedSourcesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.LoadedSources, RequestHandler.For(handler));
