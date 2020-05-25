@@ -1,7 +1,9 @@
 using System;
+using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -206,6 +208,37 @@ namespace JsonRpc.Tests
             await processTask;
 
             receiver.Received(3).IsValid(Arg.Is<JToken>(x => x.ToString() == "{}"));
+        }
+
+        [Theory]
+        [InlineData("Content-Length: 894\r\n\r\n{\"edit\":{\"documentChanges\":[{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/d.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text2\"}]},{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/b.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text2\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text3\"}]},{\"kind\":\"create\",\"uri\":\"file:///abc/123/b.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"rename\",\"oldUri\":\"file:///abc/123/b.cs\",\"newUri\":\"file:///abc/123/c.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"delete\",\"uri\":\"file:///abc/123/c.cs\",\"options\":{\"recursive\":false,\"ignoreIfNotExists\":true}}]}}")]
+        public async Task Should_Handle_Multiple_Chunked_Requests(string content)
+        {
+            var pipe = new Pipe(new PipeOptions());
+
+            var outputHandler = Substitute.For<IOutputHandler>();
+            var receiver = Substitute.For<IReceiver>();
+
+            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                _loggerFactory, Substitute.For<IResponseRouter>());
+
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromMinutes(2));
+            var processTask = handler.ProcessInputStream(cts.Token);
+
+            for (var i = 0; i < content.Length; i += 3)
+            {
+                await pipe.Writer.FlushAsync();
+                await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes(content.Substring(i, Math.Min(3, content.Length - i))));
+                await Task.Delay(5);
+            }
+
+            await pipe.Writer.FlushAsync();
+            await pipe.Writer.CompleteAsync();
+            await processTask;
+
+            receiver.Received(1).IsValid(Arg.Any<JToken>());
         }
 
         [Fact]

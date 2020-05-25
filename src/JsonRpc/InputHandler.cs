@@ -133,6 +133,13 @@ namespace OmniSharp.Extensions.JsonRpc
                     return false;
                 }
 
+                var startSlice = buffer.Slice(start.Value);
+                if (startSlice.Length < HeadersFinishedLength)
+                {
+                    line = default;
+                    return false;
+                }
+
                 var next = buffer.Slice(start.Value, buffer.GetPosition(HeadersFinishedLength, start.Value));
                 next.CopyTo(rentedSpan);
                 if (IsEqual(rentedSpan, HeadersFinished))
