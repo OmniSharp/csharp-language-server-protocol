@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    public class Notification
+    public class OutgoingNotification
     {
         public string Method { get; set; }
 

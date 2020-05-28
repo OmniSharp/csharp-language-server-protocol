@@ -21,7 +21,12 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly TaskCompletionSource<object> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
 
-        public OutputHandler(PipeWriter pipeWriter, ISerializer serializer, ILogger<OutputHandler> logger)
+        public OutputHandler(
+            PipeWriter pipeWriter,
+            ISerializer serializer,
+            Func<object, bool> objectFilter,
+            IScheduler scheduler,
+            ILogger<OutputHandler> logger)
         {
             _pipeWriter = pipeWriter;
             _serializer = serializer;
@@ -31,12 +36,38 @@ namespace OmniSharp.Extensions.JsonRpc
 
             _disposable = new CompositeDisposable {
                 _queue
+                    .ObserveOn(scheduler)
+                    .Where(objectFilter)
                     .Select(value => Observable.FromAsync(ct => ProcessOutputStream(value, ct)))
                     .Concat()
-                    .ObserveOn(new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}))
                     .Subscribe(),
                 _queue
             };
+        }
+
+        public OutputHandler(
+            PipeWriter pipeWriter,
+            ISerializer serializer,
+            Func<object, bool> objectFilter,
+            ILogger<OutputHandler> logger) : this(
+            pipeWriter,
+            serializer,
+            objectFilter,
+            new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
+            logger)
+        {
+        }
+
+        public OutputHandler(
+            PipeWriter pipeWriter,
+            ISerializer serializer,
+            ILogger<OutputHandler> logger) : this(
+            pipeWriter,
+            serializer,
+            _ => true,
+            new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
+            logger)
+        {
         }
 
         public void Send(object value)

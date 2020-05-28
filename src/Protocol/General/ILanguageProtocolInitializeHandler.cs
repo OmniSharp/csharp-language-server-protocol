@@ -12,29 +12,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     /// InitializeError
     /// </summary>
     [Serial, Method(GeneralNames.Initialize, Direction.ClientToServer)]
-    public interface IInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult> { }
+    public interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult>
+    {
+    }
 
-    public abstract class InitializeHandler : IInitializeHandler
+    public abstract class LanguageProtocolInitializeHandler : ILanguageProtocolInitializeHandler
     {
         public abstract Task<InitializeResult> Handle(InitializeParams request, CancellationToken cancellationToken);
     }
 
-    public static class InitializeExtensions
+    public static class LanguageProtocolInitializeExtensions
     {
-public static ILanguageServerRegistry OnInitialize(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnLanguageProtocolInitialize(this ILanguageServerRegistry registry,
             Func<InitializeParams, CancellationToken, Task<InitializeResult>>
                 handler)
         {
             return registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));
         }
 
-public static ILanguageServerRegistry OnInitialize(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnLanguageProtocolInitialize(this ILanguageServerRegistry registry,
             Func<InitializeParams, Task<InitializeResult>> handler)
         {
             return registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));
         }
 
-        public static Task<InitializeResult> RequestInitialize(this ILanguageClient mediator, InitializeParams @params, CancellationToken cancellationToken = default)
+        public static Task<InitializeResult> RequestLanguageProtocolInitialize(this ILanguageClient mediator, InitializeParams @params,
+            CancellationToken cancellationToken = default)
         {
             return mediator.SendRequest(@params, cancellationToken);
         }

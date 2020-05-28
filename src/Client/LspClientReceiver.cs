@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
@@ -46,6 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public void Initialized()
         {
             _initialized = true;
+        }
+
+        public bool ShouldFilterOutput(object value)
+        {
+            if (_initialized) return true;
+            return value is OutgoingResponse || value is OutgoingRequest v && v.Params is InitializeParams;
         }
     }
 }

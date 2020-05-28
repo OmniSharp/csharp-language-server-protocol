@@ -2,15 +2,15 @@ using ServerRequest = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace OmniSharp.Extensions.JsonRpc.Client
 {
-    public class Response
+    public class OutgoingResponse
     {
-        public Response(object id, ServerRequest request)
+        public OutgoingResponse(object id, ServerRequest request)
         {
             Id = id;
             Request = request;
         }
 
-        public Response(object id, object result, ServerRequest request)
+        public OutgoingResponse(object id, object result, ServerRequest request)
         {
             Id = id;
             Result = result;

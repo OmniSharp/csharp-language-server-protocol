@@ -15,12 +15,12 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
-using Response = OmniSharp.Extensions.JsonRpc.Client.Response;
 
 namespace JsonRpc.Tests
 {
@@ -344,7 +344,7 @@ namespace JsonRpc.Tests
             incomingRequestRouter.GetDescriptor(req).Returns(requestDescription);
 
             incomingRequestRouter.RouteRequest(requestDescription, req, CancellationToken.None, CancellationToken.None)
-                .Returns(new Response(1, req));
+                .Returns(new OutgoingResponse(1, req));
 
             incomingRequestRouter.RouteNotification(cancelDescription, cancel, CancellationToken.None, CancellationToken.None)
                 .Returns(Task.CompletedTask);
@@ -475,12 +475,12 @@ namespace JsonRpc.Tests
                     .Select<DataItem, object>(z => {
                         if (z.MsgKind.EndsWith("response"))
                         {
-                            return new Response(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
+                            return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
                         }
 
                         if (z.MsgKind.EndsWith("request"))
                         {
-                            return new OmniSharp.Extensions.JsonRpc.Client.Request() {
+                            return new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
                                 Id = z.MsgId,
                                 Method = z.MsgType,
                                 Params = z.Arg
@@ -489,7 +489,7 @@ namespace JsonRpc.Tests
 
                         if (z.MsgKind.EndsWith("notification"))
                         {
-                            return new OmniSharp.Extensions.JsonRpc.Client.Notification() {
+                            return new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
                                 Method = z.MsgType,
                                 Params = z.Arg
                             };

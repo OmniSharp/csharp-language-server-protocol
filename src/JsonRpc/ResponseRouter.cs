@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void SendNotification(string method)
         {
-            OutputHandler.Send(new Client.Notification() {
+            OutputHandler.Send(new Client.OutgoingNotification() {
                 Method = method
             });
         }
 
         public void SendNotification<T>(string method, T @params)
         {
-            OutputHandler.Send(new Client.Notification() {
+            OutputHandler.Send(new Client.OutgoingNotification() {
                 Method = method,
                 Params = @params
             });
@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 var tcs = new TaskCompletionSource<JToken>();
                 _router.Requests.TryAdd(nextId, tcs);
 
-                _router.OutputHandler.Send(new Client.Request() {
+                _router.OutputHandler.Send(new Client.OutgoingRequest() {
                     Method = _method,
                     Params = _params,
                     Id = nextId

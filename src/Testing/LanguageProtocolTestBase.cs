@@ -5,6 +5,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -46,8 +47,9 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
             _client = LanguageClient.PreInit(options => {
                 options
+                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                     .ConfigureLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
+                        x.Services.RemoveAll(typeof(ILoggerFactory));
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                     })
                     .Services
@@ -59,8 +61,9 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
             _server = RealLanguageServer.PreInit(options => {
                 options
+                    .WithLoggerFactory(TestOptions.ServerLoggerFactory)
                     .ConfigureLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
+                        x.Services.RemoveAll(typeof(ILoggerFactory));
                         x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
                     })
                     .Services

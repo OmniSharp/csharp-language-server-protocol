@@ -1,6 +1,7 @@
 using System;
 using Microsoft.Extensions.Logging;
 using Serilog;
+using Serilog.Events;
 using Serilog.Extensions.Logging;
 using Xunit.Abstractions;
 using ILogger = Microsoft.Extensions.Logging.ILogger;
@@ -12,10 +13,11 @@ namespace NSubstitute
     {
         private readonly SerilogLoggerProvider _loggerProvider;
 
-        public TestLoggerFactory(ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}")
+        public TestLoggerFactory(ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}", LogEventLevel logEventLevel = LogEventLevel.Debug)
         {
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()
+                    .MinimumLevel.Is(logEventLevel)
                     .WriteTo.TestOutput(testOutputHelper)
                     .CreateLogger()
             );

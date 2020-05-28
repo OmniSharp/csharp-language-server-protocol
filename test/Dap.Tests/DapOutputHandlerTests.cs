@@ -1,5 +1,6 @@
 using System.IO;
 using System.IO.Pipelines;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -16,7 +17,7 @@ namespace Dap.Tests
     {
         private static OutputHandler NewHandler(PipeWriter writer)
         {
-            return new OutputHandler(writer, new DapSerializer(), NullLogger<OutputHandler>.Instance);
+            return new OutputHandler(writer, new DapSerializer(), _ => true, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]
@@ -25,7 +26,7 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new Response(1, new object(),
+            var value = new OutgoingResponse(1, new object(),
                 new OmniSharp.Extensions.JsonRpc.Server.Request(1, "command", new JObject()));
 
             handler.Send(value);
@@ -45,7 +46,7 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.Notification() {
+            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
                 Method = "method",
                 Params = new object()
             };
@@ -67,7 +68,7 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.Request() {
+            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
                 Method = "method",
                 Id = 1,
                 Params = new object(),

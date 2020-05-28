@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using System.IO.Pipelines;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -15,7 +17,11 @@ namespace JsonRpc.Tests
     {
         private static OutputHandler NewHandler(PipeWriter writer)
         {
-            return new OutputHandler(writer, new JsonRpcSerializer(), NullLogger<OutputHandler>.Instance);
+            return new OutputHandler(writer, new JsonRpcSerializer(), _ => true, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+        }
+        private static OutputHandler NewHandler(PipeWriter writer, Func<object, bool> filter)
+        {
+            return new OutputHandler(writer, new JsonRpcSerializer(), filter, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]
@@ -24,7 +30,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new Response(1, 1, new OmniSharp.Extensions.JsonRpc.Server.Request(1, "a", null));
+            var value = new OutgoingResponse(1, 1, new OmniSharp.Extensions.JsonRpc.Server.Request(1, "a", null));
 
 
             handler.Send(value);
@@ -44,7 +50,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.Notification() {
+            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
                 Method = "method",
                 Params = new object()
             };
@@ -66,7 +72,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.Request() {
+            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
                 Method = "method",
                 Id = 1,
                 Params = new object(),
@@ -101,6 +107,29 @@ namespace JsonRpc.Tests
 
             const string send =
                 "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":1,\"error\":{\"code\":1,\"data\":{},\"message\":\"something\"}}";
+            received.Should().Be(send);
+        }
+
+        [Fact]
+        public async Task ShouldFilterMessages()
+        {
+            var pipe = new Pipe(new PipeOptions());
+            using var handler = NewHandler(pipe.Writer, _ => _ is RpcError e && e.Id.Equals(2));
+
+            var value = new RpcError(1, new ErrorMessage(1, "something", new object()));
+            var value2 = new RpcError(2, new ErrorMessage(1, "something", new object()));
+            var value3 = new RpcError(3, new ErrorMessage(1, "something", new object()));
+
+            handler.Send(value);
+            handler.Send(value2);
+            handler.Send(value3);
+            await handler.WriteAndFlush();
+
+            using var reader = new StreamReader(pipe.Reader.AsStream());
+            var received = await reader.ReadToEndAsync();
+
+            const string send =
+                "Content-Length: 75\r\n\r\n{\"jsonrpc\":\"2.0\",\"id\":2,\"error\":{\"code\":1,\"data\":{},\"message\":\"something\"}}";
             received.Should().Be(send);
         }
     }

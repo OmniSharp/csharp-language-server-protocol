@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -46,8 +47,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         internal JsonRpcServer(JsonRpcServerOptions options) : base(options)
         {
-            var outputHandler = new OutputHandler(options.Output, options.Serializer,
-                options.LoggerFactory.CreateLogger<OutputHandler>());
+            var outputHandler = new OutputHandler(
+                options.Output,
+                options.Serializer,
+                options.LoggerFactory.CreateLogger<OutputHandler>()
+            );
             var services = options.Services;
             services.AddLogging();
             var receiver = options.Receiver;
@@ -80,7 +84,6 @@ namespace OmniSharp.Extensions.JsonRpc
             HandlersManager = _collection;
 
             var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
-            _collection.Add(new CancelRequestHandler<IHandlerDescriptor>(requestRouter));
             var router = ResponseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _connection = new Connection(
                 options.Input,

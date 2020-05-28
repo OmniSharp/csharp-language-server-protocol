@@ -136,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             }
 
             services.AddSingleton<IOutputHandler>(_ =>
-                new OutputHandler(options.Output, options.Serializer, _.GetService<ILogger<OutputHandler>>()));
+                new OutputHandler(options.Output, options.Serializer, options.Receiver.ShouldFilterOutput, _.GetService<ILogger<OutputHandler>>()));
             services.AddSingleton(_collection);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(serializer);
@@ -194,8 +194,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             workspaceFoldersManager.Add(options.Folders);
 
-            _disposable.Add(_collection.Add(new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter)));
-
             var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
             var serviceIdentifiers = _serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
             _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
@@ -234,15 +232,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ClientSettings = @params;
 
             _connection.Open();
-            var serverParams = await this.RequestInitialize(ClientSettings, token);
+            var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
+            _receiver.Initialized();
 
             ServerSettings = serverParams;
             if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
                 RegistrationManager.RegisterCapabilities(serverParams.Capabilities);
 
             // TODO: pull supported fields and add any static registrations to the registration manager
-            _receiver.Initialized();
-            this.SendInitialized(new InitializedParams());
+            this.SendLanguageProtocolInitialized(new InitializedParams());
         }
 
         private void RegisterCapabilities(ClientCapabilities capabilities)

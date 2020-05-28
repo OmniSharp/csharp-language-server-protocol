@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
 {
-    class DapClientNotificationConverter : JsonConverter<Notification>
+    class DapClientNotificationConverter : JsonConverter<OutgoingNotification>
     {
         private readonly ISerializer _serializer;
 
@@ -16,13 +16,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
 
         public override bool CanRead => false;
 
-        public override Notification ReadJson(JsonReader reader, Type objectType, Notification existingValue,
+        public override OutgoingNotification ReadJson(JsonReader reader, Type objectType, OutgoingNotification existingValue,
             bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Notification value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, OutgoingNotification value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("seq");

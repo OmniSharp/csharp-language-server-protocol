@@ -33,14 +33,17 @@ namespace OmniSharp.Extensions.JsonRpc
                 cd.Add(subject.Subscribe(item => {
                     if (observableQueue.Value.type != item.type)
                     {
-                        if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel)
-                        {
+                        logger.LogDebug("Swapping from {From} to {To}", observableQueue.Value.type, item.type);
+                        if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel){
+                            logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
                             observableQueue.Value.contentModifiedSource.OnCompleted();
                         }
+                        logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
                         observableQueue.Value.observer.OnCompleted();
                         observableQueue.OnNext((item.type, new ReplaySubject<IObservable<Unit>>(int.MaxValue), supportContentModified ? new Subject<Unit>() : null));
                     }
 
+                    logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
                     observableQueue.Value.observer.OnNext(HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<Unit>())));
                 }));
 
@@ -49,11 +52,21 @@ namespace OmniSharp.Extensions.JsonRpc
                         var (type, replay, _) = item;
 
                         if (type == RequestProcessType.Serial)
+                        {
+                            logger.LogDebug("Changing to serial processing");
                             return replay.Concat();
+                        }
 
-                        return concurrency1.HasValue
-                            ? replay.Merge(concurrency1.Value)
-                            : replay.Merge();
+                        if (concurrency1.HasValue)
+                        {
+                            logger.LogDebug("Changing to parallel processing with concurrency of {Concurrency}", concurrency1.Value);
+                            return replay.Merge(concurrency1.Value);
+                        }
+                        else
+                        {
+                            logger.LogDebug("Changing to parallel processing with concurrency of {Concurrency}", "Unlimited");
+                            return replay.Merge();
+                        }
                     })
                     .Concat()
                     .Subscribe(observer)
@@ -70,13 +83,28 @@ namespace OmniSharp.Extensions.JsonRpc
             IObservable<Unit> HandleRequest(string name, IObservable<Unit> request)
             {
                 return request
-                    .Catch<Unit, RequestCancelledException>(ex => Observable.Empty<Unit>())
-                    .Catch<Unit, ContentModifiedException>(ex => Observable.Empty<Unit>())
-                    .Catch<Unit, OperationCanceledException>(ex => Observable.Empty<Unit>())
-                    .Catch<Unit, Exception>(ex => {
-                        logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}",
-                            name);
+                    .Catch<Unit, RequestCancelledException>(ex => {
+                        logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
                         return Observable.Empty<Unit>();
+                    })
+                    .Catch<Unit, ContentModifiedException>(ex => {
+                        logger.LogDebug(ex, "Request {Name} was cancelled, due to content being modified", name);
+                        return Observable.Empty<Unit>();
+                    })
+                    .Catch<Unit, OperationCanceledException>(ex => {
+                        logger.LogDebug(ex, "Request {Name} was cancelled, due to timeout", name);
+                        return Observable.Empty<Unit>();
+                    })
+                    .Catch<Unit, Exception>(ex => {
+                        logger.LogCritical(Events.UnhandledException, ex, "Unhandled exception executing {Name}", name);
+                        return Observable.Empty<Unit>();
+                    })
+                    .Do(v => {
+                        logger.LogDebug("Request {Name} was processed", name);
+                    }, (ex) => {
+                        logger.LogCritical(Events.UnhandledException, ex, "Request {Name} encountered and unhandled exception", name);
+                    }, () => {
+                        logger.LogDebug("Request {Name} was completed", name);
                     });
             }
         }

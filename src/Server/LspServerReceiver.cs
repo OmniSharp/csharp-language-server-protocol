@@ -1,8 +1,10 @@
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -21,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var (results, hasResponse) = base.GetRequests(container);
             foreach (var item in results)
             {
-                if (item.IsRequest && HandlerTypeDescriptorHelper.IsMethodName(item.Request.Method, typeof(IInitializeHandler)))
+                if (item.IsRequest && HandlerTypeDescriptorHelper.IsMethodName(item.Request.Method, typeof(ILanguageProtocolInitializeHandler)))
                 {
                     newResults.Add(item);
                 }
@@ -46,6 +48,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public void Initialized()
         {
             _initialized = true;
+        }
+
+        public bool ShouldFilterOutput(object value)
+        {
+            if (_initialized) return true;
+            return value is OutgoingResponse ||
+                   (value is OutgoingNotification n && (n.Params is LogMessageParams || n.Params is ShowMessageParams || n.Params is TelemetryEventParams)) ||
+                   (value is OutgoingRequest r && r.Params is ShowMessageRequestParams);
         }
     }
 }

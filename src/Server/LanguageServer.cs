@@ -38,7 +38,7 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, IInitializeHandler, IInitializedHandler, IAwaitableTermination,
+    public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, ILanguageProtocolInitializeHandler, ILanguageProtocolInitializedHandler, IAwaitableTermination,
         IDisposable
     {
         private readonly Connection _connection;
@@ -127,8 +127,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedDelegates = options.InitializedDelegates;
             _startedDelegates = options.StartedDelegates;
 
-            services.AddSingleton<IOutputHandler>(_ =>
-                new OutputHandler(options.Output, options.Serializer, _.GetService<ILogger<OutputHandler>>()));
+            services.AddSingleton<IOutputHandler>(_ => new OutputHandler(
+                options.Output,
+                options.Serializer,
+                options.Receiver.ShouldFilterOutput,
+                _.GetService<ILogger<OutputHandler>>())
+            );
             services.AddSingleton(_collection);
             services.AddSingleton(_textDocumentIdentifiers);
             services.AddSingleton(_serializer);
@@ -187,9 +191,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Window = new WindowLanguageServer(this, _serviceProvider);
             Workspace = new WorkspaceLanguageServer(this, _serviceProvider);
 
-            _disposable.Add(
-                _collection.Add(this, new CancelRequestHandler<ILspHandlerDescriptor>(requestRouter))
-            );
+            _disposable.Add(_collection.Add(this));
 
             {
                 var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();

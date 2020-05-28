@@ -10,36 +10,36 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 {
     [Serial, Method(GeneralNames.Initialized, Direction.ClientToServer)]
-    public interface IInitializedHandler : IJsonRpcNotificationHandler<InitializedParams> { }
+    public interface ILanguageProtocolInitializedHandler : IJsonRpcNotificationHandler<InitializedParams> { }
 
-    public abstract class InitializedHandler : IInitializedHandler
+    public abstract class LanguageProtocolInitializedHandler : ILanguageProtocolInitializedHandler
     {
         public abstract Task<Unit> Handle(InitializedParams request, CancellationToken cancellationToken);
     }
 
-    public static class InitializedExtensions
+    public static class LanguageProtocolInitializedExtensions
     {
-        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams> handler)
+        public static ILanguageServerRegistry OnLanguageProtocolInitialized(this ILanguageServerRegistry registry, Action<InitializedParams> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Action<InitializedParams, CancellationToken> handler)
+        public static ILanguageServerRegistry OnLanguageProtocolInitialized(this ILanguageServerRegistry registry, Action<InitializedParams, CancellationToken> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, Task> handler)
+        public static ILanguageServerRegistry OnLanguageProtocolInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static ILanguageServerRegistry OnInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, CancellationToken, Task> handler)
+        public static ILanguageServerRegistry OnLanguageProtocolInitialized(this ILanguageServerRegistry registry, Func<InitializedParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Initialized, NotificationHandler.For(handler));
         }
 
-        public static void SendInitialized(this ILanguageClient mediator, InitializedParams @params)
+        public static void SendLanguageProtocolInitialized(this ILanguageClient mediator, InitializedParams @params)
         {
             mediator.SendNotification(@params);
         }

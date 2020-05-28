@@ -46,7 +46,6 @@ namespace Lsp.Tests
         [InlineData(typeof(IHoverHandler))]
         [InlineData(typeof(IReferencesHandler))]
         [InlineData(typeof(ISignatureHelpHandler))]
-        [InlineData(typeof(ICancelRequestHandler))]
         public void ShouldIdentifyAs_Parallel(Type type)
         {
             var identifier = new RequestProcessIdentifier(RequestProcessType.Serial);
@@ -68,8 +67,8 @@ namespace Lsp.Tests
         [InlineData(typeof(IWillSaveWaitUntilTextDocumentHandler))]
         [InlineData(typeof(IExitHandler))]
         [InlineData(typeof(IShutdownHandler))]
-        [InlineData(typeof(IInitializeHandler))]
-        [InlineData(typeof(IInitializedHandler))]
+        [InlineData(typeof(ILanguageProtocolInitializeHandler))]
+        [InlineData(typeof(ILanguageProtocolInitializedHandler))]
         [InlineData(typeof(IDidChangeConfigurationHandler))]
         [InlineData(typeof(IDidChangeWatchedFilesHandler))]
         [InlineData(typeof(IExecuteCommandHandler))]
