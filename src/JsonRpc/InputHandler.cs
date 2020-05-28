@@ -342,115 +342,115 @@ namespace OmniSharp.Extensions.JsonRpc
 
             // using (_logger.TimeDebug("InputHandler is handling the request"))
             // {
-                var (requests, hasResponse) = _receiver.GetRequests(payload);
-                if (hasResponse)
+            var (requests, hasResponse) = _receiver.GetRequests(payload);
+            if (hasResponse)
+            {
+                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
                 {
-                    foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
+                    // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
+                    var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
+                    if (id < 0)
                     {
-                        // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
-                        var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
-                        if (id < 0)
-                        {
-                            // _logger.LogDebug("Id was out of range, skipping request {ResponseId}", response.Id);
-                            continue;
-                        }
-
-                        var tcs = _responseRouter.GetRequest(id);
-                        if (tcs is null)
-                        {
-                            // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
-                            continue;
-                        }
-
-                        if (response is ServerResponse serverResponse)
-                        {
-                            // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                            tcs.SetResult(serverResponse.Result);
-                        }
-                        else if (response is ServerError serverError)
-                        {
-                            // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                            tcs.SetException(DefaultErrorParser(_requestRouter.GetRequestDescriptor(response.Id), serverError, _getException));
-                        }
+                        // _logger.LogDebug("Id was out of range, skipping request {ResponseId}", response.Id);
+                        continue;
                     }
 
-                    return;
+                    var tcs = _responseRouter.GetRequest(id);
+                    if (tcs is null)
+                    {
+                        // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
+                        continue;
+                    }
+
+                    if (response is ServerResponse serverResponse)
+                    {
+                        // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                        tcs.SetResult(serverResponse.Result);
+                    }
+                    else if (response is ServerError serverError)
+                    {
+                        // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                        tcs.SetException(DefaultErrorParser(_requestRouter.GetRequestDescriptor(response.Id), serverError, _getException));
+                    }
                 }
 
-                foreach (var item in requests)
-                {
-                    if (item.IsRequest)
-                    {
-                        // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                        var descriptor = _requestRouter.GetDescriptor(item.Request);
-                        if (descriptor is null)
-                        {
-                            // _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Meth od,item.Request.Id);
-                            _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                            return;
-                        }
+                return;
+            }
 
-                        var type = _requestProcessIdentifier.Identify(descriptor);
-                        _requestRouter.StartRequest(item.Request.Id, descriptor);
-                        _scheduler.Add(
-                            type,
-                            $"{item.Request.Method}:{item.Request.Id}",
-                            contentModifiedToken => Observable.FromAsync(async (ct) => {
+            foreach (var item in requests)
+            {
+                if (item.IsRequest)
+                {
+                    // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                    var descriptor = _requestRouter.GetDescriptor(item.Request);
+                    if (descriptor is null)
+                    {
+                        // _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Meth od,item.Request.Id);
+                        _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
+                        return;
+                    }
+
+                    var type = _requestProcessIdentifier.Identify(descriptor);
+                    _requestRouter.StartRequest(item.Request.Id, descriptor);
+                    _scheduler.Add(
+                        type,
+                        $"{item.Request.Method}:{item.Request.Id}",
+                        contentModifiedToken => Observable.FromAsync(async (ct) => {
                                 // using var timer = _logger.TimeDebug("Processing request  {Method} {ResponseId}", item.Request.Method, item.Request.I
                                 var result =
-                                    await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
-                                _outputHandler.Send(result.Value);
-                            }
-                            ));
+                                await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
+                            _outputHandler.Send(result.Value);
+                        }
+                        ));
+                }
+
+                if (item.IsNotification)
+                {
+                    // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
+                    var descriptor = _requestRouter.GetDescriptor(item.Notification);
+                    if (descriptor is null)
+                    {
+                        // _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
+                        // TODO: Figure out a good way to send this feedback back.
+                        // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
+                        return;
                     }
 
-                    if (item.IsNotification)
+                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
+                    if (descriptor.Method == JsonRpcNames.CancelRequest)
                     {
-                        // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
-                        var descriptor = _requestRouter.GetDescriptor(item.Notification);
-                        if (descriptor is null)
+                        // _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
+                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
+                        if (cancelParams == null)
                         {
-                            // _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
-                            // TODO: Figure out a good way to send this feedback back.
-                            // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
-                            return;
-                        }
-
-                        // We need to special case cancellation so that we can cancel any request that is currently in flight.
-                        if (descriptor.Method == JsonRpcNames.CancelRequest)
-                        {
-                            // _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
-                            var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                            if (cancelParams == null)
-                            {
-                                // _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
-                                continue;
-                            }
-
-                            // _logger.LogDebug("Cancelling pending request", item.Notification.Method);
-                            _requestRouter.CancelRequest(cancelParams.Id);
+                            // _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
                             continue;
                         }
 
-                        var type = _requestProcessIdentifier.Identify(descriptor);
-                        _scheduler.Add(
-                            type,
-                            item.Notification.Method,
-                            contentModifiedToken =>
-                                Observable.FromAsync(async (ct) => {
-                                    // using var timer = _logger.TimeDebug("Processing notification {Method}", item.Notification.Method);
-                                    await _requestRouter.RouteNotification(descriptor, item.Notification, ct, ObservableToToken(contentModifiedToken));
-                                })
-                        );
+                        // _logger.LogDebug("Cancelling pending request", item.Notification.Method);
+                        _requestRouter.CancelRequest(cancelParams.Id);
+                        continue;
                     }
 
-                    if (item.IsError)
-                    {
-                        // _logger.LogDebug("Handling Error {Id}, {Text}", item.Error.Id, item.Error.Error);
-                        _outputHandler.Send(item.Error);
-                    }
+                    var type = _requestProcessIdentifier.Identify(descriptor);
+                    _scheduler.Add(
+                        type,
+                        item.Notification.Method,
+                        contentModifiedToken =>
+                            Observable.FromAsync(async (ct) => {
+                                    // using var timer = _logger.TimeDebug("Processing notification {Method}", item.Notification.Method);
+                                    await _requestRouter.RouteNotification(descriptor, item.Notification, ct, ObservableToToken(contentModifiedToken));
+                            })
+                    );
+                }
+
+                if (item.IsError)
+                {
+                    // _logger.LogDebug("Handling Error {Id}, {Text}", item.Error.Id, item.Error.Error);
+                    _outputHandler.Send(item.Error);
                 }
             }
+            // }
         }
 
         private static CancellationToken ObservableToToken(IObservable<Unit> observable)
