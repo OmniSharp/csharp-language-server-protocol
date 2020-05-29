@@ -33,18 +33,18 @@ namespace OmniSharp.Extensions.JsonRpc
                 cd.Add(subject.Subscribe(item => {
                     if (observableQueue.Value.type != item.type)
                     {
-                        // logger.LogDebug("Swapping from {From} to {To}", observableQueue.Value.type, item.type);
+                        logger.LogDebug("Swapping from {From} to {To}", observableQueue.Value.type, item.type);
                         if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel)
                         {
-                            // logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
+                            logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
                             observableQueue.Value.contentModifiedSource.OnCompleted();
                         }
-                        // logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
+                        logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
                         observableQueue.Value.observer.OnCompleted();
                         observableQueue.OnNext((item.type, new ReplaySubject<IObservable<Unit>>(int.MaxValue), supportContentModified ? new Subject<Unit>() : null));
                     }
 
-                    // logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
+                    logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
                     observableQueue.Value.observer.OnNext(HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<Unit>())));
                 }));
 
