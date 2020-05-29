@@ -48,9 +48,9 @@ namespace OmniSharp.Extensions.JsonRpc
                     context.Descriptor = descriptor;
                     var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                    var cancellationTokenSource = new CancellationTokenSource();
-                    cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
-                    token.Register(cancellationTokenSource.Cancel);
+                    var cancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token);
+                    // this should be handled by the given token now from the pipeline
+                    // cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
                     contentModifiedToken.Register(cancellationTokenSource.Cancel);
 
                     try
@@ -112,11 +112,15 @@ namespace OmniSharp.Extensions.JsonRpc
                     var id = GetId(request.Id);
                     if (!_requests.TryGetValue(id, out var value))
                     {
-                        value = (new CancellationTokenSource(), descriptor);
+                        value = (CancellationTokenSource.CreateLinkedTokenSource(token), descriptor);
                         _requests.TryAdd(id, value);
                     }
-                    value.cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
-                    token.Register(value.cancellationTokenSource.Cancel);
+                    else
+                    {
+                        token.Register(value.cancellationTokenSource.Cancel);
+                    }
+                    // this should be handled by the given token now from the pipeline
+                    // cancellationTokenSource.CancelAfter(_options.MaximumRequestTimeout);
                     contentModifiedToken.Register(value.cancellationTokenSource.Cancel);
 
                     // TODO: Try / catch for Internal Error

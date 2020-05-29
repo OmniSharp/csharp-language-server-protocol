@@ -85,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static async Task<LanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
-            var server = (LanguageServer) PreInit(options);
+            var server = (LanguageServer)PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -178,8 +178,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _responseRouter,
                 _serviceProvider.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException  ?? (e => { ForcefulShutdown(); }),
+                options.OnUnhandledException ?? (e => { ForcefulShutdown(); }),
                 options.CreateResponseException,
+                options.MaximumRequestTimeout,
                 options.SupportsContentModified,
                 options.Concurrency
             );
@@ -419,7 +420,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) ||
                                     _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler))
-                            ? new SaveOptions() {IncludeText = true /* TODO: Make configurable */}
+                            ? new SaveOptions() { IncludeText = true /* TODO: Make configurable */}
                             : null,
                         WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
                         WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
@@ -475,7 +476,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (registrations.Length == 0)
                 return; // No dynamic registrations supported by client.
 
-            var @params = new RegistrationParams() {Registrations = registrations};
+            var @params = new RegistrationParams() { Registrations = registrations };
 
             await _initializeComplete;
 

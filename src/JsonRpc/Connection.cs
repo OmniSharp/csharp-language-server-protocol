@@ -21,6 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc
             ILoggerFactory loggerFactory,
             Action<Exception> onUnhandledException,
             Func<ServerError, IHandlerDescriptor, Exception> getException,
+            TimeSpan requestTimeout,
             bool supportContentModified,
             int? concurrency)
         {
@@ -34,6 +35,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 loggerFactory,
                 onUnhandledException,
                 getException,
+                requestTimeout,
                 supportContentModified,
                 concurrency
             );

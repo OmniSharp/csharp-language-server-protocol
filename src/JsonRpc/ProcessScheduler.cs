@@ -14,7 +14,12 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IObserver<(RequestProcessType type, string name, SchedulerDelegate request)> _enqueue;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
 
-        public ProcessScheduler(ILoggerFactory loggerFactory, bool supportContentModified, int? concurrency, IScheduler scheduler)
+        public ProcessScheduler(
+            ILoggerFactory loggerFactory,
+            bool supportContentModified,
+            int? concurrency,
+            TimeSpan requestTimeout,
+            IScheduler scheduler)
         {
             var concurrency1 = concurrency;
             var logger = loggerFactory.CreateLogger<ProcessScheduler>();
@@ -83,7 +88,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             IObservable<Unit> HandleRequest(string name, IObservable<Unit> request)
             {
-                return request
+                return request.Amb(Observable.Timer(requestTimeout, scheduler).SelectMany(z => Observable.Throw(new OperationCanceledException($"Request \"{name}\" was cancelled, due to timeout"), Unit.Default)))
                     .Catch<Unit, RequestCancelledException>(ex => {
                         logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
                         return Observable.Empty<Unit>();

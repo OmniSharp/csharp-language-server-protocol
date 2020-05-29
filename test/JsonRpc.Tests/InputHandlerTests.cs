@@ -54,6 +54,7 @@ namespace JsonRpc.Tests
                 loggerFactory,
                 _unhandledException,
                 null,
+                TimeSpan.FromSeconds(30),
                 true,
                 null
             );
@@ -447,13 +448,14 @@ namespace JsonRpc.Tests
                             return (type:"request", kind:z.MsgType);
                         }
 
-                        if (z.MsgKind.EndsWith("notification"))
+                        if (z.MsgKind.EndsWith("notification") && z.MsgType != JsonRpcNames.CancelRequest)
                         {
                             return (type: "notification", kind:z.MsgType);
                         }
 
                         return (type:null, kind:null);
                     })
+                        .Where(z => z.type != null)
                         .ToLookup(z => z.kind, z => z.type);
 
                     Add(streamName, () => CreateReader(data), msgTypes );

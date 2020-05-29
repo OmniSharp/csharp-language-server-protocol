@@ -60,6 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc
             ILoggerFactory loggerFactory,
             Action<Exception> unhandledInputProcessException,
             Func<ServerError, IHandlerDescriptor, Exception> getException,
+            TimeSpan requestTimeout,
             bool supportContentModified,
             int? concurrency
         )
@@ -73,7 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _unhandledInputProcessException = unhandledInputProcessException;
             _getException = getException;
             _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory, supportContentModified, concurrency, TaskPoolScheduler.Default);
+            _scheduler = new ProcessScheduler(loggerFactory, supportContentModified, concurrency, requestTimeout, TaskPoolScheduler.Default);
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
             _contentLengthValueBuffer = new byte[20]; // Max string length of the long value
@@ -396,8 +397,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         type,
                         $"{item.Request.Method}:{item.Request.Id}",
                         contentModifiedToken => Observable.FromAsync(async (ct) => {
-                                using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                                var result = await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
+                            using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                            var result = await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
                             _outputHandler.Send(result.Value);
                         }
                         ));
@@ -405,6 +406,22 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 if (item.IsNotification)
                 {
+                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
+                    if (item.Notification.Method == JsonRpcNames.CancelRequest)
+                    {
+                        _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
+                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
+                        if (cancelParams == null)
+                        {
+                            _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
+                            continue;
+                        }
+
+                        _logger.LogDebug("Cancelling pending request", item.Notification.Method);
+                        _requestRouter.CancelRequest(cancelParams.Id);
+                        continue;
+                    }
+
                     // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
                     var descriptor = _requestRouter.GetDescriptor(item.Notification);
                     if (descriptor is null)
@@ -413,22 +430,6 @@ namespace OmniSharp.Extensions.JsonRpc
                         // TODO: Figure out a good way to send this feedback back.
                         // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
                         return;
-                    }
-
-                    // We need to special case cancellation so that we can cancel any request that is currently in flight.
-                    if (descriptor.Method == JsonRpcNames.CancelRequest)
-                    {
-                        // _logger.LogDebug("Found cancellation request {Method}", item.Notification.Method);
-                        var cancelParams = item.Notification.Params?.ToObject<CancelParams>();
-                        if (cancelParams == null)
-                        {
-                            // _logger.LogDebug("Got incorrect cancellation params", item.Notification.Method);
-                            continue;
-                        }
-
-                        _logger.LogDebug("Cancelling pending request", item.Notification.Method);
-                        _requestRouter.CancelRequest(cancelParams.Id);
-                        continue;
                     }
 
                     var type = _requestProcessIdentifier.Identify(descriptor);

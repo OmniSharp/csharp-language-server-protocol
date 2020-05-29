@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public static async Task<ILanguageClient> From(LanguageClientOptions options, CancellationToken token)
         {
-            var server = (LanguageClient) PreInit(options);
+            var server = (LanguageClient)PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -179,8 +179,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _responseRouter,
                 _serviceProvider.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException ?? (e => {  }),
+                options.OnUnhandledException ?? (e => { }),
                 options.CreateResponseException,
+                options.MaximumRequestTimeout,
                 options.SupportsContentModified,
                 options.Concurrency
             );
