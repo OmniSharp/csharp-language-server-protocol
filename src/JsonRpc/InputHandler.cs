@@ -396,9 +396,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         type,
                         $"{item.Request.Method}:{item.Request.Id}",
                         contentModifiedToken => Observable.FromAsync(async (ct) => {
-                                // using var timer = _logger.TimeDebug("Processing request  {Method} {ResponseId}", item.Request.Method, item.Request.I
-                                var result =
-                                await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
+                                using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                                var result = await _requestRouter.RouteRequest(descriptor, item.Request, ct, ObservableToToken(contentModifiedToken));
                             _outputHandler.Send(result.Value);
                         }
                         ));
@@ -427,7 +426,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             continue;
                         }
 
-                        // _logger.LogDebug("Cancelling pending request", item.Notification.Method);
+                        _logger.LogDebug("Cancelling pending request", item.Notification.Method);
                         _requestRouter.CancelRequest(cancelParams.Id);
                         continue;
                     }
@@ -438,8 +437,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         item.Notification.Method,
                         contentModifiedToken =>
                             Observable.FromAsync(async (ct) => {
-                                    // using var timer = _logger.TimeDebug("Processing notification {Method}", item.Notification.Method);
-                                    await _requestRouter.RouteNotification(descriptor, item.Notification, ct, ObservableToToken(contentModifiedToken));
+                                using var timer = _logger.TimeDebug("Processing notification {Method}", item.Notification.Method);
+                                await _requestRouter.RouteNotification(descriptor, item.Notification, ct, ObservableToToken(contentModifiedToken));
                             })
                     );
                 }

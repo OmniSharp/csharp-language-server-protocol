@@ -85,15 +85,15 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 return request
                     .Catch<Unit, RequestCancelledException>(ex => {
-                        // logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
+                        logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
                         return Observable.Empty<Unit>();
                     })
                     .Catch<Unit, ContentModifiedException>(ex => {
-                        // logger.LogDebug(ex, "Request {Name} was cancelled, due to content being modified", name);
+                        logger.LogDebug(ex, "Request {Name} was cancelled, due to content being modified", name);
                         return Observable.Empty<Unit>();
                     })
                     .Catch<Unit, OperationCanceledException>(ex => {
-                        // logger.LogDebug(ex, "Request {Name} was cancelled, due to timeout", name);
+                        logger.LogDebug(ex, "Request {Name} was cancelled, due to timeout", name);
                         return Observable.Empty<Unit>();
                     })
                     .Catch<Unit, Exception>(ex => {
