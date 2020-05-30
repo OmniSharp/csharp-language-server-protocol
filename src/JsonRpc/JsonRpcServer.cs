@@ -64,9 +64,6 @@ namespace OmniSharp.Extensions.JsonRpc
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton(receiver);
             services.AddSingleton(options.LoggerFactory);
-            services.AddSingleton(new RequestRouterOptions() {
-                MaximumRequestTimeout = options.MaximumRequestTimeout
-            });
 
             services.AddJsonRpcMediatR(options.Assemblies);
             services.AddSingleton<IJsonRpcServer>(this);

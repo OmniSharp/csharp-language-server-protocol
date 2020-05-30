@@ -67,13 +67,12 @@ namespace Lsp.Tests
             };
 
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
 
-            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest( mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
-            mediator.CancelRequest(id);
-            var result = await response;
-
-            result.IsError.Should().BeTrue();
-            result.Error.Should().BeEquivalentTo(new RequestCancelled(id));
+            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(mediator.GetDescriptor(request),  request, cts.Token);
+            Func<Task> action = () => ((IRequestRouter<ILspHandlerDescriptor>) mediator).RouteRequest(mediator.GetDescriptor(request), request, cts.Token);
+            await action.Should().ThrowAsync<OperationCanceledException>();
         }
     }
 }

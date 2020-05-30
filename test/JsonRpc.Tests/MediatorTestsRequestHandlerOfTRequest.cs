@@ -46,7 +46,7 @@ namespace JsonRpc.Tests
             var @params = new ExecuteCommandParams() { Command = "123" };
             var request = new Request(id, "workspace/executeCommand", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = await router.RouteRequest(router.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            var response = await router.RouteRequest(router.GetDescriptor(request), request, CancellationToken.None);
 
             await executeCommandHandler.Received(1).Handle(Arg.Any<ExecuteCommandParams>(), Arg.Any<CancellationToken>());
 

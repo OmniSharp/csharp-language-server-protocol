@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Reactive.Subjects;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
 
@@ -20,15 +23,11 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task Should_Send_and_recieve_requests()
+        public async Task Should_Send_and_receive_requests()
         {
             var (client, server) = await Initialize(
-                client => {
-                    client.OnRequest("myrequest", async () => new Data() {Value = "myresponse"});
-                },
-                server => {
-                    server.OnRequest("myrequest", async () => new Data() {Value = string.Join("", "myresponse".Reverse())});
-                }
+                client => { client.OnRequest("myrequest", async () => new Data() {Value = "myresponse"}); },
+                server => { server.OnRequest("myrequest", async () => new Data() {Value = string.Join("", "myresponse".Reverse())}); }
             );
 
             var serverResponse = await client.SendRequest("myrequest").Returning<Data>(CancellationToken);
@@ -39,20 +38,19 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task Should_Send_and_recieve_notifications()
+        public async Task Should_Send_and_receive_notifications()
         {
             var clientNotification = new AsyncSubject<Data>();
             var serverNotification = new AsyncSubject<Data>();
             var (client, server) = await Initialize(
                 client => {
-                    client.OnNotification("mynotification",  (Data data) => {
+                    client.OnNotification("mynotification", (Data data) => {
                         clientNotification.OnNext(data);
                         clientNotification.OnCompleted();
                     });
                 },
                 server => {
-                    server.OnNotification("mynotification",  (Data data) => {
-
+                    server.OnNotification("mynotification", (Data data) => {
                         serverNotification.OnNext(data);
                         serverNotification.OnCompleted();
                     });
@@ -66,6 +64,71 @@ namespace JsonRpc.Tests
             server.SendNotification("mynotification", new Data() {Value = string.Join("", "myresponse".Reverse())});
             var clientResponse = await clientNotification;
             clientResponse.Value.Should().Be("esnopserym");
+        }
+
+        [Fact]
+        public async Task Should_Send_and_cancel_requests_immediate()
+        {
+            var (client, server) = await Initialize(
+                client => {
+                    client.OnRequest("myrequest", async (ct) => {
+                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                        return new Data() {Value = "myresponse"};
+                    });
+                },
+                server => {
+                    server.OnRequest("myrequest", async (ct) => {
+                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                        return new Data() {Value = string.Join("", "myresponse".Reverse())};
+                    });
+                }
+            );
+
+            var cts = new CancellationTokenSource();
+            cts.Cancel();
+
+            {
+                Func<Task> action = () => client.SendRequest("myrequest").Returning<Data>(cts.Token);
+                await action.Should().ThrowAsync<OperationCanceledException>();
+            }
+
+            {
+                Func<Task> action = () => server.SendRequest("myrequest").Returning<Data>(cts.Token);
+                await action.Should().ThrowAsync<OperationCanceledException>();
+            }
+        }
+
+        [Fact]
+        public async Task Should_Send_and_cancel_requests_from_otherside()
+        {
+            var (client, server) = await Initialize(
+                client => {
+                    client.OnRequest("myrequest", async (ct) => {
+                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                        return new Data() {Value = "myresponse"};
+                    });
+                },
+                server => {
+                    server.OnRequest("myrequest", async (ct) => {
+                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                        return new Data() {Value = string.Join("", "myresponse".Reverse())};
+                    });
+                }
+            );
+
+            {
+                var cts = new CancellationTokenSource();
+                Func<Task> action = () => client.SendRequest("myrequest").Returning<Data>(cts.Token);
+                cts.CancelAfter(10);
+                await action.Should().ThrowAsync<RequestCancelledException>();
+            }
+
+            {
+                var cts = new CancellationTokenSource();
+                Func<Task> action = () => server.SendRequest("myrequest").Returning<Data>(cts.Token);
+                cts.CancelAfter(10);
+                await action.Should().ThrowAsync<RequestCancelledException>();
+            }
         }
     }
 }

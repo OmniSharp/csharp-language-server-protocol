@@ -324,54 +324,6 @@ namespace JsonRpc.Tests
             arg.ToString().Should().Be(JToken.Parse(data).ToString());
         }
 
-        [Fact]
-        public async Task ShouldCancelRequest()
-        {
-            var receiver = Substitute.For<IReceiver>();
-            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
-            var requestDescription = Substitute.For<IHandlerDescriptor>();
-            requestDescription.Method.Returns("abc");
-            var cancelDescription = Substitute.For<IHandlerDescriptor>();
-            cancelDescription.Method.Returns(JsonRpcNames.CancelRequest);
-
-            var req = new Request(1, "abc", null);
-            var cancel = new Notification(JsonRpcNames.CancelRequest, JObject.Parse("{\"id\":1}"));
-            receiver.IsValid(Arg.Any<JToken>()).Returns(true);
-            receiver.GetRequests(Arg.Any<JToken>())
-                .Returns(c => (new Renor[] {req, cancel}, false));
-
-            incomingRequestRouter.When(z => z.CancelRequest(Arg.Any<object>()));
-            incomingRequestRouter.GetDescriptor(cancel).Returns(cancelDescription);
-            incomingRequestRouter.GetDescriptor(req).Returns(requestDescription);
-
-            incomingRequestRouter.RouteRequest(requestDescription, req, CancellationToken.None, CancellationToken.None)
-                .Returns(new OutgoingResponse(1, req));
-
-            incomingRequestRouter.RouteNotification(cancelDescription, cancel, CancellationToken.None, CancellationToken.None)
-                .Returns(Task.CompletedTask);
-
-            var pipe = new Pipe(new PipeOptions());
-
-            var outputHandler = Substitute.For<IOutputHandler>();
-
-            using var handler = NewHandler(pipe.Reader, outputHandler,  receiver,
-                Substitute.For<IRequestProcessIdentifier>(),
-                incomingRequestRouter,
-                _loggerFactory,
-                Substitute.For<IResponseRouter>());
-
-            var cts = new CancellationTokenSource();
-            cts.CancelAfter(TimeSpan.FromSeconds(5));
-            var processTask = handler.ProcessInputStream(cts.Token);
-
-            await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"));
-
-            await pipe.Writer.CompleteAsync();
-            await processTask;
-
-            incomingRequestRouter.Received().CancelRequest(1L);
-        }
-
         [Theory]
         [ClassData(typeof(JsonRpcLogs))]
         public async Task Should_Parse_Logs(string name, Func<PipeReader> createPipeReader, ILookup<string, string> messageTypes)
@@ -407,7 +359,6 @@ namespace JsonRpc.Tests
                     await incomingRequestRouter.Received(count).RouteRequest(
                         Arg.Any<IHandlerDescriptor>(),
                         Arg.Is<Request>(n => group.Key == n.Method),
-                        Arg.Any<CancellationToken>(),
                         Arg.Any<CancellationToken>()
                     );
                 }
@@ -418,7 +369,6 @@ namespace JsonRpc.Tests
                     await incomingRequestRouter.Received(count).RouteNotification(
                         Arg.Any<IHandlerDescriptor>(),
                         Arg.Is<Notification>(n => group.Key == n.Method),
-                        Arg.Any<CancellationToken>(),
                         Arg.Any<CancellationToken>()
                     );
                 }

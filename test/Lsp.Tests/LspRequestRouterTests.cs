@@ -111,7 +111,7 @@ namespace Lsp.Tests
             var request = new Notification(TextDocumentNames.DidSave,
                 JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await textDocumentSyncHandler.Received(1)
                 .Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>());
@@ -145,7 +145,7 @@ namespace Lsp.Tests
             var request = new Notification(TextDocumentNames.DidSave,
                 JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await textDocumentSyncHandler.Received(0)
                 .Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>());
@@ -183,7 +183,7 @@ namespace Lsp.Tests
             var request = new Request(id, TextDocumentNames.CodeAction,
                 JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }
@@ -235,7 +235,7 @@ namespace Lsp.Tests
             var request = new Request(id, TextDocumentNames.CodeAction,
                 JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(0).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
             await codeActionDelegate.Received(1).Invoke(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
@@ -282,7 +282,7 @@ namespace Lsp.Tests
             var request = new Request(id, TextDocumentNames.CodeLens,
                 JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await codeActionHandler2.Received(0).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
@@ -306,7 +306,7 @@ namespace Lsp.Tests
             var id = Guid.NewGuid().ToString();
             var request = new Request(id, GeneralNames.Shutdown, new JObject());
 
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
             await handler.Received(1).Handle(Arg.Any<ShutdownParams>(), Arg.Any<CancellationToken>());
         }

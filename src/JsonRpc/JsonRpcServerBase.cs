@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return ResponseRouter.SendRequest(method);
         }
 
-        TaskCompletionSource<JToken> IResponseRouter.GetRequest(long id)
+        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id)
         {
             return ResponseRouter.GetRequest(id);
         }

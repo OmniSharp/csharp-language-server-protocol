@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
         public abstract IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
-        public Func<ServerError, IHandlerDescriptor, Exception> CreateResponseException { get; set; }
+        public Func<ServerError, string, Exception> CreateResponseException { get; set; }
         public Action<Exception> OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; } = true;
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T)(object) this;
         }
 
-        public T WithResponseExceptionFactory(Func<ServerError, IHandlerDescriptor, Exception> handler)
+        public T WithResponseExceptionFactory(Func<ServerError, string, Exception> handler)
         {
             CreateResponseException = handler;
             return (T)(object) this;

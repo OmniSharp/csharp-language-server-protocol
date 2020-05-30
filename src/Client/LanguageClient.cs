@@ -144,9 +144,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReceiver>(options.Receiver);
             services.AddSingleton<ILspClientReceiver>(options.Receiver);
-            services.AddSingleton(new RequestRouterOptions() {
-                MaximumRequestTimeout = options.MaximumRequestTimeout
-            });
             services.AddSingleton<ILanguageClient>(this);
             services.AddSingleton<LspRequestRouter>();
             services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
@@ -328,37 +325,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return value;
         }
 
-        // private IDisposable RegisterHandlers(LspHandlerDescriptorDisposable handlerDisposable, CancellationToken token)
-        // {
-        //     var registrations = new List<Registration>();
-        //     foreach (var descriptor in handlerDisposable.Descriptors)
-        //     {
-        //         if (descriptor.AllowsDynamicRegistration)
-        //         {
-        //             registrations.Add(new Registration() {
-        //                 Id = descriptor.Id.ToString(),
-        //                 Method = descriptor.Method,
-        //                 RegisterOptions = descriptor.RegistrationOptions
-        //             });
-        //         }
-        //
-        //         if (descriptor.OnClientStartedDelegate != null)
-        //         {
-        //             // Fire and forget to initialize the handler
-        //             _initializeComplete
-        //                 .Select(result =>
-        //                     Observable.FromAsync(() => descriptor.OnClientStartedDelegate(this, result, token)))
-        //                 .Merge()
-        //                 .Subscribe();
-        //         }
-        //     }
-        //
-        //     return Disposable.Empty;
-        // }
-
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        public TaskCompletionSource<JToken> GetRequest(long id)
+        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id)
         {
             return _responseRouter.GetRequest(id);
         }

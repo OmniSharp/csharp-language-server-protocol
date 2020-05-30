@@ -42,6 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel)
                         {
                             logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
+                            observableQueue.Value.contentModifiedSource.OnNext(Unit.Default);
                             observableQueue.Value.contentModifiedSource.OnCompleted();
                         }
                         logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);
@@ -50,7 +51,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
 
                     logger.LogDebug("Queueing {Type}:{Name} request for processing", item.type, item.name);
-                    observableQueue.Value.observer.OnNext(HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<Unit>())));
+                    observableQueue.Value.observer.OnNext(HandleRequest(item.name, item.request(observableQueue.Value.contentModifiedSource ?? Observable.Never<Unit>(), scheduler)));
                 }));
 
                 cd.Add(observableQueue
@@ -88,7 +89,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             IObservable<Unit> HandleRequest(string name, IObservable<Unit> request)
             {
-                return request.Amb(Observable.Timer(requestTimeout, scheduler).SelectMany(z => Observable.Throw(new OperationCanceledException($"Request \"{name}\" was cancelled, due to timeout"), Unit.Default)))
+                return request
                     .Catch<Unit, RequestCancelledException>(ex => {
                         logger.LogDebug(ex, "Request {Name} was explicitly cancelled", name);
                         return Observable.Empty<Unit>();

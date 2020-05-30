@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -13,8 +14,8 @@ namespace OmniSharp.Extensions.JsonRpc
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
 
-        internal readonly ConcurrentDictionary<long, TaskCompletionSource<JToken>> Requests =
-            new ConcurrentDictionary<long, TaskCompletionSource<JToken>>();
+        internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
+            new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
         internal static readonly ConcurrentDictionary<Type, string> MethodCache =
             new ConcurrentDictionary<Type, string>();
@@ -60,7 +61,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return new ResponseRouterReturnsImpl(this, method, @params);
         }
 
-        public TaskCompletionSource<JToken> GetRequest(long id)
+        public (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id)
         {
             Requests.TryGetValue(id, out var source);
             return source;
@@ -100,12 +101,18 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 var nextId = _router.Serializer.GetNextId();
                 var tcs = new TaskCompletionSource<JToken>();
-                _router.Requests.TryAdd(nextId, tcs);
+                _router.Requests.TryAdd(nextId, (_method, tcs));
+
+                cancellationToken.ThrowIfCancellationRequested();
 
                 _router.OutputHandler.Send(new Client.OutgoingRequest() {
                     Method = _method,
                     Params = _params,
                     Id = nextId
+                });
+                cancellationToken.Register(() => {
+                    if (tcs.Task.IsCompleted) return;
+                    _router.CancelRequest(new CancelParams() {Id = nextId});
                 });
 
                 try
@@ -120,7 +127,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
                 finally
                 {
-                    _router.Requests.TryRemove(nextId, out var _);
+                    _router.Requests.TryRemove(nextId, out _);
                 }
             }
 

@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
     ///     Exception raised when a Language Server Protocol error is encountered while processing a request.
     /// </summary>
     [Serializable]
-    public class RequestException: Exception
+    public class RequestException: Exception, IRequestException
     {
         /// <summary>
         ///     The request Id used when no valid request Id was supplied.

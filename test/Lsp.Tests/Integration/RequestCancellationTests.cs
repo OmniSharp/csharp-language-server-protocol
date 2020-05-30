@@ -59,8 +59,6 @@ namespace Lsp.Tests.Integration
                 ContentChanges = new Container<TextDocumentContentChangeEvent>()
             });
 
-            await SettleNext();
-
             Func<Task> action = () => request1;
             action.Should().Throw<ContentModifiedException>();
         }

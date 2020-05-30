@@ -13,6 +13,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IResponseRouterReturns SendRequest<T>(string method, T @params);
         IResponseRouterReturns SendRequest(string method);
         Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken);
-        TaskCompletionSource<JToken> GetRequest(long id);
+        (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id);
     }
 }

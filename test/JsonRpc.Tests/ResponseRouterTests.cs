@@ -24,7 +24,7 @@ namespace JsonRpc.Tests
                 .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                 .Do(call =>
                 {
-                    var tcs = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
+                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
                     tcs.SetResult(new JObject());
                 });
 
@@ -47,7 +47,7 @@ namespace JsonRpc.Tests
                 .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                 .Do(call =>
                 {
-                    var tcs = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
+                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
                     tcs.SetResult(new JObject());
                 });
 
