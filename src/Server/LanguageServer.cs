@@ -108,6 +108,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var services = options.Services;
             var configurationProvider = new DidChangeConfigurationProvider(this, options.ConfigurationBuilderAction);
             services.AddSingleton<IJsonRpcHandler>(configurationProvider);
+            options.RequestProcessIdentifier ??= (options.SupportsContentModified
+                ? new RequestProcessIdentifier(RequestProcessType.Parallel)
+                : new RequestProcessIdentifier(RequestProcessType.Serial));
 
             services.AddSingleton<IConfiguration>(configurationProvider);
             services.AddSingleton(Configuration = configurationProvider);

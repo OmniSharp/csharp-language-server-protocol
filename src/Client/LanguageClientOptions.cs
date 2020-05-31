@@ -71,34 +71,45 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, Type type) => this.AddHandler(method, type);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler) => OnJsonRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<Task<TResponse>> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler) => OnJsonRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<CancellationToken, Task<TResponse>> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<Task<TResponse>> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, Task> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TResponse>(string method, Func<CancellationToken, Task<TResponse>> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => this.OnRequest(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, Task> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<CancellationToken, Task> handler) => this.OnRequest<TParams>(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => OnRequest(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnRequest<TParams>(string method, Func<CancellationToken, Task> handler) => OnRequest<TParams>(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Action handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler) => OnNotification(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Action<JToken> handler) => OnJsonNotification(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler) => OnJsonNotification(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, Task> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Func<JToken, Task> handler) => OnJsonNotification(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<CancellationToken, Task> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnJsonNotification(string method, Action<JToken, CancellationToken> handler) => OnJsonNotification(method, handler);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<Task> handler) => this.OnNotification(method, handler);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Action<TParams> handler) => OnNotification(method, handler);
 
-        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new RequestProcessIdentifier();
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler) => OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification<TParams>(string method, Func<TParams, Task> handler) => OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Action handler) => OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<CancellationToken, Task> handler) => OnNotification(method, handler);
+
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.OnNotification(string method, Func<Task> handler) => OnNotification(method, handler);
+
+        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
     }
 }

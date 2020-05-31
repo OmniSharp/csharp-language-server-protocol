@@ -59,10 +59,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             if (@params == null || descriptor.Params == null) return descriptor;
 
-            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
-
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
+            if (lspHandlerDescriptors.Count == 1) return descriptor;
 
+            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
             return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
         }
 

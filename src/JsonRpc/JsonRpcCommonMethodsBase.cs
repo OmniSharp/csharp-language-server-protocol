@@ -3,12 +3,24 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public abstract class JsonRpcCommonMethodsBase<T> : IJsonRpcHandlerRegistry<T> where T : IJsonRpcHandlerRegistry<T>
     {
         #region OnRequest / OnNotification
+
+
+        public T OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler)
+        {
+            return AddHandler(method, _ => new DelegatingJsonRequestHandler(handler));
+        }
+
+        public T OnJsonRequest(string method, Func<JToken, Task<JToken>> handler)
+        {
+            return OnJsonRequest(method, (request, ct) => handler(request));
+        }
 
         public T OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler)
         {
@@ -47,18 +59,36 @@ namespace OmniSharp.Extensions.JsonRpc
             return OnRequest<TParams>(method, (value, cancellationToken) => handler(cancellationToken));
         }
 
-        public T OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler)
+        public T OnJsonNotification(string method, Action<JToken, CancellationToken> handler)
         {
-            return OnNotification<TParams>(method, (value, cancellationToken) => {
+            return OnJsonNotification(method, (value, cancellationToken) => {
                 handler(value, cancellationToken);
                 return Task.CompletedTask;
             });
         }
 
-        public T OnNotification(string method, Action handler)
+        public T OnJsonNotification(string method, Action<JToken> handler)
         {
-            return OnNotification<Unit>(method, (value, cancellationToken) => {
-                handler();
+            return OnJsonNotification(method, (value, cancellationToken) => {
+                handler(value);
+                return Task.CompletedTask;
+            });
+        }
+
+        public T OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler)
+        {
+            return AddHandler(method, _ => new DelegatingJsonNotificationHandler(handler));
+        }
+
+        public T OnJsonNotification(string method, Func<JToken, Task> handler)
+        {
+            return OnJsonNotification(method, (value, cancellationToken) => handler(value));
+        }
+
+        public T OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler)
+        {
+            return OnNotification<TParams>(method, (value, cancellationToken) => {
+                handler(value, cancellationToken);
                 return Task.CompletedTask;
             });
         }
@@ -79,6 +109,14 @@ namespace OmniSharp.Extensions.JsonRpc
         public T OnNotification<TParams>(string method, Func<TParams, Task> handler)
         {
             return OnNotification<TParams>(method, (value, cancellationToken) => handler(value));
+        }
+
+        public T OnNotification(string method, Action handler)
+        {
+            return OnNotification<Unit>(method, (value, cancellationToken) => {
+                handler();
+                return Task.CompletedTask;
+            });
         }
 
         public T OnNotification(string method, Func<CancellationToken, Task> handler)

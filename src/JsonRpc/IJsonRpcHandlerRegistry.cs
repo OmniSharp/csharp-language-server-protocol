@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -22,6 +23,8 @@ namespace OmniSharp.Extensions.JsonRpc
         T AddHandler(Type type);
         T AddHandler(string method, Type type);
 
+        T OnJsonRequest(string method, Func<JToken, Task<JToken>> handler);
+        T OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler);
         T OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler);
         T OnRequest<TResponse>(string method, Func<Task<TResponse>> handler);
         T OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler);
@@ -29,11 +32,15 @@ namespace OmniSharp.Extensions.JsonRpc
         T OnRequest<TParams>(string method, Func<TParams, Task> handler);
         T OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler);
         T OnRequest<TParams>(string method, Func<CancellationToken, Task> handler);
+        T OnJsonNotification(string method, Action<JToken> handler);
+        T OnJsonNotification(string method, Action<JToken, CancellationToken> handler);
+        T OnJsonNotification(string method, Func<JToken, Task> handler);
+        T OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler);
         T OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler);
-        T OnNotification(string method, Action handler);
         T OnNotification<TParams>(string method, Action<TParams> handler);
         T OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler);
         T OnNotification<TParams>(string method, Func<TParams, Task> handler);
+        T OnNotification(string method, Action handler);
         T OnNotification(string method, Func<CancellationToken, Task> handler);
         T OnNotification(string method, Func<Task> handler);
     }

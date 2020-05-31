@@ -85,7 +85,7 @@ namespace Lsp.Tests
             var result = document.GetSemanticTokens(range);
             result.ResultId.Should().Be(document.Id);
             var data = Normalize(ExtractRange(ExampleDocumentText, range), result.Data).ToArray();
-            _logger.LogInformation("Some Data {Data}", data.AsEnumerable());
+            _logger.LogDebug("Some Data {Data}", data.AsEnumerable());
             data.Should().ContainInOrder(expectedTokens);
         }
 
@@ -183,7 +183,7 @@ namespace Lsp.Tests
                 .InsertRange(edit1.Start, edit1.Data);
 
             var edit1Data = Normalize(modifiedText, edit1Tokens).ToArray();
-            _logger.LogInformation("Some Data {Data}", edit1Data.AsEnumerable());
+            _logger.LogDebug("Some Data {Data}", edit1Data.AsEnumerable());
             edit1Data.Should().ContainInOrder(expectedTokens);
         }
 
@@ -255,7 +255,7 @@ namespace Lsp.Tests
                     if (string.IsNullOrWhiteSpace(part)) continue;
                     // _logger.LogWarning("Index for part before {Index}: {Text}", index, part);
                     index = text.IndexOf(part, index, StringComparison.Ordinal);
-                    // _logger.LogInformation("Index for part after {Index}: {Text}", index, part);
+                    // _logger.LogDebug("Index for part after {Index}: {Text}", index, part);
                     var item = faker.Generate();
                     builder.Push(line, index, part.Length, item.type, item.Modifiers);
                 }

@@ -104,6 +104,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _clientCapabilities = options.ClientCapabilities;
             var services = options.Services;
             services.AddLogging(builder => options.LoggingBuilderAction(builder));
+            options.RequestProcessIdentifier ??= (options.SupportsContentModified
+                ? new RequestProcessIdentifier(RequestProcessType.Parallel)
+                : new RequestProcessIdentifier(RequestProcessType.Serial));
             // services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageClientLoggerFilterOptions>();
 
             _clientInfo = options.ClientInfo;
