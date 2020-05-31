@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -54,6 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc
             serializer,
             objectFilter,
             new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
+            // TaskPoolScheduler.Default,
             logger)
         {
         }
@@ -66,6 +68,7 @@ namespace OmniSharp.Extensions.JsonRpc
             serializer,
             _ => true,
             new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
+            // TaskPoolScheduler.Default,
             logger)
         {
         }
@@ -100,10 +103,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 // TODO: this will be part of the serialization refactor to make streaming first class
                 var content = _serializer.SerializeObject(value);
                 var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
-
-                await _pipeWriter.WriteAsync(
-                    Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"),
-                    cancellationToken);
+                await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"), cancellationToken);
                 await _pipeWriter.WriteAsync(contentBytes, cancellationToken);
                 await _pipeWriter.FlushAsync(cancellationToken);
             }

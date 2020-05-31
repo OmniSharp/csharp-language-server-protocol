@@ -26,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             object registrationOptions,
             Func<bool> allowsDynamicRegistration,
             Type capabilityType,
+            RequestProcessType? requestProcessType,
             Action disposeAction)
         {
             _disposeAction = disposeAction;
@@ -74,6 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                 .GetInterfaces().Any(z =>
                     z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
+            RequestProcessType = requestProcessType;
         }
 
         public Type ImplementationType { get; }
@@ -103,6 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public IJsonRpcHandler Handler { get; }
         public bool IsNotification { get; }
         public bool IsRequest { get; }
+        public RequestProcessType? RequestProcessType { get; }
 
         public void Dispose()
         {

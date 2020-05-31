@@ -9,21 +9,21 @@ namespace OmniSharp.Extensions.JsonRpc
 
         #region AddHandler
 
-        public sealed override T AddHandler(string method, IJsonRpcHandler handler)
+        public sealed override T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, handler));
+            Services.AddSingleton(Named(method, handler, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        public sealed override T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, handlerFunc));
+            Services.AddSingleton(Named(method, handlerFunc, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc)
+        public sealed override T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(handlerFunc);
+            Services.AddSingleton(Unnamed(_ => handlerFunc(_), options));
             return (T) (object) this;
         }
 
@@ -37,56 +37,82 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>()
+        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options = null)
         {
-            return AddHandler(typeof(THandler));
+            return AddHandler(typeof(THandler), options);
         }
 
-        public sealed override T AddHandler<THandler>(THandler handler)
+        public sealed override T AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(typeof(IJsonRpcHandler), handler);
+            Services.AddSingleton(Unnamed(handler, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(string method)
+        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null)
         {
-            return AddHandler(method, typeof(THandler));
+            return AddHandler(method, typeof(THandler), options);
         }
 
-        public sealed override T AddHandler(Type type)
+        public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(typeof(IJsonRpcHandler), type);
+            Services.AddSingleton(Unnamed(type, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, Type type)
+        public sealed override T AddHandler(string method, Type type, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, type));
+            Services.AddSingleton(Named(method, type, options));
             return (T) (object) this;
         }
 
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, IJsonRpcHandler handler)
+        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             return _ => {
-                _.GetRequiredService<IHandlersManager>().Add(method, handler);
+                _.GetRequiredService<IHandlersManager>().Add( handler, options);
                 return handler;
             };
         }
 
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Func<IServiceProvider, IJsonRpcHandler> factory)
+        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(Func<IServiceProvider, IJsonRpcHandler> factory, JsonRpcHandlerOptions options)
         {
             return _ => {
                 var instance = factory(_);
-                _.GetRequiredService<IHandlersManager>().Add(method, instance);
+                _.GetRequiredService<IHandlersManager>().Add( instance, options);
                 return instance;
             };
         }
 
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Type handlerType)
+        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(Type handlerType, JsonRpcHandlerOptions options)
         {
             return _ => {
                 var instance = ActivatorUtilities.CreateInstance(_, handlerType) as IJsonRpcHandler;
-                _.GetRequiredService<IHandlersManager>().Add(method, instance);
+                _.GetRequiredService<IHandlersManager>().Add( instance, options);
+                return instance;
+            };
+        }
+
+        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        {
+            return _ => {
+                _.GetRequiredService<IHandlersManager>().Add(method, handler, options);
+                return handler;
+            };
+        }
+
+        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Func<IServiceProvider, IJsonRpcHandler> factory, JsonRpcHandlerOptions options)
+        {
+            return _ => {
+                var instance = factory(_);
+                _.GetRequiredService<IHandlersManager>().Add(method, instance, options);
+                return instance;
+            };
+        }
+
+        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Type handlerType, JsonRpcHandlerOptions options)
+        {
+            return _ => {
+                var instance = ActivatorUtilities.CreateInstance(_, handlerType) as IJsonRpcHandler;
+                _.GetRequiredService<IHandlersManager>().Add(method, instance, options);
                 return instance;
             };
         }

@@ -173,8 +173,8 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers());
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
             var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
-            handler.Add(method, sub);
-            handler.Add(method, sub2);
+            handler.Add(method, sub, null);
+            handler.Add(method, sub2, null);
             handler._handlers.Should().Contain(x => x.Method == method);
             handler._handlers.Should().Contain(x => x.Method == method);
             handler._handlers.Count.Should().Be(1);

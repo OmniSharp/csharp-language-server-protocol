@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             private readonly Action _disposeAction;
 
-            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, Action disposeAction)
+            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction)
             {
                 _disposeAction = disposeAction;
                 Handler = handler;
@@ -49,6 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                      .GetInterfaces().Any(z =>
                                          z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
                 IsRequest = !IsNotification;
+                RequestProcessType = requestProcessType;
             }
 
             public IJsonRpcHandler Handler { get; }
@@ -61,6 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
             public Type Response { get; }
             public bool HasReturnType { get; }
             public bool IsDelegatingHandler { get; }
+            public RequestProcessType? RequestProcessType { get; }
 
             public void Dispose()
             {
@@ -90,14 +92,17 @@ namespace OmniSharp.Extensions.JsonRpc
             foreach (var handler in handlers)
             {
                 if (_handlers.Any(z => z.Handler == handler)) continue;
-                cd.Add(Add(GetMethodName(handler.GetType()), handler));
+                cd.Add(Add(GetMethodName(handler.GetType()), handler, null));
             }
             return cd;
         }
 
-        IDisposable IHandlersManager.Add(IJsonRpcHandler handler) => Add(handler);
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        {
+            return Add(GetMethodName(handler.GetType()), handler, options);
+        }
 
-        public IDisposable Add(string method, IJsonRpcHandler handler)
+        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var type = handler.GetType();
             var @interface = GetHandlerInterface(type);
@@ -115,7 +120,14 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            var h = new HandlerInstance(method, handler, @interface, @params, response, () => Remove(handler));
+            var requestProcessType =
+                options?.RequestProcessType ??
+                type.GetCustomAttributes(true)
+                .Concat(@interface.GetCustomAttributes(true))
+                .OfType<ProcessAttribute>()
+                .FirstOrDefault()?.Type;
+
+            var h = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
             _handlers.Add(h);
             return h;
         }

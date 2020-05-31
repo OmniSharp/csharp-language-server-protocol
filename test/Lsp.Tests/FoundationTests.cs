@@ -368,7 +368,7 @@ namespace Lsp.Tests
                                     .ToArray());
 
                             registrySub.Received().ReceivedCalls()
-                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) && z.GetArguments().Length == 2 &&
+                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) && z.GetArguments().Length == 3 &&
                                           z.GetArguments()[0].Equals(_descriptor.Method))
                                 .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
 

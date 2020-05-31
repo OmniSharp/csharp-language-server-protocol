@@ -4,7 +4,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public RequestProcessType Identify(IHandlerDescriptor descriptor)
         {
-            return RequestProcessType.Parallel;
+            return descriptor.RequestProcessType ?? RequestProcessType.Parallel;
         }
     }
 }

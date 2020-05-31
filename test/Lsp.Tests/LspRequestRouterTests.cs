@@ -33,18 +33,18 @@ namespace Lsp.Tests
 
         public OmniSharp.Extensions.JsonRpc.ISerializer Serializer => new Serializer();
 
-        public ILanguageServerRegistry AddHandler(string method, IJsonRpcHandler handler)
+        public ILanguageServerRegistry AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
         {
             Handlers.Add(handler);
             return this;
         }
 
-        public ILanguageServerRegistry AddHandler<T>() where T : IJsonRpcHandler
+        public  ILanguageServerRegistry AddHandler<T>(JsonRpcHandlerOptions options = null) where T : IJsonRpcHandler
         {
             return this;
         }
 
-        public ILanguageServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        public ILanguageServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null)
         {
             return this;
         }
@@ -65,7 +65,7 @@ namespace Lsp.Tests
             return this;
         }
 
-        public ILanguageServerRegistry AddHandler<T>(Func<IServiceProvider, T> handlerFunc) where T : IJsonRpcHandler
+        public ILanguageServerRegistry AddHandler<T>(Func<IServiceProvider, T> handlerFunc, JsonRpcHandlerOptions options = null) where T : IJsonRpcHandler
         {
             var sp = new ServiceCollection()
                 .AddSingleton(Substitute

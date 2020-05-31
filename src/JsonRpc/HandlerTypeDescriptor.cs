@@ -31,12 +31,15 @@ namespace OmniSharp.Extensions.JsonRpc
             if (requestInterface != null)
                 ResponseType = requestInterface.GetGenericArguments()[0];
             HasResponseType = ResponseType != null && ResponseType != typeof(Unit);
-            RequestProcessType = HandlerType
+
+            var processAttributes = HandlerType
                 .GetCustomAttributes(true)
                 .Concat(HandlerType.GetCustomAttributes(true))
                 .Concat(InterfaceType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
                 .Concat(HandlerType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
                 .OfType<ProcessAttribute>()
+                .ToArray();
+            RequestProcessType = processAttributes
                 .FirstOrDefault()?.Type;
         }
 

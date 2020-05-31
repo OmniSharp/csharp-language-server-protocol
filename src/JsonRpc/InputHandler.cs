@@ -54,6 +54,11 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly CompositeDisposable _disposable;
         private readonly AsyncSubject<Unit> _inputActive;
 
+        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)> _requests =
+            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)>();
+
+        private readonly Subject<IObservable<Unit>> _inputQueue;
+
         public InputHandler(
             PipeReader pipeReader,
             IOutputHandler outputHandler,
@@ -79,7 +84,14 @@ namespace OmniSharp.Extensions.JsonRpc
             _getException = getException;
             _requestTimeout = requestTimeout;
             _logger = loggerFactory.CreateLogger<InputHandler>();
-            _scheduler = new ProcessScheduler(loggerFactory, supportContentModified, concurrency, requestTimeout, TaskPoolScheduler.Default);
+            _scheduler = new ProcessScheduler(
+                loggerFactory,
+                supportContentModified,
+                concurrency,
+                requestTimeout,
+                TaskPoolScheduler.Default
+                // new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"})
+            );
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
             _contentLengthValueBuffer = new byte[20]; // Max string length of the long value
@@ -94,6 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc
             };
 
             _inputActive = new AsyncSubject<Unit>();
+            _inputQueue = new Subject<IObservable<Unit>>();
         }
 
         public void Start()
@@ -101,7 +114,11 @@ namespace OmniSharp.Extensions.JsonRpc
             _disposable.Add(
                 Observable.FromAsync(() => ProcessInputStream(_stopProcessing.Token))
                     .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
-                    .Subscribe(_inputActive)
+                    .Subscribe(_inputActive));
+            _disposable.Add(
+                _inputQueue
+                    .Concat()
+                    .Subscribe()
             );
         }
 
@@ -368,16 +385,21 @@ namespace OmniSharp.Extensions.JsonRpc
                         continue;
                     }
 
-                    if (response is ServerResponse serverResponse)
-                    {
-                        // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                        tcs.TrySetResult(serverResponse.Result);
-                    }
-                    else if (response is ServerError serverError)
-                    {
-                        // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                        tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
-                    }
+                    _inputQueue.OnNext(Observable.Create<Unit>(observer => {
+                        if (response is ServerResponse serverResponse)
+                        {
+                            // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                            tcs.TrySetResult(serverResponse.Result);
+                        }
+                        else if (response is ServerError serverError)
+                        {
+                            // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                            tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+                        }
+
+                        observer.OnCompleted();
+                        return Disposable.Empty;
+                    }));
                 }
 
                 return;
@@ -438,16 +460,10 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 if (item.IsError)
                 {
-                    // _logger.LogDebug("Handling Error {Id}, {Text}", item.Error.Id, item.Error.Error);
                     _outputHandler.Send(item.Error);
                 }
             }
-
-            // }
         }
-
-        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)> _requests =
-            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)>();
 
         private SchedulerDelegate RouteRequest(IHandlerDescriptor descriptor, Request request)
         {
@@ -508,30 +524,31 @@ namespace OmniSharp.Extensions.JsonRpc
         private SchedulerDelegate RouteNotification(IHandlerDescriptor descriptor, Notification notification)
         {
             return (contentModifiedToken, scheduler) =>
-                // ITS A RACE!
-                Observable.Amb(
-                    contentModifiedToken
-                        .Do(_ => { _logger.LogTrace("Notification was abandoned due to content be modified"); }),
-                    Observable.Timer(_requestTimeout, scheduler)
-                        .Select(z => Unit.Default)
-                        .Do(z => _logger.LogTrace("Notification was cancelled due to timeout")
-                        ),
-                    Observable.FromAsync(async (ct) => {
-                        try
-                        {
+                    // ITS A RACE!
+                    Observable.Amb(
+                        contentModifiedToken
+                            .Do(_ => { _logger.LogTrace("Notification was abandoned due to content be modified"); }),
+                        Observable.Timer(_requestTimeout, scheduler)
+                            .Select(z => Unit.Default)
+                            .Do(z => _logger.LogTrace("Notification was cancelled due to timeout")
+                            ),
+                        Observable.FromAsync(async (ct) => {
                             using var timer = _logger.TimeDebug("Processing notification {Method}", notification.Method);
-                            await _requestRouter.RouteNotification(descriptor, notification, ct);
-                        }
-                        catch (OperationCanceledException)
-                        {
-                            _logger.LogTrace("Notification was cancelled");
-                        }
-                        catch (Exception e)
-                        {
-                            _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
-                        }
-                    })
-                );
+                            try
+                            {
+                                await _requestRouter.RouteNotification(descriptor, notification, ct);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                _logger.LogTrace("Notification was cancelled");
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
+                            }
+                        })
+                    )
+                ;
         }
 
         private static Exception DefaultErrorParser(string method, ServerError error, Func<ServerError, string, Exception> customHandler)

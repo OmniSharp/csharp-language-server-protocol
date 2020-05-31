@@ -69,6 +69,7 @@ namespace Lsp.Tests.Matchers
                         registrationsOptions,
                         () => true,
                         typeof(ExecuteCommandCapability),
+                        null,
                         () => { })
                 });
 

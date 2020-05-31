@@ -10,9 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
     {
         LspHandlerDescriptorDisposable Add(params IJsonRpcHandler[] handlers);
         LspHandlerDescriptorDisposable Add(params Type[] handlerTypes);
-        LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler);
-        LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc);
-        LspHandlerDescriptorDisposable Add(string method, Type handlerType);
+        LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options);
+        LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options);
+        LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options);
         bool ContainsHandler(Type type);
         bool ContainsHandler(TypeInfo typeInfo);
     }

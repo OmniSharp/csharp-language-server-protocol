@@ -42,8 +42,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             Action<LanguageClientOptions> clientOptionsAction,
             Action<LanguageServerOptions> serverOptionsAction)
         {
-            var clientPipe = new Pipe();
-            var serverPipe = new Pipe();
+            var clientPipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.Inline, writerScheduler: PipeScheduler.Inline, useSynchronizationContext: false));
+            var serverPipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.Inline, writerScheduler: PipeScheduler.Inline, useSynchronizationContext: false));
 
             _client = LanguageClient.PreInit(options => {
                 options

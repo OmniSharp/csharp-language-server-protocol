@@ -45,13 +45,13 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return GetEnumerator();
         }
 
-        IDisposable IHandlersManager.Add(IJsonRpcHandler handler) => Add(handler);
+        IDisposable IHandlersManager.Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add( new [] { handler }, options);
 
-        IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler) => Add(method, handler);
+        IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(method, handler, options);
 
-        public LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler)
+        public LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var descriptor = GetDescriptor(method, handler.GetType(), handler);
+            var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
             _handlers.Add(descriptor);
             var cd = new CompositeDisposable();
             if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
@@ -61,10 +61,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return new LspHandlerDescriptorDisposable(new[] { descriptor }, cd);
         }
 
-        public LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)
+        public LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options)
         {
             var handler = handlerFunc(_serviceProvider);
-            var descriptor = GetDescriptor(method, handler.GetType(), handler);
+            var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
             _handlers.Add(descriptor);
             var cd = new CompositeDisposable();
             if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
@@ -74,9 +74,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return new LspHandlerDescriptorDisposable(new[] { descriptor }, cd);
         }
 
-        public LspHandlerDescriptorDisposable Add(string method, Type handlerType)
+        public LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
         {
-            var descriptor = GetDescriptor(method, handlerType, _serviceProvider);
+            var descriptor = GetDescriptor(method, handlerType, _serviceProvider, options);
             _handlers.Add(descriptor);
             var cd = new CompositeDisposable();
             if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                     .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
                     .Where(x => !string.IsNullOrWhiteSpace(x.method)))
                 {
-                    var descriptor = GetDescriptor(method, implementedInterface, _serviceProvider);
+                    var descriptor = GetDescriptor(method, implementedInterface, _serviceProvider, null);
                     descriptors.Add(descriptor);
                     _handlers.Add(descriptor);
                     if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
@@ -123,7 +123,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                     .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
                     .Where(x => !string.IsNullOrWhiteSpace(x.method)))
                 {
-                    var descriptor = GetDescriptor(method, implementedInterface, handler);
+                    var descriptor = GetDescriptor(method, implementedInterface, handler, null);
                     descriptors.Add(descriptor);
                     _handlers.Add(descriptor);
                     if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
@@ -136,15 +136,42 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
-        private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IServiceProvider serviceProvider)
+        private LspHandlerDescriptorDisposable Add(IJsonRpcHandler[] handlers, JsonRpcHandlerOptions options)
+        {
+            var descriptors = new HashSet<LspHandlerDescriptor>();
+            var cd = new CompositeDisposable();
+            foreach (var handler in handlers)
+            {
+                if (descriptors.Any(z => z.Handler == handler)) continue;
+
+                foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
+                    .ImplementedInterfaces
+                    .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
+                    .Where(x => !string.IsNullOrWhiteSpace(x.method)))
+                {
+                    var descriptor = GetDescriptor(method, implementedInterface, handler, options);
+                    descriptors.Add(descriptor);
+                    _handlers.Add(descriptor);
+                    if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
+                    {
+                        cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
+                    }
+                }
+            }
+
+            return new LspHandlerDescriptorDisposable(descriptors, cd);
+        }
+
+        private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IServiceProvider serviceProvider, JsonRpcHandlerOptions options)
         {
             return GetDescriptor(
                 method,
                 handlerType,
-                ActivatorUtilities.CreateInstance(serviceProvider, handlerType) as IJsonRpcHandler);
+                ActivatorUtilities.CreateInstance(serviceProvider, handlerType) as IJsonRpcHandler,
+                options);
         }
 
-        private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler)
+        private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(method);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
@@ -184,6 +211,14 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             if (string.IsNullOrWhiteSpace(key)) key = "default";
 
+            var requestProcessType =
+                options?.RequestProcessType ??
+                typeDescriptor?.RequestProcessType ??
+                                     handlerType.GetCustomAttributes(true)
+                                        .Concat(@interface.GetCustomAttributes(true))
+                                        .OfType<ProcessAttribute>()
+                                        .FirstOrDefault()?.Type;
+
             var descriptor = new LspHandlerDescriptor(
                 method,
                 key,
@@ -194,6 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 registrationOptions,
                 (registrationType ==  null ? (Func<bool>) (() => false) : (() => _supportedCapabilities.AllowsDynamicRegistration(capabilityType))),
                 capabilityType,
+                requestProcessType,
                 () => {
                     _handlers.RemoveWhere(d => d.Handler == handler);
                 });

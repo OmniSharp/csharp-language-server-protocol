@@ -710,7 +710,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         public sealed class Notification<TParams, TCapability, TRegistrationOptions> :
-            IJsonRpcRequestHandler<TParams>,
+            IJsonRpcNotificationHandler<TParams>,
             IRegistration<TRegistrationOptions>, ICapability<TCapability>
             where TParams : IRequest
             where TRegistrationOptions : class, new()
@@ -763,7 +763,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         public sealed class Notification<TParams, TRegistrationOptions> :
-            IJsonRpcRequestHandler<TParams>,
+            IJsonRpcNotificationHandler<TParams>,
             IRegistration<TRegistrationOptions>
             where TParams : IRequest
             where TRegistrationOptions : class, new()
@@ -813,7 +813,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         public sealed class NotificationCapability<TParams, TCapability> :
-            IJsonRpcRequestHandler<TParams>, ICapability<TCapability>
+            IJsonRpcNotificationHandler<TParams>, ICapability<TCapability>
             where TParams : IRequest
             where TCapability : ICapability
         {

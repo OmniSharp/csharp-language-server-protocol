@@ -88,26 +88,26 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T)(object) this;
         }
 
-        public T WithHandler<THandler>()
+        public T WithHandler<THandler>(JsonRpcHandlerOptions options = null)
             where THandler : class, IJsonRpcHandler
         {
-            return AddHandler<THandler>();
+            return AddHandler<THandler>(options);
         }
 
-        public T WithHandler<THandler>(THandler handler)
+        public T WithHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null)
             where THandler : class, IJsonRpcHandler
         {
-            return AddHandler(handler);
+            return AddHandler(handler, options);
         }
 
-        public T WithHandlersFrom(Type type)
+        public T WithHandlersFrom(Type type, JsonRpcHandlerOptions options = null)
         {
-            return AddHandler(type);
+            return AddHandler(type, options);
         }
 
-        public T WithHandlersFrom(TypeInfo typeInfo)
+        public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions options = null)
         {
-            return AddHandler(typeInfo.AsType());
+            return AddHandler(typeInfo.AsType(), options);
         }
 
         public T WithServices(Action<IServiceCollection> servicesAction)

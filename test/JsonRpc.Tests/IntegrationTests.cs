@@ -130,5 +130,54 @@ namespace JsonRpc.Tests
                 await action.Should().ThrowAsync<RequestCancelledException>();
             }
         }
+
+        [Fact]
+        public async Task Should_Cancel_Parallel_Requests_When_Options_Are_Given()
+        {
+            var (client, server) = await Initialize(
+                client => {
+                    client.OnRequest(
+                        "parallelrequest",
+                        async (ct) => {
+                            await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                            return new Data() {Value = "myresponse"};
+                        },
+                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                    client.OnRequest(
+                        "serialrequest",
+                        async (ct) => new Data() {Value = "myresponse"},
+                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial}
+                    );
+                },
+                server => {
+                    server.OnRequest(
+                        "parallelrequest",
+                        async (ct) => {
+                            await Task.Delay(TimeSpan.FromSeconds(10), ct);
+                            return new Data() {Value = "myresponse"};
+                        },
+                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                    server.OnRequest(
+                        "serialrequest",
+                        async (ct) => new Data() {Value = "myresponse"},
+                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial}
+                    );
+                }
+            );
+
+            {
+                var task = client.SendRequest("parallelrequest").Returning<Data>(CancellationToken);
+                await client.SendRequest("serialrequest").Returning<Data>(CancellationToken);
+                Func<Task> action = () => task;
+                await action.Should().ThrowAsync<ContentModifiedException>();
+            }
+
+            {
+                var task = server.SendRequest("parallelrequest").Returning<Data>(CancellationToken);
+                await server.SendRequest("serialrequest").Returning<Data>(CancellationToken);
+                Func<Task> action = () => task;
+                await action.Should().ThrowAsync<ContentModifiedException>();
+            }
+        }
     }
 }

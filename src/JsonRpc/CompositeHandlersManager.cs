@@ -13,16 +13,16 @@ namespace OmniSharp.Extensions.JsonRpc
             _parent = parent;
         }
 
-        public IDisposable Add(IJsonRpcHandler handler)
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var result = _parent.Add(handler);
+            var result = _parent.Add(handler, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(string method, IJsonRpcHandler handler)
+        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var result = _parent.Add(method, handler);
+            var result = _parent.Add(method, handler, options);
             _compositeDisposable.Add(result);
             return result;
         }

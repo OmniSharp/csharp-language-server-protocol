@@ -20,6 +20,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public RequestProcessType Identify(IHandlerDescriptor descriptor)
         {
+            if (descriptor.RequestProcessType.HasValue)
+            {
+                return descriptor.RequestProcessType.Value;
+            }
+
             if (_cache.TryGetValue(descriptor.HandlerType, out var type)) return type;
 
             type = _defaultRequestProcessType;
@@ -33,8 +38,6 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 var processAttribute = descriptor.ImplementationType
                     .GetCustomAttributes(true)
                     .Concat(descriptor.HandlerType.GetCustomAttributes(true))
-                    .Concat(descriptor.ImplementationType.GetInterfaces().SelectMany(x => x.GetCustomAttributes()))
-                    .Concat(descriptor.HandlerType.GetInterfaces().SelectMany(x => x.GetCustomAttributes()))
                     .OfType<ProcessAttribute>()
                     .FirstOrDefault();
                 if (processAttribute != null)
