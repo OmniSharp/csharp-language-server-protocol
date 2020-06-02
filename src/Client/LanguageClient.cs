@@ -124,20 +124,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _trace = options.Trace;
             _initializationOptions = options.InitializationOptions;
 
-            var registrationManager = new RegistrationManager(serializer);
-            _registrationManager = registrationManager;
-            if (options.DynamicRegistration)
-            {
-                services.AddSingleton<IJsonRpcHandler>(registrationManager);
-            }
-
-            var workspaceFoldersManager = new WorkspaceFoldersManager(this);
-            _workspaceFoldersManager = workspaceFoldersManager;
-            if (options.WorkspaceFolders)
-            {
-                services.AddSingleton<IJsonRpcHandler>(workspaceFoldersManager);
-            }
-
             services.AddSingleton<IOutputHandler>(_ =>
                 new OutputHandler(options.Output, options.Serializer, options.Receiver.ShouldFilterOutput, _.GetService<ILogger<OutputHandler>>()));
             services.AddSingleton(_collection);
@@ -146,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(serializer);
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReceiver>(options.Receiver);
-            services.AddSingleton<ILspClientReceiver>(options.Receiver);
+            services.AddSingleton(options.Receiver);
             services.AddSingleton<ILanguageClient>(this);
             services.AddSingleton<LspRequestRouter>();
             services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
@@ -154,23 +140,38 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             services.AddSingleton<IResponseRouter, ResponseRouter>();
 
             services.AddSingleton<IProgressManager, ProgressManager>();
-            services.AddSingleton<IJsonRpcHandler>(_ => _.GetRequiredService<IProgressManager>() as IJsonRpcHandler);
+            services.AddSingleton(_ => _.GetRequiredService<IProgressManager>() as IJsonRpcHandler);
             services.AddSingleton<IClientWorkDoneManager, ClientWorkDoneManager>();
-            services.AddSingleton<IJsonRpcHandler>(_ => _.GetRequiredService<IClientWorkDoneManager>() as IJsonRpcHandler);
-            services.AddSingleton(_registrationManager);
-            services.AddSingleton(_workspaceFoldersManager);
+            services.AddSingleton(_ => _.GetRequiredService<IClientWorkDoneManager>() as IJsonRpcHandler);
 
             EnsureAllHandlersAreRegistered();
+
+            services.AddSingleton<RegistrationManager>();
+            services.AddSingleton<IRegistrationManager>(_ => _.GetRequiredService<RegistrationManager>());
+            if (options.DynamicRegistration)
+            {
+                services.AddSingleton(_ => _.GetRequiredService<RegistrationManager>() as IJsonRpcHandler);
+            }
+
+            var workspaceFoldersManager = new WorkspaceFoldersManager(this);
+            services.AddSingleton(workspaceFoldersManager);
+            services.AddSingleton<IWorkspaceFoldersManager>(workspaceFoldersManager);
+            if (options.WorkspaceFolders)
+            {
+                services.AddSingleton<IJsonRpcHandler>(workspaceFoldersManager);
+            }
 
             var serviceProvider = services.BuildServiceProvider();
             _disposable.Add(serviceProvider);
             _serviceProvider = serviceProvider;
             collection.SetServiceProvider(_serviceProvider);
 
-            var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<ILspHandlerDescriptor>>();
             _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
             _progressManager = _serviceProvider.GetRequiredService<IProgressManager>();
             _workDoneManager = _serviceProvider.GetRequiredService<IClientWorkDoneManager>();
+            _registrationManager = _serviceProvider.GetRequiredService<RegistrationManager>();
+            _workspaceFoldersManager = _serviceProvider.GetRequiredService<IWorkspaceFoldersManager>();
+
             _connection = new Connection(
                 options.Input,
                 _serviceProvider.GetRequiredService<IOutputHandler>(),
