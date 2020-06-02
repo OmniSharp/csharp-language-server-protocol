@@ -43,6 +43,5 @@
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.8" />
         <PackageReference Update="System.IO.Pipelines" Version="4.7.1"/>
         <PackageReference Update="Nerdbank.Streams" Version="2.4.60" />
-        <!-- <PackageReference Update="DynamicData" Version="6.14.18" /> -->
     </ItemGroup>
 </Project>

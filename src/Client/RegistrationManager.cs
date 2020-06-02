@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -21,12 +22,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     class RegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
     {
         private readonly ISerializer _serializer;
+        private readonly ILogger<RegistrationManager> _logger;
         private readonly ConcurrentDictionary<string, Registration> _registrations;
         private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject;
 
-        public RegistrationManager(ISerializer serializer)
+        public RegistrationManager(ISerializer serializer, ILogger<RegistrationManager> logger)
         {
             _serializer = serializer;
+            _logger = logger;
             _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
             _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1);
         }
@@ -37,8 +40,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _registrationSubject.OnNext(_registrations.Values);
             return Unit.Task;
         }
-
-        // TODO:
 
         Task<Unit> IRequestHandler<UnregistrationParams, Unit>.Handle(UnregistrationParams request, CancellationToken cancellationToken)
         {
@@ -53,56 +54,55 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public void RegisterCapabilities(ServerCapabilities serverCapabilities)
         {
-                foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(
-                    serverCapabilities))
+            foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(
+                serverCapabilities))
+            {
+                var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
+                if (descriptor == null)
                 {
-                    var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
-                    if (descriptor == null)
-                    {
-                        // TODO: Log this
-                        continue;
-                    }
-
-                    var reg = new Registration() {
-                        Id = registrationOptions.Id,
-                        Method = descriptor.Method,
-                        RegisterOptions = registrationOptions
-                    };
-                    _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
+                    _logger.LogWarning("Unable to find handler type descriptor for the given {@RegistrationOptions}", registrationOptions);
+                    continue;
                 }
 
-                if (serverCapabilities.Workspace == null)
+                var reg = new Registration() {
+                    Id = registrationOptions.Id,
+                    Method = descriptor.Method,
+                    RegisterOptions = registrationOptions
+                };
+                _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
+            }
+
+            if (serverCapabilities.Workspace == null)
+            {
+                _registrationSubject.OnNext(_registrations.Values);
+                return;
+            }
+
+            foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(serverCapabilities
+                .Workspace))
+            {
+                var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
+                if (descriptor == null)
                 {
-                    _registrationSubject.OnNext(_registrations.Values);
-                    return;
+                    // TODO: Log this
+                    continue;
                 }
 
-                foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(serverCapabilities
-                    .Workspace))
-                {
-                    var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
-                    if (descriptor == null)
-                    {
-                        // TODO: Log this
-                        continue;
-                    }
-
-                    var reg = new Registration() {
-                        Id = registrationOptions.Id,
-                        Method = descriptor.Method,
-                        RegisterOptions = registrationOptions
-                    };
-                    _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
-                }
+                var reg = new Registration() {
+                    Id = registrationOptions.Id,
+                    Method = descriptor.Method,
+                    RegisterOptions = registrationOptions
+                };
+                _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
+            }
         }
 
-        // TODO: Register static handlers
         private void Register(params Registration[] registrations)
         {
-                foreach (var registration in registrations)
-                {
-                    Register(registration);
-                }
+            foreach (var registration in registrations)
+            {
+                Register(registration);
+            }
         }
 
         private void Register(Registration registration)
