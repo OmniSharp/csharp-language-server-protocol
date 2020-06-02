@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -47,7 +48,7 @@ namespace JsonRpc.Tests
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection { codeActionHandler };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { codeActionHandler };
             AutoSubstitute.Provide(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

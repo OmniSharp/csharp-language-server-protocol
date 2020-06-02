@@ -14,9 +14,12 @@ import {
     SettingMonitor,
     ServerOptions,
     TransportKind,
-    InitializeParams
+    InitializeParams,
+    StreamInfo,
+    createServerPipeTransport,
 } from "vscode-languageclient";
-import { Trace } from "vscode-jsonrpc";
+import { Trace, createClientPipeTransport } from "vscode-jsonrpc";
+import { createConnection } from "net";
 
 export function activate(context: ExtensionContext) {
     // The server is implemented in node
@@ -29,21 +32,34 @@ export function activate(context: ExtensionContext) {
 
     // If the extension is launched in debug mode then the debug server options are used
     // Otherwise the run options are used
-    let serverOptions: ServerOptions = {
-        // run: { command: serverExe, args: ['-lsp', '-d'] },
-        run: {
-            command: serverExe,
-            args: [
-                "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
-            ]
-        },
-        // debug: { command: serverExe, args: ['-lsp', '-d'] }
-        debug: {
-            command: serverExe,
-            args: [
-                "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
-            ]
-        }
+    // let serverOptions: ServerOptions = {
+    //     // run: { command: serverExe, args: ['-lsp', '-d'] },
+    //     run: {
+    //         command: serverExe,
+    //         args: [
+    //             "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
+    //         ],
+    //         transport: TransportKind.pipe
+    //     },
+    //     // debug: { command: serverExe, args: ['-lsp', '-d'] }
+    //     debug: {
+    //         command: serverExe,
+    //         args: [
+    //             "D:/Development/Omnisharp/csharp-language-server-protocol/sample/SampleServer/bin/Debug/netcoreapp3.1/win7-x64/SampleServer.dll"
+    //         ],
+    //         transport: TransportKind.pipe,
+    //         runtime: '',
+    //     }
+    // };
+    let time = 100;
+    let serverOptions = async () => {
+        await new Promise((r) => setTimeout(r, time));
+        time = 10000;
+        const [reader, writer] = createServerPipeTransport("\\\\.\\pipe\\" + "samplepipe");
+        return {
+            reader,
+            writer,
+        };
     };
 
     // Options to control the language client
@@ -51,30 +67,25 @@ export function activate(context: ExtensionContext) {
         // Register the server for plain text documents
         documentSelector: [
             {
-                pattern: "**/*.cs"
+                pattern: "**/*.cs",
             },
             {
-                pattern: "**/*.csx"
+                pattern: "**/*.csx",
             },
             {
-                pattern: "**/*.cake"
-            }
+                pattern: "**/*.cake",
+            },
         ],
         progressOnInitialization: true,
         synchronize: {
             // Synchronize the setting section 'languageServerExample' to the server
             configurationSection: "languageServerExample",
-            fileEvents: workspace.createFileSystemWatcher("**/*.cs")
-        }
+            fileEvents: workspace.createFileSystemWatcher("**/*.cs"),
+        },
     };
 
     // Create the language client and start the client.
-    const client = new LanguageClient(
-        "languageServerExample",
-        "Language Server Example",
-        serverOptions,
-        clientOptions
-    );
+    const client = new LanguageClient("languageServerExample", "Language Server Example", serverOptions, clientOptions);
     client.registerProposedFeatures();
     client.trace = Trace.Verbose;
     let disposable = client.start();

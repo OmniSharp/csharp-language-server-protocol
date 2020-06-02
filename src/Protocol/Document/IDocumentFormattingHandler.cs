@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DocumentFormattingExtensions
     {
-        public static IDisposable OnDocumentFormatting(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentFormatting(this ILanguageServerRegistry registry,
             Func<DocumentFormattingParams, DocumentFormattingCapability, CancellationToken, Task<TextEditContainer>>
                 handler,
             DocumentFormattingRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentFormattingRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentFormatting(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentFormatting(this ILanguageServerRegistry registry,
             Func<DocumentFormattingParams, CancellationToken, Task<TextEditContainer>> handler,
             DocumentFormattingRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentFormattingRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentFormatting(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentFormatting(this ILanguageServerRegistry registry,
             Func<DocumentFormattingParams, Task<TextEditContainer>> handler,
             DocumentFormattingRegistrationOptions registrationOptions)
         {

@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class NextExtensions
     {
-        public static IDisposable OnNext(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnNext(this IDebugAdapterServerRegistry registry,
             Func<NextArguments, CancellationToken, Task<NextResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnNext(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnNext(this IDebugAdapterServerRegistry registry,
             Func<NextArguments, Task<NextResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));

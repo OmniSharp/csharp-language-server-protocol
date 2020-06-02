@@ -2,7 +2,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using Xunit.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests.Logging
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>
     ///     Extension methods for configuring logging to Xunit test output.

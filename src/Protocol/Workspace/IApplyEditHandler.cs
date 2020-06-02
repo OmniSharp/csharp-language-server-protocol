@@ -18,16 +18,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public static class ApplyWorkspaceEditExtensions
     {
-        public static IDisposable OnApplyWorkspaceEdit(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnApplyWorkspaceEdit(this ILanguageClientRegistry registry,
             Func<ApplyWorkspaceEditParams, CancellationToken, Task<ApplyWorkspaceEditResponse>>
                 handler)
         {
             return registry.AddHandler(WorkspaceNames.ApplyEdit, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnApplyWorkspaceEdit(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnApplyWorkspaceEdit(this ILanguageClientRegistry registry,
             Func<ApplyWorkspaceEditParams, Task<ApplyWorkspaceEditResponse>> handler)
         {
             return registry.AddHandler(WorkspaceNames.ApplyEdit, RequestHandler.For(handler));

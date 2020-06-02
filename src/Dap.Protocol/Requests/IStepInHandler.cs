@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class StepInExtensions
     {
-        public static IDisposable OnStepIn(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStepIn(this IDebugAdapterServerRegistry registry,
             Func<StepInArguments, CancellationToken, Task<StepInResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StepIn, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnStepIn(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStepIn(this IDebugAdapterServerRegistry registry,
             Func<StepInArguments, Task<StepInResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StepIn, RequestHandler.For(handler));

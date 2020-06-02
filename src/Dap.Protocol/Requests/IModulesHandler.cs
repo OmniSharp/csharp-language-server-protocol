@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ModulesExtensions
     {
-        public static IDisposable OnModules(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnModules(this IDebugAdapterServerRegistry registry,
             Func<ModulesArguments, CancellationToken, Task<ModulesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Modules, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnModules(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnModules(this IDebugAdapterServerRegistry registry,
             Func<ModulesArguments, Task<ModulesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Modules, RequestHandler.For(handler));

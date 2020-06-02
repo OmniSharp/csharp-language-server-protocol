@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class SourceExtensions
     {
-        public static IDisposable OnSource(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSource(this IDebugAdapterServerRegistry registry,
             Func<SourceArguments, CancellationToken, Task<SourceResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Source, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnSource(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSource(this IDebugAdapterServerRegistry registry,
             Func<SourceArguments, Task<SourceResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Source, RequestHandler.For(handler));

@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
 {
-    class DapClientResponseConverter : JsonConverter<Response>
+    class DapClientResponseConverter : JsonConverter<OutgoingResponse>
     {
         private readonly ISerializer _serializer;
 
@@ -15,13 +15,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
         }
 
         public override bool CanRead => false;
-        public override Response ReadJson(JsonReader reader, Type objectType, Response existingValue,
+        public override OutgoingResponse ReadJson(JsonReader reader, Type objectType, OutgoingResponse existingValue,
             bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Response value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, OutgoingResponse value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("seq");

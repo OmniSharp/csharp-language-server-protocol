@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class SignatureHelpExtensions
     {
-        public static IDisposable OnSignatureHelp(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSignatureHelp(this ILanguageServerRegistry registry,
             Func<SignatureHelpParams, SignatureHelpCapability, CancellationToken, Task<SignatureHelp>>
                 handler,
             SignatureHelpRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     SignatureHelpRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnSignatureHelp(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSignatureHelp(this ILanguageServerRegistry registry,
             Func<SignatureHelpParams, CancellationToken, Task<SignatureHelp>> handler,
             SignatureHelpRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     SignatureHelpRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnSignatureHelp(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSignatureHelp(this ILanguageServerRegistry registry,
             Func<SignatureHelpParams, Task<SignatureHelp>> handler,
             SignatureHelpRegistrationOptions registrationOptions)
         {

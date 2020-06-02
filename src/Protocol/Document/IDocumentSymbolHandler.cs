@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DocumentSymbolExtensions
     {
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Func<DocumentSymbolParams, DocumentSymbolCapability, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>>
                 handler,
             DocumentSymbolRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Func<DocumentSymbolParams, CancellationToken, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
             DocumentSymbolRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Func<DocumentSymbolParams, Task<SymbolInformationOrDocumentSymbolContainer>> handler,
             DocumentSymbolRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentSymbolRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Action<DocumentSymbolParams, IObserver<IEnumerable<SymbolInformationOrDocumentSymbol>>, DocumentSymbolCapability,
                 CancellationToken> handler,
             DocumentSymbolRegistrationOptions registrationOptions)
@@ -79,8 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new SymbolInformationOrDocumentSymbolContainer(x)));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Action<DocumentSymbolParams, IObserver<IEnumerable<SymbolInformationOrDocumentSymbol>>, DocumentSymbolCapability>
                 handler,
             DocumentSymbolRegistrationOptions registrationOptions)
@@ -93,8 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new SymbolInformationOrDocumentSymbolContainer(x)));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Action<DocumentSymbolParams, IObserver<IEnumerable<SymbolInformationOrDocumentSymbol>>, CancellationToken> handler,
             DocumentSymbolRegistrationOptions registrationOptions)
         {
@@ -106,8 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         _.GetService<IProgressManager>(), x => new SymbolInformationOrDocumentSymbolContainer(x)));
         }
 
-        public static IDisposable OnDocumentSymbol(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentSymbol(this ILanguageServerRegistry registry,
             Action<DocumentSymbolParams, IObserver<IEnumerable<SymbolInformationOrDocumentSymbol>>> handler,
             DocumentSymbolRegistrationOptions registrationOptions)
         {

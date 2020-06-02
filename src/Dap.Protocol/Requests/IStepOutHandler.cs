@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class StepOutExtensions
     {
-        public static IDisposable OnStepOut(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStepOut(this IDebugAdapterServerRegistry registry,
             Func<StepOutArguments, CancellationToken, Task<StepOutResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StepOut, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnStepOut(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnStepOut(this IDebugAdapterServerRegistry registry,
             Func<StepOutArguments, Task<StepOutResponse>> handler)
         {
             return registry.AddHandler(RequestNames.StepOut, RequestHandler.For(handler));

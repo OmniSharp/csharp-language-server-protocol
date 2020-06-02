@@ -3,10 +3,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 using FluentAssertions;
-using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using Microsoft.Reactive.Testing;
+using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit.Abstractions;
 using Xunit.Sdk;
@@ -23,12 +25,12 @@ namespace JsonRpc.Tests
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        class AllRequestProcessTypes : TheoryData
+        class AllRequestProcessTypes : TheoryData<RequestProcessType>
         {
-            public override IEnumerator<object[]> GetEnumerator()
+            public AllRequestProcessTypes()
             {
-                yield return new object[] {RequestProcessType.Serial};
-                yield return new object[] {RequestProcessType.Parallel};
+                Add(RequestProcessType.Serial);
+                Add(RequestProcessType.Parallel);
             }
         }
 
@@ -37,21 +39,21 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(type, "bogus", testObservable.Do(testObserver));
 
-            testScheduler.AdvanceTo(50);
+            s.Add(type, "bogus", DoStuff(testObservable, testObserver));
+
+            testScheduler.AdvanceTo(Subscribed/2);
 
             testObservable.Subscriptions.Count.Should().Be(1);
 
-            testScheduler.AdvanceTo(101);
+            testScheduler.AdvanceTo(Subscribed + 1);
 
             testObservable.Subscriptions.Count.Should().Be(1);
             testObserver.Messages.Should().Contain(z => z.Value.Kind == NotificationKind.OnNext);
@@ -63,16 +65,16 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
+
             for (var i = 0; i < 8; i++)
-                s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+                s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
@@ -80,14 +82,14 @@ namespace JsonRpc.Tests
             testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
                 .ContainInOrder(
-                    OnNext(100, Unit.Default),
-                    OnNext(200, Unit.Default),
-                    OnNext(300, Unit.Default),
-                    OnNext(400, Unit.Default),
-                    OnNext(500, Unit.Default),
-                    OnNext(600, Unit.Default),
-                    OnNext(700, Unit.Default),
-                    OnNext(800, Unit.Default)
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 4, Unit.Default),
+                    OnNext(Subscribed * 5, Unit.Default),
+                    OnNext(Subscribed * 6, Unit.Default),
+                    OnNext(Subscribed * 7, Unit.Default),
+                    OnNext(Subscribed * 8, Unit.Default)
                 );
         }
 
@@ -96,16 +98,15 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
             for (var i = 0; i < 8; i++)
-                s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
+                s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
@@ -113,14 +114,14 @@ namespace JsonRpc.Tests
             testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
                 .ContainInOrder(
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default)
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default)
                 );
         }
 
@@ -129,22 +130,21 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
@@ -152,14 +152,52 @@ namespace JsonRpc.Tests
             testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
                 .ContainInOrder(
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(200, Unit.Default),
-                    OnNext(300, Unit.Default),
-                    OnNext(300, Unit.Default),
-                    OnNext(400, Unit.Default)
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 4, Unit.Default)
+                );
+        }
+
+        [Fact]
+        public void ShouldScheduleMixed_WithContentModified()
+        {
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
+
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), true, null, TimeSpan.FromSeconds(30), testScheduler);
+
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(11);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default)
                 );
         }
 
@@ -168,18 +206,18 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
@@ -187,10 +225,10 @@ namespace JsonRpc.Tests
             testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
                 .ContainInOrder(
-                    OnNext(100, Unit.Default),
-                    OnNext(200, Unit.Default),
-                    OnNext(300, Unit.Default),
-                    OnNext(400, Unit.Default)
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 4, Unit.Default)
                 );
         }
 
@@ -199,22 +237,22 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), 3);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, 3, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Parallel, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
@@ -222,14 +260,52 @@ namespace JsonRpc.Tests
             testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
                 .ContainInOrder(
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(100, Unit.Default),
-                    OnNext(200, Unit.Default),
-                    OnNext(300, Unit.Default),
-                    OnNext(400, Unit.Default),
-                    OnNext(400, Unit.Default),
-                    OnNext(500, Unit.Default)
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 4, Unit.Default),
+                    OnNext(Subscribed * 4, Unit.Default),
+                    OnNext(Subscribed * 5, Unit.Default)
+                );
+        }
+
+        [Fact]
+        public void ShouldScheduleWithConcurrency_WithContentModified()
+        {
+            var testScheduler = new TestScheduler();
+            var testObservable = testScheduler.CreateColdObservable(
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
+            );
+            var testObserver = testScheduler.CreateObserver<Unit>();
+
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), true, 3, TimeSpan.FromSeconds(30), testScheduler);
+
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Parallel, "bogus", DoStuff(testObservable, testObserver));
+
+            testScheduler.Start();
+
+            testObservable.Subscriptions.Count.Should().Be(11);
+            testObserver.Messages
+                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                .ContainInOrder(
+                    OnNext(Subscribed, Unit.Default),
+                    OnNext(Subscribed * 2, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default),
+                    OnNext(Subscribed * 3, Unit.Default)
                 );
         }
 
@@ -238,31 +314,31 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var errorObservable = testScheduler.CreateColdObservable(
-                OnError(100, new TaskCanceledException(), Unit.Default)
+                OnError(Subscribed, new TaskCanceledException(), Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "somethingelse", errorObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "somethingelse", DoStuff(errorObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
             testObservable.Subscriptions.Count.Should().Be(2);
+            errorObservable.Subscriptions.Should().HaveCount(1);
             var messages = testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
                 .ToArray();
 
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 100);
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == 200 && x.Value.Exception is OperationCanceledException);
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 300);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is OperationCanceledException);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed * 3);
         }
 
         [Fact]
@@ -270,32 +346,36 @@ namespace JsonRpc.Tests
         {
             var testScheduler = new TestScheduler();
             var testObservable = testScheduler.CreateColdObservable(
-                OnNext(100, Unit.Default),
-                OnCompleted(100, Unit.Default)
+                OnNext(Subscribed, Unit.Default),
+                OnCompleted(Subscribed, Unit.Default)
             );
             var errorObservable = testScheduler.CreateColdObservable(
-                OnError(100, new NotSameException(), Unit.Default)
+                OnError(Subscribed, new NotSameException(), Unit.Default)
             );
             var testObserver = testScheduler.CreateObserver<Unit>();
 
-            using IScheduler s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), null);
+            using var s = new ProcessScheduler(new TestLoggerFactory(_testOutputHelper), false, null, TimeSpan.FromSeconds(30), testScheduler);
 
-            s.Start();
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "somethingelse", errorObservable.Do(testObserver));
-            s.Add(RequestProcessType.Serial, "bogus", testObservable.Do(testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "somethingelse", DoStuff(errorObservable, testObserver));
+            s.Add(RequestProcessType.Serial, "bogus", DoStuff(testObservable, testObserver));
 
             testScheduler.Start();
 
             testObservable.Subscriptions.Count.Should().Be(2);
+            errorObservable.Subscriptions.Should().HaveCount(1);
             var messages = testObserver.Messages
                 .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
                 .ToArray();
 
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 100);
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == 200 && x.Value.Exception is NotSameException);
-            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == 300);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is NotSameException);
+            messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed * 3);
+        }
 
+        private static SchedulerDelegate DoStuff(IObservable<Unit> testObservable, IObserver<Unit> testObserver)
+        {
+            return (contentModifiedToken, scheduler) => testObservable.Amb(contentModifiedToken).Do(testObserver);
         }
     }
 }

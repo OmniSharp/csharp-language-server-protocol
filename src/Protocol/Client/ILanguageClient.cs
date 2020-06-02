@@ -1,10 +1,11 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    public interface ILanguageClient : IClientProxy, ILanguageClientRegistry, IDisposable
+    public interface ILanguageClient : IClientProxy, IJsonRpcHandlerInstance<ILanguageClientRegistry>, IDisposable
     {
         ITextDocumentLanguageClient TextDocument { get; }
         IClientLanguageClient Client { get; }

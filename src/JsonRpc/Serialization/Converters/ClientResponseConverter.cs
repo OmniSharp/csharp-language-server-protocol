@@ -4,16 +4,16 @@ using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
 {
-    public class ClientResponseConverter : JsonConverter<Response>
+    public class ClientResponseConverter : JsonConverter<OutgoingResponse>
     {
         public override bool CanRead => false;
-        public override Response ReadJson(JsonReader reader, Type objectType, Response existingValue,
+        public override OutgoingResponse ReadJson(JsonReader reader, Type objectType, OutgoingResponse existingValue,
             bool hasExistingValue, JsonSerializer serializer)
         {
             throw new NotImplementedException();
         }
 
-        public override void WriteJson(JsonWriter writer, Response value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, OutgoingResponse value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
             writer.WritePropertyName("jsonrpc");

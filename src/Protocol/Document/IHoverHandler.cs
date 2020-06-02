@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class HoverExtensions
     {
-        public static IDisposable OnHover(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnHover(this ILanguageServerRegistry registry,
             Func<HoverParams, HoverCapability, CancellationToken, Task<Hover>>
                 handler,
             HoverRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     HoverRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnHover(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnHover(this ILanguageServerRegistry registry,
             Func<HoverParams, CancellationToken, Task<Hover>> handler,
             HoverRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     HoverRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnHover(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnHover(this ILanguageServerRegistry registry,
             Func<HoverParams, Task<Hover>> handler,
             HoverRegistrationOptions registrationOptions)
         {

@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class PauseExtensions
     {
-        public static IDisposable OnPause(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnPause(this IDebugAdapterServerRegistry registry,
             Func<PauseArguments, CancellationToken, Task<PauseResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Pause, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnPause(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnPause(this IDebugAdapterServerRegistry registry,
             Func<PauseArguments, Task<PauseResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Pause, RequestHandler.For(handler));

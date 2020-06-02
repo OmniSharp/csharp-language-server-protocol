@@ -10,22 +10,22 @@ namespace OmniSharp.Extensions.JsonRpc
             Error = error;
         }
 
-        public ErrorResponse(Response response)
+        public ErrorResponse(OutgoingResponse outgoingResponse)
         {
-            Response = response;
+            Response = outgoingResponse;
             Error = null;
         }
 
         public bool IsResponse => Response != null;
-        public Response Response { get; }
+        public OutgoingResponse Response { get; }
 
         public bool IsError => Error != null;
         public RpcError Error { get; }
         public object Value => IsResponse ? (object)Response : IsError ? Error : null;
 
-        public static implicit operator ErrorResponse(Response response)
+        public static implicit operator ErrorResponse(OutgoingResponse outgoingResponse)
         {
-            return new ErrorResponse(response);
+            return new ErrorResponse(outgoingResponse);
         }
 
         public static implicit operator ErrorResponse(RpcError error)

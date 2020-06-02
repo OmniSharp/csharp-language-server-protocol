@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class TerminatedExtensions
     {
-        public static IDisposable OnTerminated(this IDebugAdapterClientRegistry registry, Action<TerminatedEvent> handler)
+        public static IDebugAdapterClientRegistry OnTerminated(this IDebugAdapterClientRegistry registry, Action<TerminatedEvent> handler)
         {
             return registry.AddHandler(EventNames.Terminated, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnTerminated(this IDebugAdapterClientRegistry registry, Action<TerminatedEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnTerminated(this IDebugAdapterClientRegistry registry, Action<TerminatedEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Terminated, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnTerminated(this IDebugAdapterClientRegistry registry, Func<TerminatedEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnTerminated(this IDebugAdapterClientRegistry registry, Func<TerminatedEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Terminated, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnTerminated(this IDebugAdapterClientRegistry registry, Func<TerminatedEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnTerminated(this IDebugAdapterClientRegistry registry, Func<TerminatedEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Terminated, NotificationHandler.For(handler));
         }

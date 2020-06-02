@@ -19,29 +19,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static class LogMessageExtensions
     {
-        public static IDisposable OnLogMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnLogMessage(this ILanguageClientRegistry registry,
             Action<LogMessageParams> handler)
         {
             return registry.AddHandler(WindowNames.LogMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLogMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnLogMessage(this ILanguageClientRegistry registry,
             Action<LogMessageParams, CancellationToken> handler)
         {
             return registry.AddHandler(WindowNames.LogMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLogMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnLogMessage(this ILanguageClientRegistry registry,
             Func<LogMessageParams, Task> handler)
         {
             return registry.AddHandler(WindowNames.LogMessage, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLogMessage(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnLogMessage(this ILanguageClientRegistry registry,
             Func<LogMessageParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(WindowNames.LogMessage, NotificationHandler.For(handler));

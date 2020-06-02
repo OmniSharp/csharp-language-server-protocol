@@ -49,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class TextDocumentSyncExtensions
     {
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onOpenHandler,
@@ -64,8 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 onSaveHandler, getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken> onOpenHandler,
@@ -79,8 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 onSaveHandler, getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability> onOpenHandler,
@@ -98,8 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, CancellationToken, Task> onOpenHandler,
@@ -117,8 +113,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, CancellationToken> onOpenHandler,
@@ -136,8 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, Task> onOpenHandler,
@@ -155,8 +149,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-        public static IDisposable OnTextDocumentSync(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams> onOpenHandler,

@@ -246,6 +246,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         public static DocumentUri From(string url)
         {
+            if (string.IsNullOrWhiteSpace (url))
+            {
+                throw new UriFormatException("Given uri is null or empty");
+            }
             if (url.StartsWith(@"\\") || (url.StartsWith("/")) || WindowsPath.IsMatch(url))
             {
                 return File(url);
@@ -307,7 +311,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         ///     The LSP document URI.
         /// </returns>
-        public static DocumentUri FromFileSystemPath(string fileSystemPath) => From(fileSystemPath);
+        public static DocumentUri FromFileSystemPath(string fileSystemPath) => File(fileSystemPath);
 
         private sealed class DocumentUriEqualityComparer : IEqualityComparer<DocumentUri>
         {
@@ -364,6 +368,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         public static DocumentUri Parse(string value, bool strict = false)
         {
+            if (string.IsNullOrWhiteSpace (value))
+            {
+                throw new UriFormatException("Given uri is null or empty");
+            }
             var match = Regexp.Match(value);
             if (!match.Success)
             {
@@ -393,6 +401,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         public static DocumentUri File(string path)
         {
+            if (string.IsNullOrWhiteSpace (path))
+            {
+                throw new UriFormatException("Given path is null or empty");
+            }
             var authority = Empty;
 
             // normalize to fwd-slashes on windows,

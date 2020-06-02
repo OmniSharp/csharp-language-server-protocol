@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>netcoreapp3.1</TargetFramework>
         <AssemblyName>OmniSharp.Extensions.LanguageClient.Tests</AssemblyName>
-        <RootNamespace>OmniSharp.Extensions.LanguageServerProtocol.Client.Tests</RootNamespace>
+        <RootNamespace>OmniSharp.Extensions.LanguageServer.Client.Tests</RootNamespace>
     </PropertyGroup>
 
     <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,9 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\src\Client\Client.csproj" />
-        <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\..\src\Server\Server.csproj" />
+        <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
     </ItemGroup>
 

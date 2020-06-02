@@ -23,57 +23,49 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     public static class ProgressExtensions
     {
-        public static IDisposable OnProgress(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnProgress(this ILanguageServerRegistry registry,
             Action<ProgressParams, CancellationToken> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnProgress(this ILanguageServerRegistry registry,
             Func<ProgressParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnProgress(this ILanguageServerRegistry registry,
             Action<ProgressParams> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnProgress(this ILanguageServerRegistry registry,
             Func<ProgressParams, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnProgress(this ILanguageClientRegistry registry,
             Action<ProgressParams, CancellationToken> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnProgress(this ILanguageClientRegistry registry,
             Func<ProgressParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnProgress(this ILanguageClientRegistry registry,
             Action<ProgressParams> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProgress(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnProgress(this ILanguageClientRegistry registry,
             Func<ProgressParams, Task> handler)
         {
             return registry.AddHandler(GeneralNames.Progress, NotificationHandler.For(handler));

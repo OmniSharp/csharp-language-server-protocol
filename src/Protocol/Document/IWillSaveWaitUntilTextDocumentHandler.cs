@@ -28,8 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class WillSaveWaitUntilTextDocumentExtensions
     {
-        public static IDisposable OnWillSaveWaitUntilTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveWaitUntilTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveWaitUntilTextDocumentParams, SynchronizationCapability, CancellationToken, Task<TextEditContainer>>
                 handler,
             TextDocumentRegistrationOptions registrationOptions)
@@ -40,8 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveWaitUntilTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveWaitUntilTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveWaitUntilTextDocumentParams, SynchronizationCapability, Task<TextEditContainer>> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -51,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveWaitUntilTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveWaitUntilTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveWaitUntilTextDocumentParams, CancellationToken, Task<TextEditContainer>> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {
@@ -62,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnWillSaveWaitUntilTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnWillSaveWaitUntilTextDocument(this ILanguageServerRegistry registry,
             Func<WillSaveWaitUntilTextDocumentParams, Task<TextEditContainer>> handler,
             TextDocumentRegistrationOptions registrationOptions)
         {

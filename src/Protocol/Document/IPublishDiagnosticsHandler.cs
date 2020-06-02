@@ -20,25 +20,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class PublishDiagnosticsExtensions
     {
-        public static IDisposable OnPublishDiagnostics(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnPublishDiagnostics(this ILanguageClientRegistry registry,
             Func<PublishDiagnosticsParams, CancellationToken, Task> handler)
         {
             return registry.AddHandler(TextDocumentNames.PublishDiagnostics, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnPublishDiagnostics(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnPublishDiagnostics(this ILanguageClientRegistry registry,
             Func<PublishDiagnosticsParams, Task> handler)
         {
             return registry.AddHandler(TextDocumentNames.PublishDiagnostics, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnPublishDiagnostics(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnPublishDiagnostics(this ILanguageClientRegistry registry,
             Action<PublishDiagnosticsParams, CancellationToken> handler)
         {
             return registry.AddHandler(TextDocumentNames.PublishDiagnostics, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnPublishDiagnostics(this ILanguageClientRegistry registry,
+        public static ILanguageClientRegistry OnPublishDiagnostics(this ILanguageClientRegistry registry,
             Action<PublishDiagnosticsParams> handler)
         {
             return registry.AddHandler(TextDocumentNames.PublishDiagnostics, NotificationHandler.For(handler));

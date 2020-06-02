@@ -35,7 +35,6 @@ namespace SampleServer
             SemanticTokensParams request, CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
             return result;
         }
 
@@ -43,7 +42,6 @@ namespace SampleServer
             SemanticTokensRangeParams request, CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
             return result;
         }
 
@@ -51,7 +49,6 @@ namespace SampleServer
             CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);
-            _logger.LogInformation(JsonConvert.SerializeObject(result));
             return result;
         }
 

@@ -1,23 +1,32 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.IO.Pipelines;
+using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Client.Processes;
-using OmniSharp.Extensions.LanguageServer.Client.Protocol;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Server;
+using Xunit;
 using Xunit.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
     ///     The base class for test suites that use a <see cref="PipeServerProcess"/>.
     /// </summary>
-    public abstract class PipeServerTestBase
-        : TestBase
+    public abstract class PipeServerTestBase : TestBase, IAsyncLifetime
     {
         /// <summary>
         ///     The <see cref="PipeServerProcess"/> used to connect client and server streams.
         /// </summary>
-        readonly NamedPipeServerProcess _serverProcess;
+        private readonly CancellationTokenSource _cancellationTokenSource;
+
+        protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
+
+        private ILanguageClient _client;
+        private ILanguageServer _server;
 
         /// <summary>
         ///     Create a new <see cref="PipeServerTestBase"/>.
@@ -28,114 +37,54 @@ namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
         protected PipeServerTestBase(ITestOutputHelper testOutput)
             : base(testOutput)
         {
-            _serverProcess = new NamedPipeServerProcess(Guid.NewGuid().ToString("N"), LoggerFactory);
-            Disposal.Add(_serverProcess);
+            _cancellationTokenSource = new CancellationTokenSource();
+            if (!Debugger.IsAttached)
+            {
+                _cancellationTokenSource.CancelAfter(TimeSpan.FromMinutes(1));
+            }
         }
 
         /// <summary>
         ///     The workspace root path.
         /// </summary>
-        protected virtual string WorkspaceRoot => Path.GetDirectoryName(GetType().Assembly.Location);
-
-        /// <summary>
-        ///     The client's output stream (server reads from this).
-        /// </summary>
-        protected Stream ClientOutputStream => _serverProcess.ClientOutputStream;
-
-        /// <summary>
-        ///     The client's input stream (server writes to this).
-        /// </summary>
-        protected Stream ClientInputStream => _serverProcess.ClientInputStream;
-
-        /// <summary>
-        ///     The server's output stream (client reads from this).
-        /// </summary>
-        protected Stream ServerOutputStream => _serverProcess.ServerOutputStream;
-
-        /// <summary>
-        ///     The server's input stream (client writes to this).
-        /// </summary>
-        protected Stream ServerInputStream => _serverProcess.ServerInputStream;
+        protected string WorkspaceRoot => Path.GetDirectoryName(GetType().Assembly.Location);
 
         /// <summary>
         ///     Create a <see cref="LanguageClient"/> connected to the test's <see cref="PipeServerProcess"/>.
         /// </summary>
-        /// <param name="initialize">
-        ///     Automatically initialise the client?
-        ///
-        ///     Default is <c>true</c>.
-        /// </param>
         /// <returns>
         ///     The <see cref="LanguageClient"/>.
         /// </returns>
-        protected async Task<LanguageClient> CreateClient(bool initialize = true)
+        protected async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
+            Action<LanguageClientOptions> clientOptionsAction,
+            Action<LanguageServerOptions> serverOptionsAction)
         {
-            if (!_serverProcess.IsRunning)
-                await StartServer();
+            var clientPipe = new Pipe();
+            var serverPipe = new Pipe();
+            _client = LanguageClient.PreInit(options => {
+                options.Services.AddSingleton(LoggerFactory);
+                options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);
+                options.WithRootPath(WorkspaceRoot);
+                clientOptionsAction(options);
+            });
+            Disposal.Add(_client);
 
-            await _serverProcess.HasStarted;
+            _server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options => {
+                options.Services.AddSingleton(LoggerFactory);
+                options.WithInput(clientPipe.Reader).WithOutput(serverPipe.Writer);
+                serverOptionsAction(options);
+            });
+            Disposal.Add(_server);
 
-            var client = new LanguageClient(LoggerFactory, _serverProcess);
-            Disposal.Add(client);
+            await Task.WhenAll(
+                _client.Initialize(CancellationToken),
+                _server.Initialize(CancellationToken)
+            );
 
-            if (initialize)
-                await client.Initialize(WorkspaceRoot);
-
-            return client;
+            return (_client, _server);
         }
 
-        /// <summary>
-        ///     Create a <see cref="LspConnection"/> that uses the client ends of the the test's <see cref="PipeServerProcess"/> streams.
-        /// </summary>
-        /// <returns>
-        ///     The <see cref="LspConnection"/>.
-        /// </returns>
-        protected async Task<LspConnection> CreateClientConnection()
-        {
-            if (!_serverProcess.IsRunning)
-                await StartServer();
-
-            await _serverProcess.HasStarted;
-
-            var connection = new LspConnection(LoggerFactory, input: ServerOutputStream, output: ServerInputStream);
-            Disposal.Add(connection);
-
-            return connection;
-        }
-
-        /// <summary>
-        ///     Create a <see cref="LspConnection"/> that uses the server ends of the the test's <see cref="PipeServerProcess"/> streams.
-        /// </summary>
-        /// <returns>
-        ///     The <see cref="LspConnection"/>.
-        /// </returns>
-        protected async Task<LspConnection> CreateServerConnection()
-        {
-            if (!_serverProcess.IsRunning)
-                await StartServer();
-
-            await _serverProcess.HasStarted;
-
-            var connection = new LspConnection(LoggerFactory, input: ClientOutputStream, output: ClientInputStream);
-            Disposal.Add(connection);
-
-            return connection;
-        }
-
-        /// <summary>
-        ///     Called to start the server process.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="Task"/> representing the operation.
-        /// </returns>
-        protected virtual Task StartServer() => _serverProcess.Start();
-
-        /// <summary>
-        ///     Called to stop the server process.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="Task"/> representing the operation.
-        /// </returns>
-        protected virtual Task StopServer() => _serverProcess.Stop();
+        public virtual Task InitializeAsync() => Task.CompletedTask;
+        public Task DisposeAsync() => _client.Shutdown();
     }
 }

@@ -13,12 +13,15 @@
         <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
         <PackageReference Include="Serilog.Extensions.Logging" Version="3.0.1" />
         <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
+        <PackageReference Include="Serilog.Sinks.Debug" Version="1.0.1" />
         <PackageReference Include="System.IO.FileSystem.Primitives" Version="4.3.0" />
         <PackageReference Include="System.IO" Version="4.3.0" />
         <PackageReference Include="System.Runtime.Handles" Version="4.3.0" />
         <PackageReference Include="System.Text.Encoding" Version="4.3.0" />
         <PackageReference Include="System.Text.Encoding.Extensions" Version="4.3.0" />
         <PackageReference Include="System.Threading.Tasks" Version="4.3.0" />
+        <PackageReference Include="System.IO.Pipelines" Version="4.7.1" />
+        <PackageReference Include="Nerdbank.Streams" Version="2.4.60" />
     </ItemGroup>
 
 </Project>

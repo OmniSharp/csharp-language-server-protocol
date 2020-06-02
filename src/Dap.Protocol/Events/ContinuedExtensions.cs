@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class ContinuedExtensions
     {
-        public static IDisposable OnContinued(this IDebugAdapterClientRegistry registry, Action<ContinuedEvent> handler)
+        public static IDebugAdapterClientRegistry OnContinued(this IDebugAdapterClientRegistry registry, Action<ContinuedEvent> handler)
         {
             return registry.AddHandler(EventNames.Continued, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnContinued(this IDebugAdapterClientRegistry registry, Action<ContinuedEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnContinued(this IDebugAdapterClientRegistry registry, Action<ContinuedEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Continued, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnContinued(this IDebugAdapterClientRegistry registry, Func<ContinuedEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnContinued(this IDebugAdapterClientRegistry registry, Func<ContinuedEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Continued, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnContinued(this IDebugAdapterClientRegistry registry, Func<ContinuedEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnContinued(this IDebugAdapterClientRegistry registry, Func<ContinuedEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Continued, NotificationHandler.For(handler));
         }

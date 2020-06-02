@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     class LspHandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<LspHandlerDescriptor>
     {
         private readonly Action _disposeAction;
+        private readonly Func<bool> _allowsDynamicRegistration;
 
         public LspHandlerDescriptor(
             string method,
@@ -23,8 +24,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type @params,
             Type registrationType,
             object registrationOptions,
-            bool allowsDynamicRegistration,
+            Func<bool> allowsDynamicRegistration,
             Type capabilityType,
+            RequestProcessType? requestProcessType,
             Action disposeAction)
         {
             _disposeAction = disposeAction;
@@ -37,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Params = @params;
             RegistrationType = registrationType;
             RegistrationOptions = registrationOptions;
-            AllowsDynamicRegistration = allowsDynamicRegistration;
+            _allowsDynamicRegistration = allowsDynamicRegistration;
             CapabilityType = capabilityType;
 
             var requestInterface = @params?.GetInterfaces()
@@ -73,6 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                 .GetInterfaces().Any(z =>
                     z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
+            RequestProcessType = requestProcessType;
         }
 
         public Type ImplementationType { get; }
@@ -82,7 +85,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public bool HasRegistration => RegistrationType != null;
         public Type RegistrationType { get; }
         public object RegistrationOptions { get; }
-        public bool AllowsDynamicRegistration { get; }
+        public bool AllowsDynamicRegistration => _allowsDynamicRegistration();
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
@@ -102,6 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public IJsonRpcHandler Handler { get; }
         public bool IsNotification { get; }
         public bool IsRequest { get; }
+        public RequestProcessType? RequestProcessType { get; }
 
         public void Dispose()
         {

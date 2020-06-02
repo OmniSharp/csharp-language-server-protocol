@@ -6,5 +6,7 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
+        <ProjectReference Include="..\..\src\JsonRpc.Testing\JsonRpc.Testing.csproj" />
+        <EmbeddedResource Include="**/*.jsrpc" />
     </ItemGroup>
 </Project>

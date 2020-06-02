@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class LoadedSourceExtensions
     {
-        public static IDisposable OnLoadedSource(this IDebugAdapterClientRegistry registry, Action<LoadedSourceEvent> handler)
+        public static IDebugAdapterClientRegistry OnLoadedSource(this IDebugAdapterClientRegistry registry, Action<LoadedSourceEvent> handler)
         {
             return registry.AddHandler(EventNames.LoadedSource, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLoadedSource(this IDebugAdapterClientRegistry registry, Action<LoadedSourceEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnLoadedSource(this IDebugAdapterClientRegistry registry, Action<LoadedSourceEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.LoadedSource, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLoadedSource(this IDebugAdapterClientRegistry registry, Func<LoadedSourceEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnLoadedSource(this IDebugAdapterClientRegistry registry, Func<LoadedSourceEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.LoadedSource, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnLoadedSource(this IDebugAdapterClientRegistry registry, Func<LoadedSourceEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnLoadedSource(this IDebugAdapterClientRegistry registry, Func<LoadedSourceEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.LoadedSource, NotificationHandler.For(handler));
         }

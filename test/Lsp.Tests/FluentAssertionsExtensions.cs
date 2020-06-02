@@ -1,5 +1,6 @@
 using FluentAssertions.Equivalency;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -8,10 +9,10 @@ namespace Lsp.Tests
 {
     public static class FluentAssertionsExtensions
     {
-        public static EquivalencyAssertionOptions<T> ConfigureForSupports<T>(this EquivalencyAssertionOptions<T> options, ILogger logger)
+        public static EquivalencyAssertionOptions<T> ConfigureForSupports<T>(this EquivalencyAssertionOptions<T> options, ILogger logger = null)
         {
             return options
-                .WithTracing(new TraceWriter(logger))
+                .WithTracing(new TraceWriter(logger ?? NullLogger.Instance))
                 .ComparingByMembers<Supports<bool>>()
                 .ComparingByMembers<Supports<SynchronizationCapability>>()
                 .ComparingByMembers<Supports<CompletionCapability>>()
@@ -39,7 +40,10 @@ namespace Lsp.Tests
                 .ComparingByMembers<Supports<WorkspaceSymbolCapability>>()
                 .ComparingByMembers<Supports<ExecuteCommandCapability>>()
                 .ComparingByMembers<Supports<FoldingRangeCapability>>()
-                .ComparingByMembers<Supports<SelectionRangeCapability>>();
+                .ComparingByMembers<Supports<SelectionRangeCapability>>()
+                .ComparingByMembers<Supports<TagSupportCapability>>()
+                .ComparingByMembers<Supports<CompletionItemTagSupportCapability>>()
+                ;
         }
     }
 }

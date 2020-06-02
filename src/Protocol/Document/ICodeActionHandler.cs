@@ -38,8 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class CodeActionExtensions
     {
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CommandOrCodeActionContainer>>
                 handler,
             CodeActionRegistrationOptions registrationOptions)
@@ -50,8 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     CodeActionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             CodeActionRegistrationOptions registrationOptions)
         {
@@ -61,8 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     CodeActionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Func<CodeActionParams, Task<CommandOrCodeActionContainer>> handler,
             CodeActionRegistrationOptions registrationOptions)
         {
@@ -72,8 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     CodeActionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CommandOrCodeAction>>, CodeActionCapability,
                 CancellationToken> handler,
             CodeActionRegistrationOptions registrationOptions)
@@ -86,8 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new CommandOrCodeActionContainer(x)));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CommandOrCodeAction>>, CodeActionCapability>
                 handler,
             CodeActionRegistrationOptions registrationOptions)
@@ -100,8 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new CommandOrCodeActionContainer(x)));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CommandOrCodeAction>>, CancellationToken> handler,
             CodeActionRegistrationOptions registrationOptions)
         {
@@ -113,8 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         _.GetService<IProgressManager>(), x => new CommandOrCodeActionContainer(x)));
         }
 
-        public static IDisposable OnCodeAction(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnCodeAction(this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CommandOrCodeAction>>> handler,
             CodeActionRegistrationOptions registrationOptions)
         {

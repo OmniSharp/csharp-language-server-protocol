@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DefinitionExtensions
     {
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Func<DefinitionParams, DefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>>
                 handler,
             DefinitionRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             DefinitionRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Func<DefinitionParams, Task<LocationOrLocationLinks>> handler,
             DefinitionRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DefinitionRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability,
                 CancellationToken> handler,
             DefinitionRegistrationOptions registrationOptions)
@@ -80,8 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability>
                 handler,
             DefinitionRegistrationOptions registrationOptions)
@@ -95,8 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler,
             DefinitionRegistrationOptions registrationOptions)
         {
@@ -109,8 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnDefinition(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry,
             Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler,
             DefinitionRegistrationOptions registrationOptions)
         {

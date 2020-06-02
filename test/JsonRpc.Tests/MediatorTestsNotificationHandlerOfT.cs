@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -37,7 +38,7 @@ namespace JsonRpc.Tests
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection { cancelRequestHandler };
+            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { cancelRequestHandler };
             AutoSubstitute.Provide(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

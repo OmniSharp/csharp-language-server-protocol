@@ -16,22 +16,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class OutputExtensions
     {
-        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent> handler)
+        public static IDebugAdapterClientRegistry OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent> handler)
         {
             return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnOutput(this IDebugAdapterClientRegistry registry, Action<OutputEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnOutput(this IDebugAdapterClientRegistry registry, Func<OutputEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Output, NotificationHandler.For(handler));
         }

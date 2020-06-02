@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DocumentHighlightExtensions
     {
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Func<DocumentHighlightParams, DocumentHighlightCapability, CancellationToken, Task<DocumentHighlightContainer>>
                 handler,
             DocumentHighlightRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentHighlightRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Func<DocumentHighlightParams, CancellationToken, Task<DocumentHighlightContainer>> handler,
             DocumentHighlightRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentHighlightRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Func<DocumentHighlightParams, Task<DocumentHighlightContainer>> handler,
             DocumentHighlightRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentHighlightRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Action<DocumentHighlightParams, IObserver<IEnumerable<DocumentHighlight>>, DocumentHighlightCapability,
                 CancellationToken> handler,
             DocumentHighlightRegistrationOptions registrationOptions)
@@ -80,8 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new DocumentHighlightContainer(x)));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Action<DocumentHighlightParams, IObserver<IEnumerable<DocumentHighlight>>, DocumentHighlightCapability>
                 handler,
             DocumentHighlightRegistrationOptions registrationOptions)
@@ -95,8 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new DocumentHighlightContainer(x)));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Action<DocumentHighlightParams, IObserver<IEnumerable<DocumentHighlight>>, CancellationToken> handler,
             DocumentHighlightRegistrationOptions registrationOptions)
         {
@@ -109,8 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new DocumentHighlightContainer(x)));
         }
 
-        public static IDisposable OnDocumentHighlight(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentHighlight(this ILanguageServerRegistry registry,
             Action<DocumentHighlightParams, IObserver<IEnumerable<DocumentHighlight>>> handler,
             DocumentHighlightRegistrationOptions registrationOptions)
         {

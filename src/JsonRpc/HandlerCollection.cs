@@ -9,16 +9,23 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    [DebuggerDisplay("{Method}")]
-    public class HandlerCollection : IEnumerable<IHandlerDescriptor>
+    public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
         internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
 
+        public HandlerCollection() { }
+
+        public HandlerCollection(IEnumerable<IJsonRpcHandler> handlers)
+        {
+            Add(handlers.ToArray());
+        }
+
+        [DebuggerDisplay("{Method}")]
         internal class HandlerInstance : IHandlerDescriptor, IDisposable
         {
             private readonly Action _disposeAction;
 
-            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, Action disposeAction)
+            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction)
             {
                 _disposeAction = disposeAction;
                 Handler = handler;
@@ -37,9 +44,17 @@ namespace OmniSharp.Extensions.JsonRpc
                         typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
                         typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                     );
+
+                IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerInterface) || handlerInterface
+                                     .GetInterfaces().Any(z =>
+                                         z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+                IsRequest = !IsNotification;
+                RequestProcessType = requestProcessType;
             }
 
             public IJsonRpcHandler Handler { get; }
+            public bool IsNotification { get; }
+            public bool IsRequest { get; }
             public Type HandlerType { get; }
             public Type ImplementationType { get; }
             public string Method { get; }
@@ -47,6 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
             public Type Response { get; }
             public bool HasReturnType { get; }
             public bool IsDelegatingHandler { get; }
+            public RequestProcessType? RequestProcessType { get; }
 
             public void Dispose()
             {
@@ -75,12 +91,18 @@ namespace OmniSharp.Extensions.JsonRpc
             var cd = new CompositeDisposable();
             foreach (var handler in handlers)
             {
-                cd.Add(Add(GetMethodName(handler.GetType()), handler));
+                if (_handlers.Any(z => z.Handler == handler)) continue;
+                cd.Add(Add(GetMethodName(handler.GetType()), handler, null));
             }
             return cd;
         }
 
-        public IDisposable Add(string method, IJsonRpcHandler handler)
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        {
+            return Add(GetMethodName(handler.GetType()), handler, options);
+        }
+
+        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var type = handler.GetType();
             var @interface = GetHandlerInterface(type);
@@ -98,7 +120,14 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            var h = new HandlerInstance(method, handler, @interface, @params, response, () => Remove(handler));
+            var requestProcessType =
+                options?.RequestProcessType ??
+                type.GetCustomAttributes(true)
+                .Concat(@interface.GetCustomAttributes(true))
+                .OfType<ProcessAttribute>()
+                .FirstOrDefault()?.Type;
+
+            var h = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
             _handlers.Add(h);
             return h;
         }

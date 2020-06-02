@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ExceptionInfoExtensions
     {
-        public static IDisposable OnExceptionInfo(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnExceptionInfo(this IDebugAdapterServerRegistry registry,
             Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnExceptionInfo(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnExceptionInfo(this IDebugAdapterServerRegistry registry,
             Func<ExceptionInfoArguments, Task<ExceptionInfoResponse>> handler)
         {
             return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));

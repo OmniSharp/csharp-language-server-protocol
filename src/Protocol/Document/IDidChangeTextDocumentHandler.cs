@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DidChangeTextDocumentExtensions
     {
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -42,8 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Action<DidChangeTextDocumentParams, SynchronizationCapability> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -53,8 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Action<DidChangeTextDocumentParams, CancellationToken> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -64,8 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Action<DidChangeTextDocumentParams> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -75,8 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -86,8 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Func<DidChangeTextDocumentParams, SynchronizationCapability, Task> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -97,8 +91,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Func<DidChangeTextDocumentParams, CancellationToken, Task> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {
@@ -108,8 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDidChangeTextDocument(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry,
             Func<DidChangeTextDocumentParams, Task> handler,
             TextDocumentChangeRegistrationOptions registrationOptions)
         {

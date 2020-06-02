@@ -41,8 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
     public static class SelectionRangeExtensions
     {
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Func<SelectionRangeParams, SelectionRangeCapability, CancellationToken, Task<Container<SelectionRange>>>
                 handler,
             SelectionRangeRegistrationOptions registrationOptions)
@@ -54,8 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     SelectionRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Func<SelectionRangeParams, CancellationToken, Task<Container<SelectionRange>>> handler,
             SelectionRangeRegistrationOptions registrationOptions)
         {
@@ -65,8 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     SelectionRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Func<SelectionRangeParams, Task<Container<SelectionRange>>> handler,
             SelectionRangeRegistrationOptions registrationOptions)
         {
@@ -76,8 +73,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     SelectionRangeRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Action<SelectionRangeParams, IObserver<IEnumerable<SelectionRange>>, SelectionRangeCapability,
                 CancellationToken> handler,
             SelectionRangeRegistrationOptions registrationOptions)
@@ -90,8 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         registrationOptions, _.GetService<IProgressManager>(), x => new Container<SelectionRange>(x)));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Action<SelectionRangeParams, IObserver<IEnumerable<SelectionRange>>, SelectionRangeCapability>
                 handler,
             SelectionRangeRegistrationOptions registrationOptions)
@@ -104,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         registrationOptions, _.GetService<IProgressManager>(), x => new Container<SelectionRange>(x)));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Action<SelectionRangeParams, IObserver<IEnumerable<SelectionRange>>, CancellationToken> handler,
             SelectionRangeRegistrationOptions registrationOptions)
         {
@@ -117,8 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         _.GetService<IProgressManager>(), x => new Container<SelectionRange>(x)));
         }
 
-        public static IDisposable OnSelectionRange(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnSelectionRange(this ILanguageServerRegistry registry,
             Action<SelectionRangeParams, IObserver<IEnumerable<SelectionRange>>> handler,
             SelectionRangeRegistrationOptions registrationOptions)
         {

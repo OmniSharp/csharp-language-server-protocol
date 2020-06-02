@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class ProcessExtensions
     {
-        public static IDisposable OnProcess(this IDebugAdapterClientRegistry registry, Action<ProcessEvent> handler)
+        public static IDebugAdapterClientRegistry OnProcess(this IDebugAdapterClientRegistry registry, Action<ProcessEvent> handler)
         {
             return registry.AddHandler(EventNames.Process, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProcess(this IDebugAdapterClientRegistry registry, Action<ProcessEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnProcess(this IDebugAdapterClientRegistry registry, Action<ProcessEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Process, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProcess(this IDebugAdapterClientRegistry registry, Func<ProcessEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnProcess(this IDebugAdapterClientRegistry registry, Func<ProcessEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Process, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnProcess(this IDebugAdapterClientRegistry registry, Func<ProcessEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnProcess(this IDebugAdapterClientRegistry registry, Func<ProcessEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Process, NotificationHandler.For(handler));
         }

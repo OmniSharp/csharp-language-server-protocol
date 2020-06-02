@@ -30,8 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class ImplementationExtensions
     {
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Func<ImplementationParams, ImplementationCapability, CancellationToken, Task<LocationOrLocationLinks>>
                 handler,
             ImplementationRegistrationOptions registrationOptions)
@@ -42,8 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ImplementationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Func<ImplementationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             ImplementationRegistrationOptions registrationOptions)
         {
@@ -53,8 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ImplementationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Func<ImplementationParams, Task<LocationOrLocationLinks>> handler,
             ImplementationRegistrationOptions registrationOptions)
         {
@@ -64,8 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ImplementationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Action<ImplementationParams, IObserver<IEnumerable<LocationOrLocationLink>>, ImplementationCapability,
                 CancellationToken> handler,
             ImplementationRegistrationOptions registrationOptions)
@@ -78,8 +74,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Action<ImplementationParams, IObserver<IEnumerable<LocationOrLocationLink>>, ImplementationCapability>
                 handler,
             ImplementationRegistrationOptions registrationOptions)
@@ -92,8 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Action<ImplementationParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler,
             ImplementationRegistrationOptions registrationOptions)
         {
@@ -105,8 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         _.GetService<IProgressManager>(), x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnImplementation(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnImplementation(this ILanguageServerRegistry registry,
             Action<ImplementationParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler,
             ImplementationRegistrationOptions registrationOptions)
         {

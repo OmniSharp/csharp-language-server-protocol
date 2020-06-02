@@ -19,16 +19,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static class WorkDoneProgressCreateExtensions
     {
-        public static IDisposable OnWorkDoneProgressCreate(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnWorkDoneProgressCreate(this ILanguageClientRegistry registry,
             Func<WorkDoneProgressCreateParams, CancellationToken, Task>
                 handler)
         {
             return registry.AddHandler(WindowNames.WorkDoneProgressCreate, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnWorkDoneProgressCreate(
-            this ILanguageClientRegistry registry,
+public static ILanguageClientRegistry OnWorkDoneProgressCreate(this ILanguageClientRegistry registry,
             Func<WorkDoneProgressCreateParams, Task>
                 handler)
         {

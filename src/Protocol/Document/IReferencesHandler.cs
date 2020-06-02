@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class ReferencesExtensions
     {
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Func<ReferenceParams, ReferenceCapability, CancellationToken, Task<LocationContainer>>
                 handler,
             ReferenceRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ReferenceRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Func<ReferenceParams, CancellationToken, Task<LocationContainer>> handler,
             ReferenceRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ReferenceRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Func<ReferenceParams, Task<LocationContainer>> handler,
             ReferenceRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     ReferenceRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Action<ReferenceParams, IObserver<IEnumerable<Location>>, ReferenceCapability,
                 CancellationToken> handler,
             ReferenceRegistrationOptions registrationOptions)
@@ -79,8 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationContainer(x)));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Action<ReferenceParams, IObserver<IEnumerable<Location>>, ReferenceCapability>
                 handler,
             ReferenceRegistrationOptions registrationOptions)
@@ -93,8 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         registrationOptions, _.GetService<IProgressManager>(), x => new LocationContainer(x)));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Action<ReferenceParams, IObserver<IEnumerable<Location>>, CancellationToken> handler,
             ReferenceRegistrationOptions registrationOptions)
         {
@@ -106,8 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         _.GetService<IProgressManager>(), x => new LocationContainer(x)));
         }
 
-        public static IDisposable OnReferences(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnReferences(this ILanguageServerRegistry registry,
             Action<ReferenceParams, IObserver<IEnumerable<Location>>> handler,
             ReferenceRegistrationOptions registrationOptions)
         {

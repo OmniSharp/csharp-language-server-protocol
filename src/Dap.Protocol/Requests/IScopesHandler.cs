@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ScopesExtensions
     {
-        public static IDisposable OnScopes(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnScopes(this IDebugAdapterServerRegistry registry,
             Func<ScopesArguments, CancellationToken, Task<ScopesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Scopes, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnScopes(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnScopes(this IDebugAdapterServerRegistry registry,
             Func<ScopesArguments, Task<ScopesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Scopes, RequestHandler.For(handler));

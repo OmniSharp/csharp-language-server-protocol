@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class SetExpressionExtensions
     {
-        public static IDisposable OnSetExpression(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSetExpression(this IDebugAdapterServerRegistry registry,
             Func<SetExpressionArguments, CancellationToken, Task<SetExpressionResponse>> handler)
         {
             return registry.AddHandler(RequestNames.SetExpression, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnSetExpression(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnSetExpression(this IDebugAdapterServerRegistry registry,
             Func<SetExpressionArguments, Task<SetExpressionResponse>> handler)
         {
             return registry.AddHandler(RequestNames.SetExpression, RequestHandler.For(handler));

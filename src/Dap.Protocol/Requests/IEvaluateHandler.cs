@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class EvaluateExtensions
     {
-        public static IDisposable OnEvaluate(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnEvaluate(this IDebugAdapterServerRegistry registry,
             Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnEvaluate(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnEvaluate(this IDebugAdapterServerRegistry registry,
             Func<EvaluateArguments, Task<EvaluateResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));

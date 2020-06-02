@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DocumentColorExtensions
     {
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Func<DocumentColorParams, ColorProviderCapability, CancellationToken, Task<Container<ColorPresentation>>>
                 handler,
             DocumentColorRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentColorRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Func<DocumentColorParams, CancellationToken, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentColorRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Func<DocumentColorParams, Task<Container<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DocumentColorRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Action<DocumentColorParams, IObserver<IEnumerable<ColorPresentation>>, ColorProviderCapability,
                 CancellationToken> handler,
             DocumentColorRegistrationOptions registrationOptions)
@@ -80,8 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new Container<ColorPresentation>(x)));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Action<DocumentColorParams, IObserver<IEnumerable<ColorPresentation>>, ColorProviderCapability>
                 handler,
             DocumentColorRegistrationOptions registrationOptions)
@@ -95,8 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new Container<ColorPresentation>(x)));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Action<DocumentColorParams, IObserver<IEnumerable<ColorPresentation>>, CancellationToken> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {
@@ -109,8 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new Container<ColorPresentation>(x)));
         }
 
-        public static IDisposable OnDocumentColor(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDocumentColor(this ILanguageServerRegistry registry,
             Action<DocumentColorParams, IObserver<IEnumerable<ColorPresentation>>> handler,
             DocumentColorRegistrationOptions registrationOptions)
         {

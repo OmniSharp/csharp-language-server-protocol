@@ -31,8 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class DeclarationExtensions
     {
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Func<DeclarationParams, DeclarationCapability, CancellationToken, Task<LocationOrLocationLinks>>
                 handler,
             DeclarationRegistrationOptions registrationOptions)
@@ -43,8 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DeclarationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Func<DeclarationParams, DeclarationCapability, Task<LocationOrLocationLinks>> handler,
             DeclarationRegistrationOptions registrationOptions)
         {
@@ -54,8 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DeclarationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Func<DeclarationParams, CancellationToken, Task<LocationOrLocationLinks>> handler,
             DeclarationRegistrationOptions registrationOptions)
         {
@@ -65,8 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DeclarationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Func<DeclarationParams, Task<LocationOrLocationLinks>> handler,
             DeclarationRegistrationOptions registrationOptions)
         {
@@ -76,8 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                     DeclarationRegistrationOptions>(handler, registrationOptions));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Action<DeclarationParams, IObserver<IEnumerable<LocationOrLocationLink>>, DeclarationCapability,
                 CancellationToken> handler,
             DeclarationRegistrationOptions registrationOptions)
@@ -91,8 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Action<DeclarationParams, IObserver<IEnumerable<LocationOrLocationLink>>, DeclarationCapability>
                 handler,
             DeclarationRegistrationOptions registrationOptions)
@@ -107,8 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         ));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Action<DeclarationParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler,
             DeclarationRegistrationOptions registrationOptions)
         {
@@ -121,8 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                         x => new LocationOrLocationLinks(x)));
         }
 
-        public static IDisposable OnDeclaration(
-            this ILanguageServerRegistry registry,
+public static ILanguageServerRegistry OnDeclaration(this ILanguageServerRegistry registry,
             Action<DeclarationParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler,
             DeclarationRegistrationOptions registrationOptions)
         {

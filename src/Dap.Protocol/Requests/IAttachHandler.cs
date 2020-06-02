@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class AttachExtensions
     {
-        public static IDisposable OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler)
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler)
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
         }

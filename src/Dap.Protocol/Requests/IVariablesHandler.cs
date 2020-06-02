@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class VariablesExtensions
     {
-        public static IDisposable OnVariables(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnVariables(this IDebugAdapterServerRegistry registry,
             Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnVariables(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnVariables(this IDebugAdapterServerRegistry registry,
             Func<VariablesArguments, Task<VariablesResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));

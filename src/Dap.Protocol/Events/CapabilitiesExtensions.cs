@@ -17,22 +17,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     public static class CapabilitiesExtensions
     {
-        public static IDisposable OnCapabilities(this IDebugAdapterClientRegistry registry, Action<CapabilitiesEvent> handler)
+        public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Action<CapabilitiesEvent> handler)
         {
             return registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnCapabilities(this IDebugAdapterClientRegistry registry, Action<CapabilitiesEvent, CancellationToken> handler)
+        public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Action<CapabilitiesEvent, CancellationToken> handler)
         {
             return registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, Task> handler)
+        public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, Task> handler)
         {
             return registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         }
 
-        public static IDisposable OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, CancellationToken, Task> handler)
+        public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, CancellationToken, Task> handler)
         {
             return registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         }

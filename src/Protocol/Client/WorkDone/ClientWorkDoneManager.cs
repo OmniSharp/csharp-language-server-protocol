@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
-using DynamicData;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -14,19 +16,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
     class ClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
     {
-        private readonly IResponseRouter _router;
+        private readonly ILanguageClient _router;
         private readonly ISerializer _serializer;
         private readonly IProgressManager _progressManager;
         private bool _supported;
-        private readonly ISourceCache<IProgressObservable<WorkDoneProgress>, ProgressToken> _pendingWork;
+        private readonly ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>> _pendingWork;
 
-        public ClientWorkDoneManager(IResponseRouter router, ISerializer serializer, IProgressManager progressManager)
+        public ClientWorkDoneManager(ILanguageClient router, ISerializer serializer, IProgressManager progressManager)
         {
             _router = router;
             _serializer = serializer;
             _progressManager = progressManager;
-            _pendingWork = new SourceCache<IProgressObservable<WorkDoneProgress>, ProgressToken>(x => x.ProgressToken);
-            PendingWork = _pendingWork.AsObservableCache();
+            _pendingWork = new ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>>();
         }
 
         public void Initialize(WindowClientCapabilities windowClientCapabilities)
@@ -36,13 +37,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
         }
 
         public bool IsSupported => _supported;
-        public IObservableCache<IProgressObservable<WorkDoneProgress>, ProgressToken> PendingWork { get; }
 
         public IProgressObservable<WorkDoneProgress> Monitor(ProgressToken progressToken)
         {
-            var data = _progressManager.Monitor(progressToken, Parse);
-            _pendingWork.AddOrUpdate(data);
-            data.Subscribe(_ => { }, () => { _pendingWork.RemoveKey(data.ProgressToken); });
+            if (_pendingWork.TryGetValue(progressToken, out var currentValue))
+            {
+                return currentValue;
+            }
+
+            var data = new WorkDoneObservable(
+                _progressManager.Monitor(progressToken, Parse),
+                Disposable.Create(() => _router.Window.SendWorkDoneProgressCancel(progressToken))
+            );
+            _pendingWork.AddOrUpdate(progressToken, x => data, (a, b) => data);
+            data.Subscribe(_ => { }, () => {
+                if (_pendingWork.TryRemove(data.ProgressToken, out var item))
+                {
+                    item.Dispose();
+                }
+            });
             return data;
         }
 
@@ -62,5 +75,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
                 _ => throw new NotSupportedException("Unknown work done progress event")
             };
         }
+    }
+
+    class WorkDoneObservable : IProgressObservable<WorkDoneProgress>
+    {
+        private readonly IProgressObservable<WorkDoneProgress> _progressObservable;
+        private readonly IDisposable _triggerCancellation;
+
+        public WorkDoneObservable(IProgressObservable<WorkDoneProgress> progressObservable, IDisposable triggerCancellation)
+        {
+            _progressObservable = progressObservable;
+            _triggerCancellation = triggerCancellation;
+        }
+
+        public ProgressToken ProgressToken => _progressObservable.ProgressToken;
+
+        public Type ParamsType => _progressObservable.ParamsType;
+
+        public void Dispose()
+        {
+            _triggerCancellation.Dispose();
+            _progressObservable.Dispose();
+        }
+
+        public IDisposable Subscribe(IObserver<WorkDoneProgress> observer) => _progressObservable.Subscribe(observer);
     }
 }

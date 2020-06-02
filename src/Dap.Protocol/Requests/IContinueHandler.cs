@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class ContinueExtensions
     {
-        public static IDisposable OnContinue(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnContinue(this IDebugAdapterServerRegistry registry,
             Func<ContinueArguments, CancellationToken, Task<ContinueResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Continue, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnContinue(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnContinue(this IDebugAdapterServerRegistry registry,
             Func<ContinueArguments, Task<ContinueResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Continue, RequestHandler.For(handler));

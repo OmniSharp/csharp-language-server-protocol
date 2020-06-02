@@ -9,9 +9,8 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using Xunit;
-using Notification = OmniSharp.Extensions.JsonRpc.Client.Notification;
 
-namespace Lsp.Tests
+namespace JsonRpc.Tests
 {
     public class ResponseRouterTests
     {
@@ -22,16 +21,16 @@ namespace Lsp.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request)), Arg.Any<CancellationToken>()))
+                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                 .Do(call =>
                 {
-                    var tcs = router.GetRequest((long) call.Arg<Request>().Id);
+                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
                     tcs.SetResult(new JObject());
                 });
 
             var response = await router.SendRequest(new ItemParams(), CancellationToken.None);
 
-            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as Request;
+            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingRequest;
             request.Method.Should().Be("abcd");
 
             response.Should().NotBeNull();
@@ -45,16 +44,16 @@ namespace Lsp.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(Request)), Arg.Any<CancellationToken>()))
+                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                 .Do(call =>
                 {
-                    var tcs = router.GetRequest((long) call.Arg<Request>().Id);
+                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
                     tcs.SetResult(new JObject());
                 });
 
             await router.SendRequest(new UnitParams(), CancellationToken.None);
 
-            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as Request;
+            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingRequest;
             request.Method.Should().Be("unit");
         }
 
@@ -66,7 +65,7 @@ namespace Lsp.Tests
 
             router.SendNotification(new NotificationParams());
 
-            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as Notification;
+            var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingNotification;
             request.Method.Should().Be("notification");
         }
 

@@ -1,20 +1,132 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.IO.Pipes;
+using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
+using Nerdbank.Streams;
 using NSubstitute;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Testing;
+using Xunit;
+using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
-    public class ConnectionTests
+    public class JsonRpcServerTests : JsonRpcServerTestBase
     {
-        public void Test()
+        public JsonRpcServerTests(ITestOutputHelper testOutputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(testOutputHelper))
         {
-            var streamIn = Substitute.For<TextReader>();
-            var streamOut = Substitute.For<TextWriter>();
+        }
 
-            //var connection = new Connection(
-            //    streamIn,
-            //    streamOut,
-            //    new SerialRequestProcessIdentifier()
-            //);
+        private readonly string _pipeName = Guid.NewGuid().ToString();
+
+        [Fact]
+        public async Task Can_Connect_To_Stdio()
+        {
+            var (client, server) = await Initialize(clientOptions => {
+                clientOptions
+                    .WithInput(Console.OpenStandardInput().UsePipeReader())
+                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
+            }, serverOptions => {
+                serverOptions
+                    .WithInput(Console.OpenStandardInput().UsePipeReader())
+                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
+            });
+        }
+
+        [Fact]
+        public async Task Can_Connect_To_A_Named_Pipe()
+        {
+            var serverPipe = new NamedPipeServerStream(
+                pipeName: _pipeName,
+                direction: PipeDirection.InOut,
+                maxNumberOfServerInstances: 1,
+                transmissionMode: PipeTransmissionMode.Byte,
+                options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+            var clientPipe = new NamedPipeClientStream(
+                ".",
+                _pipeName,
+                PipeDirection.InOut,
+                PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+            );
+
+            var (client, server) = await Initialize(clientOptions => {
+                clientOptions
+                    .WithInput(clientPipe)
+                    .WithOutput(clientPipe);
+            }, serverOptions => {
+                serverOptions
+                    .WithInput(serverPipe)
+                    .WithOutput(serverPipe);
+            });
+
+            await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
+        }
+
+        [Fact]
+        public async Task Can_Reconnect_To_A_Named_Pipe()
+        {
+            {
+                var serverPipe = new NamedPipeServerStream(
+                    pipeName: _pipeName,
+                    direction: PipeDirection.InOut,
+                    maxNumberOfServerInstances: 1,
+                    transmissionMode: PipeTransmissionMode.Byte,
+                    options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+                var clientPipe = new NamedPipeClientStream(
+                    ".",
+                    _pipeName,
+                    PipeDirection.InOut,
+                    PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+                );
+
+                var (client, server) = await Initialize(clientOptions => {
+                    clientOptions
+                        .WithInput(clientPipe)
+                        .WithOutput(clientPipe);
+                }, serverOptions => {
+                    serverOptions
+                        .WithInput(serverPipe)
+                        .WithOutput(serverPipe);
+                });
+
+                await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
+
+                client.Dispose();
+                server.Dispose();
+                //
+                // serverPipe.Dispose();
+                // clientPipe.Dispose();
+            }
+
+            {
+                var serverPipe = new NamedPipeServerStream(
+                    pipeName: _pipeName,
+                    direction: PipeDirection.InOut,
+                    maxNumberOfServerInstances: 1,
+                    transmissionMode: PipeTransmissionMode.Byte,
+                    options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+                var clientPipe = new NamedPipeClientStream(
+                    ".",
+                    _pipeName,
+                    PipeDirection.InOut,
+                    PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+                );
+
+                var (client, server) = await Initialize(clientOptions => {
+                    clientOptions
+                        .WithInput(clientPipe)
+                        .WithOutput(clientPipe);
+                    // clientOptions.RegisterForDisposal(clientPipe);
+                }, serverOptions => {
+                    serverOptions
+                        .WithInput(serverPipe)
+                        .WithOutput(serverPipe);
+                    // serverOptions.RegisterForDisposal(serverPipe);
+                });
+
+                await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
+            }
         }
     }
 }

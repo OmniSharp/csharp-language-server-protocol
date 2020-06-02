@@ -1,473 +1,365 @@
-using System;
-using System.Diagnostics;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.LanguageServer.Client.Clients;
-using OmniSharp.Extensions.LanguageServer.Client.Dispatcher;
-using OmniSharp.Extensions.LanguageServer.Client.Handlers;
-using OmniSharp.Extensions.LanguageServer.Client.Processes;
-using OmniSharp.Extensions.LanguageServer.Client.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
-using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    /// <summary>
-    ///     A client for the Language Server Protocol.
-    /// </summary>
-    /// <remarks>
-    ///     Note - at this stage, a <see cref="LanguageClient"/> cannot be reused once <see cref="Shutdown"/> has been called; instead, create a new one.
-    /// </remarks>
-    public sealed class LanguageClient
-        : IDisposable
+    public class LanguageClient : JsonRpcServerBase, ILanguageClient
     {
-        /// <summary>
-        ///     The serializer for notification / request / response bodies.
-        /// </summary>
-        /// <remarks>
-        ///     TODO: Make this injectable. And what does client version do - do we have to negotiate this?
-        /// </remarks>
-        readonly ISerializer _serializer = new Serializer(ClientVersion.Lsp3);
+        private readonly Connection _connection;
+        private readonly ClientInfo _clientInfo;
+        private readonly ILspClientReceiver _receiver;
+        private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
 
-        /// <summary>
-        ///     The dispatcher for incoming requests, notifications, and responses.
-        /// </summary>
-        readonly LspDispatcher _dispatcher;
+        private readonly IHandlerCollection _collection;
 
-        /// <summary>
-        ///     The handler for dynamic registration of server capabilities.
-        /// </summary>
-        /// <remarks>
-        ///     We don't actually support this yet but some server implementations (e.g. OmniSharp) will freak out if we don't respond to the message, even if we've indicated that we don't support dynamic registrations of server capabilities.
-        /// </remarks>
-        readonly DynamicRegistrationHandler _dynamicRegistrationHandler = new DynamicRegistrationHandler();
+        // private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
+        // private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<OnClientStartedDelegate> _startedDelegates;
+        private readonly IResponseRouter _responseRouter;
+        private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
+        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly IServiceProvider _serviceProvider;
 
-        /// <summary>
-        ///     The language server process.
-        /// </summary>
-        ServerProcess _process;
+        // private readonly ILanguageClientConfiguration _configuration;
+        private readonly IEnumerable<ICapability> _capabilities;
+        private readonly object _initializationOptions;
+        private readonly IWorkspaceFoldersManager _workspaceFoldersManager;
+        private readonly DocumentUri _rootUri;
+        private readonly InitializeTrace _trace;
+        private readonly IRegistrationManager _registrationManager;
+        private readonly ClientCapabilities _clientCapabilities;
+        private readonly IProgressManager _progressManager;
+        private readonly IClientWorkDoneManager _workDoneManager;
 
-        /// <summary>
-        ///     The underlying LSP connection to the language server process.
-        /// </summary>
-        LspConnection _connection;
-
-        /// <summary>
-        ///     Completion source that callers can await to determine when the language server is ready to use (i.e. initialised).
-        /// </summary>
-        TaskCompletionSource<object> _readyCompletion = new TaskCompletionSource<object>();
-
-        /// <summary>
-        ///     Create a new <see cref="LanguageClient"/>.
-        /// </summary>
-        /// <param name="loggerFactory">
-        ///     The factory for loggers used by the client and its components.
-        /// </param>
-        /// <param name="serverStartInfo">
-        ///     A <see cref="ProcessStartInfo"/> describing how to start the server process.
-        /// </param>
-        public LanguageClient(ILoggerFactory loggerFactory, ProcessStartInfo serverStartInfo)
-            : this(loggerFactory, new StdioServerProcess(loggerFactory, serverStartInfo))
+        public static Task<ILanguageClient> From(Action<LanguageClientOptions> optionsAction)
         {
+            return From(optionsAction, CancellationToken.None);
+        }
+
+        public static Task<ILanguageClient> From(LanguageClientOptions options)
+        {
+            return From(options, CancellationToken.None);
+        }
+
+        public static Task<ILanguageClient> From(Action<LanguageClientOptions> optionsAction, CancellationToken token)
+        {
+            var options = new LanguageClientOptions();
+            optionsAction(options);
+            return From(options, token);
+        }
+
+        public static ILanguageClient PreInit(Action<LanguageClientOptions> optionsAction)
+        {
+            var options = new LanguageClientOptions();
+            optionsAction(options);
+            return PreInit(options);
+        }
+
+        public static async Task<ILanguageClient> From(LanguageClientOptions options, CancellationToken token)
+        {
+            var server = (LanguageClient)PreInit(options);
+            await server.Initialize(token);
+
+            return server;
         }
 
         /// <summary>
-        ///     Create a new <see cref="LanguageClient"/>.
-        /// </summary>
-        /// <param name="loggerFactory">
-        ///     The factory for loggers used by the client and its components.
-        /// </param>
-        /// <param name="process">
-        ///     A <see cref="ServerProcess"/> used to start or connect to the server process.
-        /// </param>
-        public LanguageClient(ILoggerFactory loggerFactory, ServerProcess process)
-            : this(loggerFactory)
-        {
-            if (process == null)
-                throw new ArgumentNullException(nameof(process));
-
-            _process = process;
-            _process.Exited.Subscribe(x => ServerProcess_Exit());
-        }
-
-        /// <summary>
-        ///     Create a new <see cref="LanguageClient"/>.
-        /// </summary>
-        /// <param name="loggerFactory">
-        ///     The logger to use.
-        /// </param>
-        LanguageClient(ILoggerFactory loggerFactory)
-        {
-            if (loggerFactory == null)
-                throw new ArgumentNullException(nameof(loggerFactory));
-
-            LoggerFactory = loggerFactory;
-            Log = LoggerFactory.CreateLogger<LanguageClient>();
-            Workspace = new WorkspaceClient(this);
-            Window = new WindowClient(this);
-            TextDocument = new TextDocumentClient(this);
-
-            _dispatcher = new LspDispatcher(_serializer);
-            _dispatcher.RegisterHandler(_dynamicRegistrationHandler);
-        }
-
-        /// <summary>
-        ///     Dispose of resources being used by the client.
-        /// </summary>
-        public void Dispose()
-        {
-            var connection = Interlocked.Exchange(ref _connection, null);
-            connection?.Dispose();
-
-            var serverProcess = Interlocked.Exchange(ref _process, null);
-            serverProcess?.Dispose();
-        }
-
-        /// <summary>
-        ///     The factory for loggers used by the client and its components.
-        /// </summary>
-        ILoggerFactory LoggerFactory { get; }
-
-        /// <summary>
-        ///     The client's logger.
-        /// </summary>
-        ILogger Log { get; }
-
-        /// <summary>
-        ///     The LSP Text Document API.
-        /// </summary>
-        public TextDocumentClient TextDocument { get; }
-
-        /// <summary>
-        ///     The LSP Window API.
-        /// </summary>
-        public WindowClient Window { get; }
-
-        /// <summary>
-        ///     The LSP Workspace API.
-        /// </summary>
-        public WorkspaceClient Workspace { get; }
-
-        /// <summary>
-        ///     The client's capabilities.
-        /// </summary>
-        public ClientCapabilities ClientCapabilities { get; } = new ClientCapabilities
-        {
-            Workspace = new WorkspaceClientCapabilities
-            {
-                DidChangeConfiguration = new DidChangeConfigurationCapability
-                {
-                    DynamicRegistration = false
-                }
-            },
-            TextDocument = new TextDocumentClientCapabilities
-            {
-                Synchronization = new SynchronizationCapability
-                {
-                    DidSave = true,
-                    DynamicRegistration = false
-                },
-                Hover = new HoverCapability
-                {
-                    DynamicRegistration = false
-                },
-                Completion = new CompletionCapability
-                {
-                    CompletionItem = new CompletionItemCapability
-                    {
-                        SnippetSupport = false
-                    },
-                    DynamicRegistration = false
-                }
-            }
-        };
-
-        /// <summary>
-        ///     The server's capabilities.
-        /// </summary>
-        public ServerCapabilities ServerCapabilities => _dynamicRegistrationHandler.ServerCapabilities;
-
-        /// <summary>
-        ///     Has the language client been initialised?
-        /// </summary>
-        public bool IsInitialized { get; private set; }
-
-        /// <summary>
-        ///     Is the connection to the language server open?
-        /// </summary>
-        public bool IsConnected => _connection != null && _connection.IsOpen;
-
-        /// <summary>
-        ///     A <see cref="Task"/> that completes when the client is ready to handle requests.
-        /// </summary>
-        public Task IsReady => _readyCompletion.Task;
-
-        /// <summary>
-        ///     A <see cref="Task"/> that completes when the underlying connection has closed and the server has stopped.
-        /// </summary>
-        public Task HasShutdown
-        {
-            get
-            {
-                return Task.WhenAll(
-                    _connection.HasHasDisconnected,
-                    _process?.HasExited ?? Task.CompletedTask
-                );
-            }
-        }
-
-        /// <summary>
-        ///     Initialise the language server.
-        /// </summary>
-        /// <param name="workspaceRoot">
-        ///     The workspace root.
-        /// </param>
-        /// <param name="initializationOptions">
-        ///     An optional <see cref="object"/> representing additional options to send to the server.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     An optional <see cref="CancellationToken"/> that can be used to cancel the operation.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="Task"/> representing initialisation.
-        /// </returns>
-        /// <exception cref="InvalidOperationException">
-        ///     <see cref="Initialize(string, object, CancellationToken)"/> has already been called.
+        /// Create the server without connecting to the client
         ///
-        ///     <see cref="Initialize(string, object, CancellationToken)"/> can only be called once per <see cref="LanguageClient"/>; if you have called <see cref="Shutdown"/>, you will need to use a new <see cref="LanguageClient"/>.
-        /// </exception>
-        public async Task Initialize(string workspaceRoot, object initializationOptions = null, CancellationToken cancellationToken = default(CancellationToken))
+        /// Mainly used for unit testing
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
+        public static ILanguageClient PreInit(LanguageClientOptions options)
         {
-            if (IsInitialized)
-                throw new InvalidOperationException("Client has already been initialised.");
-
-            try
-            {
-                await Start();
-
-                var initializeParams = new InitializeParams
-                {
-                    RootPath = workspaceRoot,
-                    Capabilities = ClientCapabilities,
-                    ProcessId = Process.GetCurrentProcess().Id,
-                    InitializationOptions = initializationOptions
-                };
-
-                Log.LogDebug("Sending 'initialize' message to language server...");
-
-                var result = await SendRequest<InitializeResult>("initialize", initializeParams, cancellationToken).ConfigureAwait(false);
-                if (result == null)
-                    throw new LspException("Server replied to 'initialize' request with a null response.");
-
-                _dynamicRegistrationHandler.ServerCapabilities = result.Capabilities;
-
-                Log.LogDebug("Sent 'initialize' message to language server.");
-
-                Log.LogDebug("Sending 'initialized' notification to language server...");
-
-                SendNotification("initialized");
-
-                Log.LogDebug("Sent 'initialized' notification to language server.");
-
-                IsInitialized = true;
-                _readyCompletion.TrySetResult(null);
-            }
-            catch (Exception initializationError)
-            {
-                // Capture the initialisation error so anyone awaiting IsReady will also see it.
-                _readyCompletion.TrySetException(initializationError);
-
-                throw;
-            }
+            return new LanguageClient(options);
         }
 
-        /// <summary>
-        ///     Stop the language server.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="Task"/> representing the shutdown operation.
-        /// </returns>
+        internal LanguageClient(LanguageClientOptions options) : base(options)
+        {
+            _capabilities = options.SupportedCapabilities;
+            _clientCapabilities = options.ClientCapabilities;
+            var services = options.Services;
+            services.AddLogging(builder => options.LoggingBuilderAction(builder));
+            options.RequestProcessIdentifier ??= (options.SupportsContentModified
+                ? new RequestProcessIdentifier(RequestProcessType.Parallel)
+                : new RequestProcessIdentifier(RequestProcessType.Serial));
+            // services.AddSingleton<IOptionsMonitor<LoggerFilterOptions>, LanguageClientLoggerFilterOptions>();
+
+            _clientInfo = options.ClientInfo;
+            _receiver = options.Receiver;
+            var serializer = options.Serializer;
+            var supportedCapabilities = new SupportedCapabilities();
+            _textDocumentIdentifiers = new TextDocumentIdentifiers();
+            var collection = new SharedHandlerCollection(supportedCapabilities, _textDocumentIdentifiers);
+            services.AddSingleton<IHandlersManager>(collection);
+            _collection = collection;
+            // _initializeDelegates = initializeDelegates;
+            // _initializedDelegates = initializedDelegates;
+            _startedDelegates = options.StartedDelegates;
+            _rootUri = options.RootUri;
+            _trace = options.Trace;
+            _initializationOptions = options.InitializationOptions;
+
+            services.AddSingleton<IOutputHandler>(_ =>
+                new OutputHandler(options.Output, options.Serializer, options.Receiver.ShouldFilterOutput, _.GetService<ILogger<OutputHandler>>()));
+            services.AddSingleton(_collection);
+            services.AddSingleton(_textDocumentIdentifiers);
+            services.AddSingleton(serializer);
+            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(serializer);
+            services.AddSingleton(options.RequestProcessIdentifier);
+            services.AddSingleton<OmniSharp.Extensions.JsonRpc.IReceiver>(options.Receiver);
+            services.AddSingleton(options.Receiver);
+            services.AddSingleton<ILanguageClient>(this);
+            services.AddSingleton<LspRequestRouter>();
+            services.AddSingleton<IRequestRouter<ILspHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
+            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<LspRequestRouter>());
+            services.AddSingleton<IResponseRouter, ResponseRouter>();
+
+            services.AddSingleton<IProgressManager, ProgressManager>();
+            services.AddSingleton(_ => _.GetRequiredService<IProgressManager>() as IJsonRpcHandler);
+            services.AddSingleton<IClientWorkDoneManager, ClientWorkDoneManager>();
+            services.AddSingleton(_ => _.GetRequiredService<IClientWorkDoneManager>() as IJsonRpcHandler);
+
+            EnsureAllHandlersAreRegistered();
+
+            services.AddSingleton<RegistrationManager>();
+            services.AddSingleton<IRegistrationManager>(_ => _.GetRequiredService<RegistrationManager>());
+            if (options.DynamicRegistration)
+            {
+                services.AddSingleton(_ => _.GetRequiredService<RegistrationManager>() as IJsonRpcHandler);
+            }
+
+            var workspaceFoldersManager = new WorkspaceFoldersManager(this);
+            services.AddSingleton(workspaceFoldersManager);
+            services.AddSingleton<IWorkspaceFoldersManager>(workspaceFoldersManager);
+            if (options.WorkspaceFolders)
+            {
+                services.AddSingleton<IJsonRpcHandler>(workspaceFoldersManager);
+            }
+
+            var serviceProvider = services.BuildServiceProvider();
+            _disposable.Add(serviceProvider);
+            _serviceProvider = serviceProvider;
+            collection.SetServiceProvider(_serviceProvider);
+
+            _responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            _progressManager = _serviceProvider.GetRequiredService<IProgressManager>();
+            _workDoneManager = _serviceProvider.GetRequiredService<IClientWorkDoneManager>();
+            _registrationManager = _serviceProvider.GetRequiredService<RegistrationManager>();
+            _workspaceFoldersManager = _serviceProvider.GetRequiredService<IWorkspaceFoldersManager>();
+
+            _connection = new Connection(
+                options.Input,
+                _serviceProvider.GetRequiredService<IOutputHandler>(),
+                options.Receiver,
+                options.RequestProcessIdentifier,
+                _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
+                _responseRouter,
+                _serviceProvider.GetRequiredService<ILoggerFactory>(),
+                options.OnUnhandledException ?? (e => { }),
+                options.CreateResponseException,
+                options.MaximumRequestTimeout,
+                options.SupportsContentModified,
+                options.Concurrency
+            );
+
+            // We need to at least create Window here in case any handler does loggin in their constructor
+            TextDocument = new TextDocumentLanguageClient(this, _serviceProvider);
+            Client = new ClientLanguageClient(this, _serviceProvider);
+            General = new GeneralLanguageClient(this, _serviceProvider);
+            Window = new WindowLanguageClient(this, _serviceProvider);
+            Workspace = new WorkspaceLanguageClient(this, _serviceProvider);
+
+            workspaceFoldersManager.Add(options.Folders);
+
+            var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            var serviceIdentifiers = _serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
+            _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
+            _disposable.Add(_collection.Add(serviceHandlers));
+        }
+
+        public ITextDocumentLanguageClient TextDocument { get; }
+        public IClientLanguageClient Client { get; }
+        public IGeneralLanguageClient General { get; }
+        public IWindowLanguageClient Window { get; }
+        public IWorkspaceLanguageClient Workspace { get; }
+        public IProgressManager ProgressManager => _progressManager;
+        public IClientWorkDoneManager WorkDoneManager => _workDoneManager;
+        public IRegistrationManager RegistrationManager => _registrationManager;
+        public IWorkspaceFoldersManager WorkspaceFoldersManager => _workspaceFoldersManager;
+
+        public InitializeParams ClientSettings { get; private set; }
+        public InitializeResult ServerSettings { get; private set; }
+
+        public IServiceProvider Services => _serviceProvider;
+
+        public async Task Initialize(CancellationToken token)
+        {
+            var @params = new InitializeParams {
+                Trace = _trace,
+                Capabilities = _clientCapabilities,
+                ClientInfo = _clientInfo,
+                RootUri = _rootUri,
+                RootPath = _rootUri?.GetFileSystemPath(),
+                WorkspaceFolders = new Container<WorkspaceFolder>(_workspaceFoldersManager.CurrentWorkspaceFolders),
+                InitializationOptions = _initializationOptions
+            };
+            RegisterCapabilities(@params.Capabilities);
+            _workDoneManager.Initialize(@params.Capabilities.Window);
+
+            ClientSettings = @params;
+
+            _connection.Open();
+            var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
+            _receiver.Initialized();
+
+            ServerSettings = serverParams;
+            if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
+                RegistrationManager.RegisterCapabilities(serverParams.Capabilities);
+
+            // TODO: pull supported fields and add any static registrations to the registration manager
+            this.SendLanguageProtocolInitialized(new InitializedParams());
+        }
+
+        private void RegisterCapabilities(ClientCapabilities capabilities)
+        {
+            capabilities.Window ??= new WindowClientCapabilities();
+            capabilities.Window.WorkDoneProgress = _collection.ContainsHandler(typeof(IProgressHandler));
+
+            capabilities.Workspace ??= new WorkspaceClientCapabilities();
+            capabilities.Workspace.Configuration = _collection.ContainsHandler(typeof(IConfigurationHandler));
+            capabilities.Workspace.Symbol = UseOrTryAndFindCapability(capabilities.Workspace.Symbol);
+            capabilities.Workspace.ExecuteCommand = UseOrTryAndFindCapability(capabilities.Workspace.ExecuteCommand);
+            capabilities.Workspace.ApplyEdit = _collection.ContainsHandler(typeof(IApplyWorkspaceEditHandler));
+            capabilities.Workspace.WorkspaceEdit = UseOrTryAndFindCapability(capabilities.Workspace.WorkspaceEdit);
+            capabilities.Workspace.WorkspaceFolders = _collection.ContainsHandler(typeof(IWorkspaceFoldersHandler));
+            capabilities.Workspace.DidChangeConfiguration =
+                UseOrTryAndFindCapability(capabilities.Workspace.DidChangeConfiguration);
+            capabilities.Workspace.DidChangeWatchedFiles =
+                UseOrTryAndFindCapability(capabilities.Workspace.DidChangeWatchedFiles);
+
+            capabilities.TextDocument ??= new TextDocumentClientCapabilities();
+            capabilities.TextDocument.Synchronization =
+                UseOrTryAndFindCapability(capabilities.TextDocument.Synchronization);
+            capabilities.TextDocument.Completion = UseOrTryAndFindCapability(capabilities.TextDocument.Completion);
+            capabilities.TextDocument.Hover = UseOrTryAndFindCapability(capabilities.TextDocument.Hover);
+            capabilities.TextDocument.SignatureHelp =
+                UseOrTryAndFindCapability(capabilities.TextDocument.SignatureHelp);
+            capabilities.TextDocument.References = UseOrTryAndFindCapability(capabilities.TextDocument.References);
+            capabilities.TextDocument.DocumentHighlight =
+                UseOrTryAndFindCapability(capabilities.TextDocument.DocumentHighlight);
+            capabilities.TextDocument.DocumentSymbol =
+                UseOrTryAndFindCapability(capabilities.TextDocument.DocumentSymbol);
+            capabilities.TextDocument.Formatting = UseOrTryAndFindCapability(capabilities.TextDocument.Formatting);
+            capabilities.TextDocument.RangeFormatting =
+                UseOrTryAndFindCapability(capabilities.TextDocument.RangeFormatting);
+            capabilities.TextDocument.OnTypeFormatting =
+                UseOrTryAndFindCapability(capabilities.TextDocument.OnTypeFormatting);
+            capabilities.TextDocument.Definition = UseOrTryAndFindCapability(capabilities.TextDocument.Definition);
+            capabilities.TextDocument.Declaration = UseOrTryAndFindCapability(capabilities.TextDocument.Declaration);
+            capabilities.TextDocument.CodeAction = UseOrTryAndFindCapability(capabilities.TextDocument.CodeAction);
+            capabilities.TextDocument.CodeLens = UseOrTryAndFindCapability(capabilities.TextDocument.CodeLens);
+            capabilities.TextDocument.DocumentLink = UseOrTryAndFindCapability(capabilities.TextDocument.DocumentLink);
+            capabilities.TextDocument.Rename = UseOrTryAndFindCapability(capabilities.TextDocument.Rename);
+            capabilities.TextDocument.TypeDefinition =
+                UseOrTryAndFindCapability(capabilities.TextDocument.TypeDefinition);
+            capabilities.TextDocument.Implementation =
+                UseOrTryAndFindCapability(capabilities.TextDocument.Implementation);
+            capabilities.TextDocument.ColorProvider =
+                UseOrTryAndFindCapability(capabilities.TextDocument.ColorProvider);
+            capabilities.TextDocument.FoldingRange = UseOrTryAndFindCapability(capabilities.TextDocument.FoldingRange);
+            capabilities.TextDocument.SelectionRange =
+                UseOrTryAndFindCapability(capabilities.TextDocument.SelectionRange);
+            capabilities.TextDocument.PublishDiagnostics =
+                UseOrTryAndFindCapability(capabilities.TextDocument.PublishDiagnostics);
+#pragma warning disable 618
+            capabilities.TextDocument.CallHierarchy =
+                UseOrTryAndFindCapability(capabilities.TextDocument.CallHierarchy);
+            capabilities.TextDocument.SemanticTokens =
+                UseOrTryAndFindCapability(capabilities.TextDocument.SemanticTokens);
+#pragma warning restore 618
+        }
+
         public async Task Shutdown()
         {
-            var connection = _connection;
-            if (connection != null)
+            if (_connection.IsOpen)
             {
-                if (connection.IsOpen)
-                {
-                    await connection.SendEmptyRequest("shutdown");
-                    connection.SendEmptyNotification("exit");
-                    connection.Disconnect(flushOutgoing: true);
-                }
-
-                await connection.HasHasDisconnected;
+                await this.RequestShutdown();
+                this.SendExit();
             }
 
-            var serverProcess = _process;
-            if (serverProcess != null)
+            await _connection.StopAsync();
+            _connection.Dispose();
+        }
+
+        private T UseOrTryAndFindCapability<T>(Supports<T> supports)
+        {
+            var value = supports.IsSupported
+                ? supports.Value
+                : _capabilities.OfType<T>().FirstOrDefault() ?? Activator.CreateInstance<T>();
+            if (value is IDynamicCapability dynamicCapability)
             {
-                if (serverProcess.IsRunning)
-                    await serverProcess.Stop();
+                dynamicCapability.DynamicRegistration = _collection.ContainsHandler(typeof(IRegisterCapabilityHandler));
             }
 
-            IsInitialized = false;
-            _readyCompletion = new TaskCompletionSource<object>();
+            return value;
         }
 
-        /// <summary>
-        ///     Register a message handler.
-        /// </summary>
-        /// <param name="handler">
-        ///     The message handler.
-        /// </param>
-        /// <returns>
-        ///     An <see cref="IDisposable"/> representing the registration.
-        /// </returns>
-        public IDisposable RegisterHandler(IHandler handler) => _dispatcher.RegisterHandler(handler);
+        public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        /// <summary>
-        ///     Send an empty notification to the language server.
-        /// </summary>
-        /// <param name="method">
-        ///     The notification method name.
-        /// </param>
-        public void SendNotification(string method)
+        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id)
         {
-            var connection = _connection;
-            if (connection == null || !connection.IsOpen)
-                throw new InvalidOperationException("Not connected to the language server.");
-
-            connection.SendEmptyNotification(method);
+            return _responseRouter.GetRequest(id);
         }
 
-        /// <summary>
-        ///     Send a notification message to the language server.
-        /// </summary>
-        /// <param name="method">
-        ///     The notification method name.
-        /// </param>
-        /// <param name="notification">
-        ///     The notification message.
-        /// </param>
-        public void SendNotification(string method, object notification)
-        {
-            var connection = _connection;
-            if (connection == null || !connection.IsOpen)
-                throw new InvalidOperationException("Not connected to the language server.");
+        public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
-            connection.SendNotification(method, notification);
+        public void Dispose()
+        {
+            _connection?.Dispose();
+            _disposable?.Dispose();
         }
 
-        /// <summary>
-        ///     Send a request to the language server.
-        /// </summary>
-        /// <param name="method">
-        ///     The request method name.
-        /// </param>
-        /// <param name="request">
-        ///     The request message.
-        /// </param>
-        /// <param name="cancellationToken">
-        ///     An optional cancellation token that can be used to cancel the request.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="Task"/> representing the request.
-        /// </returns>
-        public Task SendRequest(string method, object request, CancellationToken cancellationToken = default(CancellationToken))
+        public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
+        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
+        protected override IResponseRouter ResponseRouter => _responseRouter;
+        protected override IHandlersManager HandlersManager => _collection;
+        public IDisposable Register(Action<ILanguageClientRegistry> registryAction)
         {
-            var connection = _connection;
-            if (connection == null || !connection.IsOpen)
-                throw new InvalidOperationException("Not connected to the language server.");
-
-            return connection.SendRequest(method, request, cancellationToken);
+            var manager = new CompositeHandlersManager(_collection);
+            registryAction(new LangaugeClientRegistry(_serviceProvider, manager, _textDocumentIdentifiers));
+            return manager.GetDisposable();
         }
+    }
 
-        /// <summary>
-        ///     Send a request to the language server.
-        /// </summary>
-        /// <typeparam name="TResponse">
-        ///     The response message type.
-        /// </typeparam>
-        /// <param name="method">
-        ///     The request method name.
-        /// </param>
-        /// <param name="request">
-        ///     The request message.
-        /// </param>
-        /// <param name="cancellation">
-        ///     An optional cancellation token that can be used to cancel the request.
-        /// </param>
-        /// <returns>
-        ///     A <see cref="Task{TResult}"/> representing the response.
-        /// </returns>
-        public Task<TResponse> SendRequest<TResponse>(string method, object request, CancellationToken cancellation = default(CancellationToken))
+    class LangaugeClientRegistry : InterimLanguageProtocolRegistry<ILanguageClientRegistry>, ILanguageClientRegistry
+    {
+        public LangaugeClientRegistry(IServiceProvider serviceProvider, CompositeHandlersManager handlersManager, TextDocumentIdentifiers textDocumentIdentifiers) : base(serviceProvider, handlersManager, textDocumentIdentifiers)
         {
-            var connection = _connection;
-            if (connection == null || !connection.IsOpen)
-                throw new InvalidOperationException("Not connected to the language server.");
-
-            return connection.SendRequest<TResponse>(method, request, cancellation);
-        }
-
-        /// <summary>
-        ///     Start the language server.
-        /// </summary>
-        /// <returns>
-        ///     A <see cref="Task"/> representing the operation.
-        /// </returns>
-        async Task Start()
-        {
-            if (_process == null)
-                throw new ObjectDisposedException(GetType().Name);
-
-            if (!_process.IsRunning)
-            {
-                Log.LogDebug("Starting language server...");
-
-                await _process.Start();
-
-                Log.LogDebug("Language server is running.");
-            }
-
-            Log.LogDebug("Opening connection to language server...");
-
-            if (_connection == null)
-                _connection = new LspConnection(LoggerFactory, input: _process.OutputStream, output: _process.InputStream);
-
-            _connection.Connect(_dispatcher);
-
-            Log.LogDebug("Connection to language server is open.");
-        }
-
-        /// <summary>
-        ///     Called when the server process has exited.
-        /// </summary>
-        /// <param name="sender">
-        ///     The event sender.
-        /// </param>
-        /// <param name="args">
-        ///     The event arguments.
-        /// </param>
-        async void ServerProcess_Exit()
-        {
-            Log.LogDebug("Server process has exited; language client is shutting down...");
-
-            var connection = Interlocked.Exchange(ref _connection, null);
-            if (connection != null)
-            {
-                using (connection)
-                {
-                    connection.Disconnect();
-                    await connection.HasHasDisconnected;
-                }
-            }
-
-            await Shutdown();
-
-            Log.LogDebug("Language client shutdown complete.");
         }
     }
 }

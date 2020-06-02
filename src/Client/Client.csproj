@@ -15,5 +15,7 @@
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\Protocol\Protocol.csproj" />
+        <ProjectReference Include="..\Shared\Shared.csproj" />
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
     </ItemGroup>
 </Project>

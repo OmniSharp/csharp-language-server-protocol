@@ -1,6 +1,6 @@
 ﻿using Xunit.Abstractions;
 
-namespace OmniSharp.Extensions.LanguageServerProtocol.Client.Tests
+namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     public class PipeTests
         : TestBase

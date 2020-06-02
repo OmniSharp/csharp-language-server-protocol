@@ -19,13 +19,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class GotoTargetsExtensions
     {
-        public static IDisposable OnGotoTargets(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnGotoTargets(this IDebugAdapterServerRegistry registry,
             Func<GotoTargetsArguments, CancellationToken, Task<GotoTargetsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.GotoTargets, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnGotoTargets(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnGotoTargets(this IDebugAdapterServerRegistry registry,
             Func<GotoTargetsArguments, Task<GotoTargetsResponse>> handler)
         {
             return registry.AddHandler(RequestNames.GotoTargets, RequestHandler.For(handler));

@@ -18,13 +18,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public static class DisassembleExtensions
     {
-        public static IDisposable OnDisassemble(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnDisassemble(this IDebugAdapterServerRegistry registry,
             Func<DisassembleArguments, CancellationToken, Task<DisassembleResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Disassemble, RequestHandler.For(handler));
         }
 
-        public static IDisposable OnDisassemble(this IDebugAdapterServerRegistry registry,
+        public static IDebugAdapterServerRegistry OnDisassemble(this IDebugAdapterServerRegistry registry,
             Func<DisassembleArguments, Task<DisassembleResponse>> handler)
         {
             return registry.AddHandler(RequestNames.Disassemble, RequestHandler.For(handler));

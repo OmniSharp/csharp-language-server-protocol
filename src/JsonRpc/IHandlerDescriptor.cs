@@ -12,5 +12,6 @@ namespace OmniSharp.Extensions.JsonRpc
         bool HasReturnType { get; }
         bool IsDelegatingHandler { get; }
         IJsonRpcHandler Handler { get; }
+        RequestProcessType? RequestProcessType { get; }
     }
 }
