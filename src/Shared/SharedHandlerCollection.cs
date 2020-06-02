@@ -193,11 +193,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
 
             var key = "default";
-            if (handler is ICanBeIdentifiedHandler identifiedHandler)
-            {
-                key = identifiedHandler.Id.ToString("N");
-            }
-            else if (handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
+            if (handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
             {
                 // Ensure we only do this check for the specific registartion type that was found
                 if (typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registrationType))
@@ -214,6 +210,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
 
             if (string.IsNullOrWhiteSpace(key)) key = "default";
+
+            if (handler is ICanBeIdentifiedHandler identifiedHandler && identifiedHandler.Id != Guid.Empty)
+            {
+                key += ":" + identifiedHandler.Id.ToString("N");
+            }
 
             var requestProcessType =
                 options?.RequestProcessType ??
