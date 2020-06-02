@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             foreach (var item in handlers)
             {
-                Services.AddSingleton(typeof(ITextDocumentIdentifier), handlers);
+                Services.AddSingleton(typeof(ITextDocumentIdentifier), item);
             }
 
             return (T) (object) this;
