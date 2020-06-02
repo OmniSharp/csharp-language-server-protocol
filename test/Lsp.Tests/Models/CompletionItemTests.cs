@@ -11,7 +11,7 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItem()
+            var model = new CompletionItem<ResolvedData>()
             {
                 Kind = CompletionItemKind.Text,
                 CommitCharacters = new[] { ";", "/", "." },
@@ -25,7 +25,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItem>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItem<ResolvedData>>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

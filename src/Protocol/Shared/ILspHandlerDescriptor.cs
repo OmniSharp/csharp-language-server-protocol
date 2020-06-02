@@ -17,5 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         Type CanBeResolvedHandlerType { get; }
         OnServerStartedDelegate OnServerStartedDelegate { get; }
         OnClientStartedDelegate OnClientStartedDelegate { get; }
+        bool CanBeResolved { get; }
+        Type CanBeResolvedDataType { get; }
     }
 }

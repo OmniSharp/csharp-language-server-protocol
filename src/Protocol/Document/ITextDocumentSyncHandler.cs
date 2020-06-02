@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
             GetRegistrationOptions() => _changeOptions;
 
-        public abstract TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri);
+        public abstract IEnumerable<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri);
         public abstract Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
@@ -49,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static class TextDocumentSyncExtensions
     {
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onOpenHandler,
@@ -63,7 +64,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 onSaveHandler, getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken> onOpenHandler,
@@ -77,7 +78,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 onSaveHandler, getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability> onOpenHandler,
@@ -95,7 +96,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, CancellationToken, Task> onOpenHandler,
@@ -113,7 +114,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, CancellationToken> onOpenHandler,
@@ -131,7 +132,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, Task> onOpenHandler,
@@ -149,7 +150,7 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 getTextDocumentAttributes, registrationOptions, kind));
         }
 
-public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
             Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams> onOpenHandler,
@@ -258,8 +259,10 @@ public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerReg
                 return Unit.Value;
             }
 
-            public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) =>
-                _getTextDocumentAttributes.Invoke(uri);
+            public override IEnumerable<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
+            {
+                yield return _getTextDocumentAttributes.Invoke(uri);
+            }
 
             public override void SetCapability(SynchronizationCapability capability)
             {

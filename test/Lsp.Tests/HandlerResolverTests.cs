@@ -194,8 +194,8 @@ namespace Lsp.Tests
         [Fact]
         public void Should_DealWithClassesThatImplementMultipleHandlers_BySettingKeyAccordingly()
         {
-            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            ((ICodeLensHandler)codeLensHandler).GetRegistrationOptions()
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler<ResolvedData>), typeof(ICodeLensResolveHandler<ResolvedData>) }, new object[0]);
+            ((ICodeLensHandler<ResolvedData>)codeLensHandler).GetRegistrationOptions()
                 .Returns(new CodeLensRegistrationOptions() {
                     DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
                 });
@@ -209,24 +209,24 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
-            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            ((ICodeLensHandler)codeLensHandler).GetRegistrationOptions()
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler<ResolvedData>), typeof(ICodeLensResolveHandler<ResolvedData>) }, new object[0]);
+            ((ICodeLensHandler<ResolvedData>)codeLensHandler).GetRegistrationOptions()
                     .Returns(new CodeLensRegistrationOptions() {
                         DocumentSelector = new DocumentSelector() { }
                     });
 
             yield return new object[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
-            var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler) }, new object[0]);
-            ((IDocumentLinkHandler)documentLinkHandler).GetRegistrationOptions()
+            var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler<ResolvedData>), typeof(IDocumentLinkResolveHandler<ResolvedData>) }, new object[0]);
+            ((IDocumentLinkHandler<ResolvedData>)documentLinkHandler).GetRegistrationOptions()
                 .Returns(new DocumentLinkRegistrationOptions() {
                     DocumentSelector = new DocumentSelector() { }
                 });
 
             yield return new object[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
-            var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler) }, new object[0]);
-            ((ICompletionHandler)completionHandler).GetRegistrationOptions()
+            var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler<ResolvedData>), typeof(ICompletionResolveHandler<ResolvedData>) }, new object[0]);
+            ((ICompletionHandler<ResolvedData>)completionHandler).GetRegistrationOptions()
                 .Returns(new CompletionRegistrationOptions() {
                     DocumentSelector = new DocumentSelector() { }
                 });

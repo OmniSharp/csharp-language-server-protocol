@@ -193,7 +193,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
 
             var key = "default";
-            if (handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
+            if (handler is ICanBeIdentifiedHandler identifiedHandler)
+            {
+                key = identifiedHandler.Id.ToString("N");
+            }
+            else if (handler is IRegistration<TextDocumentRegistrationOptions> handlerRegistration)
             {
                 // Ensure we only do this check for the specific registartion type that was found
                 if (typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registrationType))
@@ -203,7 +207,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 // In some scenarios, users will implement both the main handler and the resolve handler to the same class
                 // This allows us to get a key for those interfaces so we can register many resolve handlers
                 // and then route those resolve requests to the correct handler
-                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>)))
+                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<,>)))
                 {
                     key = handlerRegistration?.GetRegistrationOptions()?.DocumentSelector ?? key;
                 }
@@ -244,7 +248,20 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public bool ContainsHandler(TypeInfo typeInfo)
         {
-            return this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
+            if (typeInfo.IsGenericType && typeof(CanBeResolvedData).IsAssignableFrom(typeInfo.GenericTypeArguments[0]))
+            {
+                var type = typeInfo.GenericTypeArguments[0];
+                var typeDefinition = typeInfo.GetGenericTypeDefinition();
+                return this.Any(z =>
+                    z.Params.IsGenericType &&
+                    type.IsAssignableFrom(z.CanBeResolvedDataType) &&
+                    typeDefinition.MakeGenericType(z.CanBeResolvedDataType).GetInterfaces().Any(x => z.HandlerType.IsAssignableFrom(x))
+                );
+            }
+            return this.Any(z =>
+                z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo)
+                || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo)
+            );
         }
 
         private static object GetRegistration<T>(IRegistration<T> registration)

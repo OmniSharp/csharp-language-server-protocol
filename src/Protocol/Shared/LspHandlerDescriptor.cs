@@ -50,7 +50,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces
-                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
+                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<,>));
+            CanBeResolvedDataType = CanBeResolvedHandlerType?.GetGenericArguments()[1] ?? (@params.IsGenericType && typeof(CanBeResolvedData).IsAssignableFrom(@params.GetGenericArguments()[0]) ? @params.GetGenericArguments()[0] : null);
+            CanBeResolved = CanBeResolvedHandlerType != null || CanBeResolvedDataType != null;
+            // if (CanBeResolved && !@params.IsGenericType && @params?.BaseType.IsGenericType == true)
+            // {
+            //     Params = @params.BaseType;
+            // }
 
             HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
                 @interface.IsGenericType &&
@@ -91,6 +97,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public Type CapabilityType { get; }
         public OnServerStartedDelegate OnServerStartedDelegate { get; }
         public OnClientStartedDelegate OnClientStartedDelegate { get; }
+        public bool CanBeResolved { get; }
+        public Type CanBeResolvedDataType { get; }
 
         public string Method { get; }
         public string Key { get; }

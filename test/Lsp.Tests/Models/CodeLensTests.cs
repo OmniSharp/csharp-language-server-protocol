@@ -14,16 +14,18 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeLens() {
+            var model = new CodeLens<ResolvedData>() {
                 Command = new Command() {
                     Arguments = new JArray { 1, "2", true },
                     Name = "abc",
                     Title = "Cool story bro"
                 },
-                Data = JObject.FromObject(new Dictionary<string, object>()
-                {
-                    { "somethingCool" , 1 }
-                }),
+                Data = new ResolvedData {
+                    Data = new Dictionary<string, JToken>()
+                    {
+                        { "somethingCool" , 1 }
+                    },
+                },
                 Range = new Range(new Position(1, 2), new Position(2, 3)),
             };
             var result = Fixture.SerializeObject(model);
@@ -31,7 +33,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             // TODO: Come back and fix this...
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLens>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLens<ResolvedData>>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

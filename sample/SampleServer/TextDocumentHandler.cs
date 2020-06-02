@@ -100,9 +100,9 @@ namespace SampleServer
             };
         }
 
-        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
+        public IEnumerable<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
         {
-            return new TextDocumentAttributes(uri, "csharp");
+            yield return new TextDocumentAttributes(uri, "csharp");
         }
     }
 

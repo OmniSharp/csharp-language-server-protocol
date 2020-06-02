@@ -397,7 +397,7 @@ namespace Lsp.Tests
         {
             public ParamsShouldHaveMethodAttributeData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z =>
+                foreach (var type in typeof(CompletionParams<ResolvedData>).Assembly.ExportedTypes.Where(z =>
                     z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(z => z.IsGenericType && typeof(IRequest<>).IsAssignableFrom(z.GetGenericTypeDefinition()))))
                 {
                     Add(type);
@@ -409,7 +409,7 @@ namespace Lsp.Tests
         {
             public HandlersShouldHaveMethodAttributeData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
+                foreach (var type in typeof(CompletionParams<ResolvedData>).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
                     Add(type);
@@ -421,7 +421,7 @@ namespace Lsp.Tests
         {
             public TypeHandlerData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
+                foreach (var type in typeof(CompletionParams<ResolvedData>).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
                     Add(LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
@@ -439,7 +439,7 @@ namespace Lsp.Tests
 
             public TypeHandlerExtensionData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
+                foreach (var type in typeof(CompletionParams<ResolvedData>).Assembly.ExportedTypes
                     .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {

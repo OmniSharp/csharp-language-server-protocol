@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public static CodeLensOptions Of(ICodeLensOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             return new CodeLensOptions() {
-                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType == typeof(ICodeLensResolveHandler)),
+                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType.IsGenericType && z.HandlerType.GetGenericTypeDefinition() == typeof(ICodeLensResolveHandler<>)),
                 WorkDoneProgress = options.WorkDoneProgress
             };
         }

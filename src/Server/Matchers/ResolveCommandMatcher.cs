@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -13,8 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
     public class ResolveCommandMatcher : IHandlerMatcher
     {
         private readonly ILogger<ResolveCommandMatcher> _logger;
-        internal static string PrivateHandlerTypeName = "$$___handlerType___$$";
-        internal static string PrivateHandlerKey = "$$___handlerKey___$$";
 
         public ResolveCommandMatcher(ILogger<ResolveCommandMatcher> logger)
         {
@@ -29,34 +28,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         /// <returns></returns>
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
         {
-            if (parameters is ICanBeResolved canBeResolved)
+            if (parameters is ICanBeResolved<CanBeResolvedData> canBeResolved)
             {
-                string handlerType = null;
-                string handlerKey = null;
-                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
+                var handlerName = canBeResolved.Data?.handler;
+                if (handlerName == null || handlerName == Guid.Empty)
                 {
-                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
-                    handlerKey = canBeResolved.Data?[PrivateHandlerKey]?.ToString();
-                }
-
-                if (string.IsNullOrWhiteSpace(handlerType) &&
-                    string.IsNullOrWhiteSpace(handlerKey))
-                {
-                    foreach (var descriptor in descriptors)
-                    {
-                        if (descriptor.Params == parameters.GetType())
-                        // if (descriptor.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(descriptor.ImplementationType) == true)
-                        {
-                            var method = CanResolveMethod
-                                .MakeGenericMethod(descriptor.Params);
-                            if ((bool)method.Invoke(null, new[] { descriptor.Handler, parameters }))
-                            {
-                                yield return descriptor;
-                                yield break;
-                            }
-                        }
-                    }
-
                     var descriptor2 = descriptors.FirstOrDefault();
                     _logger.LogTrace(
                         "Resolve {Method} was called, but data did not have handle type defined.  Using Handler {HandlerType}",
@@ -72,23 +48,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     _logger.LogTrace("Checking handler {Method}:{Handler}",
                         descriptor.Method,
                         descriptor.ImplementationType.FullName);
-                    if ((descriptor.ImplementationType.FullName == handlerType || descriptor.HandlerType.FullName == handlerType) &&
-                        ((descriptor is LspHandlerDescriptor handlerDescriptor) && handlerDescriptor.Key == handlerKey))
+                    if (!(descriptor.Handler is ICanBeIdentifiedHandler handler)) continue;
+
+                    if (handler.Id == handlerName)
                     {
                         yield return descriptor;
                     }
                 }
             }
-        }
-
-        private static readonly MethodInfo CanResolveMethod =
-            typeof(ResolveCommandMatcher).GetTypeInfo()
-                .GetMethod(nameof(CanResolve), BindingFlags.NonPublic | BindingFlags.Static);
-
-        private static bool CanResolve<T>(ICanBeResolvedHandler<T> handler, T value)
-            where T : ICanBeResolved, IRequest<T>
-        {
-            return handler.CanResolve(value);
         }
     }
 }

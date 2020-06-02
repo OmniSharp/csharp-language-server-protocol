@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         private List<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
         {
             return _textDocumentIdentifiers
-                .Select(x => x.GetTextDocumentAttributes(uri))
+                .SelectMany(x => x.GetTextDocumentAttributes(uri))
                 .Where(x => x != null)
                 .Distinct()
                 .ToList();

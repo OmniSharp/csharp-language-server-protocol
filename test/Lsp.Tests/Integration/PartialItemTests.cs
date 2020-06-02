@@ -34,7 +34,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Behave_Like_A_Task()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
-            var result = await client.TextDocument.RequestCodeLens(new CodeLensParams() {
+            var result = await client.TextDocument.RequestCodeLens(new CodeLensParams<ResolvedData>() {
                 TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
             }, CancellationToken);
 
@@ -47,8 +47,8 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
 
-            var items = new List<CodeLens>();
-            await client.TextDocument.RequestCodeLens(new CodeLensParams() {
+            var items = new List<ICodeLens<ResolvedData>>();
+            await client.TextDocument.RequestCodeLens(new CodeLensParams<ResolvedData>() {
                 TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
             }, CancellationToken).ForEachAsync(x => items.AddRange(x));
 
@@ -61,11 +61,11 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithClassCodeLens);
 
-            var items = new List<CodeLens>();
+            var items = new List<ICodeLens<ResolvedData>>();
             var work = new List<WorkDoneProgress>();
             client.TextDocument
                 .ObserveWorkDone(
-                    new CodeLensParams() {TextDocument = new TextDocumentIdentifier(@"c:\test.cs")},
+                    new CodeLensParams<ResolvedData>() {TextDocument = new TextDocumentIdentifier(@"c:\test.cs")},
                     (client, request) => CodeLensExtensions.RequestCodeLens(client, request, CancellationToken),
                     Observer.Create<WorkDoneProgress>(z => work.Add(z))
                 ).Subscribe(x => items.AddRange(x));
@@ -87,23 +87,23 @@ namespace Lsp.Tests.Integration
 
         private void ConfigureServerWithDelegateCodeLens(LanguageServerOptions options)
         {
-            options.OnCodeLens((@params, observer, capability, cancellationToken) => {
+            options.OnCodeLens<ResolvedData>((@params, observer, capability, cancellationToken) => {
                 observer.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 1"
                         }
                     },
                 });
                 observer.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 2"
                         }
                     },
                 });
                 observer.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 3"
                         }
@@ -120,7 +120,7 @@ namespace Lsp.Tests.Integration
             options.AddHandler<InnerCodeLensHandler>();
         }
 
-        class InnerCodeLensHandler : CodeLensHandler
+        class InnerCodeLensHandler : CodeLensHandler<ResolvedData>
         {
             private readonly IServerWorkDoneManager _workDoneManager;
             private readonly IProgressManager _progressManager;
@@ -131,7 +131,7 @@ namespace Lsp.Tests.Integration
                 _progressManager = progressManager;
             }
 
-            public override async Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken)
+            public override async Task<CodeLensContainer<ResolvedData>> Handle(CodeLensParams<ResolvedData> request, CancellationToken cancellationToken)
             {
                 var partial = _progressManager.For(request, cancellationToken);
                 var workDone = _workDoneManager.For(request, new WorkDoneProgressBegin() {
@@ -145,7 +145,7 @@ namespace Lsp.Tests.Integration
                 });
 
                 partial.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 1"
                         }
@@ -157,7 +157,7 @@ namespace Lsp.Tests.Integration
                 });
 
                 partial.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 2"
                         }
@@ -169,7 +169,7 @@ namespace Lsp.Tests.Integration
                 });
 
                 partial.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 3"
                         }
@@ -181,7 +181,7 @@ namespace Lsp.Tests.Integration
                 });
 
                 partial.OnNext(new [] {
-                    new CodeLens() {
+                    new CodeLens<ResolvedData>() {
                         Command = new Command() {
                             Name = "CodeLens 4"
                         }
@@ -196,12 +196,10 @@ namespace Lsp.Tests.Integration
 
                 await Task.Yield();
 
-                return new CodeLensContainer();
+                return new CodeLensContainer<ResolvedData>();
             }
 
-            public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-
-            public override bool CanResolve(CodeLens value) => true;
+            public override Task<CodeLens<ResolvedData>> Handle(CodeLens<ResolvedData> request, CancellationToken cancellationToken) => Task.FromResult(request);
         }
 
     }

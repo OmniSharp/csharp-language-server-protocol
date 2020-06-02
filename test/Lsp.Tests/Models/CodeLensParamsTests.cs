@@ -13,21 +13,21 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeLensParams() {
+            var model = new CodeLensParams<ResolvedData>() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123/d.cs")),
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLensParams>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLensParams<ResolvedData>>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
         [Theory, JsonFixture]
         public void NonStandardCharactersTest(string expected)
         {
-            var model = new CodeLensParams() {
+            var model = new CodeLensParams<ResolvedData>() {
                 // UNC path with Chinese character for tree.
                 TextDocument = new TextDocumentIdentifier(DocumentUri.FromFileSystemPath("\\\\abc\\123\\树.cs")),
             };
@@ -35,7 +35,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLensParams>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLensParams<ResolvedData>>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

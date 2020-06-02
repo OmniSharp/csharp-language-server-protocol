@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 property.ValueProvider = new SupportsValueProvider(property.ValueProvider);
             }
 
-            if (property.DeclaringType == typeof(CompletionItem))
+            if (property.DeclaringType.IsGenericType && property.DeclaringType.GetGenericTypeDefinition() == typeof(CompletionItem<>))
             {
                 if (property.PropertyType == typeof(CompletionItemKind))
                 {

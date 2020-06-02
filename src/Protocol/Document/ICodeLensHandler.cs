@@ -14,18 +14,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
     [Parallel, Method(TextDocumentNames.CodeLens, Direction.ClientToServer)]
-    public interface ICodeLensHandler : IJsonRpcRequestHandler<CodeLensParams, CodeLensContainer>, IRegistration<CodeLensRegistrationOptions>, ICapability<CodeLensCapability>
+    public interface ICodeLensHandler<TData> : IJsonRpcRequestHandler<CodeLensParams<TData>, CodeLensContainer<TData>>, IRegistration<CodeLensRegistrationOptions>,
+        ICapability<CodeLensCapability> where TData : CanBeResolvedData
     {
     }
 
     [Parallel, Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
-    public interface ICodeLensResolveHandler : ICanBeResolvedHandler<CodeLens>
+    public interface ICodeLensResolveHandler<TData> : ICanBeResolvedHandler<CodeLens<TData>, TData> where TData : CanBeResolvedData
     {
     }
 
-    public abstract class CodeLensHandler : ICodeLensHandler, ICodeLensResolveHandler
+    public abstract class CodeLensHandler<TData> : ICodeLensHandler<TData>, ICodeLensResolveHandler<TData>
+        where TData : CanBeResolvedData
     {
         private readonly CodeLensRegistrationOptions _options;
+        private readonly Guid _id = Guid.NewGuid();
 
         public CodeLensHandler(CodeLensRegistrationOptions registrationOptions)
         {
@@ -33,259 +36,289 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         }
 
         public CodeLensRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken);
-        public abstract Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken);
-        public abstract bool CanResolve(CodeLens value);
+        public abstract Task<CodeLensContainer<TData>> Handle(CodeLensParams<TData> request, CancellationToken cancellationToken);
+        public abstract Task<CodeLens<TData>> Handle(CodeLens<TData> request, CancellationToken cancellationToken);
         public virtual void SetCapability(CodeLensCapability capability) => Capability = capability;
         protected CodeLensCapability Capability { get; private set; }
+        Guid ICanBeIdentifiedHandler.Id => _id;
     }
 
     public static class CodeLensExtensions
     {
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, CodeLensCapability, CancellationToken, Task<CodeLensContainer>> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, CodeLensCapability, CancellationToken, Task<CodeLensContainer<TData>>> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                new LanguageProtocolDelegatingHandlers.Request<CodeLensParams, CodeLensContainer, CodeLensCapability,
+                new LanguageProtocolDelegatingHandlers.Request<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLensCapability,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, CodeLensCapability, CancellationToken, Task<CodeLensContainer>> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, CodeLensCapability, CancellationToken, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, CodeLensCapability, CancellationToken, Task<CodeLensContainer<TData>>> handler,
+            Func<CodeLens<TData>, CodeLensCapability, CancellationToken, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link, cap, token) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link, cap, token) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.CodeLens,
-                        new LanguageProtocolDelegatingHandlers.Request<CodeLensParams, CodeLensContainer, CodeLensCapability,
-                            CodeLensRegistrationOptions>(
+            return registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        new LanguageProtocolDelegatingHandlers.Request<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLensCapability, CodeLensRegistrationOptions>(
+                            id,
                             handler,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensCapability, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensCapability, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, CancellationToken, Task<CodeLensContainer>> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, CancellationToken, Task<CodeLensContainer<TData>>> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams, CodeLensContainer,
+                new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams<TData>, CodeLensContainer<TData>,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, CancellationToken, Task<CodeLensContainer>> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, CancellationToken, Task<CodeLensContainer<TData>>> handler,
+            Func<CodeLens<TData>, CancellationToken, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link, token) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link, token) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.CodeLens,
-                        new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams, CodeLensContainer,
-                            CodeLensRegistrationOptions>(
+            return registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLensRegistrationOptions>(
+                            id,
                             handler,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, Task<CodeLensContainer>> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, Task<CodeLensContainer<TData>>> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams, CodeLensContainer,
+                new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams<TData>, CodeLensContainer<TData>,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Func<CodeLensParams, Task<CodeLensContainer>> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Func<CodeLensParams<TData>, Task<CodeLensContainer<TData>>> handler,
+            Func<CodeLens<TData>, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.CodeLens,
-                        new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams, CodeLensContainer,
+            return registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeLensParams<TData>, CodeLensContainer<TData>,
                             CodeLensRegistrationOptions>(
+                            id,
                             handler,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>, CodeLensCapability, CancellationToken> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>, CodeLensCapability, CancellationToken> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens, CodeLensCapability,
+                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>, CodeLensCapability,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions,
                     _.GetRequiredService<IProgressManager>(),
-                    x => new CodeLensContainer(x)));
+                    x => new CodeLensContainer<TData>(x)));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>, CodeLensCapability, CancellationToken> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, CodeLensCapability, CancellationToken, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>, CodeLensCapability, CancellationToken> handler,
+            Func<CodeLens<TData>, CodeLensCapability, CancellationToken, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link, cap, token) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link, cap, token) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
             return
-                registry.AddHandler(TextDocumentNames.CodeLens,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens, CodeLensCapability,
-                            CodeLensRegistrationOptions>(
+                registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>, CodeLensCapability, CodeLensRegistrationOptions>(
+                            id,
                             handler,
                             registrationOptions,
                             _.GetRequiredService<IProgressManager>(),
-                            x => new CodeLensContainer(x)))
+                            x => new CodeLensContainer<TData>(x))
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensCapability, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensCapability, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>, CancellationToken> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>, CancellationToken> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens,
+                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions,
                     _.GetRequiredService<IProgressManager>(),
-                    x => new CodeLensContainer(x)));
+                    x => new CodeLensContainer<TData>(x)));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>, CancellationToken> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, CancellationToken, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>, CancellationToken> handler,
+            Func<CodeLens<TData>, CancellationToken, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link, token) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link, token) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.CodeLens,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens,
-                            CodeLensRegistrationOptions>(
+            return registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>, CodeLensRegistrationOptions>(
+                            id,
                             handler,
                             registrationOptions,
                             _.GetRequiredService<IProgressManager>(),
-                            x => new CodeLensContainer(x)))
+                            x => new CodeLensContainer<TData>(x))
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>> handler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>> handler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
 
             return registry.AddHandler(TextDocumentNames.CodeLens,
-                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens,
+                _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>,
                     CodeLensRegistrationOptions>(
                     handler,
                     registrationOptions,
                     _.GetRequiredService<IProgressManager>(),
-                    x => new CodeLensContainer(x)));
+                    x => new CodeLensContainer<TData>(x)));
         }
 
-        public static ILanguageServerRegistry OnCodeLens(this ILanguageServerRegistry registry,
-            Action<CodeLensParams, IObserver<IEnumerable<CodeLens>>> handler,
-            Func<CodeLens, bool> canResolve,
-            Func<CodeLens, Task<CodeLens>> resolveHandler,
-            CodeLensRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnCodeLens<TData>(this ILanguageServerRegistry registry,
+            Action<CodeLensParams<TData>, IObserver<IEnumerable<CodeLens<TData>>>> handler,
+            Func<CodeLens<TData>, Task<CodeLens<TData>>> resolveHandler,
+            CodeLensRegistrationOptions registrationOptions) where TData : CanBeResolvedData
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
-            registrationOptions.ResolveProvider = canResolve != null && resolveHandler != null;
-            canResolve ??= item => registrationOptions.ResolveProvider;
-            resolveHandler ??= (link) => Task.FromException<CodeLens>(new NotImplementedException());
+            registrationOptions.ResolveProvider = resolveHandler != null;
+            resolveHandler ??= (link) => Task.FromException<CodeLens<TData>>(new NotImplementedException());
+            var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.CodeLens,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams, CodeLensContainer, CodeLens,
-                            CodeLensRegistrationOptions>(
+            return registry
+                    .AddHandler(TextDocumentNames.CodeLens,
+                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<CodeLensParams<TData>, CodeLensContainer<TData>, CodeLens<TData>, CodeLensRegistrationOptions>(
+                            id,
                             handler,
                             registrationOptions,
                             _.GetRequiredService<IProgressManager>(),
-                            x => new CodeLensContainer(x)))
+                            x => new CodeLensContainer<TData>(x))
+                        )
                     .AddHandler(TextDocumentNames.CodeLensResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens, CodeLensRegistrationOptions>(
+                        new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeLens<TData>, CodeLensRegistrationOptions, TData>(
+                            id,
                             resolveHandler,
-                            canResolve,
-                            registrationOptions))
+                            registrationOptions)
+                        )
                 ;
         }
 
-        public static IRequestProgressObservable<IEnumerable<CodeLens>, CodeLensContainer> RequestCodeLens(
+        public static IRequestProgressObservable<IEnumerable<CodeLens<ResolvedData>>, CodeLensContainer<ResolvedData>> RequestCodeLens(
             this ITextDocumentLanguageClient mediator,
-            CodeLensParams @params,
+            CodeLensParams<ResolvedData> @params,
             CancellationToken cancellationToken = default)
         {
-            return mediator.ProgressManager.MonitorUntil(@params, x => new CodeLensContainer(x), cancellationToken);
+            return mediator.ProgressManager.MonitorUntil(@params, x => new CodeLensContainer<ResolvedData>(x), cancellationToken);
         }
 
-        public static Task<CodeLens> ResolveCodeLens(this ITextDocumentLanguageClient mediator, CodeLens @params, CancellationToken cancellationToken = default)
+        public static IRequestProgressObservable<IEnumerable<CodeLens<TData>>, CodeLensContainer<TData>> RequestCodeLens<TData>(
+            this ITextDocumentLanguageClient mediator,
+            CodeLensParams<TData> @params,
+            CancellationToken cancellationToken = default)
+            where TData : CanBeResolvedData
+        {
+            return mediator.ProgressManager.MonitorUntil(@params, x => new CodeLensContainer<TData>(x), cancellationToken);
+        }
+
+        public static Task<CodeLens<ResolvedData>> ResolveCodeLens(this ITextDocumentLanguageClient mediator, CodeLens<ResolvedData> @params,
+            CancellationToken cancellationToken = default)
+        {
+            return mediator.SendRequest(@params, cancellationToken);
+        }
+
+        public static Task<CodeLens<TData>> ResolveCodeLens<TData>(this ITextDocumentLanguageClient mediator, CodeLens<TData> @params,
+            CancellationToken cancellationToken = default)
+            where TData : CanBeResolvedData
         {
             return mediator.SendRequest(@params, cancellationToken);
         }

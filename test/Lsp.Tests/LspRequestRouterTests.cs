@@ -86,7 +86,6 @@ namespace Lsp.Tests
             Services
                 .AddJsonRpcMediatR(new[] {typeof(LspRequestRouterTests).Assembly})
                 .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
-            Services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
         }
 
         [Fact]
@@ -102,6 +101,7 @@ namespace Lsp.Tests
                     {textDocumentSyncHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams() {
@@ -136,6 +136,7 @@ namespace Lsp.Tests
                     {textDocumentSyncHandler, textDocumentSyncHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams() {
@@ -173,6 +174,7 @@ namespace Lsp.Tests
                     {textDocumentSyncHandler, codeActionHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -225,6 +227,7 @@ namespace Lsp.Tests
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -253,29 +256,30 @@ namespace Lsp.Tests
             textDocumentSyncHandler2.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>())
                 .Returns(Unit.Value);
 
-            var codeActionHandler = Substitute.For<ICodeLensHandler>();
+            var codeActionHandler = Substitute.For<ICodeLensHandler<ResolvedData>>();
             codeActionHandler.GetRegistrationOptions().Returns(new CodeLensRegistrationOptions()
                 {DocumentSelector = DocumentSelector.ForPattern("**/*.cs")});
             codeActionHandler
-                .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
-                .Returns(new CodeLensContainer());
+                .Handle(Arg.Any<CodeLensParams<ResolvedData>>(), Arg.Any<CancellationToken>())
+                .Returns(new CodeLensContainer<ResolvedData>());
 
-            var codeActionHandler2 = Substitute.For<ICodeLensHandler>();
+            var codeActionHandler2 = Substitute.For<ICodeLensHandler<ResolvedData>>();
             codeActionHandler2.GetRegistrationOptions().Returns(new CodeLensRegistrationOptions()
                 {DocumentSelector = DocumentSelector.ForPattern("**/*.cake")});
             codeActionHandler2
-                .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
-                .Returns(new CodeLensContainer());
+                .Handle(Arg.Any<CodeLensParams<ResolvedData>>(), Arg.Any<CancellationToken>())
+                .Returns(new CodeLensContainer<ResolvedData>());
 
             var collection =
                 new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new CodeLensParams() {
+            var @params = new CodeLensParams<ResolvedData>() {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///c:/test/123.cs"))
             };
 
@@ -284,8 +288,8 @@ namespace Lsp.Tests
 
             await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
 
-            await codeActionHandler2.Received(0).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
-            await codeActionHandler.Received(1).Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>());
+            await codeActionHandler2.Received(0).Handle(Arg.Any<CodeLensParams<ResolvedData>>(), Arg.Any<CancellationToken>());
+            await codeActionHandler.Received(1).Handle(Arg.Any<CodeLensParams<ResolvedData>>(), Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -301,6 +305,7 @@ namespace Lsp.Tests
                     {handler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(AutoSubstitute.Resolve<TextDocumentMatcher>());
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();

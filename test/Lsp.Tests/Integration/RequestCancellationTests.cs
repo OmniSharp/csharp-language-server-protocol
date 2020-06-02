@@ -36,7 +36,7 @@ namespace Lsp.Tests.Integration
 
             var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
             CancellationToken.Register(cts.Cancel);
-            Func<Task<CompletionList>> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
+            Func<Task<CompletionList<ResolvedData>>> action = () => client.TextDocument.RequestCompletion(new CompletionParams<ResolvedData>() {
                 TextDocument = "/a/file.cs"
             }, cts.Token).AsTask();
             action.Should().Throw<TaskCanceledException>();
@@ -47,7 +47,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
-            var request1 = client.TextDocument.RequestCompletion(new CompletionParams() {
+            var request1 = client.TextDocument.RequestCompletion(new CompletionParams<ResolvedData>() {
                 TextDocument = "/a/file.cs"
             }, CancellationToken).AsTask();
 
@@ -71,7 +71,7 @@ namespace Lsp.Tests.Integration
                 x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
             });
 
-            Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
+            Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams<ResolvedData>() {
                 TextDocument = "/a/file.cs"
             }, CancellationToken).AsTask();
             action.Should().Throw<RequestCancelledException>();
@@ -85,7 +85,7 @@ namespace Lsp.Tests.Integration
                 x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
             });
 
-            Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
+            Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams<ResolvedData>() {
                 TextDocument = "/a/file.cs"
             }, CancellationToken).AsTask();
             action.Should().Throw<RequestCancelledException>();
@@ -135,7 +135,7 @@ namespace Lsp.Tests.Integration
         private void ConfigureServer(LanguageServerOptions options)
         {
             options.WithContentModifiedSupport(true);
-            options.OnCompletion(async (x, ct) => {
+            options.OnCompletion<ResolvedData>(async (x, ct) => {
                 await Task.Delay(50000, ct);
                 return new CompletionList();
             }, new CompletionRegistrationOptions());

@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         {
             return new CompletionOptions()
             {
-                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType == typeof(ICompletionResolveHandler)),
+                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType.IsGenericType && z.HandlerType.GetGenericTypeDefinition() == typeof(ICompletionResolveHandler<>)),
                 AllCommitCharacters = options.AllCommitCharacters,
                 TriggerCharacters = options.TriggerCharacters,
                 WorkDoneProgress = options.WorkDoneProgress,

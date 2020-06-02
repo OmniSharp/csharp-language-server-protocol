@@ -51,8 +51,8 @@ namespace Lsp.Tests.Integration
             await Events.SettleNext();
 
             server.Register(x => x
-                .OnCompletion(
-                    (@params, token) => Task.FromResult(new CompletionList()),
+                .OnCompletion<ResolvedData>(
+                    async (@params, token) => new CompletionList(),
                     registrationOptions: new CompletionRegistrationOptions() {
                         DocumentSelector = DocumentSelector.ForLanguage("vb")
                     })
@@ -74,8 +74,8 @@ namespace Lsp.Tests.Integration
 
             await Events.SettleNext();
 
-            var disposable = server.Register(x => x.OnCompletion(
-                (@params, token) => Task.FromResult(new CompletionList()),
+            var disposable = server.Register(x => x.OnCompletion<ResolvedData>(
+                async (@params, token) => new CompletionList(),
                 registrationOptions: new CompletionRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("vb")
                 })
@@ -209,8 +209,8 @@ namespace Lsp.Tests.Integration
 
         private void ConfigureServer(LanguageServerOptions options)
         {
-            options.OnCompletion(
-                (@params, token) => Task.FromResult(new CompletionList()),
+            options.OnCompletion<ResolvedData>(
+                async (@params, token) => Task.FromResult(new CompletionList()),
                 registrationOptions: new CompletionRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                     ResolveProvider = false,

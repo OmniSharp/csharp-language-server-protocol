@@ -13,7 +13,7 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentLink() {
+            var model = new DocumentLink<ResolvedData>() {
                 Range = new Range(new Position(1, 2), new Position(3, 4)),
                 Target = new Uri("file:///abc/123.cs")
             };
@@ -21,7 +21,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DocumentLink>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DocumentLink<ResolvedData>>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

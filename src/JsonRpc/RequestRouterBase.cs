@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -30,42 +31,48 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IServiceProvider ServiceProvider { get; }
 
-        public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token)
+        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
             using var _ = _logger.BeginScope(new[] {
                 new KeyValuePair<string, string>("Method", notification.Method),
                 new KeyValuePair<string, string>("Params", notification.Params?.ToString())
             });
-            using var scope = _serviceScopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
-            context.Descriptor = descriptor;
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            if (descriptor.Params is null)
+            await Task.WhenAll(descriptors.Select(descriptor => InnerRouteNotification(descriptor)));
+
+            async Task InnerRouteNotification(TDescriptor descriptor)
             {
-                await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
-            }
-            else
-            {
-                _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
-                object @params;
-                if (descriptor.IsDelegatingHandler)
+                using var scope = _serviceScopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                context.Descriptor = descriptor;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                if (descriptor.Params is null)
                 {
-                    // new DelegatingRequest();
-                    var o = notification.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptor.Params, new object[] {o});
+                    await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
                 }
                 else
                 {
-                    @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
-                }
+                    _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
+                    object @params;
+                    if (descriptor.IsDelegatingHandler)
+                    {
+                        // new DelegatingRequest();
+                        var o = notification.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                        @params = Activator.CreateInstance(descriptor.Params, new object[] {o});
+                    }
+                    else
+                    {
+                        @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                    }
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                    await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                }
             }
         }
 
-        public virtual async Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token)
+        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -73,7 +80,27 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Method", request.Method),
                 new KeyValuePair<string, string>("Params", request.Params?.ToString())
             });
-            using var scope = _serviceScopeFactory.CreateScope();
+
+            if (typeof(IAggregateResults).IsAssignableFrom(descriptors.Default.Response))
+            {
+                var responses = await Task.WhenAll(descriptors.Select(InnerRouteRequest));
+                var errorResponse = responses.FirstOrDefault(x => x.IsError);
+                if (errorResponse.IsError) return errorResponse;
+                if (responses.Length == 1)
+                {
+                    return responses[0];
+                }
+
+                if (!(responses[0].Value is OutgoingResponse or)) throw new NotSupportedException("Unsupported response type");
+                if (!(or.Result is IAggregateResults ar)) throw new NotSupportedException("Unsupported result type");
+                return new OutgoingResponse(request.Id, ar.AggregateResults(responses.Skip(1).Select(z => z.Value).OfType<OutgoingResponse>().Select(z => z.Result)), request);
+            }
+
+            return await InnerRouteRequest(descriptors.Default);
+
+            async Task<ErrorResponse> InnerRouteRequest(TDescriptor descriptor)
+            {
+                using var scope = _serviceScopeFactory.CreateScope();
             var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
             context.Descriptor = descriptor;
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
@@ -132,12 +159,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 _logger.LogTrace("Response value was {Type}", responseValue?.GetType().FullName);
             }
-
             return new JsonRpc.Client.OutgoingResponse(request.Id, responseValue, request);
+            }
         }
 
-        public abstract TDescriptor GetDescriptor(Notification notification);
-        public abstract TDescriptor GetDescriptor(Request request);
+        public abstract IRequestDescriptor<TDescriptor> GetDescriptor(Notification notification);
+        public abstract IRequestDescriptor<TDescriptor> GetDescriptor(Request request);
 
         private static readonly MethodInfo SendRequestUnit = typeof(RequestRouterBase<TDescriptor>)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)

@@ -108,8 +108,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             const int column = 5;
             var expectedDocumentPath = AbsoluteDocumentPath;
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
-            var expectedCompletionItems = new CompletionItem[] {
-                new CompletionItem {
+            var expectedCompletionItems = new CompletionItem<ResolvedData>[] {
+                new CompletionItem<ResolvedData> {
                     Kind = CompletionItemKind.Class,
                     Label = "Class1",
                     TextEdit = new TextEdit {
@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     });
                 },
                 server => {
-                    server.OnCompletion((request, cancellationToken) => {
+                    server.OnCompletion<ResolvedData>((request, cancellationToken) => {
                         Assert.NotNull(request.TextDocument);
 
                         Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
@@ -143,14 +143,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                         Assert.Equal(line, request.Position.Line);
                         Assert.Equal(column, request.Position.Character);
 
-                        return Task.FromResult(new CompletionList(
+                        return Task.FromResult(new CompletionList<ResolvedData>(
                             expectedCompletionItems,
                             isIncomplete: true
                         ));
                     }, new CompletionRegistrationOptions());
                 });
 
-            var actualCompletions = await client.TextDocument.RequestCompletion(new CompletionParams() {
+            var actualCompletions = await client.TextDocument.RequestCompletion(new CompletionParams<ResolvedData>() {
                 TextDocument = AbsoluteDocumentPath,
                 Position = (line, column),
             }, CancellationToken);

@@ -13,11 +13,11 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemKinds()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem<ResolvedData>() {
                 Kind = CompletionItemKind.Event
             });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = serializer.DeserializeObject<CompletionItem<ResolvedData>>(json);
             result.Kind.Should().Be(CompletionItemKind.Event);
         }
 
@@ -25,11 +25,11 @@ namespace Lsp.Tests
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemTags()
         {
             var serializer = new Serializer();
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem<ResolvedData>() {
                 Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
             });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = serializer.DeserializeObject<CompletionItem<ResolvedData>>(json);
             result.Tags.Should().Contain(CompletionItemTag.Deprecated);
         }
 
@@ -48,11 +48,11 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem<ResolvedData>() {
                 Kind = CompletionItemKind.Event
             });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = serializer.DeserializeObject<CompletionItem<ResolvedData>>(json);
             result.Kind.Should().Be(CompletionItemKind.Class);
         }
 
@@ -73,11 +73,11 @@ namespace Lsp.Tests
                 }
             });
 
-            var json = serializer.SerializeObject(new CompletionItem() {
+            var json = serializer.SerializeObject(new CompletionItem<ResolvedData>() {
                 Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
             });
 
-            var result = serializer.DeserializeObject<CompletionItem>(json);
+            var result = serializer.DeserializeObject<CompletionItem<ResolvedData>>(json);
             result.Tags.Should().BeEmpty();
         }
     }

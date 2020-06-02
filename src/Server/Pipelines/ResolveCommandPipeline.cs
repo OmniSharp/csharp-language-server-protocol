@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -26,40 +28,27 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            if (request is ICanBeResolved canBeResolved)
-            {
-                string handlerType = null;
-                if (canBeResolved.Data != null && canBeResolved.Data.Type == JTokenType.Object)
-                    handlerType = canBeResolved.Data?[PrivateHandlerTypeName]?.ToString();
-
-                if (!string.IsNullOrWhiteSpace(handlerType))
-                {
-                    canBeResolved.Data = canBeResolved.Data["data"];
-                }
-            }
-
             var response = await next();
             cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (_descriptor is LspHandlerDescriptor handlerDescriptor &&
-                response is IEnumerable<ICanBeResolved> canBeResolveds &&
-                _descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(_descriptor.ImplementationType) == true)
+            if (_descriptor is LspHandlerDescriptor handlerDescriptor && handlerDescriptor.CanBeResolved && response is IEnumerable<object> values)
             {
+                PropertyInfo propertyInfo = null;
                 _logger.LogTrace(
                     "Updating Resolve items with wrapped data for {Method}:{Handler}",
                     _descriptor.Method,
                     _descriptor.ImplementationType.FullName);
-                foreach (var item in canBeResolveds)
+                foreach (var item in values)
                 {
-                    // Originally we were going to change Data to be a JObject instead of JToken
-                    // This allows us to leave data alone by simply wrapping it
-                    // Since we're always going to intercept these items, we can control this.
-                    var data = new JObject();
-                    data["data"] = item.Data;
-                    data[PrivateHandlerTypeName] = _descriptor.ImplementationType.FullName;
-                    data[PrivateHandlerKey] = handlerDescriptor.Key;
-                    item.Data = data;
+                    if (!(item is ICanBeResolved<CanBeResolvedData> value)) continue;
+                    if (value.Data == null)
+                    {
+                        propertyInfo ??= item.GetType().GetProperty(nameof(value.Data));
+                        propertyInfo.SetValue(item, Activator.CreateInstance(propertyInfo.PropertyType));
+                    }
+
+                    value.Data.handler = _descriptor.Handler is ICanBeIdentifiedHandler resolved ? resolved.Id : Guid.Empty;
                 }
             }
 

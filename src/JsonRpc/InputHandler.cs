@@ -54,8 +54,8 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly CompositeDisposable _disposable;
         private readonly AsyncSubject<Unit> _inputActive;
 
-        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)> _requests =
-            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IHandlerDescriptor descriptor)>();
+        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
+            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)>();
 
         private readonly Subject<IObservable<Unit>> _inputQueue;
 
@@ -411,14 +411,14 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                     var descriptor = _requestRouter.GetDescriptor(item.Request);
-                    if (descriptor is null)
+                    if (descriptor.Default is null)
                     {
                         _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                         _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
                         return;
                     }
 
-                    var type = _requestProcessIdentifier.Identify(descriptor);
+                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
                     _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
                 }
 
@@ -446,7 +446,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
                     var descriptor = _requestRouter.GetDescriptor(item.Notification);
-                    if (descriptor is null)
+                    if (descriptor.Default is null)
                     {
                         _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
                         // TODO: Figure out a good way to send this feedback back.
@@ -454,7 +454,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return;
                     }
 
-                    var type = _requestProcessIdentifier.Identify(descriptor);
+                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
                     _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification));
                 }
 
@@ -465,7 +465,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private SchedulerDelegate RouteRequest(IHandlerDescriptor descriptor, Request request)
+        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptor, Request request)
         {
             // start request, create cts, etc
             var cts = new CancellationTokenSource();
@@ -521,7 +521,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 });
         }
 
-        private SchedulerDelegate RouteNotification(IHandlerDescriptor descriptor, Notification notification)
+        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptor, Notification notification)
         {
             return (contentModifiedToken, scheduler) =>
                     // ITS A RACE!

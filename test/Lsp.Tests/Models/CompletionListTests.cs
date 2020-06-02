@@ -12,7 +12,7 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionList(new List<CompletionItem>() { new CompletionItem()
+            var model = new CompletionList(new List<CompletionItem<ResolvedData>>() { new CompletionItem<ResolvedData>()
             {
                 Kind = CompletionItemKind.Class,
                 Detail = "details"
@@ -28,8 +28,8 @@ namespace Lsp.Tests.Models
         [Theory, JsonFixture]
         public void ComplexTest(string expected)
         {
-            var model = new CompletionList(new List<CompletionItem>() {
-                new CompletionItem()
+            var model = new CompletionList(new List<CompletionItem<ResolvedData>>() {
+                new CompletionItem<ResolvedData>()
             {
                 Kind = CompletionItemKind.Class,
                 Detail = "details"

@@ -194,14 +194,14 @@ namespace Lsp.Tests.Matchers
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
-            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler<ResolvedData>), typeof(ICodeLensResolveHandler<ResolvedData>) }, new object[0]) as ICodeLensHandler<ResolvedData>;
             codeLensHandler.GetRegistrationOptions()
                 .Returns(new CodeLensRegistrationOptions()
                 {
                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cs" })
                 });
 
-            var codeLensHandler2 = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]) as ICodeLensHandler;
+            var codeLensHandler2 = Substitute.For(new Type[] { typeof(ICodeLensHandler<ResolvedData>), typeof(ICodeLensResolveHandler<ResolvedData>) }, new object[0]) as ICodeLensHandler<ResolvedData>;
             codeLensHandler2.GetRegistrationOptions()
                 .Returns(new CodeLensRegistrationOptions()
                 {
@@ -210,7 +210,7 @@ namespace Lsp.Tests.Matchers
             collection.Add(codeLensHandler, codeLensHandler2);
 
             // When
-            var result = handlerMatcher.FindHandler(new CodeLensParams()
+            var result = handlerMatcher.FindHandler(new CodeLensParams<ResolvedData>()
             {
                 TextDocument = new VersionedTextDocumentIdentifier { Uri = new Uri("file:///abc/123/d.cs"), Version = 1 }
             },

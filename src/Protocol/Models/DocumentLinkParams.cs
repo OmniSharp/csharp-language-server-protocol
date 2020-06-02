@@ -1,10 +1,11 @@
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Method(TextDocumentNames.DocumentLink, Direction.ClientToServer)]
-    public class DocumentLinkParams : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer, DocumentLink>, IWorkDoneProgressParams
+    public class DocumentLinkParams<TData> : ITextDocumentIdentifierParams, IPartialItemsRequest<DocumentLinkContainer<TData>, DocumentLink<TData>>, IWorkDoneProgressParams where TData : CanBeResolvedData
     {
         /// <summary>
         /// The document to provide document links for.

@@ -19,11 +19,11 @@ namespace Lsp.Tests
             ((IDidCloseTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions() { DocumentSelector = documentSelector });
             ((IDidSaveTextDocumentHandler)handler).GetRegistrationOptions().Returns(new TextDocumentSaveRegistrationOptions() { DocumentSelector = documentSelector });
             ((ITextDocumentIdentifier) handler).GetTextDocumentAttributes(Arg.Any<DocumentUri>())
-                .Returns((info) => new TextDocumentAttributes(info.Arg<DocumentUri>(), language));
+                .Returns((info) => new  [] { new TextDocumentAttributes(info.Arg<DocumentUri>(), language) });
 
             handler
                 .GetTextDocumentAttributes(Arg.Is<DocumentUri>(x => documentSelector.IsMatch(new TextDocumentAttributes(x, language))))
-                .Returns(c => new TextDocumentAttributes(c.Arg<DocumentUri>(), language));
+                .Returns(c => new  [] { new TextDocumentAttributes(c.Arg<DocumentUri>(), language) });
 
             return handler;
         }

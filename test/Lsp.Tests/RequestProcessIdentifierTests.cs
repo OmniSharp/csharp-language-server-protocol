@@ -4,6 +4,7 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
@@ -33,13 +34,13 @@ namespace Lsp.Tests
 
         [Theory]
         [InlineData(typeof(ICodeActionHandler))]
-        [InlineData(typeof(ICodeLensHandler))]
-        [InlineData(typeof(ICodeLensResolveHandler))]
+        [InlineData(typeof(ICodeLensHandler<ResolvedData>))]
+        [InlineData(typeof(ICodeLensResolveHandler<ResolvedData>))]
         [InlineData(typeof(IDefinitionHandler))]
         [InlineData(typeof(IDidCloseTextDocumentHandler))]
         [InlineData(typeof(IDocumentHighlightHandler))]
-        [InlineData(typeof(IDocumentLinkHandler))]
-        [InlineData(typeof(IDocumentLinkResolveHandler))]
+        [InlineData(typeof(IDocumentLinkHandler<ResolvedData>))]
+        [InlineData(typeof(IDocumentLinkResolveHandler<ResolvedData>))]
         [InlineData(typeof(IDocumentSymbolHandler))]
         [InlineData(typeof(IWorkspaceSymbolsHandler))]
         [InlineData(typeof(IWillSaveTextDocumentHandler))]
