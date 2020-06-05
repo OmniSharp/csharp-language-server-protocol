@@ -10,12 +10,14 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 {
     class Settler : ISettler, IRequestSettler
     {
+        private readonly TimeSpan _timeout;
         private readonly CancellationToken _cancellationToken;
         private readonly IObservable<Unit> _settle;
         private readonly IObserver<int> _requester;
 
         public Settler(TimeSpan waitTime, TimeSpan timeout, CancellationToken cancellationToken)
         {
+            _timeout = timeout;
             _cancellationToken = cancellationToken;
             var subject = new Subject<int>();
             var data = subject;

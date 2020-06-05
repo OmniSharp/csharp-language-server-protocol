@@ -33,8 +33,8 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             Action<JsonRpcServerOptions> clientOptionsAction,
             Action<JsonRpcServerOptions> serverOptionsAction)
         {
-            var clientPipe = new Pipe();
-            var serverPipe = new Pipe();
+            var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
+            var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
             var clientTask = JsonRpcServer.From(options => {
                 options
