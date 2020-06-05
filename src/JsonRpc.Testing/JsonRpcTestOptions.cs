@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Pipelines;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
@@ -25,5 +26,9 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public TimeSpan SettleTimeSpan { get; internal set; } = TimeSpan.FromMilliseconds(50);
         public TimeSpan SettleTimeout { get; internal set; } = TimeSpan.FromMilliseconds(500);
         public TimeSpan TestTimeout { get; internal set; } = TimeSpan.FromSeconds(30);
+
+        public PipeOptions DefaultPipeOptions { get; internal set; } =
+            new PipeOptions();
+
     }
 }

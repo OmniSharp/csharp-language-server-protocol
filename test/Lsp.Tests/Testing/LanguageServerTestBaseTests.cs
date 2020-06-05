@@ -19,8 +19,8 @@ namespace Lsp.Tests.Testing
 
         protected override (Stream clientOutput, Stream serverInput) SetupServer()
         {
-            var clientPipe = new Pipe();
-            var serverPipe = new Pipe();
+            var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
+            var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
             var server = LanguageServer.PreInit(options => {
                 options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);

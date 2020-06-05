@@ -35,6 +35,9 @@ namespace Lsp.Tests.Integration
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
             await Events.SettleNext();
+            await Events.SettleNext();
+            await Events.SettleNext();
+            await Events.SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "csharp")
@@ -58,7 +61,7 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await Settle().Take(2);
+            await Task.Delay(TimeSpan.FromSeconds(1));
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
@@ -85,7 +88,7 @@ namespace Lsp.Tests.Integration
 
             disposable.Dispose();
 
-            await Settle().Take(2);
+            await Task.Delay(TimeSpan.FromSeconds(1));
 
             client.RegistrationManager.CurrentRegistrations.Should().NotContain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")

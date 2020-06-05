@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
@@ -15,7 +16,10 @@ namespace Lsp.Tests.Integration
 {
     public class ConnectionAndDisconnectionTests : LanguageProtocolTestBase
     {
-        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithTestTimeout(TimeSpan.FromMinutes(1)))
+        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions()
+            .ConfigureForXUnit(outputHelper)
+            .WithTestTimeout(TimeSpan.FromSeconds(20))
+        )
         {
         }
 
@@ -28,7 +32,7 @@ namespace Lsp.Tests.Integration
             result.Should().BeTrue();
 
             Func<Task> a = () => client.SendRequest("throw").ReturningVoid(CancellationToken);
-            a.Should().Throw<InternalErrorException>();
+            await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await client.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
@@ -43,7 +47,7 @@ namespace Lsp.Tests.Integration
             result.Should().BeTrue();
 
             Func<Task> a = () => server.SendRequest("throw").ReturningVoid(CancellationToken);
-            a.Should().Throw<InternalErrorException>();
+            await a.Should().ThrowAsync<InternalErrorException>();
 
             result = await server.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
