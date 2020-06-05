@@ -15,7 +15,7 @@ namespace Lsp.Tests.Integration
 {
     public class ConnectionAndDisconnectionTests : LanguageProtocolTestBase
     {
-        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithTestTimeout(TimeSpan.FromMilliseconds(1)))
+        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithTestTimeout(TimeSpan.FromMinutes(1)))
         {
         }
 
