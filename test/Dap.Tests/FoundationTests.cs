@@ -250,7 +250,9 @@ namespace Dap.Tests
                                 new[] {
                                         registrySub, Substitute.For(new Type[] {method.GetParameters()[1].ParameterType}, Array.Empty<object>()),
                                     }.Concat(method.GetParameters().Skip(2).Select(z =>
-                                        !z.ParameterType.IsGenericType ? Activator.CreateInstance(z.ParameterType) : Substitute.For(new Type[] {z.ParameterType}, Array.Empty<object>()))
+                                        !z.ParameterType.IsGenericType
+                                            ? Activator.CreateInstance(z.ParameterType)
+                                            : Substitute.For(new Type[] {z.ParameterType}, Array.Empty<object>()))
                                     )
                                     .ToArray());
 
@@ -335,12 +337,12 @@ namespace Dap.Tests
         }
 
 
-
         public class TypeHandlerData : TheoryData<IHandlerTypeDescriptor>
         {
             public TypeHandlerData()
             {
-                foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType))
+                foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(
+                    z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType))
                 {
                     Add(HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
                 }
@@ -414,8 +416,16 @@ namespace Dap.Tests
 
         private static string GetSendMethodName(IHandlerTypeDescriptor descriptor)
         {
-            var name = HandlerName(descriptor);
-            if (name.StartsWith("Run")) return name;
+            var name = SpecialCasedHandlerName(descriptor);
+            if (name.StartsWith("Run")
+                // TODO: Change this next breaking change
+                // || name.StartsWith("Set")
+                // || name.StartsWith("Attach")
+                // || name.StartsWith("Read")
+            )
+            {
+                return name;
+            }
 
             return descriptor.IsNotification ? "Send" + name : "Request" + name;
         }

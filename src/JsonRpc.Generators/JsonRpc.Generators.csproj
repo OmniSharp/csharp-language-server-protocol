@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+    <Sdk Name="CodeGeneration.Roslyn.Plugin.Sdk" Version="0.7.63" />
+
+    <PropertyGroup>
+<!--        <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>-->
+        <TargetFrameworks>netstandard2.0</TargetFrameworks>
+        <AssemblyName>OmniSharp.Extensions.JsonRpc.Generators</AssemblyName>
+        <RootNamespace>OmniSharp.Extensions.JsonRpc.Generators</RootNamespace>
+        <IsPackable>false</IsPackable>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+    </ItemGroup>
+
+</Project>

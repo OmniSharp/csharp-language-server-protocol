@@ -9,6 +9,7 @@
         <EmbeddedResource Include="**\*.json" />
     </ItemGroup>
     <ItemGroup>
+        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
