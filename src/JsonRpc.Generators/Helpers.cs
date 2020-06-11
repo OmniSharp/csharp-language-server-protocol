@@ -810,13 +810,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return name.Substring(name.LastIndexOf('.') + 1);
         }
 
-        public static string GetOnMethodName(INamedTypeSymbol symbol)
+        public static string GetOnMethodName(INamedTypeSymbol symbol, AttributeData attributeData)
         {
+            var namedMethod = attributeData.NamedArguments
+                .Where(z => z.Key == "MethodName")
+                .Select(z => z.Value.Value)
+                .FirstOrDefault();
+            if (namedMethod is string value) return value;
             return "On" + SpecialCasedHandlerName(symbol);
         }
 
-        public static string GetSendMethodName(INamedTypeSymbol symbol)
+        public static string GetSendMethodName(INamedTypeSymbol symbol, AttributeData attributeData)
         {
+            var namedMethod = attributeData.NamedArguments
+                .Where(z => z.Key == "MethodName")
+                .Select(z => z.Value.Value)
+                .FirstOrDefault();
+            if (namedMethod is string value) return value;
             var name = SpecialCasedHandlerName(symbol);
             if (
                 name.StartsWith("Run")

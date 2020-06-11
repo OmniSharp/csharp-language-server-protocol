@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     {
         public GenerateRequestMethodsAttribute(params Type[] proxyTypes)
         {
-
         }
+
+        public string MethodName { get; set; }
     }
 }

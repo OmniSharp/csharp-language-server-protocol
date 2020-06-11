@@ -102,7 +102,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             NameSyntax registryType,
             HashSet<string> additionalUsings)
         {
-            var methodName = GetOnMethodName(interfaceType);
+            var namedMethod = _attributeData.NamedArguments
+                .Where(z => z.Key == "MethodName")
+                .Select(z => z.Value.Value)
+                .FirstOrDefault();
+            var methodName = GetOnMethodName(interfaceType, _attributeData);
 
             var parameters = ParameterList(SeparatedList(new[] {
                 Parameter(Identifier("registry"))
@@ -187,7 +191,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             NameSyntax registryType,
             HashSet<string> additionalUsings)
         {
-            var methodName = GetOnMethodName(interfaceType);
+            var methodName = GetOnMethodName(interfaceType, _attributeData);
 
             var capability = GetCapability(interfaceType);
             var registrationOptions = GetRegistrationOptions(interfaceType);

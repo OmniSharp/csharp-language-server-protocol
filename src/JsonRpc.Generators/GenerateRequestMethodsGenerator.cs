@@ -221,7 +221,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             NameSyntax registryType,
             HashSet<string> additionalUsings)
         {
-            var methodName = GetSendMethodName(interfaceType);
+            var methodName = GetSendMethodName(interfaceType, _attributeData);
             var method = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), methodName)
                 .WithModifiers(TokenList(
                     Token(SyntaxKind.PublicKeyword),
@@ -250,7 +250,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             NameSyntax registryType,
             HashSet<string> additionalUsings)
         {
-            var methodName = GetSendMethodName(interfaceType);
+            var methodName = GetSendMethodName(interfaceType, _attributeData);
             var parameterList = ParameterList(SeparatedList(new[] {
                 Parameter(Identifier("mediator"))
                     .WithType(registryType)

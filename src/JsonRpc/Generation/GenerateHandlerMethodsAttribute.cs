@@ -15,6 +15,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     [Conditional("CodeGeneration")]
     public class GenerateHandlerMethodsAttribute : Attribute
     {
-        public GenerateHandlerMethodsAttribute(params Type[] registryTypes)        { }
+        public GenerateHandlerMethodsAttribute(params Type[] registryTypes)
+        {
+        }
+
+        public string MethodName { get; set; }
     }
 }
