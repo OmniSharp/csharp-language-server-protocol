@@ -788,11 +788,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 }))));
         }
 
-
-
-        private static string GetExtensionClassName(INamedTypeSymbol symbol)
+        public static string GetExtensionClassName(INamedTypeSymbol symbol)
         {
-            return SpecialCasedHandlerFullName(symbol) + "Extensions";
+            return SpecialCasedHandlerFullName(symbol).Split('.').Last() + "Extensions";
             ;
         }
 

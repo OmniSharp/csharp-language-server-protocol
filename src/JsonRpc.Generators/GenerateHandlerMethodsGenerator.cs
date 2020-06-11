@@ -40,9 +40,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 "Microsoft.Extensions.DependencyInjection",
             };
             var symbol = context.SemanticModel.GetDeclaredSymbol(handlerInterface);
-            var name = SpecialCasedHandlerName(symbol);
 
-            var className = $"{name}Extensions";
+            var className = GetExtensionClassName(symbol);
 
             foreach (var registry in GetRegistries(_attributeData, handlerInterface, symbol, context, progress, additionalUsings))
             {
@@ -102,10 +101,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             NameSyntax registryType,
             HashSet<string> additionalUsings)
         {
-            var namedMethod = _attributeData.NamedArguments
-                .Where(z => z.Key == "MethodName")
-                .Select(z => z.Value.Value)
-                .FirstOrDefault();
             var methodName = GetOnMethodName(interfaceType, _attributeData);
 
             var parameters = ParameterList(SeparatedList(new[] {

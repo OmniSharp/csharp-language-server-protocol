@@ -43,9 +43,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 "Microsoft.Extensions.DependencyInjection",
             };
             var symbol = context.SemanticModel.GetDeclaredSymbol(handlerInterface);
-            var name = SpecialCasedHandlerName(symbol);
 
-            var className = $"{name}Extensions";
+            var className = GetExtensionClassName(symbol);
 
             var registries = GetProxies(_attributeData, handlerInterface, symbol, context, progress, additionalUsings);
 
