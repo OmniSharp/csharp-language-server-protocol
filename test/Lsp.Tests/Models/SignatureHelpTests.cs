@@ -31,5 +31,17 @@ namespace Lsp.Tests.Models
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureHelp>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
+
+        [Theory, JsonFixture]
+        public void NoSignaturesTest(string expected)
+        {
+            var model = new SignatureHelp();
+            var result = Fixture.SerializeObject(model);
+
+            result.Should().Be(expected);
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureHelp>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
     }
 }

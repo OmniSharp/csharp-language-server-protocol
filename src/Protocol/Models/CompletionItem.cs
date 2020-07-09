@@ -27,6 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
+        [Optional]
         public Container<CompletionItemTag> Tags { get; set; }
 
         /// <summary>
