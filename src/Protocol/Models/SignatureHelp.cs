@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// One or more signatures.
         /// </summary>
-        public Container<SignatureInformation> Signatures { get; set; }
+        public Container<SignatureInformation> Signatures { get; set; } = new Container<SignatureInformation>();
 
         /// <summary>
         /// The active signature.
