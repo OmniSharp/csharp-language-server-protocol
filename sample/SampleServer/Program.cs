@@ -1,7 +1,4 @@
 using System;
-using System.Diagnostics;
-using System.IO.Pipelines;
-using System.IO.Pipes;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,7 +7,6 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
-using PipeOptions = System.IO.Pipes.PipeOptions;
 
 namespace SampleServer
 {
@@ -32,12 +28,8 @@ namespace SampleServer
             Log.Logger = new LoggerConfiguration()
                 .Enrich.FromLogContext()
                 .WriteTo.File("log.txt", rollingInterval: RollingInterval.Day)
-                .WriteTo.Debug()
                 .MinimumLevel.Verbose()
               .CreateLogger();
-
-            var pipe = new NamedPipeServerStream("samplepipe", PipeDirection.InOut, -1, PipeTransmissionMode.Byte, PipeOptions.Asynchronous);
-            await pipe.WaitForConnectionAsync();
 
             Log.Logger.Information("This only goes file...");
 
@@ -45,10 +37,10 @@ namespace SampleServer
 
             var server = await LanguageServer.From(options =>
                 options
-                    .WithInput(pipe)
-                    .WithOutput(pipe)
+                    .WithInput(Console.OpenStandardInput())
+                    .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
-                        .AddSerilog(Log.Logger)
+                        .AddSerilog()
                         .AddLanguageProtocolLogging()
                         .SetMinimumLevel(LogLevel.Debug))
                     .WithHandler<TextDocumentHandler>()
