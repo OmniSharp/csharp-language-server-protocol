@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 

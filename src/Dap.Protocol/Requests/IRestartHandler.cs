@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Restart, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IRestartHandler : IJsonRpcRequestHandler<RestartArguments, RestartResponse>
     {
     }
@@ -13,25 +14,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public abstract class RestartHandler : IRestartHandler
     {
         public abstract Task<RestartResponse> Handle(RestartArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class RestartExtensions
-    {
-        public static IDebugAdapterServerRegistry OnRestart(this IDebugAdapterServerRegistry registry,
-            Func<RestartArguments, CancellationToken, Task<RestartResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Restart, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnRestart(this IDebugAdapterServerRegistry registry,
-            Func<RestartArguments, Task<RestartResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Restart, RequestHandler.For(handler));
-        }
-
-        public static Task<RestartResponse> RequestRestart(this IDebugAdapterClient mediator, RestartArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Goto, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IGotoHandler : IJsonRpcRequestHandler<GotoArguments, GotoResponse>
     {
     }
@@ -13,25 +14,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public abstract class GotoHandler : IGotoHandler
     {
         public abstract Task<GotoResponse> Handle(GotoArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class GotoExtensions
-    {
-        public static IDebugAdapterServerRegistry OnGoto(this IDebugAdapterServerRegistry registry,
-            Func<GotoArguments, CancellationToken, Task<GotoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Goto, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnGoto(this IDebugAdapterServerRegistry registry,
-            Func<GotoArguments, Task<GotoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Goto, RequestHandler.For(handler));
-        }
-
-        public static Task<GotoResponse> RequestGoto(this IDebugAdapterClient mediator, GotoArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

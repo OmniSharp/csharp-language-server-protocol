@@ -47,7 +47,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected TCapability Capability { get; private set; }
 
             protected PartialResult(
-                Action<TItem, IObserver<TResponse>, CancellationToken> handler,
                 TRegistrationOptions registrationOptions,
                 IProgressManager progressManager,
                 Func<TItem, TResponse> factory)
