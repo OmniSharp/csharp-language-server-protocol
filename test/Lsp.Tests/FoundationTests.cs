@@ -12,10 +12,12 @@ using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using Xunit;
 using Xunit.Abstractions;
@@ -111,8 +113,37 @@ namespace Lsp.Tests
                 .Distinct()
                 .ToHashSet();
 
-            registries.Should().HaveCount(descriptor.Direction == Direction.Bidirectional ? 4 : 2,
-                $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+            if (descriptor.Direction == Direction.Bidirectional)
+            {
+                registries
+                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Should().HaveCountGreaterOrEqualTo(1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                registries
+                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Should().HaveCountGreaterOrEqualTo(1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+            }
+            else if (descriptor.Direction == Direction.ServerToClient)
+            {
+                registries
+                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Should().HaveCountGreaterOrEqualTo(1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                registries
+                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
+            }
+            else if (descriptor.Direction == Direction.ClientToServer)
+            {
+                registries
+                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Should().HaveCountGreaterOrEqualTo(1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                registries
+                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
+            }
         }
 
         [Theory(DisplayName = "Handler all expected extensions methods based on method direction")]
@@ -196,7 +227,7 @@ namespace Lsp.Tests
                 var isFunc = ForAnyParameter(info => info.ParameterType.Name.StartsWith("Func"));
                 var takesParameter = ForAnyParameter(info => info.ParameterType.GetGenericArguments().FirstOrDefault() == descriptor.ParamsType);
                 var takesCapability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == descriptor.CapabilityType);
-                var returnsTask =ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == typeof(Task));
+                var returnsTask = ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == typeof(Task));
 
                 if (descriptor.IsRequest && TypeHandlerExtensionData.HandlersToSkip.All(z => descriptor.HandlerType != z))
                 {
@@ -294,7 +325,8 @@ namespace Lsp.Tests
                 if (descriptor.IsRequest && descriptor.HasPartialItems)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
-                        typeof(IRequestProgressObservable<,>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType), descriptor.ResponseType).IsAssignableFrom(info.ReturnType);
+                        typeof(IRequestProgressObservable<,>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType), descriptor.ResponseType)
+                            .IsAssignableFrom(info.ReturnType);
                     matcher.Match(
                         $"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<IEnumerable<{descriptor.PartialItemsType.Name}>, {descriptor.ResponseType.Name}>>",
                         takesParameter, containsCancellationToken, partialReturnType);
@@ -302,7 +334,7 @@ namespace Lsp.Tests
                 else if (descriptor.IsRequest && descriptor.HasPartialItem)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
-                        typeof(IRequestProgressObservable<,>).MakeGenericType(descriptor.PartialItemType, descriptor.ResponseType).IsAssignableFrom(info.ReturnType) ;
+                        typeof(IRequestProgressObservable<,>).MakeGenericType(descriptor.PartialItemType, descriptor.ResponseType).IsAssignableFrom(info.ReturnType);
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<{descriptor.PartialItemType.Name}, {descriptor.ResponseType.Name}>>",
                         takesParameter, containsCancellationToken, partialReturnType);
                 }
@@ -310,8 +342,7 @@ namespace Lsp.Tests
                 {
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", takesParameter, containsCancellationToken, returns);
                 }
-
-                if (descriptor.IsNotification)
+                else if (descriptor.IsNotification)
                 {
                     matcher.Match($"Action<{descriptor.ParamsType.Name}>", isAction, takesParameter);
                 }
@@ -368,7 +399,8 @@ namespace Lsp.Tests
                                     .ToArray());
 
                             registrySub.Received().ReceivedCalls()
-                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) && z.GetArguments().Length == 3 &&
+                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) &&
+                                          z.GetArguments().Length == 3 &&
                                           z.GetArguments()[0].Equals(_descriptor.Method))
                                 .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
 
@@ -488,7 +520,7 @@ namespace Lsp.Tests
                     descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1));
         }
 
-        private static string SpecialCasedHandlerName(ILspHandlerTypeDescriptor descriptor)
+        public static string SpecialCasedHandlerName(ILspHandlerTypeDescriptor descriptor)
         {
             var name = SpecialCasedHandlerFullName(descriptor);
             return name.Substring(name.LastIndexOf('.') + 1);
