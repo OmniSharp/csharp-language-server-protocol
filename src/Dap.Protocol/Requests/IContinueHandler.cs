@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Continue, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IContinueHandler : IJsonRpcRequestHandler<ContinueArguments, ContinueResponse>
     {
     }
@@ -13,25 +14,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public abstract class ContinueHandler : IContinueHandler
     {
         public abstract Task<ContinueResponse> Handle(ContinueArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class ContinueExtensions
-    {
-        public static IDebugAdapterServerRegistry OnContinue(this IDebugAdapterServerRegistry registry,
-            Func<ContinueArguments, CancellationToken, Task<ContinueResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Continue, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnContinue(this IDebugAdapterServerRegistry registry,
-            Func<ContinueArguments, Task<ContinueResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Continue, RequestHandler.For(handler));
-        }
-
-        public static Task<ContinueResponse> RequestContinue(this IDebugAdapterClient mediator, ContinueArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

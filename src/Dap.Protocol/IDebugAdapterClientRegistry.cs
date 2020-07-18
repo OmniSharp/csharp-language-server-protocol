@@ -1,5 +1,4 @@
-﻿using System;
-using OmniSharp.Extensions.JsonRpc;
+﻿using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {

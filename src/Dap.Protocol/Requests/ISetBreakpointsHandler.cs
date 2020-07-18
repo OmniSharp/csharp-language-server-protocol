@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.SetBreakpoints, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface ISetBreakpointsHandler : IJsonRpcRequestHandler<SetBreakpointsArguments, SetBreakpointsResponse>
     {
     }
@@ -14,25 +15,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         public abstract Task<SetBreakpointsResponse> Handle(SetBreakpointsArguments request,
             CancellationToken cancellationToken);
-    }
-
-    public static class SetBreakpointsExtensions
-    {
-        public static IDebugAdapterServerRegistry OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
-            Func<SetBreakpointsArguments, CancellationToken, Task<SetBreakpointsResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.SetBreakpoints, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnSetBreakpoints(this IDebugAdapterServerRegistry registry,
-            Func<SetBreakpointsArguments, Task<SetBreakpointsResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.SetBreakpoints, RequestHandler.For(handler));
-        }
-
-        public static Task<SetBreakpointsResponse> RequestSetBreakpoints(this IDebugAdapterClient mediator, SetBreakpointsArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

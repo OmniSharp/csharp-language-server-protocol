@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Next, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface INextHandler : IJsonRpcRequestHandler<NextArguments, NextResponse>
     {
     }
@@ -13,25 +14,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public abstract class NextHandler : INextHandler
     {
         public abstract Task<NextResponse> Handle(NextArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class NextExtensions
-    {
-        public static IDebugAdapterServerRegistry OnNext(this IDebugAdapterServerRegistry registry,
-            Func<NextArguments, CancellationToken, Task<NextResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnNext(this IDebugAdapterServerRegistry registry,
-            Func<NextArguments, Task<NextResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Next, RequestHandler.For(handler));
-        }
-
-        public static Task<NextResponse> RequestNext(this IDebugAdapterClient mediator, NextArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

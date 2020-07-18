@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.ExceptionInfo, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IExceptionInfoHandler : IJsonRpcRequestHandler<ExceptionInfoArguments, ExceptionInfoResponse>
     {
     }
@@ -14,25 +15,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         public abstract Task<ExceptionInfoResponse> Handle(ExceptionInfoArguments request,
             CancellationToken cancellationToken);
-    }
-
-    public static class ExceptionInfoExtensions
-    {
-        public static IDebugAdapterServerRegistry OnExceptionInfo(this IDebugAdapterServerRegistry registry,
-            Func<ExceptionInfoArguments, CancellationToken, Task<ExceptionInfoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnExceptionInfo(this IDebugAdapterServerRegistry registry,
-            Func<ExceptionInfoArguments, Task<ExceptionInfoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.ExceptionInfo, RequestHandler.For(handler));
-        }
-
-        public static Task<ExceptionInfoResponse> RequestExceptionInfo(this IDebugAdapterClient mediator, ExceptionInfoArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

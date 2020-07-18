@@ -466,7 +466,7 @@ namespace Lsp.Tests
             public static Type[] HandlersToSkip = new[] {
                 typeof(ISemanticTokensHandler),
                 typeof(ISemanticTokensEditsHandler),
-                typeof(ISemanticTokensRangeHandler)
+                typeof(ISemanticTokensRangeHandler),
             };
 
             public TypeHandlerExtensionData()
@@ -475,6 +475,7 @@ namespace Lsp.Tests
                     .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
+                    if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)) continue;
                     var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type);
 
                     Add(
@@ -499,9 +500,6 @@ namespace Lsp.Tests
             return new Regex(@"(\w+)$")
                     .Replace(descriptor.HandlerType.FullName ?? string.Empty,
                         descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1))
-                    .Replace("Resolve", "")
-                    .Replace("CallHierarchyOutgoing", "CallHierarchy")
-                    .Replace("CallHierarchyIncoming", "CallHierarchy")
                     .Replace("SemanticTokensEdits", "SemanticTokens")
                     .Replace("SemanticTokensRange", "SemanticTokens")
                 ;

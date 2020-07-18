@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -16,6 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 {
     [Obsolete(Constants.Proposal)]
     [Parallel, Method(TextDocumentNames.PrepareCallHierarchy, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ICallHierarchyHandler :
         IJsonRpcRequestHandler<CallHierarchyPrepareParams, Container<CallHierarchyItem>>,
         IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
@@ -24,6 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
     [Obsolete(Constants.Proposal)]
     [Parallel, Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ICallHierarchyIncomingHandler : IJsonRpcRequestHandler<CallHierarchyIncomingCallsParams,
             Container<CallHierarchyIncomingCall>>,
         IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
@@ -32,6 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
     [Obsolete(Constants.Proposal)]
     [Parallel, Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ICallHierarchyOutgoingHandler : IJsonRpcRequestHandler<CallHierarchyOutgoingCallsParams,
             Container<CallHierarchyOutgoingCall>>,
         IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
@@ -65,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     }
 
     [Obsolete(Constants.Proposal)]
-    public static class CallHierarchyExtensions
+    public static partial class CallHierarchyExtensions
     {
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
@@ -93,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>>> handler,
             Func<CallHierarchyIncomingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
             Func<CallHierarchyOutgoingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
@@ -118,7 +121,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
             Func<CallHierarchyIncomingCallsParams, CancellationToken, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
             Func<CallHierarchyOutgoingCallsParams, CancellationToken, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
@@ -141,7 +144,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>>> handler,
             Func<CallHierarchyIncomingCallsParams, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
             Func<CallHierarchyOutgoingCallsParams, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
@@ -164,7 +167,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken> outgoingHandler,
@@ -192,7 +195,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability> outgoingHandler,
@@ -220,7 +223,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CancellationToken> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CancellationToken> outgoingHandler,
@@ -245,7 +248,7 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                 ;
         }
 
-public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegistry registry,
             Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>> outgoingHandler,
@@ -268,33 +271,6 @@ public static ILanguageServerRegistry OnCallHierarchy(this ILanguageServerRegist
                             CallHierarchyRegistrationOptions>(outgoingHandler, registrationOptions,
                             _.GetRequiredService<IProgressManager>(), x => new Container<CallHierarchyOutgoingCall>(x)))
                 ;
-        }
-
-        public static Task<Container<CallHierarchyItem>> RequestCallHierarchy(this ITextDocumentLanguageClient mediator,
-            CallHierarchyPrepareParams @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
-
-        public static IRequestProgressObservable<CallHierarchyIncomingCall> RequestCallHierarchyIncoming(
-            this ITextDocumentLanguageClient mediator, CallHierarchyIncomingCallsParams @params,
-            CancellationToken cancellationToken = default)
-        {
-            return mediator.ProgressManager.MonitorUntil(@params, cancellationToken);
-        }
-
-        public static Task<Container<CallHierarchyOutgoingCall>> RequestCallHierarchyOutgoing(
-            this ITextDocumentLanguageClient mediator, CallHierarchyOutgoingCallsParams @params,
-            CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
-
-        public static IRequestProgressObservable<CallHierarchyOutgoingCall> RequestCallHierarchyIncoming(
-            this ITextDocumentLanguageClient mediator, CallHierarchyOutgoingCallsParams @params,
-            CancellationToken cancellationToken = default)
-        {
-            return mediator.ProgressManager.MonitorUntil(@params, cancellationToken);
         }
     }
 }

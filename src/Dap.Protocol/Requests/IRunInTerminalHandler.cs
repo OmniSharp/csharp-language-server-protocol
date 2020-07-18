@@ -1,11 +1,12 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.RunInTerminal, Direction.ServerToClient)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IRunInTerminalHandler : IJsonRpcRequestHandler<RunInTerminalArguments, RunInTerminalResponse>
     {
     }
@@ -14,25 +15,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         public abstract Task<RunInTerminalResponse> Handle(RunInTerminalArguments request, CancellationToken cancellationToken);
     }
-
-    public static class RunInTerminalExtensions
-    {
-        public static IDebugAdapterClientRegistry OnRunInTerminal(this IDebugAdapterClientRegistry registry,
-            Func<RunInTerminalArguments, CancellationToken, Task<RunInTerminalResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.RunInTerminal, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterClientRegistry OnRunInTerminal(this IDebugAdapterClientRegistry registry,
-            Func<RunInTerminalArguments, Task<RunInTerminalResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.RunInTerminal, RequestHandler.For(handler));
-        }
-
-        public static Task<RunInTerminalResponse> RunInTerminal(this IDebugAdapterServer mediator, RunInTerminalArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
-    }
-
 }

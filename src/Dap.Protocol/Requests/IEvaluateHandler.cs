@@ -1,38 +1,18 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Evaluate, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IEvaluateHandler : IJsonRpcRequestHandler<EvaluateArguments, EvaluateResponse>
     {
     }
 
-
     public abstract class EvaluateHandler : IEvaluateHandler
     {
         public abstract Task<EvaluateResponse> Handle(EvaluateArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class EvaluateExtensions
-    {
-        public static IDebugAdapterServerRegistry OnEvaluate(this IDebugAdapterServerRegistry registry,
-            Func<EvaluateArguments, CancellationToken, Task<EvaluateResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnEvaluate(this IDebugAdapterServerRegistry registry,
-            Func<EvaluateArguments, Task<EvaluateResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Evaluate, RequestHandler.For(handler));
-        }
-
-        public static Task<EvaluateResponse> RequestEvaluate(this IDebugAdapterClient mediator, EvaluateArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }
