@@ -53,7 +53,7 @@ namespace Lsp.Tests
             {
                 foreach (var item in typeof(DocumentSymbol).Assembly.ExportedTypes
                     .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
-                    .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))TextDocumentIdentifier
+                    .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))
                 )
                 {
                     Add(item);
