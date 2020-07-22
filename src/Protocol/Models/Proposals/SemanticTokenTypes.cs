@@ -32,7 +32,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         public static IEnumerable<SemanticTokenType> Defaults => _defaults.Value;
 
-        public static readonly SemanticTokenType Documentation = new SemanticTokenType("documentation");
         public static readonly SemanticTokenType Comment = new SemanticTokenType("comment");
         public static readonly SemanticTokenType Keyword = new SemanticTokenType("keyword");
         public static readonly SemanticTokenType String = new SemanticTokenType("string");
@@ -53,6 +52,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         public static readonly SemanticTokenType Variable = new SemanticTokenType("variable");
         public static readonly SemanticTokenType Parameter = new SemanticTokenType("parameter");
         public static readonly SemanticTokenType Label = new SemanticTokenType("label");
+        public static readonly SemanticTokenType Modifier = new SemanticTokenType("modifier");
+        public static readonly SemanticTokenType Event = new SemanticTokenType("event");
+        public static readonly SemanticTokenType EnumMember = new SemanticTokenType("enumMember");
 
         private readonly string _value;
 

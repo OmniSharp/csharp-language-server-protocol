@@ -493,7 +493,7 @@ namespace Lsp.Tests
         {
             public static Type[] HandlersToSkip = new[] {
                 typeof(ISemanticTokensHandler),
-                typeof(ISemanticTokensEditsHandler),
+                typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
             };
 
@@ -529,6 +529,7 @@ namespace Lsp.Tests
                     .Replace(descriptor.HandlerType.FullName ?? string.Empty,
                         descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1))
                     .Replace("SemanticTokensEdits", "SemanticTokens")
+                    .Replace("SemanticTokensDelta", "SemanticTokens")
                     .Replace("SemanticTokensRange", "SemanticTokens")
                 ;
         }

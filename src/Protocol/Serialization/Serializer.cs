@@ -102,8 +102,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new ProgressTokenConverter());
             ReplaceConverter(converters, new MarkedStringsOrMarkupContentConverter());
             ReplaceConverter(converters, new CommandOrCodeActionConverter());
-            ReplaceConverter(converters, new SemanticTokensOrSemanticTokensEditsConverter());
-            ReplaceConverter(converters, new SemanticTokensPartialResultOrSemanticTokensEditsPartialResultConverter());
+            ReplaceConverter(converters, new SemanticTokensFullOrDeltaConverter());
+            ReplaceConverter(converters, new SemanticTokensFullOrDeltaPartialResultConverter());
             ReplaceConverter(converters, new SymbolInformationOrDocumentSymbolConverter());
             ReplaceConverter(converters, new LocationOrLocationLinkConverter());
             ReplaceConverter(converters, new WorkspaceEditDocumentChangeConverter());

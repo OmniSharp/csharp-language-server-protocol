@@ -43,7 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             return new SemanticTokensBuilder(this, _legend);
         }
 
-        public SemanticTokensBuilder Edit(SemanticTokensEditsParams @params)
+        public SemanticTokensBuilder Edit(SemanticTokensDeltaParams @params)
         {
             if (@params.PreviousResultId == Id)
             {
@@ -151,7 +151,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             };
         }
 
-        public SemanticTokensOrSemanticTokensEdits GetSemanticTokensEdits()
+        public SemanticTokensFullOrDelta GetSemanticTokensEdits()
         {
             if (!_prevData.HasValue) return GetSemanticTokens();
 
@@ -176,7 +176,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 }
 
                 var newData = ImmutableArray.Create(_data, startIndex, dataLength - endIndex - startIndex);
-                var result = new SemanticTokensEdits {
+                var result = new SemanticTokensDelta {
                     ResultId = Id,
                     Edits = new[] {
                         new SemanticTokensEdit {
@@ -191,7 +191,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
             if (startIndex < dataLength)
             {
-                return new SemanticTokensEdits {
+                return new SemanticTokensDelta {
                     ResultId = Id, Edits = new[] {
                         new SemanticTokensEdit {
                             Start = startIndex,
@@ -204,7 +204,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
             if (startIndex < prevDataLength)
             {
-                return new SemanticTokensEdits {
+                return new SemanticTokensDelta {
                     ResultId = Id,
                     Edits = new[] {
                         new SemanticTokensEdit {
@@ -215,7 +215,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 };
             }
 
-            return new SemanticTokensEdits {
+            return new SemanticTokensDelta {
                 ResultId = Id, Edits = Array.Empty<SemanticTokensEdit>()
             };
         }

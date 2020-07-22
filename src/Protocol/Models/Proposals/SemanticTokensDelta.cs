@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    public class SemanticTokensEdits
+    public class SemanticTokensDelta
     {
         /// <summary>
         /// An optional result id. If provided and clients support delta updating

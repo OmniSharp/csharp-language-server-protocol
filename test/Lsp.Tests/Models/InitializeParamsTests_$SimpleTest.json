@@ -31,7 +31,9 @@
                     "snippetSupport": true,
                     "commitCharactersSupport": false,
                     "deprecatedSupport": false,
-                    "preselectSupport": false
+                    "preselectSupport": false,
+                    "insertReplaceSupport": false,
+                    "resolveAdditionalTextEditsSupport": false
                 },
                 "contextSupport": false,
                 "dynamicRegistration": true
@@ -90,6 +92,6 @@
             "abc": "test"
         }
     },
-    "trace": "verbose",
+    "traceValue": "verbose",
     "workspaceFolders": null
 }

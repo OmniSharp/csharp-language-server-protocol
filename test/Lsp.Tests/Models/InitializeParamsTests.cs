@@ -75,7 +75,7 @@ namespace Lsp.Tests.Models
                 InitializationOptions = null,
                 ProcessId = 1234,
                 RootUri = new Uri("file:///file/abc/12.cs"),
-                Trace = InitializeTrace.Verbose
+                TraceValue = TraceValue.Verbose
             };
 
             var result = Fixture.SerializeObject(model);

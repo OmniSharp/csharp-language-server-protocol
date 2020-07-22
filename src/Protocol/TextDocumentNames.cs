@@ -43,9 +43,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Obsolete(Constants.Proposal)]
         public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
         [Obsolete(Constants.Proposal)]
-        public const string SemanticTokens = "textDocument/semanticTokens";
+        public const string SemanticTokensFull = "textDocument/semanticTokens/full";
         [Obsolete(Constants.Proposal)]
-        public const string SemanticTokensEdits = "textDocument/semanticTokens/edits";
+        public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
         [Obsolete(Constants.Proposal)]
         public const string SemanticTokensRange = "textDocument/semanticTokens/range";
     }

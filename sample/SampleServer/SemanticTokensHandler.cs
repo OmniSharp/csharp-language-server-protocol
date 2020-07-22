@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
@@ -14,38 +15,37 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 namespace SampleServer
 {
 #pragma warning disable 618
-    public class SemanticTokens : SemanticTokensHandler
+    public class SemanticTokensHandler : SemanticTokensHandlerBase
     {
         private readonly ILogger _logger;
 
-        public SemanticTokens(ILogger<SemanticTokens> logger) : base(new SemanticTokensRegistrationOptions() {
+        public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger) : base(new SemanticTokensRegistrationOptions() {
             DocumentSelector = DocumentSelector.ForLanguage("csharp"),
             Legend = new SemanticTokensLegend(),
-            DocumentProvider = new Supports<SemanticTokensDocumentProviderOptions>(true,
-                new SemanticTokensDocumentProviderOptions() {
-                    Edits = true
-                }),
-            RangeProvider = true
+            Full = new SemanticTokensCapabilityRequestFull() {
+                Delta = true
+            },
+            Range = true
         })
         {
             _logger = logger;
         }
 
-        public override async Task<OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals.SemanticTokens> Handle(
+        public override async Task<SemanticTokens> Handle(
             SemanticTokensParams request, CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);
             return result;
         }
 
-        public override async Task<OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals.SemanticTokens> Handle(
+        public override async Task<SemanticTokens> Handle(
             SemanticTokensRangeParams request, CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);
             return result;
         }
 
-        public override async Task<SemanticTokensOrSemanticTokensEdits> Handle(SemanticTokensEditsParams request,
+        public override async Task<SemanticTokensFullOrDelta> Handle(SemanticTokensDeltaParams request,
             CancellationToken cancellationToken)
         {
             var result = await base.Handle(request, cancellationToken);

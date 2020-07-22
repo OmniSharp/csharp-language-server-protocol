@@ -5,7 +5,7 @@ using Newtonsoft.Json.Converters;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(StringEnumConverter))]
-    public enum InitializeTrace
+    public enum TraceValue
     {
         [EnumMember(Value="off")]
         Off,

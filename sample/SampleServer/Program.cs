@@ -37,8 +37,6 @@ namespace SampleServer
 
             var server = await LanguageServer.From(options =>
                 options
-                    .WithInput(Console.OpenStandardInput())
-                    .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
                         .AddSerilog()
                         .AddLanguageProtocolLogging()
@@ -48,7 +46,7 @@ namespace SampleServer
                     .WithHandler<FoldingRangeHandler>()
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
-                    .WithHandler<SemanticTokens>()
+                    .WithHandler<SemanticTokensHandler>()
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                     .WithServices(services => {
                         services.AddSingleton(provider => {
