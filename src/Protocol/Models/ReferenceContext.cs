@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class ReferenceContext
@@ -6,5 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Include the declaration of the current symbol.
         /// </summary>
         public bool IncludeDeclaration { get; set; }
+
     }
 }

@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SymbolInformation
     {
         /// <summary>
@@ -40,5 +42,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public string ContainerName { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

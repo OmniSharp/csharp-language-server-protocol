@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -5,6 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// The result of a hover request.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Hover
     {
         /// <summary>
@@ -18,5 +20,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Range Range { get; set; }
+
+        private string DebuggerDisplay => $"{Contents}{(Range != null ? $" {Range}" : string.Empty)}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

@@ -1,4 +1,5 @@
-﻿using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+﻿using System.Diagnostics;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -7,6 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// can have a label, like a function-name, a doc-comment, and
     /// a set of parameters.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SignatureInformation
     {
         /// <summary>
@@ -27,5 +29,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Container<ParameterInformation> Parameters { get; set; }
+
+        private string DebuggerDisplay => $"{Label}{Documentation?.ToString() ?? ""}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

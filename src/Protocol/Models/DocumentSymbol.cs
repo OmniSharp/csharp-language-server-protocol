@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -8,6 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// hierarchical and they have two ranges: one that encloses its definition and one that points to its most interesting range,
     /// e.g. the range of an identifier.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentSymbol
     {
         /// <summary>
@@ -60,5 +62,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Container<DocumentSymbol> Children { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}] {Name} {{ range: {Range}, selection: {SelectionRange}, detail: {Detail ?? string.Empty} }}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class StringOrMarkupContent
     {
         public StringOrMarkupContent(string value)
@@ -26,5 +29,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new StringOrMarkupContent(markupContent);
         }
+
+        private string DebuggerDisplay => $"{(HasString ? String : HasMarkupContent ? MarkupContent.ToString() : string.Empty)}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

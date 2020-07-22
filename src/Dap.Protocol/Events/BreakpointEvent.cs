@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;

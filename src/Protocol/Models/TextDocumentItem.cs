@@ -1,5 +1,8 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+﻿using System.Diagnostics;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class TextDocumentItem : TextDocumentIdentifier
     {
         /// <summary>
@@ -17,5 +20,9 @@
         /// The content of the opened text document.
         /// </summary>
         public string Text { get; set; }
+
+        private string DebuggerDisplay => $"({LanguageId}@{Version}) {Uri}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

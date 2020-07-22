@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Range : IEquatable<Range>
     {
         public Range() { }
@@ -57,5 +59,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new Range(value.start, value.end);
         }
+
+        private string DebuggerDisplay => $"[start: {Start}, end: {End}]";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public struct SymbolInformationOrDocumentSymbol
     {
         private DocumentSymbol _documentSymbol;
@@ -40,5 +43,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new SymbolInformationOrDocumentSymbol(value);
         }
+
+        private string DebuggerDisplay => IsDocumentSymbol ? DocumentSymbol.ToString() : IsDocumentSymbolInformation ? SymbolInformation.ToString() : string.Empty;
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

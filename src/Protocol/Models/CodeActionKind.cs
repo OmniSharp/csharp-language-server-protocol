@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A set of predefined code action kinds
     /// </summary>
-    [DebuggerDisplay("{_value}")]
+    [DebuggerDisplay("{" + nameof(_value) + "}")]
     [JsonConverter(typeof(EnumLikeStringConverter))]
     public readonly struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
     {
@@ -95,6 +95,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return kind._value;
         }
 
+        /// <inheritdoc />
         public override string ToString() => _value;
         public bool Equals(CodeActionKind other) => _value == other._value;
 

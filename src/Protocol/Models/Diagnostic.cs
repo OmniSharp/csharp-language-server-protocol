@@ -1,7 +1,10 @@
+using System.Diagnostics;
+using System.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Diagnostic
     {
         /// <summary>
@@ -48,5 +51,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Container<DiagnosticRelatedInformation> RelatedInformation { get; set; }
+
+        private string DebuggerDisplay =>
+            $"{(Code.HasValue ? $"[{Code.Value.ToString()}]" : "")}" +
+            $"{Range}" +
+            $"{(string.IsNullOrWhiteSpace(Source) ? "" : $" ({Source})")}" +
+            $"{(Tags?.Any() == true ? $" [tags: {string.Join(", ", Tags.Select(z => z.ToString()))}]" : "")}" +
+            $" {(Message?.Length > 20 ? Message.Substring(0, 20) : Message)}";
     }
 }

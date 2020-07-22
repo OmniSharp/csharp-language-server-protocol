@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {
         private long? _long;
@@ -24,8 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public long Long
         {
             get => _long ?? 0;
-            set
-            {
+            set {
                 String = null;
                 _long = value;
             }
@@ -35,8 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string String
         {
             get => _string;
-            set
-            {
+            set {
                 _string = value;
                 _long = null;
             }
@@ -90,5 +90,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return this.IsString && this.String == other;
         }
+
+        private string DebuggerDisplay => IsString ? String : IsLong ? Long.ToString() : "";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

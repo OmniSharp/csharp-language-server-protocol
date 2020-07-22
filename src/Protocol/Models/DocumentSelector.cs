@@ -1,6 +1,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Joins;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -8,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// A collection of document filters used to identify valid documents
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentSelector : ContainerBase<DocumentFilter>
     {
         public DocumentSelector() : this(Enumerable.Empty<DocumentFilter>())
@@ -68,5 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new DocumentSelector(schemes.Select(DocumentFilter.ForScheme));
         }
+
+        private string DebuggerDisplay => this;
     }
 }

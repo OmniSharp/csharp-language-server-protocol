@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -15,6 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     /// Note that markdown strings will be sanitized - that means html will be escaped.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MarkedString
     {
         public MarkedString(string value)
@@ -36,5 +38,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new MarkedString(value);
         }
+
+        private string DebuggerDisplay => $"{(string.IsNullOrWhiteSpace(Language) ? string.Empty : $"[{Language}] ")}{Value}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

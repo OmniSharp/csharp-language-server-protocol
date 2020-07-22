@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class TextDocumentIdentifier : IEquatable<TextDocumentIdentifier>
     {
         public TextDocumentIdentifier()
@@ -31,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((TextDocumentIdentifier) obj);
+            return Equals((TextDocumentIdentifier)obj);
         }
 
         public override int GetHashCode() => Uri.GetHashCode();
@@ -42,12 +44,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator TextDocumentIdentifier(DocumentUri uri)
         {
-            return new TextDocumentIdentifier() {Uri = uri};
+            return new TextDocumentIdentifier() { Uri = uri };
         }
 
         public static implicit operator TextDocumentIdentifier(string uri)
         {
-            return new TextDocumentIdentifier() {Uri = uri};
+            return new TextDocumentIdentifier() { Uri = uri };
         }
+
+        private string DebuggerDisplay => Uri?.ToString();
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }
