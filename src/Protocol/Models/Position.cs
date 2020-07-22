@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Position : IEquatable<Position>
     {
         public Position()
@@ -59,5 +61,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new Position(value.line, value.character);
         }
+
+        private string DebuggerDisplay => $"(line: {Line}, char: {Character})";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

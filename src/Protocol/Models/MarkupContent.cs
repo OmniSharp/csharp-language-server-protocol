@@ -24,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// *Please Note* that clients might sanitize the return markdown. A client could decide to
     /// remove HTML from the markdown to avoid script execution.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MarkupContent
     {
         /// <summary>
@@ -35,5 +36,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The content itself
         /// </summary>
         public string Value { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}] {Value}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

@@ -1,7 +1,9 @@
 using System;
+using System.Diagnostics;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class VersionedTextDocumentIdentifier : TextDocumentIdentifier, IEquatable<VersionedTextDocumentIdentifier>
     {
         public bool Equals(VersionedTextDocumentIdentifier other)
@@ -16,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((VersionedTextDocumentIdentifier) obj);
+            return Equals((VersionedTextDocumentIdentifier)obj);
         }
 
         public override int GetHashCode()
@@ -35,5 +37,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The version number of this document.
         /// </summary>
         public long Version { get; set; }
+
+        private string DebuggerDisplay => $"({Version}) {Uri}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

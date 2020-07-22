@@ -2,6 +2,7 @@ using System;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class WorkspaceFolder : IEquatable<WorkspaceFolder>
     {
         /// <summary>
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((WorkspaceFolder) obj);
+            return Equals((WorkspaceFolder)obj);
         }
 
         public override int GetHashCode()
@@ -40,5 +41,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static bool operator ==(WorkspaceFolder left, WorkspaceFolder right) => Equals(left, right);
 
         public static bool operator !=(WorkspaceFolder left, WorkspaceFolder right) => !Equals(left, right);
+
+        private string DebuggerDisplay => $"{Name} ({Uri})";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

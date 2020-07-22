@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     ///
     ///  @since 3.15.0
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ServerInfo
     {
         /// <summary>
@@ -19,5 +20,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public string Version { get; set; }
+
+        private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

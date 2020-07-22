@@ -1,9 +1,12 @@
+using System.Diagnostics;
+using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Command
     {
         /// <summary>
@@ -23,5 +26,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public JArray Arguments { get; set; }
+
+        private string DebuggerDisplay =>
+            $"{Title}{(string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}")}{(Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))))}";
+
+        public override string ToString() => DebuggerDisplay;
     }
 }

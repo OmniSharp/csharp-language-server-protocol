@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -12,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A code lens is _unresolved_ when no command is associated to it. For performance
     /// reasons the creation of a code lens and resolving should be done in two stages.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
     public class CodeLens : ICanBeResolved, IRequest<CodeLens>
     {
@@ -32,5 +34,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public JToken Data { get; set; }
+
+        private string DebuggerDisplay => $"{Range}{(Command != null ? $" Command" : "")}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

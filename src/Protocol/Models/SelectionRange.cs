@@ -1,5 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class SelectionRange
     {
         /// <summary>
@@ -11,5 +12,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The parent selection range containing this range. Therefore `parent.range` must contain `this.range`.
         /// </summary>
         public SelectionRange Parent { get; set; }
+
+        private string DebuggerDisplay => $"{Range} {{{Parent}}}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

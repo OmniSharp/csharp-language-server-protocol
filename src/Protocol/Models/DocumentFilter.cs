@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Minimatch;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -7,6 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentFilter : IEquatable<DocumentFilter>
     {
         public static DocumentFilter ForPattern(string wildcard)
@@ -55,8 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string Pattern
         {
             get => _pattern;
-            set
-            {
+            set {
                 _pattern = value;
                 _minimatcher = new Minimatcher(value, new Options() { MatchBase = true });
             }
@@ -78,14 +79,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             {
                 items.Add(documentFilter.Language);
             }
+
             if (documentFilter.HasScheme)
             {
                 items.Add(documentFilter.Scheme);
             }
+
             if (documentFilter.HasPattern)
             {
                 items.Add(documentFilter.Pattern);
             }
+
             return $"[{string.Join(", ", items)}]";
         }
 
@@ -95,26 +99,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             {
                 return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
+
             if (HasLanguage && HasPattern)
             {
                 return Language == attributes.LanguageId && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
+
             if (HasLanguage && HasScheme)
             {
                 return Language == attributes.LanguageId && Scheme == attributes.Scheme;
             }
+
             if (HasPattern && HasScheme)
             {
                 return Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
             }
+
             if (HasLanguage)
             {
                 return Language == attributes.LanguageId;
             }
+
             if (HasScheme)
             {
                 return Scheme == attributes.Scheme;
             }
+
             if (HasPattern)
             {
                 return _minimatcher.IsMatch(attributes.Uri.ToString());
@@ -122,6 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
             return false;
         }
+
         public bool Equals(DocumentFilter other)
         {
             if (ReferenceEquals(null, other)) return false;
@@ -134,7 +145,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
-            return Equals((DocumentFilter) obj);
+            return Equals((DocumentFilter)obj);
         }
 
         public override int GetHashCode()
@@ -151,5 +162,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static bool operator ==(DocumentFilter left, DocumentFilter right) => Equals(left, right);
 
         public static bool operator !=(DocumentFilter left, DocumentFilter right) => !Equals(left, right);
+
+        private string DebuggerDisplay => (string)this;
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

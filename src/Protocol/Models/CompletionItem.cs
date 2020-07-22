@@ -1,3 +1,5 @@
+using System.Diagnostics;
+using System.Linq;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -5,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [Method(TextDocumentNames.CompletionResolve, Direction.ClientToServer)]
     public class CompletionItem : ICanBeResolved, IRequest<CompletionItem>
     {
@@ -129,5 +132,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public JToken Data { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

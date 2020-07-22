@@ -1,5 +1,8 @@
+using System.Diagnostics;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public struct CommandOrCodeAction
     {
         private CodeAction _codeAction;
@@ -19,8 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public Command Command
         {
             get { return this._command; }
-            set
-            {
+            set {
                 this._command = value;
                 this._codeAction = null;
             }
@@ -30,16 +32,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public CodeAction CodeAction
         {
             get { return this._codeAction; }
-            set
-            {
+            set {
                 this._command = default;
                 this._codeAction = value;
             }
         }
         public object RawValue
         {
-            get
-            {
+            get {
                 if (IsCommand) return Command;
                 if (IsCodeAction) return CodeAction;
                 return default;
@@ -55,5 +55,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new CommandOrCodeAction(value);
         }
+
+        private string DebuggerDisplay => $"{(IsCommand ? $"command: {Command}" : IsCodeAction ? $"code action: {CodeAction}" : "...")}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

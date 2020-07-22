@@ -3,6 +3,7 @@ using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Location : IEquatable<Location>
     {
         /// <summary>
@@ -44,5 +45,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return !(location1 == location2);
         }
+
+        private string DebuggerDisplay => $"{{{Range} {Uri}}}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

@@ -1,5 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class FileSystemWatcher
     {
         /// <summary>
@@ -21,5 +22,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// which is 7.
         /// </summary>
         public WatchKind Kind { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}] {GlobPattern}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

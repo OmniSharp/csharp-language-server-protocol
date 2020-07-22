@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// text document or a web site.
     /// </summary>
     [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentLink : ICanBeResolved, IRequest<DocumentLink>
     {
         /// <summary>
@@ -41,5 +42,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public string Tooltip { get; set; }
+
+        private string DebuggerDisplay => $"{Range}{(Target != null ? $" {Target}" : "")}{(string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "")}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

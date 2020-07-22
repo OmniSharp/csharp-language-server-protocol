@@ -1,7 +1,9 @@
+using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CodeAction
     {
         /// <summary>
@@ -48,5 +50,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public Command Command { get; set; }
+
+        private string DebuggerDisplay => $"[{Kind}] {Title}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

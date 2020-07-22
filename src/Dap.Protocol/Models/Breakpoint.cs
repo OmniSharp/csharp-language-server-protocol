@@ -5,6 +5,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// <summary>
     /// Information about a Breakpoint created in setBreakpoints or setFunctionBreakpoints.
     /// </summary>
+
     public class Breakpoint
     {
         /// <summary>

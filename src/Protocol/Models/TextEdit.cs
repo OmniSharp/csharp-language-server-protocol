@@ -1,5 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class TextEdit
     {
         /// <summary>
@@ -13,5 +14,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// empty string.
         /// </summary>
         public string NewText { get; set; }
+
+        private string DebuggerDisplay => $"{Range} {(string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText)}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

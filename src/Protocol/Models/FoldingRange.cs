@@ -5,6 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <summary>
     /// Represents a folding range.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class FoldingRange
     {
         /// <summary>
@@ -36,5 +37,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public FoldingRangeKind? Kind { get; set; }
+
+        private string DebuggerDisplay => $"[start: (line: {StartLine}{(StartCharacter.HasValue ? $", char: {StartCharacter}" : string.Empty)}), end: (line: {EndLine}, char: {(EndCharacter.HasValue ? $", char: {EndCharacter}" : string.Empty)})]";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

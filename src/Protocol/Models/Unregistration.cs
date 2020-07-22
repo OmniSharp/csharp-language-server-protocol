@@ -3,6 +3,7 @@
     /// <summary>
     ///  General parameters to unregister a request or notification.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class Unregistration
     {
         /// <summary>
@@ -23,5 +24,9 @@
                 Method = registration.Method
             };
         }
+
+        private string DebuggerDisplay => $"[{Id}] {Method}";
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }
