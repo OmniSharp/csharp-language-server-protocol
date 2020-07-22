@@ -57,6 +57,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             $"{Range}" +
             $"{(string.IsNullOrWhiteSpace(Source) ? "" : $" ({Source})")}" +
             $"{(Tags?.Any() == true ? $" [tags: {string.Join(", ", Tags.Select(z => z.ToString()))}]" : "")}" +
-            $" {(Message.Length > 20 ? Message.Substring(0, 20) : Message)}";
+            $" {(Message?.Length > 20 ? Message.Substring(0, 20) : Message)}";
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -31,6 +32,33 @@ namespace Lsp.Tests
         public FoundationTests(ITestOutputHelper outputHelper)
         {
             _logger = new TestLoggerFactory(outputHelper).CreateLogger(typeof(FoundationTests));
+        }
+
+        [Theory(DisplayName = "Should not throw when accessing the debugger properties")]
+        [ClassData(typeof(DebuggerDisplayTypes))]
+        public void Debugger_Display_Should_Not_Throw(Type type)
+        {
+            var instance = Activator.CreateInstance(type);
+            var property = type.GetProperty("DebuggerDisplay", BindingFlags.NonPublic | BindingFlags.Instance);
+            Func<string> a1 = () => property.GetValue(instance) as string;
+            Func<string> a2 = () => instance.ToString();
+
+            a1.Should().NotThrow().And.NotBeNull();
+            a2.Should().NotThrow().And.NotBeNull();
+        }
+
+        class DebuggerDisplayTypes : TheoryData<Type>
+        {
+            public DebuggerDisplayTypes()
+            {
+                foreach (var item in typeof(DocumentSymbol).Assembly.ExportedTypes
+                    .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
+                    .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))TextDocumentIdentifier
+                )
+                {
+                    Add(item);
+                }
+            }
         }
 
         [Theory(DisplayName = "Params types should have a method attribute")]

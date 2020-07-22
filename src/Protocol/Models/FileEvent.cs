@@ -1,4 +1,6 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+﻿using System.Diagnostics;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     ///  An event describing a file change.

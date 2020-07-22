@@ -1,4 +1,6 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+﻿using System.Diagnostics;
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     ///  General parameters to unregister a request or notification.
