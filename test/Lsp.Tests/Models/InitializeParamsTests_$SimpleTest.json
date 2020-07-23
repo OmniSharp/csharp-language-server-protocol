@@ -92,6 +92,6 @@
             "abc": "test"
         }
     },
-    "traceValue": "verbose",
+    "trace": "verbose",
     "workspaceFolders": null
 }
