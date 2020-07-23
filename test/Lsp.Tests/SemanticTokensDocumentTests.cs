@@ -32,8 +32,48 @@ namespace Lsp.Tests
             _loggerFactory = new TestLoggerFactory(testOutputHelper);
             _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
             _legend = new SemanticTokensLegend() {
-                TokenModifiers = SemanticTokenModifier.Defaults.Select(x => x.ToString()).ToArray(),
-                TokenTypes = SemanticTokenType.Defaults.Select(x => x.ToString()).ToArray(),
+                // specify a specific set so that additions to the default list do not cause breaks in the tests.
+                TokenModifiers = new[] {
+                        new SemanticTokenModifier("documentation"),
+                        new SemanticTokenModifier("declaration"),
+                        new SemanticTokenModifier("definition"),
+                        new SemanticTokenModifier("static"),
+                        new SemanticTokenModifier("async"),
+                        new SemanticTokenModifier("abstract"),
+                        new SemanticTokenModifier("deprecated"),
+                        new SemanticTokenModifier("readonly"),
+                        new SemanticTokenModifier("modification"),
+                        new SemanticTokenModifier("defaultLibrary")
+                    }
+                    .Select(z => z.ToString())
+                    .ToArray(),
+                TokenTypes = new[] {
+                        new SemanticTokenType("comment"),
+                        new SemanticTokenType("keyword"),
+                        new SemanticTokenType("string"),
+                        new SemanticTokenType("number"),
+                        new SemanticTokenType("regexp"),
+                        new SemanticTokenType("operator"),
+                        new SemanticTokenType("namespace"),
+                        new SemanticTokenType("type"),
+                        new SemanticTokenType("struct"),
+                        new SemanticTokenType("class"),
+                        new SemanticTokenType("interface"),
+                        new SemanticTokenType("enum"),
+                        new SemanticTokenType("typeParameter"),
+                        new SemanticTokenType("function"),
+                        new SemanticTokenType("member"),
+                        new SemanticTokenType("property"),
+                        new SemanticTokenType("macro"),
+                        new SemanticTokenType("variable"),
+                        new SemanticTokenType("parameter"),
+                        new SemanticTokenType("label"),
+                        new SemanticTokenType("modifier"),
+                        new SemanticTokenType("event"),
+                        new SemanticTokenType("enumMember"),
+                    }
+                    .Select(x => x.ToString())
+                    .ToArray(),
             };
         }
 
@@ -240,7 +280,15 @@ namespace Lsp.Tests
                     index = text.IndexOf(part, index, StringComparison.Ordinal);
                     // _logger.LogDebug("Index for part after {Index}: {Text}", index, part);
                     var item = faker.Generate();
-                    builder.Push(line, index, part.Length, item.type, item.Modifiers);
+                    if (index % 2 == 0)
+                    {
+                        builder.Push(line, index, part.Length, item.type, item.Modifiers);
+                    }
+                    else
+                    {
+                        // ensure range gets some love
+                        builder.Push(((line, index), (line, part.Length + index)), item.type, item.Modifiers);
+                    }
                 }
             }
         }
