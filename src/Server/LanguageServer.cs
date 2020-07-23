@@ -269,7 +269,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ClientSettings = request;
 
-            if (request.TraceValue == TraceValue.Verbose)
+            if (request.Trace == TraceValue.Verbose)
             {
                 var loggerSettings = _serviceProvider.GetService<LanguageServerLoggerSettings>();
 

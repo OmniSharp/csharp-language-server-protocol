@@ -221,7 +221,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public async Task Initialize(CancellationToken token)
         {
             var @params = new InitializeParams {
-                TraceValue = _traceValue,
+                Trace = _traceValue,
                 Capabilities = _clientCapabilities,
                 ClientInfo = _clientInfo,
                 RootUri = _rootUri,

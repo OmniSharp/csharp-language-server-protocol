@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The initial trace setting. If omitted trace is disabled ('off').
         /// </summary>
         [Optional]
-        public TraceValue TraceValue { get; set; } = TraceValue.Off;
+        public TraceValue Trace { get; set; } = TraceValue.Off;
 
         /// <summary>
         /// The workspace folders configured in the client when the server starts.
