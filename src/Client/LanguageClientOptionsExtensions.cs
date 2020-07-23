@@ -56,9 +56,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithTrace(this LanguageClientOptions options, TraceValue traceValue)
+        public static LanguageClientOptions WithTrace(this LanguageClientOptions options, InitializeTrace trace)
         {
-            options.TraceValue = traceValue;
+            options.Trace = trace;
             return options;
         }
 

@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly object _initializationOptions;
         private readonly IWorkspaceFoldersManager _workspaceFoldersManager;
         private readonly DocumentUri _rootUri;
-        private readonly TraceValue _traceValue;
+        private readonly InitializeTrace _trace;
         private readonly IRegistrationManager _registrationManager;
         private readonly ClientCapabilities _clientCapabilities;
         private readonly IProgressManager _progressManager;
@@ -121,7 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             // _initializedDelegates = initializedDelegates;
             _startedDelegates = options.StartedDelegates;
             _rootUri = options.RootUri;
-            _traceValue = options.TraceValue;
+            _trace = options.Trace;
             _initializationOptions = options.InitializationOptions;
 
             services.AddSingleton<IOutputHandler>(_ =>
@@ -221,7 +221,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public async Task Initialize(CancellationToken token)
         {
             var @params = new InitializeParams {
-                Trace = _traceValue,
+                Trace = _trace,
                 Capabilities = _clientCapabilities,
                 ClientInfo = _clientInfo,
                 RootUri = _rootUri,

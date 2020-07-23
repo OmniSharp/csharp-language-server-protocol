@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The new value that should be assigned to the trace setting.
         /// </summary>
-        public TraceValue Value { get; set; }
+        public InitializeTrace Value { get; set; }
     }
 }

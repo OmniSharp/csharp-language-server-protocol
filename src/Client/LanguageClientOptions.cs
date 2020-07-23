@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             set => RootUri = DocumentUri.FromFileSystemPath(value);
         }
 
-        public TraceValue TraceValue { get; set; }
+        public InitializeTrace Trace { get; set; }
 
         public object InitializationOptions { get; set; }
 
