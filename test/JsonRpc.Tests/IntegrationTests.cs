@@ -179,5 +179,30 @@ namespace JsonRpc.Tests
                 await action.Should().ThrowAsync<ContentModifiedException>();
             }
         }
+
+        [Fact]
+        public async Task Should_Link_Request_A_to_Request_B()
+        {
+            var (client, server) = await Initialize(
+                client => {
+                    client
+                        .OnRequest("myrequest", async () => new Data() {Value = "myresponse"})
+                        .WithLink("myrequest", "myrequest2")
+                        ;
+                },
+                server => {
+                    server
+                        .OnRequest("myrequest", async () => new Data() {Value = string.Join("", "myresponse".Reverse())})
+                        .WithLink("myrequest", "myrequest2")
+                        ;
+                }
+            );
+
+            var serverResponse = await client.SendRequest("myrequest2").Returning<Data>(CancellationToken);
+            serverResponse.Value.Should().Be("esnopserym");
+
+            var clientResponse = await server.SendRequest("myrequest2").Returning<Data>(CancellationToken);
+            clientResponse.Value.Should().Be("myresponse");
+        }
     }
 }

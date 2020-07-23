@@ -27,10 +27,10 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                     acc += next;
                     return acc;
                 })
-                .Select(z => z <= 0 ? Observable.Timer(waitTime).Select(_ => Unit.Default).Timeout(timeout, Observable.Return(Unit.Default)) : Observable.Never<Unit>())
-                .Switch()
                 .Replay(1)
-                .RefCount();
+                .RefCount()
+                .Select(z => z <= 0 ? Observable.Timer(waitTime).Select(_ => Unit.Default).Timeout(timeout, Observable.Return(Unit.Default)) : Observable.Never<Unit>())
+                .Switch();
             _requester = subject;
         }
 
@@ -43,7 +43,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public IObservable<Unit> Settle()
         {
-            return _settle;
+            return _settle.Timeout(_timeout).Catch<Unit, Exception>(_ => Observable.Empty<Unit>());
         }
 
         void IRequestSettler.OnStartRequest()

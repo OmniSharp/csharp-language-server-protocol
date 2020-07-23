@@ -6,5 +6,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options);
         IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options);
+        IDisposable AddLink(string sourceMethod, string destinationMethod);
     }
 }

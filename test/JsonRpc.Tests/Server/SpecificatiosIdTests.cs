@@ -12,7 +12,7 @@ using Xunit.Abstractions;
 
 namespace JsonRpc.Tests.Server
 {
-    public class SpecifictionIdTests
+    public class SpecificatiosIdTests
     {
         [Theory]
         [ClassData(typeof(SimpleTestMessages))]

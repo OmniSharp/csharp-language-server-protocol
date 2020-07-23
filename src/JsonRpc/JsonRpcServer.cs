@@ -98,6 +98,7 @@ namespace OmniSharp.Extensions.JsonRpc
             );
             _disposable.Add(_connection);
             _collection.Add(_serviceProvider.GetRequiredService<IEnumerable<IJsonRpcHandler>>().ToArray());
+            options.AddLinks(_collection);
         }
 
         private async Task Initialize(CancellationToken cancellationToken)

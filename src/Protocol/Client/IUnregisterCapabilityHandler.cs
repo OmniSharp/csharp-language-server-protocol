@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Serial, Method(ClientNames.UnregisterCapability, Direction.ServerToClient)]
+    [Parallel, Method(ClientNames.UnregisterCapability, Direction.ServerToClient)]
     [GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
     public interface IUnregisterCapabilityHandler : IJsonRpcRequestHandler<UnregistrationParams> { }
 

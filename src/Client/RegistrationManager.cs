@@ -36,16 +36,23 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         Task<Unit> IRequestHandler<RegistrationParams, Unit>.Handle(RegistrationParams request, CancellationToken cancellationToken)
         {
-            Register(request.Registrations.ToArray());
+            lock (this)
+            {
+                Register(request.Registrations.ToArray());
+            }
+
             _registrationSubject.OnNext(_registrations.Values);
             return Unit.Task;
         }
 
         Task<Unit> IRequestHandler<UnregistrationParams, Unit>.Handle(UnregistrationParams request, CancellationToken cancellationToken)
         {
-            foreach (var item in request.Unregisterations ?? new UnregistrationContainer())
+            lock (this)
             {
-                _registrations.TryRemove(item.Id, out _);
+                foreach (var item in request.Unregisterations ?? new UnregistrationContainer())
+                {
+                    _registrations.TryRemove(item.Id, out _);
+                }
             }
 
             _registrationSubject.OnNext(_registrations.Values);

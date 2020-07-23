@@ -17,8 +17,8 @@ import {
     InitializeParams,
     StreamInfo,
     createServerPipeTransport,
-} from "vscode-languageclient";
-import { Trace, createClientPipeTransport } from "vscode-jsonrpc";
+} from "vscode-languageclient/node";
+import { Trace, createClientPipeTransport } from "vscode-jsonrpc/node";
 import { createConnection } from "net";
 
 export function activate(context: ExtensionContext) {

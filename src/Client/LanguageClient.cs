@@ -200,6 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var serviceIdentifiers = _serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
             _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
             _disposable.Add(_collection.Add(serviceHandlers));
+            options.AddLinks(_collection);
         }
 
         public ITextDocumentLanguageClient TextDocument { get; }

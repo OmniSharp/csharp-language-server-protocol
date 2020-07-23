@@ -139,5 +139,11 @@ namespace OmniSharp.Extensions.JsonRpc
             MaximumRequestTimeout = maximumRequestTimeout;
             return (T)(object) this;
         }
+
+        public T WithLink(string source, string destination)
+        {
+            Links.Add((source, destination));
+            return (T)(object) this;
+        }
     }
 }

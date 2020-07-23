@@ -53,9 +53,41 @@ namespace Lsp.Tests.Integration
             result.Should().BeTrue();
         }
 
+        [Fact]
+        public async Task Server_Should_Support_Links()
+        {
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+
+            var result = await client.SendRequest("ka").Returning<bool>(CancellationToken);
+            result.Should().BeTrue();
+
+            Func<Task> a = () => client.SendRequest("t").ReturningVoid(CancellationToken);
+            await a.Should().ThrowAsync<InternalErrorException>();
+
+            result = await client.SendRequest("ka").Returning<bool>(CancellationToken);
+            result.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Client_Should_Support_Links()
+        {
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+
+            var result = await server.SendRequest("ka").Returning<bool>(CancellationToken);
+            result.Should().BeTrue();
+
+            Func<Task> a = () => server.SendRequest("t").ReturningVoid(CancellationToken);
+            await a.Should().ThrowAsync<InternalErrorException>();
+
+            result = await server.SendRequest("ka").Returning<bool>(CancellationToken);
+            result.Should().BeTrue();
+        }
+
         private void ConfigureClient(LanguageClientOptions options)
         {
             options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.WithLink("keepalive", "ka");
+            options.WithLink("throw", "t");
             options.OnRequest("throw", async ct => {
                 throw new NotSupportedException();
                 return Task.CompletedTask;
@@ -65,6 +97,8 @@ namespace Lsp.Tests.Integration
         private void ConfigureServer(LanguageServerOptions options)
         {
             options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.WithLink("keepalive", "ka");
+            options.WithLink("throw", "t");
             options.OnRequest("throw", async ct => {
                 throw new NotSupportedException();
                 return Task.CompletedTask;

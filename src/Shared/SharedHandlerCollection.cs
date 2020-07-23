@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private static readonly MethodInfo GetRegistrationMethod = typeof(SharedHandlerCollection)
             .GetTypeInfo()
             .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static);
+
         private readonly ISupportedCapabilities _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         internal readonly HashSet<LspHandlerDescriptor> _handlers = new HashSet<LspHandlerDescriptor>();
@@ -45,9 +46,25 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return GetEnumerator();
         }
 
-        IDisposable IHandlersManager.Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add( new [] { handler }, options);
+        IDisposable IHandlersManager.Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(new[] {handler}, options);
 
         IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(method, handler, options);
+
+        IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
+        {
+            var source = _handlers.First(z => z.Method == sourceMethod);
+            LspHandlerDescriptor descriptor = null;
+            descriptor = GetDescriptor(destinationMethod, source.HandlerType, source.Handler,
+                source.RequestProcessType.HasValue ? new JsonRpcHandlerOptions() {RequestProcessType = source.RequestProcessType.Value} : null);
+            _handlers.Add(descriptor);
+            var cd = new CompositeDisposable();
+            if (descriptor.Handler is ITextDocumentIdentifier textDocumentIdentifier)
+            {
+                cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
+            }
+
+            return new LspHandlerDescriptorDisposable(new[] {descriptor}, cd);
+        }
 
         public LspHandlerDescriptorDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
@@ -58,7 +75,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
             }
-            return new LspHandlerDescriptorDisposable(new[] { descriptor }, cd);
+
+            return new LspHandlerDescriptorDisposable(new[] {descriptor}, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options)
@@ -71,7 +89,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
             }
-            return new LspHandlerDescriptorDisposable(new[] { descriptor }, cd);
+
+            return new LspHandlerDescriptorDisposable(new[] {descriptor}, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
@@ -83,7 +102,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 cd.Add(_textDocumentIdentifiers.Add(textDocumentIdentifier));
             }
-            return new LspHandlerDescriptorDisposable(new [] {descriptor }, cd);
+
+            return new LspHandlerDescriptorDisposable(new[] {descriptor}, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(params Type[] handlerTypes)
@@ -175,8 +195,12 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         {
             var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(method);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
-            var registrationType = typeDescriptor?.RegistrationType ?? HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);
-            var capabilityType = typeDescriptor?.CapabilityType ?? HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType);
+            var registrationType = typeDescriptor?.RegistrationType ??
+                                   HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType) ??
+                                   HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handler.GetType());
+            var capabilityType = typeDescriptor?.CapabilityType ??
+                                 HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType) ??
+                                 HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handler.GetType());
 
             Type @params = null;
             object registrationOptions = null;
@@ -189,7 +213,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 registrationOptions = GetRegistrationMethod
                     .MakeGenericMethod(registrationType)
-                    .Invoke(null, new object[] { handler });
+                    .Invoke(null, new object[] {handler});
             }
 
             var key = "default";
@@ -200,10 +224,12 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 {
                     key = handlerRegistration?.GetRegistrationOptions()?.DocumentSelector ?? key;
                 }
+
                 // In some scenarios, users will implement both the main handler and the resolve handler to the same class
                 // This allows us to get a key for those interfaces so we can register many resolve handlers
                 // and then route those resolve requests to the correct handler
-                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>)))
+                if (handler.GetType().GetTypeInfo().ImplementedInterfaces
+                    .Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>)))
                 {
                     key = handlerRegistration?.GetRegistrationOptions()?.DocumentSelector ?? key;
                 }
@@ -214,10 +240,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var requestProcessType =
                 options?.RequestProcessType ??
                 typeDescriptor?.RequestProcessType ??
-                                     handlerType.GetCustomAttributes(true)
-                                        .Concat(@interface.GetCustomAttributes(true))
-                                        .OfType<ProcessAttribute>()
-                                        .FirstOrDefault()?.Type;
+                handlerType.GetCustomAttributes(true)
+                    .Concat(@interface.GetCustomAttributes(true))
+                    .OfType<ProcessAttribute>()
+                    .FirstOrDefault()?.Type;
 
             var descriptor = new LspHandlerDescriptor(
                 method,
@@ -227,12 +253,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 @params,
                 registrationType,
                 registrationOptions,
-                (registrationType ==  null ? (Func<bool>) (() => false) : (() => _supportedCapabilities.AllowsDynamicRegistration(capabilityType))),
+                (registrationType == null ? (Func<bool>) (() => false) : (() => _supportedCapabilities.AllowsDynamicRegistration(capabilityType))),
                 capabilityType,
                 requestProcessType,
-                () => {
-                    _handlers.RemoveWhere(d => d.Handler == handler);
-                });
+                () => { _handlers.RemoveWhere(d => d.Handler == handler); });
 
             return descriptor;
         }

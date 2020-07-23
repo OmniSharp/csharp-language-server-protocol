@@ -68,6 +68,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
 
                 var subject = new AsyncSubject<TItem>();
+                // in the event nothing is emitted...
+                subject.OnNext(default);
                 Handle(request, subject, cancellationToken);
                 return _factory(await subject);
             }

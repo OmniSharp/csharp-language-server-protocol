@@ -1,10 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
 
@@ -37,8 +41,10 @@ namespace SampleServer
 
             var server = await LanguageServer.From(options =>
                 options
+                    .WithInput(Console.OpenStandardInput())
+                    .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
-                        .AddSerilog()
+                        .AddSerilog(Log.Logger)
                         .AddLanguageProtocolLogging()
                         .SetMinimumLevel(LogLevel.Debug))
                     .WithHandler<TextDocumentHandler>()
@@ -47,6 +53,9 @@ namespace SampleServer
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
                     .WithHandler<SemanticTokensHandler>()
+                    // Linking here because the spec changed but vscode is behind
+                    .WithLink(TextDocumentNames.SemanticTokensFull, "textDocument/semanticTokens")
+                    .WithLink(TextDocumentNames.SemanticTokensFullDelta, "textDocument/semanticTokens/edits")
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                     .WithServices(services => {
                         services.AddSingleton(provider => {
