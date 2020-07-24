@@ -8,12 +8,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Parallel, Method(ClientNames.UnregisterCapability, Direction.ServerToClient)]
+    [Parallel, Method(GeneralNames.LogTrace, Direction.ServerToClient)]
     [GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-    public interface IUnregisterCapabilityHandler : IJsonRpcRequestHandler<UnregistrationParams> { }
+    public interface ILogTraceHandler : IJsonRpcNotificationHandler<LogTraceParams> { }
 
-    public abstract class UnregisterCapabilityHandler : IUnregisterCapabilityHandler
+    public abstract class LogTraceHandler : ILogTraceHandler
     {
-        public abstract Task<Unit> Handle(UnregistrationParams request, CancellationToken cancellationToken);
+        public abstract Task<Unit> Handle(LogTraceParams request, CancellationToken cancellationToken);
     }
 }

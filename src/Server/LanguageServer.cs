@@ -31,6 +31,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
@@ -85,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static async Task<LanguageServer> From(LanguageServerOptions options, CancellationToken token)
         {
-            var server = (LanguageServer)PreInit(options);
+            var server = (LanguageServer) PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -199,6 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 var serviceIdentifiers = _serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
                 _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
                 _disposable.Add(_collection.Add(serviceHandlers));
+                options.AddLinks(_collection);
             }
         }
 
@@ -420,7 +422,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         OpenClose = _collection.ContainsHandler(typeof(IDidOpenTextDocumentHandler)) ||
                                     _collection.ContainsHandler(typeof(IDidCloseTextDocumentHandler)),
                         Save = _collection.ContainsHandler(typeof(IDidSaveTextDocumentHandler))
-                            ? new SaveOptions() { IncludeText = true /* TODO: Make configurable */}
+                            ? new SaveOptions() {IncludeText = true /* TODO: Make configurable */}
                             : null,
                         WillSave = _collection.ContainsHandler(typeof(IWillSaveTextDocumentHandler)),
                         WillSaveWaitUntil = _collection.ContainsHandler(typeof(IWillSaveWaitUntilTextDocumentHandler))
@@ -476,12 +478,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (registrations.Length == 0)
                 return; // No dynamic registrations supported by client.
 
-            var @params = new RegistrationParams() { Registrations = registrations };
+            var @params = new RegistrationParams() {Registrations = registrations};
 
             await _initializeComplete;
 
             await Client.RegisterCapability(@params);
         }
+
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
@@ -497,6 +500,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         protected override IResponseRouter ResponseRouter => _responseRouter;
         protected override IHandlersManager HandlersManager => _collection;
+
         public IDisposable Register(Action<ILanguageServerRegistry> registryAction)
         {
             var manager = new CompositeHandlersManager(_collection);
@@ -509,6 +513,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var registrations = new List<Registration>();
             foreach (var descriptor in collection)
             {
+                if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
+                    lspHandlerDescriptor.TypeDescriptor?.HandlerType != null &&
+                    typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType))
+                {
+                    continue;
+                }
+
                 if (descriptor.HasCapability && _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
                 {
                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
@@ -550,16 +561,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 return new CompositeDisposable(lsp, RegisterHandlers(lsp.Descriptors));
             }
+
             if (!(handlerDisposable is CompositeDisposable cd)) return Disposable.Empty;
             cd.Add(RegisterHandlers(cd.OfType<LspHandlerDescriptorDisposable>().SelectMany(z => z.Descriptors)));
             return cd;
         }
-
     }
 
     class LangaugeServerRegistry : InterimLanguageProtocolRegistry<ILanguageServerRegistry>, ILanguageServerRegistry
     {
-        public LangaugeServerRegistry(IServiceProvider serviceProvider, CompositeHandlersManager handlersManager, TextDocumentIdentifiers textDocumentIdentifiers) : base(serviceProvider, handlersManager, textDocumentIdentifiers)
+        public LangaugeServerRegistry(IServiceProvider serviceProvider, CompositeHandlersManager handlersManager, TextDocumentIdentifiers textDocumentIdentifiers) : base(
+            serviceProvider, handlersManager, textDocumentIdentifiers)
         {
         }
     }

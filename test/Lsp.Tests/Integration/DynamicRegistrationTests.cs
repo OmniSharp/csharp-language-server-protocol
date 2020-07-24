@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -34,10 +35,7 @@ namespace Lsp.Tests.Integration
 
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-            await Events.SettleNext();
-            await Events.SettleNext();
-            await Events.SettleNext();
-            await Events.SettleNext();
+            await Events.Settle().Take(2);
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "csharp")
@@ -51,7 +49,7 @@ namespace Lsp.Tests.Integration
 
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-            await Events.SettleNext();
+            await SettleNext();
 
             server.Register(x => x
                 .OnCompletion(
@@ -61,11 +59,52 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
             );
+        }
+
+        [Fact]
+        public async Task Should_Register_Links_Dynamically_While_Server_Is_Running()
+        {
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+
+            client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
+
+            await SettleNext();
+
+            server.Register(x => x
+                .OnCompletion(
+                    (@params, token) => Task.FromResult(new CompletionList()),
+                    registrationOptions: new CompletionRegistrationOptions() {
+                        DocumentSelector = DocumentSelector.ForLanguage("vb")
+                    })
+            );
+
+            await SettleNext();
+
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
+                x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
+            );
+        }
+
+        [Fact]
+        public async Task Should_Gather_Linked_Registrations()
+        {
+            var (client, server) = await Initialize(ConfigureClient,
+                options => {
+                    ConfigureServer(options);
+                    options.WithLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull);
+                });
+
+            await Events.Settle().Take(2);
+
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensRange);
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.SemanticTokensFull);
         }
 
         [Fact]
@@ -88,7 +127,7 @@ namespace Lsp.Tests.Integration
 
             disposable.Dispose();
 
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Events.Settle();
 
             client.RegistrationManager.CurrentRegistrations.Should().NotContain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
@@ -104,9 +143,9 @@ namespace Lsp.Tests.Integration
                     var semanticRegistrationOptions = new SemanticTokensRegistrationOptions() {
                         Id = Guid.NewGuid().ToString(),
                         Legend = new SemanticTokensLegend(),
-                        DocumentProvider = new SemanticTokensDocumentProviderOptions(),
-                        DocumentSelector = DocumentSelector.ForLanguage("csharp"),
-                        RangeProvider = true
+                        Full = new SemanticTokensCapabilityRequestFull() { Delta = true} ,
+                        Range = new SemanticTokensCapabilityRequestRange() {  },
+                        DocumentSelector = DocumentSelector.ForLanguage("csharp")
                     };
 
                     // Our server only statically registers when it detects a server that does not support dynamic capabilities
@@ -119,7 +158,7 @@ namespace Lsp.Tests.Integration
                             return Task.CompletedTask;
                         });
                 });
-            client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokens);
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
         }
 
         [Fact]
@@ -179,7 +218,7 @@ namespace Lsp.Tests.Integration
                 }
             }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration));
 
-            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokens);
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFull);
         }
 
         private void ConfigureClient(LanguageClientOptions options)

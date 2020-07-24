@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         ///  Save notifications are sent to the server.
         /// </summary>
         [Optional]
-        public SaveOptions Save { get; set; }
+        public BooleanOr<SaveOptions> Save { get; set; }
 
         public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options, IEnumerable<IHandlerDescriptor> descriptors)
         {
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
                 WillSaveWaitUntil = options.Any(z => z.WillSaveWaitUntil),
                 Save = new SaveOptions()
                 {
-                    IncludeText = options.Any(z => z.Save?.IncludeText == true)
+                    IncludeText = options.Any(z => z.Save.IsValue && z.Save.Value.IncludeText)
                 }
             };
         }

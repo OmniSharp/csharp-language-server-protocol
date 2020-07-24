@@ -70,7 +70,7 @@ namespace Lsp.Tests.Integration
                     Observer.Create<WorkDoneProgress>(z => work.Add(z))
                 ).Subscribe(x => items.AddRange(x));
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             var workResults = work.Select(z => z.Message);
 

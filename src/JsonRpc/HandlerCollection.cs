@@ -9,9 +9,11 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
+
+
     public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
-        internal readonly List<HandlerInstance> _handlers = new List<HandlerInstance>();
+        internal readonly List<IHandlerDescriptor> _handlers = new List<IHandlerDescriptor>();
 
         public HandlerCollection() { }
 
@@ -70,6 +72,41 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
+        [DebuggerDisplay("{Method}")]
+        internal class LinkedHandler : IHandlerDescriptor, IDisposable
+        {
+            private readonly IHandlerDescriptor _descriptor;
+            private readonly Action _disposeAction;
+
+            public LinkedHandler(string method, IHandlerDescriptor descriptor, Action disposeAction)
+            {
+                _descriptor = descriptor;
+                _disposeAction = disposeAction;
+                Method = method;
+            }
+            public string Method { get; }
+            public Type HandlerType => _descriptor.HandlerType;
+
+            public Type ImplementationType => _descriptor.ImplementationType;
+
+            public Type Params => _descriptor.Params;
+
+            public Type Response => _descriptor.Response;
+
+            public bool HasReturnType => _descriptor.HasReturnType;
+
+            public bool IsDelegatingHandler => _descriptor.IsDelegatingHandler;
+
+            public IJsonRpcHandler Handler => _descriptor.Handler;
+
+            public RequestProcessType? RequestProcessType => _descriptor.RequestProcessType;
+
+            public void Dispose()
+            {
+                _disposeAction();
+            }
+        }
+
         public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
             return _handlers.GetEnumerator();
@@ -82,8 +119,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private void Remove(IJsonRpcHandler handler)
         {
-            var i = _handlers.Find(instance => instance.Handler == handler);
-            if (i != null) _handlers.Remove(i);
+            var handlers = _handlers.FindAll(instance => instance.Handler == handler);
+            foreach (var item in handlers)
+            {
+                _handlers.Remove(item);
+            }
         }
 
         public IDisposable Add(params IJsonRpcHandler[] handlers)
@@ -128,6 +168,14 @@ namespace OmniSharp.Extensions.JsonRpc
                 .FirstOrDefault()?.Type;
 
             var h = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
+            _handlers.Add(h);
+            return h;
+        }
+
+        public IDisposable AddLink(string sourceMethod, string destinationMethod)
+        {
+            var source = _handlers.Find(z => z.Method == sourceMethod);
+            var h = new LinkedHandler(destinationMethod, source, () => _handlers.RemoveAll(z => z.Method == destinationMethod));
             _handlers.Add(h);
             return h;
         }

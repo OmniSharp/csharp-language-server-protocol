@@ -7,8 +7,8 @@
         <PackageReference Include="FluentAssertions" />
         <PackageReference Include="NSubstitute" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-        <PackageReference Include="Autofac" />
-        <PackageReference Include="Autofac.Extensions.DependencyInjection" />
+        <PackageReference Include="DryIoc.dll" />
+        <PackageReference Include="DryIoc.Microsoft.DependencyInjection" />
         <PackageReference Include="Serilog.Extensions.Logging" />
         <PackageReference Include="Serilog.Sinks.XUnit" />
         <PackageReference Include="XunitXml.TestLogger" />

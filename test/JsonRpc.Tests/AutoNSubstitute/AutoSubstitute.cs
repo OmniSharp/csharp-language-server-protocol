@@ -1,133 +1,163 @@
 using System;
-using Autofac;
-using Autofac.Builder;
-using Autofac.Core;
-using Autofac.Features.ResolveAnything;
+using System.Collections.Concurrent;
+using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using DryIoc;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute.Internals
 {
-    /// <summary>
-    /// Auto mocking container using <see cref="Autofac"/> and <see cref="NSubstitute"/>.
+/// <summary>
+    /// Automatically creates substitute for requested services that haven't been registered
     /// </summary>
     public class AutoSubstitute : IDisposable
     {
-
         /// <summary>
-        /// Create an AutoSubstitute, but modify the <see cref="Autofac.ContainerBuilder"/> before building a container.
+        /// Create a container that automatically substitutes unknown types.
         /// </summary>
-        /// <param name="builderModifier">Action to modify the <see cref="Autofac.ContainerBuilder"/></param>
-        public AutoSubstitute(Action<ContainerBuilder> builderModifier)
+        /// <param name="container"></param>
+        /// <param name="configureAction"></param>
+        public AutoSubstitute(
+            IContainer? container = null,
+            Func<IContainer, IContainer>? configureAction = null)
         {
-            var builder = new ContainerBuilder();
+            Container = container ?? new Container();
 
-            builder.RegisterSource(new AnyConcreteTypeNotAlreadyRegisteredSource());
-            builder.RegisterSource(new NSubstituteRegistrationHandler());
+            Container = Container
 
-            builderModifier(builder);
+                .With(rules => rules
+                        .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))
+                        .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
+                        .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
+                );
 
-            Container = builder.Build();
+            if (configureAction != null)
+            {
+                Container = configureAction.Invoke(Container);
+            }
         }
 
         /// <summary>
-        /// <see cref="IContainer"/> that handles the component resolution.
+        /// Gets the <see cref="IContainer"/> that handles the component resolution.
         /// </summary>
         public IContainer Container { get; }
 
         /// <summary>
-        /// Cleans up the <see cref="Autofac.Core.Container"/>.
+        /// Resolve the specified type in the container (register it if needed).
         /// </summary>
-        public void Dispose()
-        {
-            Container.Dispose();
-        }
+        /// <typeparam name="T">The type of the service.</typeparam>
+        /// <returns>The service.</returns>
+        public T Resolve<T>() => Container.Resolve<T>();
 
         /// <summary>
-        /// Resolve the specified type from the container.
+        /// Resolve the specified type in the container (register specified instance if needed).
         /// </summary>
-        /// <typeparam name="T">The type to resolve</typeparam>
-        /// <param name="parameters">Optional constructor parameters</param>
-        /// <returns>The resolved object</returns>
-        public T Resolve<T>(params Parameter[] parameters)
-        {
-            return Container.Resolve<T>(parameters);
-        }
-
-        /// <summary>
-        /// Register the specified implementation type to the container as the specified service type and resolve it using the given parameters.
-        /// </summary>
-        /// <typeparam name="TService">The type to register the implementation as</typeparam>
-        /// <typeparam name="TImplementation">The implementation type</typeparam>
-        /// <param name="parameters">Optional constructor parameters</param>
-        /// <returns>The resolved service instance</returns>
-        public TService Provide<TService, TImplementation>(params Parameter[] parameters)
-        {
-            Container.ComponentRegistry.Register(RegistrationBuilder.ForType<TImplementation>()
-                .As<TService>().InstancePerLifetimeScope().CreateRegistration()
-            );
-
-            return Container.Resolve<TService>(parameters);
-        }
-
-        /// <summary>
-        /// Register the specified object to the container as the specified service type and resolve it.
-        /// </summary>
-        /// <typeparam name="TService">The type to register the object as</typeparam>
-        /// <param name="instance">The object to register into the container</param>
-        /// <returns>The instance resolved from container</returns>
+        /// <typeparam name="TService">The type of the service.</typeparam>
+        /// <param name="instance">The instance to register if needed.</param>
+        /// <returns>The instance resolved from container.</returns>
+        [SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "The component registry is responsible for registration disposal."
+        )]
         public TService Provide<TService>(TService instance)
             where TService : class
         {
-            Container.ComponentRegistry.Register(RegistrationBuilder.ForDelegate((c, p) => instance)
-                .InstancePerLifetimeScope().CreateRegistration()
-            );
+            Container.RegisterInstance(instance);
+            return instance;
+        }
 
+        /// <summary>
+        /// Resolve the specified type in the container (register specified instance if needed).
+        /// </summary>
+        /// <typeparam name="TService">The type of the service.</typeparam>
+        /// <typeparam name="TImplementation">The type of the implementation.</typeparam>
+        /// <returns>The instance resolved from container.</returns>
+        [SuppressMessage(
+            "Microsoft.Reliability",
+            "CA2000:Dispose objects before losing scope",
+            Justification = "The component registry is responsible for registration disposal."
+        )]
+        public TService Provide<TService, TImplementation>() where TImplementation : TService
+        {
+            Container.Register<TService, TImplementation>();
             return Container.Resolve<TService>();
         }
 
+        void IDisposable.Dispose() => Container.Dispose();
+    }
+
+    public static class DryIocExtensions
+    {
         /// <summary>
-        /// Register the specified object to the container as the specified keyed service type and resolve it.
+        /// Adds support for resolving generic ILoggers from the DI Container and allowing the loggers to be wrapped
+        /// if desired
         /// </summary>
-        /// <typeparam name="TService">The type to register the object as</typeparam>
-        /// <param name="instance">The object to register into the container</param>
-        /// <param name="serviceKey">The key to register the service with</param>
-        /// <returns>The instance resolved from container</returns>
-        public TService Provide<TService>(TService instance, object serviceKey)
-            where TService : class
+        /// <param name="rules"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
+        public static Rules WithTestLoggerResolver(this Rules rules, Func<Request, Type, object> creator)
         {
-            Container.ComponentRegistry.Register(RegistrationBuilder.ForDelegate((c, p) => instance).As(new KeyedService(serviceKey, typeof(TService)))
-                .InstancePerLifetimeScope().CreateRegistration()
+            var dictionary = new ConcurrentDictionary<Type, Factory>();
+            return rules.WithUnknownServiceResolvers(
+                (rules.UnknownServiceResolvers ?? Array.Empty<Rules.UnknownServiceResolver>()).ToImmutableList().Add(
+                    request =>
+                    {
+                        var serviceType = request.ServiceType;
+                        if (!serviceType.IsInterface || !serviceType.IsGenericType ||
+                            serviceType.GetGenericTypeDefinition() != typeof(ILogger<>))
+                        {
+                            return null;
+                        }
+
+                        if (!dictionary.TryGetValue(serviceType, out var instance))
+                        {
+                            var loggerType = typeof(Logger<>).MakeGenericType(
+                                request.ServiceType.GetGenericArguments()[0]
+                            );
+                            instance = new DelegateFactory(_ => creator(request, loggerType), Reuse.Singleton);
+                            dictionary.TryAdd(serviceType, instance);
+                        }
+
+                        return instance;
+                    }
+                ).ToArray()
             );
-
-            return Container.Resolve<TService>();
         }
 
         /// <summary>
-        /// Registers to the container and returns a substitute for a given concrete class given the explicit constructor parameters.
-        /// This is used for concrete classes where NSubstitutes won't be created by default by the container when using Resolve.
-        /// For advanced uses consider using directly <see cref="Substitute.For{TService}"/> and then calling <see cref="Provide{TService}(TService)"/> so that type is used on dependencies for other Resolved types.
+        /// Adds support for auto stub/mock/faking dependencies that are not already in the container.
         /// </summary>
-        /// <typeparam name="TService">The type to register and return a substitute for</typeparam>
-        /// <param name="parameters">Optional constructor parameters</param>
-        /// <returns>The instance resolved from the container</returns>
-        public TService For<TService>(params object[] parameters) where TService : class
+        /// <param name="rules"></param>
+        /// <param name="creator"></param>
+        /// <returns></returns>
+        public static Rules WithUndefinedTestDependenciesResolver(this Rules rules, Func<Request, object> creator)
         {
-            var substitute = Substitute.For<TService>(parameters);
-            return Provide(substitute);
-        }
+            var dictionary = new ConcurrentDictionary<Type, Factory>();
+            return rules.WithUnknownServiceResolvers(
+                (rules.UnknownServiceResolvers ?? Array.Empty<Rules.UnknownServiceResolver>()).ToImmutableList().Add(
+                    request =>
+                    {
+                        var serviceType = request.ServiceType;
+                        if (!serviceType.IsAbstract)
+                            return null; // Mock interface or abstract class only.
 
-        /// <summary>
-        /// Registers to the container and returns a substitute for a given concrete class using autofac to resolve the constructor parameters.
-        /// This is used for concrete classes where NSubstitutes won't be created by default by the container when using Resolve.
-        /// For advanced uses consider using directly <see cref="Substitute.For{TService}"/> and then calling <see cref="Provide{TService}(TService)"/> so that type is used on dependencies for other Resolved types.
-        /// </summary>
-        /// <typeparam name="TService">The type to register and return a substitute for</typeparam>
-        /// <param name="parameters">Any constructor parameters that Autofac can't resolve automatically</param>
-        /// <returns>The instance resolved from the container</returns>
-        public TService For<TService>(params Parameter[] parameters) where TService : class
-        {
-            var substitute = Resolve<TService>(parameters);
-            return Provide(substitute);
+                        if (request.Is(parameter: info => info.IsOptional))
+                            return null; // Ignore optional parameters
+
+                        if (!dictionary.TryGetValue(serviceType, out var instance))
+                        {
+                            instance = new DelegateFactory(_ => creator(request), Reuse.Singleton);
+                            dictionary.TryAdd(serviceType, instance);
+                        }
+
+                        return instance;
+                    }
+                ).ToArray()
+            );
         }
     }
 }

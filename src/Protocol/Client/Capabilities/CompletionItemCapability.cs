@@ -30,14 +30,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Container<MarkupKind> DocumentationFormat { get; set; }
 
         /// <summary>
-		/// Client supports the deprecated property on a completion item.
-		/// </summary>
+        /// Client supports the deprecated property on a completion item.
+        /// </summary>
         [Optional]
         public bool DeprecatedSupport { get; set; }
 
         /// <summary>
-		/// Client supports the preselect property on a completion item.
-		/// </summary>
+        /// Client supports the preselect property on a completion item.
+        /// </summary>
         [Optional]
         public bool PreselectSupport { get; set; }
 
@@ -51,5 +51,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public Supports<CompletionItemTagSupportCapability> TagSupport { get; set; }
+
+        /// <summary>
+        /// Client support insert replace edit to control different behavior if a
+        /// completion item is inserted in the text or should replace text.
+        ///
+        /// @since 3.16.0 - Proposed state
+        /// </summary>
+        [Optional]
+        public bool InsertReplaceSupport { get; set; }
+
+        /// <summary>
+        /// Client supports to resolve `additionalTextEdits` in the `completionItem/resolve`
+        /// request. So servers can postpone computing them.
+        ///
+        /// @since 3.16.0 - Proposed state
+        /// </summary>
+        [Optional]
+        public bool ResolveAdditionalTextEditsSupport { get; set; }
     }
 }

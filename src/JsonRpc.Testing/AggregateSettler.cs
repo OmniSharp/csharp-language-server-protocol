@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         {
             return _settlers.ToObservable()
                 .Select(z => z.Settle())
-                .Switch()
+                .Merge()
                 .Take(1)
                 //.Amb(Observable.Timer(_waitTime + _waitTime).Select(z => Unit.Value))
                 .ToTask();

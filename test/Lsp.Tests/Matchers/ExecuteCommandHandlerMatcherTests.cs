@@ -70,7 +70,8 @@ namespace Lsp.Tests.Matchers
                         () => true,
                         typeof(ExecuteCommandCapability),
                         null,
-                        () => { })
+                        () => { },
+                        Substitute.For<ILspHandlerTypeDescriptor>())
                 });
 
             // Then

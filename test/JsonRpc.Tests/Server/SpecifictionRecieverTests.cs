@@ -9,7 +9,7 @@ using Xunit;
 
 namespace JsonRpc.Tests.Server
 {
-    public class SpecifictionReceiverTests
+    public class SpecificationReceiverTests
     {
         [Theory]
         [ClassData(typeof(SpecificationMessages))]

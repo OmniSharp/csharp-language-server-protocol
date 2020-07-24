@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Bogus;
@@ -31,8 +32,48 @@ namespace Lsp.Tests
             _loggerFactory = new TestLoggerFactory(testOutputHelper);
             _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
             _legend = new SemanticTokensLegend() {
-                TokenModifiers = SemanticTokenModifier.Defaults.Select(x => x.ToString()).ToArray(),
-                TokenTypes = SemanticTokenType.Defaults.Select(x => x.ToString()).ToArray(),
+                // specify a specific set so that additions to the default list do not cause breaks in the tests.
+                TokenModifiers = new[] {
+                        new SemanticTokenModifier("documentation"),
+                        new SemanticTokenModifier("declaration"),
+                        new SemanticTokenModifier("definition"),
+                        new SemanticTokenModifier("static"),
+                        new SemanticTokenModifier("async"),
+                        new SemanticTokenModifier("abstract"),
+                        new SemanticTokenModifier("deprecated"),
+                        new SemanticTokenModifier("readonly"),
+                        new SemanticTokenModifier("modification"),
+                        new SemanticTokenModifier("defaultLibrary")
+                    }
+                    .Select(z => z.ToString())
+                    .ToArray(),
+                TokenTypes = new[] {
+                        new SemanticTokenType("comment"),
+                        new SemanticTokenType("keyword"),
+                        new SemanticTokenType("string"),
+                        new SemanticTokenType("number"),
+                        new SemanticTokenType("regexp"),
+                        new SemanticTokenType("operator"),
+                        new SemanticTokenType("namespace"),
+                        new SemanticTokenType("type"),
+                        new SemanticTokenType("struct"),
+                        new SemanticTokenType("class"),
+                        new SemanticTokenType("interface"),
+                        new SemanticTokenType("enum"),
+                        new SemanticTokenType("typeParameter"),
+                        new SemanticTokenType("function"),
+                        new SemanticTokenType("member"),
+                        new SemanticTokenType("property"),
+                        new SemanticTokenType("macro"),
+                        new SemanticTokenType("variable"),
+                        new SemanticTokenType("parameter"),
+                        new SemanticTokenType("label"),
+                        new SemanticTokenType("modifier"),
+                        new SemanticTokenType("event"),
+                        new SemanticTokenType("enumMember"),
+                    }
+                    .Select(x => x.ToString())
+                    .ToArray(),
             };
         }
 
@@ -52,20 +93,14 @@ namespace Lsp.Tests
             var data = Normalize(ExampleDocumentText, result.Data).ToArray();
             _logger.LogInformation("Some Data {Data}", data.AsEnumerable());
             var expectedResponse = new NormalizedToken[] {
-                "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
-                "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
-                "using (property:none)", "System (documentation:definition|abstract)",
-                "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
-                "Text (documentation:definition|abstract)", "using (documentation:none)",
-                "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
-                "Tasks (documentation:none)", "namespace (documentation:abstract)",
-                "CSharpTutorials (documentation:none)", "{ (type:documentation)", "class (label:none)",
-                "Program (documentation:none)", "{ (documentation:none)", "static (number:documentation)",
-                "void (function:none)", "Main (function:none)", "string[] (function:documentation|static)",
-                "args (function:none)", "{ (struct:declaration|abstract)", "string (type:none)", "message (class:none)",
-                "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)", "Console (struct:definition)",
-                "WriteLine (parameter:definition|readonly)", "message (struct:definition)", "} (regexp:none)",
-                "} (class:static|abstract)", "} (enum:declaration|definition)"
+                "using (macro:async|deprecated)", "System (macro:async|deprecated)", "using (event:none)", "System (number:none)", "Collections (struct:readonly)",
+                "Generic (class:none)", "using (variable:modification|defaultLibrary)", "System (comment:static|deprecated)", "Linq (comment:definition)", "using (comment:none)",
+                "System (enumMember:none)", "Text (comment:static|deprecated)", "using (comment:none)", "System (comment:declaration)", "Threading (comment:static|defaultLibrary)",
+                "Tasks (comment:none)", "namespace (comment:readonly)", "CSharpTutorials (comment:none)", "{ (struct:documentation)", "class (enumMember:none)",
+                "Program (comment:none)", "{ (comment:none)", "static (regexp:documentation)", "void (macro:none)", "Main (macro:none)", "string[] (property:declaration|abstract)",
+                "args (macro:none)", "{ (interface:documentation|declaration|deprecated)", "string (struct:none)", "message (enum:none)", "= (label:none)", "Hello (comment:none)",
+                "World!! (enum:none)", "Console (interface:static)", "WriteLine (event:async|modification)", "message (interface:static)", "} (operator:none)",
+                "} (enum:async|deprecated)", "} (function:declaration|async)"
             };
             data.Should().ContainInOrder(expectedResponse);
         }
@@ -105,8 +140,7 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "ssage (class:none)", "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)",
-                        "Console (struct:definition)", "WriteLi (parameter:definition|readonly)"
+                        "ssage (enum:none)", "= (label:none)", "Hello (comment:none)", "World!! (enum:none)", "Console (interface:static)", "WriteLi (event:async|modification)"
                     }
                 );
                 Add(
@@ -121,13 +155,10 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
-                        "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
-                        "using (property:none)", "System (documentation:definition|abstract)",
-                        "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
-                        "Text (documentation:definition|abstract)", "using (documentation:none)",
-                        "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
-                        "Tasks (documentation:none)"
+                        "using (macro:async|deprecated)", "System (macro:async|deprecated)", "using (event:none)", "System (number:none)", "Collections (struct:readonly)",
+                        "Generic (class:none)", "using (variable:modification|defaultLibrary)", "System (comment:static|deprecated)", "Linq (comment:definition)",
+                        "using (comment:none)", "System (enumMember:none)", "Text (comment:static|deprecated)", "using (comment:none)", "System (comment:declaration)",
+                        "Threading (comment:static|defaultLibrary)", "Tasks (comment:none)"
                     }
                 );
                 Add(
@@ -142,8 +173,7 @@ namespace Lsp.Tests
                         }
                     },
                     new NormalizedToken[] {
-                        "Console (struct:definition)", "WriteLine (parameter:definition|readonly)",
-                        "message (struct:definition)"
+                        "Console (interface:static)", "WriteLine (event:async|modification)", "message (interface:static)"
                     }
                 );
             }
@@ -163,7 +193,7 @@ namespace Lsp.Tests
                 Tokenize(originalText, builder);
                 builder.Commit();
                 originalTokens = document.GetSemanticTokens();
-                builder = document.Edit(new SemanticTokensEditsParams() {
+                builder = document.Edit(new SemanticTokensDeltaParams() {
                     PreviousResultId = document.Id,
                 });
                 Tokenize(modifiedText, builder);
@@ -171,8 +201,8 @@ namespace Lsp.Tests
             }
 
             var result = document.GetSemanticTokensEdits();
-            result.IsSemanticTokensEdits.Should().BeTrue();
-            var edits = result.SemanticTokensEdits;
+            result.IsDelta.Should().BeTrue();
+            var edits = result.Delta;
 
             edits.ResultId.Should().Be(document.Id);
             edits.Edits.Should().HaveCount(1);
@@ -195,29 +225,22 @@ namespace Lsp.Tests
                     ExampleDocumentText,
                     ExampleDocumentText.Replace("namespace CSharpTutorials", "namespace Something.Else.Entirely"),
                     new NormalizedToken[] {
-                        "using (member:static|abstract)", "System (member:static|abstract)", "using (parameter:none)",
-                        "System (string:none)", "Collections (namespace:deprecated)", "Generic (type:none)",
-                        "using (property:none)", "System (documentation:definition|abstract)",
-                        "Linq (documentation:definition)", "using (documentation:none)", "System (label:none)",
-                        "Text (documentation:definition|abstract)", "using (documentation:none)",
-                        "System (documentation:documentation)", "Threading (documentation:definition|readonly)",
-                        "Tasks (documentation:none)", "namespace (function:readonly)", "Something (function:readonly)",
-                        "Else (class:abstract)", "Entirely (regexp:documentation|abstract|deprecated)",
-                        "{ (type:documentation)", "class (label:none)", "Program (documentation:none)",
-                        "{ (documentation:none)", "static (number:documentation)", "void (function:none)",
-                        "Main (function:none)", "string[] (function:documentation|static)", "args (function:none)",
-                        "{ (struct:declaration|abstract)", "string (type:none)", "message (class:none)",
-                        "= (macro:none)", "Hello (documentation:none)", "World!! (class:none)",
-                        "Console (struct:definition)", "WriteLine (parameter:definition|readonly)",
-                        "message (struct:definition)", "} (regexp:none)", "} (class:static|abstract)",
-                        "} (enum:declaration|definition)"
+                        "using (macro:async|deprecated)", "System (macro:async|deprecated)", "using (event:none)", "System (number:none)", "Collections (struct:readonly)",
+                        "Generic (class:none)", "using (variable:modification|defaultLibrary)", "System (comment:static|deprecated)", "Linq (comment:definition)",
+                        "using (comment:none)", "System (enumMember:none)", "Text (comment:static|deprecated)", "using (comment:none)", "System (comment:declaration)",
+                        "Threading (comment:static|defaultLibrary)", "Tasks (comment:none)", "namespace (property:defaultLibrary)", "Something (property:defaultLibrary)",
+                        "Else (enum:deprecated)", "Entirely (operator:declaration|deprecated|modification)", "{ (struct:documentation)", "class (enumMember:none)",
+                        "Program (comment:none)", "{ (comment:none)", "static (regexp:documentation)", "void (macro:none)", "Main (macro:none)",
+                        "string[] (property:declaration|abstract)", "args (macro:none)", "{ (interface:documentation|declaration|deprecated)", "string (struct:none)",
+                        "message (enum:none)", "= (label:none)", "Hello (comment:none)", "World!! (enum:none)", "Console (interface:static)",
+                        "WriteLine (event:async|modification)", "message (interface:static)", "} (operator:none)", "} (enum:async|deprecated)", "} (function:declaration|async)"
                     });
                 Add("using", "using System;",
                     new NormalizedToken[] {
-                        "using (member:static|abstract)", "System (member:static|abstract)"
+                        "using (macro:async|deprecated)", "System (macro:async|deprecated)"
                     });
                 Add("using System;", "using", new NormalizedToken[] {
-                    "using (member:static|abstract)"
+                    "using (macro:async|deprecated)"
                 });
             }
         }
@@ -257,7 +280,15 @@ namespace Lsp.Tests
                     index = text.IndexOf(part, index, StringComparison.Ordinal);
                     // _logger.LogDebug("Index for part after {Index}: {Text}", index, part);
                     var item = faker.Generate();
-                    builder.Push(line, index, part.Length, item.type, item.Modifiers);
+                    if (index % 2 == 0)
+                    {
+                        builder.Push(line, index, part.Length, item.type, item.Modifiers);
+                    }
+                    else
+                    {
+                        // ensure range gets some love
+                        builder.Push(((line, index), (line, part.Length + index)), item.type, item.Modifiers);
+                    }
                 }
             }
         }
@@ -277,6 +308,7 @@ namespace Lsp.Tests
             return sb.ToString();
         }
 
+        [DebuggerDisplay("{ToString()}")]
         public class NormalizedToken : IEquatable<NormalizedToken>, IEquatable<string>
         {
             public NormalizedToken(string text, SemanticTokenType type, params SemanticTokenModifier[] modifiers)

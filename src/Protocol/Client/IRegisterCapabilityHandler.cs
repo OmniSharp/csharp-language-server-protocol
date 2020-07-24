@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Serial, Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
+    [Parallel, Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
     [GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
     public interface IRegisterCapabilityHandler : IJsonRpcRequestHandler<RegistrationParams>
     {

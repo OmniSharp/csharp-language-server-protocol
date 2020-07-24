@@ -69,7 +69,8 @@ namespace Lsp.Tests.Matchers
                 () => false,
                 null,
                 null,
-                () => { });
+                () => { },
+                Substitute.For<ILspHandlerTypeDescriptor>());
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
                 new RequestContext() {Descriptor = handlerDescriptor},
                 LoggerFactory.CreateLogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>());
@@ -104,7 +105,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                         new LspHandlerDescriptor(TextDocumentNames.CodeLensResolve,
                             "Key2",
                             resolveHandler2,
@@ -115,7 +117,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -145,7 +148,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -177,7 +181,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -211,7 +216,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                         new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2,
@@ -222,7 +228,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -263,7 +270,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                         new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2 as IJsonRpcHandler,
@@ -274,7 +282,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -311,7 +320,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                         new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
                             "Key2",
                             resolveHandler2 as IJsonRpcHandler,
@@ -322,7 +332,8 @@ namespace Lsp.Tests.Matchers
                             () => false,
                             null,
                             null,
-                            () => { }),
+                            () => { },
+                            Substitute.For<ILspHandlerTypeDescriptor>()),
                     })
                 .ToArray();
 
@@ -351,7 +362,8 @@ namespace Lsp.Tests.Matchers
                 () => false,
                 null,
                 null,
-                () => { });
+                () => { },
+                Substitute.For<ILspHandlerTypeDescriptor>());
             var handlerMatcher = new ResolveCommandPipeline<CompletionParams, CompletionList>(
                 new RequestContext() {Descriptor = descriptor},
                 Substitute.For<ILogger<ResolveCommandPipeline<CompletionParams, CompletionList>>>());
@@ -395,7 +407,8 @@ namespace Lsp.Tests.Matchers
                 () => false,
                 null,
                 null,
-                () => { });
+                () => { },
+                Substitute.For<ILspHandlerTypeDescriptor>());
             var handlerMatcher = new ResolveCommandPipeline<CodeLensParams, CodeLensContainer>(
                 new RequestContext() {Descriptor = descriptor},
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLensParams, CodeLensContainer>>>());
@@ -439,7 +452,8 @@ namespace Lsp.Tests.Matchers
                 () => false,
                 null,
                 null,
-                () => { });
+                () => { },
+                Substitute.For<ILspHandlerTypeDescriptor>());
             var handlerMatcher = new ResolveCommandPipeline<CodeLens, CodeLens>(
                 new RequestContext() {Descriptor = descriptor},
                 Substitute.For<ILogger<ResolveCommandPipeline<CodeLens, CodeLens>>>());

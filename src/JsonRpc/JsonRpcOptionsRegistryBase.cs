@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -6,6 +7,15 @@ namespace OmniSharp.Extensions.JsonRpc
     public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
         public IServiceCollection Services { get; set;  } = new ServiceCollection();
+        protected internal HashSet<(string source, string destination)> Links= new HashSet<(string source, string destination)>();
+
+        public void AddLinks(IHandlersManager handlersManager)
+        {
+            foreach (var link in Links)
+            {
+                handlersManager.AddLink(link.source, link.destination);
+            }
+        }
 
         #region AddHandler
 

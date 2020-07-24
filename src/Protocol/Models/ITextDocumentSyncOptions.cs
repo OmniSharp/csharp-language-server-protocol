@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         TextDocumentSyncKind Change { get; set; }
         bool WillSave { get; set; }
         bool WillSaveWaitUntil { get; set; }
-        SaveOptions Save { get; set; }
+        BooleanOr<SaveOptions> Save { get; set; }
     }
 }

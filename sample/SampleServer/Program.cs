@@ -1,10 +1,14 @@
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog;
 
@@ -40,7 +44,7 @@ namespace SampleServer
                     .WithInput(Console.OpenStandardInput())
                     .WithOutput(Console.OpenStandardOutput())
                     .ConfigureLogging(x => x
-                        .AddSerilog()
+                        .AddSerilog(Log.Logger)
                         .AddLanguageProtocolLogging()
                         .SetMinimumLevel(LogLevel.Debug))
                     .WithHandler<TextDocumentHandler>()
@@ -48,7 +52,7 @@ namespace SampleServer
                     .WithHandler<FoldingRangeHandler>()
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
-                    .WithHandler<SemanticTokens>()
+                    .WithHandler<SemanticTokensHandler>()
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                     .WithServices(services => {
                         services.AddSingleton(provider => {

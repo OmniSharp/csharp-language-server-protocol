@@ -11,7 +11,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         [Optional]
         public Container<MarkupKind> DocumentationFormat { get; set; }
 
+        [Optional] public SignatureParameterInformationCapability ParameterInformation { get; set; }
+
+        /// <summary>
+        /// The client support the `activeParameter` property on `SignatureInformation`
+        /// literal.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
         [Optional]
-        public SignatureParameterInformationCapability ParameterInformation { get; set; }
+        public bool ActiveParameterSupport { get; set; }
     }
 }

@@ -36,9 +36,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         public static readonly SemanticTokenModifier Declaration = new SemanticTokenModifier("declaration");
         public static readonly SemanticTokenModifier Definition = new SemanticTokenModifier("definition");
         public static readonly SemanticTokenModifier Static = new SemanticTokenModifier("static");
+        public static readonly SemanticTokenModifier Async = new SemanticTokenModifier("async");
         public static readonly SemanticTokenModifier Abstract = new SemanticTokenModifier("abstract");
         public static readonly SemanticTokenModifier Deprecated = new SemanticTokenModifier("deprecated");
         public static readonly SemanticTokenModifier Readonly = new SemanticTokenModifier("readonly");
+        public static readonly SemanticTokenModifier Modification = new SemanticTokenModifier("modification");
+        public static readonly SemanticTokenModifier DefaultLibrary = new SemanticTokenModifier("defaultLibrary");
 
         private readonly string _value;
 

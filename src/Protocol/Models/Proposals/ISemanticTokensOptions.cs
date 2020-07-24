@@ -1,4 +1,5 @@
 ﻿using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -22,12 +23,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// </summary>
 
         [Optional]
-        public bool RangeProvider { get; set; }
+        public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
 
         /// <summary>
         ///  Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
-        public SemanticTokensDocumentProviderOptions DocumentProvider { get; set; }
+        public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }
     }
 }

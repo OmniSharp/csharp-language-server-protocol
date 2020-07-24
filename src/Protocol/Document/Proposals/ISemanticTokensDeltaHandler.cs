@@ -12,34 +12,34 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 {
     [Obsolete(Constants.Proposal)]
-    [Parallel, Method(TextDocumentNames.SemanticTokens, Direction.ClientToServer)]
+    [Parallel, Method(TextDocumentNames.SemanticTokensFull, Direction.ClientToServer)]
     public interface ISemanticTokensHandler : IJsonRpcRequestHandler<SemanticTokensParams, SemanticTokens>,
         IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
     {
     }
 
     [Obsolete(Constants.Proposal)]
-    [Parallel, Method(TextDocumentNames.SemanticTokensEdits, Direction.ClientToServer)]
-    public interface ISemanticTokensEditsHandler :
-        IJsonRpcRequestHandler<SemanticTokensEditsParams, SemanticTokensOrSemanticTokensEdits>,
-        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
+    [Parallel, Method(TextDocumentNames.SemanticTokensFullDelta, Direction.ClientToServer)]
+    public interface ISemanticTokensDeltaHandler :
+        IJsonRpcRequestHandler<SemanticTokensDeltaParams, SemanticTokensFullOrDelta>,
+        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
 
     [Obsolete(Constants.Proposal)]
     [Parallel, Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
     public interface ISemanticTokensRangeHandler : IJsonRpcRequestHandler<SemanticTokensRangeParams, SemanticTokens>,
-        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
+        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
 
     [Obsolete(Constants.Proposal)]
-    public abstract class SemanticTokensHandler : ISemanticTokensHandler, ISemanticTokensEditsHandler,
+    public abstract class SemanticTokensHandlerBase : ISemanticTokensHandler, ISemanticTokensDeltaHandler,
         ISemanticTokensRangeHandler
     {
         private readonly SemanticTokensRegistrationOptions _options;
 
-        public SemanticTokensHandler(SemanticTokensRegistrationOptions registrationOptions)
+        public SemanticTokensHandlerBase(SemanticTokensRegistrationOptions registrationOptions)
         {
             _options = registrationOptions;
         }
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             return builder.Commit().GetSemanticTokens();
         }
 
-        public virtual async Task<SemanticTokensOrSemanticTokensEdits> Handle(SemanticTokensEditsParams request, CancellationToken cancellationToken)
+        public virtual async Task<SemanticTokensFullOrDelta> Handle(SemanticTokensDeltaParams request, CancellationToken cancellationToken)
         {
             var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Edit(request);
@@ -87,18 +87,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             SemanticTokensRegistrationOptions registrationOptions)
         {
             registrationOptions ??= new SemanticTokensRegistrationOptions() {
-                DocumentProvider =
-                    new Supports<SemanticTokensDocumentProviderOptions>(true,
-                        new SemanticTokensDocumentProviderOptions() { })
+                Full = new SemanticTokensCapabilityRequestFull()
             };
-            registrationOptions.RangeProvider = true;
-            if (registrationOptions.DocumentProvider != null)
+            registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
+            if (registrationOptions?.Full?.IsValue == true)
             {
-                registrationOptions.DocumentProvider.Edits = true;
+                registrationOptions.Full.Value.Delta = true;
             }
 
             return registry.AddHandlers(
-                new DelegatingHandler(tokenize, getSemanticTokensDocument, registrationOptions));
+                new DelegatingHandlerBase(tokenize, getSemanticTokensDocument, registrationOptions));
         }
 
         public static ILanguageServerRegistry OnSemanticTokens(this ILanguageServerRegistry registry,
@@ -106,18 +104,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions)
         {
-            registrationOptions ??= new SemanticTokensRegistrationOptions();
-            registrationOptions.DocumentProvider =
-                new Supports<SemanticTokensDocumentProviderOptions>(true,
-                    new SemanticTokensDocumentProviderOptions() { });
-            registrationOptions.RangeProvider = true;
-            if (registrationOptions.DocumentProvider != null)
+            registrationOptions ??= new SemanticTokensRegistrationOptions() {
+                Full = new SemanticTokensCapabilityRequestFull()
+            };
+            registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
+            if (registrationOptions?.Full?.IsValue == true)
             {
-                registrationOptions.DocumentProvider.Edits = true;
+                registrationOptions.Full.Value.Delta = true;
             }
 
             return registry.AddHandlers(
-                new DelegatingHandler(
+                new DelegatingHandlerBase(
                     (a, t, c, ct) => tokenize(a, t, ct),
                     (a, c, ct) => getSemanticTokensDocument(a, ct),
                     registrationOptions));
@@ -128,31 +125,30 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>> getSemanticTokensDocument,
             SemanticTokensRegistrationOptions registrationOptions)
         {
-            registrationOptions ??= new SemanticTokensRegistrationOptions();
-            registrationOptions.DocumentProvider =
-                new Supports<SemanticTokensDocumentProviderOptions>(true,
-                    new SemanticTokensDocumentProviderOptions() { });
-            registrationOptions.RangeProvider = true;
-            if (registrationOptions.DocumentProvider != null)
+            registrationOptions ??= new SemanticTokensRegistrationOptions() {
+                Full = new SemanticTokensCapabilityRequestFull()
+            };
+            registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
+            if (registrationOptions?.Full?.IsValue == true)
             {
-                registrationOptions.DocumentProvider.Edits = true;
+                registrationOptions.Full.Value.Delta = true;
             }
 
             return registry.AddHandlers(
-                new DelegatingHandler(
+                new DelegatingHandlerBase(
                     (a, t, c, ct) => tokenize(a, t),
                     (a, c, ct) => getSemanticTokensDocument(a),
                     registrationOptions));
         }
 
-        class DelegatingHandler : SemanticTokensHandler
+        class DelegatingHandlerBase : SemanticTokensHandlerBase
         {
             private readonly Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> _tokenize;
             private readonly Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> _getSemanticTokensDocument;
 
             private SemanticTokensCapability _capability;
 
-            public DelegatingHandler(
+            public DelegatingHandlerBase(
                 Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> tokenize,
                 Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
                 SemanticTokensRegistrationOptions registrationOptions
@@ -162,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 _getSemanticTokensDocument = getSemanticTokensDocument;
             }
 
-            public DelegatingHandler(
+            public DelegatingHandlerBase(
                 Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, Task> tokenize,
                 Func<ITextDocumentIdentifierParams, SemanticTokensCapability, Task<SemanticTokensDocument>> getSemanticTokensDocument,
                 SemanticTokensRegistrationOptions registrationOptions
@@ -194,27 +190,27 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             }, cancellationToken);
         }
 
-        public static IRequestProgressObservable<SemanticTokensPartialResultOrSemanticTokensEditsPartialResult, SemanticTokensOrSemanticTokensEdits> RequestSemanticTokensEdits(
-            this ITextDocumentLanguageClient mediator, SemanticTokensEditsParams @params, CancellationToken cancellationToken = default)
+        public static IRequestProgressObservable<SemanticTokensFullOrDeltaPartialResult, SemanticTokensFullOrDelta> RequestSemanticTokensDelta(
+            this ITextDocumentLanguageClient mediator, SemanticTokensDeltaParams @params, CancellationToken cancellationToken = default)
         {
             return mediator.ProgressManager.MonitorUntil(@params, (partial, result) => {
-                if (partial.IsSemanticTokensPartialResult)
+                if (partial.IsDelta)
                 {
-                    return new SemanticTokensOrSemanticTokensEdits(new SemanticTokens() {
-                        Data = partial.SemanticTokensPartialResult.Data,
-                        ResultId = result.SemanticTokens?.ResultId ?? result.SemanticTokensEdits?.ResultId
+                    return new SemanticTokensFullOrDelta(new SemanticTokensDelta() {
+                        Edits = partial.Delta.Edits,
+                        ResultId = result.Delta?.ResultId ?? result.Full?.ResultId
                     });
                 }
 
-                if (partial.IsSemanticTokensEditsPartialResult)
+                if (partial.IsFull)
                 {
-                    return new SemanticTokensOrSemanticTokensEdits(new SemanticTokensEdits() {
-                        Edits = partial.SemanticTokensEditsPartialResult.Edits,
-                        ResultId = result.SemanticTokensEdits?.ResultId ?? result.SemanticTokens?.ResultId
+                    return new SemanticTokensFullOrDelta(new SemanticTokens() {
+                        Data = partial.Full.Data,
+                        ResultId = result.Full?.ResultId ?? result.Delta?.ResultId
                     });
                 }
 
-                return new SemanticTokensOrSemanticTokensEdits(new SemanticTokens());
+                return new SemanticTokensFullOrDelta(new SemanticTokens());
             }, cancellationToken);
         }
 
