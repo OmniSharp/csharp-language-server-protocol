@@ -514,6 +514,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             foreach (var descriptor in collection)
             {
                 if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
+                    lspHandlerDescriptor.TypeDescriptor?.HandlerType != null &&
                     typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType))
                 {
                     continue;
