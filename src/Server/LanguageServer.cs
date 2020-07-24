@@ -478,21 +478,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             if (registrations.Length == 0)
                 return; // No dynamic registrations supported by client.
 
+            var @params = new RegistrationParams() {Registrations = registrations};
+
             await _initializeComplete;
 
-            // Some clients (read: vscode) will throw errors on the first unhandled registration it encounters (and never registers the rest)
-            // This is not really desirable as if we send a registration they don't support... that shouldn't break any unprocessed registrations
-            // So in order to fix this we just send each registration along as separate requests all at once.
-            await registrations
-                .ToObservable()
-                .Select(z => Observable.FromAsync(ct => Client.RegisterCapability(new RegistrationParams() {Registrations = new RegistrationContainer(z)}, ct))
-                    .Catch<System.Reactive.Unit, Exception>(_ => {
-                        this.LogWarning($"Unable to dynamically register capability '{z.Method}' perhaps it is not supported?");
-                        return Observable.Empty<System.Reactive.Unit>();
-                    })
-                )
-                .Merge()
-                .ToTask();
+            await Client.RegisterCapability(@params);
         }
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
@@ -528,6 +518,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     continue;
                 }
+
                 if (descriptor.HasCapability && _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
                 {
                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
