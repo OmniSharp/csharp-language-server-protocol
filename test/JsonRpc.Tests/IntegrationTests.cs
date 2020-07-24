@@ -4,6 +4,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -15,6 +16,11 @@ namespace JsonRpc.Tests
     {
         public IntegrationTests() : base(new JsonRpcTestOptions())
         {
+        }
+
+        class Request : IRequest<Data>
+        {
+
         }
 
         class Data
@@ -35,6 +41,36 @@ namespace JsonRpc.Tests
 
             var clientResponse = await server.SendRequest("myrequest").Returning<Data>(CancellationToken);
             clientResponse.Value.Should().Be("myresponse");
+        }
+
+        [Fact]
+        public async Task Should_throw_when_sending_requests()
+        {
+            var (client, server) = await Initialize(
+                client => { client.OnRequest("myrequest", async (Request request) => new Data() {Value = "myresponse"}); },
+                server => { server.OnRequest("myrequest", async (Request request) => new Data() {Value = string.Join("", "myresponse".Reverse())}); }
+            );
+
+            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
+            clientRequest.Should().Throw<InvalidParametersException>();
+
+            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
+            serverRequest.Should().Throw<InvalidParametersException>();
+        }
+
+        [Fact]
+        public async Task Should_throw_when_receiving_requests()
+        {
+            var (client, server) = await Initialize(
+                client => { client.OnRequest("myrequest", async (Request request) => (Data)null); },
+                server => { server.OnRequest("myrequest", async (Request request) => (Data)null); }
+            );
+
+            Func<Task> clientRequest = () => client.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
+            clientRequest.Should().Throw<InternalErrorException>();
+
+            Func<Task> serverRequest = () => server.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
+            serverRequest.Should().Throw<InternalErrorException>();
         }
 
         [Fact]
