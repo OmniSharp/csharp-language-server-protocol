@@ -53,9 +53,6 @@ namespace SampleServer
                     .WithHandler<MyWorkspaceSymbolsHandler>()
                     .WithHandler<MyDocumentSymbolHandler>()
                     .WithHandler<SemanticTokensHandler>()
-                    // Linking here because the spec changed but vscode is behind
-                    .WithLink(TextDocumentNames.SemanticTokensFull, "textDocument/semanticTokens")
-                    .WithLink(TextDocumentNames.SemanticTokensFullDelta, "textDocument/semanticTokens/edits")
                     .WithServices(x => x.AddLogging(b => b.SetMinimumLevel(LogLevel.Trace)))
                     .WithServices(services => {
                         services.AddSingleton(provider => {

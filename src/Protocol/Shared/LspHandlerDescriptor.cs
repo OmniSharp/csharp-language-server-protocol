@@ -27,7 +27,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Func<bool> allowsDynamicRegistration,
             Type capabilityType,
             RequestProcessType? requestProcessType,
-            Action disposeAction)
+            Action disposeAction,
+            ILspHandlerTypeDescriptor typeDescriptor)
         {
             _disposeAction = disposeAction;
             Id = Guid.NewGuid();
@@ -76,6 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                     z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
+            TypeDescriptor = typeDescriptor;
         }
 
         public Type ImplementationType { get; }
@@ -106,6 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public bool IsNotification { get; }
         public bool IsRequest { get; }
         public RequestProcessType? RequestProcessType { get; }
+        public ILspHandlerTypeDescriptor TypeDescriptor { get; }
 
         public void Dispose()
         {

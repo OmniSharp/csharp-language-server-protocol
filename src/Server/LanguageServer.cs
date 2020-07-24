@@ -523,6 +523,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var registrations = new List<Registration>();
             foreach (var descriptor in collection)
             {
+                if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
+                    typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType))
+                {
+                    continue;
+                }
                 if (descriptor.HasCapability && _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
                 {
                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)

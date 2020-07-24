@@ -22,14 +22,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Parallel, Method(TextDocumentNames.SemanticTokensFullDelta, Direction.ClientToServer)]
     public interface ISemanticTokensDeltaHandler :
         IJsonRpcRequestHandler<SemanticTokensDeltaParams, SemanticTokensFullOrDelta>,
-        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
+        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
 
     [Obsolete(Constants.Proposal)]
     [Parallel, Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
     public interface ISemanticTokensRangeHandler : IJsonRpcRequestHandler<SemanticTokensRangeParams, SemanticTokens>,
-        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
+        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
 

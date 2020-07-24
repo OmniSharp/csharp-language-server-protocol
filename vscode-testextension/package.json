@@ -47,11 +47,12 @@
     },
     "devDependencies": {
         "@types/mocha": "^8.0.0",
-        "@types/node": "^14.0.24",
+        "@types/node": "^14.0.25",
         "typescript": "^3.9.7",
         "vscode": "^1.1.37"
     },
     "dependencies": {
-        "vscode-languageclient": "^7.0.0-next.7"
+        "vscode-languageclient": "^7.0.0-next.8",
+        "vscode-languageserver-protocol": "^3.16.0-next.6"
     }
 }
