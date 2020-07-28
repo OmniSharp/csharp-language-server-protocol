@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// What kind of terminal to launch.
         /// </summary>
-        [Optional] public RunInTerminalArgumentsKind Kind { get; set; }
+        [Optional] public RunInTerminalArgumentsKind? Kind { get; set; }
 
         /// <summary>
         /// Optional title of the terminal.

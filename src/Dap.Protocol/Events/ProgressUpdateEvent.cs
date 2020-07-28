@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         ///  Optional progress percentage to display (value range: 0 to 100). If omitted no percentage will be shown.
         /// </summary>
         [Optional]
-        public int? Percentage { get; set; }
+        public double? Percentage { get; set; }
     }
 }

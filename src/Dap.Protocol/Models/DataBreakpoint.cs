@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The access type of the data.
         /// </summary>
-        [Optional] public DataBreakpointAccessType AccessType { get; set; }
+        [Optional] public DataBreakpointAccessType? AccessType { get; set; }
 
         /// <summary>
         /// An optional expression for conditional breakpoints.

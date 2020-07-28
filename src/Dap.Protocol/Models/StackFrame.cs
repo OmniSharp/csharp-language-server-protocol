@@ -55,6 +55,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An optional hint for how to present this frame in the UI. A value of 'label' can be used to indicate that the frame is an artificial frame that is used as a visual label or separator. A value of 'subtle' can be used to change the appearance of a frame in a 'subtle' way.
         /// </summary>
-        [Optional] public StackFramePresentationHint PresentationHint { get; set; }
+        [Optional] public StackFramePresentationHint? PresentationHint { get; set; }
     }
 }

@@ -12,5 +12,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         [Optional] public bool? Restart { get; set; }
     }
-
 }

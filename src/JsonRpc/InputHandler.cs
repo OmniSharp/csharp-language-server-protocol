@@ -18,6 +18,7 @@ using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
