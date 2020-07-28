@@ -2,9 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using MediatR;
+using MediatR.Pipeline;
 using MediatR.Registration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using OmniSharp.Extensions.JsonRpc.Pipelines;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -14,13 +16,11 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             ServiceRegistrar.AddRequiredServices(services, new MediatRServiceConfiguration());
             ServiceRegistrar.AddMediatRClasses(services, assemblies);
+            services.AddTransient(typeof(IRequestPreProcessor<>), typeof(RequestMustNotBeNullProcessor<>));
+            services.AddTransient(typeof(IRequestPostProcessor<,>), typeof(ResponseMustNotBeNullProcessor<,>));
             services.AddScoped<IRequestContext, RequestContext>();
             services.RemoveAll<ServiceFactory>();
-            services.AddScoped<ServiceFactory>(
-                serviceProvider => {
-                    return serviceType => GetHandler(serviceProvider, serviceType);
-                }
-            );
+            services.AddScoped<ServiceFactory>(serviceProvider => { return serviceType => GetHandler(serviceProvider, serviceType); });
             return services;
         }
 
@@ -32,6 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 var context = serviceProvider.GetService<IRequestContext>();
                 return context.Descriptor != null ? context.Descriptor.Handler : serviceProvider.GetService(serviceType);
             }
+
             return serviceProvider.GetService(serviceType);
         }
     }
