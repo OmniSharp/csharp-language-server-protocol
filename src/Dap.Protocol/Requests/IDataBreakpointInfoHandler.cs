@@ -2,10 +2,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.DataBreakpointInfo, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface
         IDataBreakpointInfoHandler : IJsonRpcRequestHandler<DataBreakpointInfoArguments, DataBreakpointInfoResponse>
     {
@@ -15,25 +17,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         public abstract Task<DataBreakpointInfoResponse> Handle(DataBreakpointInfoArguments request,
             CancellationToken cancellationToken);
-    }
-
-    public static class DataBreakpointInfoExtensions
-    {
-        public static IDebugAdapterServerRegistry OnDataBreakpointInfo(this IDebugAdapterServerRegistry registry,
-            Func<DataBreakpointInfoArguments, CancellationToken, Task<DataBreakpointInfoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.DataBreakpointInfo, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnDataBreakpointInfo(this IDebugAdapterServerRegistry registry,
-            Func<DataBreakpointInfoArguments, Task<DataBreakpointInfoResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.DataBreakpointInfo, RequestHandler.For(handler));
-        }
-
-        public static Task<DataBreakpointInfoResponse> RequestDataBreakpointInfo(this IDebugAdapterClient mediator, DataBreakpointInfoArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

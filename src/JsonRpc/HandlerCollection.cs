@@ -180,6 +180,16 @@ namespace OmniSharp.Extensions.JsonRpc
             return h;
         }
 
+        public bool ContainsHandler(Type type)
+        {
+            return _handlers.Any(z => type.IsAssignableFrom(z.HandlerType));
+        }
+
+        public bool ContainsHandler(TypeInfo type)
+        {
+            return _handlers.Any(z => type.IsAssignableFrom(z.HandlerType));
+        }
+
         private static readonly Type[] HandlerTypes = {
             typeof(IJsonRpcNotificationHandler),
             typeof(IJsonRpcNotificationHandler<>),
