@@ -95,8 +95,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                         yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new {id = requestId}));
                         ro.Remove("requestId");
                     }
-                    yield return new Request(sequence, RequestNames.Cancel, ro);
 
+                    yield return new Request(sequence, RequestNames.Cancel, ro);
                     yield break;
                 }
 
@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     yield break;
                 }
 
-                yield return new ServerError(requestSequence, bodyValue.ToObject<ServerErrorResult>());
+                yield return new ServerError(requestSequence, bodyValue?.ToObject<ServerErrorResult>() ?? new ServerErrorResult(-1, "Unknown Error"));
                 yield break;
             }
 

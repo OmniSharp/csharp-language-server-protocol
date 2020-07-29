@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
-    class Settler : ISettler, IRequestSettler
+    public class Settler : ISettler, IRequestSettler
     {
         private readonly TimeSpan _timeout;
         private readonly CancellationToken _cancellationToken;

@@ -12,7 +12,7 @@ namespace Lsp.Tests.Messages
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new UnknownErrorCode();
+            var model = new UnknownErrorCode("");
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

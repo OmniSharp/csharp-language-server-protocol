@@ -11,4 +11,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
     public interface IProgressStartHandler : IJsonRpcNotificationHandler<ProgressStartEvent>
     {
     }
+
+    public abstract class ProgressStartHandlerBase : IProgressStartHandler
+    {
+        public abstract Task<Unit> Handle(ProgressStartEvent request, CancellationToken cancellationToken);
+    }
 }

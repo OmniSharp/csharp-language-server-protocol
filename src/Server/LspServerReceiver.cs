@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
                 else if (item.IsRequest)
                 {
-                    newResults.Add(new ServerNotInitialized());
+                    newResults.Add(new ServerNotInitialized(item.Request.Method));
                 }
                 else if (item.IsResponse)
                 {

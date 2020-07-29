@@ -100,7 +100,7 @@ namespace Dap.Tests
             var received = await reader.ReadToEndAsync();
 
             const string send =
-                "Content-Length: 76\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":false,\"message\":\"data\"}";
+                "Content-Length: 148\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":false,\"command\":\"\",\"message\":\"something\",\"body\":{\"code\":1,\"data\":\"data\",\"message\":\"something\"}}";
             received.Should().Be(send);
         }
     }

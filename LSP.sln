@@ -72,6 +72,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JsonRpc.Generators", "src\J
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Generation.Tests", "test\Generation.Tests\Generation.Tests.csproj", "{671FFF78-BDD2-4389-B29C-BFD183DA9120}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dap.Shared", "src\Dap.Shared\Dap.Shared.csproj", "{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -316,6 +318,18 @@ Global
 		{671FFF78-BDD2-4389-B29C-BFD183DA9120}.Release|x64.Build.0 = Release|Any CPU
 		{671FFF78-BDD2-4389-B29C-BFD183DA9120}.Release|x86.ActiveCfg = Release|Any CPU
 		{671FFF78-BDD2-4389-B29C-BFD183DA9120}.Release|x86.Build.0 = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|x64.Build.0 = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Debug|x86.Build.0 = Debug|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|x64.ActiveCfg = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|x64.Build.0 = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|x86.ActiveCfg = Release|Any CPU
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -341,6 +355,7 @@ Global
 		{202BA1AB-25DA-44ED-B962-FD82FCC74543} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{DE259174-73DC-4532-B641-AD218971EE29} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 		{671FFF78-BDD2-4389-B29C-BFD183DA9120} = {2F323ED5-EBF8-45E1-B9D3-C014561B3DDA}
+		{010D4BE7-6A92-4A04-B4EB-745FA3130DF2} = {D764E024-3D3F-4112-B932-2DB722A1BACC}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D38DD0EC-D095-4BCD-B8AF-2D788AF3B9AE}

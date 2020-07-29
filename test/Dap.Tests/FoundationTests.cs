@@ -9,6 +9,7 @@ using FluentAssertions;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
@@ -344,6 +345,8 @@ namespace Dap.Tests
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(
                     z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType))
                 {
+                    if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
+
                     Add(HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
                 }
             }
@@ -356,6 +359,7 @@ namespace Dap.Tests
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes
                     .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType))
                 {
+                    if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
                     var descriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type);
 
                     Add(
@@ -406,7 +410,7 @@ namespace Dap.Tests
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                .FirstOrDefault(z => z.IsClass && z.FullName == name);
+                .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.FullName == name || z.FullName == name + "Base"));
         }
 
         private static string GetOnMethodName(IHandlerTypeDescriptor descriptor)

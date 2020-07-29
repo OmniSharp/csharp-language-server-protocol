@@ -107,7 +107,7 @@ namespace OmniSharp.Extensions.JsonRpc
             catch (Exception cannotDeserializeRequestParams)
             {
                 _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
-                return new InvalidParams(request.Id);
+                return new InvalidParams(request.Id, request.Method);
             }
 
             token.ThrowIfCancellationRequested();

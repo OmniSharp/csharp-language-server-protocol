@@ -9,8 +9,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
+        <PackageReference Include="System.Reactive" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\Dap.Shared\Dap.Shared.csproj" />
     </ItemGroup>
 
 </Project>

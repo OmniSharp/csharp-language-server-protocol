@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
-    public abstract class JsonRpcTestBase
+    public abstract class JsonRpcTestBase : IDisposable
     {
         private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -35,5 +35,11 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
         protected Task SettleNext() => Events.SettleNext();
         protected IObservable<Unit> Settle() => Events.Settle();
+
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Dispose();
+            Disposable?.Dispose();
+        }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -9,30 +8,27 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 using IOutputHandler = OmniSharp.Extensions.JsonRpc.IOutputHandler;
 using OutputHandler = OmniSharp.Extensions.JsonRpc.OutputHandler;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
-    public class DebugAdapterClient : JsonRpcServerBase, IDebugAdapterClient, IDisposable, IInitializedHandler
+    public class DebugAdapterClient : JsonRpcServerBase, IDebugAdapterClient, IInitializedHandler
     {
-        private readonly HandlerCollection _collection;
+        private readonly DebugAdapterHandlerCollection _collection;
         private readonly IEnumerable<OnClientStartedDelegate> _startedDelegates;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
-        private readonly IServiceProvider _serviceProvider;
-        private IClientProgressManager _progressManager;
+        private readonly IClientProgressManager _progressManager;
         private readonly DapReceiver _receiver;
-        private readonly ISubject<InitializedEvent > _initializedComplete = new AsyncSubject<InitializedEvent >();
+        private readonly ISubject<InitializedEvent> _initializedComplete = new AsyncSubject<InitializedEvent>();
 
         public static Task<IDebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction)
         {
@@ -60,7 +56,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public static async Task<IDebugAdapterClient> From(DebugAdapterClientOptions options, CancellationToken token)
         {
-            var server = (DebugAdapterClient)PreInit(options);
+            var server = (DebugAdapterClient) PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -99,7 +95,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             };
 
             var serializer = options.Serializer;
-            var collection = new HandlerCollection();
+            var collection = new DebugAdapterHandlerCollection();
             services.AddSingleton<IHandlersManager>(collection);
             _collection = collection;
             // _initializeDelegates = initializeDelegates;
@@ -112,13 +108,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 new OutputHandler(options.Output, options.Serializer, receiver.ShouldFilterOutput, _.GetService<ILogger<OutputHandler>>()));
             services.AddSingleton(_collection);
             services.AddSingleton(serializer);
-            services.AddSingleton<OmniSharp.Extensions.JsonRpc.ISerializer>(serializer);
             services.AddSingleton(options.RequestProcessIdentifier);
             services.AddSingleton(receiver);
             services.AddSingleton<IDebugAdapterClient>(this);
-            services.AddSingleton<RequestRouter>();
-            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<RequestRouter>());
-            services.AddSingleton<IResponseRouter, ResponseRouter>();
+            services.AddSingleton<DebugAdapterRequestRouter>();
+            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<DebugAdapterRequestRouter>());
+            services.AddSingleton<IResponseRouter, DapResponseRouter>();
 
             services.AddSingleton<IClientProgressManager, ClientProgressManager>();
             services.AddSingleton(_ => _.GetRequiredService<IClientProgressManager>() as IJsonRpcHandler);
@@ -127,20 +122,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
             var serviceProvider = services.BuildServiceProvider();
             _disposable.Add(serviceProvider);
-            _serviceProvider = serviceProvider;
+            IServiceProvider serviceProvider1 = serviceProvider;
 
-            var responseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
+            var responseRouter = serviceProvider1.GetRequiredService<IResponseRouter>();
             ResponseRouter = responseRouter;
-            _progressManager = _serviceProvider.GetRequiredService<IClientProgressManager>();
+            _progressManager = serviceProvider1.GetRequiredService<IClientProgressManager>();
 
             _connection = new Connection(
                 options.Input,
-                _serviceProvider.GetRequiredService<IOutputHandler>(),
+                serviceProvider1.GetRequiredService<IOutputHandler>(),
                 receiver,
                 options.RequestProcessIdentifier,
-                _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
+                serviceProvider1.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 responseRouter,
-                _serviceProvider.GetRequiredService<ILoggerFactory>(),
+                serviceProvider1.GetRequiredService<ILoggerFactory>(),
                 options.OnUnhandledException ?? (e => { }),
                 options.CreateResponseException,
                 options.MaximumRequestTimeout,
@@ -148,7 +143,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 options.Concurrency
             );
 
-            var serviceHandlers = _serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
+            var serviceHandlers = serviceProvider1.GetServices<IJsonRpcHandler>().ToArray();
+            _collection.Add(this);
             _disposable.Add(_collection.Add(serviceHandlers));
             options.AddLinks(_collection);
         }
@@ -182,7 +178,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         private void RegisterCapabilities(InitializeRequestArguments capabilities)
         {
             capabilities.SupportsRunInTerminalRequest ??= _collection.ContainsHandler(typeof(IRunInTerminalHandler));
-            capabilities.SupportsProgressReporting ??= _collection.ContainsHandler(typeof(IProgressHandler));
+            capabilities.SupportsProgressReporting ??= _collection.ContainsHandler(typeof(IProgressStartHandler)) &&
+                                                       _collection.ContainsHandler(typeof(IProgressUpdateHandler)) &&
+                                                       _collection.ContainsHandler(typeof(IProgressEndHandler));
         }
 
         protected override IResponseRouter ResponseRouter { get; }
@@ -196,224 +194,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _disposable?.Dispose();
             _connection?.Dispose();
         }
-    }
-
-    public class DebugAdapterClientOptions : DebugAdapterRpcOptionsBase<DebugAdapterClientOptions>, IDebugAdapterClientRegistry, IInitializeRequestArguments
-    {
-        internal readonly List<OnClientStartedDelegate> StartedDelegates = new List<OnClientStartedDelegate>();
-        public ISerializer Serializer { get; set; } = new DapSerializer();
-        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
-        public string ClientId { get; set; }
-        public string ClientName { get; set; }
-        public string AdapterId { get; set; }
-        public string Locale { get; set; }
-        public bool? LinesStartAt1 { get; set; }
-        public bool? ColumnsStartAt1 { get; set; }
-        public string PathFormat { get; set; }
-        public bool? SupportsVariableType { get; set; }
-        public bool? SupportsVariablePaging { get; set; }
-        public bool? SupportsRunInTerminalRequest { get; set; }
-        public bool? SupportsMemoryReferences { get; set; }
-        public bool? SupportsProgressReporting { get; set; }
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => this.AddHandler(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options) => this.AddHandler(method, handlerFunc, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandlers(params IJsonRpcHandler[] handlers) => this.AddHandlers(handlers);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options) => this.AddHandler(handlerFunc, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options) => this.AddHandler(handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler<TTHandler>(JsonRpcHandlerOptions options) => this.AddHandler<TTHandler>(options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options) => this.AddHandler<TTHandler>(method, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler(Type type, JsonRpcHandlerOptions options) => this.AddHandler(type, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.AddHandler(string method, Type type, JsonRpcHandlerOptions options) => this.AddHandler(method, type, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options) => OnJsonRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions options) => OnJsonRequest(method, handler, options);
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, Task<TResponse>> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TParams, TResponse>(string method, Func<TParams, CancellationToken, Task<TResponse>> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TResponse>(string method, Func<Task<TResponse>> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TResponse>(string method, Func<CancellationToken, Task<TResponse>> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TParams>(string method, Func<TParams, CancellationToken, Task> handler, JsonRpcHandlerOptions options) => OnRequest(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnRequest<TParams>(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions options) => OnRequest<TParams>(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification<TParams>(string method, Action<TParams, CancellationToken> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(string method, Action<JToken> handler, JsonRpcHandlerOptions options) => OnJsonNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(string method, Func<JToken, CancellationToken, Task> handler, JsonRpcHandlerOptions options) => OnJsonNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(string method, Func<JToken, Task> handler, JsonRpcHandlerOptions options) => OnJsonNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnJsonNotification(string method, Action<JToken, CancellationToken> handler, JsonRpcHandlerOptions options) => OnJsonNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification<TParams>(string method, Action<TParams> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification<TParams>(string method, Func<TParams, CancellationToken, Task> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification<TParams>(string method, Func<TParams, Task> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification(string method, Action handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification(string method, Func<CancellationToken, Task> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-
-        IDebugAdapterClientRegistry IJsonRpcHandlerRegistry<IDebugAdapterClientRegistry>.OnNotification(string method, Func<Task> handler, JsonRpcHandlerOptions options) => OnNotification(method, handler, options);
-    }
-
-    public static class DebugAdapterClientOptionsExtensions
-    {
-
-        public static DebugAdapterClientOptions WithSerializer(this DebugAdapterClientOptions options, ISerializer serializer)
-        {
-            options.Serializer = serializer;
-            return options;
-        }
-
-        public static DebugAdapterClientOptions WithRequestProcessIdentifier(this DebugAdapterClientOptions options, IRequestProcessIdentifier requestProcessIdentifier)
-        {
-            options.RequestProcessIdentifier = requestProcessIdentifier;
-            return options;
-        }
-
-        public static DebugAdapterClientOptions WithServices(this DebugAdapterClientOptions options, Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
-        public static DebugAdapterClientOptions OnStarted(this DebugAdapterClientOptions options,
-            OnClientStartedDelegate @delegate)
-        {
-            options.StartedDelegates.Add(@delegate);
-            return options;
-        }
-
-        public static DebugAdapterClientOptions ConfigureLogging(this DebugAdapterClientOptions options,
-            Action<ILoggingBuilder> builderAction)
-        {
-            options.LoggingBuilderAction = builderAction;
-            return options;
-        }
-
-        public static DebugAdapterClientOptions AddDefaultLoggingProvider(this DebugAdapterClientOptions options)
-        {
-            options.AddDefaultLoggingProvider = true;
-            return options;
-        }
-
-        public static DebugAdapterClientOptions ConfigureConfiguration(this DebugAdapterClientOptions options,
-            Action<IConfigurationBuilder> builderAction)
-        {
-            options.ConfigurationBuilderAction = builderAction;
-            return options;
-        }
-    }
-
-    public interface IProgressObservable : IObservable<ProgressEvent>
-    {
-    }
-
-    class ProgressObservable : IProgressObservable, IObserver<ProgressEvent>, IDisposable
-    {
-        private readonly CompositeDisposable _disposable;
-        private readonly ReplaySubject<ProgressEvent> _dataSubject;
-
-        public ProgressObservable(ProgressToken token)
-        {
-            _dataSubject = new ReplaySubject<ProgressEvent>(1);
-            _disposable = new CompositeDisposable() {Disposable.Create(_dataSubject.OnCompleted)};
-
-            ProgressToken = token;
-            if (_dataSubject is IDisposable disposable)
-            {
-                _disposable.Add(disposable);
-            }
-        }
-
-        public ProgressToken ProgressToken { get; }
-
-        void IObserver<ProgressEvent>.OnCompleted() => _dataSubject.OnCompleted();
-
-        void IObserver<ProgressEvent>.OnError(Exception error) => _dataSubject.OnError(error);
-
-        public void OnNext(ProgressEvent value) => _dataSubject.OnNext(value);
-
-        public void Dispose()
-        {
-            _disposable.Dispose();
-        }
-
-        public IDisposable Subscribe(IObserver<ProgressEvent> observer)
-        {
-            return _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
-        }
-    }
-    public interface IClientProgressManager
-    {
-        IObservable<IProgressObservable> Progress { get; }
-    }
-
-    public class ClientProgressManager : IProgressHandler, IClientProgressManager, IDisposable
-    {
-        private readonly IObserver<IProgressObservable> _observer;
-        private readonly CompositeDisposable _disposable;
-        private readonly ConcurrentDictionary<ProgressToken, ProgressObservable> _activeObservables = new ConcurrentDictionary<ProgressToken, ProgressObservable>(EqualityComparer<ProgressToken>.Default);
-
-        public ClientProgressManager()
-        {
-            var subject = new Subject<IProgressObservable>();
-            _disposable.Add(subject);
-            Progress = subject.AsObservable();
-            _observer = subject;
-        }
-
-        public IObservable<IProgressObservable> Progress { get; }
-
-        Task<Unit> IRequestHandler<ProgressStartEvent, Unit>.Handle(ProgressStartEvent request, CancellationToken cancellationToken)
-        {
-            var observable = new ProgressObservable(request.ProgressId);
-            _activeObservables.TryAdd(request.ProgressId, observable);
-            observable.OnNext(request);
-            _observer.OnNext(observable);
-
-            return Unit.Task;
-        }
-
-        Task<Unit> IRequestHandler<ProgressUpdateEvent, Unit>.Handle(ProgressUpdateEvent request, CancellationToken cancellationToken)
-        {
-            if (_activeObservables.TryGetValue(request.ProgressId, out var observable))
-            {
-                observable.OnNext(request);
-            }
-
-            // TODO: Add log message for unhandled?
-            return Unit.Task;
-        }
-
-        Task<Unit> IRequestHandler<ProgressEndEvent, Unit>.Handle(ProgressEndEvent request, CancellationToken cancellationToken)
-        {
-            if (_activeObservables.TryGetValue(request.ProgressId, out var observable))
-            {
-                observable.OnNext(request);
-            }
-
-            // TODO: Add log message for unhandled?
-            return Unit.Task;
-        }
-
-        public void Dispose() => _disposable?.Dispose();
     }
 }

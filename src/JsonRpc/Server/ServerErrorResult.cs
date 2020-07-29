@@ -16,6 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         {
             Code = code;
             Message = message;
+            Data = new JObject();
         }
 
         public int Code { get; set; }

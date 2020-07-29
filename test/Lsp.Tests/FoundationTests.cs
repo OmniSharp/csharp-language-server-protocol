@@ -557,7 +557,7 @@ namespace Lsp.Tests
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                .FirstOrDefault(z => z.IsClass && z.FullName == name);
+                .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.FullName == name || z.FullName == name+"Base"));
         }
 
         private static string GetOnMethodName(ILspHandlerTypeDescriptor descriptor)

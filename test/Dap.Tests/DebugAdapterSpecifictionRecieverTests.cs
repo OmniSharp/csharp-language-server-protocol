@@ -17,6 +17,8 @@ namespace Dap.Tests
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var receiver = new DapReceiver();
+            var inSerializer = new DapSerializer();
+            var outSerializer = new DapSerializer();
             var (requests, _) = receiver.GetRequests(JToken.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
@@ -26,8 +28,8 @@ namespace Dap.Tests
                 var r = request[i];
                 var response = result[i];
 
-                JsonConvert.SerializeObject(response)
-                    .Should().Be(JsonConvert.SerializeObject(r));
+                inSerializer.SerializeObject(response)
+                    .Should().Be(outSerializer.SerializeObject(r));
             }
         }
 
@@ -35,42 +37,42 @@ namespace Dap.Tests
         {
             public SpecificationMessages()
             {
-                Add (
+                Add(
                     @"{""seq"": ""0"", ""type"": ""request"", ""command"": ""attach"", ""arguments"": { ""__restart"": 3 }}",
                     new Renor[] {
                         new Request(0, "attach", new JObject() {{"__restart", 3}})
                     }
                 );
 
-                Add (
+                Add(
                     @"{""seq"": ""1"", ""type"": ""request"", ""command"": ""attach""}",
                     new Renor[] {
                         new Request(1, "attach", new JObject())
                     }
                 );
 
-                Add (
+                Add(
                     @"{""seq"": ""0"", ""type"": ""event"", ""event"": ""breakpoint"", ""body"": { ""reason"": ""new"" }}",
                     new Renor[] {
                         new Notification("breakpoint", new JObject() {{"reason", "new"}}),
                     }
                 );
 
-                Add (
+                Add(
                     @"{""seq"": ""1"", ""type"": ""event"", ""event"": ""breakpoint""}",
                     new Renor[] {
                         new Notification("breakpoint", null)
                     }
                 );
 
-                Add (
+                Add(
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": true, ""command"": ""attach"", ""body"": {  }}",
                     new Renor[] {
                         new ServerResponse(3, new JObject()),
                     }
                 );
 
-                Add (
+                Add(
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": true, ""command"": ""attach"", ""body"": null}",
                     new Renor[] {
                         new ServerResponse(3, null),
@@ -85,17 +87,17 @@ namespace Dap.Tests
                 //     }
                 // );
 
-                Add (
+                Add(
                     @"{""seq"": ""1"", ""type"": ""response"", ""request_seq"": 3, ""success"": false, ""command"": ""attach"", ""body"": null}",
                     new Renor[] {
-                        new ServerError(3, null),
+                        new ServerError(3, new ServerErrorResult(-1, "Unknown Error", new JObject())),
                     }
                 );
 
-                Add (
+                Add(
                     @"[1]",
                     new Renor[] {
-                        new InvalidRequest("Not an object")
+                        new InvalidRequest(string.Empty, "Not an object")
                     });
             }
         }

@@ -354,13 +354,13 @@ namespace OmniSharp.Extensions.JsonRpc
             }
             catch
             {
-                _outputHandler.Send(new ParseError());
+                _outputHandler.Send(new ParseError(string.Empty));
                 return;
             }
 
             if (!_receiver.IsValid(payload))
             {
-                _outputHandler.Send(new InvalidRequest());
+                _outputHandler.Send(new InvalidRequest(string.Empty));
                 return;
             }
 
@@ -477,9 +477,9 @@ namespace OmniSharp.Extensions.JsonRpc
                     var sub = Observable.Amb(
                             contentModifiedToken.Select(_ => {
                                 _logger.LogTrace("Request {Id} was abandoned due to content be modified", request.Id);
-                                return new ErrorResponse(new ContentModified(request.Id));
+                                return new ErrorResponse(new ContentModified(request.Id, request.Method));
                             }),
-                            Observable.Timer(_requestTimeout, scheduler).Select(z => new ErrorResponse(new RequestCancelled(request.Id))),
+                            Observable.Timer(_requestTimeout, scheduler).Select(z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))),
                             Observable.FromAsync(async (ct) => {
                                 using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", request.Method, request.Id);
                                 ct.Register(cts.Cancel);
@@ -491,17 +491,17 @@ namespace OmniSharp.Extensions.JsonRpc
                                 catch (OperationCanceledException)
                                 {
                                     _logger.LogTrace("Request {Id} was cancelled", request.Id);
-                                    return new RequestCancelled(request.Id);
+                                    return new RequestCancelled(request.Id, request.Method);
                                 }
                                 catch (RpcErrorException e)
                                 {
                                     _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new RpcError(request.Id, new ErrorMessage(e.Code, e.Message, e.Error));
+                                    return new RpcError(request.Id, request.Method, new ErrorMessage(e.Code, e.Message, e.Error));
                                 }
                                 catch (Exception e)
                                 {
                                     _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new InternalError(request.Id, e.ToString());
+                                    return new InternalError(request.Id, request.Method, e.ToString());
                                 }
                             })
                         )
