@@ -407,7 +407,7 @@ namespace Lsp.Tests.Integration
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = new Command() {
                                 Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] {})
+                                Arguments = JArray.FromObject(new object[] { })
                             }
                         }));
                     }, new CompletionRegistrationOptions() {
@@ -439,7 +439,7 @@ namespace Lsp.Tests.Integration
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = new Command() {
                                 Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] {  })
+                                Arguments = JArray.FromObject(new object[] { })
                             }
                         }));
                     }, new CompletionRegistrationOptions() {
@@ -506,7 +506,7 @@ namespace Lsp.Tests.Integration
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = new Command() {
                                 Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] {  })
+                                Arguments = JArray.FromObject(new object[] { })
                             }
                         }));
                     }, new CompletionRegistrationOptions() {
@@ -541,7 +541,7 @@ namespace Lsp.Tests.Integration
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = new Command() {
                                 Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] {  })
+                                Arguments = JArray.FromObject(new object[] { })
                             }
                         }));
                     }, new CompletionRegistrationOptions() {
@@ -577,7 +577,208 @@ namespace Lsp.Tests.Integration
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = new Command() {
                                 Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] {  })
+                                Arguments = JArray.FromObject(new object[] { })
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>("execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                        i.Should().Be(default);
+                        s.Should().Be(default);
+                        arg3.Should().Be(default);
+                        arg4.Should().Be(default);
+                        arg5.Should().BeNull();
+                        arg6.Should().BeEmpty();
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_1_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int>("execute-a", (i) => {
+                        i.Should().Be(default);
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_2_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int, string>("execute-a", (i, s) => {
+                        i.Should().Be(default);
+                        s.Should().Be(default);
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_3_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int, string, bool>("execute-a", (i, s, arg3) => {
+                        i.Should().Be(default);
+                        s.Should().Be(default);
+                        arg3.Should().Be(default);
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_4_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int, string, bool, Range>("execute-a", (i, s, arg3, arg4) => {
+                        i.Should().Be(default);
+                        s.Should().Be(default);
+                        arg3.Should().Be(default);
+                        arg4.Should().Be(default);
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_5_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
+                            }
+                        }));
+                    }, new CompletionRegistrationOptions() {
+                    });
+
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>("execute-a", (i, s, arg3, arg4, arg5) => {
+                        i.Should().Be(default);
+                        s.Should().Be(default);
+                        arg3.Should().Be(default);
+                        arg4.Should().Be(default);
+                        arg5.Should().BeNull();
+
+                        return Task.CompletedTask;
+                    });
+                });
+
+            var items = await client.RequestCompletion(new CompletionParams());
+
+            var item = items.Items.Single();
+
+            item.Command.Should().NotBeNull();
+
+            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            await action.Should().NotThrowAsync();
+        }
+
+        [Fact]
+        public async Task Should_Execute_6_Null_Args()
+        {
+            var (client, server) = await Initialize(
+                options => { }, options => {
+                    options.OnCompletion(x => {
+                        return Task.FromResult(new CompletionList(new CompletionItem() {
+                            Command = new Command() {
+                                Name = "execute-a"
                             }
                         }));
                     }, new CompletionRegistrationOptions() {
