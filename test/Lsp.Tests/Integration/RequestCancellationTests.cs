@@ -13,7 +13,6 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -140,41 +139,6 @@ namespace Lsp.Tests.Integration
                 return new CompletionList();
             }, new CompletionRegistrationOptions());
             options.OnDidChangeTextDocument(async x => { await Task.Delay(20); }, new TextDocumentChangeRegistrationOptions());
-        }
-    }
-
-    public class InitializationTests : LanguageProtocolTestBase
-    {
-        public InitializationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)) { }
-
-        [Fact]
-        public async Task Logs_should_be_allowed_during_startup()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
-
-            _logs.Should().HaveCount(2);
-            _logs.Should().ContainInOrder("OnInitialize", "OnInitialized");
-        }
-
-        private List<string> _logs = new List<string>();
-
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.OnLogMessage(log => {
-                _logs.Add(log.Message);
-            });
-        }
-
-        private void ConfigureServer(LanguageServerOptions options)
-        {
-            options.OnInitialize((server, request, token) => {
-                server.Window.LogInfo("OnInitialize");
-                return Task.CompletedTask;
-            });
-            options.OnInitialized((server, request, response, token) => {
-                server.Window.LogInfo("OnInitialized");
-                return Task.CompletedTask;
-            });
         }
     }
 }

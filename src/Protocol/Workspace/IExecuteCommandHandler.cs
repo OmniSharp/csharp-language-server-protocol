@@ -27,4 +27,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         public virtual void SetCapability(ExecuteCommandCapability capability) => Capability = capability;
         protected ExecuteCommandCapability Capability { get; private set; }
     }
+
+    public static partial class ExecuteCommandExtensions
+    {
+        public static Task ExecuteCommand(this IWorkspaceLanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
+            => mediator.ExecuteCommand(new ExecuteCommandParams() {Arguments = @params.Arguments, Command = @params.Name}, cancellationToken);
+        public static Task ExecuteCommand(this ILanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
+            => mediator.ExecuteCommand(new ExecuteCommandParams() {Arguments = @params.Arguments, Command = @params.Name}, cancellationToken);
+    }
 }

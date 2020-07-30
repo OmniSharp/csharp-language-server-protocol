@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -575,6 +575,7 @@ namespace Lsp.Tests
                 || name.StartsWith("Prepare")
                 || name.StartsWith("Publish")
                 || name.StartsWith("ApplyWorkspaceEdit")
+                || name.StartsWith("Execute")
                 || name.StartsWith("Unregister"))
             {
                 return name;

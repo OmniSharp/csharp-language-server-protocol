@@ -263,6 +263,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 }
             }
 
+            if (handler is IRegistration<ExecuteCommandRegistrationOptions> commandRegistration)
+            {
+                key += "|" + string.Join("|", commandRegistration.GetRegistrationOptions()?.Commands ?? Array.Empty<string>());
+            }
+
             if (string.IsNullOrWhiteSpace(key)) key = "default";
 
             var requestProcessType =
