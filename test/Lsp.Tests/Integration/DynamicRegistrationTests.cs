@@ -83,7 +83,7 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await SettleNext();
+            await SettleNext().Take(2);
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
