@@ -17,6 +17,7 @@ using Xunit.Abstractions;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 using System.Reactive.Disposables;
+using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
@@ -267,11 +268,13 @@ namespace Lsp.Tests
                 .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
                 .Returns(new CodeLensContainer());
 
+            var tdi = new TextDocumentIdentifiers();
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, tdi)
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), tdi));
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();

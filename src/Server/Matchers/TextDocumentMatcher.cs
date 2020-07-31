@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, TextDocumentIdentifiers textDocumentIdentifiers)
         {
             _logger = logger;
-            _textDocumentIdentifiers = textDocumentIdentifiers;;
+            _textDocumentIdentifiers = textDocumentIdentifiers; ;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
@@ -26,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             {
                 case ITextDocumentIdentifierParams textDocumentIdentifierParams:
                     {
+                        if (textDocumentIdentifierParams.TextDocument?.Uri == null) break;
                         var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
                         _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
@@ -34,6 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     }
                 case DidOpenTextDocumentParams openTextDocumentParams:
                     {
+                        if (openTextDocumentParams.TextDocument?.Uri == null) break;
                         var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
 
                         _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
@@ -42,6 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     }
                 case DidChangeTextDocumentParams didChangeDocumentParams:
                     {
+                        if (didChangeDocumentParams.TextDocument?.Uri == null) break;
                         // TODO: Do something with document version here?
                         var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
 
