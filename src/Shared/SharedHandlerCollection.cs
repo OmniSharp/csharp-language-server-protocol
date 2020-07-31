@@ -269,6 +269,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             if (string.IsNullOrWhiteSpace(key)) key = "default";
 
+            if (handler is ICanBeIdentifiedHandler identifiedHandler && identifiedHandler.Id != Guid.Empty)
+            {
+                key += ":" + identifiedHandler.Id.ToString("N");
+            }
+
             var requestProcessType =
                 options?.RequestProcessType ??
                 typeDescriptor?.RequestProcessType ??

@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -57,6 +59,83 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator CompletionItem[] (CompletionList list)
         {
             return list.ToArray();
+        }
+
+        /// <summary>
+        /// Convert from a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal CompletionList<T> Convert<T>(ISerializer serializer) where T : class
+        {
+            return new CompletionList<T>(this.Select(z => z.From<T>(serializer)));
+        }
+    }
+    /// <summary>
+    /// Represents a collection of [completion items](#CompletionItem) to be presented
+    /// in the editor.
+    /// </summary>
+    public class CompletionList<T> : Container<CompletionItem<T>> where T : class
+    {
+        public CompletionList() : base(Enumerable.Empty<CompletionItem<T>>()) { }
+        public CompletionList(bool isIncomplete) : base(Enumerable.Empty<CompletionItem<T>>())
+        {
+            IsIncomplete = isIncomplete;
+        }
+
+        public CompletionList(IEnumerable<CompletionItem<T>> items) : base(items) { }
+        public CompletionList(IEnumerable<CompletionItem<T>> items, bool isIncomplete) : base(items)
+        {
+            IsIncomplete = isIncomplete;
+        }
+
+        public CompletionList(params CompletionItem<T>[] items) : base(items) { }
+        public CompletionList(bool isIncomplete, params CompletionItem<T>[] items) : base(items)
+        {
+            IsIncomplete = isIncomplete;
+        }
+
+        /// <summary>
+        /// This list it not complete. Further typing should result in recomputing
+        /// this list.
+        /// </summary>
+        public bool IsIncomplete { get; }
+
+        /// <summary>
+        /// The completion items.
+        /// </summary>
+        public IEnumerable<CompletionItem> Items => this;
+
+        public static implicit operator CompletionList<T>(CompletionItem<T>[] items)
+        {
+            return new CompletionList<T>(items);
+        }
+
+        public static implicit operator CompletionList<T>(Collection<CompletionItem<T>> items)
+        {
+            return new CompletionList<T>(items);
+        }
+
+        public static implicit operator CompletionList<T>(List<CompletionItem<T>> items)
+        {
+            return new CompletionList<T>(items);
+        }
+
+        public static implicit operator CompletionItem<T>[] (CompletionList<T> list)
+        {
+            return list.ToArray();
+        }
+
+        /// <summary>
+        /// Convert to a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal CompletionList Convert(ISerializer serializer)
+        {
+            return new CompletionList(this.Select(z => z.To(serializer)));
         }
     }
 }

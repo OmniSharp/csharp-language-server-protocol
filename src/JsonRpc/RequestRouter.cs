@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.JsonRpc
             return _collection.FirstOrDefault(x => x.Method == instance.Method);
         }
 
-        public override IHandlerDescriptor GetDescriptor(Notification notification)
+        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
         {
-            return FindDescriptor(notification);
+            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(notification));
         }
 
-        public override IHandlerDescriptor GetDescriptor(Request request)
+        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
         {
-            return FindDescriptor(request);
+            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(request));
         }
     }
 }

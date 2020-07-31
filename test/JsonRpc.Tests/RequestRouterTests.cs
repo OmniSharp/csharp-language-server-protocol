@@ -98,7 +98,7 @@ namespace JsonRpc.Tests
             registry.Populate(collection, ServiceProvider);
 
             var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -118,7 +118,7 @@ namespace JsonRpc.Tests
             registry.Populate(collection, ServiceProvider);
 
             var request = new Request(Guid.NewGuid().ToString(), "$/my/something/awesome", "123123123123");
-            await mediator.RouteRequest(mediator.GetDescriptor(request), request, CancellationToken.None);
+            await mediator.RouteRequest(mediator.GetDescriptors(request), request, CancellationToken.None);
 
             await method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -137,7 +137,7 @@ namespace JsonRpc.Tests
             registry.Populate(collection, ServiceProvider);
 
             var notification = new Notification("$/my/something/awesome", "123123123123");
-            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptors(notification), notification, CancellationToken.None);
 
             method.Received(1).Invoke(Arg.Any<string>());
         }
@@ -156,7 +156,7 @@ namespace JsonRpc.Tests
             registry.Populate(collection, ServiceProvider);
 
             var notification = new Notification("$/my/something/awesome", null);
-            await mediator.RouteNotification(mediator.GetDescriptor(notification), notification, CancellationToken.None);
+            await mediator.RouteNotification(mediator.GetDescriptors(notification), notification, CancellationToken.None);
 
             method.Received(1).Invoke();
         }

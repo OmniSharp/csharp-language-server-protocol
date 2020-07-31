@@ -81,10 +81,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             void ICapability<TCapability>.SetCapability(TCapability capability) => Capability = capability;
         }
 
-        public abstract class PartialResults<TItem, TResponse, TCapability, TRegistrationOptions> :
-            IJsonRpcRequestHandler<TItem, TResponse>,
+        public abstract class PartialResults<TParams, TResponse, TItem, TCapability, TRegistrationOptions> :
+            IJsonRpcRequestHandler<TParams, TResponse>,
             IRegistration<TRegistrationOptions>, ICapability<TCapability>
-            where TItem : IPartialItemsRequest<TResponse, TItem>
+            where TParams : IPartialItemsRequest<TResponse, TItem>
             where TResponse : IEnumerable<TItem>, new()
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
@@ -104,7 +104,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TItem, TResponse>.Handle(TItem request,
+            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request,
                 CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return _factory(await task);
             }
 
-            protected abstract void Handle(TItem request, IObserver<IEnumerable<TItem>> results,
+            protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results,
                 CancellationToken cancellationToken);
 
             TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions() => _registrationOptions;

@@ -1,8 +1,10 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -25,12 +27,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public DocumentUri Target { get; set; }
 
-        /// </summary>
+        /// <summary>
         /// A data entry field that is preserved on a document link between a
         /// DocumentLinkRequest and a DocumentLinkResolveRequest.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JObject Data { get; set; }
 
         /// <summary>
         /// The tooltip text when you hover over this link.
@@ -47,5 +49,50 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay => $"{Range}{(Target != null ? $" {Target}" : "")}{(string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "")}";
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
+
+        /// <summary>
+        /// Convert from a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal DocumentLink<T> From<T>(ISerializer serializer) where T : class
+        {
+            return new DocumentLink<T>() {
+                Range = Range,
+                Target = Target,
+                Tooltip = Tooltip,
+                Data = Data?.ToObject<T>(serializer.JsonSerializer)
+            };
+        }
+    }
+    /// <summary>
+    /// A document link is a range in a text document that links to an internal or external resource, like another
+    /// text document or a web site.
+    /// </summary>
+    public class DocumentLink<T> : DocumentLink where T : class
+    {
+        /// <summary>
+        /// A data entry field that is preserved on a document link between a
+        /// DocumentLinkRequest and a DocumentLinkResolveRequest.
+        /// </summary>
+        [Optional]
+        public new T Data { get; set; }
+
+        /// <summary>
+        /// Convert to a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal DocumentLink To(ISerializer serializer)
+        {
+            if (Data != null)
+            {
+                base.Data = JObject.FromObject(Data, serializer.JsonSerializer);
+            }
+
+            return this;
+        }
     }
 }

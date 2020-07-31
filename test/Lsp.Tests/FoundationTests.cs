@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -52,6 +52,7 @@ namespace Lsp.Tests
             public DebuggerDisplayTypes()
             {
                 foreach (var item in typeof(DocumentSymbol).Assembly.ExportedTypes
+                    .Where(z => !z.IsGenericTypeDefinition)
                     .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
                     .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))
                 )

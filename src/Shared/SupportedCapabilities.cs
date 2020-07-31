@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
         {
             if (!descriptor.HasCapability) return;
-            if (descriptor.CapabilityType == null ||!handler.GetType().IsInstanceOfType(descriptor.CapabilityType)) return;
+            if (descriptor.CapabilityType == null ||!typeof(ICapability<>).MakeGenericType(descriptor.CapabilityType).IsInstanceOfType(handler)) return;
 
             if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
             {

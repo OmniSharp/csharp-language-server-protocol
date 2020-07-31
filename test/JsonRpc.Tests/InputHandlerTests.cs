@@ -357,7 +357,7 @@ namespace JsonRpc.Tests
                 {
                     var count = group.Count(x => x == "request");
                     await incomingRequestRouter.Received(count).RouteRequest(
-                        Arg.Any<IHandlerDescriptor>(),
+                        Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
                         Arg.Is<Request>(n => group.Key == n.Method),
                         Arg.Any<CancellationToken>()
                     );
@@ -367,7 +367,7 @@ namespace JsonRpc.Tests
                 {
                     var count = group.Count(x => x == "notification");
                     await incomingRequestRouter.Received(count).RouteNotification(
-                        Arg.Any<IHandlerDescriptor>(),
+                        Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
                         Arg.Is<Notification>(n => group.Key == n.Method),
                         Arg.Any<CancellationToken>()
                     );

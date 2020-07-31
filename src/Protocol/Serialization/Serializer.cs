@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization;
+using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -112,6 +113,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
             ReplaceConverter(converters, new DocumentUriConverter());
+            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
+            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
+            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
+            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+            ReplaceConverter(converters, new AggregateCompletionListConverter());
             base.AddOrReplaceConverters(converters);
         }
 

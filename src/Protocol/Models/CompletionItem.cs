@@ -1,9 +1,11 @@
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -131,10 +133,67 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// a completion and a completion resolve request.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JObject Data { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
+
+        /// <summary>
+        /// Convert from a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal CompletionItem<T> From<T>(ISerializer serializer) where T : class
+        {
+            return new CompletionItem<T>() {
+                Command = Command,
+                Deprecated = Deprecated,
+                Detail = Detail,
+                Documentation = Documentation,
+                Kind = Kind,
+                Label = Label,
+                Preselect = Preselect,
+                Tags = Tags,
+                CommitCharacters = CommitCharacters,
+                FilterText = FilterText,
+                InsertText = InsertText,
+                SortText = SortText,
+                TextEdit = TextEdit,
+                AdditionalTextEdits = AdditionalTextEdits,
+                InsertTextFormat = InsertTextFormat,
+                Data = Data?.ToObject<T>(serializer.JsonSerializer)
+            };
+        }
+    }
+
+    /// <remarks>
+    /// Typed code lens used for the typed handlers
+    /// </remarks>
+    public class CompletionItem<T> : CompletionItem where T : class
+    {
+        /// <summary>
+        /// An data entry field that is preserved on a completion item between
+        /// a completion and a completion resolve request.
+        /// </summary>
+        [Optional]
+        public new T Data { get; set; }
+
+        /// <summary>
+        /// Convert to a <see cref="CodeLens"/>
+        /// </summary>
+        /// <param name="serializer"></param>
+        /// <returns></returns>
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        internal CompletionItem To(ISerializer serializer)
+        {
+            if (Data != null)
+            {
+                base.Data = JObject.FromObject(Data, serializer.JsonSerializer);
+            }
+
+            return this;
+        }
     }
 }
