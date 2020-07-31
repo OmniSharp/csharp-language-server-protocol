@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections;
 using System.Collections.Generic;
@@ -203,6 +203,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword)))
             }));
 
+            var allowDerivedRequests = _attributeData.NamedArguments
+                .Where(z => z.Key == "AllowDerivedRequests")
+                .Select(z => z.Value.Value)
+                .FirstOrDefault() is bool b && b;
+
 
             if (registrationOptions == null)
             {
@@ -224,6 +229,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 yield return MakeAction(CreateAsyncFunc(responseType, false, requestType));
                 yield return MakeAction(CreateAsyncFunc(responseType, true, requestType));
+
+                if (allowDerivedRequests)
+                {
+                    MemberDeclarationSyntax MakeDerivedAction(TypeSyntax syntax)
+                    {
+                        return method
+                            .WithParameterList(parameters.WithParameters(SeparatedList(parameters.Parameters.Concat(
+                                new[] {Parameter(Identifier("handler")).WithType(syntax)}))))
+                            .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                            .WithConstraintClauses(SingletonList(TypeParameterConstraintClause(IdentifierName("T"))
+                                .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(ResolveTypeName(requestType)))))
+                            )
+                            .NormalizeWhitespace();
+                    }
+
+                    yield return MakeDerivedAction(CreateDerivedAsyncFunc(responseType, false));
+                    yield return MakeDerivedAction(CreateDerivedAsyncFunc(responseType, true));
+                }
+
                 if (partialItems != null)
                 {
                     var partialTypeSyntax = ResolveTypeName(partialItems);
@@ -289,6 +313,24 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 yield return MakeAction(CreateAsyncFunc(responseType, false, requestType));
                 yield return MakeAction(CreateAsyncFunc(responseType, true, requestType));
+
+                if (allowDerivedRequests)
+                {
+                    MemberDeclarationSyntax MakeDerivedAction(TypeSyntax syntax)
+                    {
+                        return method
+                            .WithParameterList(parameters.WithParameters(SeparatedList(parameters.Parameters.Concat(
+                                new[] {Parameter(Identifier("handler")).WithType(syntax), registrationParameter}))))
+                            .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                            .WithConstraintClauses(SingletonList(TypeParameterConstraintClause(IdentifierName("T"))
+                                .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(ResolveTypeName(requestType)))))
+                            )
+                            .NormalizeWhitespace();
+                    }
+
+                    yield return MakeDerivedAction(CreateDerivedAsyncFunc(responseType, false));
+                    yield return MakeDerivedAction(CreateDerivedAsyncFunc(responseType, true));
+                }
 
                 if (partialItems != null)
                 {

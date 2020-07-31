@@ -6,7 +6,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Attach, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
+    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
     public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse> { }
 
     public abstract class AttachHandler : IAttachHandler

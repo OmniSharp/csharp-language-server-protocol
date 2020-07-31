@@ -19,6 +19,7 @@ using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration
 {
+
     public class RequestCancellationTests : DebugAdapterProtocolTestBase
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()

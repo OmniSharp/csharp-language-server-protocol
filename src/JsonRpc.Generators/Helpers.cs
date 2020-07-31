@@ -132,6 +132,31 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(typeArguments)));
         }
 
+        public static GenericNameSyntax CreateDerivedAsyncFunc(ITypeSymbol? responseType, bool withCancellationToken)
+        {
+            var typeArguments = new List<TypeSyntax>() {
+                IdentifierName("T")
+            };
+            if (withCancellationToken)
+            {
+                typeArguments.Add(IdentifierName("CancellationToken"));
+            }
+
+            if (responseType == null || responseType.Name == "Unit")
+            {
+                typeArguments.Add(IdentifierName("Task"));
+            }
+            else
+            {
+                typeArguments.Add(GenericName(Identifier("Task"), TypeArgumentList(SeparatedList(new TypeSyntax[] {
+                    ResolveTypeName(responseType)
+                }))));
+            }
+
+            return GenericName(Identifier("Func"))
+                .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(typeArguments)));
+        }
+
         public static GenericNameSyntax CreatePartialAction(ITypeSymbol requestType, NameSyntax partialType, bool withCancellationToken, params ITypeSymbol[] types)
         {
             var typeArguments = new List<NameSyntax>() {

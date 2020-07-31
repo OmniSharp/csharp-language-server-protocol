@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
@@ -23,5 +24,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         [Optional]
         [JsonProperty(PropertyName = "__restart")]
         public JToken Restart { get; set; }
+
+        [JsonExtensionData]
+        public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
     }
 }

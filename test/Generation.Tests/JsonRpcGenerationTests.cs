@@ -548,7 +548,8 @@ namespace Test
         }
 
         [Fact]
-        public async Task Supports_Custom_Method_Names() {
+        public async Task Supports_Custom_Method_Names()
+        {
             var source = @"
 using System;
 using System.Threading;
@@ -594,6 +595,59 @@ namespace Test
     public static partial class LanguageProtocolInitializeExtensions
     {
         public static Task<InitializeResult> RequestLanguageProtocolInitialize(this ITextDocumentLanguageClient mediator, InitializeParams @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
+    }
+}";
+            await AssertGeneratedAsExpected(source, expected);
+        }
+
+        [Fact]
+        public async Task Supports_Allow_Derived_Requests()
+        {
+            var source = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System.Collections.Generic;
+using MediatR;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+{
+    [Parallel, Method(RequestNames.Attach, Direction.ClientToServer)]
+    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
+    public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse> { }
+}";
+            var expected = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System.Collections.Generic;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+{
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class AttachExtensions
+    {
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
+    }
+}
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+{
+    public static partial class AttachExtensions
+    {
+        public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 }";
             await AssertGeneratedAsExpected(source, expected);
