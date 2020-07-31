@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JObject Data { get; set; }
+        public JToken Data { get; set; }
 
         private string DebuggerDisplay => $"{Range}{(Command != null ? $" Command" : "")}";
         /// <inheritdoc />

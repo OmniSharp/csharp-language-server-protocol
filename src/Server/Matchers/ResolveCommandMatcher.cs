@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             if (parameters is ICanBeResolved canBeResolved)
             {
-                if (canBeResolved.Data != null && canBeResolved.Data.TryGetValue(PrivateHandlerId, out var value))
+                if (canBeResolved.Data != null && canBeResolved.Data is JObject jObject && jObject.TryGetValue(PrivateHandlerId, out var value))
                 {
                     var id = value.Value<Guid>();
 

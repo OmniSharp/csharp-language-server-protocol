@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// DocumentLinkRequest and a DocumentLinkResolveRequest.
         /// </summary>
         [Optional]
-        public JObject Data { get; set; }
+        public JToken Data { get; set; }
 
         /// <summary>
         /// The tooltip text when you hover over this link.

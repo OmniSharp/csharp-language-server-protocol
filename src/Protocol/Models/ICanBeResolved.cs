@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A data entry field that is preserved for resolve requests
         /// </summary>
         [Optional]
-        JObject Data { get; set; }
+        JToken Data { get; set; }
     }
 }

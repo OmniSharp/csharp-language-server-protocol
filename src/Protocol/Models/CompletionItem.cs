@@ -133,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// a completion and a completion resolve request.
         /// </summary>
         [Optional]
-        public JObject Data { get; set; }
+        public JToken Data { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
         /// <inheritdoc />
