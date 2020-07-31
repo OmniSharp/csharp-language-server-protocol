@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -83,7 +83,7 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await SettleNext().Take(2);
+            await Settle().Take(2);
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
