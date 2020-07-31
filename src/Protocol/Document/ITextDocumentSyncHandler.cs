@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
             GetRegistrationOptions() => _changeOptions;
 
-        public abstract IEnumerable<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri);
+        public abstract TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri);
         public abstract Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     {
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onOpenHandler,
             Func<DidCloseTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onCloseHandler,
             Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onChangeHandler,
@@ -66,7 +66,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken> onOpenHandler,
             Action<DidCloseTextDocumentParams, SynchronizationCapability, CancellationToken> onCloseHandler,
             Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> onChangeHandler,
@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, SynchronizationCapability> onOpenHandler,
             Action<DidCloseTextDocumentParams, SynchronizationCapability> onCloseHandler,
             Action<DidChangeTextDocumentParams, SynchronizationCapability> onChangeHandler,
@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, CancellationToken, Task> onOpenHandler,
             Func<DidCloseTextDocumentParams, CancellationToken, Task> onCloseHandler,
             Func<DidChangeTextDocumentParams, CancellationToken, Task> onChangeHandler,
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams, CancellationToken> onOpenHandler,
             Action<DidCloseTextDocumentParams, CancellationToken> onCloseHandler,
             Action<DidChangeTextDocumentParams, CancellationToken> onChangeHandler,
@@ -134,7 +134,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Func<DidOpenTextDocumentParams, Task> onOpenHandler,
             Func<DidCloseTextDocumentParams, Task> onCloseHandler,
             Func<DidChangeTextDocumentParams, Task> onChangeHandler,
@@ -152,7 +152,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public static ILanguageServerRegistry OnTextDocumentSync(this ILanguageServerRegistry registry,
             TextDocumentSyncKind kind,
-            Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+            Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
             Action<DidOpenTextDocumentParams> onOpenHandler,
             Action<DidCloseTextDocumentParams> onCloseHandler,
             Action<DidChangeTextDocumentParams> onChangeHandler,
@@ -182,7 +182,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             private readonly Func<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task>
                 _onSaveHandler;
 
-            private readonly Func<DocumentUri, IEnumerable<TextDocumentAttributes>> _getTextDocumentAttributes;
+            private readonly Func<DocumentUri, TextDocumentAttributes> _getTextDocumentAttributes;
             private SynchronizationCapability _capability;
 
             public DelegatingHandler(
@@ -190,7 +190,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 Func<DidCloseTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onCloseHandler,
                 Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onChangeHandler,
                 Func<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onSaveHandler,
-                Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+                Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
                 TextDocumentSaveRegistrationOptions registrationOptions,
                 TextDocumentSyncKind kind) : base(kind, registrationOptions)
             {
@@ -206,7 +206,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 Action<DidCloseTextDocumentParams, SynchronizationCapability, CancellationToken> onCloseHandler,
                 Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> onChangeHandler,
                 Action<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken> onSaveHandler,
-                Func<DocumentUri, IEnumerable<TextDocumentAttributes>> getTextDocumentAttributes,
+                Func<DocumentUri, TextDocumentAttributes> getTextDocumentAttributes,
                 TextDocumentSaveRegistrationOptions registrationOptions,
                 TextDocumentSyncKind kind) : this(
                 (r, c, ct) => {
@@ -259,7 +259,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 return Unit.Value;
             }
 
-            public override IEnumerable<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri) =>
+            public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) =>
                 _getTextDocumentAttributes.Invoke(uri);
 
             public override void SetCapability(SynchronizationCapability capability)

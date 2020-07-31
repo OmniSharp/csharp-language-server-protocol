@@ -31,9 +31,8 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => { }, options => {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
-                    identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(call => new List<TextDocumentAttributes>() {
-                        new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp")
-                    });
+                    identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
+                        call => new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp"));
                     options.AddTextDocumentIdentifier(identifier);
 
                     options.OnCompletion<Data>((codeLensParams) => {

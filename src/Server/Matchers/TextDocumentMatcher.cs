@@ -60,17 +60,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         private List<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
         {
             return _textDocumentIdentifiers
-                .SelectMany(x => x.GetTextDocumentAttributes(uri))
+                .Select(x => x.GetTextDocumentAttributes(uri))
                 .Where(x => x != null)
-                .Distinct()
                 .ToList();
         }
 
         private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, IEnumerable<TextDocumentAttributes> attributes)
         {
-            return attributes
-                .SelectMany(x => GetHandler(descriptors, x))
-                .Distinct();
+            return attributes.SelectMany(z => GetHandler(descriptors, z)).Distinct();
         }
 
         private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, TextDocumentAttributes attributes)
