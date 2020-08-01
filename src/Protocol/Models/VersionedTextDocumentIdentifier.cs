@@ -36,9 +36,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The version number of this document.
         /// </summary>
-        public long Version { get; set; }
+        public int? Version { get; set; }
 
-        private string DebuggerDisplay => $"({Version}) {Uri}";
+        private string DebuggerDisplay => $"{Uri}@({Version})";
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

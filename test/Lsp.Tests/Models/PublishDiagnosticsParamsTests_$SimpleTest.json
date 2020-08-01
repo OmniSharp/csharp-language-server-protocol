@@ -1,6 +1,5 @@
 {
     "uri": "file:///abc/123.cs",
-    "version": 0,
     "diagnostics": [
         {
             "range": {
