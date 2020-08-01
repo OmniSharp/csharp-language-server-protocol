@@ -32,10 +32,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                            }
+                            Command = Command.Create("execute-a", 1, "2", false)
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -65,10 +62,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-b",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                            }
+                            Command = Command.Create("execute-b", 1, "2", false )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -101,10 +95,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                            }
+                            Command = Command.Create("execute-a", 1, "2", false )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -161,10 +152,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                            }
+                            Command = Command.Create("execute-a",1, "2", false )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -198,10 +186,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1 })
-                            }
+                            Command = Command.Create("execute-a", 1 )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -230,10 +215,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2" })
-                            }
+                            Command = Command.Create("execute-a",  1, "2" )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -263,10 +245,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", true })
-                            }
+                            Command = Command.Create("execute-a", 1, "2", true )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -297,10 +276,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", true, new Range((0, 1), (1, 1)) })
-                            }
+                            Command = Command.Create("execute-a",  1, "2", true, new Range((0, 1), (1, 1)) )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -332,10 +308,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" } })
-                            }
+                            Command = Command.Create("execute-a",  1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" } )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -368,10 +341,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" }, Guid.NewGuid() })
-                            }
+                            Command = Command.Create("execute-a",1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" }, Guid.NewGuid() )
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -405,10 +375,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -437,10 +404,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -470,10 +434,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -504,10 +465,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -539,10 +497,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -575,10 +530,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a",
-                                Arguments = JArray.FromObject(new object[] { })
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -612,9 +564,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -643,9 +593,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -675,9 +623,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -708,9 +654,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -742,9 +686,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
@@ -777,9 +719,7 @@ namespace Lsp.Tests.Integration
                 options => { }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Name = "execute-a"
-                            }
+                            Command = Command.Create("execute-a")
                         }));
                     }, new CompletionRegistrationOptions() {
                     });
