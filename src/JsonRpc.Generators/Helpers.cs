@@ -866,6 +866,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var name = SpecialCasedHandlerName(symbol);
             if (
                 name.StartsWith("Run")
+                || name.StartsWith("Execute")
                 // TODO: Change this next breaking change
                 // || name.StartsWith("Set")
                 // || name.StartsWith("Attach")

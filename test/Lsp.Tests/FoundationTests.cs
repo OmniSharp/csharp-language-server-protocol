@@ -106,7 +106,11 @@ namespace Lsp.Tests
             var abstractHandler = descriptor.HandlerType.Assembly.ExportedTypes.FirstOrDefault(z => z.IsAbstract && z.IsClass && descriptor.HandlerType.IsAssignableFrom(z));
             abstractHandler.Should().NotBeNull($"{descriptor.HandlerType.FullName} is missing abstract base class");
 
-            var delegatingHandler = descriptor.HandlerType.Assembly.DefinedTypes.FirstOrDefault(z => abstractHandler.IsAssignableFrom(z) && abstractHandler != z);
+            var delegatingHandler = descriptor.HandlerType.Assembly.DefinedTypes.FirstOrDefault(z =>
+                abstractHandler.IsAssignableFrom(z)
+                && abstractHandler != z
+                && !z.IsGenericTypeDefinition
+            );
             if (delegatingHandler != null)
             {
                 _logger.LogInformation("Delegating Handler: {Type}", delegatingHandler);
@@ -562,6 +566,7 @@ namespace Lsp.Tests
                 || name.StartsWith("Prepare")
                 || name.StartsWith("Publish")
                 || name.StartsWith("ApplyWorkspaceEdit")
+                || name.StartsWith("Execute")
                 || name.StartsWith("Unregister"))
             {
                 return name;

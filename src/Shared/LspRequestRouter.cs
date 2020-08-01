@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
@@ -57,13 +58,20 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 return null;
             }
 
+
             if (@params == null || descriptor.Params == null) return descriptor;
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
-            if (lspHandlerDescriptors.Count == 1) return descriptor;
 
             var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
-            return _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault() ?? descriptor;
+            var matchDescriptor = _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).FirstOrDefault();
+            if (matchDescriptor != null) return matchDescriptor;
+            // execute command is a special case
+            // if no command was found to execute this must error
+            // this is not great coupling but other options require api changes
+            if (paramsValue is ExecuteCommandParams) return null;
+            if (lspHandlerDescriptors.Count == 1) return descriptor;
+            return null;
         }
 
         IHandlerDescriptor IRequestRouter<IHandlerDescriptor>.GetDescriptor(Notification notification) => GetDescriptor(notification);
