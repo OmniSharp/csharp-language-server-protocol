@@ -1,3 +1,4 @@
+using System;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -7,14 +8,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Common interface for types that support resolution.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICanBeResolvedHandler<T> : IJsonRpcRequestHandler<T, T>
+    public interface ICanBeResolvedHandler<T> : IJsonRpcRequestHandler<T, T>, ICanBeIdentifiedHandler
         where T : ICanBeResolved, IRequest<T>
     {
+    }
+
+    public interface ICanBeIdentifiedHandler
+    {
         /// <summary>
-        /// Method that determines if a handler can be used to resolve this one
+        /// An id that that determines if a handler is unique or not for purposes of routing requests
         /// </summary>
-        /// <param name="value"></param>
-        /// <returns></returns>
-        bool CanResolve(T value);
+        /// <remarks>
+        /// Some requests can "fan out" to multiple handlers to pull back data this allows them to fan out for the same document selector
+        /// </remarks>
+        Guid Id { get; }
     }
 }

@@ -18,7 +18,6 @@ namespace OmniSharp.Extensions.JsonRpc.Client
         }
 
         public object Id { get; set; }
-
         public object Result { get; set; }
         public ServerRequest Request { get; }
     }

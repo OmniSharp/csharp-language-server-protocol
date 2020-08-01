@@ -201,7 +201,7 @@ namespace Lsp.Tests.Integration
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
 
-            public override bool CanResolve(CodeLens value) => true;
+            public override Guid Id { get; } = Guid.NewGuid();
         }
 
     }
