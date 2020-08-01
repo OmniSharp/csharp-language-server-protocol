@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public long Version { get; set; }
+        public int? Version { get; set; }
 
         /// <summary>
         ///  An array of diagnostic information items.

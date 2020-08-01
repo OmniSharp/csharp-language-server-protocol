@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The version number of this document (it will strictly increase after each
         /// change, including undo/redo).
         /// </summary>
-        public long Version { get; set; }
+        public int? Version { get; set; }
 
         /// <summary>
         /// The content of the opened text document.
