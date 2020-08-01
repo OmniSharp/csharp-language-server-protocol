@@ -1,14 +1,11 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.DebugAdapter.Shared
 {
@@ -164,38 +161,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public bool ContainsHandler(TypeInfo typeInfo)
         {
             return this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
-        }
-    }
-
-    internal class DebugAdapterRequestRouter : RequestRouterBase<IHandlerDescriptor>
-    {
-        private readonly DebugAdapterHandlerCollection _collection;
-
-
-        public DebugAdapterRequestRouter(DebugAdapterHandlerCollection collection, ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
-            : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<RequestRouter>())
-        {
-            _collection = collection;
-        }
-
-        public IDisposable Add(IJsonRpcHandler handler)
-        {
-            return _collection.Add(handler);
-        }
-
-        private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
-        {
-            return _collection.FirstOrDefault(x => x.Method == instance.Method);
-        }
-
-        public override IHandlerDescriptor GetDescriptor(Notification notification)
-        {
-            return FindDescriptor(notification);
-        }
-
-        public override IHandlerDescriptor GetDescriptor(Request request)
-        {
-            return FindDescriptor(request);
         }
     }
 }

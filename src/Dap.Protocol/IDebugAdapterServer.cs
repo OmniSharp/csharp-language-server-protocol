@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -10,5 +11,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         Task Initialize(CancellationToken token);
         IServerProgressManager ProgressManager { get; }
+        InitializeRequestArguments ClientSettings { get; }
+        InitializeResponse ServerSettings { get; }
     }
 }

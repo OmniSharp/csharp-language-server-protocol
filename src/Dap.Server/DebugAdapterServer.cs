@@ -221,7 +221,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 SupportsRestartRequest = _capabilities.SupportsRestartRequest ??  _collection.ContainsHandler(typeof(IRestartHandler)),
                 SupportsSetExpression = _capabilities.SupportsSetExpression ?? _collection.ContainsHandler(typeof(ISetExpressionHandler)),
                 SupportsSetVariable = _capabilities.SupportsSetVariable ?? _collection.ContainsHandler(typeof(ISetVariableHandler)),
-                SupportsStepBack = _capabilities.SupportsStepBack ?? _collection.ContainsHandler(typeof(IStepBackHandler)),
+                SupportsStepBack = _capabilities.SupportsStepBack ?? _collection.ContainsHandler(typeof(IStepBackHandler)) && _collection.ContainsHandler(typeof(IReverseContinueHandler)),
                 SupportsTerminateRequest = _capabilities.SupportsTerminateRequest ??  _collection.ContainsHandler(typeof(ITerminateHandler)),
                 SupportTerminateDebuggee = _capabilities.SupportTerminateDebuggee,
                 SupportsConfigurationDoneRequest = _capabilities.SupportsConfigurationDoneRequest ??  _collection.ContainsHandler(typeof(IConfigurationDoneHandler)),
