@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {
             var property = base.CreateProperty(member, memberSerialization);
-            if (member.GetCustomAttributes<OptionalAttribute>().Any()
+            if (member.GetCustomAttributes<OptionalAttribute>(true).Any()
              || property.DeclaringType.Name.EndsWith("Capabilities")
             )
             {

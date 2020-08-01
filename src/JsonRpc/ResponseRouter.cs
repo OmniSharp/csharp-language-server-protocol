@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             if (!MethodCache.TryGetValue(type, out var methodName))
             {
-                var attribute = type.GetCustomAttribute<MethodAttribute>(true);
+                var attribute = MethodAttribute.From(type);
                 if (attribute == null)
                 {
                     throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -73,7 +74,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         {
             if (!MethodCache.TryGetValue(type, out var methodName))
             {
-                var attribute = type.GetCustomAttribute<MethodAttribute>(true);
+                var attribute = MethodAttribute.From(type);
                 if (attribute == null)
                 {
                     throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");

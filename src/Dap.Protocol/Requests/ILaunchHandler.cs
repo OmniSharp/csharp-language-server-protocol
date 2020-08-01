@@ -7,13 +7,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Launch, Direction.ClientToServer)]
     [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
-    public interface ILaunchHandler : IJsonRpcRequestHandler<LaunchRequestArguments, LaunchResponse>
+    public interface ILaunchHandler<in T> : IJsonRpcRequestHandler<T, LaunchResponse> where T : LaunchRequestArguments
     {
     }
 
-    public abstract class LaunchHandler : ILaunchHandler
+    public interface ILaunchHandler : ILaunchHandler<LaunchRequestArguments>
     {
-        public abstract Task<LaunchResponse>
-            Handle(LaunchRequestArguments request, CancellationToken cancellationToken);
+    }
+
+    public abstract class LaunchHandlerBase<T> : ILaunchHandler<T> where T : LaunchRequestArguments
+    {
+        public abstract Task<LaunchResponse> Handle(T request, CancellationToken cancellationToken);
+    }
+
+    public abstract class LaunchHandler : LaunchHandlerBase<LaunchRequestArguments>
+    {
     }
 }

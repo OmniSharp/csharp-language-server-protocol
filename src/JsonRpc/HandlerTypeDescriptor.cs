@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
@@ -11,18 +11,33 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public HandlerTypeDescriptor(Type handlerType)
         {
-            var method = handlerType.GetCustomAttribute<MethodAttribute>();
+            var method = MethodAttribute.From(handlerType);
             Method = method.Method;
             Direction = method.Direction;
+            if (handlerType.IsGenericTypeDefinition)
+            {
+                handlerType = handlerType.MakeGenericType(handlerType.GetTypeInfo().GenericTypeParameters[0].GetGenericParameterConstraints()[0]);
+            }
             HandlerType = handlerType;
             InterfaceType = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
 
-            ParamsType = InterfaceType.IsGenericType ? InterfaceType.GetGenericArguments()[0] : typeof(EmptyRequest);
-            HasParamsType = ParamsType != null && ParamsType != typeof(EmptyRequest);
+            // This allows for us to have derived types
+            // We are making the assumption that interface given here
+            // if a GTD will have a constraint on the first generic type parameter
+            // that is the real base type for this interface.
+            if (InterfaceType.IsGenericType)
+            {
+                ParamsType = InterfaceType.GetGenericArguments()[0];
+            }
+            else
+            {
+                ParamsType = typeof(EmptyRequest);
+            }
 
+            HasParamsType = ParamsType != null && ParamsType != typeof(EmptyRequest);
             IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
-                .GetInterfaces().Any(z =>
-                    z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+                                 .GetInterfaces().Any(z =>
+                                     z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
 
             var requestInterface = ParamsType?

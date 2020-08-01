@@ -200,14 +200,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private string GetMethodName(Type type)
         {
             // Custom method
-            var attribute = type.GetTypeInfo().GetCustomAttribute<MethodAttribute>();
-            if (attribute is null)
-            {
-                attribute = type.GetTypeInfo()
-                    .ImplementedInterfaces
-                    .Select(t => t.GetTypeInfo().GetCustomAttribute<MethodAttribute>())
-                    .FirstOrDefault(x => x != null);
-            }
+            var attribute = MethodAttribute.From(type.GetTypeInfo());
 
             // TODO: Log unknown method name
             if (attribute is null)

@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Snapper;
 using Snapper.Attributes;
 using Snapper.Core;
@@ -644,6 +644,63 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 }
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+{
+    public static partial class AttachExtensions
+    {
+        public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
+    }
+}";
+            await AssertGeneratedAsExpected(source, expected);
+        }
+        [Fact]
+        public async Task Supports_Allow_Generic_Types()
+        {
+            var source = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System.Collections.Generic;
+using MediatR;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
+{
+    public class AttachResponse { }
+    [Method(""attach"", Direction.ClientToServer)]
+    public class AttachRequestArguments: IRequest<AttachResponse> { }
+
+    [Parallel, Method(""attach"", Direction.ClientToServer)]
+    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
+    public interface IAttachHandler<in T> : IJsonRpcRequestHandler<T, AttachResponse> where T : AttachRequestArguments { }
+    public interface IAttachHandler : IAttachHandler<AttachRequestArguments> { }
+}";
+            var expected = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System.Collections.Generic;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
+{
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class AttachExtensions
+    {
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+    }
+}
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
     public static partial class AttachExtensions
     {
