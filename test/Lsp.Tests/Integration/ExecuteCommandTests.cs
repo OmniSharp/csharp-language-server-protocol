@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
@@ -8,6 +9,8 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
+using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
@@ -57,9 +60,13 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_The_Correct_Command()
         {
             var commanda = Substitute.For<Func<ExecuteCommandParams, Task>>();
-            var commandb = Substitute.For<Func<ExecuteCommandParams, Task>>();
+            var commandb = Substitute.For<Func<ExecuteCommandParams, ExecuteCommandCapability, CancellationToken, Task>>();
             var (client, server) = await Initialize(
-                options => { }, options => {
+                options => {
+                    options.WithCapability(new ExecuteCommandCapability() {
+                        DynamicRegistration = false
+                    });
+                }, options => {
                     options.OnCompletion(x => {
                         return Task.FromResult(new CompletionList(new CompletionItem() {
                             Command = Command.Create("execute-b", 1, "2", false )
@@ -85,7 +92,9 @@ namespace Lsp.Tests.Integration
             await client.ExecuteCommand(item.Command);
 
             await commanda.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
-            await commandb.Received(1).Invoke(Arg.Any<ExecuteCommandParams>());
+            await commandb.Received(1).Invoke(Arg.Any<ExecuteCommandParams>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>());
+            var arg = commandb.ReceivedCalls().Single().GetArguments()[1];
+            arg.Should().BeOfType<ExecuteCommandCapability>();
         }
 
         [Fact]

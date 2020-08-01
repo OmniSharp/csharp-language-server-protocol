@@ -12,9 +12,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
     public interface IRequestRouter<TDescriptor> : IRequestRouter
     {
-        TDescriptor GetDescriptor(Notification notification);
-        TDescriptor GetDescriptor(Request request);
-        Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token);
-        Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token);
+        IRequestDescriptor<TDescriptor> GetDescriptors(Notification notification);
+        IRequestDescriptor<TDescriptor> GetDescriptors(Request request);
+        Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token);
+        Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token);
     }
 }

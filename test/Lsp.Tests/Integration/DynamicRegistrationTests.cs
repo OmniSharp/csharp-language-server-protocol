@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -170,12 +170,7 @@ namespace Lsp.Tests.Integration
             }, ConfigureServer);
 
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(new CompletionOptions() {
-                ResolveProvider = false,
-                TriggerCharacters = new Container<string>("a", "b"),
-                AllCommitCharacters = new Container<string>("1", "2"),
-            }, x => x.Excluding(z => z.WorkDoneProgress));
-            server.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(new CompletionOptions() {
-                ResolveProvider = false,
+                ResolveProvider = true,
                 TriggerCharacters = new Container<string>("a", "b"),
                 AllCommitCharacters = new Container<string>("1", "2"),
             }, x => x.Excluding(z => z.WorkDoneProgress));

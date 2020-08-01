@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -30,42 +31,51 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IServiceProvider ServiceProvider { get; }
 
-        public async Task RouteNotification(TDescriptor descriptor, Notification notification, CancellationToken token)
+        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
             using var _ = _logger.BeginScope(new[] {
                 new KeyValuePair<string, string>("Method", notification.Method),
                 new KeyValuePair<string, string>("Params", notification.Params?.ToString())
             });
-            using var scope = _serviceScopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
-            context.Descriptor = descriptor;
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            if (descriptor.Params is null)
+            object @params = null;
+            if (!(descriptors.Default.Params is null))
             {
-                await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
-            }
-            else
-            {
-                _logger.LogDebug("Converting params for Notification {Method} to {Type}", notification.Method, descriptor.Params.FullName);
-                object @params;
-                if (descriptor.IsDelegatingHandler)
+                if (descriptors.Default.IsDelegatingHandler)
                 {
-                    // new DelegatingRequest();
-                    var o = notification.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptor.Params, new object[] {o});
+                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName);
+                    var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                    @params = Activator.CreateInstance(descriptors.Default.Params, new object[] {o});
                 }
                 else
                 {
-                    @params = notification.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
+                    @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
                 }
+            }
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token)));
+
+            static async Task InnerRoute(IServiceScopeFactory serviceScopeFactory, TDescriptor descriptor, object @params, CancellationToken token)
+            {
+                using var scope = serviceScopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                context.Descriptor = descriptor;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                if (descriptor.Params is null)
+                {
+                    await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
+                }
+                else
+                {
+                    await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                }
             }
         }
 
-        public virtual async Task<ErrorResponse> RouteRequest(TDescriptor descriptor, Request request, CancellationToken token)
+        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -73,35 +83,22 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Method", request.Method),
                 new KeyValuePair<string, string>("Params", request.Params?.ToString())
             });
-            using var scope = _serviceScopeFactory.CreateScope();
-            var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
-            context.Descriptor = descriptor;
-            var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            token.ThrowIfCancellationRequested();
-
-            // To avoid boxing, the best way to compare generics for equality is with EqualityComparer<T>.Default.
-            // This respects IEquatable<T> (without boxing) as well as object.Equals, and handles all the Nullable<T> "lifted" nuances.
-            // https://stackoverflow.com/a/864860
-            if (EqualityComparer<TDescriptor>.Default.Equals(descriptor, default))
-            {
-                _logger.LogTrace("descriptor not found for Request ({Id}) {Method}", request.Id, request.Method);
-                return new MethodNotFound(request.Id, request.Method);
-            }
-
-            object @params;
+            object @params = null;
             try
             {
-                _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptor.Params.FullName);
-                if (descriptor.IsDelegatingHandler)
+                if (descriptors.Default.IsDelegatingHandler)
                 {
-                    // new DelegatingRequest();
-                    var o = request.Params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptor.Params, new object[] {o});
+                    _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
+                        descriptors.Default.Params.GetGenericArguments()[0].FullName);
+                    var o = request.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                    @params = Activator.CreateInstance(descriptors.Default.Params, new object[] {o});
                 }
                 else
                 {
-                    @params = request.Params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                    _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default.Params.FullName);
+                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default.Params.FullName);
+                    @params = request.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
                 }
             }
             catch (Exception cannotDeserializeRequestParams)
@@ -110,34 +107,65 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new InvalidParams(request.Id, request.Method);
             }
 
-            token.ThrowIfCancellationRequested();
-
-            var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
-            await result;
-
-            token.ThrowIfCancellationRequested();
-
-            object responseValue = null;
-            if (result.GetType().GetTypeInfo().IsGenericType)
+            using var scope = _serviceScopeFactory.CreateScope();
+            // TODO: Do we want to support more handlers as "aggregate"?
+            if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response))
             {
-                var property = typeof(Task<>)
-                    .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
-                    .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
-
-                responseValue = property.GetValue(result);
-                if (responseValue?.GetType() == typeof(Unit))
+                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)));
+                var errorResponse = responses.FirstOrDefault(x => x.IsError);
+                if (errorResponse.IsError) return errorResponse;
+                if (responses.Length == 1)
                 {
-                    responseValue = null;
+                    return responses[0];
                 }
 
-                _logger.LogTrace("Response value was {Type}", responseValue?.GetType().FullName);
+                var response = Activator.CreateInstance(
+                    typeof(AggregateResponse<>).MakeGenericType(descriptors.Default.Response),
+                    new object[] {responses.Select(z => z.Response.Result)}
+                );
+                return new OutgoingResponse(request.Id, response, request);
             }
 
-            return new JsonRpc.Client.OutgoingResponse(request.Id, responseValue, request);
+            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default, @params, token, _logger);
+
+            static async Task<ErrorResponse> InnerRoute(IServiceScopeFactory serviceScopeFactory, Request request, TDescriptor descriptor, object @params, CancellationToken token,
+                ILogger logger)
+            {
+                using var scope = serviceScopeFactory.CreateScope();
+                var context = scope.ServiceProvider.GetRequiredService<IRequestContext>();
+                context.Descriptor = descriptor;
+                var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
+
+                token.ThrowIfCancellationRequested();
+
+                var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                await result;
+
+                token.ThrowIfCancellationRequested();
+
+                object responseValue = null;
+                if (result.GetType().GetTypeInfo().IsGenericType)
+                {
+                    var property = typeof(Task<>)
+                        .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
+                        .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance);
+
+                    responseValue = property.GetValue(result);
+                    if (responseValue?.GetType() == typeof(Unit))
+                    {
+                        responseValue = null;
+                    }
+
+                    logger.LogTrace("Response value was {Type}", responseValue?.GetType().FullName);
+                }
+
+                return new OutgoingResponse(request.Id, responseValue, request);
+                return new JsonRpc.Client.OutgoingResponse(request.Id, responseValue, request);
+            }
         }
 
-        public abstract TDescriptor GetDescriptor(Notification notification);
-        public abstract TDescriptor GetDescriptor(Request request);
+        public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Notification notification);
+        public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Request request);
 
         private static readonly MethodInfo SendRequestUnit = typeof(RequestRouterBase<TDescriptor>)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)
