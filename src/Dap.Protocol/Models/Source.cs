@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An optional hint for how to present the source in the UI. A value of 'deemphasize' can be used to indicate that the source is not available or that it is skipped on stepping.
         /// </summary>
-        [Optional] public SourcePresentationHint PresentationHint { get; set; }
+        [Optional] public SourcePresentationHint? PresentationHint { get; set; }
 
         /// <summary>
         /// The (optional) origin of this source: possible values 'internal module', 'inlined content from source map', etc.

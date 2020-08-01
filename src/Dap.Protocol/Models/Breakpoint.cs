@@ -5,7 +5,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// <summary>
     /// Information about a Breakpoint created in setBreakpoints or setFunctionBreakpoints.
     /// </summary>
-
     public class Breakpoint
     {
         /// <summary>
@@ -47,5 +46,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// An optional end column of the actual range covered by the breakpoint. If no end line is given, then the end column is assumed to be in the start line.
         /// </summary>
         [Optional] public int? EndColumn { get; set; }
+
+        /// <summary>
+        /// An optional memory reference to where the breakpoint is set.
+        /// </summary>
+        [Optional] public string InstructionReference { get; set; }
+
+        /// <summary>
+        /// An optional offset from the instruction reference.
+        /// This can be negative.
+        /// </summary>
+        [Optional] public int? Offset { get; set; }
     }
 }

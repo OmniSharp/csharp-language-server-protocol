@@ -31,5 +31,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             $"{Title}{(string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}")}{(Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))))}";
 
         public override string ToString() => DebuggerDisplay;
+
+        public Command WithCommand(string command)
+        {
+            Name = command;
+            return this;
+        }
+
+        public Command WithTitle(string title)
+        {
+            Title = title;
+            return this;
+        }
+
+        public Command WithArguments(params object[] args)
+        {
+            Arguments = JArray.FromObject(args);
+            return this;
+        }
+
+        public static Command Create(string name, params object[] args) => new Command() {
+            Name = name,
+            Arguments = JArray.FromObject(args)
+        };
     }
 }

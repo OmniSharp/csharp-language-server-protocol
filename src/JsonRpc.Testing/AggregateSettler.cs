@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
-    class AggregateSettler : ISettler
+    public class AggregateSettler : ISettler
     {
         private readonly ISettler[] _settlers;
 

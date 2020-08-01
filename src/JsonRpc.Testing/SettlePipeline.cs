@@ -4,7 +4,7 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
 {
-    class SettlePipeline<T, R> : IPipelineBehavior<T, R>
+    public class SettlePipeline<T, R> : IPipelineBehavior<T, R>
         where T : IRequest<R>
     {
         private readonly IRequestSettler _settler;

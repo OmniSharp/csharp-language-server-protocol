@@ -6,7 +6,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
 {
-    public class DapRpcErrorConverter : JsonConverter<RpcError>
+    public class DapRpcErrorConverter : JsonConverter
     {
         private readonly ISerializer _serializer;
 
@@ -15,29 +15,36 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
             _serializer = serializer;
         }
 
-        public override void WriteJson(JsonWriter writer, RpcError value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
+            if (!(value is RpcError error))
+            {
+                throw new NotSupportedException($"{typeof(RpcError).FullName} was not found!");
+            }
+
             writer.WriteStartObject();
             writer.WritePropertyName("seq");
             writer.WriteValue(_serializer.GetNextId());
             writer.WritePropertyName("type");
             writer.WriteValue("response");
-            if (value.Id != null)
+            if (error.Id != null)
             {
                 writer.WritePropertyName("request_seq");
-                writer.WriteValue(value.Id);
+                writer.WriteValue(error.Id);
             }
             writer.WritePropertyName("success");
             writer.WriteValue(false);
+            writer.WritePropertyName("command");
+            writer.WriteValue(error.Method);
             writer.WritePropertyName("message");
-            writer.WriteValue(value.Error.Data);
+            writer.WriteValue(error.Error.Message);
+            writer.WritePropertyName("body");
+            serializer.Serialize(writer, error.Error);
             writer.WriteEndObject();
         }
 
-        public override RpcError ReadJson(JsonReader reader, Type objectType, RpcError existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-
             var obj = JObject.Load(reader);
 
             object requestId = null;
@@ -57,5 +64,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
 
             return new RpcError(requestId, data);
         }
+
+        public override bool CanConvert(Type objectType) => typeof(RpcError).IsAssignableFrom(objectType);
     }
 }

@@ -33,5 +33,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// If missing the value 0 is assumed which results in the completion text being inserted.
         /// </summary>
         [Optional] public int? Length { get; set; }
+
+        /// <summary>
+        /// Determines the start of the new selection after the text has been inserted (or replaced).
+        /// The start position must in the range 0 and length of the completion text.
+        /// If omitted the selection starts at the end of the completion text.
+        /// </summary>
+        [Optional] public int? SelectionStart { get; set; }
+
+        /// <summary>
+        /// Determines the length of the new selection after the text has been inserted (or replaced).
+        /// The selection can not extend beyond the bounds of the completion text.
+        /// If omitted the length is assumed to be 0.
+        /// </summary>
+        [Optional] public int? SelectionLength { get; set; }
     }
 }

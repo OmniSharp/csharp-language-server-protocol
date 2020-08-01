@@ -151,5 +151,30 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// The debug adapter supports the 'disassemble' request.
         /// </summary>
         [Optional] public bool? SupportsDisassembleRequest { get; set; }
+
+        /// <summary>
+        /// The debug adapter supports the 'cancel' request.
+        /// </summary>
+        [Optional] public bool? SupportsCancelRequest { get; set; }
+
+        /// <summary>
+        /// The debug adapter supports the 'breakpointLocations' request.
+        /// </summary>
+        [Optional] public bool? SupportsBreakpointLocationsRequest { get; set; }
+
+        /// <summary>
+        /// The debug adapter supports the 'clipboard' context value in the 'evaluate' request.
+        /// </summary>
+        [Optional] public bool? SupportsClipboardContext { get; set; }
+
+        /// <summary>
+        /// The debug adapter supports stepping granularities (argument 'granularity') for the stepping requests.
+        /// </summary>
+        [Optional] public bool? SupportsSteppingGranularity { get; set; }
+
+        /// <summary>
+        /// The debug adapter supports adding breakpoints based on instruction references.
+        /// </summary>
+        [Optional] public bool? SupportsInstructionBreakpoints { get; set; }
     }
 }

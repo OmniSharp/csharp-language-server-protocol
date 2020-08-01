@@ -66,7 +66,7 @@ namespace Lsp.Tests
         [ClassData(typeof(ParamsShouldHaveMethodAttributeData))]
         public void ParamsShouldHaveMethodAttribute(Type type)
         {
-            type.GetCustomAttributes<MethodAttribute>().Any(z => z.Direction != Direction.Unspecified).Should()
+            MethodAttribute.AllFrom(type).Any(z => z.Direction != Direction.Unspecified).Should()
                 .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
         }
 
@@ -74,7 +74,7 @@ namespace Lsp.Tests
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
         public void HandlersShouldHaveMethodAttribute(Type type)
         {
-            type.GetCustomAttributes<MethodAttribute>().Any(z => z.Direction != Direction.Unspecified).Should()
+            MethodAttribute.AllFrom(type).Any(z => z.Direction != Direction.Unspecified).Should()
                 .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
         }
 
@@ -85,8 +85,8 @@ namespace Lsp.Tests
             if (typeof(IJsonRpcNotificationHandler).IsAssignableFrom(type)) return;
             var paramsType = HandlerTypeDescriptorHelper.GetHandlerInterface(type).GetGenericArguments()[0];
 
-            var lhs = type.GetCustomAttribute<MethodAttribute>(true);
-            var rhs = paramsType.GetCustomAttribute<MethodAttribute>(true);
+            var lhs = MethodAttribute.From(type);
+            var rhs = MethodAttribute.From(paramsType);
             lhs.Method.Should().Be(rhs.Method, $"{type.FullName} method does not match {paramsType.FullName}");
             lhs.Direction.Should().Be(rhs.Direction, $"{type.FullName} direction does not match {paramsType.FullName}");
         }
@@ -474,9 +474,10 @@ namespace Lsp.Tests
         {
             public HandlersShouldHaveMethodAttributeData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
+                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
+                    if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     Add(type);
                 }
             }
@@ -486,9 +487,10 @@ namespace Lsp.Tests
         {
             public TypeHandlerData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
+                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
+                    if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     Add(LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
                 }
             }
@@ -505,11 +507,18 @@ namespace Lsp.Tests
             public TypeHandlerExtensionData()
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
-                    .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z) && !z.IsGenericType)
+                    .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                     .Except(new[] {typeof(ITextDocumentSyncHandler)}))
                 {
+                    if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)) continue;
+                    if (type == typeof(ISemanticTokensHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
                     var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type);
+
+                    if (descriptor == null)
+                    {
+                        throw new Exception("");
+                    }
 
                     Add(
                         descriptor,
@@ -522,50 +531,28 @@ namespace Lsp.Tests
             }
         }
 
-        private static string GetExtensionClassName(ILspHandlerTypeDescriptor descriptor)
+        private static string GetExtensionClassName(IHandlerTypeDescriptor descriptor)
         {
-            return SpecialCasedHandlerFullName(descriptor) + "Extensions";
+            return SpecialCasedHandlerName(descriptor) + "Extensions";
             ;
         }
 
-        private static string SpecialCasedHandlerFullName(ILspHandlerTypeDescriptor descriptor)
+        private static string SpecialCasedHandlerName(IHandlerTypeDescriptor descriptor)
         {
-            return new Regex(@"(\w+)$")
-                    .Replace(descriptor.HandlerType.FullName ?? string.Empty,
+            return new Regex(@"(\w+(?:\`\d)?)$")
+                    .Replace(descriptor.HandlerType.Name ?? string.Empty,
                         descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1))
-                    .Replace("SemanticTokensEdits", "SemanticTokens")
-                    .Replace("SemanticTokensDelta", "SemanticTokens")
-                    .Replace("SemanticTokensRange", "SemanticTokens")
                 ;
         }
 
-        private static string HandlerName(ILspHandlerTypeDescriptor descriptor)
-        {
-            var name = HandlerFullName(descriptor);
-            return name.Substring(name.LastIndexOf('.') + 1);
-        }
-
-        private static string HandlerFullName(ILspHandlerTypeDescriptor descriptor)
-        {
-            return new Regex(@"(\w+)$")
-                .Replace(descriptor.HandlerType.FullName ?? string.Empty,
-                    descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1));
-        }
-
-        public static string SpecialCasedHandlerName(ILspHandlerTypeDescriptor descriptor)
-        {
-            var name = SpecialCasedHandlerFullName(descriptor);
-            return name.Substring(name.LastIndexOf('.') + 1);
-        }
-
-        private static Type GetExtensionClass(ILspHandlerTypeDescriptor descriptor)
+        private static Type GetExtensionClass(IHandlerTypeDescriptor descriptor)
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                .FirstOrDefault(z => z.IsClass && z.FullName == name);
+                .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.Name == name || z.Name == name + "Base"));
         }
 
-        private static string GetOnMethodName(ILspHandlerTypeDescriptor descriptor)
+        private static string GetOnMethodName(IHandlerTypeDescriptor descriptor)
         {
             return "On" + SpecialCasedHandlerName(descriptor);
         }

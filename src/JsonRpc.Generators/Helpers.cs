@@ -35,7 +35,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static INamedTypeSymbol GetRequestType(INamedTypeSymbol symbol)
         {
             var handlerInterface = symbol.AllInterfaces.First(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            return handlerInterface.TypeArguments[0] as INamedTypeSymbol;
+            var arg = handlerInterface.TypeArguments[0];
+            if (arg is ITypeParameterSymbol typeParameterSymbol)
+            {
+                return typeParameterSymbol.ConstraintTypes.OfType<INamedTypeSymbol>().FirstOrDefault();
+            }
+            if (arg is INamedTypeSymbol namedTypeSymbol)
+            {
+                return namedTypeSymbol;
+            }
+            throw new NotSupportedException("Request Type is not supported!");
         }
 
         public static INamedTypeSymbol GetResponseType(INamedTypeSymbol symbol)
@@ -112,6 +121,31 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static GenericNameSyntax CreateAsyncFunc(ITypeSymbol? responseType, bool withCancellationToken, params ITypeSymbol[] types)
         {
             var typeArguments = types.Select(ResolveTypeName).ToList();
+            if (withCancellationToken)
+            {
+                typeArguments.Add(IdentifierName("CancellationToken"));
+            }
+
+            if (responseType == null || responseType.Name == "Unit")
+            {
+                typeArguments.Add(IdentifierName("Task"));
+            }
+            else
+            {
+                typeArguments.Add(GenericName(Identifier("Task"), TypeArgumentList(SeparatedList(new TypeSyntax[] {
+                    ResolveTypeName(responseType)
+                }))));
+            }
+
+            return GenericName(Identifier("Func"))
+                .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(typeArguments)));
+        }
+
+        public static GenericNameSyntax CreateDerivedAsyncFunc(ITypeSymbol? responseType, bool withCancellationToken)
+        {
+            var typeArguments = new List<TypeSyntax>() {
+                IdentifierName("T")
+            };
             if (withCancellationToken)
             {
                 typeArguments.Add(IdentifierName("CancellationToken"));
@@ -796,7 +830,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private static string SpecialCasedHandlerFullName(INamedTypeSymbol symbol)
         {
-            return new Regex(@"(\w+)$")
+            if (symbol.IsGenericType)
+            {
+
+            }
+                return new Regex(@"(\w+(?:\<\w\>)?)$")
                     .Replace(symbol.ToDisplayString() ?? string.Empty,
                         symbol.Name.Substring(1, symbol.Name.IndexOf("Handler", StringComparison.Ordinal) - 1))
                 ;

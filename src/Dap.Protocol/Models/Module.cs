@@ -1,4 +1,6 @@
-﻿using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+﻿using System.Collections.Generic;
+using Newtonsoft.Json;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
@@ -65,5 +67,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Address range covered by this module.
         /// </summary>
         [Optional] public string AddressRange { get; set; }
+
+        /// <summary>
+        /// Allows additional data to be displayed
+        /// </summary>
+        [JsonExtensionData] public Dictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
     }
 }

@@ -2,10 +2,12 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Parallel, Method(RequestNames.Variables, Direction.ClientToServer)]
+    [GenerateHandlerMethods, GenerateRequestMethods]
     public interface IVariablesHandler : IJsonRpcRequestHandler<VariablesArguments, VariablesResponse>
     {
     }
@@ -13,25 +15,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public abstract class VariablesHandler : IVariablesHandler
     {
         public abstract Task<VariablesResponse> Handle(VariablesArguments request, CancellationToken cancellationToken);
-    }
-
-    public static class VariablesExtensions
-    {
-        public static IDebugAdapterServerRegistry OnVariables(this IDebugAdapterServerRegistry registry,
-            Func<VariablesArguments, CancellationToken, Task<VariablesResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));
-        }
-
-        public static IDebugAdapterServerRegistry OnVariables(this IDebugAdapterServerRegistry registry,
-            Func<VariablesArguments, Task<VariablesResponse>> handler)
-        {
-            return registry.AddHandler(RequestNames.Variables, RequestHandler.For(handler));
-        }
-
-        public static Task<VariablesResponse> RequestVariables(this IDebugAdapterClient mediator, VariablesArguments @params, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(@params, cancellationToken);
-        }
     }
 }

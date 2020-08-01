@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
@@ -29,10 +29,10 @@ namespace OmniSharp.Extensions.JsonRpc
                         }
                     })
                     .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
-                    .Where(z => z.GetCustomAttributes<MethodAttribute>().Any())
+                    .Where(z => MethodAttribute.From(z) != null)
                     .Select(GetMethodType)
                     .Distinct()
-                    .ToLookup(x => x.GetCustomAttribute<MethodAttribute>().Method)
+                    .ToLookup(x => MethodAttribute.From(x).Method)
                     .Select(x => new HandlerTypeDescriptor(x.First()) as IHandlerTypeDescriptor)
                     .ToImmutableSortedDictionary(x => x.Method, x => x, StringComparer.Ordinal);
             }
@@ -82,14 +82,7 @@ namespace OmniSharp.Extensions.JsonRpc
             if (MethodNames.TryGetValue(type, out var method)) return method;
 
             // Custom method
-            var attribute = type.GetCustomAttribute<MethodAttribute>();
-            if (attribute is null)
-            {
-                attribute = type
-                    .GetInterfaces()
-                    .Select(t => t.GetCustomAttribute<MethodAttribute>())
-                    .FirstOrDefault(x => x != null);
-            }
+            var attribute = MethodAttribute.From(type);
 
             var handler = KnownHandlers.Values.FirstOrDefault(z =>
                 z.InterfaceType == type || z.HandlerType == type || z.ParamsType == type);
@@ -112,14 +105,14 @@ namespace OmniSharp.Extensions.JsonRpc
         internal static Type GetMethodType(Type type)
         {
             // Custom method
-            if (type.GetTypeInfo().GetCustomAttributes<MethodAttribute>().Any())
+            if (MethodAttribute.AllFrom(type).Any())
             {
                 return type;
             }
 
             return type.GetTypeInfo()
                 .ImplementedInterfaces
-                .FirstOrDefault(t => t.GetCustomAttributes<MethodAttribute>().Any());
+                .FirstOrDefault(t => MethodAttribute.AllFrom(t).Any());
         }
 
         private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler), typeof(IJsonRpcNotificationHandler<>), typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>), };

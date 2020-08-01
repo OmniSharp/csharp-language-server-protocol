@@ -110,23 +110,23 @@ namespace JsonRpc.Tests.Server
                     @"{""jsonrpc"": ""2.0"", ""method"": 1, ""params"": ""bar""}",
                     new Renor[]
                     {
-                        new InvalidRequest("Invalid params")
+                        new InvalidRequest("1", "Invalid params")
                     });
 
                 Add (
                     @"[1]",
                     new Renor[]
                     {
-                        new InvalidRequest("Not an object")
+                        new InvalidRequest("", "Not an object")
                     });
 
                 Add (
                     @"[1,2,3]",
                     new Renor[]
                     {
-                        new InvalidRequest("Not an object"),
-                        new InvalidRequest("Not an object"),
-                        new InvalidRequest("Not an object")
+                        new InvalidRequest("", "Not an object"),
+                        new InvalidRequest("", "Not an object"),
+                        new InvalidRequest("", "Not an object")
                     });
 
                 Add (
@@ -143,16 +143,16 @@ namespace JsonRpc.Tests.Server
                         new Request("1", "sum", new JArray(new [] {1,2,4})),
                         new Notification("notify_hello", new JArray(new [] {7})),
                         new Request("2", "subtract", new JArray(new [] {42,23})),
-                        new InvalidRequest("Unexpected protocol"),
+                        new InvalidRequest("", "Unexpected protocol"),
                         new Request("5", "foo.get", JObject.FromObject(new {name = "myself"})),
                         new Request("9", "get_data", null),
                     });
 
                 Add (
                     @"[
-                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null},
-                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null},
-                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request""}, ""id"": null}
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request"", ""data"": {}}, ""id"": null},
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request"", ""data"": {}}, ""id"": null},
+                      {""jsonrpc"": ""2.0"", ""error"": {""code"": -32600, ""message"": ""Invalid Request"", ""data"": {}}, ""id"": null}
                     ]",
                     new Renor[] {
                         new ServerError(new ServerErrorResult(-32600, "Invalid Request")),

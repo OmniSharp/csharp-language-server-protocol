@@ -75,13 +75,13 @@ namespace OmniSharp.Extensions.JsonRpc
             var method = request["method"]?.Value<string>();
             if (string.IsNullOrWhiteSpace(method))
             {
-                return new InvalidRequest(requestId, "Method not set");
+                return new InvalidRequest(requestId, string.Empty, "Method not set");
             }
 
             var hasParams = request.TryGetValue("params", out var @params);
             if (hasParams && @params?.Type != JTokenType.Array && @params?.Type != JTokenType.Object && @params?.Type != JTokenType.Null)
             {
-                return new InvalidRequest(requestId, "Invalid params");
+                return new InvalidRequest(requestId, method, "Invalid params");
             }
 
             // Special case params such that if we get a null value (from a non spec compliant system)

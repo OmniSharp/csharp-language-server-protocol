@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// 'attach': Debugger attached to an existing process.
         /// 'attachForSuspendedLaunch': A project launcher component has launched a new process in a suspended state and then asked the debugger to attach.
         /// </summary>
-        [Optional] public ProcessEventStartMethod StartMethod { get; set; }
+        [Optional] public ProcessEventStartMethod? StartMethod { get; set; }
 
         /// <summary>
         /// The size of a pointer or address for this process, in bits. This value may be used by clients when formatting addresses for display.

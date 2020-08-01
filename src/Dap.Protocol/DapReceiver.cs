@@ -1,17 +1,33 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
-namespace OmniSharp.Extensions.JsonRpc
+namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
     public class DapReceiver : IReceiver
     {
+        private bool _initialized;
+
         public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
-            var result = GetRenor(container);
-            return (new[] { result }, result.IsResponse);
+            var result = GetRenor(container).ToArray();
+            return (result, result.Any(z => z.IsResponse));
         }
 
         public bool IsValid(JToken container)
@@ -24,22 +40,26 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
-        protected virtual Renor GetRenor(JToken @object)
+        protected virtual IEnumerable<Renor> GetRenor(JToken @object)
         {
-            if (!( @object is JObject request ))
+            if (!(@object is JObject request))
             {
-                return new InvalidRequest(null, "Not an object");
+                yield return new InvalidRequest(null, "Not an object");
+                yield break;
             }
 
             if (!request.TryGetValue("seq", out var id))
             {
-                return new InvalidRequest(null, "No sequence given");
+                yield return new InvalidRequest(null, "No sequence given");
+                yield break;
             }
 
             if (!request.TryGetValue("type", out var type))
             {
-                return new InvalidRequest(null, "No type given");
+                yield return new InvalidRequest(null, "No type given");
+                yield break;
             }
+
             var sequence = id.Value<long>();
             var messageType = type.Value<string>();
 
@@ -47,31 +67,61 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 if (!request.TryGetValue("event", out var @event))
                 {
-                    return new InvalidRequest(null, "No event given");
+                    yield return new InvalidRequest(null, "No event given");
+                    yield break;
                 }
-                return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null);
+
+                yield return new Notification(@event.Value<string>(), request.TryGetValue("body", out var body) ? body : null);
+                yield break;
             }
+
             if (messageType == "request")
             {
                 if (!request.TryGetValue("command", out var command))
                 {
-                    return new InvalidRequest(null, "No command given");
+                    yield return new InvalidRequest(null, "No command given");
+                    yield break;
                 }
-                return new Request(sequence, command.Value<string>(), request.TryGetValue("arguments", out var body) ? body : new JObject());
+
+                var requestName = command.Value<string>();
+                var requestObject = request.TryGetValue("arguments", out var body) ? body : new JObject();
+                if (RequestNames.Cancel == requestName && requestObject is JObject ro)
+                {
+                    // DAP is really weird... the cancellation operation mixes request and progress cancellation.
+                    // because we already have the assumption of the cancellation token we are going to just split the request up.
+                    // This makes it so that the cancel handler implementer must still return a positive response even if the request didn't make it through.
+                    if (ro.TryGetValue("requestId", out var requestId))
+                    {
+                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new {id = requestId}));
+                        ro.Remove("requestId");
+                    }
+
+                    yield return new Request(sequence, RequestNames.Cancel, ro);
+                    yield break;
+                }
+
+                yield return new Request(sequence, requestName, requestObject);
+                yield break;
             }
+
             if (messageType == "response")
             {
                 if (!request.TryGetValue("request_seq", out var request_seq))
                 {
-                    return new InvalidRequest(null, "No request_seq given");
+                    yield return new InvalidRequest(null, "No request_seq given");
+                    yield break;
                 }
+
                 if (!request.TryGetValue("command", out var command))
                 {
-                    return new InvalidRequest(null, "No command given");
+                    yield return new InvalidRequest(null, "No command given");
+                    yield break;
                 }
+
                 if (!request.TryGetValue("success", out var success))
                 {
-                    return new InvalidRequest(null, "No success given");
+                    yield return new InvalidRequest(null, "No success given");
+                    yield break;
                 }
 
                 var bodyValue = request.TryGetValue("body", out var body) ? body : null;
@@ -81,12 +131,28 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 if (successValue)
                 {
-                    return new ServerResponse(requestSequence, bodyValue);
+                    yield return new ServerResponse(requestSequence, bodyValue);
+                    yield break;
                 }
-                return new ServerError(requestSequence, bodyValue.ToObject<ServerErrorResult>());
+
+                yield return new ServerError(requestSequence, bodyValue?.ToObject<ServerErrorResult>() ?? new ServerErrorResult(-1, "Unknown Error"));
+                yield break;
             }
 
             throw new NotSupportedException($"Message type {messageType} is not supported");
+        }
+
+        public void Initialized()
+        {
+            _initialized = true;
+        }
+
+        public bool ShouldFilterOutput(object value)
+        {
+            if (_initialized) return true;
+            return value is OutgoingResponse ||
+                   (value is OutgoingNotification n && (n.Params is InitializedEvent)) ||
+                   (value is OutgoingRequest r && r.Params is InitializeRequestArguments);
         }
     }
 }

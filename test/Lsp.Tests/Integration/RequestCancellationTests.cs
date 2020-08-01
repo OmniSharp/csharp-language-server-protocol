@@ -33,11 +33,13 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
-            var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
-            CancellationToken.Register(cts.Cancel);
-            Func<Task<CompletionList>> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
-                TextDocument = "/a/file.cs"
-            }, cts.Token).AsTask();
+            Func<Task<CompletionList>> action = () => {
+                var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
+                CancellationToken.Register(cts.Cancel);
+                return client.TextDocument.RequestCompletion(new CompletionParams() {
+                    TextDocument = "/a/file.cs"
+                }, cts.Token).AsTask();
+            };
             action.Should().Throw<TaskCanceledException>();
         }
 

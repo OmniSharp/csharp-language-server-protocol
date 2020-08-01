@@ -12,7 +12,7 @@ namespace Lsp.Tests.Messages
         [Theory, JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ServerNotInitialized();
+            var model = new ServerNotInitialized("");
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

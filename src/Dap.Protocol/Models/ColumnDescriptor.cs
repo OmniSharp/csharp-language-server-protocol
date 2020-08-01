@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Datatype of values in this column.  Defaults to 'string' if not specified.
         /// </summary>
-        [Optional] public ColumnDescriptorType Type { get; set; }
+        [Optional] public ColumnDescriptorType? Type { get; set; }
 
         /// <summary>
         /// Width of this column in characters (hint only).

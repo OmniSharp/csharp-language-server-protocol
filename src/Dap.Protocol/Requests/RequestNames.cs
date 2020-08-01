@@ -9,11 +9,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public const string Restart = "restart";
         public const string Disconnect = "disconnect";
         public const string Terminate = "terminate";
+        public const string BreakpointLocations = "breakpointLocations";
         public const string SetBreakpoints = "setBreakpoints";
         public const string SetFunctionBreakpoints = "setFunctionBreakpoints";
         public const string SetExceptionBreakpoints = "setExceptionBreakpoints";
         public const string DataBreakpointInfo = "dataBreakpointInfo";
         public const string SetDataBreakpoints = "setDataBreakpoints";
+        public const string SetInstructionBreakpoints = "setInstructionBreakpoints";
         public const string Continue = "continue";
         public const string Next = "next";
         public const string StepIn = "stepIn";
@@ -42,6 +44,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public const string ReadMemory = "readMemory";
         public const string Disassemble = "disassemble";
         public const string RunInTerminal = "runInTerminal";
+        public const string Cancel = "cancel";
     }
 
 }

@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional filter to limit the child variables to either named or indexed.If ommited, both types are fetched.
         /// </summary>
-        [Optional] public VariablesArgumentsFilter Filter { get; set; }
+        [Optional] public VariablesArgumentsFilter? Filter { get; set; }
 
         /// <summary>
         /// The index of the first variable to return; if omitted children start at 0.

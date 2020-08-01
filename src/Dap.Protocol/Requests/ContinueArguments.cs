@@ -1,3 +1,5 @@
+using System.Threading;
+using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -11,5 +13,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public long ThreadId { get; set; }
     }
-
 }

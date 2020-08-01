@@ -5,7 +5,7 @@ using OmniSharp.Extensions.JsonRpc;
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Method(RequestNames.Initialize, Direction.ClientToServer)]
-    public class InitializeRequestArguments : IRequest<InitializeResponse>
+    public class InitializeRequestArguments : IRequest<InitializeResponse>, IInitializeRequestArguments
     {
         /// <summary>
         /// The ID of the(frontend) client using this adapter.
@@ -42,7 +42,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
         /// <summary>
         /// Determines in what format paths are specified.The default is 'path', which is the native format.
-
         /// Values: 'path', 'uri', etc.
         /// </summary>
         [Optional] public string PathFormat { get; set; }
@@ -66,6 +65,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Client supports memory references.
         /// </summary>
         [Optional] public bool? SupportsMemoryReferences { get; set; }
+
+        /// <summary>
+        /// Client supports progress reporting.
+        /// </summary>
+        [Optional] public bool? SupportsProgressReporting { get; set; }
     }
 
 }

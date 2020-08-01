@@ -12,5 +12,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public Container<DataBreakpoint> Breakpoints { get; set; }
     }
-
 }

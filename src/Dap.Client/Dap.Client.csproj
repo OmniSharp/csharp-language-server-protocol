@@ -13,7 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\Dap.Protocol\Dap.Protocol.csproj" />
+        <ProjectReference Include="..\Dap.Shared\Dap.Shared.csproj" />
     </ItemGroup>
 </Project>

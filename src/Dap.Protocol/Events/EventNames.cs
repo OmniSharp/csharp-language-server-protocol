@@ -14,5 +14,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         public const string LoadedSource = "loadedSource";
         public const string Process = "process";
         public const string Capabilities = "capabilities";
+        public const string ProgressStart = "progressStart";
+        public const string ProgressUpdate = "progressUpdate";
+        public const string ProgressEnd = "progressEnd";
     }
 }

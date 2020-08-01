@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public static async Task<ILanguageClient> From(LanguageClientOptions options, CancellationToken token)
         {
-            var server = (LanguageClient)PreInit(options);
+            var server = (LanguageClient) PreInit(options);
             await server.Initialize(token);
 
             return server;
@@ -238,6 +238,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
             _receiver.Initialized();
 
+            await _startedDelegates.Select(@delegate =>
+                    Observable.FromAsync(() => @delegate(this, serverParams, token))
+                )
+                .ToObservable()
+                .Merge()
+                .LastOrDefaultAsync()
+                .ToTask(token);
+
             ServerSettings = serverParams;
             if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
                 RegistrationManager.RegisterCapabilities(serverParams.Capabilities);
@@ -349,6 +357,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
         protected override IResponseRouter ResponseRouter => _responseRouter;
         protected override IHandlersManager HandlersManager => _collection;
+
         public IDisposable Register(Action<ILanguageClientRegistry> registryAction)
         {
             var manager = new CompositeHandlersManager(_collection);
@@ -359,7 +368,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
     class LangaugeClientRegistry : InterimLanguageProtocolRegistry<ILanguageClientRegistry>, ILanguageClientRegistry
     {
-        public LangaugeClientRegistry(IServiceProvider serviceProvider, CompositeHandlersManager handlersManager, TextDocumentIdentifiers textDocumentIdentifiers) : base(serviceProvider, handlersManager, textDocumentIdentifiers)
+        public LangaugeClientRegistry(IServiceProvider serviceProvider, CompositeHandlersManager handlersManager, TextDocumentIdentifiers textDocumentIdentifiers) : base(
+            serviceProvider, handlersManager, textDocumentIdentifiers)
         {
         }
     }
