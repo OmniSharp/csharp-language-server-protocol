@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(ProgressToken))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {

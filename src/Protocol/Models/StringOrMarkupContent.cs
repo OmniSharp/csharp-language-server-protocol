@@ -1,7 +1,9 @@
 using System.Diagnostics;
+using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(StringOrMarkupContent))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class StringOrMarkupContent
     {

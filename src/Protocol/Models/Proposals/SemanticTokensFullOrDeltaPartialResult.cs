@@ -1,8 +1,10 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 {
     [Obsolete(Constants.Proposal)]
+    [JsonConverter(typeof(SemanticTokensFullOrDeltaPartialResult))]
     public struct SemanticTokensFullOrDeltaPartialResult
     {
         public SemanticTokensFullOrDeltaPartialResult(

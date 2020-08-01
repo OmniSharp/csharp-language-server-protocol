@@ -1,9 +1,12 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(MarkedStringsOrMarkupContentConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MarkedStringsOrMarkupContent
     {
