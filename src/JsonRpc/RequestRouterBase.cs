@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
+using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -97,7 +98,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 else
                 {
                     _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default.Params.FullName);
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", request.Method, descriptors.Default.Params.FullName);
                     @params = request.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
                 }
             }
@@ -160,12 +160,25 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
 
                 return new OutgoingResponse(request.Id, responseValue, request);
-                return new JsonRpc.Client.OutgoingResponse(request.Id, responseValue, request);
             }
         }
 
         public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Notification notification);
         public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Request request);
+        public virtual object DeserializeParams(IHandlerDescriptor descriptor, JToken @params)
+        {
+            if (descriptor.IsDelegatingHandler)
+            {
+                _logger.LogTrace("Converting params for {Method} to {Type}", descriptor.Method, descriptor.Params.GetGenericArguments()[0].FullName);
+                var o = @params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                return Activator.CreateInstance(descriptor.Params, new object[] { o });
+            }
+            else
+            {
+                _logger.LogTrace("Converting params for {Method} to {Type}", descriptor.Method, descriptor.Params.FullName);
+                return @params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+            }
+        }
 
         private static readonly MethodInfo SendRequestUnit = typeof(RequestRouterBase<TDescriptor>)
             .GetMethods(BindingFlags.NonPublic | BindingFlags.Static)

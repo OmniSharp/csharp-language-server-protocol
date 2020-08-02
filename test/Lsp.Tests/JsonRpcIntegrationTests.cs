@@ -9,19 +9,21 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using OmniSharp.Extensions.LanguageProtocol.Testing;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace JsonRpc.Tests
+namespace Lsp.Tests
 {
-    public class IntegrationTests : JsonRpcServerTestBase
+    public class JsonRpcIntegrationTests : LanguageProtocolTestBase
     {
-        public IntegrationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public JsonRpcIntegrationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
         {
         }
 
         class Request : IRequest<Data>
         {
+
         }
 
         class Data
@@ -52,10 +54,10 @@ namespace JsonRpc.Tests
                 server => { server.OnRequest("myrequest", async (Request request) => new Data() {Value = string.Join("", "myresponse".Reverse())}); }
             );
 
-            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request) null).Returning<Data>(CancellationToken);
+            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
             clientRequest.Should().Throw<InvalidParametersException>();
 
-            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request) null).Returning<Data>(CancellationToken);
+            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
             serverRequest.Should().Throw<InvalidParametersException>();
         }
 
@@ -63,8 +65,8 @@ namespace JsonRpc.Tests
         public async Task Should_throw_when_receiving_requests()
         {
             var (client, server) = await Initialize(
-                client => { client.OnRequest("myrequest", async (Request request) => (Data) null); },
-                server => { server.OnRequest("myrequest", async (Request request) => (Data) null); }
+                client => { client.OnRequest("myrequest", async (Request request) => (Data)null); },
+                server => { server.OnRequest("myrequest", async (Request request) => (Data)null); }
             );
 
             Func<Task> clientRequest = () => client.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);

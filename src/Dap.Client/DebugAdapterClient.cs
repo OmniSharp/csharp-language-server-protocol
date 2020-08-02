@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
@@ -136,7 +136,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 serviceProvider1.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 responseRouter,
                 serviceProvider1.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException ?? (e => { }),
+                options.OnUnhandledException ?? (e => { Shutdown(); }),
                 options.CreateResponseException,
                 options.MaximumRequestTimeout,
                 false,
@@ -173,6 +173,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _initializedComplete.OnNext(request);
             _initializedComplete.OnCompleted();
             return Unit.Task;
+        }
+
+        public async Task Shutdown()
+        {
+            await _connection.StopAsync();
+            _connection.Dispose();
         }
 
         private void RegisterCapabilities(InitializeRequestArguments capabilities)
