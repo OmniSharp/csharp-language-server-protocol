@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
@@ -15,7 +16,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
     public class ResolveCommandPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
     {
         private readonly ILogger<ResolveCommandPipeline<TRequest, TResponse>> _logger;
-        internal static string PrivateHandlerId = "$$__handler_id__$$";
         private readonly ILspHandlerDescriptor _descriptor;
 
         public ResolveCommandPipeline(IRequestContext context, ILogger<ResolveCommandPipeline<TRequest, TResponse>> logger)
@@ -30,18 +30,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.
-            if (_descriptor is LspHandlerDescriptor handlerDescriptor &&
-                response is IEnumerable<ICanBeResolved> canBeResolveds &&
-                _descriptor?.CanBeResolvedHandlerType?.GetTypeInfo().IsAssignableFrom(_descriptor.ImplementationType) == true)
+            if (response is IEnumerable<ICanBeResolved> canBeResolvedItems)
             {
+                var id = _descriptor.Handler is ICanBeIdentifiedHandler resolved ? resolved.Id : Guid.Empty;
                 _logger.LogTrace(
                     "Updating Resolve items with wrapped data for {Method}:{Handler}",
                     _descriptor.Method,
                     _descriptor.ImplementationType.FullName);
-                foreach (var item in canBeResolveds)
+                foreach (var item in canBeResolvedItems)
                 {
                     item.Data ??= new JObject();
-                    item.Data[PrivateHandlerId] = _descriptor.Handler is ICanBeIdentifiedHandler resolved ? resolved.Id : Guid.Empty;
+                    if (item.Data is JObject o)
+                    {
+                        o[Constants.PrivateHandlerId] = id;
+                    }
                 }
             }
 

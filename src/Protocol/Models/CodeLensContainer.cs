@@ -34,23 +34,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new CodeLensContainer(items);
         }
-
-        /// <summary>
-        /// Convert from a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CodeLensContainer<T> Convert<T>(ISerializer serializer) where T : class
-        {
-            return new CodeLensContainer<T>(this.Select(z => z.From<T>(serializer)));
-        }
     }
 
     /// <remarks>
     /// Typed code lens used for the typed handlers
     /// </remarks>
-    public class CodeLensContainer<T> : Container<CodeLens<T>> where T : class
+    public class CodeLensContainer<T> : Container<CodeLens<T>> where T : HandlerIdentity, new()
     {
         public CodeLensContainer() : this(Enumerable.Empty<CodeLens<T>>())
         {
@@ -79,15 +68,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new CodeLensContainer<T>(items);
         }
 
-        /// <summary>
-        /// Convert to a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CodeLensContainer Convert(ISerializer serializer)
-        {
-            return new CodeLensContainer(this.Select(z => z.To(serializer)));
-        }
+        public static implicit operator CodeLensContainer(CodeLensContainer<T> container) => new CodeLensContainer(container.Select(z => (CodeLens)z));
     }
 }

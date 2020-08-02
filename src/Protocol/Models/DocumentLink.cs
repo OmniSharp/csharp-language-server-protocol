@@ -12,8 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A document link is a range in a text document that links to an internal or external resource, like another
     /// text document or a web site.
     /// </summary>
-    [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
     public class DocumentLink : ICanBeResolved, IRequest<DocumentLink>
     {
         /// <summary>
@@ -49,50 +49,67 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         private string DebuggerDisplay => $"{Range}{(Target != null ? $" {Target}" : "")}{(string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "")}";
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
-
-        /// <summary>
-        /// Convert from a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal DocumentLink<T> From<T>(ISerializer serializer) where T : class
-        {
-            return new DocumentLink<T>() {
-                Range = Range,
-                Target = Target,
-                Tooltip = Tooltip,
-                Data = Data?.ToObject<T>(serializer.JsonSerializer)
-            };
-        }
     }
+
     /// <summary>
     /// A document link is a range in a text document that links to an internal or external resource, like another
     /// text document or a web site.
     /// </summary>
-    public class DocumentLink<T> : DocumentLink where T : class
+    public class DocumentLink<T> : ICanBeResolved
+        where T : HandlerIdentity, new()
     {
         /// <summary>
-        /// A data entry field that is preserved on a document link between a
-        /// DocumentLinkRequest and a DocumentLinkResolveRequest.
+        /// The range this link applies to.
         /// </summary>
-        [Optional]
-        public new T Data { get; set; }
+        public Range Range { get; set; }
 
         /// <summary>
-        /// Convert to a <see cref="CodeLens"/>
+        /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal DocumentLink To(ISerializer serializer)
-        {
-            if (Data != null)
-            {
-                base.Data = JObject.FromObject(Data, serializer.JsonSerializer);
-            }
+        [Optional]
+        public DocumentUri Target { get; set; }
 
-            return this;
+        /// <summary>
+        /// The tooltip text when you hover over this link.
+        ///
+        /// If a tooltip is provided, is will be displayed in a string that includes instructions on how to
+        /// trigger the link, such as `{0} (ctrl + click)`. The specific instructions vary depending on OS,
+        /// user settings, and localization.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [Optional]
+        public string Tooltip { get; set; }
+
+        /// <summary>
+        /// A data entry field that is preserved on a code lens item between
+        /// a code lens and a code lens resolve request.
+        /// </summary>
+        [Optional]
+        public T Data
+        {
+            get => ((ICanBeResolved)this).Data?.ToObject<T>();
+            set => ((ICanBeResolved)this).Data = JToken.FromObject(value ?? new object());
+        }
+
+        JToken ICanBeResolved.Data { get; set; }
+
+        public static implicit operator DocumentLink(DocumentLink<T> value) => new DocumentLink {
+            Data = ((ICanBeResolved)value).Data,
+            Range = value.Range,
+            Target = value.Target,
+            Tooltip = value.Tooltip,
+        };
+
+        public static implicit operator DocumentLink<T>(DocumentLink value)
+        {
+            var item = new DocumentLink<T> {
+                Range = value.Range,
+                Target = value.Target,
+                Tooltip = value.Tooltip,
+            };
+            ((ICanBeResolved)item).Data = value.Data;
+            return item;
         }
     }
 }

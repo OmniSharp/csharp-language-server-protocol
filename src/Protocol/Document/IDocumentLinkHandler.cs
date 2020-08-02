@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public virtual Guid Id { get; } = Guid.NewGuid();
     }
 
-    public abstract class DocumentLinkHandlerBase<T> : DocumentLinkHandler where T : class
+    public abstract class DocumentLinkHandlerBase<T> : DocumentLinkHandler where T : HandlerIdentity, new()
     {
         private readonly ISerializer _serializer;
 
@@ -72,20 +72,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public sealed override async Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
         {
             var response = await HandleParams(request, cancellationToken);
-            return response.Convert(_serializer);
+            return response;
         }
 
         public sealed override async Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request.From<T>(_serializer), cancellationToken);
-            return response.To(_serializer);
+            var response = await HandleResolve(request, cancellationToken);
+            return response;
         }
 
         protected abstract Task<DocumentLinkContainer<T>> HandleParams(DocumentLinkParams request, CancellationToken cancellationToken);
         protected abstract Task<DocumentLink<T>> HandleResolve(DocumentLink<T> request, CancellationToken cancellationToken);
     }
 
-    public abstract class PartialDocumentLinkHandlerBase<T> : PartialDocumentLinkHandlerBase where T : class
+    public abstract class PartialDocumentLinkHandlerBase<T> : PartialDocumentLinkHandlerBase where T : HandlerIdentity, new()
     {
         private readonly ISerializer _serializer;
 
@@ -98,15 +98,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         protected sealed override void Handle(DocumentLinkParams request, IObserver<IEnumerable<DocumentLink>> results, CancellationToken cancellationToken) => Handle(
             request,
             Observer.Create<IEnumerable<DocumentLink<T>>>(
-                x => results.OnNext(x.Select(z => z.To(_serializer))),
+                x => results.OnNext(x.Select(z => (DocumentLink) z)),
                 results.OnError,
                 results.OnCompleted
             ), cancellationToken);
 
         public sealed override async Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request.From<T>(_serializer), cancellationToken);
-            return response.To(_serializer);
+            var response = await HandleResolve(request, cancellationToken);
+            return response;
         }
 
         protected abstract void Handle(DocumentLinkParams request, IObserver<IEnumerable<DocumentLink<T>>> results, CancellationToken cancellationToken);
@@ -149,7 +149,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -197,7 +197,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -245,7 +245,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -296,7 +296,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -347,7 +347,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, CancellationToken> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -398,7 +398,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : class
+            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -413,7 +413,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             );
         }
 
-        class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : class
+        class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
         {
             private readonly Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;
@@ -435,7 +435,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             protected override Task<DocumentLink<T>> HandleResolve(DocumentLink<T> request, CancellationToken cancellationToken) => _handleResolve(request, Capability, cancellationToken);
         }
 
-        class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : class
+        class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
         {
             private readonly Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;

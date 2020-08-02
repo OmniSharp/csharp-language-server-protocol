@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -121,7 +121,7 @@ namespace Lsp.Tests.Integration
             var lens = codeLens.ToArray();
 
             var responses = await Task.WhenAll(lens.Select(z => client.ResolveCompletion(z)));
-            responses.Select(z => z.Command.Name).Should().Contain("resolved-a", "resolved-b", "resolved-c");
+            responses.Select(z => z.Command.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
             responses.Select(z => z.Command.Name).Should().NotContain("resolved-d");
             lens.Length.Should().Be(3);
         }
@@ -564,7 +564,7 @@ namespace Lsp.Tests.Integration
             item.Detail.Should().Be("resolved");
         }
 
-        class Data
+        class Data : HandlerIdentity
         {
             public string Name { get; set; }
             public Guid Id { get; set; }
@@ -572,7 +572,7 @@ namespace Lsp.Tests.Integration
 
         }
 
-        class Nested
+        class Nested : HandlerIdentity
         {
             public DateTimeOffset Date { get; set; }
         }

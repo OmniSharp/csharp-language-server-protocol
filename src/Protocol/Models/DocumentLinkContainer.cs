@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -34,18 +34,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return new DocumentLinkContainer(items);
         }
-
-        /// <summary>
-        /// Convert from a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        public DocumentLinkContainer<T> Convert<T>(ISerializer serializer) where T : class
-        {
-            return new DocumentLinkContainer<T>(this.Select(z => z.From<T>(serializer)));
-        }
     }
-    public class DocumentLinkContainer<T> : Container<DocumentLink<T>> where T : class
+
+    public class DocumentLinkContainer<T> : Container<DocumentLink<T>> where T : HandlerIdentity, new()
     {
         public DocumentLinkContainer() : this(Enumerable.Empty<DocumentLink<T>>())
         {
@@ -74,15 +65,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return new DocumentLinkContainer<T>(items);
         }
 
-        /// <summary>
-        /// Convert to a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal DocumentLinkContainer Convert(ISerializer serializer)
-        {
-            return new DocumentLinkContainer(this.Select(z => z.To(serializer)));
-        }
+        public static implicit operator DocumentLinkContainer(DocumentLinkContainer<T> container) => new DocumentLinkContainer(container.Select(z => (DocumentLink)z));
     }
 }

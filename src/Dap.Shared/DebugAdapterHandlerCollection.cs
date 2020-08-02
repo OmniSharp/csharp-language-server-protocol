@@ -1,9 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Threading;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -11,11 +13,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 {
     class DebugAdapterHandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
-        internal readonly HashSet<HandlerDescriptor> _handlers = new HashSet<HandlerDescriptor>();
+        private ImmutableHashSet<HandlerDescriptor> _descriptors =  ImmutableHashSet<HandlerDescriptor>.Empty;
 
         public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
-            return _handlers.GetEnumerator();
+            return _descriptors.GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -29,7 +31,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
         {
-            var source = _handlers.First(z => z.Method == sourceMethod);
+            var source = _descriptors.First(z => z.Method == sourceMethod);
             HandlerDescriptor descriptor = null;
             descriptor = GetDescriptor(
                 destinationMethod,
@@ -38,7 +40,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 source.RequestProcessType.HasValue ? new JsonRpcHandlerOptions() {RequestProcessType = source.RequestProcessType.Value} : null,
                 source.TypeDescriptor,
                 source.HandlerType);
-            _handlers.Add(descriptor);
+            Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
 
             return descriptor;
         }
@@ -46,7 +48,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
-            _handlers.Add(descriptor);
+            Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
             return new CompositeDisposable {descriptor};
         }
 
@@ -66,7 +68,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 {
                     var descriptor = GetDescriptor(method, implementedInterface, handler, null);
                     cd.Add(descriptor);
-                    _handlers.Add(descriptor);
+                    Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
                 }
             }
 
@@ -100,7 +102,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 {
                     var descriptor = GetDescriptor(method, implementedInterface, handler, options);
                     cd.Add(descriptor);
-                    _handlers.Add(descriptor);
+                    Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
                 }
             }
 
@@ -148,7 +150,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 @params,
                 response,
                 requestProcessType,
-                () => { _handlers.RemoveWhere(d => d.Handler == handler); });
+                () => {
+                    var descriptors = _descriptors.ToBuilder();
+                    foreach (var descriptor in _descriptors)
+                    {
+                        if (descriptor.Handler != handler) continue;
+                        descriptors.Remove(descriptor);
+                    }
+
+                    Interlocked.Exchange(ref _descriptors, descriptors.ToImmutable());
+                });
 
             return descriptor;
         }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using MediatR;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace Lsp.Tests
@@ -27,8 +28,8 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]);
 
             handler.Add(sub);
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().HaveCount(count);
         }
 
         [Fact]
@@ -43,9 +44,9 @@ namespace Lsp.Tests
                 Substitute.For<IShutdownHandler>()
             );
 
-            handler._handlers.Should().Contain(x => x.Method == "exit");
-            handler._handlers.Should().Contain(x => x.Method == "shutdown");
-            handler._handlers.Count.Should().Be(4);
+            handler.Should().Contain(x => x.Method == "exit");
+            handler.Should().Contain(x => x.Method == "shutdown");
+            handler.Should().HaveCount(4);
         }
 
         [Theory]
@@ -59,8 +60,8 @@ namespace Lsp.Tests
             var sub = (IJsonRpcHandler)TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.something"), "csharp");
 
             handler.Add(sub);
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -77,8 +78,8 @@ namespace Lsp.Tests
                 Substitute.For<IExitHandler>(),
                 Substitute.For<IShutdownHandler>()
             );
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -103,8 +104,8 @@ namespace Lsp.Tests
                 Substitute.For<IExitHandler>(),
                 Substitute.For<IShutdownHandler>()
             );
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -121,8 +122,8 @@ namespace Lsp.Tests
 
             handler.Add(sub);
             handler.Add(sub2);
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -137,9 +138,9 @@ namespace Lsp.Tests
                         DocumentSelector = new DocumentSelector()
                     });
             handler.Add(sub);
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Should().Contain(x => x.Method == key2);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().Contain(x => x.Method == key2);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -161,9 +162,9 @@ namespace Lsp.Tests
                     });
             handler.Add(sub);
             handler.Add(sub2);
-            handler._handlers.Should().Contain(x => x.Method == key);
-            handler._handlers.Should().Contain(x => x.Method == key2);
-            handler._handlers.Count.Should().Be(count);
+            handler.Should().Contain(x => x.Method == key);
+            handler.Should().Contain(x => x.Method == key2);
+            handler.Should().HaveCount(count);
         }
 
         [Theory]
@@ -175,9 +176,9 @@ namespace Lsp.Tests
             var sub2 = (IJsonRpcHandler)Substitute.For(new Type[] { handlerType }, new object[0]);
             handler.Add(method, sub, null);
             handler.Add(method, sub2, null);
-            handler._handlers.Should().Contain(x => x.Method == method);
-            handler._handlers.Should().Contain(x => x.Method == method);
-            handler._handlers.Count.Should().Be(1);
+            handler.Should().Contain(x => x.Method == method);
+            handler.Should().Contain(x => x.Method == method);
+            handler.Should().HaveCount(1);
         }
 
         [Theory]
@@ -187,7 +188,7 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers());
             handler.Add(sub);
 
-            var descriptor = handler._handlers.First(x => x.Method == method);
+            var descriptor = handler.OfType<LspHandlerDescriptor>().First(x => x.Method == method);
             descriptor.Key.Should().Be("default");
         }
 
@@ -203,7 +204,7 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers());
             handler.Add(codeLensHandler as IJsonRpcHandler);
 
-            var descriptor = handler._handlers.Select(x => x.Key);
+            var descriptor = handler.OfType<LspHandlerDescriptor>().Select(x => x.Key);
             descriptor.Should().BeEquivalentTo(new [] { "[foo]", "[foo]" });
         }
 

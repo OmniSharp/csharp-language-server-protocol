@@ -5,6 +5,7 @@ using System.Reflection;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
@@ -14,7 +15,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
     public class ResolveCommandMatcher : IHandlerMatcher
     {
         private readonly ILogger<ResolveCommandMatcher> _logger;
-        internal static string PrivateHandlerId = "$$__handler_id__$$";
 
         public ResolveCommandMatcher(ILogger<ResolveCommandMatcher> logger)
         {
@@ -31,9 +31,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         {
             if (parameters is ICanBeResolved canBeResolved)
             {
-                if (canBeResolved.Data != null && canBeResolved.Data is JObject jObject && jObject.TryGetValue(PrivateHandlerId, out var value))
+                if (canBeResolved.Data != null && canBeResolved.Data is JObject jObject && jObject.TryGetValue(Constants.PrivateHandlerId, out var value))
                 {
-                    var id = value.Value<Guid>();
+                    if (!Guid.TryParse(value.ToString(), out var id)) yield break;
 
                     foreach (var descriptor in descriptors)
                     {

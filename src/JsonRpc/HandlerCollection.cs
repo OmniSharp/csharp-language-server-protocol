@@ -1,10 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
+using System.Threading;
 using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -13,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
     public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
-        internal readonly List<IHandlerDescriptor> _handlers = new List<IHandlerDescriptor>();
+        private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
         public HandlerCollection() { }
 
@@ -109,7 +111,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
-            return _handlers.GetEnumerator();
+            return _descriptors.AsEnumerable().GetEnumerator();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -119,11 +121,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private void Remove(IJsonRpcHandler handler)
         {
-            var handlers = _handlers.FindAll(instance => instance.Handler == handler);
-            foreach (var item in handlers)
+            var descriptors = _descriptors.ToBuilder();
+            foreach (var item in _descriptors.Where(instance => instance.Handler == handler))
             {
-                _handlers.Remove(item);
+                descriptors.Remove(item);
             }
+
+            ImmutableInterlocked.InterlockedExchange(ref _descriptors, descriptors.ToImmutableArray());
         }
 
         public IDisposable Add(params IJsonRpcHandler[] handlers)
@@ -131,7 +135,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var cd = new CompositeDisposable();
             foreach (var handler in handlers)
             {
-                if (_handlers.Any(z => z.Handler == handler)) continue;
+                if (_descriptors.Any(z => z.Handler == handler)) continue;
                 cd.Add(Add(GetMethodName(handler.GetType()), handler, null));
             }
             return cd;
@@ -167,27 +171,27 @@ namespace OmniSharp.Extensions.JsonRpc
                 .OfType<ProcessAttribute>()
                 .FirstOrDefault()?.Type;
 
-            var h = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
-            _handlers.Add(h);
-            return h;
+            var descriptor = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
+            ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
+            return descriptor;
         }
 
         public IDisposable AddLink(string sourceMethod, string destinationMethod)
         {
-            var source = _handlers.Find(z => z.Method == sourceMethod);
-            var h = new LinkedHandler(destinationMethod, source, () => _handlers.RemoveAll(z => z.Method == destinationMethod));
-            _handlers.Add(h);
-            return h;
+            var source = _descriptors.FirstOrDefault(z => z.Method == sourceMethod);
+            var descriptor = new LinkedHandler(destinationMethod, source, () => _descriptors.RemoveAll(z => z.Method == destinationMethod));
+            ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
+            return descriptor;
         }
 
         public bool ContainsHandler(Type type)
         {
-            return _handlers.Any(z => type.IsAssignableFrom(z.HandlerType));
+            return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
         }
 
         public bool ContainsHandler(TypeInfo type)
         {
-            return _handlers.Any(z => type.IsAssignableFrom(z.HandlerType));
+            return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
         }
 
         private static readonly Type[] HandlerTypes = {
