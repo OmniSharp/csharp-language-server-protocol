@@ -28,12 +28,12 @@ namespace OmniSharp.Extensions.JsonRpc
     public class InputHandler : IInputHandler, IDisposable
     {
         public static readonly byte[] HeadersFinished =
-            new byte[] {(byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n'}.ToArray();
+            new byte[] { (byte)'\r', (byte)'\n', (byte)'\r', (byte)'\n' }.ToArray();
 
         public const int HeadersFinishedLength = 4;
-        public static readonly char[] HeaderKeys = {'\r', '\n', ':'};
+        public static readonly char[] HeaderKeys = { '\r', '\n', ':' };
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
-        public static readonly byte[] ContentLength = "Content-Length".Select(x => (byte) x).ToArray();
+        public static readonly byte[] ContentLength = "Content-Length".Select(x => (byte)x).ToArray();
         public static readonly int ContentLengthLength = 14;
 
         private readonly PipeReader _pipeReader;
@@ -55,8 +55,8 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly CompositeDisposable _disposable;
         private readonly AsyncSubject<Unit> _inputActive;
 
-        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource,  IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
-            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource,  IRequestDescriptor<IHandlerDescriptor> descriptor)>();
+        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
+            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)>();
 
         private readonly Subject<IObservable<Unit>> _inputQueue;
 
@@ -91,7 +91,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 concurrency,
                 requestTimeout,
                 TaskPoolScheduler.Default
-                // new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"})
+            // new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"})
             );
             _headersBuffer = new Memory<byte>(new byte[HeadersFinishedLength]);
             _contentLengthBuffer = new Memory<byte>(new byte[ContentLengthLength]);
@@ -148,7 +148,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             var rentedSpan = _headersBuffer.Span;
 
-            var start = buffer.PositionOf((byte) '\r');
+            var start = buffer.PositionOf((byte)'\r');
             do
             {
                 if (!start.HasValue)
@@ -173,7 +173,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     return true;
                 }
 
-                start = buffer.Slice(buffer.GetPosition(HeadersFinishedLength, start.Value)).PositionOf((byte) '\r');
+                start = buffer.Slice(buffer.GetPosition(HeadersFinishedLength, start.Value)).PositionOf((byte)'\r');
             } while (start.HasValue && buffer.Length > MinBuffer);
 
             line = default;
@@ -213,7 +213,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             do
             {
-                var colon = buffer.PositionOf((byte) ':');
+                var colon = buffer.PositionOf((byte)':');
                 if (!colon.HasValue)
                 {
                     length = -1;
@@ -232,7 +232,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     {
                         foreach (var t in memory.Span)
                         {
-                            if (t == (byte) ' ')
+                            if (t == (byte)' ')
                             {
                                 offset++;
                                 continue;
@@ -244,10 +244,10 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     var lengthSlice = buffer.Slice(
                         buffer.GetPosition(offset, colon.Value),
-                        buffer.PositionOf((byte) '\r') ?? buffer.End
+                        buffer.PositionOf((byte)'\r') ?? buffer.End
                     );
 
-                    var whitespacePosition = lengthSlice.PositionOf((byte) ' ');
+                    var whitespacePosition = lengthSlice.PositionOf((byte)' ');
                     if (whitespacePosition.HasValue)
                     {
                         lengthSlice = lengthSlice.Slice(0, whitespacePosition.Value);
@@ -269,7 +269,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
                 else
                 {
-                    buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte) '\n') ?? buffer.End));
+                    buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte)'\n') ?? buffer.End));
                 }
             } while (true);
         }
@@ -418,15 +418,12 @@ namespace OmniSharp.Extensions.JsonRpc
                         _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
                         return;
                     }
+                    if (descriptor.Params == null)
+                    {
 
-                    try
-                    {
-                        _requestRouter.DeserializeParams()
-                    }
-                    catch (Exception cannotDeserializeRequestParams)
-                    {
-                        _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
-                        return new InvalidParams(request.Id, request.Method);
+                        _logger.LogError(new EventId(-32602), "Failed to deserialize request parameters.");
+                        _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
+                        return;
                     }
 
                     var type = _requestProcessIdentifier.Identify(descriptor.Default);
@@ -483,40 +480,40 @@ namespace OmniSharp.Extensions.JsonRpc
             _requests.TryAdd(request.Id, (cts, descriptors));
 
             return (contentModifiedToken, scheduler) => Observable.Create<ErrorResponse>(observer => {
-                    // ITS A RACE!
-                    var sub = Observable.Amb(
-                            contentModifiedToken.Select(_ => {
-                                _logger.LogTrace("Request {Id} was abandoned due to content be modified", request.Id);
-                                return new ErrorResponse(new ContentModified(request.Id, request.Method));
-                            }),
-                            Observable.Timer(_requestTimeout, scheduler).Select(z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))),
-                            Observable.FromAsync(async (ct) => {
-                                using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", request.Method, request.Id);
-                                ct.Register(cts.Cancel);
+                // ITS A RACE!
+                var sub = Observable.Amb(
+                        contentModifiedToken.Select(_ => {
+                            _logger.LogTrace("Request {Id} was abandoned due to content be modified", request.Id);
+                            return new ErrorResponse(new ContentModified(request.Id, request.Method));
+                        }),
+                        Observable.Timer(_requestTimeout, scheduler).Select(z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))),
+                        Observable.FromAsync(async (ct) => {
+                            using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", request.Method, request.Id);
+                            ct.Register(cts.Cancel);
                                 // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
                                 try
-                                {
-                                    return await _requestRouter.RouteRequest(descriptors, request, @params, cts.Token);
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    _logger.LogTrace("Request {Id} was cancelled", request.Id);
-                                    return new RequestCancelled(request.Id, request.Method);
-                                }
-                                catch (RpcErrorException e)
-                                {
-                                    _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new RpcError(request.Id, request.Method, new ErrorMessage(e.Code, e.Message, e.Error));
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new InternalError(request.Id, request.Method, e.ToString());
-                                }
-                            })
-                        )
-                        .Subscribe(observer);
-                    return new CompositeDisposable() {
+                            {
+                                return await _requestRouter.RouteRequest(descriptors, request, @params, cts.Token);
+                            }
+                            catch (OperationCanceledException)
+                            {
+                                _logger.LogTrace("Request {Id} was cancelled", request.Id);
+                                return new RequestCancelled(request.Id, request.Method);
+                            }
+                            catch (RpcErrorException e)
+                            {
+                                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
+                                return new RpcError(request.Id, request.Method, new ErrorMessage(e.Code, e.Message, e.Error));
+                            }
+                            catch (Exception e)
+                            {
+                                _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
+                                return new InternalError(request.Id, request.Method, e.ToString());
+                            }
+                        })
+                    )
+                    .Subscribe(observer);
+                return new CompositeDisposable() {
                         sub,
                         Disposable.Create(() => {
                             if (_requests.TryRemove(request.Id, out var v))
@@ -525,7 +522,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             }
                         })
                     };
-                })
+            })
                 .Select(response => {
                     _outputHandler.Send(response.Value);
                     return Unit.Default;
@@ -564,7 +561,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private static Exception DefaultErrorParser(string method, ServerError error, Func<ServerError, string, Exception> customHandler)
         {
-            return error.Error?.Code switch {
+            return error.Error?.Code switch
+            {
                 ErrorCodes.ServerNotInitialized => new ServerNotInitializedException(error.Id),
                 ErrorCodes.MethodNotSupported => new MethodNotSupportedException(error.Id, method ?? "UNKNOWN"),
                 ErrorCodes.InvalidRequest => new InvalidRequestException(error.Id),

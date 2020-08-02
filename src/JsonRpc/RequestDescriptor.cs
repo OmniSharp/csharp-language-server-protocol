@@ -16,16 +16,16 @@ namespace OmniSharp.Extensions.JsonRpc
             Default = enumerable.FirstOrDefault();
         }
 
-        public RequestDescriptor(object @params, params TDescriptor[] descriptors)
+        public RequestDescriptor(object @params, TDescriptor descriptor, params TDescriptor[] descriptors)
         {
             Params = @params;
-            var enumerable = descriptors.ToArray();
+            var enumerable = new[] { descriptor }.Concat(descriptors).ToArray();
             _descriptors = enumerable;
             Default = enumerable.FirstOrDefault();
         }
 
         public IEnumerator<TDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _descriptors).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable)_descriptors).GetEnumerator();
 
         public TDescriptor Default { get; }
         public object Params { get; }

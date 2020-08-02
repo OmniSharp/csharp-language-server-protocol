@@ -7,5 +7,24 @@
         "Unregistrations",
         "deresult",
         "reciever"
-    ]
+    ],
+    "workbench.colorCustomizations": {
+        "activityBar.activeBackground": "#3d0099",
+        "activityBar.activeBorder": "#bf4c00",
+        "activityBar.background": "#3d0099",
+        "activityBar.foreground": "#e7e7e7",
+        "activityBar.inactiveForeground": "#e7e7e799",
+        "activityBarBadge.background": "#bf4c00",
+        "activityBarBadge.foreground": "#e7e7e7",
+        "statusBar.background": "#3d0099",
+        "statusBar.border": "#3d0099",
+        "statusBar.foreground": "#e7e7e7",
+        "statusBarItem.hoverBackground": "#5100cc",
+        "tab.activeBorder": "#3d0099",
+        "titleBar.activeBackground": "#5100cc",
+        "titleBar.activeForeground": "#e7e7e7",
+        "titleBar.border": "#5100cc",
+        "titleBar.inactiveBackground": "#5100cc99",
+        "titleBar.inactiveForeground": "#e7e7e799"
+    }
 }

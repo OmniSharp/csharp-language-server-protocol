@@ -29,12 +29,16 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
         {
-            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(notification));
+            var descriptor = FindDescriptor(notification);
+            var paramsValue = DeserializeParams(descriptor, notification.Params);
+            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
         }
 
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
         {
-            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(request));
+            var descriptor = FindDescriptor(request);
+            var paramsValue = DeserializeParams(descriptor, request.Params);
+            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
         }
     }
 }
