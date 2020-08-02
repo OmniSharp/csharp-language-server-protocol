@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -14,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         IRequestDescriptor<TDescriptor> GetDescriptors(Notification notification);
         IRequestDescriptor<TDescriptor> GetDescriptors(Request request);
-        Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token);
-        Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token);
+        Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, object @params, CancellationToken token);
+        Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, object @params, CancellationToken token);
     }
 }

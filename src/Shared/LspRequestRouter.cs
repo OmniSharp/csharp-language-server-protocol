@@ -55,37 +55,39 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method,
                     string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName)));
-                return new RequestDescriptor<ILspHandlerDescriptor>();
+                return new RequestDescriptor<ILspHandlerDescriptor>(null);
             }
 
-            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(new [] { descriptor });
+            var paramsValue = DeserializeParams(descriptor, @params);
+            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, new[] { descriptor });
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
             var matchDescriptor = _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).ToArray();
-            if (matchDescriptor.Length > 0) return new RequestDescriptor<ILspHandlerDescriptor>(matchDescriptor);
+            if (matchDescriptor.Length > 0) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, matchDescriptor);
             // execute command is a special case
             // if no command was found to execute this must error
             // this is not great coupling but other options require api changes
-            if (paramsValue is ExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>();
-            if (lspHandlerDescriptors.Count > 0) return new RequestDescriptor<ILspHandlerDescriptor>(lspHandlerDescriptors);
-            return new RequestDescriptor<ILspHandlerDescriptor>();
+            if (paramsValue is ExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue);
+            if (lspHandlerDescriptors.Count > 0) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, lspHandlerDescriptors);
+            return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue);
         }
 
         IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Notification notification) => GetDescriptors(notification);
         IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Request request) => GetDescriptors(request);
 
-        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, CancellationToken token) =>
+        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, object @params, CancellationToken token) =>
             RouteNotification(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 notification,
+                @params,
                 token);
 
-        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, CancellationToken token) =>
+        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, object @params, CancellationToken token) =>
             RouteRequest(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 request,
+                @params,
                 token);
     }
 }

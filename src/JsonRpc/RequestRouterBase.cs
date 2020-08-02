@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IServiceProvider ServiceProvider { get; }
 
-        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
+        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, object @params, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token)
+        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, object @params, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -84,28 +84,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Method", request.Method),
                 new KeyValuePair<string, string>("Params", request.Params?.ToString())
             });
-
-            object @params = null;
-            try
-            {
-                if (descriptors.Default.IsDelegatingHandler)
-                {
-                    _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method,
-                        descriptors.Default.Params.GetGenericArguments()[0].FullName);
-                    var o = request.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptors.Default.Params, new object[] {o});
-                }
-                else
-                {
-                    _logger.LogTrace("Converting params for Request ({Id}) {Method} to {Type}", request.Id, request.Method, descriptors.Default.Params.FullName);
-                    @params = request.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
-                }
-            }
-            catch (Exception cannotDeserializeRequestParams)
-            {
-                _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
-                return new InvalidParams(request.Id, request.Method);
-            }
 
             using var scope = _serviceScopeFactory.CreateScope();
             // TODO: Do we want to support more handlers as "aggregate"?
@@ -165,7 +143,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Notification notification);
         public abstract IRequestDescriptor<TDescriptor> GetDescriptors(Request request);
-        public virtual object DeserializeParams(IHandlerDescriptor descriptor, JToken @params)
+        protected virtual object DeserializeParams(IHandlerDescriptor descriptor, JToken @params)
         {
             if (descriptor.IsDelegatingHandler)
             {

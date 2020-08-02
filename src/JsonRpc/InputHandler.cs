@@ -419,6 +419,16 @@ namespace OmniSharp.Extensions.JsonRpc
                         return;
                     }
 
+                    try
+                    {
+                        _requestRouter.DeserializeParams()
+                    }
+                    catch (Exception cannotDeserializeRequestParams)
+                    {
+                        _logger.LogError(new EventId(-32602), cannotDeserializeRequestParams, "Failed to deserialize request parameters.");
+                        return new InvalidParams(request.Id, request.Method);
+                    }
+
                     var type = _requestProcessIdentifier.Identify(descriptor.Default);
                     _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
                 }
@@ -466,7 +476,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request)
+        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, object @params)
         {
             // start request, create cts, etc
             var cts = new CancellationTokenSource();
@@ -486,7 +496,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                 // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
                                 try
                                 {
-                                    return await _requestRouter.RouteRequest(descriptors, request, cts.Token);
+                                    return await _requestRouter.RouteRequest(descriptors, request, @params, cts.Token);
                                 }
                                 catch (OperationCanceledException)
                                 {

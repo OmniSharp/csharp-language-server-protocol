@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -8,15 +8,17 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private IEnumerable<TDescriptor> _descriptors;
 
-        public RequestDescriptor(IEnumerable<TDescriptor> descriptors)
+        public RequestDescriptor(object @params, IEnumerable<TDescriptor> descriptors)
         {
+            Params = @params;
             var enumerable = descriptors as TDescriptor[] ?? descriptors.ToArray();
             _descriptors = enumerable;
             Default = enumerable.FirstOrDefault();
         }
 
-        public RequestDescriptor(params TDescriptor[] descriptors)
+        public RequestDescriptor(object @params, params TDescriptor[] descriptors)
         {
+            Params = @params;
             var enumerable = descriptors.ToArray();
             _descriptors = enumerable;
             Default = enumerable.FirstOrDefault();
@@ -26,5 +28,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _descriptors).GetEnumerator();
 
         public TDescriptor Default { get; }
+        public object Params { get; }
     }
 }
