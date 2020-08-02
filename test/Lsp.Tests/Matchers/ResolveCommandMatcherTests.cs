@@ -94,7 +94,7 @@ namespace Lsp.Tests.Matchers
 
             // When
             var result = handlerMatcher.FindHandler(new CodeLens() {
-                        Data = JObject.FromObject(new Dictionary<string, object>() { [ResolveCommandMatcher.PrivateHandlerId] = TrueId, ["a"] = 1})
+                        Data = JObject.FromObject(new Dictionary<string, object>() { [Constants.PrivateHandlerId] = TrueId, ["a"] = 1})
                     },
                     new List<LspHandlerDescriptor> {
                         new LspHandlerDescriptor(TextDocumentNames.CodeLensResolve,
@@ -171,7 +171,7 @@ namespace Lsp.Tests.Matchers
 
             // When
             var result = handlerMatcher.FindHandler(new CompletionItem() {
-                        Data = JObject.FromObject(new Dictionary<string, object>() { [ResolveCommandMatcher.PrivateHandlerId] = TrueId, ["a"] = 1})
+                        Data = JObject.FromObject(new Dictionary<string, object>() { [Constants.PrivateHandlerId] = TrueId, ["a"] = 1})
                     },
                     new List<LspHandlerDescriptor> {
                         new LspHandlerDescriptor(TextDocumentNames.CompletionResolve,
@@ -246,7 +246,7 @@ namespace Lsp.Tests.Matchers
             response.Should().BeEquivalentTo(list);
             (response as CompletionList).Items.Should().Contain(item);
             var responseItem = (response as CompletionList).Items.First();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerId].Value<Guid>().Should().Be(TrueId);
+            responseItem.Data[Constants.PrivateHandlerId].Value<Guid>().Should().Be(TrueId);
             responseItem.Data["hello"].Value<string>().Should().Be("world");
         }
 
@@ -290,7 +290,7 @@ namespace Lsp.Tests.Matchers
             response.Should().BeEquivalentTo(list);
             (response as CodeLensContainer).Should().Contain(item);
             var responseItem = (response as CodeLensContainer).First();
-            responseItem.Data[ResolveCommandMatcher.PrivateHandlerId].Value<Guid>().Should().Be(TrueId);
+            responseItem.Data[Constants.PrivateHandlerId].Value<Guid>().Should().Be(TrueId);
             responseItem.Data["hello"].Value<string>().Should().Be("world");
         }
 
@@ -323,14 +323,14 @@ namespace Lsp.Tests.Matchers
             var item = new CodeLens() {
                 Data = JObject.FromObject(new {hello = "world"})
             };
-            item.Data[ResolveCommandMatcher.PrivateHandlerId] = Guid.Empty;
+            item.Data[Constants.PrivateHandlerId] = Guid.Empty;
 
             // When
             var response = await handlerMatcher.Handle(item, CancellationToken.None, () => Task.FromResult(item));
 
             // Then
             response.Should().BeEquivalentTo(item);
-            item.Data?[ResolveCommandMatcher.PrivateHandlerId].Value<Guid>().Should().BeEmpty();
+            item.Data?[Constants.PrivateHandlerId].Value<Guid>().Should().BeEmpty();
             item.Data["hello"].Value<string>().Should().Be("world");
         }
     }

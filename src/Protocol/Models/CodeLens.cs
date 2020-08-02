@@ -1,4 +1,3 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -17,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
-    public class CodeLens : ICanBeResolved, IRequest<CodeLens>
+    public class CodeLens : IRequest<CodeLens>, ICanBeResolved
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
@@ -37,24 +36,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public JToken Data { get; set; }
 
-        private string DebuggerDisplay => $"{Range}{(Command != null ? $" Command" : "")}";
+        private string DebuggerDisplay => $"{Range}{(Command != null ? $" {Command}" : "")}";
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
-
-        /// <summary>
-        /// Convert from a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CodeLens<T> From<T>(ISerializer serializer) where T : class
-        {
-            return new CodeLens<T>() {
-                Command = Command,
-                Data = Data?.ToObject<T>(serializer.JsonSerializer),
-                Range = Range
-            };
-        }
     }
 
     /// <summary>
@@ -68,28 +52,42 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Typed code lens used for the typed handlers
     /// </remarks>
     /// <typeparam name="T"></typeparam>
-    public class CodeLens<T> : CodeLens where T : class
+    public class CodeLens<T> : ICanBeResolved
+        where T : HandlerIdentity, new()
     {
+        /// <inheritdoc />
+        public Range Range { get; set; }
+
+        /// <inheritdoc />
+        [Optional]
+        public Command Command { get; set; }
+
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
-        public new T Data { get; set; }
-
-        /// <summary>
-        /// Convert to a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CodeLens To(ISerializer serializer)
+        public T Data
         {
-            if (Data != null)
-            {
-                base.Data = JObject.FromObject(Data, serializer.JsonSerializer);
-            }
+            get => ((ICanBeResolved)this).Data?.ToObject<T>();
+            set => ((ICanBeResolved)this).Data = JToken.FromObject(value ?? new object());
+        }
 
-            return this;
+        JToken ICanBeResolved.Data { get; set; }
+
+        public static implicit operator CodeLens(CodeLens<T> value) => new CodeLens {
+            Data = ((ICanBeResolved)value).Data,
+            Command = value.Command,
+            Range = value.Range,
+        };
+
+        public static implicit operator CodeLens<T>(CodeLens value)
+        {
+            var item = new CodeLens<T> {
+                Command = value.Command,
+                Range = value.Range,
+            };
+            ((ICanBeResolved)item).Data = value.Data;
+            return item;
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
@@ -63,23 +63,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             return list.ToArray();
         }
-
-        /// <summary>
-        /// Convert from a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CompletionList<T> Convert<T>(ISerializer serializer) where T : class
-        {
-            return new CompletionList<T>(this.Select(z => z.From<T>(serializer)));
-        }
     }
+
     /// <summary>
     /// Represents a collection of [completion items](#CompletionItem) to be presented
     /// in the editor.
     /// </summary>
-    public class CompletionList<T> : Container<CompletionItem<T>> where T : class
+    public class CompletionList<T> : Container<CompletionItem<T>> where T : HandlerIdentity, new()
     {
         public CompletionList() : base(Enumerable.Empty<CompletionItem<T>>()) { }
         public CompletionList(bool isIncomplete) : base(Enumerable.Empty<CompletionItem<T>>())
@@ -108,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The completion items.
         /// </summary>
-        public IEnumerable<CompletionItem> Items => this;
+        public IEnumerable<CompletionItem<T>> Items => this;
 
         public static implicit operator CompletionList<T>(CompletionItem<T>[] items)
         {
@@ -130,15 +120,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return list.ToArray();
         }
 
-        /// <summary>
-        /// Convert to a <see cref="CodeLens"/>
-        /// </summary>
-        /// <param name="serializer"></param>
-        /// <returns></returns>
-        [EditorBrowsable(EditorBrowsableState.Never)]
-        internal CompletionList Convert(ISerializer serializer)
-        {
-            return new CompletionList(this.Select(z => z.To(serializer)));
-        }
+        public static implicit operator CompletionList(CompletionList<T> container) => new CompletionList(container.Select(z => (CompletionItem)z));
     }
 }

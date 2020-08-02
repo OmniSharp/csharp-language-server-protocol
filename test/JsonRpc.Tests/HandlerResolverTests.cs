@@ -36,7 +36,7 @@ namespace JsonRpc.Tests
         {
             var handler = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>());
             handler.Add((IJsonRpcHandler)Substitute.For(new Type[] { requestHandler }, new object[0]));
-            handler._handlers.Should().Contain(x => x.Method == key);
+            handler.Should().Contain(x => x.Method == key);
         }
 
         [Theory]
