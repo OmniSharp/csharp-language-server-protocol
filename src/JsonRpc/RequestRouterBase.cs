@@ -40,22 +40,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Params", notification.Params?.ToString())
             });
 
-            object @params = null;
-            if (!(descriptors.Default.Params is null))
-            {
-                if (descriptors.Default.IsDelegatingHandler)
-                {
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.GetGenericArguments()[0].FullName);
-                    var o = notification.Params?.ToObject(descriptors.Default.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                    @params = Activator.CreateInstance(descriptors.Default.Params, new object[] {o});
-                }
-                else
-                {
-                    _logger.LogTrace("Converting params for Notification {Method} to {Type}", notification.Method, descriptors.Default.Params.FullName);
-                    @params = notification.Params?.ToObject(descriptors.Default.Params, _serializer.JsonSerializer);
-                }
-            }
-
             await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token)));
 
             static async Task InnerRoute(IServiceScopeFactory serviceScopeFactory, TDescriptor descriptor, object @params, CancellationToken token)
@@ -85,7 +69,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Params", request.Params?.ToString())
             });
 
-            using var scope = _serviceScopeFactory.CreateScope();
             // TODO: Do we want to support more handlers as "aggregate"?
             if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response))
             {
@@ -99,7 +82,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 var response = Activator.CreateInstance(
                     typeof(AggregateResponse<>).MakeGenericType(descriptors.Default.Response),
-                    new object[] {responses.Select(z => z.Response.Result)}
+                    new object[] { responses.Select(z => z.Response.Result) }
                 );
                 return new OutgoingResponse(request.Id, response, request);
             }
@@ -170,24 +153,24 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token)
         {
-            return (Task) SendRequestUnit
+            return (Task)SendRequestUnit
                 .MakeGenericMethod(handler.Params ?? typeof(EmptyRequest))
-                .Invoke(null, new object[] {mediator, @params, token});
+                .Invoke(null, new object[] { mediator, @params, token });
         }
 
         public static Task HandleRequest(IMediator mediator, IHandlerDescriptor descriptor, object @params, CancellationToken token)
         {
             if (!descriptor.HasReturnType)
             {
-                return (Task) SendRequestUnit
+                return (Task)SendRequestUnit
                     .MakeGenericMethod(descriptor.Params)
-                    .Invoke(null, new object[] {mediator, @params, token});
+                    .Invoke(null, new object[] { mediator, @params, token });
             }
             else
             {
-                return (Task) SendRequestResponse
+                return (Task)SendRequestResponse
                     .MakeGenericMethod(descriptor.Params, descriptor.Response)
-                    .Invoke(null, new object[] {mediator, @params, token});
+                    .Invoke(null, new object[] { mediator, @params, token });
             }
         }
 
