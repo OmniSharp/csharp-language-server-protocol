@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    [JsonConverter(typeof(ProgressToken))]
+    [JsonConverter(typeof(ProgressTokenConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {
