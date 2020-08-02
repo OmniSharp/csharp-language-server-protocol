@@ -23,23 +23,25 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return _collection.Add(handler);
         }
 
-        private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
+        private List<IHandlerDescriptor> FindDescriptor(IMethodWithParams instance)
         {
-            return new RequestDescriptor<IHandlerDescriptor>(_collection.Where(x => x.Method == instance.Method));
+            return _collection.Where(x => x.Method == instance.Method).ToList();
         }
 
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
         {
-            var descriptor = FindDescriptor(notification);
-            var paramsValue = DeserializeParams(descriptor, notification.Params);
-            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
+            var descriptors = FindDescriptor(notification);
+            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, null);
+            var paramsValue = DeserializeParams(descriptors[0], notification.Params);
+            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptors);
         }
 
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
         {
-            var descriptor = FindDescriptor(request);
-            var paramsValue = DeserializeParams(descriptor, request.Params);
-            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
+            var descriptors = FindDescriptor(request);
+            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, null);
+            var paramsValue = DeserializeParams(descriptors[0], request.Params);
+            return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptors);
         }
     }
 }
