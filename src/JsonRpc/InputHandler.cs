@@ -416,18 +416,17 @@ namespace OmniSharp.Extensions.JsonRpc
                     {
                         _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                         _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                        return;
+                        continue;
                     }
                     if (descriptor.Params == null)
                     {
-
                         _logger.LogError(new EventId(-32602), "Failed to deserialize request parameters.");
                         _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
-                        return;
+                        continue;
                     }
 
                     var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
+                    _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request, descriptor.Params));
                 }
 
                 if (item.IsNotification)
@@ -459,11 +458,19 @@ namespace OmniSharp.Extensions.JsonRpc
                         _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
                         // TODO: Figure out a good way to send this feedback back.
                         // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
+                        continue;
+                    }
+
+                    if (descriptor.Params == null)
+                    {
+
+                        _logger.LogError(new EventId(-32602), "Failed to deserialize request parameters.");
+                        _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
                         return;
                     }
 
                     var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification));
+                    _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification, descriptor.Params));
                 }
 
                 if (item.IsError)
@@ -490,8 +497,8 @@ namespace OmniSharp.Extensions.JsonRpc
                         Observable.FromAsync(async (ct) => {
                             using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", request.Method, request.Id);
                             ct.Register(cts.Cancel);
-                                // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
-                                try
+                            // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
+                            try
                             {
                                 return await _requestRouter.RouteRequest(descriptors, request, @params, cts.Token);
                             }
@@ -529,7 +536,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 });
         }
 
-        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification)
+        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, object @params)
         {
             return (contentModifiedToken, scheduler) =>
                     // ITS A RACE!
@@ -544,7 +551,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             using var timer = _logger.TimeDebug("Processing notification {Method}", notification.Method);
                             try
                             {
-                                await _requestRouter.RouteNotification(descriptors, notification, ct);
+                                await _requestRouter.RouteNotification(descriptors, notification, @params, ct);
                             }
                             catch (OperationCanceledException)
                             {
