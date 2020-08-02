@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -25,6 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// This class describes a document uri as defined by https://microsoft.github.io/language-server-protocol/specifications/specification-current/#uri
     /// </summary>
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
+    [JsonConverter(typeof(DocumentUriConverter))]
     public partial class DocumentUri : IEquatable<DocumentUri>
     {
         /// <summary>

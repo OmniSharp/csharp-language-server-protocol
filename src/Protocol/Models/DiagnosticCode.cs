@@ -1,5 +1,9 @@
+using Newtonsoft.Json;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [JsonConverter(typeof(DiagnosticCodeConverter))]
     public struct DiagnosticCode
     {
         public DiagnosticCode(long value)
