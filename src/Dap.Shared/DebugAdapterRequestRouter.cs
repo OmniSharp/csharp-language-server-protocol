@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -31,7 +32,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
         {
             var descriptors = FindDescriptor(notification);
-            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, null);
+            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, Array.Empty<IHandlerDescriptor>());
             var paramsValue = DeserializeParams(descriptors[0], notification.Params);
             return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptors);
         }
@@ -39,7 +40,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
         {
             var descriptors = FindDescriptor(request);
-            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, null);
+            if (descriptors.Count == 0) return new RequestDescriptor<IHandlerDescriptor>(null, Array.Empty<IHandlerDescriptor>());
             var paramsValue = DeserializeParams(descriptors[0], request.Params);
             return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptors);
         }

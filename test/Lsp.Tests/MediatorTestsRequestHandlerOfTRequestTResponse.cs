@@ -70,8 +70,8 @@ namespace Lsp.Tests
             var cts = new CancellationTokenSource();
             cts.Cancel();
 
-            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(mediator.GetDescriptors(request),  request, cts.Token);
-            Func<Task> action = () => ((IRequestRouter<ILspHandlerDescriptor>) mediator).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
+            var response = ((IRequestRouter<ILspHandlerDescriptor>)mediator).RouteRequest(mediator.GetDescriptors(request),  request, @params, cts.Token);
+            Func<Task> action = () => ((IRequestRouter<ILspHandlerDescriptor>) mediator).RouteRequest(mediator.GetDescriptors(request), request, @params, cts.Token);
             await action.Should().ThrowAsync<OperationCanceledException>();
         }
     }

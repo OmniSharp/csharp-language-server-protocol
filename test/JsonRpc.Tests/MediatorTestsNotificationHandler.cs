@@ -20,7 +20,7 @@ namespace JsonRpc.Tests
         public MediatorTestsNotificationHandler(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new [] { typeof(MediatorTestsNotificationHandler).Assembly })
+                .AddJsonRpcMediatR(new[] { typeof(MediatorTestsNotificationHandler).Assembly })
                 .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 
@@ -35,7 +35,7 @@ namespace JsonRpc.Tests
 
             var notification = new Notification("exit", null);
 
-            await router.RouteNotification(router.GetDescriptors(notification), notification, ExitParams.Instance, CancellationToken.None);
+            await router.RouteNotification(router.GetDescriptors(notification), notification, new object(), CancellationToken.None);
 
             await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
         }
