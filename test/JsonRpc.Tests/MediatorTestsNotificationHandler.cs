@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
@@ -34,7 +35,7 @@ namespace JsonRpc.Tests
 
             var notification = new Notification("exit", null);
 
-            await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
+            await router.RouteNotification(router.GetDescriptors(notification), notification, ExitParams.Instance, CancellationToken.None);
 
             await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
         }

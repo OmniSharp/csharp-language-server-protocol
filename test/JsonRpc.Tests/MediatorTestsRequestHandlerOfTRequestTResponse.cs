@@ -56,7 +56,7 @@ namespace JsonRpc.Tests
             var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
+            var response = await router.RouteRequest(router.GetDescriptors(request), request, @params, CancellationToken.None);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }

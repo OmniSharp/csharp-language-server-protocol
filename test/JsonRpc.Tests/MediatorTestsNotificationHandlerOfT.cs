@@ -45,7 +45,7 @@ namespace JsonRpc.Tests
             var @params = new CancelParams() { Id = Guid.NewGuid() };
             var notification = new Notification("$/cancelRequest", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
+            await router.RouteNotification(router.GetDescriptors(notification), notification, @params, CancellationToken.None);
 
             await cancelRequestHandler.Received(1).Handle(Arg.Any<CancelParams>(), Arg.Any<CancellationToken>());
         }

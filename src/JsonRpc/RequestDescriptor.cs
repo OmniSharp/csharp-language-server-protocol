@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc
             Params = @params;
             var enumerable = new[] { descriptor }.Concat(descriptors).ToArray();
             _descriptors = enumerable;
-            Default = enumerable.FirstOrDefault();
+            Default = descriptor;
         }
 
         public IEnumerator<TDescriptor> GetEnumerator() => _descriptors.GetEnumerator();

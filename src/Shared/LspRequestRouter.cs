@@ -55,11 +55,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method,
                     string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName)));
-                return new RequestDescriptor<ILspHandlerDescriptor>(null);
+                return new RequestDescriptor<ILspHandlerDescriptor>(null, Array.Empty<ILspHandlerDescriptor>());
             }
 
             var paramsValue = DeserializeParams(descriptor, @params);
-            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, new[] { descriptor });
+            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, descriptor);
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
@@ -68,9 +68,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             // execute command is a special case
             // if no command was found to execute this must error
             // this is not great coupling but other options require api changes
-            if (paramsValue is ExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue);
+            if (paramsValue is ExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, Array.Empty<ILspHandlerDescriptor>());
             if (lspHandlerDescriptors.Count > 0) return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, lspHandlerDescriptors);
-            return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue);
+            return new RequestDescriptor<ILspHandlerDescriptor>(paramsValue, Array.Empty<ILspHandlerDescriptor>());
         }
 
         IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Notification notification) => GetDescriptors(notification);
