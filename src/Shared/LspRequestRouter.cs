@@ -76,18 +76,16 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Notification notification) => GetDescriptors(notification);
         IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Request request) => GetDescriptors(request);
 
-        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, object @params, CancellationToken token) =>
+        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, CancellationToken token) =>
             RouteNotification(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 notification,
-                @params,
                 token);
 
-        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, object @params, CancellationToken token) =>
+        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, CancellationToken token) =>
             RouteRequest(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 request,
-                @params,
                 token);
     }
 }

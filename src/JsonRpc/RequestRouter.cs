@@ -30,6 +30,10 @@ namespace OmniSharp.Extensions.JsonRpc
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
         {
             var descriptor = FindDescriptor(notification);
+            if (descriptor == null)
+            {
+                return new RequestDescriptor<IHandlerDescriptor>(null, Array.Empty<IHandlerDescriptor>());
+            }
             var paramsValue = DeserializeParams(descriptor, notification.Params);
             return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
         }
@@ -37,6 +41,10 @@ namespace OmniSharp.Extensions.JsonRpc
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
         {
             var descriptor = FindDescriptor(request);
+            if (descriptor == null)
+            {
+                return new RequestDescriptor<IHandlerDescriptor>(null, Array.Empty<IHandlerDescriptor>());
+            }
             var paramsValue = DeserializeParams(descriptor, request.Params);
             return new RequestDescriptor<IHandlerDescriptor>(paramsValue, descriptor);
         }

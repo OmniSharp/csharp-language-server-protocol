@@ -411,22 +411,25 @@ namespace OmniSharp.Extensions.JsonRpc
                 if (item.IsRequest)
                 {
                     // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                    var descriptor = _requestRouter.GetDescriptors(item.Request);
-                    if (descriptor.Default is null)
+                    try
                     {
-                        _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
-                        _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
-                        continue;
+                        var descriptor = _requestRouter.GetDescriptors(item.Request);
+                        if (descriptor.Default is null)
+                        {
+                            _logger.LogDebug("Request handler was not found (or not setup) {Method} {ResponseId}", item.Request.Method, item.Request.Id);
+                            _outputHandler.Send(new MethodNotFound(item.Request.Id, item.Request.Method));
+                            continue;
+                        }
+
+                        var type = _requestProcessIdentifier.Identify(descriptor.Default);
+                        _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
                     }
-                    if (descriptor.Params == null)
+                    catch (Exception e)
                     {
-                        _logger.LogError(new EventId(-32602), "Failed to deserialize request parameters.");
+                        _logger.LogError(new EventId(-32602), e, "Failed to deserialize request parameters.");
                         _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
                         continue;
                     }
-
-                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request, descriptor.Params));
                 }
 
                 if (item.IsNotification)
@@ -452,25 +455,26 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
 
                     // _logger.LogDebug("Handling Request {Method}", item.Notification.Method);
-                    var descriptor = _requestRouter.GetDescriptors(item.Notification);
-                    if (descriptor.Default is null)
+                    try
                     {
-                        _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
-                        // TODO: Figure out a good way to send this feedback back.
-                        // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
+                        var descriptor = _requestRouter.GetDescriptors(item.Notification);
+                        if (descriptor.Default is null)
+                        {
+                            _logger.LogDebug("Notification handler was not found (or not setup) {Method}", item.Notification.Method);
+                            // TODO: Figure out a good way to send this feedback back.
+                            // _outputHandler.Send(new RpcError(null, new ErrorMessage(-32601, $"Method not found - {item.Notification.Method}")));
+                            continue;
+                        }
+
+                        var type = _requestProcessIdentifier.Identify(descriptor.Default);
+                        _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification));
+                    }
+                    catch (Exception e)
+                    {
+                        _logger.LogError(new EventId(-32602), e, "Failed to deserialize request parameters.");
+                        _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
                         continue;
                     }
-
-                    if (descriptor.Params == null)
-                    {
-
-                        _logger.LogError(new EventId(-32602), "Failed to deserialize request parameters.");
-                        _outputHandler.Send(new InvalidParams(item.Request.Id, item.Request.Method));
-                        return;
-                    }
-
-                    var type = _requestProcessIdentifier.Identify(descriptor.Default);
-                    _scheduler.Add(type, item.Notification.Method, RouteNotification(descriptor, item.Notification, descriptor.Params));
                 }
 
                 if (item.IsError)
@@ -480,7 +484,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, object @params)
+        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request)
         {
             // start request, create cts, etc
             var cts = new CancellationTokenSource();
@@ -500,7 +504,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
                             try
                             {
-                                return await _requestRouter.RouteRequest(descriptors, request, @params, cts.Token);
+                                return await _requestRouter.RouteRequest(descriptors, request, cts.Token);
                             }
                             catch (OperationCanceledException)
                             {
@@ -536,7 +540,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 });
         }
 
-        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, object @params)
+        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification)
         {
             return (contentModifiedToken, scheduler) =>
                     // ITS A RACE!
@@ -551,7 +555,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             using var timer = _logger.TimeDebug("Processing notification {Method}", notification.Method);
                             try
                             {
-                                await _requestRouter.RouteNotification(descriptors, notification, @params, ct);
+                                await _requestRouter.RouteNotification(descriptors, notification, ct);
                             }
                             catch (OperationCanceledException)
                             {

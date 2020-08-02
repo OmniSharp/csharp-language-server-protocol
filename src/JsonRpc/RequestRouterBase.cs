@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IServiceProvider ServiceProvider { get; }
 
-        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, object @params, CancellationToken token)
+        public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Notification {Method}", notification.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 new KeyValuePair<string, string>("Params", notification.Params?.ToString())
             });
 
-            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token)));
+            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, descriptors.Params, token)));
 
             static async Task InnerRoute(IServiceScopeFactory serviceScopeFactory, TDescriptor descriptor, object @params, CancellationToken token)
             {
@@ -60,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, object @params, CancellationToken token)
+        public virtual async Task<ErrorResponse> RouteRequest(IRequestDescriptor<TDescriptor> descriptors, Request request, CancellationToken token)
         {
             using var debug = _logger.TimeDebug("Routing Request ({Id}) {Method}", request.Id, request.Method);
             using var _ = _logger.BeginScope(new[] {
@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.JsonRpc
             // TODO: Do we want to support more handlers as "aggregate"?
             if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response))
             {
-                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)));
+                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, descriptors.Params, token, _logger)));
                 var errorResponse = responses.FirstOrDefault(x => x.IsError);
                 if (errorResponse.IsError) return errorResponse;
                 if (responses.Length == 1)
@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new OutgoingResponse(request.Id, response, request);
             }
 
-            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default, @params, token, _logger);
+            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default, descriptors.Params, token, _logger);
 
             static async Task<ErrorResponse> InnerRoute(IServiceScopeFactory serviceScopeFactory, Request request, TDescriptor descriptor, object @params, CancellationToken token,
                 ILogger logger)
@@ -136,7 +136,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
             else
             {
-                _logger.LogTrace("Converting params for {Method} to {Type}", descriptor.Method, descriptor.Params.FullName);
+                _logger.LogTrace("Converting params for {Method} to {Type}", descriptor.Method, descriptor.Params?.FullName);
                 return @params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
             }
         }

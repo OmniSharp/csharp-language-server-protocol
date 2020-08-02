@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
@@ -46,7 +46,7 @@ namespace Dap.Tests
             clientResponse.Value.Should().Be("myresponse");
         }
 
-        [Fact]
+        [Fact(Skip = "DAP does not define invalid parameters semantics")]
         public async Task Should_throw_when_sending_requests()
         {
             var (client, server) = await Initialize(

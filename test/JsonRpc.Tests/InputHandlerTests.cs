@@ -359,7 +359,6 @@ namespace JsonRpc.Tests
                     await incomingRequestRouter.Received(count).RouteRequest(
                         Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
                         Arg.Is<Request>(n => group.Key == n.Method),
-                        Arg.Any<object>(),
                         Arg.Any<CancellationToken>()
                     );
                 }
@@ -370,7 +369,6 @@ namespace JsonRpc.Tests
                     await incomingRequestRouter.Received(count).RouteNotification(
                         Arg.Any<IRequestDescriptor<IHandlerDescriptor>>(),
                         Arg.Is<Notification>(n => group.Key == n.Method),
-                        Arg.Any<object>(),
                         Arg.Any<CancellationToken>()
                     );
                 }
