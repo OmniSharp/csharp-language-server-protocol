@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -377,7 +377,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, observer, _capability, cancellationToken);
                     await observer;
@@ -435,7 +435,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TItem, TResponse>.Handle(TItem request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
@@ -491,7 +491,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TItem, TResponse>.Handle(TItem request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, _capability, observer, cancellationToken);
                     await observer;
@@ -547,7 +547,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TItem, TResponse>.Handle(TItem request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
@@ -604,7 +604,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, _capability, cancellationToken);
                     await observer;
@@ -668,7 +668,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
@@ -729,7 +729,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, _capability, observer, cancellationToken);
                     await observer;
@@ -791,7 +791,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
