@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -58,6 +58,8 @@ namespace Lsp.Tests.Integration
                         DocumentSelector = DocumentSelector.ForLanguage("vb")
                     })
             );
+
+            await SettleNext();
 
             await SettleNext();
 

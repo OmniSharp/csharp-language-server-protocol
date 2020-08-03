@@ -58,11 +58,21 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 return new RequestDescriptor<ILspHandlerDescriptor>();
             }
 
-            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(new [] { descriptor });
+            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(new[] { descriptor });
+
+            object paramsValue = null;
+            if (descriptor.IsDelegatingHandler)
+            {
+                var o = @params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                paramsValue = Activator.CreateInstance(descriptor.Params, new object[] { o });
+            }
+            else
+            {
+                paramsValue = @params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+            }
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
 
-            var paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
             var matchDescriptor = _handlerMatchers.SelectMany(strat => strat.FindHandler(paramsValue, lspHandlerDescriptors)).ToArray();
             if (matchDescriptor.Length > 0) return new RequestDescriptor<ILspHandlerDescriptor>(matchDescriptor);
             // execute command is a special case
