@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,9 +19,8 @@ namespace Lsp.Tests.Integration
     public class ProgressTests : LanguageProtocolTestBase
     {
         public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
+            .ConfigureForXUnit(outputHelper))
+        
         {
         }
 
@@ -56,9 +55,9 @@ namespace Lsp.Tests.Integration
             observer.OnNext(new Data() {
                 Value = "5"
             });
+            observer.OnCompleted();
 
             await SettleNext();
-            observer.OnCompleted();
 
             data.Should().ContainInOrder("1", "3", "2", "4", "5");
         }
@@ -89,9 +88,9 @@ namespace Lsp.Tests.Integration
             observer.OnNext(new Data() {
                 Value = "5"
             });
+            observer.OnCompleted();
 
             await SettleNext();
-            observer.OnCompleted();
 
             data.Should().ContainInOrder("1", "3", "2", "4", "5");
         }

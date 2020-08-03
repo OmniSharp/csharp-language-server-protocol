@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
@@ -19,11 +19,8 @@ namespace Dap.Tests.Integration
     public class ProgressTests : DebugAdapterProtocolTestBase
     {
         public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
-        {
-        }
+            .ConfigureForXUnit(outputHelper))
+        { }
 
         class Data
         {

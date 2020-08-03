@@ -14,11 +14,8 @@ namespace Dap.Tests.Integration
     public class GenericDapServerTests : DebugAdapterProtocolTestBase
     {
         public GenericDapServerTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
-        {
-        }
+            .ConfigureForXUnit(outputHelper))
+        { }
 
         [Fact]
         public async Task Supports_Multiple_Handlers_On_A_Single_Class()

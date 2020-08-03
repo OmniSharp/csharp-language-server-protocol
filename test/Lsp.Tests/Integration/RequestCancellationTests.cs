@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -22,11 +22,8 @@ namespace Lsp.Tests.Integration
     public class RequestCancellationTests : LanguageProtocolTestBase
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
-        {
-        }
+            .ConfigureForXUnit(outputHelper))
+        { }
 
         [Fact]
         public async Task Should_Cancel_Pending_Requests()

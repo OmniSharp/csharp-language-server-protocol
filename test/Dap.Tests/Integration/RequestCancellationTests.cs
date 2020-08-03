@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
@@ -23,9 +23,7 @@ namespace Dap.Tests.Integration
     public class RequestCancellationTests : DebugAdapterProtocolTestBase
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
+            .ConfigureForXUnit(outputHelper))        
         {
         }
 
