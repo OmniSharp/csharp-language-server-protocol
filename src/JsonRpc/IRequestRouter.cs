@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IRequestRouter
     {
-        IServiceProvider ServiceProvider { get; }
     }
 
     public interface IRequestRouter<TDescriptor> : IRequestRouter

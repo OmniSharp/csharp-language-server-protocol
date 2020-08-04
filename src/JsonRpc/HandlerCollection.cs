@@ -8,19 +8,11 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
 
-
-    public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
-    {
-        private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
-
-        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IServiceProvider serviceProvider)
-        {
-            descriptions.Populate(serviceProvider, this);
-        }
 
         [DebuggerDisplay("{Method}")]
         internal class HandlerInstance : IHandlerDescriptor, IDisposable
@@ -107,6 +99,18 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
+
+    public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
+    {
+        private readonly IServiceProvider _serviceProvider;
+        private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
+
+        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+            descriptions.Populate(serviceProvider, this);
+        }
+
         public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
             return _descriptors.AsEnumerable().GetEnumerator();
@@ -173,6 +177,14 @@ namespace OmniSharp.Extensions.JsonRpc
             ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
             return descriptor;
         }
+
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(factory(_serviceProvider), options);
+
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(method, factory(_serviceProvider), options);
+
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) =>  Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) =>  Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
 
         public IDisposable AddLink(string sourceMethod, string destinationMethod)
         {

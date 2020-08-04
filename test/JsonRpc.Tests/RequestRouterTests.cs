@@ -79,7 +79,7 @@ namespace JsonRpc.Tests
         public RequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] {typeof(RequestRouterTests).Assembly})
+                .AddJsonRpcMediatR()
                 .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 

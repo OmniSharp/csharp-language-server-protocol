@@ -28,7 +28,7 @@ namespace JsonRpc.Tests
         public MediatorTestsNotificationHandlerOfT(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] { typeof(MediatorTestsNotificationHandler).Assembly })
+                .AddJsonRpcMediatR()
                 .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 

@@ -5,12 +5,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class InterimJsonRpcServerRegistry<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
-        protected readonly IServiceProvider _serviceProvider;
         private readonly IHandlersManager _handlersManager;
 
-        public InterimJsonRpcServerRegistry(IServiceProvider serviceProvider, IHandlersManager handlersManager)
+        public InterimJsonRpcServerRegistry(IHandlersManager handlersManager)
         {
-            _serviceProvider = serviceProvider;
             _handlersManager = handlersManager;
         }
 
@@ -22,13 +20,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public sealed override T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options)
         {
-            _handlersManager.Add(method, handlerFunc(_serviceProvider), options);
+            _handlersManager.Add(method, handlerFunc, options);
             return (T) (object) this;
         }
 
         public sealed override T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options)
         {
-            _handlersManager.Add(handlerFunc(_serviceProvider), options);
+            _handlersManager.Add(handlerFunc, options);
             return (T) (object) this;
         }
 
@@ -60,13 +58,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options)
         {
-            _handlersManager.Add(ActivatorUtilities.CreateInstance(_serviceProvider, type) as IJsonRpcHandler, options);
+            _handlersManager.Add(type, options);
             return (T) (object) this;
         }
 
         public sealed override T AddHandler(string method, Type type, JsonRpcHandlerOptions options)
         {
-            _handlersManager.Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, type) as IJsonRpcHandler, options);
+            _handlersManager.Add(method, type, options);
             return (T) (object) this;
         }
     }

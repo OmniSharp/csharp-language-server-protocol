@@ -47,6 +47,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                         x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                     }),
+                null,
                 CancellationToken
             );
 
@@ -60,6 +61,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                         x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                     }),
+                null,
                 CancellationToken
             );
 

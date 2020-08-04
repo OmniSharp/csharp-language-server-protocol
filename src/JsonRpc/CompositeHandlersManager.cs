@@ -27,6 +27,14 @@ namespace OmniSharp.Extensions.JsonRpc
             return result;
         }
 
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => _parent.Add(factory, options);
+
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => _parent.Add(method, factory, options);
+
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => _parent.Add(handlerType, options);
+
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => _parent.Add(method, handlerType, options);
+
         public IDisposable AddLink(string sourceMethod, string destinationMethod) => _parent.AddLink(sourceMethod, destinationMethod);
 
         public CompositeDisposable GetDisposable() => _compositeDisposable;

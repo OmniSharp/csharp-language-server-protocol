@@ -16,6 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public PipeReader Input { get; set; }
         public PipeWriter Output { get; set; }
+        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
         public abstract IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
@@ -72,6 +73,12 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             Input = pipe.Reader;
             Output = pipe.Writer;
+            return (T)(object) this;
+        }
+
+        public T WithLoggerFactory(ILoggerFactory loggerFactory)
+        {
+            LoggerFactory = loggerFactory;
             return (T)(object) this;
         }
 

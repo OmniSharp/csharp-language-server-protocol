@@ -13,10 +13,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public static class ServiceCollectionExtensions
     {
-        public static IServiceCollection AddJsonRpcMediatR(this IServiceCollection services, IEnumerable<Assembly> assemblies = null)
+        public static IServiceCollection AddJsonRpcMediatR(this IServiceCollection services)
         {
             ServiceRegistrar.AddRequiredServices(services, new MediatRServiceConfiguration());
-            ServiceRegistrar.AddMediatRClasses(services, assemblies ?? Enumerable.Empty<Assembly>());
+            ServiceRegistrar.AddMediatRClasses(services, Enumerable.Empty<Assembly>());
             services.AddTransient(typeof(IRequestPreProcessor<>), typeof(RequestMustNotBeNullProcessor<>));
             services.AddTransient(typeof(IRequestPostProcessor<,>), typeof(ResponseMustNotBeNullProcessor<,>));
             services.AddScoped<IRequestContext, RequestContext>();

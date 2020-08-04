@@ -38,7 +38,7 @@ namespace JsonRpc.Tests
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] { typeof(MediatorTestsNotificationHandler).Assembly })
+                .AddJsonRpcMediatR()
                 .AddSingleton<ISerializer>(new JsonRpcSerializer());
         }
 

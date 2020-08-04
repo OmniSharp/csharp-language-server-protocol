@@ -10,16 +10,10 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly HandlerCollection _collection;
 
-
-        public RequestRouter(HandlerCollection collection, ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
-            : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<RequestRouter>())
+        public RequestRouter(HandlerCollection collection, ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger<RequestRouter> logger)
+            : base(serializer, serviceScopeFactory, logger)
         {
             _collection = collection;
-        }
-
-        public IDisposable Add(IJsonRpcHandler handler)
-        {
-            return _collection.Add(handler);
         }
 
         private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
