@@ -31,13 +31,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithServices(this LanguageClientOptions options,
-            Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
         public static LanguageClientOptions WithClientInfo(this LanguageClientOptions options, ClientInfo clientInfo)
         {
             options.ClientInfo = clientInfo;

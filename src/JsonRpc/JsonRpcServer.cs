@@ -8,97 +8,129 @@ using Microsoft.Extensions.Logging;
 using System.Reactive.Disposables;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer, IDisposable
+    public static class JsonRpcServerServiceCollectionExtensions
+    {
+        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services)
+        {
+            services.AddSingleton<IOutputHandler>(_ => {
+                var options = _.GetRequiredService<IOptions<JsonRpcServerOptions>>().Value;
+                return new OutputHandler(
+                    options.Output,
+                    options.Serializer,
+                    _.GetRequiredService<ILogger<OutputHandler>>()
+                );
+            });
+            services.AddSingleton(_ => {
+                var options = _.GetRequiredService<IOptions<JsonRpcServerOptions>>().Value;
+                return new Connection(
+                    options.Input,
+                    new OutputHandler(
+                        options.Output,
+                        options.Serializer,
+                        _.GetRequiredService<ILogger<OutputHandler>>()
+                    ),
+                    options.Receiver,
+                    options.RequestProcessIdentifier,
+                    _.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
+                    _.GetRequiredService<IResponseRouter>(),
+                    _.GetRequiredService<ILoggerFactory>(),
+                    options.OnUnhandledException ?? (e => { }),
+                    options.CreateResponseException,
+                    options.MaximumRequestTimeout,
+                    options.SupportsContentModified,
+                    options.Concurrency
+                );
+            });
+            services.AddLogging().AddOptions();
+
+            services.AddSingleton(_ => _.GetRequiredService<IOptions<JsonRpcServerOptions>>().Value.Handlers);
+            services.AddSingleton(_ => _.GetRequiredService<IOptions<JsonRpcServerOptions>>().Value.Serializer);
+
+            // _disposable = options.CompositeDisposable;
+            services.AddJsonRpcMediatR();
+            services.AddSingleton<JsonRpcServer>();
+            services.AddSingleton<IJsonRpcServer>(_ => _.GetRequiredService<JsonRpcServer>());
+            services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
+            services.AddSingleton<IResponseRouter, ResponseRouter>();
+            services.AddSingleton(_ => {
+                var options = _.GetRequiredService<IOptions<JsonRpcServerOptions>>().Value;
+                return new HandlerCollection(options.Handlers, _);
+            });
+            services.AddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>());
+
+            return services;
+        }
+    }
+
+    class JsonRpcServerOptionsFactory : IOptionsFactory<JsonRpcServerOptions>
+    {
+        private readonly JsonRpcServerOptions _options;
+
+        public JsonRpcServerOptionsFactory(JsonRpcServerOptions options)
+        {
+            _options = options;
+        }
+        public JsonRpcServerOptions Create(string name) => _options;
+    }
+
+    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer
     {
         private readonly Connection _connection;
         private readonly HandlerCollection _collection;
         private readonly CompositeDisposable _disposable;
         private readonly IServiceProvider _serviceProvider;
 
-        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, CancellationToken cancellationToken)
-        {
-            var options = new JsonRpcServerOptions();
-            optionsAction(options);
-            return From(options, cancellationToken);
-        }
-        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction)
-        {
-            var options = new JsonRpcServerOptions();
-            optionsAction(options);
-            return From(options, CancellationToken.None);
-        }
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, Action<IServiceCollection> configureServices) => From(optionsAction, configureServices, CancellationToken.None);
 
-        public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken)
+        public static async Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, Action<IServiceCollection> configureServices, CancellationToken cancellationToken)
         {
-            var server = new JsonRpcServer(options);
+            var services = new ServiceCollection()
+                .AddJsonRpcServer()
+                .Configure(optionsAction);
+            configureServices?.Invoke(services);
 
+            var serviceProvider =  services.BuildServiceProvider();
+                var server = serviceProvider.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cancellationToken);
-
             return server;
         }
 
-        public static Task<JsonRpcServer> From(JsonRpcServerOptions options)
+        public static Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
+        public static Task<JsonRpcServer> From(JsonRpcServerOptions options) => From(options, null, CancellationToken.None);
+        public static Task<JsonRpcServer> From(JsonRpcServerOptions options, Action<IServiceCollection> configureServices) => From(options, configureServices, CancellationToken.None);
+
+        public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, Action<IServiceCollection> configureServices, CancellationToken cancellationToken)
         {
-            return From(options, CancellationToken.None);
+            var services = new ServiceCollection()
+                .AddJsonRpcServer()
+                .AddSingleton<IOptionsFactory<JsonRpcServerOptions>>(new JsonRpcServerOptionsFactory(options));
+            configureServices?.Invoke(services);
+
+            var serviceProvider =  services.BuildServiceProvider();
+            var server = serviceProvider.GetRequiredService<JsonRpcServer>();
+            await server.Initialize(cancellationToken);
+            return server;
         }
 
-        internal JsonRpcServer(JsonRpcServerOptions options) : base(options)
+        public JsonRpcServer(
+            IOptions<JsonRpcServerOptions> options,
+            Connection connection,
+            HandlerCollection handlerCollection,
+            IServiceProvider serviceProvider,
+            IResponseRouter responseRouter
+        ) : base(options.Value)
         {
-            var outputHandler = new OutputHandler(
-                options.Output,
-                options.Serializer,
-                options.LoggerFactory.CreateLogger<OutputHandler>()
-            );
-            var services = options.Services;
-            services.AddLogging();
-            var receiver = options.Receiver;
-            var serializer = options.Serializer;
-            _disposable = options.CompositeDisposable;
-
-            services.AddSingleton<IOutputHandler>(outputHandler);
-            services.AddSingleton(serializer);
-            services.AddSingleton(serializer);
-            services.AddSingleton(options.RequestProcessIdentifier);
-            services.AddSingleton(receiver);
-            services.AddSingleton(options.LoggerFactory);
-
-            services.AddJsonRpcMediatR(options.Assemblies);
-            services.AddSingleton<IJsonRpcServer>(this);
-            services.AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
-            services.AddSingleton<IResponseRouter, ResponseRouter>();
-            _collection = new HandlerCollection();
-            services.AddSingleton(_collection);
-            services.AddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>());
-
-            EnsureAllHandlersAreRegistered();
-
-            var serviceProvider = services.BuildServiceProvider();
-            _disposable.Add(serviceProvider);
+            _connection = connection;
+            HandlersManager = _collection = handlerCollection;
+            _disposable = options.Value.CompositeDisposable;
+            ResponseRouter = responseRouter;
             _serviceProvider = serviceProvider;
-            HandlersManager = _collection;
-
-            var requestRouter = _serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
-            var router = ResponseRouter = _serviceProvider.GetRequiredService<IResponseRouter>();
-            _connection = new Connection(
-                options.Input,
-                outputHandler,
-                options.Receiver,
-                options.RequestProcessIdentifier,
-                requestRouter,
-                router,
-                options.LoggerFactory,
-                options.OnUnhandledException ?? (e => { }),
-                options.CreateResponseException,
-                options.MaximumRequestTimeout,
-                options.SupportsContentModified,
-                options.Concurrency
-            );
-            _disposable.Add(_connection);
-            _collection.Add(_serviceProvider.GetRequiredService<IEnumerable<IJsonRpcHandler>>().ToArray());
-            options.AddLinks(_collection);
         }
 
         private async Task Initialize(CancellationToken cancellationToken)

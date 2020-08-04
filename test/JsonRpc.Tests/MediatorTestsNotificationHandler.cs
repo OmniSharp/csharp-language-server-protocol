@@ -28,7 +28,7 @@ namespace JsonRpc.Tests
         {
             var exitHandler = Substitute.For<IExitHandler>();
 
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { exitHandler };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { exitHandler };
             AutoSubstitute.Provide(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

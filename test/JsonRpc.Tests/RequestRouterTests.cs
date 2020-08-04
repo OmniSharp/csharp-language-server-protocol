@@ -19,8 +19,8 @@ namespace JsonRpc.Tests
         private List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
         private List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } = new List<(string name, IJsonRpcHandler handler)>();
 
-        private List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> NamedServiceHandlers { get; set; } =
-            new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
+        private List<(string name, JsonRpcHandlerFactory handlerFunc)> NamedServiceHandlers { get; set; } =
+            new List<(string name, JsonRpcHandlerFactory handlerFunc)>();
 
         public TestLanguageServerRegistry()
         {
@@ -32,7 +32,7 @@ namespace JsonRpc.Tests
             return this;
         }
 
-        public override IJsonRpcServerRegistry AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options)
         {
@@ -45,7 +45,7 @@ namespace JsonRpc.Tests
 
         public override IJsonRpcServerRegistry AddHandler(string method, Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null)
+        public override IJsonRpcServerRegistry AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
         {
             NamedServiceHandlers.Add((method, handlerFunc));
             return this;
@@ -57,7 +57,7 @@ namespace JsonRpc.Tests
             return this;
         }
 
-        public override IJsonRpcServerRegistry AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
         public void Populate(HandlerCollection collection, IServiceProvider serviceProvider, JsonRpcHandlerOptions options = null)
         {
@@ -86,7 +86,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -106,7 +106,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -126,7 +126,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -145,7 +145,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

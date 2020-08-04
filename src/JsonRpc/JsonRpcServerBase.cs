@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly IJsonRpcServerOptions _options;
 
-        public JsonRpcServerBase(IJsonRpcServerOptions options)
+        protected JsonRpcServerBase(IJsonRpcServerOptions options)
         {
             _options = options;
         }
@@ -51,29 +51,6 @@ namespace OmniSharp.Extensions.JsonRpc
         (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id)
         {
             return ResponseRouter.GetRequest(id);
-        }
-
-        protected void EnsureAllHandlersAreRegistered()
-        {
-            var foundHandlers = _options.Services
-                .Where(x => typeof(IJsonRpcHandler).IsAssignableFrom(x.ServiceType) &&
-                            x.ServiceType != typeof(IJsonRpcHandler))
-                .ToArray();
-
-            // Handlers are created at the start and maintained as a singleton
-            foreach (var handler in foundHandlers)
-            {
-                _options.Services.Remove(handler);
-
-                if (handler.ImplementationFactory != null)
-                    _options.Services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationFactory));
-                else if (handler.ImplementationInstance != null)
-                    _options.Services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationInstance));
-                else
-                    _options.Services.Add(ServiceDescriptor.Singleton(typeof(IJsonRpcHandler), handler.ImplementationType));
-            }
-
-            _options.Services.AddJsonRpcMediatR(_options.Assemblies.Distinct());
         }
     }
 }

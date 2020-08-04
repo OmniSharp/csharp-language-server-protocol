@@ -17,10 +17,10 @@ namespace OmniSharp.Extensions.JsonRpc
     public interface IJsonRpcHandlerRegistry<out T> : IJsonRpcHandlerRegistry where T : IJsonRpcHandlerRegistry<T>
     {
         T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null);
-        T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null);
+        T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null);
         T AddHandlers(params IJsonRpcHandler[] handlers);
-        T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
-        T AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
+        T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null);
+        T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null);
         T AddHandler<TTHandler>(JsonRpcHandlerOptions options = null) where TTHandler : IJsonRpcHandler;
         T AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options = null) where TTHandler : IJsonRpcHandler;
         T AddHandler(Type type, JsonRpcHandlerOptions options = null);

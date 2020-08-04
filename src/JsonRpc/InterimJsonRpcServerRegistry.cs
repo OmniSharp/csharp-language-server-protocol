@@ -20,13 +20,13 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options)
+        public sealed override T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options)
         {
             _handlersManager.Add(method, handlerFunc(_serviceProvider), options);
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options)
+        public sealed override T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options)
         {
             _handlersManager.Add(handlerFunc(_serviceProvider), options);
             return (T) (object) this;
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options)
+        public sealed override T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             _handlersManager.Add(handler, options);
             return (T) (object) this;

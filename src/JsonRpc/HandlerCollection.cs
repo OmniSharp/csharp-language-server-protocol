@@ -17,11 +17,9 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
-        public HandlerCollection() { }
-
-        public HandlerCollection(IEnumerable<IJsonRpcHandler> handlers)
+        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IServiceProvider serviceProvider)
         {
-            Add(handlers.ToArray());
+            descriptions.Populate(serviceProvider, this);
         }
 
         [DebuggerDisplay("{Method}")]

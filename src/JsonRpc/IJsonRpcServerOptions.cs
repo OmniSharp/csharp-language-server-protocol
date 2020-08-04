@@ -12,7 +12,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         PipeReader Input { get; set; }
         PipeWriter Output { get; set; }
-        IServiceCollection Services { get; set; }
         IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         int? Concurrency { get; set; }
         Action<Exception> OnUnhandledException { get; set; }

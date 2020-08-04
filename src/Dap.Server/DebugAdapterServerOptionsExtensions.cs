@@ -21,12 +21,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             return options;
         }
 
-        public static DebugAdapterServerOptions WithServices(this DebugAdapterServerOptions options, Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
         public static DebugAdapterServerOptions OnInitialize(this DebugAdapterServerOptions options, InitializeDelegate @delegate)
         {
             options.InitializeDelegates.Add(@delegate);

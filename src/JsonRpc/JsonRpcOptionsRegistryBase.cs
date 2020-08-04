@@ -1,39 +1,185 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
+    public interface IJsonRpcHandlerCollection : IEnumerable<JsonRpcHandlerDescription>
     {
-        public IServiceCollection Services { get; set;  } = new ServiceCollection();
-        protected internal HashSet<(string source, string destination)> Links= new HashSet<(string source, string destination)>();
+        IJsonRpcHandlerCollection Add(JsonRpcHandlerDescription description);
+    }
 
-        public void AddLinks(IHandlersManager handlersManager)
+    public delegate IJsonRpcHandler JsonRpcHandlerFactory(IServiceProvider serviceProvider);
+
+    class JsonRpcHandlerCollection : IJsonRpcHandlerCollection
+    {
+        private List<JsonRpcHandlerDescription> _descriptions { get; } = new List<JsonRpcHandlerDescription>();
+        public IEnumerator<JsonRpcHandlerDescription> GetEnumerator() => _descriptions.GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+        public IJsonRpcHandlerCollection Add(JsonRpcHandlerDescription description)
         {
-            foreach (var link in Links)
+            _descriptions.Add(description);
+            return this;
+        }
+    }
+
+    public static class JsonRpcHandlerCollectionExtensions
+    {
+        public static void Populate(this IJsonRpcHandlerCollection collection, IServiceProvider serviceProvider, IHandlersManager handlersManager)
+        {
+            foreach (var item in collection)
             {
-                handlersManager.AddLink(link.source, link.destination);
+                switch (item)
+                {
+                    case JsonRpcHandlerFactoryDescription factory when string.IsNullOrWhiteSpace(factory.Method):
+                        handlersManager.Add(factory.HandlerFactory(serviceProvider), factory.Options);
+                        continue;
+                    case JsonRpcHandlerFactoryDescription factory:
+                        handlersManager.Add(factory.Method, factory.HandlerFactory(serviceProvider), factory.Options);
+                        continue;
+                    case JsonRpcHandlerTypeDescription type when string.IsNullOrWhiteSpace(type.Method):
+                        handlersManager.Add(ActivatorUtilities.CreateInstance(serviceProvider, type.HandlerType) as IJsonRpcHandler, type.Options);
+                        continue;
+                    case JsonRpcHandlerTypeDescription type:
+                        handlersManager.Add(type.Method, ActivatorUtilities.CreateInstance(serviceProvider, type.HandlerType) as IJsonRpcHandler, type.Options);
+                        continue;
+                    case JsonRpcHandlerInstanceDescription instance when string.IsNullOrWhiteSpace(instance.Method):
+                        handlersManager.Add(instance.HandlerInstance, instance.Options);
+                        continue;
+                    case JsonRpcHandlerInstanceDescription instance:
+                        handlersManager.Add(instance.Method, instance.HandlerInstance, instance.Options);
+                        continue;
+                    case JsonRpcHandlerLinkDescription link:
+                        handlersManager.AddLink(link.Method, link.LinkToMethod);
+                        continue;
+                }
             }
         }
+    }
+
+    public abstract class JsonRpcHandlerDescription
+    {
+        protected JsonRpcHandlerDescription(JsonRpcHandlerOptions options)
+        {
+            Options = options;
+        }
+
+        public JsonRpcHandlerOptions Options { get; }
+
+
+        public static JsonRpcHandlerDescription Infer(Type handlerType, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerTypeDescription(null, handlerType, options);
+        }
+
+        public static JsonRpcHandlerDescription Named(string method, Type handlerType, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerTypeDescription(method, handlerType, options);
+        }
+
+        public static JsonRpcHandlerDescription Infer(IJsonRpcHandler handlerInstance, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerInstanceDescription(null, handlerInstance, options);
+        }
+
+        public static JsonRpcHandlerDescription Named(string method, IJsonRpcHandler handlerInstance, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerInstanceDescription(method, handlerInstance, options);
+        }
+
+        public static JsonRpcHandlerDescription Infer(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerFactoryDescription(null, handlerFactory, options);
+        }
+
+        public static JsonRpcHandlerDescription Named(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options = null)
+        {
+            return new JsonRpcHandlerFactoryDescription(method, handlerFactory, options);
+        }
+
+        public static JsonRpcHandlerDescription Link(string method, string methodToLink)
+        {
+            return new JsonRpcHandlerLinkDescription(method, methodToLink);
+        }
+    }
+
+    public class JsonRpcHandlerLinkDescription : JsonRpcHandlerDescription
+    {
+        public JsonRpcHandlerLinkDescription(string method, string linkToMethod) : base(new JsonRpcHandlerOptions())
+        {
+            Method = method;
+            LinkToMethod = linkToMethod;
+        }
+
+        public string Method { get; }
+        public string LinkToMethod { get; }
+    }
+
+    public class JsonRpcHandlerInstanceDescription : JsonRpcHandlerDescription
+    {
+        public JsonRpcHandlerInstanceDescription(string method, IJsonRpcHandler handlerInstance, JsonRpcHandlerOptions options): base(options)
+        {
+            Method = method;
+            HandlerInstance = handlerInstance;
+        }
+
+        public string Method { get; }
+        public IJsonRpcHandler HandlerInstance { get; }
+    }
+
+    public class JsonRpcHandlerTypeDescription : JsonRpcHandlerDescription
+    {
+        public JsonRpcHandlerTypeDescription(string method, Type handlerType, JsonRpcHandlerOptions options): base(options)
+        {
+            Method = method;
+            HandlerType = handlerType;
+        }
+
+        public string Method { get; }
+        public Type HandlerType { get; }
+    }
+
+    public class JsonRpcHandlerFactoryDescription : JsonRpcHandlerDescription
+    {
+        public JsonRpcHandlerFactoryDescription(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options): base(options)
+        {
+            Method = method;
+            HandlerFactory = handlerFactory;
+        }
+
+        public string Method { get; }
+        public JsonRpcHandlerFactory HandlerFactory { get; }
+    }
+
+    public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
+    {
+        public IJsonRpcHandlerCollection Handlers { get; } = new JsonRpcHandlerCollection();
 
         #region AddHandler
 
         public sealed override T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, handler, options));
+            Handlers.Add(JsonRpcHandlerDescription.Named(method, handler, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, handlerFunc, options));
+            Handlers.Add(JsonRpcHandlerDescription.Named(method, handlerFunc, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Unnamed(_ => handlerFunc(_), options));
+            Handlers.Add(JsonRpcHandlerDescription.Named(null, handler, options));
+            return (T) (object) this;
+        }
+
+        public sealed override T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
+        {
+            Handlers.Add(JsonRpcHandlerDescription.Named(null, handlerFunc, options));
             return (T) (object) this;
         }
 
@@ -41,7 +187,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             foreach (var item in handlers)
             {
-                Services.AddSingleton(item);
+                Handlers.Add(JsonRpcHandlerDescription.Infer(item));
             }
 
             return (T) (object) this;
@@ -52,12 +198,6 @@ namespace OmniSharp.Extensions.JsonRpc
             return AddHandler(typeof(THandler), options);
         }
 
-        public sealed override T AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null)
-        {
-            Services.AddSingleton(Unnamed(handler, options));
-            return (T) (object) this;
-        }
-
         public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null)
         {
             return AddHandler(method, typeof(THandler), options);
@@ -65,66 +205,14 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Unnamed(type, options));
+            Handlers.Add(JsonRpcHandlerDescription.Infer(type, options));
             return (T) (object) this;
         }
 
         public sealed override T AddHandler(string method, Type type, JsonRpcHandlerOptions options = null)
         {
-            Services.AddSingleton(Named(method, type, options));
+            Handlers.Add(JsonRpcHandlerDescription.Named(method, type, options));
             return (T) (object) this;
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                _.GetRequiredService<IHandlersManager>().Add( handler, options);
-                return handler;
-            };
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(Func<IServiceProvider, IJsonRpcHandler> factory, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                var instance = factory(_);
-                _.GetRequiredService<IHandlersManager>().Add( instance, options);
-                return instance;
-            };
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Unnamed(Type handlerType, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                var instance = ActivatorUtilities.CreateInstance(_, handlerType) as IJsonRpcHandler;
-                _.GetRequiredService<IHandlersManager>().Add( instance, options);
-                return instance;
-            };
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                _.GetRequiredService<IHandlersManager>().Add(method, handler, options);
-                return handler;
-            };
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Func<IServiceProvider, IJsonRpcHandler> factory, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                var instance = factory(_);
-                _.GetRequiredService<IHandlersManager>().Add(method, instance, options);
-                return instance;
-            };
-        }
-
-        private Func<IServiceProvider, IJsonRpcHandler> Named(string method, Type handlerType, JsonRpcHandlerOptions options)
-        {
-            return _ => {
-                var instance = ActivatorUtilities.CreateInstance(_, handlerType) as IJsonRpcHandler;
-                _.GetRequiredService<IHandlersManager>().Add(method, instance, options);
-                return instance;
-            };
         }
 
         #endregion

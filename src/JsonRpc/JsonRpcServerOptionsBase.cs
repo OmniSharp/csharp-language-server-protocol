@@ -16,7 +16,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public PipeReader Input { get; set; }
         public PipeWriter Output { get; set; }
-        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
         public abstract IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
@@ -76,12 +75,6 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T)(object) this;
         }
 
-        public T WithLoggerFactory(ILoggerFactory loggerFactory)
-        {
-            LoggerFactory = loggerFactory;
-            return (T)(object) this;
-        }
-
         public T WithRequestProcessIdentifier(IRequestProcessIdentifier requestProcessIdentifier)
         {
             RequestProcessIdentifier = requestProcessIdentifier;
@@ -94,12 +87,6 @@ namespace OmniSharp.Extensions.JsonRpc
             return AddHandler<THandler>(options);
         }
 
-        public T WithHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null)
-            where THandler : class, IJsonRpcHandler
-        {
-            return AddHandler(handler, options);
-        }
-
         public T WithHandlersFrom(Type type, JsonRpcHandlerOptions options = null)
         {
             return AddHandler(type, options);
@@ -108,12 +95,6 @@ namespace OmniSharp.Extensions.JsonRpc
         public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions options = null)
         {
             return AddHandler(typeInfo.AsType(), options);
-        }
-
-        public T WithServices(Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(Services);
-            return (T)(object) this;
         }
 
         public T WithResponseExceptionFactory(Func<ServerError, string, Exception> handler)
@@ -142,7 +123,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithLink(string source, string destination)
         {
-            Links.Add((source, destination));
+            Handlers.Add(JsonRpcHandlerDescription.Link(source, destination));
             return (T)(object) this;
         }
     }
