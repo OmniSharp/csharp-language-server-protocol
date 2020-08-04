@@ -1,10 +1,18 @@
 ﻿using System;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
+        internal IServiceCollection Services { get; } = new ServiceCollection();
         public IJsonRpcHandlerCollection Handlers { get; } = new JsonRpcHandlerCollection();
+
+        public T WithServices(Action<IServiceCollection> servicesAction)
+        {
+            servicesAction(Services);
+            return (T) (object) this;
+        }
 
         #region AddHandler
 
