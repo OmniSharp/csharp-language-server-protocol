@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public interface IWorkspaceFoldersManager
+    public interface IWorkspaceFoldersManager: IWorkspaceFoldersHandler
     {
         void Add(DocumentUri uri, string name);
         void Add(params WorkspaceFolder[] workspaceFolders);

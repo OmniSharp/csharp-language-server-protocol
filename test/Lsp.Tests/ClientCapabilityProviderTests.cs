@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using FluentAssertions;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -30,7 +31,7 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, handler};
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -57,7 +58,7 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, handler};
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -109,7 +110,7 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, handler};
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -133,7 +134,7 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, handler};
             var provider = new ClientCapabilityProvider(collection, true);
 
@@ -163,7 +164,7 @@ namespace Lsp.Tests
             var typeDefinitionHandler = Substitute.For<ITypeDefinitionHandler>();
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, codeActionHandler, definitionHandler, typeDefinitionHandler};
             var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities() {
@@ -190,7 +191,7 @@ namespace Lsp.Tests
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler};
             var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities() {
@@ -217,7 +218,7 @@ namespace Lsp.Tests
             var didSaveTextDocumentHandler = Substitute.For<IDidSaveTextDocumentHandler>();
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) {
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) {
                     textDocumentSyncHandler, willSaveTextDocumentHandler, willSaveWaitUntilTextDocumentHandler,
                     didSaveTextDocumentHandler
                 };

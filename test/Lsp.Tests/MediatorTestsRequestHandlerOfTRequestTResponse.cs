@@ -29,7 +29,7 @@ namespace Lsp.Tests
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] { typeof(LspRequestRouterTests).Assembly })
+                .AddJsonRpcMediatR()
                 .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
         }
 
@@ -50,7 +50,7 @@ namespace Lsp.Tests
                     return new CommandOrCodeActionContainer();
                 });
 
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers()) { textDocumentSyncHandler, codeActionHandler };
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

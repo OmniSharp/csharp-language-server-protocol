@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
             _client = LanguageClient.PreInit(options => {
-                options.Services.AddSingleton(LoggerFactory);
+                options.WithServices(services => services.AddSingleton(LoggerFactory));
                 options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);
                 options.WithRootPath(WorkspaceRoot);
                 clientOptionsAction(options);
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             Disposal.Add(_client);
 
             _server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options => {
-                options.Services.AddSingleton(LoggerFactory);
+                options.WithServices(services => services.AddSingleton(LoggerFactory));
                 options.WithInput(clientPipe.Reader).WithOutput(serverPipe.Writer);
                 serverOptionsAction(options);
             });

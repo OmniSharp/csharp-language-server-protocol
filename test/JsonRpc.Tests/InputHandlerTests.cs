@@ -28,7 +28,7 @@ namespace JsonRpc.Tests
     public class InputHandlerTests
     {
         private readonly TestLoggerFactory _loggerFactory;
-        private readonly Action<Exception> _unhandledException = Substitute.For<Action<Exception>>();
+        private readonly OnUnhandledExceptionHandler _unhandledException = Substitute.For<OnUnhandledExceptionHandler>();
 
         public InputHandlerTests(ITestOutputHelper testOutputHelper)
         {

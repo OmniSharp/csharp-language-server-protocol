@@ -9,7 +9,8 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public static class JsonRpcServerServiceCollectionExtensions
     {
-        internal static IServiceCollection AddJsonRpcServerInternals(this IServiceCollection services, JsonRpcServerOptions options, IServiceProvider outerServiceProvider)
+        internal static IServiceCollection AddJsonRpcServerInternalsCore<T>(this IServiceCollection services, JsonRpcServerOptionsBase<T> options,
+            IServiceProvider outerServiceProvider) where T : IJsonRpcHandlerRegistry<T>
         {
             if (options.Output == null)
             {
@@ -21,21 +22,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Input is missing!", nameof(options));
             }
 
-            if (options.Serializer == null)
-            {
-                throw new ArgumentException("Serializer is missing!", nameof(options));
-            }
-
-            if (options.RequestProcessIdentifier == null)
-            {
-                throw new ArgumentException("RequestProcessIdentifier is missing!", nameof(options));
-            }
-
-            if (options.Receiver == null)
-            {
-                throw new ArgumentException("Receiver is missing!", nameof(options));
-            }
-
             if (options.Handlers == null)
             {
                 throw new ArgumentException("Handlers is missing!", nameof(options));
@@ -43,23 +29,28 @@ namespace OmniSharp.Extensions.JsonRpc
 
             services.AddSingleton<IOutputHandler>(_ => new OutputHandler(
                 options.Output,
-                options.Serializer,
+                _.GetRequiredService<ISerializer>(),
                 _.GetRequiredService<ILogger<OutputHandler>>()
             ));
             services.AddSingleton(_ => new Connection(
                 options.Input,
                 _.GetRequiredService<IOutputHandler>(),
-                options.Receiver,
+                _.GetRequiredService<IReceiver>(),
                 options.RequestProcessIdentifier,
                 _.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
                 _.GetRequiredService<IResponseRouter>(),
                 _.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException ?? (e => { }),
-                options.CreateResponseException,
+                _.GetService<OnUnhandledExceptionHandler>() ?? options.OnUnhandledException ?? (e => { }),
+                _.GetService<CreateResponseExceptionHandler>() ?? options.CreateResponseException,
                 options.MaximumRequestTimeout,
                 options.SupportsContentModified,
                 options.Concurrency
             ));
+
+            services
+                .AddLogging()
+                .AddOptions();
+
             if (outerServiceProvider != null)
             {
                 services.AddSingleton(outerServiceProvider.GetService<ILoggerFactory>() ?? options.LoggerFactory);
@@ -69,21 +60,54 @@ namespace OmniSharp.Extensions.JsonRpc
                 services.AddSingleton(options.LoggerFactory);
             }
 
-            services
-                .AddLogging()
-                .AddOptions()
-                .AddSingleton(_ => options.Handlers)
-                .AddSingleton(_ => options.Serializer)
-                .AddSingleton(_ => options.Receiver)
-                .AddSingleton(_ => options.RequestProcessIdentifier)
-                .AddJsonRpcMediatR()
-                .AddSingleton<JsonRpcServer>()
-                .AddSingleton<IJsonRpcServer>(_ => _.GetRequiredService<JsonRpcServer>())
-                .AddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>()
-                .AddSingleton<IResponseRouter, ResponseRouter>()
-                .AddSingleton(_ => new HandlerCollection(options.Handlers, outerServiceProvider ?? _))
-                .AddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>())
-                .AddSingleton<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
+            services.TryAddSingleton<IFallbackServiceProvider>(_ => new FallbackServiceProvider(_, outerServiceProvider));
+            services.AddJsonRpcMediatR();
+            services.TryAddSingleton<IResponseRouter, ResponseRouter>();
+            services.TryAddSingleton(_ => {
+                var logger = _.GetRequiredService<ILoggerFactory>().CreateLogger("abcd");
+                var descriptions = _.GetServices<JsonRpcHandlerDescription>();
+                logger.LogCritical("hello");
+                foreach (var description in descriptions)
+                {
+                    logger.LogCritical(description.GetType().FullName);
+                    options.Handlers.Add(description);
+                }
+
+                return options.Handlers;
+            });
+
+
+            return services;
+        }
+
+        internal static IServiceCollection AddJsonRpcServerInternals(this IServiceCollection services, JsonRpcServerOptions options, IServiceProvider outerServiceProvider)
+        {
+            if (options.Serializer == null)
+            {
+                throw new ArgumentException("Serializer is missing!", nameof(options));
+            }
+
+            if (options.Receiver == null)
+            {
+                throw new ArgumentException("Receiver is missing!", nameof(options));
+            }
+
+            if (options.RequestProcessIdentifier == null)
+            {
+                throw new ArgumentException("RequestProcessIdentifier is missing!", nameof(options));
+            }
+
+            AddJsonRpcServerInternalsCore(services, options, outerServiceProvider);
+            services.TryAddSingleton(_ => options.Serializer);
+            services.TryAddSingleton(_ => options.Receiver);
+            services.TryAddSingleton(_ => options.RequestProcessIdentifier);
+
+            services.TryAddSingleton<JsonRpcServer>();
+            services.TryAddSingleton<IJsonRpcServer>(_ => _.GetRequiredService<JsonRpcServer>());
+            services.TryAddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
+            services.TryAddSingleton<HandlerCollection>();
+            services.TryAddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>());
+            services.TryAddSingleton<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
 
             return services;
         }

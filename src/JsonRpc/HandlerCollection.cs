@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IServiceProvider _serviceProvider;
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
-        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IServiceProvider serviceProvider)
+        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IFallbackServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
             descriptions.Populate(serviceProvider, this);

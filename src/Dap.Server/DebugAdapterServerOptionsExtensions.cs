@@ -23,20 +23,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
         public static DebugAdapterServerOptions OnInitialize(this DebugAdapterServerOptions options, InitializeDelegate @delegate)
         {
-            options.InitializeDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
 
         public static DebugAdapterServerOptions OnInitialized(this DebugAdapterServerOptions options, InitializedDelegate @delegate)
         {
-            options.InitializedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
         public static DebugAdapterServerOptions OnStarted(this DebugAdapterServerOptions options, OnServerStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

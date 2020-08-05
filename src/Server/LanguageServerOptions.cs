@@ -28,10 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
         public ILspServerReceiver Receiver { get; set; } = new LspServerReceiver();
 
-        internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
-        internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
-        internal readonly List<OnServerStartedDelegate> StartedDelegates = new List<OnServerStartedDelegate>();
-
         public LanguageServerOptions WithReceiver(ILspServerReceiver receiver)
         {
             Receiver = receiver;

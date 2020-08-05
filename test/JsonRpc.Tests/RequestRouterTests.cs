@@ -86,7 +86,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -106,7 +106,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -126,7 +126,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -145,7 +145,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { };
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

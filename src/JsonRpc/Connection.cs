@@ -19,8 +19,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            Action<Exception> onUnhandledException,
-            Func<ServerError, string, Exception> getException,
+            OnUnhandledExceptionHandler onUnhandledException,
+            CreateResponseExceptionHandler getException,
             TimeSpan requestTimeout,
             bool supportContentModified,
             int? concurrency)

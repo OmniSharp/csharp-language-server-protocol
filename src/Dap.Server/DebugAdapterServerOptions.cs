@@ -12,9 +12,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
     public class DebugAdapterServerOptions : DebugAdapterRpcOptionsBase<DebugAdapterServerOptions>, IDebugAdapterServerRegistry
     {
         public Capabilities Capabilities { get; set; } = new Capabilities();
-        internal readonly List<OnServerStartedDelegate> StartedDelegates = new List<OnServerStartedDelegate>();
-        internal readonly List<InitializedDelegate> InitializedDelegates = new List<InitializedDelegate>();
-        internal readonly List<InitializeDelegate> InitializeDelegates = new List<InitializeDelegate>();
         public ISerializer Serializer { get; set; } = new DapSerializer();
         public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
 

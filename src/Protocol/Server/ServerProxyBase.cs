@@ -34,7 +34,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _proxy.SendRequest(request, cancellationToken);
 
         (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id) => _proxy.GetRequest(id);
-        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
         public IProgressManager ProgressManager => _proxy.ProgressManager;
         public IServerWorkDoneManager WorkDoneManager => _proxy.WorkDoneManager;
         public ILanguageServerConfiguration Configuration => _proxy.Configuration;

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -23,15 +24,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         IOnServerStarted, ILanguageServerConfiguration
     {
         private readonly ILanguageServer _server;
+        private readonly ILogger<DidChangeConfigurationProvider> _logger;
         private DidChangeConfigurationCapability _capability;
         private readonly ConfigurationRoot _configuration;
 
         private readonly ConcurrentDictionary<DocumentUri, DisposableConfiguration> _openScopes =
             new ConcurrentDictionary<DocumentUri, DisposableConfiguration>();
 
-        public DidChangeConfigurationProvider(ILanguageServer server, Action<IConfigurationBuilder> configurationBuilderAction)
+        public DidChangeConfigurationProvider(ILanguageServer server, Action<IConfigurationBuilder> configurationBuilderAction, ILogger<DidChangeConfigurationProvider> logger)
         {
             _server = server;
+            _logger = logger;
             var builder = new ConfigurationBuilder()
                 .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
@@ -84,18 +87,26 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                         _openScopes.Keys.Select(scopeUri => new ConfigurationItem() { ScopeUri = scopeUri, Section = scope.Section })
                     ).ToArray();
 
-                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
-                    Items = scopedConfigurationItems
-                })).ToArray();
-
-                var groups = scopedConfigurationItems
-                    .Zip(configurations, (scope, settings) => (scope, settings))
-                    .GroupBy(z => z.scope.ScopeUri);
-
-                foreach (var group in groups)
+                try
                 {
-                    if (!_openScopes.TryGetValue(group.Key, out var source)) continue;
-                    source.Update(group.Select(z => (z.scope.Section, z.settings)));
+
+                    var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
+                        Items = scopedConfigurationItems
+                    })).ToArray();
+
+                    var groups = scopedConfigurationItems
+                        .Zip(configurations, (scope, settings) => (scope, settings))
+                        .GroupBy(z => z.scope.ScopeUri);
+
+                    foreach (var group in groups)
+                    {
+                        if (!_openScopes.TryGetValue(group.Key, out var source)) continue;
+                        source.Update(group.Select(z => (z.scope.Section, z.settings)));
+                    }
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, "Unable to get configuration from client!");
                 }
             }
         }

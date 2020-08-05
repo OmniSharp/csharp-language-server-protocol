@@ -62,9 +62,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithCapability(this LanguageClientOptions options, params ICapability[] capabilities)
+        public static LanguageClientOptions WithCapability(this LanguageClientOptions options, ICapability capability, params ICapability[] capabilities)
         {
-            options.SupportedCapabilities.AddRange(capabilities);
+            options.Services.AddSingleton(capability);
+            foreach (var item in capabilities)
+            {
+                options.Services.AddSingleton(item);
+            }
             return options;
         }
 
@@ -77,7 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static LanguageClientOptions OnStarted(this LanguageClientOptions options,
             OnClientStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

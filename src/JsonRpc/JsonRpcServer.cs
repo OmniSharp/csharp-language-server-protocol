@@ -17,6 +17,24 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly HandlerCollection _collection;
         private readonly CompositeDisposable _disposable;
 
+        public static JsonRpcServer Create(JsonRpcServerOptions options) => Create(options, null);
+        public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction) => Create(optionsAction, null);
+        public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider)
+        {
+            var options = new JsonRpcServerOptions();
+            optionsAction(options);
+            return Create(options, outerServiceProvider);
+        }
+
+        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider)
+        {
+            var services = new ServiceCollection()
+                .AddJsonRpcServerInternals(options, outerServiceProvider);
+
+            var serviceProvider = services.BuildServiceProvider();
+            return serviceProvider.GetRequiredService<JsonRpcServer>();
+        }
+
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options) => From(options, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
@@ -32,11 +50,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
-            var services = new ServiceCollection()
-                .AddJsonRpcServerInternals(options, outerServiceProvider);
-
-            var serviceProvider = services.BuildServiceProvider();
-            var server = serviceProvider.GetRequiredService<JsonRpcServer>();
+            var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken);
             return server;
         }
@@ -46,7 +60,8 @@ namespace OmniSharp.Extensions.JsonRpc
             Connection connection,
             HandlerCollection handlerCollection,
             IResponseRouter responseRouter,
-            IServiceProvider serviceProvider
+            IServiceProvider serviceProvider,
+            IFallbackServiceProvider fallbackServiceProvider
         ) : base(options.Value)
         {
             _connection = connection;
@@ -54,6 +69,9 @@ namespace OmniSharp.Extensions.JsonRpc
             _disposable = options.Value.CompositeDisposable;
             ResponseRouter = responseRouter;
             _disposable.Add(_connection);
+            fallbackServiceProvider.Add(this);
+            fallbackServiceProvider.Add<IJsonRpcServer>(this);
+            fallbackServiceProvider.Add<IResponseRouter>(this);
             if (serviceProvider is IDisposable disposable)
             {
                 _disposable.Add(disposable);

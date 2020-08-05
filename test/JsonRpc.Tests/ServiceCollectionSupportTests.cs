@@ -33,7 +33,6 @@ namespace JsonRpc.Tests
                     options
                         .WithInput(pipe.Reader)
                         .WithOutput(pipe.Writer)
-                        .WithServices(s => s.AddSingleton(new OutsideService("notservername")))
                         .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
                 })
                 .AddSingleton(new OutsideService("servername"))
@@ -46,6 +45,61 @@ namespace JsonRpc.Tests
             var response = await server.SendRequest(new Request(), cts.Token);
             response.Value.Should().Be("servername");
             response.Value.Should().NotBe("servernamnot");
+
+            server.Dispose();
+        }
+
+        [Fact]
+        public async Task Internal_Services_Should_Override_External_Services()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            var services = new ServiceCollection()
+                .AddJsonRpcServer(options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .WithServices(s => s.AddSingleton(new OutsideService("override")))
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
+                })
+                .AddSingleton(new OutsideService("servername"))
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            var server = services.GetRequiredService<JsonRpcServer>();
+            await server.Initialize(cts.Token);
+
+            var response = await server.SendRequest(new Request(), cts.Token);
+            response.Value.Should().Be("override");
+
+            server.Dispose();
+        }
+
+        [Fact]
+        public async Task Handlers_Can_Be_Added_From_The_Service_Collection()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            var services = new ServiceCollection()
+                .AddJsonRpcServer(options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .WithServices(services =>
+                            services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
+                        );
+                })
+                .AddSingleton(new OutsideService("servername"))
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            var server = services.GetRequiredService<JsonRpcServer>();
+            await server.Initialize(cts.Token);
+
+            var response = await server.SendRequest(new Request(), cts.Token);
+            response.Value.Should().Be("servername");
 
             server.Dispose();
         }
@@ -107,12 +161,14 @@ namespace JsonRpc.Tests
                 .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
                 .BuildServiceProvider();
 
-            Action a = () =>  services.GetRequiredService<JsonRpcServer>();
+            Action a = () => services.GetRequiredService<JsonRpcServer>();
             a.Should().Throw<NotSupportedException>();
         }
 
         [Method("outside")]
-        class Request : IRequest<Response> {}
+        class Request : IRequest<Response>
+        {
+        }
 
         class Response
         {
@@ -132,6 +188,7 @@ namespace JsonRpc.Tests
             {
                 _outsideService = outsideService;
             }
+
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
                 return Task.FromResult(new Response(_outsideService.Value));

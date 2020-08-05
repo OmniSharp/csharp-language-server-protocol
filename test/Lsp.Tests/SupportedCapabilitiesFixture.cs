@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace Lsp.Tests
@@ -17,6 +19,10 @@ namespace Lsp.Tests
             public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
             {
             }
+
+            public void Add(IEnumerable<ISupports> supports)
+            {
+            }
         }
 
         class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
@@ -26,6 +32,10 @@ namespace Lsp.Tests
             public bool AllowsDynamicRegistration(Type capabilityType) => false;
 
             public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+            {
+            }
+
+            public void Add(IEnumerable<ISupports> supports)
             {
             }
         }

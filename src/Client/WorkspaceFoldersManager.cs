@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    class WorkspaceFoldersManager : IWorkspaceFoldersHandler, IWorkspaceFoldersManager, IDisposable
+    class WorkspaceFoldersManager : IWorkspaceFoldersManager, IDisposable
     {
         private readonly ILanguageClient _client;
         private readonly ConcurrentDictionary<DocumentUri, WorkspaceFolder> _workspaceFolders;

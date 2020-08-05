@@ -11,7 +11,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 {
     public class DebugAdapterClientOptions : DebugAdapterRpcOptionsBase<DebugAdapterClientOptions>, IDebugAdapterClientRegistry, IInitializeRequestArguments
     {
-        internal readonly List<OnClientStartedDelegate> StartedDelegates = new List<OnClientStartedDelegate>();
         public ISerializer Serializer { get; set; } = new DapSerializer();
         public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
         public string ClientId { get; set; }

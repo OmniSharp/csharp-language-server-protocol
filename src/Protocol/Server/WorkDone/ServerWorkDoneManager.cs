@@ -12,7 +12,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 {
-    class ServerWorkDoneManager : IWorkDoneProgressCancelHandler, IServerWorkDoneManager
+    class ServerWorkDoneManager : IServerWorkDoneManager
     {
         private readonly IResponseRouter _router;
         private readonly ISerializer _serializer;

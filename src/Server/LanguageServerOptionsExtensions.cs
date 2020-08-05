@@ -37,20 +37,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
         {
-            options.InitializeDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
 
         public static LanguageServerOptions OnInitialized(this LanguageServerOptions options, InitializedDelegate @delegate)
         {
-            options.InitializedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
         public static LanguageServerOptions OnStarted(this LanguageServerOptions options, OnServerStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

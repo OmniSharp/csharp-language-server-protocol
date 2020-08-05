@@ -24,12 +24,13 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private readonly ISupportedCapabilities _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private ImmutableHashSet<LspHandlerDescriptor> _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
-        private IServiceProvider _serviceProvider;
+        private readonly IServiceProvider _serviceProvider;
 
-        public SharedHandlerCollection(ISupportedCapabilities supportedCapabilities, TextDocumentIdentifiers textDocumentIdentifiers)
+        public SharedHandlerCollection(ISupportedCapabilities supportedCapabilities, TextDocumentIdentifiers textDocumentIdentifiers, IFallbackServiceProvider serviceProvider)
         {
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
+            _serviceProvider = serviceProvider;
         }
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator()

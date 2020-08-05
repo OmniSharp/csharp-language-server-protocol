@@ -85,7 +85,7 @@ namespace Lsp.Tests
         public LspRequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Services
-                .AddJsonRpcMediatR(new[] {typeof(LspRequestRouterTests).Assembly})
+                .AddJsonRpcMediatR()
                 .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
             Services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
         }
@@ -99,7 +99,7 @@ namespace Lsp.Tests
                 .Returns(Unit.Value);
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -133,7 +133,7 @@ namespace Lsp.Tests
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, textDocumentSyncHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -170,7 +170,7 @@ namespace Lsp.Tests
                 .Returns(new CommandOrCodeActionContainer());
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, codeActionHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -221,7 +221,7 @@ namespace Lsp.Tests
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var handlerCollection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler};
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
@@ -270,7 +270,7 @@ namespace Lsp.Tests
 
             var tdi = new TextDocumentIdentifiers();
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, tdi)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, tdi, new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -300,7 +300,7 @@ namespace Lsp.Tests
                 .Returns(Unit.Value);
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null))
                     {handler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);

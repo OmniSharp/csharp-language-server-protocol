@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         public static DebugAdapterClientOptions OnStarted(this DebugAdapterClientOptions options,
             OnClientStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

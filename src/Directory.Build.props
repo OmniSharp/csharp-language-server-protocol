@@ -31,6 +31,21 @@
             <_Parameter1>OmniSharp.Extensions.JsonRpc.Testing, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
         </AssemblyAttribute>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>OmniSharp.Extensions.LanguageServer, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>OmniSharp.Extensions.LanguageServer.Shared, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>OmniSharp.Extensions.LanguageClient, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>OmniSharp.Extensions.DebugAdapter.Server, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+            <_Parameter1>OmniSharp.Extensions.DebugAdapter.Client, PublicKey=0024000004800000940000000602000000240000525341310004000001000100391db875e68eb4bfef49ce14313b9e13f2cd3cc89eb273bbe6c11a55044c7d4f566cf092e1c77ef9e7c75b1496ae7f95d925938f5a01793dd8d9f99ae0a7595779b71b971287d7d7b5960d052078d14f5ce1a85ea5c9fb2f59ac735ff7bc215cab469b7c3486006860bad6f4c3b5204ea2f28dd4e1d05e2cca462cfd593b9f9f</_Parameter1>
+        </AssemblyAttribute>
+        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
             <_Parameter1>DynamicProxyGenAssembly2, PublicKey=0024000004800000940000000602000000240000525341310004000001000100c547cac37abd99c8db225ef2f6c8a3602f3b3606cc9891605d02baa56104f4cfc0734aa39b93bf7852f7d9266654753cc297e7d2edfe0bac1cdcf9f717241550e0a7b191195b7667bb4f64bcb8e2121380fd1d9d46ad2d92d2d15605093924cceaf74c4861eff62abf69b9291ed0a340e113be11e6a7d3113e92484cf7045cc7</_Parameter1>
         </AssemblyAttribute>
     </ItemGroup>

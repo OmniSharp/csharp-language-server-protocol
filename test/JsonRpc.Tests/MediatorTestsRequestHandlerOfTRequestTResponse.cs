@@ -48,7 +48,7 @@ namespace JsonRpc.Tests
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new ServiceCollection().BuildServiceProvider()) { codeActionHandler };
+            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { codeActionHandler };
             AutoSubstitute.Provide(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

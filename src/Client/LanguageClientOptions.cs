@@ -50,9 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
         public ILspClientReceiver Receiver { get; set; } = new LspClientReceiver();
-        internal List<ICapability> SupportedCapabilities { get; set; } = new List<ICapability>();
 
-        internal readonly List<OnClientStartedDelegate> StartedDelegates = new List<OnClientStartedDelegate>();
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(method, handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options) => AddHandler(method, handlerFunc, options);
