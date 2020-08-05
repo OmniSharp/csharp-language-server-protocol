@@ -131,9 +131,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            _disposable.Dispose();
-            _pipeReader.Complete();
-            _outputHandler.Dispose();
+            _disposable?.Dispose();
+            _pipeReader?.Complete();
+            _outputHandler?.Dispose();
         }
 
         public Task InputCompleted => _inputActive.ToTask();

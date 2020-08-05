@@ -33,8 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
             var services = new ServiceCollection()
-                .AddJsonRpcServerInternals(options, outerServiceProvider)
-                .AddSingleton<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
+                .AddJsonRpcServerInternals(options, outerServiceProvider);
 
             var serviceProvider = services.BuildServiceProvider();
             var server = serviceProvider.GetRequiredService<JsonRpcServer>();

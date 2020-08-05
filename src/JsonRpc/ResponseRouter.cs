@@ -17,9 +17,6 @@ namespace OmniSharp.Extensions.JsonRpc
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        internal static readonly ConcurrentDictionary<Type, string> MethodCache =
-            new ConcurrentDictionary<Type, string>();
-
         public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer)
         {
             OutputHandler = outputHandler;
@@ -69,19 +66,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private string GetMethodName(Type type)
         {
-            if (!MethodCache.TryGetValue(type, out var methodName))
-            {
-                var attribute = MethodAttribute.From(type);
-                if (attribute == null)
-                {
-                    throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
-                }
-
-                methodName = attribute.Method;
-                MethodCache.TryAdd(type, methodName);
-            }
-
-            return methodName;
+            return HandlerTypeDescriptorHelper.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
         }
 
         class ResponseRouterReturnsImpl : IResponseRouterReturns

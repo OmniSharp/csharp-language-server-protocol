@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -29,24 +30,25 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static MethodAttribute From(Type type)
         {
-            var attribute = type.GetCustomAttribute<MethodAttribute>(true);
-            if (attribute is null)
-            {
-                attribute = type
-                    .GetInterfaces()
-                    .Select(t => t.GetTypeInfo().GetCustomAttribute<MethodAttribute>(true))
-                    .FirstOrDefault(x => x != null);
-            }
-
-            return attribute;
+            return AllFrom(type).FirstOrDefault();
         }
 
         public static IEnumerable<MethodAttribute> AllFrom(Type type)
         {
-            return type.GetCustomAttributes<MethodAttribute>(true)
+            return CollectMethodAttributes(type)
                 .Concat(type
                     .GetInterfaces()
-                    .SelectMany(t => t.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true)));
+                    .SelectMany(CollectMethodAttributes));
+        }
+
+        private static IEnumerable<MethodAttribute> CollectMethodAttributes(Type t)
+        {
+            if (t.IsGenericType && typeof(IRequestHandler<,>) == t.GetGenericTypeDefinition())
+            {
+                return t.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true).Concat(AllFrom(t.GetGenericArguments()[0]));
+            }
+
+            return t.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true);
         }
     }
 }

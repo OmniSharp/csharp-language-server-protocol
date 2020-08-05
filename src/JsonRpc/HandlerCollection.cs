@@ -138,20 +138,20 @@ namespace OmniSharp.Extensions.JsonRpc
             foreach (var handler in handlers)
             {
                 if (_descriptors.Any(z => z.Handler == handler)) continue;
-                cd.Add(Add(GetMethodName(handler.GetType()), handler, null));
+                cd.Add(Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, null));
             }
             return cd;
         }
 
         public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            return Add(GetMethodName(handler.GetType()), handler, options);
+            return Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, options);
         }
 
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var type = handler.GetType();
-            var @interface = GetHandlerInterface(type);
+            var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(type);
 
             Type @params = null;
             Type response = null;
@@ -202,43 +202,6 @@ namespace OmniSharp.Extensions.JsonRpc
         public bool ContainsHandler(TypeInfo type)
         {
             return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
-        }
-
-        private static readonly Type[] HandlerTypes = {
-            typeof(IJsonRpcNotificationHandler),
-            typeof(IJsonRpcNotificationHandler<>),
-            typeof(IJsonRpcRequestHandler<>),
-            typeof(IJsonRpcRequestHandler<,>),
-        };
-
-        private string GetMethodName(Type type)
-        {
-            // Custom method
-            var attribute = MethodAttribute.From(type.GetTypeInfo());
-
-            // TODO: Log unknown method name
-            if (attribute is null)
-            {
-
-            }
-
-            return attribute.Method;
-        }
-
-        private bool IsValidInterface(Type type)
-        {
-            if (type.GetTypeInfo().IsGenericType)
-            {
-                return HandlerTypes.Contains(type.GetGenericTypeDefinition());
-            }
-            return HandlerTypes.Contains(type);
-        }
-
-        private Type GetHandlerInterface(Type type)
-        {
-            return type?.GetTypeInfo()
-                .ImplementedInterfaces
-                .First(IsValidInterface);
         }
     }
 }
