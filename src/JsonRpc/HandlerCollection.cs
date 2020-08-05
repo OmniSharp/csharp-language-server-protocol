@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
@@ -12,94 +11,6 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-
-
-        [DebuggerDisplay("{Method}")]
-        internal class HandlerInstance : IHandlerDescriptor, IDisposable
-        {
-            private readonly Action _disposeAction;
-
-            public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction)
-            {
-                _disposeAction = disposeAction;
-                Handler = handler;
-                ImplementationType = handler.GetType();
-                Method = method;
-                HandlerType = handlerInterface;
-                Params = @params;
-                Response = response;
-                HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
-                    @interface.IsGenericType &&
-                    typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
-                );
-
-                IsDelegatingHandler = @params?.IsGenericType == true &&
-                    (
-                        typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
-                        typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
-                    );
-
-                IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerInterface) || handlerInterface
-                                     .GetInterfaces().Any(z =>
-                                         z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
-                IsRequest = !IsNotification;
-                RequestProcessType = requestProcessType;
-            }
-
-            public IJsonRpcHandler Handler { get; }
-            public bool IsNotification { get; }
-            public bool IsRequest { get; }
-            public Type HandlerType { get; }
-            public Type ImplementationType { get; }
-            public string Method { get; }
-            public Type Params { get; }
-            public Type Response { get; }
-            public bool HasReturnType { get; }
-            public bool IsDelegatingHandler { get; }
-            public RequestProcessType? RequestProcessType { get; }
-
-            public void Dispose()
-            {
-                _disposeAction();
-            }
-        }
-
-        [DebuggerDisplay("{Method}")]
-        internal class LinkedHandler : IHandlerDescriptor, IDisposable
-        {
-            private readonly IHandlerDescriptor _descriptor;
-            private readonly Action _disposeAction;
-
-            public LinkedHandler(string method, IHandlerDescriptor descriptor, Action disposeAction)
-            {
-                _descriptor = descriptor;
-                _disposeAction = disposeAction;
-                Method = method;
-            }
-            public string Method { get; }
-            public Type HandlerType => _descriptor.HandlerType;
-
-            public Type ImplementationType => _descriptor.ImplementationType;
-
-            public Type Params => _descriptor.Params;
-
-            public Type Response => _descriptor.Response;
-
-            public bool HasReturnType => _descriptor.HasReturnType;
-
-            public bool IsDelegatingHandler => _descriptor.IsDelegatingHandler;
-
-            public IJsonRpcHandler Handler => _descriptor.Handler;
-
-            public RequestProcessType? RequestProcessType => _descriptor.RequestProcessType;
-
-            public void Dispose()
-            {
-                _disposeAction();
-            }
-        }
-
-
     public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
         private readonly IServiceProvider _serviceProvider;
