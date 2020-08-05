@@ -27,15 +27,16 @@ namespace JsonRpc.Tests
         {
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
-            var pipe = new Pipe();
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => options
-                    .WithInput(pipe.Reader)
-                    .WithOutput(pipe.Writer)
-                    .WithServices(s => s.AddSingleton(new OutsideService(2)))
-                    .AddHandler<Handler>(new JsonRpcHandlerOptions() { RequestProcessType = RequestProcessType.Serial})
-                )
-                .AddSingleton(new OutsideService(3))
+                .AddJsonRpcServer(options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .WithServices(s => s.AddSingleton(new OutsideService("notservername")))
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
+                })
+                .AddSingleton(new OutsideService("servername"))
                 .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
                 .BuildServiceProvider();
 
@@ -43,10 +44,71 @@ namespace JsonRpc.Tests
             await server.Initialize(cts.Token);
 
             var response = await server.SendRequest(new Request(), cts.Token);
-            response.Value.Should().Be(3);
-            response.Value.Should().NotBe(2);
+            response.Value.Should().Be("servername");
+            response.Value.Should().NotBe("servernamnot");
 
             server.Dispose();
+        }
+
+        [Fact]
+        public void Should_Bootstrap_Multiple_Servers_Through_Service_Collection()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            var services = new ServiceCollection()
+                .AddJsonRpcServer("serial", options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
+                })
+                .AddJsonRpcServer("parallel", options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                })
+                .AddSingleton(new OutsideService("outside"))
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            var resolver = services.GetRequiredService<JsonRpcServerResolver>();
+            var serialServer = resolver.Get("serial").Should().NotBeNull().And.Subject;
+            var parallelServer = resolver.Get("parallel").Should().NotBeNull().And.Subject;
+            serialServer.Should().NotBe(parallelServer);
+
+            resolver.Get("serial").Should().Be(serialServer);
+            resolver.Get("parallel").Should().Be(parallelServer);
+        }
+
+        [Fact]
+        public void Should_Throw_When_Multiple_Servers_Are_Added_And_Resolve_The_Server()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+
+            var services = new ServiceCollection()
+                .AddJsonRpcServer("serial", options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
+                })
+                .AddJsonRpcServer("parallel", options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                })
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            Action a = () =>  services.GetRequiredService<JsonRpcServer>();
+            a.Should().Throw<NotSupportedException>();
         }
 
         [Method("outside")]
@@ -54,9 +116,9 @@ namespace JsonRpc.Tests
 
         class Response
         {
-            public int Value { get; }
+            public string Value { get; }
 
-            public Response(int value)
+            public Response(string value)
             {
                 Value = value;
             }
@@ -78,12 +140,12 @@ namespace JsonRpc.Tests
 
         class OutsideService
         {
-            public OutsideService(int value)
+            public OutsideService(string value)
             {
                 Value = value;
             }
 
-            public int Value { get; }
+            public string Value { get; }
         }
     }
 }

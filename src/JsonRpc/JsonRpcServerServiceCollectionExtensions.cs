@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -13,26 +15,32 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 throw new ArgumentException("Output is missing!", nameof(options));
             }
+
             if (options.Input == null)
             {
                 throw new ArgumentException("Input is missing!", nameof(options));
             }
+
             if (options.Serializer == null)
             {
                 throw new ArgumentException("Serializer is missing!", nameof(options));
             }
+
             if (options.RequestProcessIdentifier == null)
             {
                 throw new ArgumentException("RequestProcessIdentifier is missing!", nameof(options));
             }
+
             if (options.Receiver == null)
             {
                 throw new ArgumentException("Receiver is missing!", nameof(options));
             }
+
             if (options.Handlers == null)
             {
                 throw new ArgumentException("Handlers is missing!", nameof(options));
             }
+
             services.AddSingleton<IOutputHandler>(_ => new OutputHandler(
                 options.Output,
                 options.Serializer,
@@ -54,7 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
             ));
             if (outerServiceProvider != null)
             {
-                services.AddSingleton(outerServiceProvider.GetRequiredService<ILoggerFactory>());
+                services.AddSingleton(outerServiceProvider.GetService<ILoggerFactory>() ?? options.LoggerFactory);
             }
             else if (options.LoggerFactory != null)
             {
@@ -87,22 +95,28 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, string name, Action<JsonRpcServerOptions> configureOptions = null)
         {
+            // If we get called multiple times we're going to remove the default server
+            // and force consumers to use the resolver.
+            if (services.Any(d => d.ServiceType == typeof(JsonRpcServer) || d.ServiceType == typeof(IJsonRpcServer)))
+            {
+                services.RemoveAll<JsonRpcServer>();
+                services.RemoveAll<IJsonRpcServer>();
+                services.AddSingleton<IJsonRpcServer>(_ =>
+                    throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead"));
+                services.AddSingleton<JsonRpcServer>(_ =>
+                    throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead"));
+            }
+
             services
                 .AddOptions()
-                .AddLogging()
-                .AddSingleton(_ => {
-                var options = _.GetRequiredService<IOptionsMonitor<JsonRpcServerOptions>>().Get(name);
+                .AddLogging();
+            services.TryAddSingleton<JsonRpcServerResolver>();
+            services.TryAddSingleton(_ => _.GetRequiredService<JsonRpcServerResolver>().Get(name));
+            services.TryAddSingleton<IJsonRpcServer>(_ => _.GetRequiredService<JsonRpcServerResolver>().Get(name));
 
-                var serviceProvider = options.Services
-                    .AddJsonRpcServerInternals(options, _)
-                    .BuildServiceProvider();
-
-                var server = serviceProvider.GetRequiredService<JsonRpcServer>();
-                return server;
-            });
             if (configureOptions != null)
             {
-                services.Configure(configureOptions);
+                services.Configure(name, configureOptions);
             }
 
             return services;
