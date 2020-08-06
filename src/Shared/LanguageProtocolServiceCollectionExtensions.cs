@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,14 +29,17 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);
-            container.RegisterMany<LanguageProtocolSettingsBag>(nonPublicServiceTypes: true);
+            container.RegisterMany<LanguageProtocolSettingsBag>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
-            container.RegisterMany<SupportedCapabilities>();
-            container.RegisterMany<TextDocumentIdentifiers>();
-            container.RegisterMany<LspRequestRouter>();
-            container.RegisterMany<SharedHandlerCollection>(nonPublicServiceTypes: true);
-            container.RegisterMany<ResponseRouter>();
-            container.RegisterMany<ProgressManager>();
+            container.RegisterMany<SupportedCapabilities>(reuse: Reuse.Singleton);
+            container.Register<TextDocumentIdentifiers>(reuse: Reuse.Singleton);
+            container.RegisterInitializer<TextDocumentIdentifiers>((identifiers, context) => {
+                identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray());
+            });
+            container.RegisterMany<LspRequestRouter>(reuse: Reuse.Singleton);
+            container.RegisterMany<SharedHandlerCollection>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterMany<ResponseRouter>(reuse: Reuse.Singleton);
+            container.RegisterMany<ProgressManager>(reuse: Reuse.Singleton);
 
             return container;
         }

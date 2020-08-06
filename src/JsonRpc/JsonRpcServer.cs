@@ -21,8 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddJsonRpcServerInternals(options)
-                .Populate(options.Services);
+                .AddJsonRpcServerInternals(options);
 
         public static JsonRpcServer Create(JsonRpcServerOptions options) => Create(options, null);
         public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction) => Create(optionsAction, null);

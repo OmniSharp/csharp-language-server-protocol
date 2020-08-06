@@ -25,9 +25,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return (T) (object) this;
         }
 
-        public T AddTextDocumentIdentifier<TTextDocumentIdentifier>() where TTextDocumentIdentifier : ITextDocumentIdentifier
+        public T AddTextDocumentIdentifier<TI>() where TI : ITextDocumentIdentifier
         {
-            Services.AddSingleton(typeof(ITextDocumentIdentifier), typeof(TTextDocumentIdentifier));
+            Services.AddSingleton(typeof(ITextDocumentIdentifier), typeof(TI));
             return (T) (object) this;
         }
 

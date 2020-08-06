@@ -5,9 +5,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    internal class ClientLanguageServer : ServerProxyBase, IClientLanguageServer
+    internal class ClientLanguageServer : LanguageProtocolProxy, IClientLanguageServer
     {
-        public ClientLanguageServer(IResponseRouter requestRouter, IProgressManager progressManager, Lazy<IServerWorkDoneManager> serverWorkDoneManager, Lazy<ILanguageServerConfiguration> languageServerConfiguration, ILanguageProtocolSettings settings) : base(requestRouter, progressManager, serverWorkDoneManager, languageServerConfiguration, settings)
+        public ClientLanguageServer(IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager,
+            ILanguageProtocolSettings languageProtocolSettings) : base(requestRouter, serviceProvider, progressManager, languageProtocolSettings)
         {
         }
     }

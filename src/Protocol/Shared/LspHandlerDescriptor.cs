@@ -43,20 +43,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             _allowsDynamicRegistration = allowsDynamicRegistration;
             CapabilityType = capabilityType;
 
-            var requestInterface = @params?.GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
-            if (requestInterface != null)
-                Response = requestInterface.GetGenericArguments()[0];
+            Response = typeDescriptor?.ResponseType ??
+                       @params?.GetInterfaces()
+                            .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))?
+                            .GetGenericArguments()[0] ?? typeof(Unit);
 
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces
                 .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
 
-            HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
-                @interface.IsGenericType &&
-                typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
-            );
+            HasReturnType = Response != null && Response != typeof(Unit);
 
             IsDelegatingHandler = @params?.IsGenericType == true &&
                                   (

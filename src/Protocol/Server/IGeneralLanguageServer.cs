@@ -1,4 +1,4 @@
 ﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    public interface IGeneralLanguageServer : IServerProxy { }
+    public interface IGeneralLanguageServer : ILanguageServerProxy { }
 }

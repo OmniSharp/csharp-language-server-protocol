@@ -14,6 +14,7 @@ using OmniSharp.Extensions.JsonRpc.Pipelines;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using MediatR;
+using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -74,7 +75,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 container.RegisterInstance(options.LoggerFactory, IfAlreadyRegistered.Keep);
             }
 
-            return container.AddJsonRpcMediatR();
+            return container.Populate(options.Services).AddJsonRpcMediatR();
         }
 
         internal static IContainer AddJsonRpcMediatR(this IContainer container)

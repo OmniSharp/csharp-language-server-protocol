@@ -5,9 +5,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    internal class WorkspaceLanguageClient : ClientProxyBase, IWorkspaceLanguageClient
+    internal class WorkspaceLanguageClient : LanguageProtocolProxy, IWorkspaceLanguageClient
     {
-        public WorkspaceLanguageClient(IResponseRouter requestRouter, IProgressManager progressManager, Lazy<IClientWorkDoneManager> clientWorkDoneManager, Lazy<IRegistrationManager> registrationManager, Lazy<IWorkspaceFoldersManager> workspaceFoldersManager, ILanguageProtocolSettings settings) : base(requestRouter, progressManager, clientWorkDoneManager, registrationManager, workspaceFoldersManager, settings)
+        public WorkspaceLanguageClient(IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager,
+            ILanguageProtocolSettings languageProtocolSettings) : base(requestRouter, serviceProvider, progressManager, languageProtocolSettings)
         {
         }
     }

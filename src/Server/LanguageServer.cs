@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 throw new ArgumentException("Receiver is missing!", nameof(options));
             }
 
-            container  = container.AddLanguageProtocolInternals(options);
+            container = container.AddLanguageProtocolInternals(options);
 
             container.RegisterInstanceMany(options.Receiver);
             if (options.OnUnhandledException != null)
@@ -61,17 +61,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
             else
             {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { _.GetRequiredService<LanguageServer>().ForcefulShutdown(); }));
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { _.GetRequiredService<LanguageServer>().ForcefulShutdown(); }), reuse: Reuse.Singleton);
             }
 
-            container.RegisterMany<TextDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageServer)));
-            container.RegisterMany<ClientLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageServer)));
-            container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)));
-            container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)));
-            container.RegisterMany<WorkspaceLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageServer)));
+            container.RegisterMany<TextDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<ClientLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<WorkspaceLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterInstance<IOptionsFactory<LanguageServerOptions>>(new ValueOptionsFactory<LanguageServerOptions>(options));
 
-            container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer)/*, reuse: Reuse.Singleton*/);
+            container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer), reuse: Reuse.Singleton);
             container.RegisterInitializer<LanguageServer>((server, context) => {
                 var manager = context.Resolve<IHandlersManager>();
                 var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
@@ -86,7 +86,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             container.RegisterMany<DidChangeConfigurationProvider>(
                 made: Parameters.Of
-                    .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction)
+                    .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
+                reuse: Reuse.Singleton
             );
 
             // container.
@@ -109,7 +110,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
 
                 return builder.AddConfiguration(didChangeConfigurationProvider).Build();
-            });
+            },
+                reuse: Reuse.Singleton);
 
             container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface);
             container.RegisterInstance(options.ServerInfo ?? new ServerInfo() {
@@ -119,11 +121,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                           Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
             });
 
-            container.RegisterMany<TextDocumentMatcher>();
-            container.RegisterMany<ExecuteCommandMatcher>();
-            container.RegisterMany<ResolveCommandMatcher>();
-            container.RegisterMany(new [] { typeof(ResolveCommandPipeline<,>) });
-            container.RegisterMany<ServerWorkDoneManager>();
+            container.RegisterMany<TextDocumentMatcher>(reuse: Reuse.Singleton);
+            container.RegisterMany<ExecuteCommandMatcher>(reuse: Reuse.Singleton);
+            container.RegisterMany<ResolveCommandMatcher>(reuse: Reuse.Singleton);
+            container.RegisterMany(new[] {typeof(ResolveCommandPipeline<,>)});
+            container.RegisterMany<ServerWorkDoneManager>(reuse: Reuse.Singleton);
 
             return container;
         }
@@ -200,7 +202,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly Connection _connection;
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
-        private readonly IServerWorkDoneManager _serverWorkDoneManager;
         private readonly ILspServerReceiver _serverReceiver;
         private readonly ISerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
@@ -214,12 +215,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ISupportedCapabilities _supportedCapabilities;
         private Task _initializingTask;
         private readonly LanguageProtocolSettingsBag _settingsBag;
-        private readonly IServiceProvider _fallbackServiceProvider;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddLanguageServerInternals(options, outerServiceProvider)
-                .Populate(options.Services);
+                .AddLanguageServerInternals(options, outerServiceProvider);
 
         public static LanguageServer Create(LanguageServerOptions options) => Create(options, null);
         public static LanguageServer Create(Action<LanguageServerOptions> optionsAction) => Create(optionsAction, null);
@@ -231,7 +230,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return Create(options, outerServiceProvider);
         }
 
-        public static LanguageServer Create(LanguageServerOptions options, IServiceProvider outerServiceProvider) => CreateContainer(options, outerServiceProvider).Resolve<LanguageServer>();
+        public static LanguageServer Create(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
+            CreateContainer(options, outerServiceProvider).Resolve<LanguageServer>();
+
         public static Task<LanguageServer> From(LanguageServerOptions options) => From(options, null, CancellationToken.None);
         public static Task<LanguageServer> From(Action<LanguageServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
         public static Task<LanguageServer> From(LanguageServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
@@ -295,7 +296,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<InitializeDelegate> initializeDelegates,
             IEnumerable<InitializedDelegate> initializedDelegates,
             IEnumerable<OnServerStartedDelegate> startedDelegates,
-            IServiceProvider fallbackServiceProvider,
             IServerWorkDoneManager serverWorkDoneManager,
             ITextDocumentLanguageServer textDocumentLanguageServer,
             IClientLanguageServer clientLanguageServer,
@@ -303,7 +303,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IWindowLanguageServer windowLanguageServer,
             IWorkspaceLanguageServer workspaceLanguageServer,
             LanguageProtocolSettingsBag languageProtocolSettingsBag,
-            SharedHandlerCollection handlerCollection
+            SharedHandlerCollection handlerCollection,
+            IProgressManager progressManager
         ) : base(options.Value)
         {
             Configuration = configuration;
@@ -318,10 +319,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
             _startedDelegates = startedDelegates;
-            _serverWorkDoneManager = serverWorkDoneManager;
+            WorkDoneManager = serverWorkDoneManager;
             _settingsBag = languageProtocolSettingsBag;
             Services = serviceProvider;
-            _fallbackServiceProvider = fallbackServiceProvider;
             _collection = handlerCollection;
 
             // We need to at least create Window here in case any handler does logging in their constructor
@@ -330,11 +330,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             General = generalLanguageServer;
             Window = windowLanguageServer;
             Workspace = workspaceLanguageServer;
+            ProgressManager = progressManager;
 
             _disposable.Add(_collection.Add(this));
-
-            var serviceIdentifiers = serviceProvider.GetServices<ITextDocumentIdentifier>().ToArray();
-            _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
         }
 
 
@@ -358,8 +356,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public IServiceProvider Services { get; }
         public IProgressManager ProgressManager { get; }
-
-        public IServerWorkDoneManager WorkDoneManager => _serverWorkDoneManager;
+        public IServerWorkDoneManager WorkDoneManager { get; }
         public ILanguageServerConfiguration Configuration { get; }
 
         public async Task Initialize(CancellationToken token)
@@ -459,7 +456,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
             var workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
-            _serverWorkDoneManager.Initialized(windowCapabilities);
+            WorkDoneManager.Initialized(windowCapabilities);
 
             {
                 RegisterHandlers(_collection);
@@ -640,7 +637,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable Register(Action<ILanguageServerRegistry> registryAction)
         {
             var manager = new CompositeHandlersManager(_collection);
-            registryAction(new LangaugeServerRegistry(_fallbackServiceProvider, manager, _textDocumentIdentifiers));
+            registryAction(new LangaugeServerRegistry(Services, manager, _textDocumentIdentifiers));
             return RegisterHandlers(manager.GetDisposable());
         }
 
@@ -660,7 +657,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
                     {
-                        wdpo.WorkDoneProgress = _serverWorkDoneManager.IsSupported;
+                        wdpo.WorkDoneProgress = WorkDoneManager.IsSupported;
                     }
 
                     registrations.Add(new Registration() {
@@ -702,5 +699,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             cd.Add(RegisterHandlers(cd.OfType<LspHandlerDescriptorDisposable>().SelectMany(z => z.Descriptors)));
             return cd;
         }
+
+        object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);
     }
 }

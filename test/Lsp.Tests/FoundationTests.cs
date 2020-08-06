@@ -152,32 +152,32 @@ namespace Lsp.Tests
             if (descriptor.Direction == Direction.Bidirectional)
             {
                 registries
-                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
                     .Should().HaveCountGreaterOrEqualTo(1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
                 registries
-                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
                     .Should().HaveCountGreaterOrEqualTo(1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
             }
             else if (descriptor.Direction == Direction.ServerToClient)
             {
                 registries
-                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
                     .Should().HaveCountGreaterOrEqualTo(1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
                 registries
-                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
                     .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
             }
             else if (descriptor.Direction == Direction.ClientToServer)
             {
                 registries
-                    .Where(z => typeof(IClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
                     .Should().HaveCountGreaterOrEqualTo(1,
                         $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
                 registries
-                    .Where(z => typeof(IServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
                     .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
             }
         }

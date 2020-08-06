@@ -1,12 +1,11 @@
-using System;
+﻿using System;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public interface IServerProxy : IResponseRouter
+    public interface ILanguageProtocolProxy : IResponseRouter, IServiceProvider
     {
         IProgressManager ProgressManager { get; }
         InitializeParams ClientSettings { get; }

@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container  = container.AddLanguageProtocolInternals(options);
 
-            container.RegisterMany<WorkspaceFoldersManager>(serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler));
+            container.RegisterMany<WorkspaceFoldersManager>(serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterInstanceMany(options.Receiver);
@@ -59,14 +59,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => _.GetRequiredService<LanguageClient>().Shutdown()));
             }
 
-            container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)));
-            container.RegisterMany<ClientLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageClient)));
-            container.RegisterMany<GeneralLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageClient)));
-            container.RegisterMany<WindowLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageClient)));
-            container.RegisterMany<WorkspaceLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageClient)));
+            container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<ClientLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<GeneralLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<WindowLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<WorkspaceLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageClient)), reuse: Reuse.Singleton);
             container.RegisterInstance<IOptionsFactory<LanguageClientOptions>>(new ValueOptionsFactory<LanguageClientOptions>(options));
 
-            container.RegisterMany<LanguageClient>(serviceTypeCondition: type => type == typeof(ILanguageClient) || type == typeof(LanguageClient)/*, reuse: Reuse.Singleton*/);
+            container.RegisterMany<LanguageClient>(serviceTypeCondition: type => type == typeof(ILanguageClient) || type == typeof(LanguageClient), reuse: Reuse.Singleton);
             container.RegisterInitializer<LanguageClient>((client, context) => {
                 var manager = context.Resolve<IHandlersManager>();
                 var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
@@ -86,8 +86,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                           Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
             });
 
-            container.RegisterMany<ClientWorkDoneManager>();
-            container.RegisterMany<RegistrationManager>(serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler));
+            container.RegisterMany<ClientWorkDoneManager>(reuse: Reuse.Singleton);
+            container.RegisterMany<RegistrationManager>(serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
 
             return container;
         }
@@ -184,8 +184,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddLanguageClientInternals(options, outerServiceProvider)
-                .Populate(options.Services);
+                .AddLanguageClientInternals(options, outerServiceProvider);
 
         public static LanguageClient Create(LanguageClientOptions options) => Create(options, null);
         public static LanguageClient Create(Action<LanguageClientOptions> optionsAction) => Create(optionsAction, null);
@@ -299,9 +298,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             Workspace = workspaceLanguageClient;
 
             WorkspaceFoldersManager.Add(options.Value.Folders.ToArray());
-
-            var serviceIdentifiers = Services.GetServices<ITextDocumentIdentifier>().ToArray();
-            _disposable.Add(_textDocumentIdentifiers.Add(serviceIdentifiers));
         }
 
         public ITextDocumentLanguageClient TextDocument { get; }
@@ -310,13 +306,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public IWindowLanguageClient Window { get; }
         public IWorkspaceLanguageClient Workspace { get; }
         public IProgressManager ProgressManager { get; }
-
         public IClientWorkDoneManager WorkDoneManager { get; }
-
         public IRegistrationManager RegistrationManager { get; }
-
         public IWorkspaceFoldersManager WorkspaceFoldersManager { get; }
-
 
         public InitializeParams ClientSettings
         {
@@ -477,5 +469,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             registryAction(new LangaugeClientRegistry(Services, manager, _textDocumentIdentifiers));
             return manager.GetDisposable();
         }
+
+        object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);
     }
 }
