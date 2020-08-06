@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);
-            container.RegisterMany<LanguageProtocolSettingsBag>();
+            container.RegisterMany<LanguageProtocolSettingsBag>(nonPublicServiceTypes: true);
 
             container.RegisterMany<SupportedCapabilities>();
             container.RegisterMany<TextDocumentIdentifiers>();

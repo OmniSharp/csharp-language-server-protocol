@@ -1,4 +1,5 @@
-﻿using System.Threading;
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -10,23 +11,25 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
 
-    public abstract class ServerProxyBase : IServerProxy
+    abstract class ServerProxyBase : IServerProxy
     {
         private readonly IResponseRouter _responseRouter;
         private readonly ILanguageProtocolSettings _settings;
+        private readonly Lazy<IServerWorkDoneManager> _workDoneManager;
+        private readonly Lazy<ILanguageServerConfiguration> _configuration;
 
         public ServerProxyBase(
             IResponseRouter requestRouter,
             IProgressManager progressManager,
-            IServerWorkDoneManager serverWorkDoneManager,
-            ILanguageServerConfiguration languageServerConfiguration,
+            Lazy<IServerWorkDoneManager> serverWorkDoneManager,
+            Lazy<ILanguageServerConfiguration> languageServerConfiguration,
             ILanguageProtocolSettings settings
         )
         {
             _responseRouter = requestRouter;
             ProgressManager = progressManager;
-            WorkDoneManager = serverWorkDoneManager;
-            Configuration = languageServerConfiguration;
+            _workDoneManager = serverWorkDoneManager;
+            _configuration = languageServerConfiguration;
             _settings = settings;
         }
 
@@ -45,9 +48,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id) => _responseRouter.GetRequest(id);
         public IProgressManager ProgressManager { get; }
 
-        public IServerWorkDoneManager WorkDoneManager { get; }
+        public IServerWorkDoneManager WorkDoneManager => _workDoneManager.Value;
 
-        public ILanguageServerConfiguration Configuration { get; }
+        public ILanguageServerConfiguration Configuration => _configuration.Value;
 
         public InitializeParams ClientSettings => _settings.ClientSettings;
 

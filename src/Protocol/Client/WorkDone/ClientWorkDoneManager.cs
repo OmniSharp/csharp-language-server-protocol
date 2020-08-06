@@ -15,13 +15,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
     class ClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
     {
-        private readonly ILanguageClient _router;
+        private readonly IWindowLanguageClient _router;
         private readonly ISerializer _serializer;
         private readonly IProgressManager _progressManager;
         private bool _supported;
         private readonly ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>> _pendingWork;
 
-        public ClientWorkDoneManager(ILanguageClient router, ISerializer serializer, IProgressManager progressManager)
+        public ClientWorkDoneManager(IWindowLanguageClient router, ISerializer serializer, IProgressManager progressManager)
         {
             _router = router;
             _serializer = serializer;
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 
             var data = new WorkDoneObservable(
                 _progressManager.Monitor(progressToken, Parse),
-                Disposable.Create(() => _router.Window.SendWorkDoneProgressCancel(progressToken))
+                Disposable.Create(() => _router.SendWorkDoneProgressCancel(progressToken))
             );
             _pendingWork.AddOrUpdate(progressToken, x => data, (a, b) => data);
             data.Subscribe(_ => { }, () => {

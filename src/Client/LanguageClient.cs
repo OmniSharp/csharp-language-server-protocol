@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterInstanceMany(options.Receiver);
-            if (options.OnUnhandledException == null)
+            if (options.OnUnhandledException != null)
             {
                 container.RegisterInstance(options.OnUnhandledException);
             }

@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -7,6 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public static void Populate(this IJsonRpcHandlerCollection collection, IServiceProvider serviceProvider, IHandlersManager handlersManager)
         {
+            var links = new List<JsonRpcHandlerLinkDescription>();
             foreach (var item in collection)
             {
                 switch (item)
@@ -30,9 +32,13 @@ namespace OmniSharp.Extensions.JsonRpc
                         handlersManager.Add(instance.Method, instance.HandlerInstance, instance.Options);
                         continue;
                     case JsonRpcHandlerLinkDescription link:
-                        handlersManager.AddLink(link.Method, link.LinkToMethod);
+                        links.Add(link);
                         continue;
                 }
+            }
+            foreach (var link in links)
+            {
+                handlersManager.AddLink(link.Method, link.LinkToMethod);
             }
         }
     }

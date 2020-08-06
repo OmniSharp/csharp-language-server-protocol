@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +15,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     class WorkspaceFoldersManager : IWorkspaceFoldersManager, IDisposable
     {
-        private readonly ILanguageClient _client;
+        private readonly IWorkspaceLanguageClient _client;
         private readonly ConcurrentDictionary<DocumentUri, WorkspaceFolder> _workspaceFolders;
         private readonly ReplaySubject<IEnumerable<WorkspaceFolder>> _workspaceFoldersSubject;
 
-        public WorkspaceFoldersManager(ILanguageClient client)
+        public WorkspaceFoldersManager(IWorkspaceLanguageClient client)
         {
             _client = client;
             _workspaceFolders = new ConcurrentDictionary<DocumentUri, WorkspaceFolder>(DocumentUri.Comparer);
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _workspaceFolders.AddOrUpdate(item.Uri, _ => item, (a, b) => item);
             }
 
-            _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+            _client.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
                 Event = new WorkspaceFoldersChangeEvent() {
                     Added = new Container<WorkspaceFolder>(workspaceFolders)
                 }
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _workspaceFolders.AddOrUpdate(item.Uri, _ => item, (a, b) => item);
             }
 
-            _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+            _client.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
                 Event = new WorkspaceFoldersChangeEvent() {
                     Added = new Container<WorkspaceFolder>(workspaceFolders)
                 }
@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             if (_workspaceFolders.TryRemove(uri, out var item))
             {
-                _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                _client.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
                     Event = new WorkspaceFoldersChangeEvent() {
                         Removed = new Container<WorkspaceFolder>(item)
                     }
@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 {
                     _workspaceFolders.TryRemove(item.Uri, out _);
                 }
-                _client.Workspace.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
+                _client.DidChangeWorkspaceFolders(new DidChangeWorkspaceFoldersParams() {
                     Event = new WorkspaceFoldersChangeEvent() {
                         Removed = new Container<WorkspaceFolder>(items)
                     }
