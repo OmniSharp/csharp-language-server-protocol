@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -23,11 +25,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
             var options = name == Options.DefaultName ? _monitor.CurrentValue : _monitor.Get(name);
 
-            var serviceProvider = options.Services
-                .AddJsonRpcServerInternals(options, _outerServiceProvider)
-                .BuildServiceProvider();
-
-            server = serviceProvider.GetRequiredService<JsonRpcServer>();
+            var container = JsonRpcServer.CreateContainer(options, _outerServiceProvider);
+            server = container.Resolve<JsonRpcServer>();
             _servers.TryAdd(name, server);
 
             return server;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using JsonRpc.Tests;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
@@ -28,9 +29,7 @@ namespace Lsp.Tests
     {
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Services
-                .AddJsonRpcMediatR()
-                .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
+            Container = LspTestContainer.Create(testOutputHelper);
         }
 
         [Fact]
@@ -50,7 +49,7 @@ namespace Lsp.Tests
                     return new CommandOrCodeActionContainer();
                 });
 
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { textDocumentSyncHandler, codeActionHandler };
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider()) { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();

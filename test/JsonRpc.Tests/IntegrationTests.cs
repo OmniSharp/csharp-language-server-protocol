@@ -1,20 +1,22 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
+using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
     public class IntegrationTests : JsonRpcServerTestBase
     {
-        public IntegrationTests() : base(new JsonRpcTestOptions())
+        public IntegrationTests(ITestOutputHelper testOutputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(testOutputHelper))
         {
         }
 

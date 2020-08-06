@@ -1,9 +1,13 @@
-using System;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    public class TextDocumentLanguageServer : ServerProxyBase, ITextDocumentLanguageServer
+    internal class TextDocumentLanguageServer : ServerProxyBase, ITextDocumentLanguageServer
     {
-        public TextDocumentLanguageServer(IServerProxy proxy, IServiceProvider serviceProvider) : base(proxy, serviceProvider) { }
+        public TextDocumentLanguageServer(IResponseRouter requestRouter, IProgressManager progressManager, IServerWorkDoneManager serverWorkDoneManager, ILanguageServerConfiguration languageServerConfiguration, ILanguageProtocolSettings settings) : base(requestRouter, progressManager, serverWorkDoneManager, languageServerConfiguration, settings)
+        {
+        }
     }
 }

@@ -72,7 +72,7 @@ namespace Lsp.Tests.Integration
             var data = new List<string>();
 
             using var observer = server.ProgressManager.For<Data>(token, CancellationToken);
-            client.ProgressManager.Monitor(token, x => x.ToObject<Data>(client.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            client.ProgressManager.Monitor(token, x => x.ToObject<Data>(client.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
 
             observer.OnNext(new Data() {
                 Value = "1"

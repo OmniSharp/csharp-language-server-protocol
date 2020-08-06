@@ -1,10 +1,10 @@
 using System;
 using DryIoc;
-using DryIoc.Microsoft.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute.Internals;
 using Xunit.Abstractions;
+using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute
@@ -19,7 +19,7 @@ namespace NSubstitute
         {
         }
 
-        protected AutoTestBase(ITestOutputHelper testOutputHelper, Action<IContainer> action)
+        internal AutoTestBase(ITestOutputHelper testOutputHelper, Action<object> action)
         {
             LoggerFactory = new TestLoggerFactory(testOutputHelper);
             Logger = LoggerFactory.CreateLogger("default");
@@ -36,10 +36,19 @@ namespace NSubstitute
         public ILogger Logger { get; }
         public IServiceCollection Services { get; } = new ServiceCollection();
 
-        public AutoSubstitute AutoSubstitute => _autoSubstitute ??= new AutoSubstitute(new Container().WithDependencyInjectionAdapter(), _ => {
+        internal AutoSubstitute AutoSubstitute => _autoSubstitute ??= new AutoSubstitute(new Container().WithDependencyInjectionAdapter(), _ => {
             _action(_);
             return _;
         });
+
+        internal IContainer Container
+        {
+            get => AutoSubstitute.Container;
+            set => _autoSubstitute = new AutoSubstitute(value, _ => {
+                _action(_);
+                return _;
+            });
+        }
 
         public IServiceProvider ServiceProvider => AutoSubstitute.Container.Resolve<IServiceProvider>();
     }

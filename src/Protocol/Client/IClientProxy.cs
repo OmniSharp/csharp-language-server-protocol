@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    public interface IClientProxy : IResponseRouter, IServiceProvider
+    public interface IClientProxy : IResponseRouter
     {
         IProgressManager ProgressManager { get; }
         IClientWorkDoneManager WorkDoneManager { get; }

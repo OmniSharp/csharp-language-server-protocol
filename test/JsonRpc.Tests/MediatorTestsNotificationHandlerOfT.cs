@@ -27,9 +27,7 @@ namespace JsonRpc.Tests
 
         public MediatorTestsNotificationHandlerOfT(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Services
-                .AddJsonRpcMediatR()
-                .AddSingleton<ISerializer>(new JsonRpcSerializer());
+            Container = JsonRpcTestContainer.Create(testOutputHelper);
         }
 
         [Fact]
@@ -38,8 +36,8 @@ namespace JsonRpc.Tests
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection(new JsonRpcHandlerCollection(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { cancelRequestHandler };
-            AutoSubstitute.Provide(collection);
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { cancelRequestHandler };
+            AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
             var @params = new CancelParams() { Id = Guid.NewGuid() };

@@ -48,7 +48,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public object InitializationOptions { get; set; }
 
-        public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
         public ILspClientReceiver Receiver { get; set; } = new LspClientReceiver();
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(method, handler, options);

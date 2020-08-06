@@ -16,11 +16,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 {
     internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>, IRequestRouter<IHandlerDescriptor>
     {
-        private readonly IHandlerCollection _collection;
+        private readonly SharedHandlerCollection _collection;
         private readonly HashSet<IHandlerMatcher> _handlerMatchers;
 
         public LspRequestRouter(
-            IHandlerCollection collection,
+            SharedHandlerCollection collection,
             ILogger<LspRequestRouter> logger,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,

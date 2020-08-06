@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO.Pipelines;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -45,33 +45,47 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
             var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
-            _client = LanguageClient.PreInit(options => {
-                options
-                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
-                    .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
-                        x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
-                    })
-                    .Services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler);
-                ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
-                clientOptionsAction(options);
-            });
+            try
+            {
+                _client = LanguageClient.PreInit(options => {
+                    options
+                        .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                        .ConfigureLogging(x => {
+                            x.Services.RemoveAll(typeof(ILoggerFactory));
+                            x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
+                        })
+                        .Services
+                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                        .AddSingleton(ServerEvents as IRequestSettler);
+                    ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
+                    clientOptionsAction(options);
+                });
+            }
+            catch (Exception e)
+            {
+                throw new AggregateException("Unable to create language client", e);
+            }
 
-            _server = RealLanguageServer.PreInit(options => {
-                options
-                    .WithLoggerFactory(TestOptions.ServerLoggerFactory)
-                    .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
-                        x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
-                    })
-                    .Services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler);
-                ConfigureServerInputOutput(clientPipe.Reader, serverPipe.Writer, options);
-                serverOptionsAction(options);
-            });
+            try
+            {
+                _server = RealLanguageServer.PreInit(options => {
+                    options
+                        .WithLoggerFactory(TestOptions.ServerLoggerFactory)
+                        .ConfigureLogging(x => {
+                            x.Services.RemoveAll(typeof(ILoggerFactory));
+                            x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
+                        })
+                        .Services
+                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                        .AddSingleton(ServerEvents as IRequestSettler);
+                    ConfigureServerInputOutput(clientPipe.Reader, serverPipe.Writer, options);
+                    serverOptionsAction(options);
+                });
+            }
+            catch (Exception e)
+            {
+                throw new AggregateException("Unable to create language server", e);
+            }
 
             Disposable.Add(_client);
             Disposable.Add(_server);

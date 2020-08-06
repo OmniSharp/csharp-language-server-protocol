@@ -23,18 +23,24 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
     class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler,
         IOnServerStarted, ILanguageServerConfiguration
     {
-        private readonly ILanguageServer _server;
+        private readonly IEnumerable<ConfigurationItem> _configurationItems;
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
+        private readonly IWorkspaceLanguageServer _workspaceLanguageServer;
         private DidChangeConfigurationCapability _capability;
         private readonly ConfigurationRoot _configuration;
 
         private readonly ConcurrentDictionary<DocumentUri, DisposableConfiguration> _openScopes =
             new ConcurrentDictionary<DocumentUri, DisposableConfiguration>();
 
-        public DidChangeConfigurationProvider(ILanguageServer server, Action<IConfigurationBuilder> configurationBuilderAction, ILogger<DidChangeConfigurationProvider> logger)
+        public DidChangeConfigurationProvider(
+            IEnumerable<ConfigurationItem> configurationItems,
+            Action<IConfigurationBuilder> configurationBuilderAction,
+            ILogger<DidChangeConfigurationProvider> logger,
+            IWorkspaceLanguageServer workspaceLanguageServer)
         {
-            _server = server;
+            _configurationItems = configurationItems;
             _logger = logger;
+            _workspaceLanguageServer = workspaceLanguageServer;
             var builder = new ConfigurationBuilder()
                 .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
@@ -64,11 +70,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         private async Task GetWorkspaceConfiguration()
         {
-            var configurationItems = _server.Services.GetServices<ConfigurationItem>().ToArray();
+            var configurationItems = _configurationItems.ToArray();
             if (configurationItems.Length == 0) return;
 
             {
-                var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
+                var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
                     Items = configurationItems
                 })).ToArray();
 
@@ -90,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 try
                 {
 
-                    var configurations = (await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
+                    var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
                         Items = scopedConfigurationItems
                     })).ToArray();
 
@@ -130,7 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return new ConfigurationBuilder().AddInMemoryCollection(_configuration.AsEnumerable()).Build();
             }
 
-            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
+            var configurations = await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
                 Items = items
             });
             var data = items.Zip(configurations,
@@ -147,11 +153,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri)
         {
-            var scopes = _server.Services.GetServices<ConfigurationItem>().ToArray();
+            var scopes = _configurationItems.ToArray();
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
-            var configurations = await _server.Workspace.RequestConfiguration(new ConfigurationParams() {
+            var configurations = await _workspaceLanguageServer .RequestConfiguration(new ConfigurationParams() {
                 Items = scopes.Select(z => new ConfigurationItem() { Section = z.Section, ScopeUri = scopeUri }).ToArray()
             });
 

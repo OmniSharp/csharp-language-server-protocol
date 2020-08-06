@@ -20,7 +20,7 @@ namespace Lsp.Tests
             var handler = Substitute.For<IExecuteCommandHandler>();
             handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
 
-            var handlerCollection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new FallbackServiceProvider(new ServiceCollection().BuildServiceProvider(), null)) { handler };
+            var handlerCollection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider()) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection, true);
 
             Provider = capabilityProvider;

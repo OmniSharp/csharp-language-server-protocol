@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private ImmutableHashSet<LspHandlerDescriptor> _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
         private readonly IServiceProvider _serviceProvider;
 
-        public SharedHandlerCollection(ISupportedCapabilities supportedCapabilities, TextDocumentIdentifiers textDocumentIdentifiers, IFallbackServiceProvider serviceProvider)
+        public SharedHandlerCollection(ISupportedCapabilities supportedCapabilities, TextDocumentIdentifiers textDocumentIdentifiers, IServiceProvider serviceProvider)
         {
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
@@ -43,6 +43,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return GetEnumerator();
         }
 
+
+        IEnumerable<IHandlerDescriptor> IHandlersManager.Descriptors => _descriptors;
         IDisposable IHandlersManager.Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(handler, options);
 
         IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(method, handler, options);
@@ -168,7 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
         }
 
-        public (HashSet<LspHandlerDescriptor> descriptors, CompositeDisposable compositeDisposable) AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        private (HashSet<LspHandlerDescriptor> descriptors, CompositeDisposable compositeDisposable) AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var descriptors = new HashSet<LspHandlerDescriptor>();
             var cd = new CompositeDisposable();
@@ -316,7 +318,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public bool ContainsHandler(TypeInfo typeInfo)
         {
-            return this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
+            return _descriptors.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
         }
 
         private static object GetRegistration<T>(IRegistration<T> registration)

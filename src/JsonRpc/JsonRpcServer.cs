@@ -8,14 +8,21 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.JsonRpc.DryIoc;
+using DryIoc;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer
     {
         private readonly Connection _connection;
-        private readonly HandlerCollection _collection;
         private readonly CompositeDisposable _disposable;
+
+        internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
+            JsonRpcServerContainer.Create(outerServiceProvider)
+                .AddJsonRpcServerInternals(options)
+                .Populate(options.Services);
 
         public static JsonRpcServer Create(JsonRpcServerOptions options) => Create(options, null);
         public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction) => Create(optionsAction, null);
@@ -26,14 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return Create(options, outerServiceProvider);
         }
 
-        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider)
-        {
-            var services = new ServiceCollection()
-                .AddJsonRpcServerInternals(options, outerServiceProvider);
-
-            var serviceProvider = services.BuildServiceProvider();
-            return serviceProvider.GetRequiredService<JsonRpcServer>();
-        }
+        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) => CreateContainer(options, outerServiceProvider).Resolve<JsonRpcServer>();
 
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options) => From(options, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
@@ -55,23 +55,19 @@ namespace OmniSharp.Extensions.JsonRpc
             return server;
         }
 
-        public JsonRpcServer(
+        internal JsonRpcServer(
             IOptions<JsonRpcServerOptions> options,
             Connection connection,
-            HandlerCollection handlerCollection,
+            IHandlersManager handlerCollection,
             IResponseRouter responseRouter,
-            IServiceProvider serviceProvider,
-            IFallbackServiceProvider fallbackServiceProvider
+            IServiceProvider serviceProvider
         ) : base(options.Value)
         {
             _connection = connection;
-            HandlersManager = _collection = handlerCollection;
+            HandlersManager = handlerCollection;
             _disposable = options.Value.CompositeDisposable;
             ResponseRouter = responseRouter;
             _disposable.Add(_connection);
-            fallbackServiceProvider.Add(this);
-            fallbackServiceProvider.Add<IJsonRpcServer>(this);
-            fallbackServiceProvider.Add<IResponseRouter>(this);
             if (serviceProvider is IDisposable disposable)
             {
                 _disposable.Add(disposable);
@@ -91,7 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable Register(Action<IJsonRpcServerRegistry> registryAction)
         {
-            var manager = new CompositeHandlersManager(_collection);
+            var manager = new CompositeHandlersManager(HandlersManager);
             registryAction(new JsonRpcServerRegistry(manager));
             return manager.GetDisposable();
         }

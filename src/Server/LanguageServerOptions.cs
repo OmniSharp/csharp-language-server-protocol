@@ -25,7 +25,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     public class LanguageServerOptions : LanguageProtocolRpcOptionsBase<LanguageServerOptions>, ILanguageServerRegistry
     {
         public ServerInfo ServerInfo { get; set; }
-        public ISerializer Serializer { get; set; } = new Protocol.Serialization.Serializer(ClientVersion.Lsp3);
         public ILspServerReceiver Receiver { get; set; } = new LspServerReceiver();
 
         public LanguageServerOptions WithReceiver(ILspServerReceiver receiver)

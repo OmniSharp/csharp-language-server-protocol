@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -11,5 +12,6 @@ namespace OmniSharp.Extensions.JsonRpc
         IDisposable Add(Type handlerType, JsonRpcHandlerOptions options);
         IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options);
         IDisposable AddLink(string sourceMethod, string destinationMethod);
+        IEnumerable<IHandlerDescriptor> Descriptors { get; }
     }
 }

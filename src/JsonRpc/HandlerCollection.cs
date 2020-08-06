@@ -11,25 +11,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class HandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
+    class HandlerCollection : IHandlersManager, IEnumerable<IHandlerDescriptor>
     {
         private readonly IServiceProvider _serviceProvider;
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
-        public HandlerCollection(IJsonRpcHandlerCollection descriptions, IFallbackServiceProvider serviceProvider)
+        public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
+
+        public HandlerCollection(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
-            descriptions.Populate(serviceProvider, this);
-        }
-
-        public IEnumerator<IHandlerDescriptor> GetEnumerator()
-        {
-            return _descriptors.AsEnumerable().GetEnumerator();
-        }
-
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
         }
 
         private void Remove(IJsonRpcHandler handler)
@@ -113,6 +104,16 @@ namespace OmniSharp.Extensions.JsonRpc
         public bool ContainsHandler(TypeInfo type)
         {
             return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
+        }
+
+        public IEnumerator<IHandlerDescriptor> GetEnumerator()
+        {
+            return ((IEnumerable<IHandlerDescriptor>)_descriptors).GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable)_descriptors).GetEnumerator();
         }
     }
 }

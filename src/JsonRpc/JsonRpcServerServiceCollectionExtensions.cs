@@ -1,16 +1,25 @@
-﻿using System;
+using System;
+using System.IO.Pipelines;
 using System.Linq;
+using System.Net.NetworkInformation;
+using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using DryIoc;
+using MediatR.Pipeline;
+using MediatR.Registration;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc.Pipelines;
+using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Serialization;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
     public static class JsonRpcServerServiceCollectionExtensions
     {
-        internal static IServiceCollection AddJsonRpcServerInternalsCore<T>(this IServiceCollection services, JsonRpcServerOptionsBase<T> options,
-            IServiceProvider outerServiceProvider) where T : IJsonRpcHandlerRegistry<T>
+        internal static IContainer AddJsonRpcServerCore<T>(this IContainer container, JsonRpcServerOptionsBase<T> options) where T : IJsonRpcHandlerRegistry<T>
         {
             if (options.Output == null)
             {
@@ -27,60 +36,68 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Handlers is missing!", nameof(options));
             }
 
-            services.AddSingleton<IOutputHandler>(_ => new OutputHandler(
-                options.Output,
-                _.GetRequiredService<ISerializer>(),
-                _.GetRequiredService<ILogger<OutputHandler>>()
-            ));
-            services.AddSingleton(_ => new Connection(
-                options.Input,
-                _.GetRequiredService<IOutputHandler>(),
-                _.GetRequiredService<IReceiver>(),
-                options.RequestProcessIdentifier,
-                _.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
-                _.GetRequiredService<IResponseRouter>(),
-                _.GetRequiredService<ILoggerFactory>(),
-                _.GetService<OnUnhandledExceptionHandler>() ?? options.OnUnhandledException ?? (e => { }),
-                _.GetService<CreateResponseExceptionHandler>() ?? options.CreateResponseException,
-                options.MaximumRequestTimeout,
-                options.SupportsContentModified,
-                options.Concurrency
-            ));
-
-            services
-                .AddLogging()
-                .AddOptions();
-
-            if (outerServiceProvider != null)
+            container.RegisterInstance(options.Output, serviceKey: nameof(options.Output));
+            container.RegisterInstance(options.Input, serviceKey: nameof(options.Input));
+            container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
+            container.RegisterInstance(options.SupportsContentModified, serviceKey: nameof(options.SupportsContentModified));
+            container.RegisterInstance(options.Concurrency ?? -1, serviceKey: nameof(options.Concurrency));
+            if (options.CreateResponseException != null)
             {
-                services.AddSingleton(outerServiceProvider.GetService<ILoggerFactory>() ?? options.LoggerFactory);
-            }
-            else if (options.LoggerFactory != null)
-            {
-                services.AddSingleton(options.LoggerFactory);
+                container.RegisterInstance(options.CreateResponseException);
             }
 
-            services.TryAddSingleton<IFallbackServiceProvider>(_ => new FallbackServiceProvider(_, outerServiceProvider));
-            services.AddJsonRpcMediatR();
-            services.TryAddSingleton<IResponseRouter, ResponseRouter>();
-            services.TryAddSingleton(_ => {
-                var logger = _.GetRequiredService<ILoggerFactory>().CreateLogger("abcd");
-                var descriptions = _.GetServices<JsonRpcHandlerDescription>();
-                logger.LogCritical("hello");
-                foreach (var description in descriptions)
+            container.RegisterMany<OutputHandler>(
+                serviceTypeCondition: type => type.IsInterface,
+                made: Parameters.Of
+                    .Type<PipeWriter>(serviceKey: nameof(options.Output))
+            );
+            container.Register<Connection>(
+                made: new Made.TypedMade<Connection>().Parameters
+                    .Type<PipeReader>(serviceKey: nameof(options.Input))
+                    .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
+                    .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
+                    .Name("concurrency", serviceKey: nameof(options.Concurrency))
+            );
+
+            container.RegisterMany<ResponseRouter>(serviceTypeCondition: type => type.IsInterface);
+
+            container.RegisterInstance(options.Handlers);
+            container.RegisterInitializer<IJsonRpcHandlerCollection>((collection, context) => {
+                foreach (var description in context.ResolveMany<JsonRpcHandlerDescription>())
                 {
-                    logger.LogCritical(description.GetType().FullName);
                     options.Handlers.Add(description);
                 }
-
-                return options.Handlers;
             });
 
+            if (options.LoggerFactory != null)
+            {
+                container.RegisterInstance(options.LoggerFactory, IfAlreadyRegistered.Keep);
+            }
 
-            return services;
+            return container.AddJsonRpcMediatR();
         }
 
-        internal static IServiceCollection AddJsonRpcServerInternals(this IServiceCollection services, JsonRpcServerOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddJsonRpcMediatR(this IContainer container)
+        {
+            container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, reuse: Reuse.ScopedOrSingleton);
+            container.RegisterMany(new[] { typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>) }, reuse: Reuse.ScopedOrSingleton);
+            container.RegisterMany<RequestContext>();
+            container.RegisterDelegate<ServiceFactory>(context => context.Resolve);
+
+            return container.With(rules => rules.WithUnknownServiceResolvers(request => {
+                if (request.ServiceType.IsGenericType && typeof(IRequestHandler<,>).IsAssignableFrom(request.ServiceType.GetGenericTypeDefinition()))
+                {
+                    var context = request.Container.Resolve<IRequestContext>();
+                    if (context != null)
+                    {
+                        return new RegisteredInstanceFactory(context.Descriptor.Handler);
+                    }
+                }
+                return null;
+            }));
+        }
+
+        internal static IContainer AddJsonRpcServerInternals(this IContainer container, JsonRpcServerOptions options)
         {
             if (options.Serializer == null)
             {
@@ -97,19 +114,31 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("RequestProcessIdentifier is missing!", nameof(options));
             }
 
-            AddJsonRpcServerInternalsCore(services, options, outerServiceProvider);
-            services.TryAddSingleton(_ => options.Serializer);
-            services.TryAddSingleton(_ => options.Receiver);
-            services.TryAddSingleton(_ => options.RequestProcessIdentifier);
+            container = container.AddJsonRpcServerCore(options);
 
-            services.TryAddSingleton<JsonRpcServer>();
-            services.TryAddSingleton<IJsonRpcServer>(_ => _.GetRequiredService<JsonRpcServer>());
-            services.TryAddSingleton<IRequestRouter<IHandlerDescriptor>, RequestRouter>();
-            services.TryAddSingleton<HandlerCollection>();
-            services.TryAddSingleton<IHandlersManager>(_ => _.GetRequiredService<HandlerCollection>());
-            services.TryAddSingleton<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
+            container.RegisterInstance(options.Serializer ?? new JsonRpcSerializer());
+            container.RegisterInstance(options.Receiver);
+            container.RegisterInstance(options.RequestProcessIdentifier);
+            container.RegisterInstance(options.OnUnhandledException ?? (e => { }));
 
-            return services;
+            container.RegisterMany<RequestRouter>();
+            container.RegisterMany<HandlerCollection>();
+            container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
+
+            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer)/*, reuse: Reuse.Singleton*/);
+            container.RegisterInitializer<JsonRpcServer>((server, context) => {
+                var manager = context.Resolve<IHandlersManager>();
+                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
+                descriptions.Populate(context, manager);
+
+                var handlers = context.ResolveMany<IJsonRpcHandler>();
+                foreach (var handler in handlers)
+                {
+                    manager.Add(handler, new JsonRpcHandlerOptions());
+                }
+            });
+
+            return container;
         }
 
         public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, Action<JsonRpcServerOptions> configureOptions = null)

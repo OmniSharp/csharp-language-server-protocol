@@ -1,4 +1,6 @@
-﻿using System;
+using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Reactive.Disposables;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -12,6 +14,8 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             _parent = parent;
         }
+
+        public IEnumerable<IHandlerDescriptor> Descriptors => _parent.Descriptors;
 
         public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {

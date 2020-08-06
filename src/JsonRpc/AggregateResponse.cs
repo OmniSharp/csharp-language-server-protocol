@@ -18,4 +18,5 @@ namespace OmniSharp.Extensions.JsonRpc
             Items = items.OfType<T>().ToArray();
         }
     }
+
 }
