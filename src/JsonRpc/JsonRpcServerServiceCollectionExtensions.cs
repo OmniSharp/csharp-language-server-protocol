@@ -31,11 +31,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Input is missing!", nameof(options));
             }
 
-            if (options.Handlers == null)
-            {
-                throw new ArgumentException("Handlers is missing!", nameof(options));
-            }
-
             container = container.Populate(options.Services
                 .AddLogging()
                 .AddOptions()
