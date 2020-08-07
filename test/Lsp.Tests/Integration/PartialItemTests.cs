@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
@@ -54,6 +54,19 @@ namespace Lsp.Tests.Integration
 
             items.Should().HaveCount(3);
             items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+        }
+
+        [Fact]
+        public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
+        {
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
+
+            var response = await client.SendRequest(new CodeLensParams() {
+                TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+            }, CancellationToken);
+
+            response.Should().HaveCount(3);
+            response.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
         }
 
         [Fact]
