@@ -38,6 +38,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             });
             container.RegisterMany<LspRequestRouter>(reuse: Reuse.Singleton);
             container.RegisterMany<SharedHandlerCollection>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterInitializer<SharedHandlerCollection>((manager, context) => {
+                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
+                descriptions.Populate(context, manager);
+            });
             container.RegisterMany<ResponseRouter>(reuse: Reuse.Singleton);
             container.RegisterMany<ProgressManager>(reuse: Reuse.Singleton);
 

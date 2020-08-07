@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
@@ -21,20 +22,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             return options;
         }
 
-        public static DebugAdapterServerOptions OnInitialize(this DebugAdapterServerOptions options, InitializeDelegate @delegate)
+        public static DebugAdapterServerOptions OnInitialize(this DebugAdapterServerOptions options, OnDebugAdapterServerInitializeDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);
             return options;
         }
 
 
-        public static DebugAdapterServerOptions OnInitialized(this DebugAdapterServerOptions options, InitializedDelegate @delegate)
+        public static DebugAdapterServerOptions OnInitialized(this DebugAdapterServerOptions options, OnDebugAdapterServerDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);
             return options;
         }
 
-        public static DebugAdapterServerOptions OnStarted(this DebugAdapterServerOptions options, OnServerStartedDelegate @delegate)
+        public static DebugAdapterServerOptions OnStarted(this DebugAdapterServerOptions options, OnDebugAdapterServerStartedDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);
             return options;

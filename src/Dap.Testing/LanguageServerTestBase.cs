@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.DebugAdapter.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Testing;
 
 namespace OmniSharp.Extensions.DebugAdapter.Testing
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
         protected virtual async Task<IDebugAdapterClient> InitializeClient(Action<DebugAdapterClientOptions> clientOptionsAction = null)
         {
-            _client = DebugAdapterClient.PreInit(options => {
+            _client = DebugAdapterClient.Create(options => {
                 var (reader, writer) = SetupServer();
                 options
                     .WithInput(reader)

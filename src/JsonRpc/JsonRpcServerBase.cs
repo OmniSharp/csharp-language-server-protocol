@@ -7,16 +7,16 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public abstract class JsonRpcServerBase: IResponseRouter
+    public abstract class JsonRpcServerBase : IResponseRouter
     {
-        private readonly IJsonRpcServerOptions _options;
-
-        protected JsonRpcServerBase(IJsonRpcServerOptions options)
+        protected JsonRpcServerBase(IHandlersManager handlersManager, IResponseRouter responseRouter)
         {
-            _options = options;
+            HandlersManager = handlersManager;
+            ResponseRouter = responseRouter;
         }
-        protected abstract IResponseRouter ResponseRouter { get; }
-        protected abstract IHandlersManager HandlersManager { get; }
+
+        public IResponseRouter ResponseRouter { get; }
+        public IHandlersManager HandlersManager { get; }
 
         public void SendNotification(string method)
         {

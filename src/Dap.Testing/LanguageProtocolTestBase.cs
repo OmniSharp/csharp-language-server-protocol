@@ -9,6 +9,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.DebugAdapter.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
 
@@ -43,7 +45,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
             var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
             var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
-            _client = DebugAdapterClient.PreInit(options => {
+            _client = DebugAdapterClient.Create(options => {
                 options
                     .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                     .ConfigureLogging(x => {
@@ -57,7 +59,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                 clientOptionsAction(options);
             });
 
-            _server = DebugAdapterServer.PreInit(options => {
+            _server = DebugAdapterServer.Create(options => {
                 options
                     .WithLoggerFactory(TestOptions.ServerLoggerFactory)
                     .ConfigureLogging(x => {

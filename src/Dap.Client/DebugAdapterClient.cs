@@ -1,16 +1,23 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using MediatR;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Shared;
@@ -20,66 +27,32 @@ using OutputHandler = OmniSharp.Extensions.JsonRpc.OutputHandler;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
-    public class DebugAdapterClient : JsonRpcServerBase, IDebugAdapterClient, IInitializedHandler
+
+    public static class DebugAdapterClientServiceCollectionExtensions
     {
-        private readonly DebugAdapterHandlerCollection _collection;
-        private readonly IEnumerable<OnClientStartedDelegate> _startedDelegates;
-        private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly Connection _connection;
-        private readonly IClientProgressManager _progressManager;
-        private readonly DapReceiver _receiver;
-        private readonly ISubject<InitializedEvent> _initializedComplete = new AsyncSubject<InitializedEvent>();
-
-        public static Task<IDebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction)
+        internal static IContainer AddDebugAdapterClientInternals(this IContainer container, DebugAdapterClientOptions options, IServiceProvider outerServiceProvider)
         {
-            return From(optionsAction, CancellationToken.None);
-        }
+            container = container.AddDebugAdapterProtocolInternals(options);
 
-        public static Task<IDebugAdapterClient> From(DebugAdapterClientOptions options)
-        {
-            return From(options, CancellationToken.None);
-        }
+            if (options.OnUnhandledException != null)
+            {
+                container.RegisterInstance(options.OnUnhandledException);
+            }
+            else
+            {
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => {  }), reuse: Reuse.Singleton);
+            }
 
-        public static Task<IDebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, CancellationToken token)
-        {
-            var options = new DebugAdapterClientOptions();
-            optionsAction(options);
-            return From(options, token);
-        }
+            container.RegisterInstance<IOptionsFactory<DebugAdapterClientOptions>>(new ValueOptionsFactory<DebugAdapterClientOptions>(options));
 
-        public static IDebugAdapterClient PreInit(Action<DebugAdapterClientOptions> optionsAction)
-        {
-            var options = new DebugAdapterClientOptions();
-            optionsAction(options);
-            return PreInit(options);
-        }
+            container.RegisterMany<DebugAdapterClient>(serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton);
+            container.RegisterInitializer<DebugAdapterClient>((server, context) => {
+                var manager = context.Resolve<IHandlersManager>();
+                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
+                descriptions.Populate(context, manager);
+            });
 
-        public static async Task<IDebugAdapterClient> From(DebugAdapterClientOptions options, CancellationToken token)
-        {
-            var server = (DebugAdapterClient) PreInit(options);
-            await server.Initialize(token);
-
-            return server;
-        }
-
-        /// <summary>
-        /// Create the server without connecting to the client
-        ///
-        /// Mainly used for unit testing
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public static IDebugAdapterClient PreInit(DebugAdapterClientOptions options)
-        {
-            return new DebugAdapterClient(options);
-        }
-
-        internal DebugAdapterClient(DebugAdapterClientOptions options) : base(options)
-        {
-            var services = options.Services;
-            services.AddLogging(builder => options.LoggingBuilderAction(builder));
-
-            ClientSettings = new InitializeRequestArguments() {
+            container.RegisterInstance(new InitializeRequestArguments() {
                 Locale = options.Locale,
                 AdapterId = options.AdapterId,
                 ClientId = options.ClientId,
@@ -92,61 +65,170 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 SupportsVariablePaging = options.SupportsVariablePaging,
                 SupportsVariableType = options.SupportsVariableType,
                 SupportsRunInTerminalRequest = options.SupportsRunInTerminalRequest,
-            };
+            });
+            container.RegisterInstance(options.RequestProcessIdentifier);
 
-            var serializer = options.Serializer;
-            var collection = new DebugAdapterHandlerCollection();
-            services.AddSingleton<IHandlersManager>(collection);
+            container.RegisterMany<DebugAdapterClientProgressManager>(nonPublicServiceTypes: true);
+            container.RegisterMany<DebugAdapterClient>(serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton);
+
+            // container.
+            var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
+            container.RegisterDelegate<IConfiguration>(_ => {
+                var builder = new ConfigurationBuilder();
+                if (outerServiceProvider != null)
+                {
+                    var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
+                    if (outerConfiguration != null)
+                    {
+                        builder.AddConfiguration(outerConfiguration, false);
+                    }
+                }
+
+                if (providedConfiguration != null)
+                {
+                    builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                }
+
+                return builder.Build();
+            },
+                reuse: Reuse.Singleton);
+
+            return container;
+        }
+
+        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, Action<DebugAdapterClientOptions> configureOptions = null)
+        {
+            return AddDebugAdapterClient(services, Options.DefaultName, configureOptions);
+        }
+
+        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, string name, Action<DebugAdapterClientOptions> configureOptions = null)
+        {
+            // If we get called multiple times we're going to remove the default server
+            // and force consumers to use the resolver.
+            if (services.Any(d => d.ServiceType == typeof(DebugAdapterClient) || d.ServiceType == typeof(IDebugAdapterClient)))
+            {
+                services.RemoveAll<DebugAdapterClient>();
+                services.RemoveAll<IDebugAdapterClient>();
+                services.AddSingleton<IDebugAdapterClient>(_ =>
+                    throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClient instead"));
+                services.AddSingleton<DebugAdapterClient>(_ =>
+                    throw new NotSupportedException("DebugAdapterClient has been registered multiple times, you must use DebugAdapterClient instead"));
+            }
+
+            services
+                .AddOptions()
+                .AddLogging();
+            services.TryAddSingleton<DebugAdapterClientResolver>();
+            services.TryAddSingleton(_ => _.GetRequiredService<DebugAdapterClientResolver>().Get(name));
+            services.TryAddSingleton<IDebugAdapterClient>(_ => _.GetRequiredService<DebugAdapterClientResolver>().Get(name));
+
+            if (configureOptions != null)
+            {
+                services.Configure(name, configureOptions);
+            }
+
+            return services;
+        }
+    }
+
+    public class DebugAdapterClientResolver : IDisposable
+    {
+        private readonly IOptionsMonitor<DebugAdapterClientOptions> _monitor;
+        private readonly IServiceProvider _outerServiceProvider;
+        private readonly ConcurrentDictionary<string, DebugAdapterClient> _servers = new ConcurrentDictionary<string, DebugAdapterClient>();
+
+        public DebugAdapterClientResolver(IOptionsMonitor<DebugAdapterClientOptions> monitor, IServiceProvider outerServiceProvider)
+        {
+            _monitor = monitor;
+            _outerServiceProvider = outerServiceProvider;
+        }
+
+        public DebugAdapterClient Get(string name)
+        {
+            if (_servers.TryGetValue(name, out var server)) return server;
+
+            var options = name == Options.DefaultName ? _monitor.CurrentValue : _monitor.Get(name);
+
+            var container = DebugAdapterClient.CreateContainer(options, _outerServiceProvider);
+            server = container.Resolve<DebugAdapterClient>();
+            _servers.TryAdd(name, server);
+
+            return server;
+        }
+
+        public void Dispose()
+        {
+            foreach (var item in _servers.Values) item.Dispose();
+        }
+    }
+
+    public class DebugAdapterClient : JsonRpcServerBase, IDebugAdapterClient, IInitializedHandler
+    {
+        private readonly DebugAdapterSettingsBag _settingsBag;
+        private readonly DebugAdapterHandlerCollection _collection;
+        private readonly IEnumerable<OnDebugAdapterClientStartedDelegate> _startedDelegates;
+        private readonly CompositeDisposable _disposable = new CompositeDisposable();
+        private readonly Connection _connection;
+        private readonly DapReceiver _receiver;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly ISubject<InitializedEvent> _initializedComplete = new AsyncSubject<InitializedEvent>();
+
+        internal static IContainer CreateContainer(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) =>
+            JsonRpcServerContainer.Create(outerServiceProvider)
+                .AddDebugAdapterClientInternals(options, outerServiceProvider);
+
+        public static DebugAdapterClient Create(DebugAdapterClientOptions options) => Create(options, null);
+        public static DebugAdapterClient Create(Action<DebugAdapterClientOptions> optionsAction) => Create(optionsAction, null);
+        public static DebugAdapterClient Create(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider)
+        {
+            var options = new DebugAdapterClientOptions();
+            optionsAction(options);
+            return Create(options, outerServiceProvider);
+        }
+
+        public static DebugAdapterClient Create(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) => CreateContainer(options, outerServiceProvider).Resolve<DebugAdapterClient>();
+
+        public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options) => From(options, null, CancellationToken.None);
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
+        public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
+        public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) => From(options, outerServiceProvider, CancellationToken.None);
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider) => From(optionsAction, outerServiceProvider, CancellationToken.None);
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        {
+            var options = new DebugAdapterClientOptions();
+            optionsAction(options);
+            return From(options, outerServiceProvider, cancellationToken);
+        }
+
+        public static async Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        {
+            var server = Create(options, outerServiceProvider);
+            await server.Initialize(cancellationToken);
+            return server;
+        }
+
+        internal DebugAdapterClient(
+            IOptions<DebugAdapterClientOptions> options,
+            InitializeRequestArguments clientSettings,
+            DebugAdapterSettingsBag settingsBag,
+            DebugAdapterHandlerCollection collection,
+            IEnumerable<OnDebugAdapterClientStartedDelegate> onClientStartedDelegates,
+            DapReceiver receiver,
+            IResponseRouter responseRouter,
+            IServiceProvider serviceProvider,
+            IDebugAdapterClientProgressManager debugAdapterClientProgressManager,
+            Connection connection
+        ) : base(collection, responseRouter)
+        {
+            _settingsBag = settingsBag;
+            ClientSettings = clientSettings;
             _collection = collection;
-            // _initializeDelegates = initializeDelegates;
-            // _initializedDelegates = initializedDelegates;
-            _startedDelegates = options.StartedDelegates;
-
-            var receiver = _receiver = new DapReceiver();
-
-            services.AddSingleton<IOutputHandler>(_ =>
-                new OutputHandler(options.Output, options.Serializer, receiver.ShouldFilterOutput, _.GetService<ILogger<OutputHandler>>()));
-            services.AddSingleton(_collection);
-            services.AddSingleton(serializer);
-            services.AddSingleton(options.RequestProcessIdentifier);
-            services.AddSingleton(receiver);
-            services.AddSingleton<IDebugAdapterClient>(this);
-            services.AddSingleton<DebugAdapterRequestRouter>();
-            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<DebugAdapterRequestRouter>());
-            services.AddSingleton<IResponseRouter, DapResponseRouter>();
-
-            services.AddSingleton<IClientProgressManager, ClientProgressManager>();
-            services.AddSingleton(_ => _.GetRequiredService<IClientProgressManager>() as IJsonRpcHandler);
-
-            EnsureAllHandlersAreRegistered();
-
-            var serviceProvider = services.BuildServiceProvider();
-            _disposable.Add(serviceProvider);
-            IServiceProvider serviceProvider1 = serviceProvider;
-
-            var responseRouter = serviceProvider1.GetRequiredService<IResponseRouter>();
-            ResponseRouter = responseRouter;
-            _progressManager = serviceProvider1.GetRequiredService<IClientProgressManager>();
-
-            _connection = new Connection(
-                options.Input,
-                serviceProvider1.GetRequiredService<IOutputHandler>(),
-                receiver,
-                options.RequestProcessIdentifier,
-                serviceProvider1.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
-                responseRouter,
-                serviceProvider1.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException ?? (e => { }),
-                options.CreateResponseException,
-                options.MaximumRequestTimeout,
-                false,
-                options.Concurrency
-            );
-
-            var serviceHandlers = serviceProvider1.GetServices<IJsonRpcHandler>().ToArray();
-            _collection.Add(this);
-            _disposable.Add(_collection.Add(serviceHandlers));
-            options.AddLinks(_collection);
+            _startedDelegates = onClientStartedDelegates;
+            _receiver = receiver;
+            _serviceProvider = serviceProvider;
+            ProgressManager = debugAdapterClientProgressManager;
+            _connection = connection;
         }
 
         public async Task Initialize(CancellationToken token)
@@ -183,16 +265,25 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                                                        _collection.ContainsHandler(typeof(IProgressEndHandler));
         }
 
-        protected override IResponseRouter ResponseRouter { get; }
-        protected override IHandlersManager HandlersManager => _collection;
-        public InitializeRequestArguments ClientSettings { get; }
-        public InitializeResponse ServerSettings { get; private set; }
-        public IClientProgressManager ProgressManager => _progressManager;
+        public InitializeRequestArguments ClientSettings
+        {
+            get => _settingsBag.ClientSettings;
+            private set => _settingsBag.ClientSettings = value;
+        }
+
+        public InitializeResponse ServerSettings
+        {
+            get => _settingsBag.ServerSettings;
+            private set => _settingsBag.ServerSettings = value;
+        }
+        public IDebugAdapterClientProgressManager ProgressManager { get; }
 
         public void Dispose()
         {
             _disposable?.Dispose();
             _connection?.Dispose();
         }
+
+        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
     }
 }

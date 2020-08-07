@@ -3,14 +3,16 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
-    public class ServerProgressManager : ICancelHandler, IServerProgressManager
+    public class DebugAdapterServerProgressManager : ICancelHandler, IDebugAdapterServerProgressManager
     {
         private readonly IResponseRouter _router;
         private readonly ISerializer _serializer;
@@ -21,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly ConcurrentDictionary<ProgressToken, IProgressObserver> _activeObservers =
             new ConcurrentDictionary<ProgressToken, IProgressObserver>(EqualityComparer<ProgressToken>.Default);
 
-        public ServerProgressManager(IResponseRouter router, ISerializer serializer)
+        public DebugAdapterServerProgressManager(IResponseRouter router, ISerializer serializer)
         {
             _router = router;
             _serializer = serializer;

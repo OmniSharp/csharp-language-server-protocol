@@ -455,6 +455,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                  */
                 var maskedDirection = (0b0011 & direction);
                 additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol");
+                additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol.Client");
+                additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol.Server");
 
                 if (maskedDirection == 1)
                 {

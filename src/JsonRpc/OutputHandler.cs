@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public OutputHandler(
             PipeWriter pipeWriter,
             ISerializer serializer,
-            Func<object, bool> objectFilter,
+            IReceiver receiver,
             IScheduler scheduler,
             ILogger<OutputHandler> logger)
         {
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _disposable = new CompositeDisposable {
                 _queue
                     .ObserveOn(scheduler)
-                    .Where(objectFilter)
+                    .Where(receiver.ShouldFilterOutput)
                     .Select(value => Observable.FromAsync(ct => ProcessOutputStream(value, ct)))
                     .Concat()
                     .Subscribe(),
@@ -49,26 +49,12 @@ namespace OmniSharp.Extensions.JsonRpc
         public OutputHandler(
             PipeWriter pipeWriter,
             ISerializer serializer,
-            Func<object, bool> objectFilter,
-            ILogger<OutputHandler> logger) : this(
+            IReceiver receiver,
+            ILogger<OutputHandler> logger): this(
             pipeWriter,
             serializer,
-            objectFilter,
+            receiver,
             new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
-            // TaskPoolScheduler.Default,
-            logger)
-        {
-        }
-
-        public OutputHandler(
-            PipeWriter pipeWriter,
-            ISerializer serializer,
-            ILogger<OutputHandler> logger) : this(
-            pipeWriter,
-            serializer,
-            _ => true,
-            new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
-            // TaskPoolScheduler.Default,
             logger)
         {
         }

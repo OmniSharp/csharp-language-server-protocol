@@ -5,6 +5,7 @@ using System.Reactive.Concurrency;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging.Abstractions;
+using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
@@ -17,11 +18,15 @@ namespace JsonRpc.Tests
     {
         private static OutputHandler NewHandler(PipeWriter writer)
         {
-            return new OutputHandler(writer, new JsonRpcSerializer(), _ => true, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            var rec = Substitute.For<IReceiver>();
+            rec.ShouldFilterOutput(Arg.Any<object>()).Returns(true);
+            return new OutputHandler(writer, new JsonRpcSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
         private static OutputHandler NewHandler(PipeWriter writer, Func<object, bool> filter)
         {
-            return new OutputHandler(writer, new JsonRpcSerializer(), filter, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            var rec = Substitute.For<IReceiver>();
+            rec.ShouldFilterOutput(Arg.Any<object>()).Returns(_ => filter(_.ArgAt<object>(0)));
+            return new OutputHandler(writer, new JsonRpcSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]

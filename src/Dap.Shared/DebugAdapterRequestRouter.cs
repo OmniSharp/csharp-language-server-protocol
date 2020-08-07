@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace OmniSharp.Extensions.DebugAdapter.Shared
 {
@@ -11,9 +12,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
     {
         private readonly DebugAdapterHandlerCollection _collection;
 
-
-        public DebugAdapterRequestRouter(DebugAdapterHandlerCollection collection, ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
-            : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<RequestRouter>())
+        public DebugAdapterRequestRouter(DebugAdapterHandlerCollection collection, ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger<DebugAdapterRequestRouter> logger)
+            : base(serializer, serviceScopeFactory, logger)
         {
             _collection = collection;
         }

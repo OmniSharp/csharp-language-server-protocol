@@ -5,7 +5,8 @@ using System.Linq;
 using DryIoc;
 using Microsoft.Extensions.Logging;
 
-namespace NSubstitute.Internals
+// ReSharper disable once CheckNamespace
+namespace NSubstitute
 {
     internal static class DryIocExtensions
     {

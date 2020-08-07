@@ -2,9 +2,9 @@
 using System.Threading;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 
-namespace OmniSharp.Extensions.DebugAdapter.Server
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Server
 {
-    public interface IServerProgressManager
+    public interface IDebugAdapterServerProgressManager
     {
         /// <summary>
         /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.

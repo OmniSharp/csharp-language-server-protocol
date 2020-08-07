@@ -7,18 +7,20 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
-    public class ClientProgressManager : IProgressStartHandler, IProgressUpdateHandler, IProgressEndHandler, IClientProgressManager, IDisposable
+    class DebugAdapterClientProgressManager : IProgressStartHandler, IProgressUpdateHandler, IProgressEndHandler, IDebugAdapterClientProgressManager, IDisposable
     {
         private readonly IObserver<IProgressObservable> _observer;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly ConcurrentDictionary<ProgressToken, ProgressObservable> _activeObservables = new ConcurrentDictionary<ProgressToken, ProgressObservable>(EqualityComparer<ProgressToken>.Default);
 
-        public ClientProgressManager()
+        public DebugAdapterClientProgressManager()
         {
             var subject = new Subject<IProgressObservable>();
             _disposable.Add(subject);

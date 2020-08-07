@@ -60,12 +60,10 @@ namespace OmniSharp.Extensions.JsonRpc
             IHandlersManager handlerCollection,
             IResponseRouter responseRouter,
             IServiceProvider serviceProvider
-        ) : base(options.Value)
+        ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
-            HandlersManager = handlerCollection;
             _disposable = options.Value.CompositeDisposable;
-            ResponseRouter = responseRouter;
             _disposable.Add(_connection);
             if (serviceProvider is IDisposable disposable)
             {
@@ -90,8 +88,5 @@ namespace OmniSharp.Extensions.JsonRpc
             registryAction(new JsonRpcServerRegistry(manager));
             return manager.GetDisposable();
         }
-
-        protected override IResponseRouter ResponseRouter { get; }
-        protected override IHandlersManager HandlersManager { get; }
     }
 }

@@ -72,17 +72,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterInstance<IOptionsFactory<LanguageServerOptions>>(new ValueOptionsFactory<LanguageServerOptions>(options));
 
             container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer), reuse: Reuse.Singleton);
-            container.RegisterInitializer<LanguageServer>((server, context) => {
-                var manager = context.Resolve<IHandlersManager>();
-                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                descriptions.Populate(context, manager);
-
-                var handlers = context.ResolveMany<IJsonRpcHandler>();
-                foreach (var handler in handlers)
-                {
-                    manager.Add(handler, new JsonRpcHandlerOptions());
-                }
-            });
 
             container.RegisterMany<DidChangeConfigurationProvider>(
                 made: Parameters.Of
@@ -305,7 +294,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             LanguageProtocolSettingsBag languageProtocolSettingsBag,
             SharedHandlerCollection handlerCollection,
             IProgressManager progressManager
-        ) : base(options.Value)
+        ) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
 
@@ -630,9 +619,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
-
-        protected override IResponseRouter ResponseRouter => _responseRouter;
-        protected override IHandlersManager HandlersManager => _collection;
 
         public IDisposable Register(Action<ILanguageServerRegistry> registryAction)
         {

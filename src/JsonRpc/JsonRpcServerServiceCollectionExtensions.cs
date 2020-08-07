@@ -64,9 +64,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
             container.RegisterInstance(options.Handlers);
             container.RegisterInitializer<IJsonRpcHandlerCollection>((collection, context) => {
-                foreach (var description in context.ResolveMany<JsonRpcHandlerDescription>())
+                foreach (var description in context.ResolveMany<JsonRpcHandlerDescription>()
+                    .Concat(context.ResolveMany<IJsonRpcHandler>().Select(_ => JsonRpcHandlerDescription.Infer(_)))
+                )
                 {
-                    options.Handlers.Add(description);
+                    collection.Add(description);
                 }
             });
 
@@ -123,21 +125,14 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInstance(options.OnUnhandledException ?? (e => { }));
 
             container.RegisterMany<RequestRouter>();
-            container.RegisterMany<HandlerCollection>();
-            container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
-
-            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer)/*, reuse: Reuse.Singleton*/);
-            container.RegisterInitializer<JsonRpcServer>((server, context) => {
-                var manager = context.Resolve<IHandlersManager>();
+            container.RegisterMany<HandlerCollection>(nonPublicServiceTypes: true, serviceTypeCondition: type => typeof(IHandlersManager) == type || type == typeof(HandlerCollection));
+            container.RegisterInitializer<IHandlersManager>((manager, context) => {
                 var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
                 descriptions.Populate(context, manager);
-
-                var handlers = context.ResolveMany<IJsonRpcHandler>();
-                foreach (var handler in handlers)
-                {
-                    manager.Add(handler, new JsonRpcHandlerOptions());
-                }
             });
+
+            container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
+            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer)/*, reuse: Reuse.Singleton*/);
 
             return container;
         }
