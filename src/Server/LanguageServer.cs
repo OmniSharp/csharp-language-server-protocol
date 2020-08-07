@@ -1,11 +1,9 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -16,13 +14,9 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
-using OmniSharp.Extensions.LanguageServer.Server.Matchers;
-using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using System.Reactive.Disposables;
 using DryIoc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -36,155 +30,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using OmniSharp.Extensions.LanguageServer.Server.Configuration;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    public static class LanguageServerServiceCollectionExtensions
-    {
-        internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider outerServiceProvider)
-        {
-            if (options.Receiver == null)
-            {
-                throw new ArgumentException("Receiver is missing!", nameof(options));
-            }
-
-            container = container.AddLanguageProtocolInternals(options);
-
-            container.RegisterInstanceMany(options.Receiver);
-            if (options.OnUnhandledException != null)
-            {
-                container.RegisterInstance(options.OnUnhandledException);
-            }
-            else
-            {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { _.GetRequiredService<LanguageServer>().ForcefulShutdown(); }), reuse: Reuse.Singleton);
-            }
-
-            container.RegisterMany<TextDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterMany<ClientLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(ClientLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterMany<WorkspaceLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterInstance<IOptionsFactory<LanguageServerOptions>>(new ValueOptionsFactory<LanguageServerOptions>(options));
-
-            container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer), reuse: Reuse.Singleton);
-
-            container.RegisterMany<DidChangeConfigurationProvider>(
-                made: Parameters.Of
-                    .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
-                reuse: Reuse.Singleton
-            );
-
-            // container.
-            var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
-            container.RegisterDelegate<IConfiguration>(_ => {
-                var builder = new ConfigurationBuilder();
-                var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
-                if (outerServiceProvider != null)
-                {
-                    var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
-                    if (outerConfiguration != null)
-                    {
-                        builder.AddConfiguration(outerConfiguration, false);
-                    }
-                }
-
-                if (providedConfiguration != null)
-                {
-                    builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
-                }
-
-                return builder.AddConfiguration(didChangeConfigurationProvider).Build();
-            },
-                reuse: Reuse.Singleton);
-
-            container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
-            container.RegisterInstance(options.ServerInfo ?? new ServerInfo() {
-                Name = Assembly.GetEntryAssembly()?.GetName().Name,
-                Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                              ?.InformationalVersion ??
-                          Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
-            });
-
-            container.RegisterMany<TextDocumentMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany<ExecuteCommandMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany<ResolveCommandMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany(new[] {typeof(ResolveCommandPipeline<,>)});
-            container.RegisterMany<ServerWorkDoneManager>(reuse: Reuse.Singleton);
-
-            return container;
-        }
-
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions> configureOptions = null)
-        {
-            return AddLanguageServer(services, Options.DefaultName, configureOptions);
-        }
-
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions> configureOptions = null)
-        {
-            // If we get called multiple times we're going to remove the default server
-            // and force consumers to use the resolver.
-            if (services.Any(d => d.ServiceType == typeof(LanguageServer) || d.ServiceType == typeof(ILanguageServer)))
-            {
-                services.RemoveAll<LanguageServer>();
-                services.RemoveAll<ILanguageServer>();
-                services.AddSingleton<ILanguageServer>(_ =>
-                    throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead"));
-                services.AddSingleton<LanguageServer>(_ =>
-                    throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead"));
-            }
-
-            services
-                .AddOptions()
-                .AddLogging();
-            services.TryAddSingleton<LanguageServerResolver>();
-            services.TryAddSingleton(_ => _.GetRequiredService<LanguageServerResolver>().Get(name));
-            services.TryAddSingleton<ILanguageServer>(_ => _.GetRequiredService<LanguageServerResolver>().Get(name));
-
-            if (configureOptions != null)
-            {
-                services.Configure(name, configureOptions);
-            }
-
-            return services;
-        }
-    }
-
-    public class LanguageServerResolver : IDisposable
-    {
-        private readonly IOptionsMonitor<LanguageServerOptions> _monitor;
-        private readonly IServiceProvider _outerServiceProvider;
-        private readonly ConcurrentDictionary<string, LanguageServer> _servers = new ConcurrentDictionary<string, LanguageServer>();
-
-        public LanguageServerResolver(IOptionsMonitor<LanguageServerOptions> monitor, IServiceProvider outerServiceProvider)
-        {
-            _monitor = monitor;
-            _outerServiceProvider = outerServiceProvider;
-        }
-
-        public LanguageServer Get(string name)
-        {
-            if (_servers.TryGetValue(name, out var server)) return server;
-
-            var options = name == Options.DefaultName ? _monitor.CurrentValue : _monitor.Get(name);
-
-            var container = LanguageServer.CreateContainer(options, _outerServiceProvider);
-            server = container.Resolve<LanguageServer>();
-            _servers.TryAdd(name, server);
-
-            return server;
-        }
-
-        public void Dispose()
-        {
-            foreach (var item in _servers.Values) item.Dispose();
-        }
-    }
-
     public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, ILanguageProtocolInitializeHandler, ILanguageProtocolInitializedHandler, IAwaitableTermination,
         IDisposable
     {
