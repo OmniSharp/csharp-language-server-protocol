@@ -37,7 +37,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Handlers is missing!", nameof(options));
             }
 
-            container = container.Populate(options.Services);
+            container = container.Populate(options.Services
+                .AddLogging()
+                .AddOptions()
+            );
 
             container.RegisterInstance(options.Output, serviceKey: nameof(options.Output));
             container.RegisterInstance(options.Input, serviceKey: nameof(options.Input));

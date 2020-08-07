@@ -5,9 +5,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
-        internal IServiceCollection Services { get; } = new ServiceCollection()
-            .AddLogging()
-            .AddOptions();
+        public IServiceCollection Services { get; set; } = new ServiceCollection();
         public IJsonRpcHandlerCollection Handlers { get; } = new JsonRpcHandlerCollection();
 
         public T WithServices(Action<IServiceCollection> servicesAction)
