@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -8,11 +9,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.Core;
 using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
@@ -23,6 +26,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,6 +40,71 @@ namespace Lsp.Tests
         {
             _logger = new TestLoggerFactory(outputHelper).CreateLogger(typeof(FoundationTests));
         }
+
+        [Theory]
+        [ClassData(typeof(ActionDelegateData))]
+        public void All_Create_Methods_Should_Work(ActionDelegate createDelegate)
+        {
+            createDelegate.Method.Should().NotThrow();
+        }
+
+        public class ActionDelegateData : TheoryData<ActionDelegate>
+        {
+            public ActionDelegateData()
+            {
+                {
+                    var baseOptions = new LanguageServerOptions().WithPipe(new Pipe());
+                    void BaseDelegate(LanguageServerOptions o) => o.WithPipe(new Pipe());
+                    var serviceProvider = new ServiceCollection().BuildServiceProvider();
+                    Add(new ActionDelegate("create (server): options", () => LanguageServer.Create(baseOptions)));
+                    Add(new ActionDelegate("create (server): options, serviceProvider", () => LanguageServer.Create(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("create (server): action", () => LanguageServer.Create(BaseDelegate)));
+                    Add(new ActionDelegate("create (server): action, serviceProvider", () => LanguageServer.Create(BaseDelegate, serviceProvider)));
+
+                    Add(new ActionDelegate("from (server): options", () => LanguageServer.From(baseOptions)));
+                    Add(new ActionDelegate("from (server): options, cancellationToken", () => LanguageServer.From(baseOptions, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): options, serviceProvider, cancellationToken", () => LanguageServer.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): options, serviceProvider", () => LanguageServer.From(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("from (server): action", () => LanguageServer.From(BaseDelegate)));
+                    Add(new ActionDelegate("from (server): action, cancellationToken", () => LanguageServer.From(BaseDelegate, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): action, serviceProvider, cancellationToken", () => LanguageServer.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): action, serviceProvider", () => LanguageServer.From(BaseDelegate, serviceProvider)));
+                }
+                {
+                    var baseOptions = new LanguageClientOptions().WithPipe(new Pipe());
+                    void BaseDelegate(LanguageClientOptions o) => o.WithPipe(new Pipe());
+                    var serviceProvider = new ServiceCollection().BuildServiceProvider();
+                    Add(new ActionDelegate("create (client): options", () => LanguageClient.Create(baseOptions)));
+                    Add(new ActionDelegate("create (client): options, serviceProvider", () => LanguageClient.Create(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("create (client): action", () => LanguageClient.Create(BaseDelegate)));
+                    Add(new ActionDelegate("create (client): action, serviceProvider", () => LanguageClient.Create(BaseDelegate, serviceProvider)));
+
+                    Add(new ActionDelegate("from (client): options", () => LanguageClient.From(baseOptions)));
+                    Add(new ActionDelegate("from (client): options, cancellationToken", () => LanguageClient.From(baseOptions, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): options, serviceProvider, cancellationToken", () => LanguageClient.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): options, serviceProvider", () => LanguageClient.From(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("from (client): action", () => LanguageClient.From(BaseDelegate)));
+                    Add(new ActionDelegate("from (client): action, cancellationToken", () => LanguageClient.From(BaseDelegate, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): action, serviceProvider, cancellationToken", () => LanguageClient.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): action, serviceProvider", () => LanguageClient.From(BaseDelegate, serviceProvider)));
+                }
+            }
+        }
+
+        public class ActionDelegate
+        {
+            private readonly string _name;
+            public Action Method { get; }
+
+            public ActionDelegate(string name, Action method)
+            {
+                _name = name;
+                this.Method = method;
+            }
+
+            public override string ToString() => _name;
+        }
+
 
         [Theory(DisplayName = "Should not throw when accessing the debugger properties")]
         [ClassData(typeof(DebuggerDisplayTypes))]
