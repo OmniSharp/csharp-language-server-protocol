@@ -94,8 +94,8 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, reuse: Reuse.ScopedOrSingleton);
             container.RegisterMany(new[] { typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>) }, reuse: Reuse.ScopedOrSingleton);
-            container.RegisterMany<RequestContext>();
-            container.RegisterDelegate<ServiceFactory>(context => context.Resolve);
+            container.RegisterMany<RequestContext>(reuse: Reuse.Scoped);
+            container.RegisterDelegate<ServiceFactory>(context => context.Resolve, reuse: Reuse.ScopedOrSingleton);
 
             return container.With(rules => rules.WithUnknownServiceResolvers(request => {
                 if (request.ServiceType.IsGenericType && typeof(IRequestHandler<,>).IsAssignableFrom(request.ServiceType.GetGenericTypeDefinition()))
