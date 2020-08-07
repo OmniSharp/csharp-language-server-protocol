@@ -37,6 +37,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Handlers is missing!", nameof(options));
             }
 
+            container = container.Populate(options.Services);
+
             container.RegisterInstance(options.Output, serviceKey: nameof(options.Output));
             container.RegisterInstance(options.Input, serviceKey: nameof(options.Input));
             container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
@@ -82,7 +84,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 container.RegisterInstance(options.LoggerFactory, IfAlreadyRegistered.Keep);
             }
 
-            return container.Populate(options.Services).AddJsonRpcMediatR();
+            return container.AddJsonRpcMediatR();
         }
 
         internal static IContainer AddJsonRpcMediatR(this IContainer container)

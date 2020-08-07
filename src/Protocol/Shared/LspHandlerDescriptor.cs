@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 {
@@ -60,13 +62,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                       typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
-            if (handler is IOnServerStarted serverStarted)
+            if (handler is IOnLanguageServerStarted serverStarted)
             {
-                OnServerStartedDelegate = serverStarted.OnStarted;
+                OnLanguageServerStartedDelegate = serverStarted.OnStarted;
             }
-            if (handler is IOnClientStarted clientStarted)
+            if (handler is IOnLanguageClientStarted clientStarted)
             {
-                OnClientStartedDelegate = clientStarted.OnStarted;
+                OnLanguageClientStartedDelegate = clientStarted.OnStarted;
             }
 
             IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
@@ -88,8 +90,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
-        public OnServerStartedDelegate OnServerStartedDelegate { get; }
-        public OnClientStartedDelegate OnClientStartedDelegate { get; }
+        public OnLanguageServerStartedDelegate OnLanguageServerStartedDelegate { get; }
+        public OnLanguageClientStartedDelegate OnLanguageClientStartedDelegate { get; }
 
         public string Method { get; }
         public string Key { get; }

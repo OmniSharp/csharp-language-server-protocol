@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
+  <IsTestProject>false</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\JsonRpc.Testing\JsonRpc.Testing.csproj" />
+    <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
+  </ItemGroup>
+
+</Project>

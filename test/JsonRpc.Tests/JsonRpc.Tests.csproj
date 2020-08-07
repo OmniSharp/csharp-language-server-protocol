@@ -9,5 +9,6 @@
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\..\src\JsonRpc.Testing\JsonRpc.Testing.csproj" />
         <EmbeddedResource Include="**/*.jsrpc" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
 </Project>

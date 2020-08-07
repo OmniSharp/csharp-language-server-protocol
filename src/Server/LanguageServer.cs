@@ -195,9 +195,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ISerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IHandlerCollection _collection;
-        private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
-        private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
-        private readonly IEnumerable<OnServerStartedDelegate> _startedDelegates;
+        private readonly IEnumerable<OnLanguageServerInitializeDelegate> _initializeDelegates;
+        private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -282,9 +282,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IServiceProvider serviceProvider,
             ISupportedCapabilities supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
-            IEnumerable<InitializeDelegate> initializeDelegates,
-            IEnumerable<InitializedDelegate> initializedDelegates,
-            IEnumerable<OnServerStartedDelegate> startedDelegates,
+            IEnumerable<OnLanguageServerInitializeDelegate> initializeDelegates,
+            IEnumerable<OnLanguageServerInitializedDelegate> initializedDelegates,
+            IEnumerable<OnLanguageServerStartedDelegate> startedDelegates,
             IServerWorkDoneManager serverWorkDoneManager,
             ITextDocumentLanguageServer textDocumentLanguageServer,
             IClientLanguageServer clientLanguageServer,
@@ -653,12 +653,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     });
                 }
 
-                if (descriptor.OnServerStartedDelegate != null)
+                if (descriptor.OnLanguageServerStartedDelegate != null)
                 {
                     // Fire and forget to initialize the handler
                     _initializeComplete
                         .Select(result =>
-                            Observable.FromAsync((ct) => descriptor.OnServerStartedDelegate(this, result, ct)))
+                            Observable.FromAsync((ct) => descriptor.OnLanguageServerStartedDelegate(this, result, ct)))
                         .Merge()
                         .Subscribe();
                 }

@@ -9,6 +9,7 @@ using Nerdbank.Streams;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
@@ -79,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         }
 
         public static LanguageClientOptions OnStarted(this LanguageClientOptions options,
-            OnClientStartedDelegate @delegate)
+            OnLanguageClientStartedDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);
             return options;

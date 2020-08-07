@@ -20,7 +20,7 @@ namespace NSubstitute.Internals
         /// </summary>
         /// <param name="container"></param>
         /// <param name="configureAction"></param>
-        public AutoSubstitute(
+        internal AutoSubstitute(
             IContainer container = null,
             Func<IContainer, IContainer> configureAction = null)
         {
@@ -43,14 +43,14 @@ namespace NSubstitute.Internals
         /// <summary>
         /// Gets the <see cref="IContainer"/> that handles the component resolution.
         /// </summary>
-        public IContainer Container { get; }
+        internal IContainer Container { get; }
 
         /// <summary>
         /// Resolve the specified type in the container (register it if needed).
         /// </summary>
         /// <typeparam name="T">The type of the service.</typeparam>
         /// <returns>The service.</returns>
-        public T Resolve<T>() => Container.Resolve<T>();
+        public T Resolve<T>() => Container.GetRequiredService<T>();
 
         /// <summary>
         /// Resolve the specified type in the container (register specified instance if needed).

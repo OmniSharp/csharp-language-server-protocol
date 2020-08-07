@@ -1,11 +1,10 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    public interface IOnServerStarted
+    public interface IOnLanguageServerStarted
     {
         Task OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken);
     }

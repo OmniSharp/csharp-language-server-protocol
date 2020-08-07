@@ -13,5 +13,17 @@
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Client\RegisterCapabilityExtensions.cs" />
+      <Compile Update="Client\OnLanguageClientStartedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\OnLanguageServerStartedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Client\IOnLanguageClientStarted.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\IOnLanguageServerStarted.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

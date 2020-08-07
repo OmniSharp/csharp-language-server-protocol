@@ -13,7 +13,7 @@
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
-        <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="obj\Release\netcoreapp3.1\" />

@@ -12,7 +12,7 @@
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
         <ProjectReference Include="..\..\src\Dap.Protocol\Dap.Protocol.csproj" />
         <ProjectReference Include="..\..\src\Dap.Testing\Dap.Testing.csproj" />
-        <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
     <ItemGroup>
         <Folder Include="obj\Release\netcoreapp3.1\" />

@@ -12,5 +12,6 @@
         <PackageReference Include="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
 </Project>

@@ -14,9 +14,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return collection.Add(handlers.ToArray());
         }
 
-        public static LspHandlerDescriptorDisposable Add(this IHandlerCollection collection, IServiceProvider serviceProvider, IEnumerable<Type> handlerTypes)
+        public static LspHandlerDescriptorDisposable Add(this IHandlerCollection collection, IEnumerable<Type> handlerTypes)
         {
-            return collection.Add(serviceProvider, handlerTypes.ToArray());
+            return collection.Add(handlerTypes.ToArray());
         }
 
         public static LspHandlerDescriptorDisposable Add(this ILanguageServer collection, IEnumerable<IJsonRpcHandler> handlers)

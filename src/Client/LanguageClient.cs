@@ -158,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         // private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         // private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
-        private readonly IEnumerable<OnClientStartedDelegate> _startedDelegates;
+        private readonly IEnumerable<OnLanguageClientStartedDelegate> _startedDelegates;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -244,7 +244,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ILspClientReceiver lspClientReceiver,
             TextDocumentIdentifiers textDocumentIdentifiers,
             IServiceProvider serviceProvider,
-            IEnumerable<OnClientStartedDelegate> startedDelegates,
+            IEnumerable<OnLanguageClientStartedDelegate> startedDelegates,
             ITextDocumentLanguageClient textDocumentLanguageClient,
             IClientLanguageClient clientLanguageClient,
             IGeneralLanguageClient generalLanguageClient,

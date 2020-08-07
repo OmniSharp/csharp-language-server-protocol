@@ -17,7 +17,7 @@ namespace NSubstitute
         /// <param name="rules"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
-        public static Rules WithTestLoggerResolver(this Rules rules, Func<Request, Type, object> creator)
+        internal static Rules WithTestLoggerResolver(this Rules rules, Func<Request, Type, object> creator)
         {
             var dictionary = new ConcurrentDictionary<Type, Factory>();
             return rules.WithUnknownServiceResolvers(
@@ -51,7 +51,7 @@ namespace NSubstitute
         /// <param name="rules"></param>
         /// <param name="creator"></param>
         /// <returns></returns>
-        public static Rules WithUndefinedTestDependenciesResolver(this Rules rules, Func<Request, object> creator)
+        internal static Rules WithUndefinedTestDependenciesResolver(this Rules rules, Func<Request, object> creator)
         {
             var dictionary = new ConcurrentDictionary<Type, Factory>();
             return rules.WithUnknownServiceResolvers(
