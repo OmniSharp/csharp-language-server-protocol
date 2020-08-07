@@ -32,7 +32,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {

@@ -198,6 +198,7 @@ namespace Lsp.Tests.Integration
             workDoneObserver.OnCompleted();
 
             await SettleNext();
+            await SettleNext();
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,

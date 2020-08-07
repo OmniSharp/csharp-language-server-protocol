@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OmniSharp.Extensions.JsonRpc.DryIoc
+// ReSharper disable once CheckNamespace
+namespace DryIoc
 {
 
     /// <summary>Adapts DryIoc container to be used as MS.DI service provider, plus provides the helpers

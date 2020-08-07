@@ -1,7 +1,8 @@
 ﻿using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
+// ReSharper disable once CheckNamespace
 
-namespace OmniSharp.Extensions.JsonRpc.DryIoc
+namespace DryIoc
 {
     /// <summary>Creates/opens new scope in passed scoped container.</summary>
     internal sealed class DryIocServiceScopeFactory : IServiceScopeFactory

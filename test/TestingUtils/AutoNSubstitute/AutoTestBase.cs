@@ -4,7 +4,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute.Internals;
 using Xunit.Abstractions;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute

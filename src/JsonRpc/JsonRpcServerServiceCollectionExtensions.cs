@@ -14,7 +14,6 @@ using OmniSharp.Extensions.JsonRpc.Pipelines;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using MediatR;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

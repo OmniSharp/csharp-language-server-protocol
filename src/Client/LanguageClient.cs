@@ -27,7 +27,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {

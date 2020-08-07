@@ -105,6 +105,78 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
+        public async Task Handlers_Can_Access_External_Service_Provider()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            var services = new ServiceCollection()
+                .AddJsonRpcServer(options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .WithServices(services =>
+                            services
+                                .AddSingleton(new OutsideService("inside"))
+                                .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
+                                .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
+                        );
+                })
+                .AddSingleton(new OutsideService("outside"))
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            var server = services.GetRequiredService<JsonRpcServer>();
+            await server.Initialize(cts.Token);
+
+            var response = await server.SendRequest(new Request(), cts.Token);
+            response.Value.Should().Be("inside");
+
+            var response2 = await server.SendRequest(new ExternalRequest(), cts.Token);
+            response2.Value.Should().Be("outside");
+
+            server.Dispose();
+        }
+
+        [Fact]
+        public async Task Handlers_Can_Access_External_Service_Provider_And_Access_New_Values()
+        {
+            var cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(30));
+            var count = 1;
+            var services = new ServiceCollection()
+                .AddJsonRpcServer(options => {
+                    var pipe = new Pipe();
+                    options
+                        .WithInput(pipe.Reader)
+                        .WithOutput(pipe.Writer)
+                        .WithServices(services =>
+                            services
+                                .AddSingleton(new OutsideService("inside"))
+                                .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
+                                .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
+                        );
+                })
+                .AddTransient(_ => new OutsideService($"outside{count++}"))
+                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                .BuildServiceProvider();
+
+            var server = services.GetRequiredService<JsonRpcServer>();
+            await server.Initialize(cts.Token);
+
+            var response = await server.SendRequest(new Request(), cts.Token);
+            response.Value.Should().Be("inside");
+
+            var response2 = await server.SendRequest(new ExternalRequest(), cts.Token);
+            response2.Value.Should().Be("outside1");
+
+            var response3 = await server.SendRequest(new ExternalRequest(), cts.Token);
+            response3.Value.Should().Be("outside2");
+
+            server.Dispose();
+        }
+
+        [Fact]
         public void Should_Bootstrap_Multiple_Servers_Through_Service_Collection()
         {
             var cts = new CancellationTokenSource();
@@ -170,6 +242,11 @@ namespace JsonRpc.Tests
         {
         }
 
+        [Method("ext-outside")]
+        class ExternalRequest : IRequest<Response>
+        {
+        }
+
         class Response
         {
             public string Value { get; }
@@ -192,6 +269,21 @@ namespace JsonRpc.Tests
             public Task<Response> Handle(Request request, CancellationToken cancellationToken)
             {
                 return Task.FromResult(new Response(_outsideService.Value));
+            }
+        }
+
+        class ExternalHandler : IJsonRpcRequestHandler<ExternalRequest, Response>
+        {
+            private readonly IExternalServiceProvider _outsideService;
+
+            public ExternalHandler(IExternalServiceProvider outsideService)
+            {
+                _outsideService = outsideService;
+            }
+
+            public Task<Response> Handle(ExternalRequest request, CancellationToken cancellationToken)
+            {
+                return Task.FromResult(new Response(_outsideService.GetRequiredService<OutsideService>().Value));
             }
         }
 

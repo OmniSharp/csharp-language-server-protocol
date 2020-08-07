@@ -5,7 +5,6 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using Xunit.Abstractions;
 using NSubstitute.Internals;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace JsonRpc.Tests
 {

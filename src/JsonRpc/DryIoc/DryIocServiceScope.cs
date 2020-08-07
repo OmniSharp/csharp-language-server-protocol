@@ -1,8 +1,9 @@
 ﻿using System;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
+// ReSharper disable once CheckNamespace
 
-namespace OmniSharp.Extensions.JsonRpc.DryIoc
+namespace DryIoc
 {
     /// <summary>Bare-bones IServiceScope implementations</summary>
     internal sealed class DryIocServiceScope : IServiceScope

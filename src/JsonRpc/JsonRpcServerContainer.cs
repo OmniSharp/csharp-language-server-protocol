@@ -6,7 +6,6 @@ using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 using OmniSharp.Extensions.JsonRpc.Pipelines;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -19,7 +18,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 .WithDependencyInjectionAdapter()
                 .With(rules =>
                     rules
-                        //.WithMicrosoftDependencyInjectionRules() // disabled to allow for variant generics within jsonrpcservers
                         .WithTrackingDisposableTransients()
                         .WithoutThrowOnRegisteringDisposableTransient()
                         .WithFactorySelector(Rules.SelectLastRegisteredFactory())
@@ -37,10 +35,16 @@ namespace OmniSharp.Extensions.JsonRpc
 
             if (outerServiceProvider != null)
             {
+                container.RegisterInstance<IExternalServiceProvider>(new ExternalServiceProvider(outerServiceProvider));
                 container = container.With(rules => rules.WithUnknownServiceResolvers((request) => {
                     var value = outerServiceProvider.GetService(request.ServiceType);
-                    return value == null ? null : (Factory)new RegisteredInstanceFactory(value);
+                    return value == null ? null : (Factory)new RegisteredInstanceFactory(value, Reuse.Transient);
                 }));
+            }
+            else
+            {
+                // lets not break folks... just ourselves!
+                container.RegisterDelegate<IExternalServiceProvider>(_ => new ExternalServiceProvider(_), Reuse.Singleton);
             }
 
             return container;

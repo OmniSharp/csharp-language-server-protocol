@@ -8,7 +8,6 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 using DryIoc;
 using OmniSharp.Extensions.JsonRpc.Server;
 

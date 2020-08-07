@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
