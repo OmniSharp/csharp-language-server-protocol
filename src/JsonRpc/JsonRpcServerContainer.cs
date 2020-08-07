@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc
             else
             {
                 // lets not break folks... just ourselves!
-                container.RegisterDelegate<IExternalServiceProvider>(_ => new ExternalServiceProvider(_), Reuse.Singleton);
+                container.RegisterDelegate<IExternalServiceProvider>(_ => new ExternalServiceProvider(null), Reuse.Singleton);
             }
 
             return container;

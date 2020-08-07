@@ -11,6 +11,6 @@ namespace OmniSharp.Extensions.JsonRpc
             _serviceProvider = serviceProvider;
         }
 
-        public object GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
+        public object GetService(Type serviceType) => _serviceProvider?.GetService(serviceType);
     }
 }
