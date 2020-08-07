@@ -89,7 +89,7 @@ namespace Lsp.Tests
         public LspRequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
             Container = LspTestContainer.Create(testOutputHelper);
-            Registrator.RegisterMany<TextDocumentMatcher>(Container);
+            Registrator.RegisterMany<TextDocumentMatcher>(Container, nonPublicServiceTypes: true);
         }
 
         [Fact]
@@ -139,6 +139,7 @@ namespace Lsp.Tests
                     {textDocumentSyncHandler, textDocumentSyncHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams() {
@@ -228,6 +229,7 @@ namespace Lsp.Tests
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
+            AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();

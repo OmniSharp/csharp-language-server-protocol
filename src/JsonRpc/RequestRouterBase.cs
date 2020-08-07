@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -106,7 +107,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             using var scope = _serviceScopeFactory.CreateScope();
             // TODO: Do we want to support more handlers as "aggregate"?
-            if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response))
+            if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response) && !typeof(JToken).IsAssignableFrom(descriptors.Default.Response))
             {
                 var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)));
                 var errorResponse = responses.FirstOrDefault(x => x.IsError);

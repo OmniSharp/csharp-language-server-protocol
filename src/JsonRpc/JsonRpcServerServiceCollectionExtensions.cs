@@ -50,17 +50,22 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterMany<OutputHandler>(
                 serviceTypeCondition: type => type.IsInterface,
                 made: Parameters.Of
-                    .Type<PipeWriter>(serviceKey: nameof(options.Output))
+                    .Type<PipeWriter>(serviceKey: nameof(options.Output)),
+                reuse: Reuse.Singleton
             );
             container.Register<Connection>(
                 made: new Made.TypedMade<Connection>().Parameters
                     .Type<PipeReader>(serviceKey: nameof(options.Input))
                     .Type<TimeSpan>(serviceKey: nameof(options.MaximumRequestTimeout))
                     .Type<bool>(serviceKey: nameof(options.SupportsContentModified))
-                    .Name("concurrency", serviceKey: nameof(options.Concurrency))
+                    .Name("concurrency", serviceKey: nameof(options.Concurrency)),
+                reuse: Reuse.Singleton
             );
 
-            container.RegisterMany<ResponseRouter>(serviceTypeCondition: type => type.IsInterface);
+            container.RegisterMany<ResponseRouter>(
+                serviceTypeCondition: type => type.IsInterface,
+                reuse: Reuse.Singleton
+            );
 
             container.RegisterInstance(options.Handlers);
             container.RegisterInitializer<IJsonRpcHandlerCollection>((collection, context) => {
@@ -124,15 +129,19 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterInstance(options.OnUnhandledException ?? (e => { }));
 
-            container.RegisterMany<RequestRouter>();
-            container.RegisterMany<HandlerCollection>(nonPublicServiceTypes: true, serviceTypeCondition: type => typeof(IHandlersManager) == type || type == typeof(HandlerCollection));
+            container.RegisterMany<RequestRouter>(reuse: Reuse.Singleton);
+            container.RegisterMany<HandlerCollection>(
+                nonPublicServiceTypes: true,
+                serviceTypeCondition: type => typeof(IHandlersManager) == type || type == typeof(HandlerCollection),
+                reuse: Reuse.Singleton
+            );
             container.RegisterInitializer<IHandlersManager>((manager, context) => {
                 var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
                 descriptions.Populate(context, manager);
             });
 
             container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
-            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer)/*, reuse: Reuse.Singleton*/);
+            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer), reuse: Reuse.Singleton);
 
             return container;
         }

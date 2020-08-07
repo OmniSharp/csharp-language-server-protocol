@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             });
             container.RegisterInstance(options.RequestProcessIdentifier);
 
-            container.RegisterMany<DebugAdapterClientProgressManager>(nonPublicServiceTypes: true);
+            container.RegisterMany<DebugAdapterClientProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterClient>(serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton);
 
             // container.
@@ -209,7 +209,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         }
 
         internal DebugAdapterClient(
-            IOptions<DebugAdapterClientOptions> options,
             InitializeRequestArguments clientSettings,
             DebugAdapterSettingsBag settingsBag,
             DebugAdapterHandlerCollection collection,
@@ -229,6 +228,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _serviceProvider = serviceProvider;
             ProgressManager = debugAdapterClientProgressManager;
             _connection = connection;
+            _disposable.Add(collection.Add(this));
         }
 
         public async Task Initialize(CancellationToken token)

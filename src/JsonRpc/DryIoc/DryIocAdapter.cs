@@ -141,7 +141,7 @@ namespace OmniSharp.Extensions.JsonRpc.DryIoc
             if (descriptor.ImplementationType != null)
             {
                 var reuse = descriptor.Lifetime == ServiceLifetime.Singleton ? Reuse.Singleton
-                    : descriptor.Lifetime == ServiceLifetime.Scoped ? Reuse.ScopedOrSingleton
+                    : descriptor.Lifetime == ServiceLifetime.Scoped ? Reuse.Scoped
                     : Reuse.Transient;
 
                 container.Register(descriptor.ServiceType, descriptor.ImplementationType, reuse);
@@ -149,7 +149,7 @@ namespace OmniSharp.Extensions.JsonRpc.DryIoc
             else if (descriptor.ImplementationFactory != null)
             {
                 var reuse = descriptor.Lifetime == ServiceLifetime.Singleton ? Reuse.Singleton
-                    : descriptor.Lifetime == ServiceLifetime.Scoped ? Reuse.ScopedOrSingleton
+                    : descriptor.Lifetime == ServiceLifetime.Scoped ? Reuse.Scoped
                     : Reuse.Transient;
 
                 container.RegisterDelegate(true, descriptor.ServiceType,

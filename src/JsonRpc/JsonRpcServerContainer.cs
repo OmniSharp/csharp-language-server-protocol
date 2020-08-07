@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         .WithResolveIEnumerableAsLazyEnumerable()
                         .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
                         //.WithDefaultReuse(Reuse.Singleton)
-                        .WithDefaultReuse(Reuse.ScopedOrSingleton)
+                        .WithDefaultReuse(Reuse.Scoped)
                 );
 
             var outerLoggerFactory = outerServiceProvider?.GetService<ILoggerFactory>();
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             if (outerServiceProvider != null)
             {
-                container = container.With(rules => rules.WithUnknownServiceResolvers((request) => {                    
+                container = container.With(rules => rules.WithUnknownServiceResolvers((request) => {
                     var value = outerServiceProvider.GetService(request.ServiceType);
                     return value == null ? null : (Factory)new RegisteredInstanceFactory(value);
                 }));

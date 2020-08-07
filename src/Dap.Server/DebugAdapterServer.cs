@@ -44,26 +44,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
             container.RegisterInstance<IOptionsFactory<DebugAdapterServerOptions>>(new ValueOptionsFactory<DebugAdapterServerOptions>(options));
 
-            container.RegisterMany<DebugAdapterServer>(serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer),
-                reuse: Reuse.Singleton);
-            container.RegisterInitializer<DebugAdapterServer>((server, context) => {
-                var manager = context.Resolve<IHandlersManager>();
-                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                descriptions.Populate(context, manager);
-
-                var handlers = context.ResolveMany<IJsonRpcHandler>();
-                foreach (var handler in handlers)
-                {
-                    manager.Add(handler, new JsonRpcHandlerOptions());
-                }
-            });
-
             container.RegisterInstance(options.Capabilities);
             container.RegisterInstance(options.RequestProcessIdentifier);
 
-            container.RegisterMany<DebugAdapterServerProgressManager>(nonPublicServiceTypes: true);
-            container.RegisterMany<DebugAdapterServer>(serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer),
-                reuse: Reuse.Singleton);
+            container.RegisterMany<DebugAdapterServerProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterMany<DebugAdapterServer>(serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer), reuse: Reuse.Singleton);
 
             // container.
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
@@ -215,7 +200,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         }
 
         internal DebugAdapterServer(
-            IOptions<DebugAdapterServerOptions> options,
             Capabilities capabilities,
             DapReceiver receiver,
             DebugAdapterHandlerCollection collection,
@@ -237,6 +221,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _serviceProvider = serviceProvider;
             _connection = connection;
             ProgressManager = progressManager;
+            _disposable.Add(collection.Add(this));
         }
 
 

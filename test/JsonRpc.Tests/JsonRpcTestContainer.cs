@@ -5,6 +5,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using Xunit.Abstractions;
 using NSubstitute.Internals;
+using OmniSharp.Extensions.JsonRpc.DryIoc;
 
 namespace JsonRpc.Tests
 {
@@ -14,11 +15,12 @@ namespace JsonRpc.Tests
         {
             var container = JsonRpcServerContainer.Create(null)
                 .AddJsonRpcMediatR()
-                .With(rules => rules
-                    .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))
-                    .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
-                    .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
-            );
+                .With(rules => rules.WithDefaultReuse(Reuse.ScopedOrSingleton));
+
+            var services = new ServiceCollection().AddLogging().AddOptions();
+            container.Populate(services);
+            container.RegisterInstance(testOutputHelper);
+            container.RegisterMany<TestLoggerFactory>(nonPublicServiceTypes: true);
             container.RegisterMany<JsonRpcSerializer>();
             return container;
         }

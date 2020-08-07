@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             },
                 reuse: Reuse.Singleton);
 
-            container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface);
+            container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
             container.RegisterInstance(options.ServerInfo ?? new ServerInfo() {
                 Name = Assembly.GetEntryAssembly()?.GetName().Name,
                 Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
