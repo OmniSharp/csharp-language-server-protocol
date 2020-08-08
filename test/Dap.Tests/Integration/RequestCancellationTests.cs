@@ -47,7 +47,7 @@ namespace Dap.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
+                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
             });
 
             Func<Task<CompletionsResponse>> action = () => client.RequestCompletions(new CompletionsArguments());
