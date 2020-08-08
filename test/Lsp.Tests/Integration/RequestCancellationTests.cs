@@ -23,7 +23,7 @@ namespace Lsp.Tests.Integration
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
             .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
+            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(400))
         )
         {
         }
