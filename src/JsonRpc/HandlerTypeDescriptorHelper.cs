@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
+using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -30,6 +31,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     })
                     .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                     .Where(z => MethodAttribute.From(z) != null)
+                    .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
                     .Select(GetMethodType)
                     .Distinct()
                     .ToLookup(x => MethodAttribute.From(x).Method)
@@ -115,7 +117,14 @@ namespace OmniSharp.Extensions.JsonRpc
                 .FirstOrDefault(t => MethodAttribute.AllFrom(t).Any());
         }
 
-        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler), typeof(IJsonRpcNotificationHandler<>), typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>), };
+        private static readonly Type[] HandlerTypes = {
+            typeof(IJsonRpcNotificationHandler),
+            typeof(IJsonRpcNotificationHandler<>),
+            typeof(IJsonRpcRequestHandler<>),
+            typeof(IJsonRpcRequestHandler<,>),
+            typeof(IRequestHandler<>),
+            typeof(IRequestHandler<,>),
+        };
 
         private static bool IsValidInterface(Type type)
         {
@@ -128,10 +137,17 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static Type GetHandlerInterface(Type type)
         {
-            if (IsValidInterface(type)) return type;
-            return type?.GetTypeInfo()
-                .ImplementedInterfaces
-                .First(IsValidInterface);
+            try
+            {
+                if (IsValidInterface(type)) return type;
+                return type?.GetTypeInfo()
+                    .ImplementedInterfaces
+                    .First(IsValidInterface);
+            }
+            catch (Exception e)
+            {
+                throw new AggregateException("Errored with type: " + type.FullName, e);
+            }
         }
 
         public static Type UnwrapGenericType(Type genericType, Type type)

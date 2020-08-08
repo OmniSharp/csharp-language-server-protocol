@@ -19,11 +19,11 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            Action<Exception> onUnhandledException,
-            Func<ServerError, string, Exception> getException,
+            OnUnhandledExceptionHandler onUnhandledException,
             TimeSpan requestTimeout,
             bool supportContentModified,
-            int? concurrency)
+            int concurrency,
+            CreateResponseExceptionHandler getException = null)
         {
             _inputHandler = new InputHandler(
                 input,
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 getException,
                 requestTimeout,
                 supportContentModified,
-                concurrency
+                concurrency > 1 ? (int?)concurrency : null
             );
         }
 

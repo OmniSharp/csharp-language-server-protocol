@@ -17,6 +17,8 @@ using Xunit.Abstractions;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
 using System.Reactive.Disposables;
+using DryIoc;
+using JsonRpc.Tests;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -25,6 +27,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
+using Arg = NSubstitute.Arg;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace Lsp.Tests
 {
@@ -84,10 +88,8 @@ namespace Lsp.Tests
     {
         public LspRequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Services
-                .AddJsonRpcMediatR(new[] {typeof(LspRequestRouterTests).Assembly})
-                .AddSingleton<ISerializer>(new Serializer(ClientVersion.Lsp3));
-            Services.AddTransient<IHandlerMatcher, TextDocumentMatcher>();
+            Container = LspTestContainer.Create(testOutputHelper);
+            Registrator.RegisterMany<TextDocumentMatcher>(Container, nonPublicServiceTypes: true);
         }
 
         [Fact]
@@ -99,7 +101,7 @@ namespace Lsp.Tests
                 .Returns(Unit.Value);
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider())
                     {textDocumentSyncHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -133,10 +135,11 @@ namespace Lsp.Tests
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider())
                     {textDocumentSyncHandler, textDocumentSyncHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
+            AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var @params = new DidSaveTextDocumentParams() {
@@ -170,7 +173,7 @@ namespace Lsp.Tests
                 .Returns(new CommandOrCodeActionContainer());
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider())
                     {textDocumentSyncHandler, codeActionHandler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -221,11 +224,12 @@ namespace Lsp.Tests
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var handlerCollection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider())
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler};
             handlerCollection.Add(registry.Handlers);
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
+            AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));
             var mediator = AutoSubstitute.Resolve<LspRequestRouter>();
 
             var id = Guid.NewGuid().ToString();
@@ -270,7 +274,7 @@ namespace Lsp.Tests
 
             var tdi = new TextDocumentIdentifiers();
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, tdi)
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, tdi, new ServiceCollection().BuildServiceProvider())
                     {textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -300,7 +304,7 @@ namespace Lsp.Tests
                 .Returns(Unit.Value);
 
             var collection =
-                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers())
+                new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider())
                     {handler};
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);

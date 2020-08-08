@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
             );
 
             await SettleNext();
-
+            await SettleNext();
             await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>

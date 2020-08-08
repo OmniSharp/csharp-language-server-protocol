@@ -132,10 +132,10 @@ namespace OmniSharp.Extensions.JsonRpc
         #region AddHandler
 
         public abstract T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null);
-        public abstract T AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null);
+        public abstract T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null);
+        public abstract T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null);
+        public abstract T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null);
         public abstract T AddHandlers(params IJsonRpcHandler[] handlers);
-        public abstract T AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
-        public abstract T AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
         public abstract T AddHandler<THandler>(JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
         public abstract T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
         public abstract T AddHandler(Type type, JsonRpcHandlerOptions options = null);

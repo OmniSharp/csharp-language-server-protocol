@@ -14,81 +14,19 @@ using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
 {
-    public class TestLanguageServerRegistry : JsonRpcCommonMethodsBase<IJsonRpcServerRegistry>, IJsonRpcServerRegistry
-    {
-        private List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
-        private List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } = new List<(string name, IJsonRpcHandler handler)>();
-
-        private List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)> NamedServiceHandlers { get; set; } =
-            new List<(string name, Func<IServiceProvider, IJsonRpcHandler> handlerFunc)>();
-
-        public TestLanguageServerRegistry()
-        {
-        }
-
-        public override IJsonRpcServerRegistry AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
-        {
-            NamedHandlers.Add((method, handler));
-            return this;
-        }
-
-        public override IJsonRpcServerRegistry AddHandler<THandler>(THandler handler, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-
-        public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-
-        public override IJsonRpcServerRegistry AddHandler(Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-
-        public override IJsonRpcServerRegistry AddHandler(string method, Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-
-        public override IJsonRpcServerRegistry AddHandler(string method, Func<IServiceProvider, IJsonRpcHandler> handlerFunc, JsonRpcHandlerOptions options = null)
-        {
-            NamedServiceHandlers.Add((method, handlerFunc));
-            return this;
-        }
-
-        public override IJsonRpcServerRegistry AddHandlers(params IJsonRpcHandler[] handlers)
-        {
-            Handlers.AddRange(handlers);
-            return this;
-        }
-
-        public override IJsonRpcServerRegistry AddHandler<THandler>(Func<IServiceProvider, THandler> handlerFunc, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-
-        public void Populate(HandlerCollection collection, IServiceProvider serviceProvider, JsonRpcHandlerOptions options = null)
-        {
-            collection.Add(Handlers.ToArray());
-            foreach (var (name, handler) in NamedHandlers)
-            {
-                collection.Add(name, handler, options);
-            }
-
-            foreach (var (name, handlerFunc) in NamedServiceHandlers)
-            {
-                collection.Add(name, handlerFunc(serviceProvider), options);
-            }
-        }
-    }
-
     public class RequestRouterTests : AutoTestBase
     {
         public RequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
-            Services
-                .AddJsonRpcMediatR(new[] {typeof(RequestRouterTests).Assembly})
-                .AddSingleton<ISerializer>(new JsonRpcSerializer());
+            Container = JsonRpcTestContainer.Create(testOutputHelper);
         }
 
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
-            AutoSubstitute.Provide(collection);
+            AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Func<string, Task<long>>>();
@@ -106,9 +44,9 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
-            AutoSubstitute.Provide(collection);
+            AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Func<string, Task>>();
@@ -126,9 +64,9 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
-            AutoSubstitute.Provide(collection);
+            AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Action<string>>();
@@ -145,9 +83,9 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(Enumerable.Empty<IJsonRpcHandler>()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
             var registry = new TestLanguageServerRegistry();
-            AutoSubstitute.Provide(collection);
+            AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Action>();

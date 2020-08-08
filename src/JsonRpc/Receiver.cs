@@ -24,6 +24,8 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
+        public virtual bool ShouldFilterOutput(object value) => true;
+
         public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
             var results = new List<Renor>();

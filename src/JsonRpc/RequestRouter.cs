@@ -6,25 +6,24 @@ using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class RequestRouter : RequestRouterBase<IHandlerDescriptor>
+    internal class RequestRouter : RequestRouterBase<IHandlerDescriptor>
     {
-        private readonly HandlerCollection _collection;
+        private readonly IHandlersManager _collection;
 
-
-        public RequestRouter(HandlerCollection collection, ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILoggerFactory loggerFactory)
-            : base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<RequestRouter>())
+        public RequestRouter(
+            IHandlersManager collection,
+            ISerializer serializer,
+            IServiceScopeFactory serviceScopeFactory,
+            ILogger<RequestRouter> logger
+        )
+            : base(serializer, serviceScopeFactory, logger)
         {
             _collection = collection;
         }
 
-        public IDisposable Add(IJsonRpcHandler handler)
-        {
-            return _collection.Add(handler);
-        }
-
         private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
         {
-            return _collection.FirstOrDefault(x => x.Method == instance.Method);
+            return _collection.Descriptors.FirstOrDefault(x => x.Method == instance.Method);
         }
 
         public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)

@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initialized = true;
         }
 
-        public bool ShouldFilterOutput(object value)
+        public override bool ShouldFilterOutput(object value)
         {
             if (_initialized) return true;
             return value is OutgoingResponse ||

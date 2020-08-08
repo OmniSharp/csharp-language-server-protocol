@@ -10,6 +10,7 @@ using Nerdbank.Streams;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
@@ -35,22 +36,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, InitializeDelegate @delegate)
+        public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, OnLanguageServerInitializeDelegate @delegate)
         {
-            options.InitializeDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
 
-        public static LanguageServerOptions OnInitialized(this LanguageServerOptions options, InitializedDelegate @delegate)
+        public static LanguageServerOptions OnInitialized(this LanguageServerOptions options, OnLanguageServerInitializedDelegate @delegate)
         {
-            options.InitializedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 
-        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, OnServerStartedDelegate @delegate)
+        public static LanguageServerOptions OnStarted(this LanguageServerOptions options, OnLanguageServerStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

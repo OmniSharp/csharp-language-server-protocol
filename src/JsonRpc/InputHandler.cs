@@ -42,8 +42,8 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
         private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
         private readonly IResponseRouter _responseRouter;
-        private readonly Action<Exception> _unhandledInputProcessException;
-        private readonly Func<ServerError, string, Exception> _getException;
+        private readonly OnUnhandledExceptionHandler _unhandledInputProcessException;
+        private readonly CreateResponseExceptionHandler _getException;
         private readonly TimeSpan _requestTimeout;
         private readonly ILogger<InputHandler> _logger;
         private readonly ProcessScheduler _scheduler;
@@ -68,8 +68,8 @@ namespace OmniSharp.Extensions.JsonRpc
             IRequestRouter<IHandlerDescriptor> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
-            Action<Exception> unhandledInputProcessException,
-            Func<ServerError, string, Exception> getException,
+            OnUnhandledExceptionHandler unhandledInputProcessException,
+            CreateResponseExceptionHandler getException,
             TimeSpan requestTimeout,
             bool supportContentModified,
             int? concurrency
@@ -131,9 +131,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            _disposable.Dispose();
-            _pipeReader.Complete();
-            _outputHandler.Dispose();
+            _disposable?.Dispose();
+            _pipeReader?.Complete();
+            _outputHandler?.Dispose();
         }
 
         public Task InputCompleted => _inputActive.ToTask();
@@ -552,7 +552,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 ;
         }
 
-        private static Exception DefaultErrorParser(string method, ServerError error, Func<ServerError, string, Exception> customHandler)
+        private static Exception DefaultErrorParser(string method, ServerError error, CreateResponseExceptionHandler customHandler)
         {
             return error.Error?.Code switch {
                 ErrorCodes.ServerNotInitialized => new ServerNotInitializedException(error.Id),

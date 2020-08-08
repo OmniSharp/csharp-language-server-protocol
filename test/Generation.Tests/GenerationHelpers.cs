@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;

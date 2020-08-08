@@ -3,10 +3,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 {
-    public interface IServerWorkDoneManager
+    public interface IServerWorkDoneManager : IWorkDoneProgressCancelHandler
     {
         void Initialized(WindowClientCapabilities windowClientCapabilities);
 

@@ -39,7 +39,7 @@ namespace Lsp.Tests.Integration
             var data = new List<string>();
 
             var observer = client.ProgressManager.For<Data>(token, CancellationToken);
-            server.ProgressManager.Monitor(token, x => x.ToObject<Data>(server.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            server.ProgressManager.Monitor(token, x => x.ToObject<Data>(server.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
 
             observer.OnNext(new Data() {
                 Value = "1"
@@ -72,7 +72,7 @@ namespace Lsp.Tests.Integration
             var data = new List<string>();
 
             using var observer = server.ProgressManager.For<Data>(token, CancellationToken);
-            client.ProgressManager.Monitor(token, x => x.ToObject<Data>(client.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            client.ProgressManager.Monitor(token, x => x.ToObject<Data>(client.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
 
             observer.OnNext(new Data() {
                 Value = "1"
@@ -197,6 +197,7 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
+            await SettleNext();
             await SettleNext();
 
             var results = data.Select(z => z switch {

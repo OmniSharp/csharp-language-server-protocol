@@ -19,6 +19,7 @@
         <PackageReference Include="System.IO.Pipelines" />
         <PackageReference Include="Nerdbank.Streams" />
         <PackageReference Include="CodeGeneration.Roslyn.Attributes" />
+        <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

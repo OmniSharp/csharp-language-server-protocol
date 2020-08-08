@@ -9,6 +9,7 @@ using Nerdbank.Streams;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
@@ -31,13 +32,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithServices(this LanguageClientOptions options,
-            Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
         public static LanguageClientOptions WithClientInfo(this LanguageClientOptions options, ClientInfo clientInfo)
         {
             options.ClientInfo = clientInfo;
@@ -56,6 +50,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
+        public static LanguageClientOptions WithWorkspaceFolder(this LanguageClientOptions options, WorkspaceFolder workspaceFolder)
+        {
+            options.Services.AddSingleton(workspaceFolder);
+            return options;
+        }
+
+        public static LanguageClientOptions WithWorkspaceFolder(this LanguageClientOptions options, DocumentUri documentUri, string name)
+        {
+            options.Services.AddSingleton(new WorkspaceFolder() { Name = name, Uri = documentUri});
+            return options;
+        }
+
         public static LanguageClientOptions WithTrace(this LanguageClientOptions options, InitializeTrace trace)
         {
             options.Trace = trace;
@@ -69,9 +75,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithCapability(this LanguageClientOptions options, params ICapability[] capabilities)
+        public static LanguageClientOptions WithCapability(this LanguageClientOptions options, ICapability capability, params ICapability[] capabilities)
         {
-            options.SupportedCapabilities.AddRange(capabilities);
+            options.Services.AddSingleton(capability);
+            foreach (var item in capabilities)
+            {
+                options.Services.AddSingleton(item);
+            }
             return options;
         }
 
@@ -82,9 +92,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         }
 
         public static LanguageClientOptions OnStarted(this LanguageClientOptions options,
-            OnClientStartedDelegate @delegate)
+            OnLanguageClientStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

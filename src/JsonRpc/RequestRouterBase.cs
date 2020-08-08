@@ -10,6 +10,7 @@ using System.Collections.Concurrent;
 using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -21,15 +22,12 @@ namespace OmniSharp.Extensions.JsonRpc
         protected readonly IServiceScopeFactory _serviceScopeFactory;
         protected readonly ILogger _logger;
 
-        public RequestRouterBase(ISerializer serializer, IServiceProvider serviceProvider, IServiceScopeFactory serviceScopeFactory, ILogger logger)
+        public RequestRouterBase(ISerializer serializer, IServiceScopeFactory serviceScopeFactory, ILogger logger)
         {
             _serializer = serializer;
             _serviceScopeFactory = serviceScopeFactory;
             _logger = logger;
-            ServiceProvider = serviceProvider;
         }
-
-        public IServiceProvider ServiceProvider { get; }
 
         public async Task RouteNotification(IRequestDescriptor<TDescriptor> descriptors, Notification notification, CancellationToken token)
         {
@@ -109,7 +107,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             using var scope = _serviceScopeFactory.CreateScope();
             // TODO: Do we want to support more handlers as "aggregate"?
-            if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response))
+            if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default.Response) && !typeof(JToken).IsAssignableFrom(descriptors.Default.Response))
             {
                 var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)));
                 var errorResponse = responses.FirstOrDefault(x => x.IsError);

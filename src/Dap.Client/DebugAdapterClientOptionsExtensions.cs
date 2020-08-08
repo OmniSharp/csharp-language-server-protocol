@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
@@ -22,16 +23,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return options;
         }
 
-        public static DebugAdapterClientOptions WithServices(this DebugAdapterClientOptions options, Action<IServiceCollection> servicesAction)
-        {
-            servicesAction(options.Services);
-            return options;
-        }
-
         public static DebugAdapterClientOptions OnStarted(this DebugAdapterClientOptions options,
-            OnClientStartedDelegate @delegate)
+            OnDebugAdapterClientStartedDelegate @delegate)
         {
-            options.StartedDelegates.Add(@delegate);
+            options.Services.AddSingleton(@delegate);
             return options;
         }
 

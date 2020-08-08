@@ -17,7 +17,7 @@
 
     <ItemGroup>
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
-        <Compile Include="..\JsonRpc.Tests\AutoNSubstitute\*.cs" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
 
 </Project>

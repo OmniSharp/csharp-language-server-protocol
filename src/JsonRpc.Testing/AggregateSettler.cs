@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -17,17 +18,18 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public Task SettleNext()
         {
-            return _settlers.ToObservable()
-                .Select(z => z.Settle())
-                .Merge()
-                .Take(1)
-                //.Amb(Observable.Timer(_waitTime + _waitTime).Select(z => Unit.Value))
+            return _settlers
+                .Select(z => z.Settle().Take(1))
+                .ForkJoin()
+                .LastOrDefaultAsync()
                 .ToTask();
         }
 
         public IObservable<Unit> Settle() =>
-            _settlers.ToObservable()
+            _settlers
                 .Select(z => z.Settle())
-                .Switch();
+                .ForkJoin()
+                .Select(z => Unit.Default)
+                .LastOrDefaultAsync();
     }
 }

@@ -7,14 +7,14 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 using IOutputHandler = OmniSharp.Extensions.JsonRpc.IOutputHandler;
@@ -25,129 +25,84 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
     public class DebugAdapterServer : JsonRpcServerBase, IDebugAdapterServer, IInitializeHandler
     {
         private readonly DebugAdapterHandlerCollection _collection;
-        private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
-        private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
-        private readonly IEnumerable<OnServerStartedDelegate> _startedDelegates;
+        private readonly IEnumerable<OnDebugAdapterServerInitializeDelegate> _initializeDelegates;
+        private readonly IEnumerable<OnDebugAdapterServerDelegate> _initializedDelegates;
+        private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
+        private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
-        private readonly IServerProgressManager _progressManager;
         private readonly DapReceiver _receiver;
         private Task _initializingTask;
         private readonly ISubject<InitializeResponse> _initializeComplete = new AsyncSubject<InitializeResponse>();
         private readonly Capabilities _capabilities;
 
-        public static Task<IDebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction)
-        {
-            return From(optionsAction, CancellationToken.None);
-        }
+        internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+            JsonRpcServerContainer.Create(outerServiceProvider)
+                .AddDebugAdapterServerInternals(options, outerServiceProvider);
 
-        public static Task<IDebugAdapterServer> From(DebugAdapterServerOptions options)
-        {
-            return From(options, CancellationToken.None);
-        }
+        public static DebugAdapterServer Create(DebugAdapterServerOptions options) => Create(options, null);
+        public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction) => Create(optionsAction, null);
 
-        public static Task<IDebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, CancellationToken token)
+        public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider)
         {
             var options = new DebugAdapterServerOptions();
             optionsAction(options);
-            return From(options, token);
+            return Create(options, outerServiceProvider);
         }
 
-        public static IDebugAdapterServer PreInit(Action<DebugAdapterServerOptions> optionsAction)
+        public static DebugAdapterServer Create(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+            CreateContainer(options, outerServiceProvider).Resolve<DebugAdapterServer>();
+
+        public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options) => From(options, null, CancellationToken.None);
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
+        public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
+
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, CancellationToken cancellationToken) =>
+            From(optionsAction, null, cancellationToken);
+
+        public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+            From(options, outerServiceProvider, CancellationToken.None);
+
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+            From(optionsAction, outerServiceProvider, CancellationToken.None);
+
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new DebugAdapterServerOptions();
             optionsAction(options);
-            return PreInit(options);
+            return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<IDebugAdapterServer> From(DebugAdapterServerOptions options, CancellationToken token)
+        public static async Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
-            var server = (DebugAdapterServer) PreInit(options);
-            await server.Initialize(token);
-
+            var server = Create(options, outerServiceProvider);
+            await server.Initialize(cancellationToken);
             return server;
         }
 
-        /// <summary>
-        /// Create the server without connecting to the client
-        ///
-        /// Mainly used for unit testing
-        /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
-        public static IDebugAdapterServer PreInit(DebugAdapterServerOptions options)
+        internal DebugAdapterServer(
+            Capabilities capabilities,
+            DapReceiver receiver,
+            DebugAdapterHandlerCollection collection,
+            IEnumerable<OnDebugAdapterServerInitializeDelegate> initializeDelegates,
+            IEnumerable<OnDebugAdapterServerDelegate> initializedDelegates,
+            IEnumerable<OnDebugAdapterServerStartedDelegate> onServerStartedDelegates,
+            IServiceProvider serviceProvider,
+            IResponseRouter responseRouter,
+            Connection connection,
+            IDebugAdapterServerProgressManager progressManager
+            ) : base(collection, responseRouter)
         {
-            return new DebugAdapterServer(options);
-        }
-
-        internal DebugAdapterServer(DebugAdapterServerOptions options) : base(options)
-        {
-            var services = options.Services;
-
-            services.AddLogging(builder => options.LoggingBuilderAction(builder));
-
-            _capabilities = options.Capabilities;
-
-            var receiver = _receiver = new DapReceiver();
-            var serializer = options.Serializer;
-            var collection = new DebugAdapterHandlerCollection();
-            services.AddSingleton<IHandlersManager>(collection);
+            _capabilities = capabilities;
+            _receiver = receiver;
             _collection = collection;
-            _initializeDelegates = options.InitializeDelegates;
-            _initializedDelegates = options.InitializedDelegates;
-            _startedDelegates = options.StartedDelegates;
-
-            services.AddSingleton<IOutputHandler>(_ => new OutputHandler(
-                options.Output,
-                options.Serializer,
-                receiver.ShouldFilterOutput,
-                _.GetService<ILogger<OutputHandler>>())
-            );
-            services.AddSingleton(_collection);
-            services.AddSingleton(serializer);
-            services.AddSingleton(options.RequestProcessIdentifier);
-            services.AddSingleton(receiver);
-
-            services.AddSingleton<IDebugAdapterServer>(this);
-            services.AddSingleton<DebugAdapterRequestRouter>();
-            services.AddSingleton<IRequestRouter<IHandlerDescriptor>>(_ => _.GetRequiredService<DebugAdapterRequestRouter>());
-            services.AddSingleton<IResponseRouter, DapResponseRouter>();
-
-            services.AddSingleton<IServerProgressManager, ServerProgressManager>();
-            services.AddSingleton(_ => _.GetRequiredService<IServerProgressManager>() as IJsonRpcHandler);
-
-            EnsureAllHandlersAreRegistered();
-
-            var serviceProvider = services.BuildServiceProvider();
-            _disposable.Add(serviceProvider);
-
-            _progressManager = serviceProvider.GetRequiredService<IServerProgressManager>();
-            var requestRouter = serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>();
-            var responseRouter = serviceProvider.GetRequiredService<IResponseRouter>();
-            ResponseRouter = responseRouter;
-            _connection = new Connection(
-                options.Input,
-                serviceProvider.GetRequiredService<IOutputHandler>(),
-                receiver,
-                options.RequestProcessIdentifier,
-                serviceProvider.GetRequiredService<IRequestRouter<IHandlerDescriptor>>(),
-                responseRouter,
-                serviceProvider.GetRequiredService<ILoggerFactory>(),
-                options.OnUnhandledException,
-                options.CreateResponseException,
-                options.MaximumRequestTimeout,
-                options.SupportsContentModified,
-                options.Concurrency
-            );
-
-            _disposable.Add(_collection.Add(this));
-
-            {
-                var serviceHandlers = serviceProvider.GetServices<IJsonRpcHandler>().ToArray();
-                _collection.Add(this);
-                _disposable.Add(_collection.Add(serviceHandlers));
-                options.AddLinks(_collection);
-            }
+            _initializeDelegates = initializeDelegates;
+            _initializedDelegates = initializedDelegates;
+            _startedDelegates = onServerStartedDelegates;
+            _serviceProvider = serviceProvider;
+            _connection = connection;
+            ProgressManager = progressManager;
+            _disposable.Add(collection.Add(this));
         }
 
 
@@ -197,7 +152,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             }
         }
 
-        async Task<InitializeResponse> IRequestHandler<InitializeRequestArguments, InitializeResponse>.Handle(InitializeRequestArguments request, CancellationToken cancellationToken)
+        async Task<InitializeResponse> IRequestHandler<InitializeRequestArguments, InitializeResponse>.Handle(InitializeRequestArguments request,
+            CancellationToken cancellationToken)
         {
             ClientSettings = request;
 
@@ -209,33 +165,35 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 AdditionalModuleColumns = _capabilities.AdditionalModuleColumns,
                 ExceptionBreakpointFilters = _capabilities.ExceptionBreakpointFilters,
                 SupportedChecksumAlgorithms = _capabilities.SupportedChecksumAlgorithms,
-                SupportsCompletionsRequest = _capabilities.SupportsCompletionsRequest ??  _collection.ContainsHandler(typeof(ICompletionsHandler)),
+                SupportsCompletionsRequest = _capabilities.SupportsCompletionsRequest ?? _collection.ContainsHandler(typeof(ICompletionsHandler)),
                 SupportsConditionalBreakpoints = _capabilities.SupportsConditionalBreakpoints,
-                SupportsDataBreakpoints = _capabilities.SupportsDataBreakpoints ?? _collection.ContainsHandler(typeof(IDataBreakpointInfoHandler)) || _collection.ContainsHandler(typeof(ISetDataBreakpointsHandler)),
-                SupportsDisassembleRequest = _capabilities.SupportsDisassembleRequest ??  _collection.ContainsHandler(typeof(IDisassembleHandler)),
+                SupportsDataBreakpoints = _capabilities.SupportsDataBreakpoints ??
+                                          _collection.ContainsHandler(typeof(IDataBreakpointInfoHandler)) || _collection.ContainsHandler(typeof(ISetDataBreakpointsHandler)),
+                SupportsDisassembleRequest = _capabilities.SupportsDisassembleRequest ?? _collection.ContainsHandler(typeof(IDisassembleHandler)),
                 SupportsExceptionOptions = _capabilities.SupportsExceptionOptions,
                 SupportsFunctionBreakpoints = _capabilities.SupportsFunctionBreakpoints ?? _collection.ContainsHandler(typeof(ISetFunctionBreakpointsHandler)),
                 SupportsLogPoints = _capabilities.SupportsLogPoints,
-                SupportsModulesRequest = _capabilities.SupportsModulesRequest ??  _collection.ContainsHandler(typeof(IModuleHandler)),
+                SupportsModulesRequest = _capabilities.SupportsModulesRequest ?? _collection.ContainsHandler(typeof(IModuleHandler)),
                 SupportsRestartFrame = _capabilities.SupportsRestartFrame ?? _collection.ContainsHandler(typeof(IRestartFrameHandler)),
-                SupportsRestartRequest = _capabilities.SupportsRestartRequest ??  _collection.ContainsHandler(typeof(IRestartHandler)),
+                SupportsRestartRequest = _capabilities.SupportsRestartRequest ?? _collection.ContainsHandler(typeof(IRestartHandler)),
                 SupportsSetExpression = _capabilities.SupportsSetExpression ?? _collection.ContainsHandler(typeof(ISetExpressionHandler)),
                 SupportsSetVariable = _capabilities.SupportsSetVariable ?? _collection.ContainsHandler(typeof(ISetVariableHandler)),
-                SupportsStepBack = _capabilities.SupportsStepBack ?? _collection.ContainsHandler(typeof(IStepBackHandler)) && _collection.ContainsHandler(typeof(IReverseContinueHandler)),
-                SupportsTerminateRequest = _capabilities.SupportsTerminateRequest ??  _collection.ContainsHandler(typeof(ITerminateHandler)),
+                SupportsStepBack = _capabilities.SupportsStepBack ??
+                                   _collection.ContainsHandler(typeof(IStepBackHandler)) && _collection.ContainsHandler(typeof(IReverseContinueHandler)),
+                SupportsTerminateRequest = _capabilities.SupportsTerminateRequest ?? _collection.ContainsHandler(typeof(ITerminateHandler)),
                 SupportTerminateDebuggee = _capabilities.SupportTerminateDebuggee,
-                SupportsConfigurationDoneRequest = _capabilities.SupportsConfigurationDoneRequest ??  _collection.ContainsHandler(typeof(IConfigurationDoneHandler)),
+                SupportsConfigurationDoneRequest = _capabilities.SupportsConfigurationDoneRequest ?? _collection.ContainsHandler(typeof(IConfigurationDoneHandler)),
                 SupportsEvaluateForHovers = _capabilities.SupportsEvaluateForHovers,
-                SupportsExceptionInfoRequest = _capabilities.SupportsExceptionInfoRequest ??  _collection.ContainsHandler(typeof(IExceptionInfoHandler)),
-                SupportsGotoTargetsRequest = _capabilities.SupportsGotoTargetsRequest ??  _collection.ContainsHandler(typeof(IGotoTargetsHandler)),
+                SupportsExceptionInfoRequest = _capabilities.SupportsExceptionInfoRequest ?? _collection.ContainsHandler(typeof(IExceptionInfoHandler)),
+                SupportsGotoTargetsRequest = _capabilities.SupportsGotoTargetsRequest ?? _collection.ContainsHandler(typeof(IGotoTargetsHandler)),
                 SupportsHitConditionalBreakpoints = _capabilities.SupportsHitConditionalBreakpoints,
-                SupportsLoadedSourcesRequest = _capabilities.SupportsLoadedSourcesRequest ??  _collection.ContainsHandler(typeof(ILoadedSourcesHandler)),
-                SupportsReadMemoryRequest = _capabilities.SupportsReadMemoryRequest ??  _collection.ContainsHandler(typeof(IReadMemoryHandler)),
-                SupportsTerminateThreadsRequest = _capabilities.SupportsTerminateThreadsRequest ??  _collection.ContainsHandler(typeof(ITerminateThreadsHandler)),
+                SupportsLoadedSourcesRequest = _capabilities.SupportsLoadedSourcesRequest ?? _collection.ContainsHandler(typeof(ILoadedSourcesHandler)),
+                SupportsReadMemoryRequest = _capabilities.SupportsReadMemoryRequest ?? _collection.ContainsHandler(typeof(IReadMemoryHandler)),
+                SupportsTerminateThreadsRequest = _capabilities.SupportsTerminateThreadsRequest ?? _collection.ContainsHandler(typeof(ITerminateThreadsHandler)),
                 SupportsValueFormattingOptions = _capabilities.SupportsValueFormattingOptions,
                 SupportsDelayedStackTraceLoading = _capabilities.SupportsDelayedStackTraceLoading,
-                SupportsStepInTargetsRequest = _capabilities.SupportsStepInTargetsRequest ??  _collection.ContainsHandler(typeof(IStepInTargetsHandler)),
-                SupportsCancelRequest = _capabilities.SupportsCancelRequest ??  _collection.ContainsHandler(typeof(ICancelHandler)),
+                SupportsStepInTargetsRequest = _capabilities.SupportsStepInTargetsRequest ?? _collection.ContainsHandler(typeof(IStepInTargetsHandler)),
+                SupportsCancelRequest = _capabilities.SupportsCancelRequest ?? _collection.ContainsHandler(typeof(ICancelHandler)),
                 SupportsClipboardContext = _capabilities.SupportsClipboardContext,
                 SupportsInstructionBreakpoints = _capabilities.SupportsInstructionBreakpoints ?? _collection.ContainsHandler(typeof(ISetInstructionBreakpointsHandler)),
                 SupportsSteppingGranularity = _capabilities.SupportsSteppingGranularity,
@@ -251,16 +209,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             return response;
         }
 
-        protected override IResponseRouter ResponseRouter { get; }
-        protected override IHandlersManager HandlersManager => _collection;
         public InitializeRequestArguments ClientSettings { get; private set; }
         public InitializeResponse ServerSettings { get; private set; }
-        public IServerProgressManager ProgressManager => _progressManager;
+        public IDebugAdapterServerProgressManager ProgressManager { get; }
 
         public void Dispose()
         {
             _disposable?.Dispose();
             _connection?.Dispose();
         }
+
+        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
     }
 }

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO.Pipelines;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -7,10 +8,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
+using OmniSharp.Extensions.DebugAdapter.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
 using Xunit.Abstractions;
@@ -24,6 +28,70 @@ namespace Dap.Tests
         public FoundationTests(ITestOutputHelper outputHelper)
         {
             this._logger = new TestLoggerFactory(outputHelper).CreateLogger(typeof(FoundationTests));
+        }
+
+        [Theory]
+        [ClassData(typeof(ActionDelegateData))]
+        public void All_Create_Methods_Should_Work(ActionDelegate createDelegate)
+        {
+            createDelegate.Method.Should().NotThrow();
+        }
+
+        public class ActionDelegateData : TheoryData<ActionDelegate>
+        {
+            public ActionDelegateData()
+            {
+                {
+                    var baseOptions = new DebugAdapterServerOptions().WithPipe(new Pipe());
+                    void BaseDelegate(DebugAdapterServerOptions o) => o.WithPipe(new Pipe());
+                    var serviceProvider = new ServiceCollection().BuildServiceProvider();
+                    Add(new ActionDelegate("create (server): options", () => DebugAdapterServer.Create(baseOptions)));
+                    Add(new ActionDelegate("create (server): options, serviceProvider", () => DebugAdapterServer.Create(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("create (server): action", () => DebugAdapterServer.Create(BaseDelegate)));
+                    Add(new ActionDelegate("create (server): action, serviceProvider", () => DebugAdapterServer.Create(BaseDelegate, serviceProvider)));
+
+                    Add(new ActionDelegate("from (server): options", () => DebugAdapterServer.From(baseOptions)));
+                    Add(new ActionDelegate("from (server): options, cancellationToken", () => DebugAdapterServer.From(baseOptions, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): options, serviceProvider, cancellationToken", () => DebugAdapterServer.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): options, serviceProvider", () => DebugAdapterServer.From(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("from (server): action", () => DebugAdapterServer.From(BaseDelegate)));
+                    Add(new ActionDelegate("from (server): action, cancellationToken", () => DebugAdapterServer.From(BaseDelegate, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): action, serviceProvider, cancellationToken", () => DebugAdapterServer.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (server): action, serviceProvider", () => DebugAdapterServer.From(BaseDelegate, serviceProvider)));
+                }
+                {
+                    var baseOptions = new DebugAdapterClientOptions().WithPipe(new Pipe());
+                    void BaseDelegate(DebugAdapterClientOptions o) => o.WithPipe(new Pipe());
+                    var serviceProvider = new ServiceCollection().BuildServiceProvider();
+                    Add(new ActionDelegate("create (client): options", () => DebugAdapterClient.Create(baseOptions)));
+                    Add(new ActionDelegate("create (client): options, serviceProvider", () => DebugAdapterClient.Create(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("create (client): action", () => DebugAdapterClient.Create(BaseDelegate)));
+                    Add(new ActionDelegate("create (client): action, serviceProvider", () => DebugAdapterClient.Create(BaseDelegate, serviceProvider)));
+
+                    Add(new ActionDelegate("from (client): options", () => DebugAdapterClient.From(baseOptions)));
+                    Add(new ActionDelegate("from (client): options, cancellationToken", () => DebugAdapterClient.From(baseOptions, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): options, serviceProvider, cancellationToken", () => DebugAdapterClient.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): options, serviceProvider", () => DebugAdapterClient.From(baseOptions, serviceProvider)));
+                    Add(new ActionDelegate("from (client): action", () => DebugAdapterClient.From(BaseDelegate)));
+                    Add(new ActionDelegate("from (client): action, cancellationToken", () => DebugAdapterClient.From(BaseDelegate, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): action, serviceProvider, cancellationToken", () => DebugAdapterClient.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(new ActionDelegate("from (client): action, serviceProvider", () => DebugAdapterClient.From(BaseDelegate, serviceProvider)));
+                }
+            }
+        }
+
+        public class ActionDelegate
+        {
+            private readonly string _name;
+            public Action Method { get; }
+
+            public ActionDelegate(string name, Action method)
+            {
+                _name = name;
+                this.Method = method;
+            }
+
+            public override string ToString() => _name;
         }
 
         [Theory(DisplayName = "Params types should have a method attribute")]

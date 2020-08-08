@@ -7,6 +7,7 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Shared
@@ -14,6 +15,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
     class DebugAdapterHandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
         private ImmutableHashSet<HandlerDescriptor> _descriptors =  ImmutableHashSet<HandlerDescriptor>.Empty;
+        private readonly IServiceProvider _serviceProvider;
+
+        public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
+
+        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider)
+        {
+            _serviceProvider = serviceProvider;
+        }
 
         public IEnumerator<IHandlerDescriptor> GetEnumerator()
         {
@@ -25,9 +34,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return GetEnumerator();
         }
 
-        IDisposable IHandlersManager.Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(new[] {handler}, options);
-
-        IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(method, handler, options);
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(handler, options);
+        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(method, handler, options);
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => AddHandler(factory(_serviceProvider), options);
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => AddHandler(method, factory(_serviceProvider), options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => AddHandler(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
 
         IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
         {
@@ -45,34 +57,35 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return descriptor;
         }
 
-        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
-        {
-            var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
-            Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
-            return new CompositeDisposable {descriptor};
-        }
-
         public IDisposable Add(params IJsonRpcHandler[] handlers)
         {
             var cd = new CompositeDisposable();
             foreach (var handler in handlers)
             {
-                if (cd.Any(z => Equals(z, handler))) continue;
-
-                foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
-                    .ImplementedInterfaces
-                    .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
-                    .Distinct(new EqualityComparer())
-                    .Where(x => !string.IsNullOrWhiteSpace(x.method))
-                )
-                {
-                    var descriptor = GetDescriptor(method, implementedInterface, handler, null);
-                    cd.Add(descriptor);
-                    Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
-                }
+                cd.Add(AddHandler(handler, null));
             }
-
             return cd;
+        }
+
+        public IDisposable Add(params JsonRpcHandlerFactory[] handlerFactories)
+        {
+            var cd = new CompositeDisposable();
+            foreach (var handlerFactory in handlerFactories)
+            {
+                cd.Add(AddHandler(handlerFactory(_serviceProvider), null));
+            }
+            return cd;
+        }
+
+        public IDisposable Add(params Type[] handlerTypes)
+        {
+            var cd = new CompositeDisposable();
+            foreach (var handlerType in handlerTypes)
+            {
+                cd.Add(AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, null));
+            }
+            return cd;
+
         }
 
         class EqualityComparer : IEqualityComparer<(string method, Type implementedInterface)>
@@ -88,22 +101,27 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             }
         }
 
-        private IDisposable Add(IJsonRpcHandler[] handlers, JsonRpcHandlerOptions options)
+        private IDisposable AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
             var cd = new CompositeDisposable();
-            foreach (var handler in handlers)
-            {
-                if (cd.Any(z => Equals(z, handler))) continue;
+            var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
+            Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
+            return descriptor;
+        }
 
-                foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
-                    .ImplementedInterfaces
-                    .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
-                    .Where(x => !string.IsNullOrWhiteSpace(x.method)))
-                {
-                    var descriptor = GetDescriptor(method, implementedInterface, handler, options);
-                    cd.Add(descriptor);
-                    Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
-                }
+        private CompositeDisposable AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        {
+            var cd = new CompositeDisposable();
+            foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
+                .ImplementedInterfaces
+                .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
+                .Distinct(new EqualityComparer())
+                .Where(x => !string.IsNullOrWhiteSpace(x.method))
+            )
+            {
+                var descriptor = GetDescriptor(method, implementedInterface, handler, options);
+                cd.Add(descriptor);
+                Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
             }
 
             return cd;

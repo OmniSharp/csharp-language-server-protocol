@@ -1,9 +1,15 @@
 using System;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    public class WorkspaceLanguageClient : ClientProxyBase, IWorkspaceLanguageClient
+    internal class WorkspaceLanguageClient : LanguageProtocolProxy, IWorkspaceLanguageClient
     {
-        public WorkspaceLanguageClient(IClientProxy proxy, IServiceProvider serviceProvider) : base(proxy, serviceProvider) { }
+        public WorkspaceLanguageClient(IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager,
+            ILanguageProtocolSettings languageProtocolSettings) : base(requestRouter, serviceProvider, progressManager, languageProtocolSettings)
+        {
+        }
     }
 }

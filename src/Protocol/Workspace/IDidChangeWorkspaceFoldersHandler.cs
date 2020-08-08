@@ -20,7 +20,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
     public abstract class DidChangeWorkspaceFoldersHandler : IDidChangeWorkspaceFoldersHandler
     {
-        public object GetRegistrationOptions() => new object();
+        private readonly object _registrationOptions;
+        public DidChangeWorkspaceFoldersHandler(object registrationOptions)
+        {
+            _registrationOptions = registrationOptions;
+        }
+        public object GetRegistrationOptions() => _registrationOptions;
+
         public abstract Task<Unit> Handle(DidChangeWorkspaceFoldersParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DidChangeWorkspaceFolderCapability capability) => Capability = capability;
         protected DidChangeWorkspaceFolderCapability Capability { get; private set; }

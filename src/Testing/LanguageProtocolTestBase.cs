@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.IO.Pipelines;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -48,10 +48,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             _client = LanguageClient.PreInit(options => {
                 options
                     .WithLoggerFactory(TestOptions.ClientLoggerFactory)
-                    .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
-                        x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
-                    })
+                    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                     .Services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                     .AddSingleton(ServerEvents as IRequestSettler);
@@ -61,11 +58,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
             _server = RealLanguageServer.PreInit(options => {
                 options
-                    .WithLoggerFactory(TestOptions.ServerLoggerFactory)
-                    .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
-                        x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
-                    })
+                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                     .Services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                     .AddSingleton(ServerEvents as IRequestSettler);

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         }
         public static LanguageClientOptions DisableAllCapabilities( this LanguageClientOptions options)
         {
-            options.SupportedCapabilities.Clear();
+            options.Services.RemoveAll(typeof(ICapability));
             return options;
         }
     }

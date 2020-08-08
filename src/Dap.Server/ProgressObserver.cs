@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 using System.Threading;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;

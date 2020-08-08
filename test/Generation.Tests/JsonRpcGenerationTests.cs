@@ -94,6 +94,8 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
 {
@@ -628,6 +630,8 @@ using System.Collections.Generic;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
@@ -685,6 +689,8 @@ using System.Collections.Generic;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {

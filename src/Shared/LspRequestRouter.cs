@@ -21,12 +21,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public LspRequestRouter(
             IHandlerCollection collection,
-            ILoggerFactory loggerFactory,
+            ILogger<LspRequestRouter> logger,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
-            IServiceProvider serviceProvider,
             IServiceScopeFactory serviceScopeFactory) :
-            base(serializer, serviceProvider, serviceScopeFactory, loggerFactory.CreateLogger<LspRequestRouter>())
+            base(serializer, serviceScopeFactory, logger)
         {
             _collection = collection;
             _handlerMatchers = new HashSet<IHandlerMatcher>(handlerMatchers);
