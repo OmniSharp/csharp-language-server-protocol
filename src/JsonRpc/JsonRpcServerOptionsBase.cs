@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -16,7 +17,6 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public PipeReader Input { get; set; }
         public PipeWriter Output { get; set; }
-        public ILoggerFactory LoggerFactory { get; set; } = new LoggerFactory();
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
         public abstract IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
@@ -78,7 +78,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithLoggerFactory(ILoggerFactory loggerFactory)
         {
-            LoggerFactory = loggerFactory;
+            Services.RemoveAll(typeof(ILoggerFactory));
+            Services.AddSingleton(loggerFactory);
             return (T)(object) this;
         }
 

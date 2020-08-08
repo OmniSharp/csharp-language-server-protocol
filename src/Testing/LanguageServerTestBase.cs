@@ -35,10 +35,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 options
                     .WithInput(reader)
                     .WithOutput(writer)
-                    .ConfigureLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
-                        x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
-                    })
+                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                     .Services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
                     .AddSingleton(ServerEvents as IRequestSettler);

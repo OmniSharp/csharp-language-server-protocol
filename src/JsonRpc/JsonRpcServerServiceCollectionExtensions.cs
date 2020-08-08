@@ -31,6 +31,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Input is missing!", nameof(options));
             }
 
+            container = container.Populate(options.Services);
+
             container.RegisterInstance(options.Output, serviceKey: nameof(options.Output));
             container.RegisterInstance(options.Input, serviceKey: nameof(options.Input));
             container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
@@ -72,13 +74,6 @@ namespace OmniSharp.Extensions.JsonRpc
                     collection.Add(description);
                 }
             });
-
-            if (options.LoggerFactory != null)
-            {
-                container.RegisterInstance(options.LoggerFactory, IfAlreadyRegistered.Keep);
-            }
-
-            container = container.Populate(options.Services);
 
             return container.AddJsonRpcMediatR();
         }
