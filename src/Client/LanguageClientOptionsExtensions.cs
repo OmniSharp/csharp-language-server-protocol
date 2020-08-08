@@ -91,8 +91,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions OnStarted(this LanguageClientOptions options,
-            OnLanguageClientStartedDelegate @delegate)
+        public static LanguageClientOptions OnInitialize(this LanguageClientOptions options, OnLanguageClientInitializeDelegate @delegate)
+        {
+            options.Services.AddSingleton(@delegate);
+            return options;
+        }
+
+
+        public static LanguageClientOptions OnInitialized(this LanguageClientOptions options, OnLanguageClientInitializedDelegate @delegate)
+        {
+            options.Services.AddSingleton(@delegate);
+            return options;
+        }
+
+        public static LanguageClientOptions OnStarted(this LanguageClientOptions options, OnLanguageClientStartedDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);
             return options;

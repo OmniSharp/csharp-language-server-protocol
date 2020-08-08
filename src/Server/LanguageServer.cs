@@ -46,7 +46,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<OnLanguageServerInitializeDelegate> _initializeDelegates;
+        private readonly IEnumerable<IOnLanguageServerInitialize> _initializeHandlers;
         private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<IOnLanguageServerInitialized> _initializedHandlers;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -55,6 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private Task _initializingTask;
         private readonly LanguageProtocolSettingsBag _settingsBag;
         private bool _started;
+        private int? _concurrency;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -146,7 +149,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             LanguageProtocolSettingsBag languageProtocolSettingsBag,
             SharedHandlerCollection handlerCollection,
             IProgressManager progressManager,
-            ILanguageServerWorkspaceFolderManager workspaceFolderManager) : base(handlerCollection, responseRouter)
+            ILanguageServerWorkspaceFolderManager workspaceFolderManager, IEnumerable<IOnLanguageServerInitialize> initializeHandlers,
+            IEnumerable<IOnLanguageServerInitialized> initializedHandlers) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
 
@@ -173,6 +177,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Workspace = workspaceLanguageServer;
             ProgressManager = progressManager;
             WorkspaceFolderManager = workspaceFolderManager;
+            _initializeHandlers = initializeHandlers;
+            _initializedHandlers = initializedHandlers;
+            _concurrency = options.Value.Concurrency;
 
             _disposable.Add(_collection.Add(this));
         }
@@ -221,23 +228,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection.Open();
             try
             {
-                async Task InitializeAll()
-                {
-                    var result = await _initializeComplete.ToTask(token);
-                    var tasks =
-                        _startedDelegates.Select(handler => handler(this, result, token))
-                        .Concat(_startedHandlers
-                            .Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerStarted>())
-                            .Select(handler => handler.OnStarted(this, result, token))
-                        )
-                        .ToArray();
-                    if (tasks.Length > 0)
-                    {
-                        await Task.WhenAll(tasks);
-                    }
-                }
-                _initializingTask = InitializeAll();
+                _initializingTask = _initializeComplete.ToTask(token);
                 await _initializingTask;
+                await LanguageProtocolEventingHelper.Run(
+                    _startedDelegates,
+                    (handler, ct) => handler(this, ct),
+                    _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerStarted>()),
+                    (handler, ct) => handler.OnStarted(this, ct),
+                    _concurrency,
+                    token
+                );
 
                 _started = true;
             }
@@ -312,7 +312,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 RegisterHandlers(_collection);
             }
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request, token)));
+            await LanguageProtocolEventingHelper.Run(
+                _initializeDelegates,
+                (handler, ct) => handler(this, request, ct),
+                _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
+                (handler, ct) => handler.OnInitialize(this, request, ct),
+                _concurrency,
+                token
+            );
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
 
@@ -429,12 +436,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ServerInfo = _serverInfo
             };
 
-            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, result, token)));
-
             foreach (var item in _collection)
             {
                 LspHandlerDescriptorHelpers.InitializeHandler(item, _supportedCapabilities, item.Handler);
             }
+
+            await LanguageProtocolEventingHelper.Run(
+                _initializedDelegates,
+                (handler, ct) => handler(this, request, result, ct),
+                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
+                (handler, ct) => handler.OnInitialized(this, request, result, ct),
+                _concurrency,
+                token
+            );
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
@@ -489,15 +503,36 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var result = manager.GetDisposable();
             if (_started)
             {
-                foreach (var item in result.OfType<LspHandlerDescriptorDisposable>())
-                foreach (var descriptor in item.Descriptors)
+                static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
                 {
-                    if (descriptor.Handler is IOnLanguageServerStarted serverStarted)
-                    {
-                        Observable.FromAsync((ct) => serverStarted.OnStarted(this, ServerSettings, ct)).Subscribe();
-                    }
+                    return disposable.OfType<ILspHandlerDescriptor>()
+                        .Select(z => z.Handler)
+                        .OfType<T>()
+                        .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
+                        .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
+                        .Distinct();
                 }
+                static IEnumerable<T> GetLspHandlers<T>(LspHandlerDescriptorDisposable disposable)
+                {
+                    return disposable.Descriptors
+                        .Select(z => z.Handler)
+                        .OfType<T>()
+                        .Distinct();
+                }
+
+                Observable.Concat(
+                    GetUniqueHandlers<IOnLanguageServerInitialize>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialize(this, ClientSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnLanguageServerInitialized>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnLanguageServerStarted>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnStarted(this, ct)))
+                        .Merge()
+                ).Subscribe();
             }
+
             return RegisterHandlers(result);
         }
 

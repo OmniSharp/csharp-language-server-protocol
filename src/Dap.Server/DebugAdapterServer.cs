@@ -10,6 +10,7 @@ using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
@@ -22,12 +23,15 @@ using OutputHandler = OmniSharp.Extensions.JsonRpc.OutputHandler;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
-    public class DebugAdapterServer : JsonRpcServerBase, IDebugAdapterServer, IInitializeHandler
+    public class DebugAdapterServer : JsonRpcServerBase, IDebugAdapterServer, IDebugAdapterInitializeHandler
     {
         private readonly DebugAdapterHandlerCollection _collection;
         private readonly IEnumerable<OnDebugAdapterServerInitializeDelegate> _initializeDelegates;
-        private readonly IEnumerable<OnDebugAdapterServerDelegate> _initializedDelegates;
+        private readonly IEnumerable<IOnDebugAdapterServerInitialize> _initializeHandlers;
+        private readonly IEnumerable<OnDebugAdapterServerInitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<IOnDebugAdapterServerInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
+        private readonly IEnumerable<IOnDebugAdapterServerStarted> _startedHandlers;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
@@ -35,6 +39,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private Task _initializingTask;
         private readonly ISubject<InitializeResponse> _initializeComplete = new AsyncSubject<InitializeResponse>();
         private readonly Capabilities _capabilities;
+        private bool _started;
+        private int? _concurrency;
 
         internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -81,17 +87,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         }
 
         internal DebugAdapterServer(
+            IOptions<DebugAdapterServerOptions> options,
             Capabilities capabilities,
             DapReceiver receiver,
             DebugAdapterHandlerCollection collection,
             IEnumerable<OnDebugAdapterServerInitializeDelegate> initializeDelegates,
-            IEnumerable<OnDebugAdapterServerDelegate> initializedDelegates,
+            IEnumerable<OnDebugAdapterServerInitializedDelegate> initializedDelegates,
             IEnumerable<OnDebugAdapterServerStartedDelegate> onServerStartedDelegates,
             IServiceProvider serviceProvider,
             IResponseRouter responseRouter,
             Connection connection,
-            IDebugAdapterServerProgressManager progressManager
-            ) : base(collection, responseRouter)
+            IDebugAdapterServerProgressManager progressManager,
+            IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
+            IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
+            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
             _receiver = receiver;
@@ -102,6 +111,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _serviceProvider = serviceProvider;
             _connection = connection;
             ProgressManager = progressManager;
+            _initializeHandlers = initializeHandlers;
+            _initializedHandlers = initializedHandlers;
+            _startedHandlers = startedHandlers;
+            _concurrency = options.Value.Concurrency;
+
             _disposable.Add(collection.Add(this));
         }
 
@@ -125,20 +139,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _connection.Open();
             try
             {
-                _initializingTask = _initializeComplete
-                    .Select(result => _startedDelegates.Select(@delegate =>
-                            Observable.FromAsync(() => @delegate(this, result, token))
-                        )
-                        .ToObservable()
-                        .Merge()
-                        .Select(z => result)
-                    )
-                    .Merge()
-                    .LastOrDefaultAsync()
-                    .ToTask(token);
+                _initializingTask = _initializeComplete.ToTask(token);
                 await _initializingTask;
+                await DebugAdapterEventingHelper.Run(
+                    _startedDelegates,
+                    (handler, ct) => handler(this, ct),
+                    _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerStarted>()),
+                    (handler, ct) => handler.OnStarted(this, ct),
+                    _concurrency,
+                    token
+                );
+                _started = true;
 
-                this.SendInitialized(new InitializedEvent());
+                this.SendDebugAdapterInitialized(new InitializedEvent());
             }
             catch (TaskCanceledException e)
             {
@@ -157,7 +170,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         {
             ClientSettings = request;
 
-            await Task.WhenAll(_initializeDelegates.Select(c => c(this, request, cancellationToken)));
+            await DebugAdapterEventingHelper.Run(
+                _initializeDelegates,
+                (handler, ct) => handler(this, request, ct),
+                _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerInitialize>()),
+                (handler, ct) => handler.OnInitialize(this, request, ct),
+                _concurrency,
+                cancellationToken
+            );
 
             _receiver.Initialized();
 
@@ -202,7 +222,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
             ServerSettings = response;
 
-            await Task.WhenAll(_initializedDelegates.Select(c => c(this, request, response, cancellationToken)));
+            await DebugAdapterEventingHelper.Run(
+                _initializedDelegates,
+                (handler, ct) => handler(this, request, response, ct),
+                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterServerInitialized>()),
+                (handler, ct) => handler.OnInitialized(this, request, response, ct),
+                _concurrency,
+                cancellationToken
+            );
+
             _initializeComplete.OnNext(response);
             _initializeComplete.OnCompleted();
 
@@ -220,5 +248,38 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         }
 
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
+
+        public IDisposable Register(Action<IDebugAdapterServerRegistry> registryAction)
+        {
+            var manager = new CompositeHandlersManager(_collection);
+            registryAction(new DebugAdapterServerRegistry(manager));
+
+            var result = manager.GetDisposable();
+            if (_started)
+            {
+                static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
+                {
+                    return disposable.OfType<IHandlerDescriptor>()
+                        .Select(z => z.Handler)
+                        .OfType<T>()
+                        .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
+                        .Distinct();
+                }
+
+                Observable.Concat(
+                    GetUniqueHandlers<IOnDebugAdapterServerInitialize>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialize(this, ClientSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnDebugAdapterServerInitialized>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnDebugAdapterServerStarted>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnStarted(this, ct)))
+                        .Merge()
+                ).Subscribe();
+            }
+
+            return result;
+        }
     }
 }

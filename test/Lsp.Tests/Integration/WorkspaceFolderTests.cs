@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,6 +14,7 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
@@ -23,11 +26,29 @@ namespace Lsp.Tests.Integration
 {
     public class WorkspaceFolderTests : LanguageProtocolTestBase
     {
-        private readonly ITestOutputHelper _outputHelper;
-
         public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
-            _outputHelper = outputHelper;
+        }
+
+        [Fact]
+        public async Task Should_Disable_If_Not_Supported()
+        {
+            var (client, server) = await Initialize(options => {
+                options.DisableAllCapabilities();
+                options.OnInitialize(async (languageClient, request, token) => {
+                    request.Capabilities.Workspace.WorkspaceFolders = false;
+                });
+            }, ConfigureServer);
+            server.WorkspaceFolderManager.IsSupported.Should().Be(false);
+            var folders = await server.WorkspaceFolderManager.Refresh().ToArray().ToTask();
+            folders.Should().BeEmpty();
+        }
+
+        [Fact]
+        public async Task Should_Enable_If_Supported()
+        {
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            server.WorkspaceFolderManager.IsSupported.Should().Be(true);
         }
 
         [Fact]
@@ -102,6 +123,11 @@ namespace Lsp.Tests.Integration
 
         private void ConfigureClient(LanguageClientOptions options)
         {
+            options.WithClientCapabilities(new ClientCapabilities() {
+                Workspace = new WorkspaceClientCapabilities() {
+                    WorkspaceFolders = true
+                }
+            });
         }
 
         private void ConfigureServer(LanguageServerOptions options)

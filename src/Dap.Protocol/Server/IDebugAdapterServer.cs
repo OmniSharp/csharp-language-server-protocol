@@ -6,7 +6,7 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Server
 {
-    public interface IDebugAdapterServer : IDebugAdapterServerProxy, IDisposable
+    public interface IDebugAdapterServer : IDebugAdapterServerProxy, IJsonRpcHandlerInstance<IDebugAdapterServerRegistry>, IDisposable
     {
         Task Initialize(CancellationToken token);
         IDebugAdapterServerProgressManager ProgressManager { get; }

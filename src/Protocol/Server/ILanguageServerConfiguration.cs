@@ -32,5 +32,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         /// <param name="configuration"></param>
         /// <returns></returns>
         bool TryGetScopedConfiguration(DocumentUri scopeUri, out IScopedConfiguration configuration);
+
+        /// <summary>
+        /// Is configuration supported by the client
+        /// </summary>
+        bool IsSupported { get; }
     }
 }

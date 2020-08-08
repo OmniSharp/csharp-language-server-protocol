@@ -9,9 +9,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 
     [Parallel, Method(EventNames.Initialized, Direction.ServerToClient)]
     [GenerateHandlerMethods, GenerateRequestMethods]
-    public interface IInitializedHandler : IJsonRpcNotificationHandler<InitializedEvent> { }
+    public interface IDebugAdapterInitializedHandler : IJsonRpcNotificationHandler<InitializedEvent> { }
 
-    public abstract class InitializedHandler : IInitializedHandler
+    public abstract class DebugAdapterInitializedHandler : IDebugAdapterInitializedHandler
     {
         public abstract Task<Unit> Handle(InitializedEvent request, CancellationToken cancellationToken);
     }

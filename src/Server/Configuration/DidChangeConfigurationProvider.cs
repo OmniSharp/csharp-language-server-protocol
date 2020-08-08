@@ -48,6 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public async Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken)
         {
+            if (_capability == null) return Unit.Value;
             // null means we need to re-read the configuration
             // https://github.com/Microsoft/vscode-languageserver-node/issues/380
             if (request.Settings == null || request.Settings.Type == JTokenType.Null)
@@ -64,13 +65,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public object GetRegistrationOptions() => new object();
 
         public void SetCapability(DidChangeConfigurationCapability capability) => _capability = capability;
+        public bool IsSupported => _capability != null;
 
-        Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
+        Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken) => GetWorkspaceConfiguration();
 
         private async Task GetWorkspaceConfiguration()
         {
             var configurationItems = _configurationItems.ToArray();
             if (configurationItems.Length == 0) return;
+            if (_capability == null) return;
 
             {
                 var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
@@ -130,7 +133,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public async Task<IConfiguration> GetConfiguration(params ConfigurationItem[] items)
         {
-            if (items.Length == 0)
+            if (_capability == null || items.Length == 0)
             {
                 return new ConfigurationBuilder().AddInMemoryCollection(_configuration.AsEnumerable()).Build();
             }

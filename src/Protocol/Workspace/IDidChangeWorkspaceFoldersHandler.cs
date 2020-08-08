@@ -13,8 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
     [Parallel, Method(WorkspaceNames.DidChangeWorkspaceFolders, Direction.ClientToServer)]
     [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
-    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>,
-        ICapability<DidChangeWorkspaceFolderCapability>, IRegistration<object>
+    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>, IRegistration<object>
     {
     }
 
@@ -28,7 +27,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         public object GetRegistrationOptions() => _registrationOptions;
 
         public abstract Task<Unit> Handle(DidChangeWorkspaceFoldersParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DidChangeWorkspaceFolderCapability capability) => Capability = capability;
-        protected DidChangeWorkspaceFolderCapability Capability { get; private set; }
     }
 }

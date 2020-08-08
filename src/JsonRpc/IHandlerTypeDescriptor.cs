@@ -16,4 +16,14 @@ namespace OmniSharp.Extensions.JsonRpc
         bool HasResponseType { get; }
         Type ResponseType { get; }
     }
+
+    /// <summary>
+    /// Marker interface used to pick up eventing handlers and throw them into the container
+    /// THis is so that consumers do not need to manually add two services to the service collection
+    /// We'll let our internal container pick it up.
+    /// </summary>
+    public interface IEventingHandler
+    {
+
+    }
 }

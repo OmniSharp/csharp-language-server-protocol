@@ -11,5 +11,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         IObservable<WorkspaceFolderChange> Changed { get; }
         IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders { get; }
         IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders { get; }
+        bool IsSupported { get; }
     }
 }
