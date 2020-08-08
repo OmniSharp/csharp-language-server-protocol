@@ -13,7 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
-    class ClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
+    class LanguageClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
     {
         private readonly IWindowLanguageClient _router;
         private readonly ISerializer _serializer;
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
         private bool _supported;
         private readonly ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>> _pendingWork;
 
-        public ClientWorkDoneManager(IWindowLanguageClient router, ISerializer serializer, IProgressManager progressManager)
+        public LanguageClientWorkDoneManager(IWindowLanguageClient router, ISerializer serializer, IProgressManager progressManager)
         {
             _router = router;
             _serializer = serializer;

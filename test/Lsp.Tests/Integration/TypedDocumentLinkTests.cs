@@ -19,7 +19,7 @@ using Xunit.Abstractions;
 namespace Lsp.Tests.Integration
 {
     public class TypedDocumentLinkTests : LanguageProtocolTestBase
-    {
+        {
 
         public TypedDocumentLinkTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {

@@ -17,7 +17,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         Type CapabilityType { get; }
         bool IsDynamicCapability { get; }
         Type CanBeResolvedHandlerType { get; }
-        OnLanguageServerStartedDelegate OnLanguageServerStartedDelegate { get; }
-        OnLanguageClientStartedDelegate OnLanguageClientStartedDelegate { get; }
     }
 }

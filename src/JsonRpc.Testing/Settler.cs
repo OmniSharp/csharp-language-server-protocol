@@ -36,9 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public Task SettleNext()
         {
-            return _settle
-                .Take(1)
-                .ToTask(_cancellationToken);
+            return _settle.Take(1).ToTask(_cancellationToken);
         }
 
         public IObservable<Unit> Settle()

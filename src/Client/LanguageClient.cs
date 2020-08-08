@@ -42,6 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         // private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         // private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<OnLanguageClientStartedDelegate> _startedDelegates;
+        private readonly IEnumerable<IOnLanguageClientStarted> _startedHandlers;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -53,6 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly InitializeTrace _trace;
         private readonly ClientCapabilities _clientCapabilities;
         private readonly LanguageProtocolSettingsBag _settingsBag;
+        private bool _started;
 
         internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -128,6 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             TextDocumentIdentifiers textDocumentIdentifiers,
             IServiceProvider serviceProvider,
             IEnumerable<OnLanguageClientStartedDelegate> startedDelegates,
+            IEnumerable<IOnLanguageClientStarted> startedHandlers,
             ITextDocumentLanguageClient textDocumentLanguageClient,
             IClientLanguageClient clientLanguageClient,
             IGeneralLanguageClient generalLanguageClient,
@@ -139,7 +142,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IProgressManager progressManager,
             IClientWorkDoneManager clientWorkDoneManager,
             IRegistrationManager registrationManager,
-            IWorkspaceFoldersManager workspaceFoldersManager
+            ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager
         ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
@@ -149,6 +152,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _receiver = lspClientReceiver;
             _textDocumentIdentifiers = textDocumentIdentifiers;
             _startedDelegates = startedDelegates;
+            _startedHandlers = startedHandlers;
             _rootUri = options.Value.RootUri;
             _trace = options.Value.Trace;
             _initializationOptions = options.Value.InitializationOptions;
@@ -160,7 +164,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ProgressManager = progressManager;
             WorkDoneManager = clientWorkDoneManager;
             RegistrationManager = registrationManager;
-            WorkspaceFoldersManager = workspaceFoldersManager;
+            WorkspaceFoldersManager = languageClientWorkspaceFoldersManager;
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             TextDocument = textDocumentLanguageClient;
@@ -168,8 +172,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             General = generalLanguageClient;
             Window = windowLanguageClient;
             Workspace = workspaceLanguageClient;
-
-            WorkspaceFoldersManager.Add(options.Value.Folders.ToArray());
         }
 
         public ITextDocumentLanguageClient TextDocument { get; }
@@ -180,7 +182,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public IProgressManager ProgressManager { get; }
         public IClientWorkDoneManager WorkDoneManager { get; }
         public IRegistrationManager RegistrationManager { get; }
-        public IWorkspaceFoldersManager WorkspaceFoldersManager { get; }
+        public ILanguageClientWorkspaceFoldersManager WorkspaceFoldersManager { get; }
 
         public InitializeParams ClientSettings
         {
@@ -216,13 +218,17 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
             _receiver.Initialized();
 
-            await _startedDelegates.Select(@delegate =>
-                    Observable.FromAsync(() => @delegate(this, serverParams, token))
-                )
-                .ToObservable()
-                .Merge()
-                .LastOrDefaultAsync()
-                .ToTask(token);
+            var tasks =
+                _startedDelegates.Select(handler => handler(this, serverParams, token))
+                    .Concat(_startedHandlers
+                        .Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientStarted>())
+                        .Select(handler => handler.OnStarted(this, serverParams, token))
+                    )
+                    .ToArray();
+            if (tasks.Length > 0)
+            {
+                await Task.WhenAll(tasks);
+            }
 
             ServerSettings = serverParams;
             if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
@@ -230,6 +236,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             // TODO: pull supported fields and add any static registrations to the registration manager
             this.SendLanguageProtocolInitialized(new InitializedParams());
+            _started = true;
         }
 
         private void RegisterCapabilities(ClientCapabilities capabilities)
@@ -337,7 +344,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             var manager = new CompositeHandlersManager(_collection);
             registryAction(new LangaugeClientRegistry(Services, manager, _textDocumentIdentifiers));
-            return manager.GetDisposable();
+            var result = manager.GetDisposable();
+            if (_started)
+            {
+                foreach (var item in result.OfType<LspHandlerDescriptorDisposable>())
+                foreach (var descriptor in item.Descriptors)
+                {
+                    if (descriptor.Handler is IOnLanguageClientStarted clientStarted)
+                    {
+                        Observable.FromAsync((ct) => clientStarted.OnStarted(this, ServerSettings, ct)).Subscribe();
+                    }
+                }
+            }
+
+            return result;
         }
 
         object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);

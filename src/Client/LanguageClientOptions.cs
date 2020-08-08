@@ -36,7 +36,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public bool WorkspaceFolders { get; set; } = true;
         public bool DynamicRegistration { get; set; } = true;
         public bool ProgressTokens { get; set; } = true;
-        internal List<WorkspaceFolder> Folders { get; set; } = new List<WorkspaceFolder>();
 
         public string RootPath
         {

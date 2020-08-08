@@ -30,11 +30,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             container.RegisterInstance<IOptionsFactory<DebugAdapterClientOptions>>(new ValueOptionsFactory<DebugAdapterClientOptions>(options));
 
             container.RegisterMany<DebugAdapterClient>(serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton);
-            container.RegisterInitializer<DebugAdapterClient>((server, context) => {
-                var manager = context.Resolve<IHandlersManager>();
-                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                descriptions.Populate(context, manager);
-            });
 
             container.RegisterInstance(new InitializeRequestArguments() {
                 Locale = options.Locale,

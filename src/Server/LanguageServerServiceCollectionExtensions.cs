@@ -54,18 +54,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 reuse: Reuse.Singleton
             );
 
-            // container.
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(_ => {
                     var builder = new ConfigurationBuilder();
                     var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
-                    if (outerServiceProvider != null)
+                    var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
+                    if (outerConfiguration != null)
                     {
-                        var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
-                        if (outerConfiguration != null)
-                        {
-                            builder.AddConfiguration(outerConfiguration, false);
-                        }
+                        builder.AddConfiguration(outerConfiguration, false);
                     }
 
                     if (providedConfiguration != null)
@@ -89,7 +85,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<ExecuteCommandMatcher>(reuse: Reuse.Singleton);
             container.RegisterMany<ResolveCommandMatcher>(reuse: Reuse.Singleton);
             container.RegisterMany(new[] {typeof(ResolveCommandPipeline<,>)});
-            container.RegisterMany<ServerWorkDoneManager>(reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkDoneManager>(reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(reuse: Reuse.Singleton);
 
             return container;
         }

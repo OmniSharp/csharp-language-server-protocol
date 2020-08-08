@@ -50,6 +50,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
+        public static LanguageClientOptions WithWorkspaceFolder(this LanguageClientOptions options, WorkspaceFolder workspaceFolder)
+        {
+            options.Services.AddSingleton(workspaceFolder);
+            return options;
+        }
+
+        public static LanguageClientOptions WithWorkspaceFolder(this LanguageClientOptions options, DocumentUri documentUri, string name)
+        {
+            options.Services.AddSingleton(new WorkspaceFolder() { Name = name, Uri = documentUri});
+            return options;
+        }
+
         public static LanguageClientOptions WithTrace(this LanguageClientOptions options, InitializeTrace trace)
         {
             options.Trace = trace;

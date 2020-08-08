@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public static class JsonRpcHandlerCollectionExtensions
+    internal static class JsonRpcHandlerCollectionExtensions
     {
         public static void Populate(this IJsonRpcHandlerCollection collection, IServiceProvider serviceProvider, IHandlersManager handlersManager)
         {

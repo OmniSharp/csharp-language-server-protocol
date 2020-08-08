@@ -31,11 +31,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Input is missing!", nameof(options));
             }
 
-            container = container.Populate(options.Services
-                .AddLogging()
-                .AddOptions()
-            );
-
             container.RegisterInstance(options.Output, serviceKey: nameof(options.Output));
             container.RegisterInstance(options.Input, serviceKey: nameof(options.Input));
             container.RegisterInstance(options.MaximumRequestTimeout, serviceKey: nameof(options.MaximumRequestTimeout));
@@ -68,9 +63,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
             container.RegisterInstance(options.Handlers);
             container.RegisterInitializer<IJsonRpcHandlerCollection>((collection, context) => {
-                foreach (var description in context.ResolveMany<JsonRpcHandlerDescription>()
-                    .Concat(context.ResolveMany<IJsonRpcHandler>().Select(_ => JsonRpcHandlerDescription.Infer(_)))
-                )
+                foreach (var description in context
+                    .ResolveMany<JsonRpcHandlerDescription>()
+                    .Concat(context
+                        .ResolveMany<IJsonRpcHandler>().Select(_ => JsonRpcHandlerDescription.Infer(_))
+                    ))
                 {
                     collection.Add(description);
                 }
@@ -81,13 +78,15 @@ namespace OmniSharp.Extensions.JsonRpc
                 container.RegisterInstance(options.LoggerFactory, IfAlreadyRegistered.Keep);
             }
 
+            container = container.Populate(options.Services);
+
             return container.AddJsonRpcMediatR();
         }
 
         internal static IContainer AddJsonRpcMediatR(this IContainer container)
         {
-            container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, reuse: Reuse.ScopedOrSingleton);
-            container.RegisterMany(new[] { typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>) }, reuse: Reuse.ScopedOrSingleton);
+            container.RegisterMany(new[] {typeof(IMediator).GetAssembly()}, Registrator.Interfaces, reuse: Reuse.ScopedOrSingleton);
+            container.RegisterMany(new[] {typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>)}, reuse: Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(reuse: Reuse.Scoped);
             container.RegisterDelegate<ServiceFactory>(context => context.Resolve, reuse: Reuse.ScopedOrSingleton);
 
@@ -100,6 +99,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         return new RegisteredInstanceFactory(context.Descriptor.Handler);
                     }
                 }
+
                 return null;
             }));
         }

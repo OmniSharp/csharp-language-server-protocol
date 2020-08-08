@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
         IServiceProvider Services { get; }
         IClientWorkDoneManager WorkDoneManager { get; }
         IRegistrationManager RegistrationManager { get; }
-        IWorkspaceFoldersManager WorkspaceFoldersManager { get; }
+        ILanguageClientWorkspaceFoldersManager WorkspaceFoldersManager { get; }
         InitializeParams ClientSettings { get; }
         InitializeResult ServerSettings { get; }
         Task Initialize(CancellationToken token);

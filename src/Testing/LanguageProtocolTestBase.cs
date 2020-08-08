@@ -47,9 +47,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
             _client = LanguageClient.PreInit(options => {
                 options
-                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                     .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
+                        x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                     })
                     .Services
@@ -63,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 options
                     .WithLoggerFactory(TestOptions.ServerLoggerFactory)
                     .ConfigureLogging(x => {
-                        x.Services.RemoveAll(typeof(ILoggerFactory));
+                        x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
                     })
                     .Services

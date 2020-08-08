@@ -48,12 +48,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IEnumerable<OnLanguageServerInitializeDelegate> _initializeDelegates;
         private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
-        private readonly IResponseRouter _responseRouter;
+        private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly ISupportedCapabilities _supportedCapabilities;
         private Task _initializingTask;
         private readonly LanguageProtocolSettingsBag _settingsBag;
+        private bool _started;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -135,6 +136,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IEnumerable<OnLanguageServerInitializeDelegate> initializeDelegates,
             IEnumerable<OnLanguageServerInitializedDelegate> initializedDelegates,
             IEnumerable<OnLanguageServerStartedDelegate> startedDelegates,
+            IEnumerable<IOnLanguageServerStarted> startedHandlers,
             IServerWorkDoneManager serverWorkDoneManager,
             ITextDocumentLanguageServer textDocumentLanguageServer,
             IClientLanguageServer clientLanguageServer,
@@ -143,12 +145,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IWorkspaceLanguageServer workspaceLanguageServer,
             LanguageProtocolSettingsBag languageProtocolSettingsBag,
             SharedHandlerCollection handlerCollection,
-            IProgressManager progressManager
-        ) : base(handlerCollection, responseRouter)
+            IProgressManager progressManager,
+            ILanguageServerWorkspaceFolderManager workspaceFolderManager) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
 
-            _responseRouter = responseRouter;
             _connection = connection;
             _serverInfo = serverInfo;
             _serverReceiver = receiver;
@@ -158,6 +159,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializeDelegates = initializeDelegates;
             _initializedDelegates = initializedDelegates;
             _startedDelegates = startedDelegates;
+            _startedHandlers = startedHandlers;
             WorkDoneManager = serverWorkDoneManager;
             _settingsBag = languageProtocolSettingsBag;
             Services = serviceProvider;
@@ -170,6 +172,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Window = windowLanguageServer;
             Workspace = workspaceLanguageServer;
             ProgressManager = progressManager;
+            WorkspaceFolderManager = workspaceFolderManager;
 
             _disposable.Add(_collection.Add(this));
         }
@@ -197,6 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IProgressManager ProgressManager { get; }
         public IServerWorkDoneManager WorkDoneManager { get; }
         public ILanguageServerConfiguration Configuration { get; }
+        public ILanguageServerWorkspaceFolderManager WorkspaceFolderManager { get; }
 
         public async Task Initialize(CancellationToken token)
         {
@@ -217,18 +221,25 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _connection.Open();
             try
             {
-                _initializingTask = _initializeComplete
-                    .Select(result => _startedDelegates.Select(@delegate =>
-                            Observable.FromAsync(() => @delegate(this, result, token))
+                async Task InitializeAll()
+                {
+                    var result = await _initializeComplete.ToTask(token);
+                    var tasks =
+                        _startedDelegates.Select(handler => handler(this, result, token))
+                        .Concat(_startedHandlers
+                            .Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerStarted>())
+                            .Select(handler => handler.OnStarted(this, result, token))
                         )
-                        .ToObservable()
-                        .Merge()
-                        .Select(z => result)
-                    )
-                    .Merge()
-                    .LastOrDefaultAsync()
-                    .ToTask(token);
+                        .ToArray();
+                    if (tasks.Length > 0)
+                    {
+                        await Task.WhenAll(tasks);
+                    }
+                }
+                _initializingTask = InitializeAll();
                 await _initializingTask;
+
+                _started = true;
             }
             catch (TaskCanceledException e)
             {
@@ -474,7 +485,20 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             var manager = new CompositeHandlersManager(_collection);
             registryAction(new LangaugeServerRegistry(Services, manager, _textDocumentIdentifiers));
-            return RegisterHandlers(manager.GetDisposable());
+
+            var result = manager.GetDisposable();
+            if (_started)
+            {
+                foreach (var item in result.OfType<LspHandlerDescriptorDisposable>())
+                foreach (var descriptor in item.Descriptors)
+                {
+                    if (descriptor.Handler is IOnLanguageServerStarted serverStarted)
+                    {
+                        Observable.FromAsync((ct) => serverStarted.OnStarted(this, ServerSettings, ct)).Subscribe();
+                    }
+                }
+            }
+            return RegisterHandlers(result);
         }
 
         private IDisposable RegisterHandlers(IEnumerable<ILspHandlerDescriptor> collection)
@@ -501,16 +525,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         Method = descriptor.Method,
                         RegisterOptions = descriptor.RegistrationOptions
                     });
-                }
-
-                if (descriptor.OnLanguageServerStartedDelegate != null)
-                {
-                    // Fire and forget to initialize the handler
-                    _initializeComplete
-                        .Select(result =>
-                            Observable.FromAsync((ct) => descriptor.OnLanguageServerStartedDelegate(this, result, ct)))
-                        .Merge()
-                        .Subscribe();
                 }
             }
 

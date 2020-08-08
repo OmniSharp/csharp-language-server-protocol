@@ -19,14 +19,14 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    class RegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
+    class LanguageClientRegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
     {
         private readonly ISerializer _serializer;
-        private readonly ILogger<RegistrationManager> _logger;
+        private readonly ILogger<LanguageClientRegistrationManager> _logger;
         private readonly ConcurrentDictionary<string, Registration> _registrations;
         private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject;
 
-        public RegistrationManager(ISerializer serializer, ILogger<RegistrationManager> logger)
+        public LanguageClientRegistrationManager(ISerializer serializer, ILogger<LanguageClientRegistrationManager> logger)
         {
             _serializer = serializer;
             _logger = logger;

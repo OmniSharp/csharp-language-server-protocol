@@ -17,6 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         IServiceProvider Services { get; }
         IServerWorkDoneManager WorkDoneManager { get; }
         ILanguageServerConfiguration Configuration { get; }
+        ILanguageServerWorkspaceFolderManager WorkspaceFolderManager { get; }
 
         IObservable<InitializeResult> Start { get; }
         IObservable<bool> Shutdown { get; }

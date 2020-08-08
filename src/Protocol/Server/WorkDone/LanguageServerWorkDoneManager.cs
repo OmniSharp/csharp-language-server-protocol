@@ -12,7 +12,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 {
-    class ServerWorkDoneManager : IServerWorkDoneManager
+    class LanguageServerWorkDoneManager : IServerWorkDoneManager
     {
         private readonly IResponseRouter _router;
         private readonly ISerializer _serializer;
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         private readonly ConcurrentDictionary<ProgressToken, IWorkDoneObserver> _activeObservers
             = new ConcurrentDictionary<ProgressToken, IWorkDoneObserver>(EqualityComparer<ProgressToken>.Default);
 
-        public ServerWorkDoneManager(IResponseRouter router, ISerializer serializer)
+        public LanguageServerWorkDoneManager(IResponseRouter router, ISerializer serializer)
         {
             _router = router;
             _serializer = serializer;

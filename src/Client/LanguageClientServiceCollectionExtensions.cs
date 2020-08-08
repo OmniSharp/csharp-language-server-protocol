@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
@@ -23,8 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             }
 
             container  = container.AddLanguageProtocolInternals(options);
-
-            container.RegisterMany<WorkspaceFoldersManager>(serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterInstanceMany(options.Receiver);
@@ -53,8 +52,30 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                           Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
             });
 
-            container.RegisterMany<ClientWorkDoneManager>(reuse: Reuse.Singleton);
-            container.RegisterMany<RegistrationManager>(serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
+            var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
+            container.RegisterDelegate<IConfiguration>(_ => {
+                    var builder = new ConfigurationBuilder();
+                    var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
+                    if (outerConfiguration != null)
+                    {
+                        builder.AddConfiguration(outerConfiguration, false);
+                    }
+
+                    if (providedConfiguration != null)
+                    {
+                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                    }
+
+                    //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
+                    return builder
+                        //.AddConfiguration(didChangeConfigurationProvider)
+                        .Build();
+                },
+                reuse: Reuse.Singleton);
+
+            container.RegisterMany<LanguageClientWorkDoneManager>(reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageClientWorkspaceFoldersManager>(serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageClientRegistrationManager>(serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
 
             return container;
         }

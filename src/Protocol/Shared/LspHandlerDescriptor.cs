@@ -62,14 +62,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                       typeof(DelegatingRequest<>).IsAssignableFrom(@params.GetGenericTypeDefinition()) ||
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
-            if (handler is IOnLanguageServerStarted serverStarted)
-            {
-                OnLanguageServerStartedDelegate = serverStarted.OnStarted;
-            }
-            if (handler is IOnLanguageClientStarted clientStarted)
-            {
-                OnLanguageClientStartedDelegate = clientStarted.OnStarted;
-            }
 
             IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
                 .GetInterfaces().Any(z =>
@@ -90,8 +82,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         public bool HasCapability => CapabilityType != null;
         public Type CapabilityType { get; }
-        public OnLanguageServerStartedDelegate OnLanguageServerStartedDelegate { get; }
-        public OnLanguageClientStartedDelegate OnLanguageClientStartedDelegate { get; }
 
         public string Method { get; }
         public string Key { get; }

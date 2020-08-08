@@ -20,8 +20,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler,
-        IOnLanguageServerStarted, ILanguageServerConfiguration
+    class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler, IOnLanguageServerStarted, ILanguageServerConfiguration
     {
         private readonly IEnumerable<ConfigurationItem> _configurationItems;
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
