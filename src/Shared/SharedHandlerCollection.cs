@@ -53,11 +53,14 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         IDisposable IHandlersManager.Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) => Add(handlerFactory(_serviceProvider), options);
 
-        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) => Add(method, handlerFactory(_serviceProvider), options);
+        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) =>
+            Add(method, handlerFactory(_serviceProvider), options);
 
-        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions options) =>  Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions options) =>
+            Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
 
-        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions options) =>  Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions options) =>
+            Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
 
         IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
         {
@@ -89,16 +92,17 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handler in handlers)
             {
-                var (innerDescriptors, innerCompositeDisposable ) = AddHandler(handler, null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(handler, null);
                 innerDescriptors.UnionWith(descriptors);
                 cd.Add(innerCompositeDisposable);
             }
+
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var (descriptors, compositeDisposable ) = AddHandler(handler, options);
+            var (descriptors, compositeDisposable) = AddHandler(handler, options);
             return new LspHandlerDescriptorDisposable(descriptors, compositeDisposable);
         }
 
@@ -114,16 +118,17 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerFactory in handlerFactories)
             {
-                var (innerDescriptors, innerCompositeDisposable ) = AddHandler(handlerFactory(_serviceProvider), null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(handlerFactory(_serviceProvider), null);
                 innerDescriptors.UnionWith(descriptors);
                 cd.Add(innerCompositeDisposable);
             }
+
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options)
         {
-            var (descriptors, compositeDisposable ) = AddHandler(handlerFactory(_serviceProvider), null);
+            var (descriptors, compositeDisposable) = AddHandler(handlerFactory(_serviceProvider), null);
             return new LspHandlerDescriptorDisposable(descriptors, compositeDisposable);
         }
 
@@ -139,23 +144,23 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerType in handlerTypes)
             {
-                var (innerDescriptors, innerCompositeDisposable ) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType)as IJsonRpcHandler , null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, null);
                 innerDescriptors.UnionWith(descriptors);
                 cd.Add(innerCompositeDisposable);
             }
-            return new LspHandlerDescriptorDisposable(descriptors, cd);
 
+            return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType)as IJsonRpcHandler, options);
+            var (descriptors, cd) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType)as IJsonRpcHandler, options);
+            var (descriptors, cd) = AddHandler(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
@@ -172,7 +177,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
         }
 
-        private (HashSet<LspHandlerDescriptor> descriptors, CompositeDisposable compositeDisposable) AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        private (HashSet<LspHandlerDescriptor> descriptors, CompositeDisposable compositeDisposable) AddHandler(string method, IJsonRpcHandler handler,
+            JsonRpcHandlerOptions options)
         {
             var descriptors = new HashSet<LspHandlerDescriptor>();
             var cd = new CompositeDisposable();
@@ -261,8 +267,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 // In some scenarios, users will implement both the main handler and the resolve handler to the same class
                 // This allows us to get a key for those interfaces so we can register many resolve handlers
                 // and then route those resolve requests to the correct handler
-                if (handler.GetType().GetTypeInfo().ImplementedInterfaces
-                    .Any(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>)))
+                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x)))
                 {
                     key = handlerRegistration?.GetRegistrationOptions()?.DocumentSelector ?? key;
                 }

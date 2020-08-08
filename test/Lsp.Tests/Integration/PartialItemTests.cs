@@ -213,8 +213,6 @@ namespace Lsp.Tests.Integration
             }
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-
-            public override Guid Id { get; } = Guid.NewGuid();
         }
 
     }

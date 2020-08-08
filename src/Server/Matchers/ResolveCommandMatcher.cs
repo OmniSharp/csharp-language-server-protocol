@@ -38,7 +38,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                     foreach (var descriptor in descriptors)
                     {
                         _logger.LogTrace("Checking handler {Method}:{Handler}", descriptor.Method, descriptor.ImplementationType.FullName);
-                        if (descriptor.Handler is ICanBeIdentifiedHandler handler && handler.Id != Guid.Empty && handler.Id == id)
+                        // If they `ICanBeIdentifiedHandler` is implemented, use that.
+                        if (descriptor.Handler is ICanBeIdentifiedHandler handler && handler.Id == id)
+                        {
+                            yield return descriptor;
+                        }
+                        // If we are a legacy resolve handler and we have no id set then continue on.
+                        else if (descriptor.Handler is ICanBeResolvedHandler && id == Guid.Empty)
                         {
                             yield return descriptor;
                         }

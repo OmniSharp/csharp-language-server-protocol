@@ -62,7 +62,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public sealed class CanBeResolved<TItem, TCapability, TRegistrationOptions> :
             IRegistration<TRegistrationOptions>,
             ICapability<TCapability>,
-            ICanBeResolvedHandler<TItem>
+            ICanBeResolvedHandler<TItem>,
+            ICanBeIdentifiedHandler
             where TItem : ICanBeResolved, IRequest<TItem>
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
@@ -93,7 +94,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class CanBeResolved<TItem, TRegistrationOptions> :
             IRegistration<TRegistrationOptions>,
-            ICanBeResolvedHandler<TItem>
+            ICanBeResolvedHandler<TItem>,
+            ICanBeIdentifiedHandler
             where TItem : ICanBeResolved, IRequest<TItem>
             where TRegistrationOptions : class, new()
         {

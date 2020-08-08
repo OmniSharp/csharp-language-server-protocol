@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     {
     }
 
-    public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler
+    public abstract class CompletionHandler : ICompletionHandler, ICompletionResolveHandler, ICanBeIdentifiedHandler
     {
         private readonly CompletionRegistrationOptions _options;
 
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public CompletionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken);
         public abstract Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken);
-        public virtual Guid Id { get; } = Guid.NewGuid();
+        Guid ICanBeIdentifiedHandler.Id { get; } = Guid.NewGuid();
         public virtual void SetCapability(CompletionCapability capability) => Capability = capability;
         protected CompletionCapability Capability { get; private set; }
     }

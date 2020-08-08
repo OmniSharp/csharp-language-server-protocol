@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
                 .ImplementedInterfaces
-                .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ICanBeResolvedHandler<>));
+                .FirstOrDefault(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x));
 
             HasReturnType = Response != null && Response != typeof(Unit);
 

@@ -8,9 +8,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Common interface for types that support resolution.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public interface ICanBeResolvedHandler<T> : IJsonRpcRequestHandler<T, T>, ICanBeIdentifiedHandler
+    public interface ICanBeResolvedHandler<T> : IJsonRpcRequestHandler<T, T>, ICanBeResolvedHandler
         where T : ICanBeResolved, IRequest<T>
     {
+    }
+
+    public interface ICanBeResolvedHandler {
     }
 
     public interface ICanBeIdentifiedHandler
@@ -19,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// An id that that determines if a handler is unique or not for purposes of routing requests
         /// </summary>
         /// <remarks>
-        /// Some requests can "fan out" to multiple handlers to pull back data this allows them to fan out for the same document selector
+        /// Some requests can "fan out" to multiple handlers to pull back data for the same document selector
         /// </remarks>
         Guid Id { get; }
     }

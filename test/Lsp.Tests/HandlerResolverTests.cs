@@ -211,7 +211,7 @@ namespace Lsp.Tests
 
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
-            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
+            var codeLensHandler = Substitute.For(new Type[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
             ((ICodeLensHandler)codeLensHandler).GetRegistrationOptions()
                     .Returns(new CodeLensRegistrationOptions() {
                         DocumentSelector = new DocumentSelector() { }
@@ -219,7 +219,7 @@ namespace Lsp.Tests
 
             yield return new object[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
-            var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler) }, new object[0]);
+            var documentLinkHandler = Substitute.For(new Type[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
             ((IDocumentLinkHandler)documentLinkHandler).GetRegistrationOptions()
                 .Returns(new DocumentLinkRegistrationOptions() {
                     DocumentSelector = new DocumentSelector() { }
@@ -227,7 +227,7 @@ namespace Lsp.Tests
 
             yield return new object[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
-            var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler) }, new object[0]);
+            var completionHandler = Substitute.For(new Type[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
             ((ICompletionHandler)completionHandler).GetRegistrationOptions()
                 .Returns(new CompletionRegistrationOptions() {
                     DocumentSelector = new DocumentSelector() { }

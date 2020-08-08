@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Xunit;
@@ -327,23 +328,29 @@ namespace Lsp.Tests
 
             public IEnumerator<object[]> GetEnumerator()
             {
+                var items = new List<(Uri source, string destination)>();
                 foreach (var data in EncodedStrings)
                 {
                     var encodedData = _encode ? Uri.EscapeDataString(data) : data;
                     if (_sourceFormat.Replace("c:", "c%3A") != string.Format(_sourceFormat, data))
-                        yield return new object[] {
+                        items.Add((
                             new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3A")),
                             string.Format(_destinationFormat, encodedData)
-                        };
+                        ));
                     if (_sourceFormat.Replace("c:", "c%3a") != string.Format(_sourceFormat, data))
-                        yield return new object[] {
+                        items.Add((
                             new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3a")),
                             string.Format(_destinationFormat, encodedData)
-                        };
-                    yield return new object[] {
+                        ));
+                    items.Add((
                         new Uri(string.Format(_sourceFormat, data)),
                         string.Format(_destinationFormat, encodedData)
-                    };
+                    ));
+                }
+
+                foreach (var item in items.Distinct())
+                {
+                    yield return new object[] {item.source, item.destination};
                 }
             }
 
@@ -363,22 +370,28 @@ namespace Lsp.Tests
 
             public IEnumerator<object[]> GetEnumerator()
             {
+                var items = new List<(string source, string destination)>();
                 foreach (var data in EncodedStrings)
                 {
                     if (_sourceFormat.Replace("c:", "c%3A") != string.Format(_sourceFormat, data))
-                        yield return new object[] {
+                        items.Add((
                             string.Format(_sourceFormat, data).Replace("c:", "c%3A"),
                             string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                        };
+                        ));
                     if (_sourceFormat.Replace("c:", "c%3a") != string.Format(_sourceFormat, data))
-                        yield return new object[] {
+                        items.Add((
                             string.Format(_sourceFormat, data).Replace("c:", "c%3a"),
                             string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                        };
-                    yield return new object[] {
+                        ));
+                    items.Add((
                         string.Format(_sourceFormat, data),
                         string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                    };
+                    ));
+                }
+
+                foreach (var item in items.Distinct())
+                {
+                    yield return new object[] {item.source, item.destination};
                 }
             }
 
