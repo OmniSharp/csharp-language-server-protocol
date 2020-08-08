@@ -45,16 +45,10 @@
       <Compile Update="Client\IDebugAdapterClient.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
-      <Compile Update="Client\IDebugAdapterClientRegistry.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
       <Compile Update="Client\IDebugAdapterClientProgressManager.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
       <Compile Update="Server\IDebugAdapterServer.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
-      <Compile Update="Server\IDebugAdapterServerRegistry.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
       <Compile Update="Server\IDebugAdapterServerProgressManager.cs">

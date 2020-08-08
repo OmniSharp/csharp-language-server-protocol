@@ -70,26 +70,6 @@ namespace Dap.Tests
         }
 
         [Fact]
-        public async Task Initialize_Interface_Is_Supported_On_Handlers_After_Startup()
-        {
-            var onDebugAdapterClientInitialize =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientInitialize), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientInitialize;
-            var onDebugAdapterServerInitialize =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandler)}, Array.Empty<object>()) as
-                    IOnDebugAdapterServerInitialize;
-            var (client, server) = await Initialize(o => { }, o => { });
-
-            await onDebugAdapterClientInitialize.Received(0).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialize.Received(0).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
-
-            client.Register(r => r.AddHandler(onDebugAdapterClientInitialize as IJsonRpcHandler));
-            server.Register(r => r.AddHandler(onDebugAdapterServerInitialize as IJsonRpcHandler));
-
-            await onDebugAdapterClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
         public async Task Initialized_Interface_Is_Supported()
         {
             var onDebugAdapterClientInitialized = Substitute.For<IOnDebugAdapterClientInitialized>();
@@ -134,26 +114,6 @@ namespace Dap.Tests
         }
 
         [Fact]
-        public async Task Initialized_Interface_Is_Supported_On_Handlers_After_Startup()
-        {
-            var onDebugAdapterClientInitialized =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientInitialized), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientInitialized;
-            var onDebugAdapterServerInitialized =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandler)}, Array.Empty<object>()) as
-                    IOnDebugAdapterServerInitialized;
-            var (client, server) = await Initialize(o => { }, o => { });
-
-            await onDebugAdapterClientInitialized.Received(0).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialized.Received(0).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
-
-            client.Register(r => r.AddHandler(onDebugAdapterClientInitialized as IJsonRpcHandler));
-            server.Register(r => r.AddHandler(onDebugAdapterServerInitialized as IJsonRpcHandler));
-
-            await onDebugAdapterClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
         public async Task Started_Interface_Is_Supported()
         {
             var onDebugAdapterClientStarted = Substitute.For<IOnDebugAdapterClientStarted>();
@@ -183,26 +143,6 @@ namespace Dap.Tests
 
         [Fact]
         public async Task Started_Interface_Is_Supported_On_Handlers()
-        {
-            var onDebugAdapterClientStarted =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientStarted;
-            var onDebugAdapterServerStarted =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandler)}, Array.Empty<object>()) as
-                    IOnDebugAdapterServerStarted;
-            var (client, server) = await Initialize(o => { }, o => { });
-
-            await onDebugAdapterClientStarted.Received(0).OnStarted(client, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerStarted.Received(0).OnStarted(server, Arg.Any<CancellationToken>());
-
-            client.Register(r => r.AddHandler(onDebugAdapterClientStarted as IJsonRpcHandler));
-            server.Register(r => r.AddHandler(onDebugAdapterServerStarted as IJsonRpcHandler));
-
-            await onDebugAdapterClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());
-        }
-
-        [Fact]
-        public async Task Started_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onDebugAdapterClientStarted =
                 Substitute.For(new Type[] {typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientStarted;

@@ -196,38 +196,5 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         }
 
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
-
-        public IDisposable Register(Action<IDebugAdapterClientRegistry> registryAction)
-        {
-            var manager = new CompositeHandlersManager(_collection);
-            registryAction(new DebugAdapterClientRegistry(manager));
-
-            var result = manager.GetDisposable();
-            if (_started)
-            {
-                static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
-                {
-                    return disposable.OfType<IHandlerDescriptor>()
-                        .Select(z => z.Handler)
-                        .OfType<T>()
-                        .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
-                        .Distinct();
-                }
-
-                Observable.Concat(
-                    GetUniqueHandlers<IOnDebugAdapterClientInitialize>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialize(this, ClientSettings, ct)))
-                        .Merge(),
-                    GetUniqueHandlers<IOnDebugAdapterClientInitialized>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
-                        .Merge(),
-                    GetUniqueHandlers<IOnDebugAdapterClientStarted>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnStarted(this, ct)))
-                        .Merge()
-                ).Subscribe();
-            }
-
-            return result;
-        }
     }
 }
