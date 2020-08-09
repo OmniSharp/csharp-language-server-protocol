@@ -150,7 +150,7 @@ namespace DryIoc
                 container.RegisterMany(
                     new [] {descriptor.ImplementationType},
                     reuse: reuse,
-                    serviceTypeCondition: type => type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type));
+                    serviceTypeCondition: type => type == descriptor.ImplementationType || type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type) || typeof(IJsonRpcHandler).IsAssignableFrom(type));
             }
             else if (descriptor.ImplementationFactory != null)
             {
@@ -165,8 +165,9 @@ namespace DryIoc
             else
             {
                 // ensure eventing handlers are pulled in automagically.
-                if (descriptor.ImplementationInstance is IEventingHandler)
+                if (!(descriptor.ImplementationInstance is IEnumerable<object>) && (descriptor.ImplementationInstance is IEventingHandler || descriptor.ImplementationInstance is IJsonRpcHandler))
                 {
+
                     container.RegisterInstanceMany(descriptor.ImplementationInstance);
                 }
                 else

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using RealLanguageServer = OmniSharp.Extensions.LanguageServer.Server.LanguageServer;
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             options.WithInput(clientOutput).WithOutput(serverInput);
         }
 
-        protected virtual async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
+        protected internal virtual (ILanguageClient client, ILanguageServer server) Create(
             Action<LanguageClientOptions> clientOptionsAction,
             Action<LanguageServerOptions> serverOptionsAction)
         {
@@ -70,10 +71,36 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             Disposable.Add(_client);
             Disposable.Add(_server);
 
+            return (_client, _server);
+        }
+
+        protected internal virtual async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
+            Action<LanguageClientOptions> clientOptionsAction,
+            Action<LanguageServerOptions> serverOptionsAction)
+        {
+            (_client, _server) = Create(clientOptionsAction, serverOptionsAction);
+
             return await ObservableEx.ForkJoin(
                 Observable.FromAsync(_client.Initialize),
                 Observable.FromAsync(_server.Initialize),
                 (a, b) => (_client, _server)
+            ).ToTask(CancellationToken);
+        }
+
+        protected virtual async Task<(ILanguageClient client, ILanguageServer server, TestConfigurationProvider configurationProvider)> InitializeWithConfiguration(
+            Action<LanguageClientOptions> clientOptionsAction,
+            Action<LanguageServerOptions> serverOptionsAction
+        ) {
+            var (client, server) = Create(options => {
+                clientOptionsAction?.Invoke(options);
+                options.WithCapability(new DidChangeConfigurationCapability());
+                options.Services.AddSingleton<TestConfigurationProvider>();
+            }, serverOptionsAction);
+
+            return await ObservableEx.ForkJoin(
+                Observable.FromAsync(client.Initialize),
+                Observable.FromAsync(server.Initialize),
+                (a, b) => (client, server, client.GetRequiredService<TestConfigurationProvider>())
             ).ToTask(CancellationToken);
         }
     }

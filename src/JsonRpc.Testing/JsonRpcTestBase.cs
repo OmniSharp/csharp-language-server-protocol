@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         protected ISettler ServerEvents { get; }
         protected ISettler Events { get; }
         protected JsonRpcTestOptions TestOptions { get; }
-        protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        protected internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
         protected Task SettleNext() => Events.SettleNext();
         protected IObservable<Unit> Settle() => Events.Settle();
 

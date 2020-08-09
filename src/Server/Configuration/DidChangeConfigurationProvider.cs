@@ -72,8 +72,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private async Task GetWorkspaceConfiguration()
         {
             var configurationItems = _configurationItems.ToArray();
-            if (configurationItems.Length == 0) return;
-            if (_capability == null) return;
+            if (_capability == null || configurationItems.Length == 0)
+            {
+                _logger.LogWarning("No ConfigurationItems have been defined, configuration won't surface any configuration from the client!");
+                OnReload();
+                return;
+            }
 
             {
                 var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
