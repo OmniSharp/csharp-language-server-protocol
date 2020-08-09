@@ -1,13 +1,31 @@
-﻿[*]
+﻿root=true
+
+[*.{cs,cshtml}]
+charset=utf-8
+indent_style=space
+indent_size=4
+insert_final_newline=true
+
+[*.{js,ts,vue}]
+indent_style=space
+indent_size=4
+insert_final_newline=true
+
+[*.{json,xml,yml,yaml}]
+indent_style=space
+indent_size=2
+insert_final_newline=true
+
+[*.{xml,csproj,props,targets}]
+indent_style = space
+
+[*]
 charset = utf-8
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
 insert_final_newline = true
 max_line_length = 180
-
-[*.xml]
-indent_style = space
 
 [*.{cs,vb}]
 # Sort using and Import directives with System.* appearing first

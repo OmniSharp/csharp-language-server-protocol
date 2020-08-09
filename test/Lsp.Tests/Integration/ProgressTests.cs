@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
@@ -238,9 +239,8 @@ namespace Lsp.Tests.Integration
                 Message = "Report 2"
             });
 
-            await SettleNext();
+            await Settle();
             workDoneObservable.Dispose();
-            await SettleNext();
 
             workDoneObserver.OnNext(new WorkDoneProgressReport() {
                 Percentage = 30,
@@ -254,7 +254,7 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await SettleNext();
+            await Settle();
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,

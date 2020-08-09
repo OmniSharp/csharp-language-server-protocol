@@ -76,6 +76,8 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>() {});
             await scopedConfiguration.WaitForChange(CancellationToken);
 
+            await SettleNext();
+
             scopedConfiguration["mysection:key"].Should().Be("value");
         }
 

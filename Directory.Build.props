@@ -3,11 +3,13 @@
         <Company>OmniSharp</Company>
         <Copyright>Copyright OmniSharp and contributors © 2018</Copyright>
         <Authors>David Driscoll</Authors>
-        <LangVersion>8.0</LangVersion>
+        <LangVersion>preview</LangVersion>
+        <Features>strict</Features>
+        <!-- <Nullable>enable</Nullable> -->
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
-        <PackageLicenseUrl>https://github.com/OmniSharp/csharp-language-server-protocol/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageIconUrl>http://www.omnisharp.net/images/logo.png</PackageIconUrl>
+        <PackageIcon>images/packageicon.png</PackageIcon>
+        <PackageLicenseFile>LICENSE</PackageLicenseFile>
         <PackageProjectUrl>https://github.com/OmniSharp/csharp-language-server-protocol</PackageProjectUrl>
         <PackageTags>lsp;language server;language server protocol;language client;language server client</PackageTags>
         <AssemblyOriginatorKeyFile>$(MSBuildThisFileDirectory)\lsp.snk</AssemblyOriginatorKeyFile>
@@ -20,7 +22,8 @@
         <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
         <AllowedReferenceRelatedFileExtensions>$(AllowedReferenceRelatedFileExtensions);.pdb</AllowedReferenceRelatedFileExtensions>
     </PropertyGroup>
-    <PropertyGroup Condition="'$(TF_BUILD)'!=''">
-        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-    </PropertyGroup>
+    <ItemGroup>
+        <None Include="$(MSBuildThisFileDirectory)/.tmp/packageicon.png" Condition="Exists('$(MSBuildThisFileDirectory)/.tmp/packageicon.png')" Pack="true" PackagePath="/images/" Visible="false" />
+        <None Include="$(MSBuildThisFileDirectory)/LICENSE" Pack="true" PackagePath="/" Visible="false" />
+    </ItemGroup>
 </Project>

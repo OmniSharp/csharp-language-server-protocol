@@ -1,0 +1,5 @@
+labels:
+  - name: ':shipit: merge'
+    labeled:
+      pr:
+        body: '@dependabot squash and merge'
