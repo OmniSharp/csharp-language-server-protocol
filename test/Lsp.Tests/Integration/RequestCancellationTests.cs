@@ -69,7 +69,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
+                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
             });
 
             Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
@@ -83,7 +83,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
+                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
             });
 
             Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
