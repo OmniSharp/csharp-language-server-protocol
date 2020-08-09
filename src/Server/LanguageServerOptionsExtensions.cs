@@ -72,5 +72,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             options.ConfigurationBuilderAction = builderAction;
             return options;
         }
+
+        public static LanguageServerOptions WithConfigurationSection(this LanguageServerOptions options, string sectionName)
+        {
+            options.Services.AddSingleton(new ConfigurationItem() {Section = sectionName});
+            return options;
+        }
+
+        public static LanguageServerOptions WithConfigurationItem(this LanguageServerOptions options, ConfigurationItem configurationItem)
+        {
+            options.Services.AddSingleton(configurationItem);
+            return options;
+        }
     }
 }

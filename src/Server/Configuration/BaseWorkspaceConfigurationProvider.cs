@@ -17,6 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             // The null request (appears) to always come second
             // this handler is set to use the SerialAttribute
 
+            Data.Clear();
+
             // TODO: Figure out the best way to plugin to handle additional configurations (toml, yaml?)
             try
             {

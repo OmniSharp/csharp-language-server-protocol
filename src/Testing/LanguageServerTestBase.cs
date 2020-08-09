@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 
@@ -28,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         protected abstract (Stream clientOutput, Stream serverInput) SetupServer();
 
-        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
+        protected virtual ILanguageClient CreateClient(Action<LanguageClientOptions> clientOptionsAction = null)
         {
             _client = LanguageClient.PreInit(options => {
                 var (reader, writer) = SetupServer();
@@ -45,9 +46,29 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
             Disposable.Add(_client);
 
+            return _client;
+        }
+
+        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
+        {
+            _client = CreateClient(clientOptionsAction);
             await _client.Initialize(CancellationToken);
 
             return _client;
+        }
+
+        protected virtual async Task<(ILanguageClient client, TestConfigurationProvider configurationProvider)> InitializeClientWithConfiguration(
+            Action<LanguageClientOptions> clientOptionsAction = null
+        ) {
+            var client = CreateClient(options => {
+                clientOptionsAction?.Invoke(options);
+                options.WithCapability(new DidChangeConfigurationCapability());
+                options.AddHandler<TestConfigurationProvider>();
+            });
+
+            await client.Initialize(CancellationToken);
+
+            return (client, client.GetRequiredService<TestConfigurationProvider>());
         }
     }
 }
