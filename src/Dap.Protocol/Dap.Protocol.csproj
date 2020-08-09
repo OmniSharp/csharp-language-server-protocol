@@ -45,25 +45,37 @@
       <Compile Update="Client\IDebugAdapterClient.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
-      <Compile Update="Client\IDebugAdapterClientRegistry.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
       <Compile Update="Client\IDebugAdapterClientProgressManager.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
-      <Compile Update="Client\OnDebugAdapterClientStartedDelegate.cs">
-        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
-      </Compile>
-      <Compile Update="Server\OnDebugAdapterServerStartedDelegate.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
       <Compile Update="Server\IDebugAdapterServer.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
-      <Compile Update="Server\IDebugAdapterServerRegistry.cs">
+      <Compile Update="Server\IDebugAdapterServerProgressManager.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
-      <Compile Update="Server\IDebugAdapterServerProgressManager.cs">
+      <Compile Update="Client\IOnDebugAdapterClientStarted.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Client\OnDebugAdapterClientInitializedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Client\OnDebugAdapterClientInitializeDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Client\OnDebugAdapterClientStartedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\IOnDebugAdapterServerStarted.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\OnDebugAdapterServerInitializedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\OnDebugAdapterServerInitializeDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Server\OnDebugAdapterServerStartedDelegate.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
     </ItemGroup>

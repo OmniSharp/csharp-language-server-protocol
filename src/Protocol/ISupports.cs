@@ -1,4 +1,5 @@
 using System;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -8,9 +9,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         Type ValueType { get; }
         object Value { get; }
     }
-
-    /// <summary>
-    /// This is a marker interface so that the foundation tests can correctly ignore the return types of some methods.
-    /// </summary>
-    public interface ISupportingHandler {}
 }

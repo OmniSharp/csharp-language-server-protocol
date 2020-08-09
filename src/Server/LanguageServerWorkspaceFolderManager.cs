@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ConcurrentDictionary<DocumentUri, WorkspaceFolder> _workspaceFolders;
         private readonly ReplaySubject<IEnumerable<WorkspaceFolder>> _workspaceFoldersSubject;
         private readonly Subject<WorkspaceFolderChange> _workspaceFoldersChangedSubject;
-        private DidChangeWorkspaceFolderCapability _capability;
         private readonly object _registrationOptions = new object();
+        private bool _isSupported;
 
         public LanguageServerWorkspaceFolderManager(IWorkspaceLanguageServer server)
         {
@@ -35,6 +35,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         Task<Unit> IRequestHandler<DidChangeWorkspaceFoldersParams, Unit>.Handle(DidChangeWorkspaceFoldersParams request, CancellationToken cancellationToken)
         {
+            if (!IsSupported) return Unit.Task;
             foreach (var folder in request.Event?.Added ?? Enumerable.Empty<WorkspaceFolder>())
             {
                 _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
@@ -51,15 +52,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return Unit.Task;
         }
 
-        async Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken)
+        async Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
         {
-            if (server.ClientSettings?.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true)
+            _isSupported = server.ClientSettings?.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
+            if (_isSupported)
             {
                 await Refresh().LastOrDefaultAsync().ToTask(cancellationToken);
             }
         }
 
         public IObservable<WorkspaceFolder> Refresh() => Observable.Create<WorkspaceFolder>(observer => {
+            if (!IsSupported) return Observable.Empty<WorkspaceFolder>().Subscribe(observer);
             return Observable.FromAsync(ct => _server.RequestWorkspaceFolders(new WorkspaceFolderParams(), ct))
                 .Do(workspaceFolders => {
                     var existingFolders = new HashSet<WorkspaceFolder>(_workspaceFolders.Values.Join(workspaceFolders, z => z.Uri, z => z.Uri, (a, b) => b));
@@ -89,7 +92,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.AsObservable();
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
-        public void SetCapability(DidChangeWorkspaceFolderCapability capability) => _capability = capability;
+        public bool IsSupported => _isSupported;
         public object GetRegistrationOptions() => _registrationOptions;
 
         public void Dispose()

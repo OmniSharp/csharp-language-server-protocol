@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.JsonRpc;
 
 // ReSharper disable once CheckNamespace
 namespace DryIoc
@@ -145,7 +146,11 @@ namespace DryIoc
                     : descriptor.Lifetime == ServiceLifetime.Scoped ? Reuse.Scoped
                     : Reuse.Transient;
 
-                container.Register(descriptor.ServiceType, descriptor.ImplementationType, reuse);
+                // ensure eventing handlers are pulled in automagically.
+                container.RegisterMany(
+                    new [] {descriptor.ImplementationType},
+                    reuse: reuse,
+                    serviceTypeCondition: type => type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type));
             }
             else if (descriptor.ImplementationFactory != null)
             {
@@ -159,7 +164,15 @@ namespace DryIoc
             }
             else
             {
-                container.RegisterInstance(true, descriptor.ServiceType, descriptor.ImplementationInstance);
+                // ensure eventing handlers are pulled in automagically.
+                if (descriptor.ImplementationInstance is IEventingHandler)
+                {
+                    container.RegisterInstanceMany(descriptor.ImplementationInstance);
+                }
+                else
+                {
+                    container.RegisterInstance(true, descriptor.ServiceType, descriptor.ImplementationInstance);
+                }
             }
         }
     }

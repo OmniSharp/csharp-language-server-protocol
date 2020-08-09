@@ -25,5 +25,11 @@
       <Compile Update="Server\IOnLanguageServerStarted.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
+      <Compile Update="Client\OnLanguageClientInitializeDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Client\OnLanguageClientInitializedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

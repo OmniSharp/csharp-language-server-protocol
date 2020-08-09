@@ -43,6 +43,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         // private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<OnLanguageClientStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageClientStarted> _startedHandlers;
+        private readonly IEnumerable<OnLanguageClientInitializeDelegate> _initializeDelegates;
+        private readonly IEnumerable<IOnLanguageClientInitialize> _initializeHandlers;
+        private readonly IEnumerable<OnLanguageClientInitializedDelegate> _initializedDelegates;
+        private readonly IEnumerable<IOnLanguageClientInitialized> _initializedHandlers;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -55,6 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly ClientCapabilities _clientCapabilities;
         private readonly LanguageProtocolSettingsBag _settingsBag;
         private bool _started;
+        private readonly int? _concurrency;
 
         internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -70,7 +75,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return Create(options, outerServiceProvider);
         }
 
-        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider outerServiceProvider) => CreateContainer(options, outerServiceProvider).Resolve<LanguageClient>();
+        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
+            CreateContainer(options, outerServiceProvider).Resolve<LanguageClient>();
+
         public static Task<LanguageClient> From(LanguageClientOptions options) => From(options, null, CancellationToken.None);
         public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
         public static Task<LanguageClient> From(LanguageClientOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
@@ -142,8 +149,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IProgressManager progressManager,
             IClientWorkDoneManager clientWorkDoneManager,
             IRegistrationManager registrationManager,
-            ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager
-        ) : base(handlerCollection, responseRouter)
+            ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager, IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
+            IEnumerable<IOnLanguageClientInitialize> initializeHandlers, IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
+            IEnumerable<IOnLanguageClientInitialized> initializedHandlers) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
             _capabilities = capabilities;
@@ -165,6 +173,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             WorkDoneManager = clientWorkDoneManager;
             RegistrationManager = registrationManager;
             WorkspaceFoldersManager = languageClientWorkspaceFoldersManager;
+            _initializeDelegates = initializeDelegates;
+            _initializeHandlers = initializeHandlers;
+            _initializedDelegates = initializedDelegates;
+            _initializedHandlers = initializedHandlers;
+            _concurrency = options.Value.Concurrency;
 
             // We need to at least create Window here in case any handler does loggin in their constructor
             TextDocument = textDocumentLanguageClient;
@@ -209,34 +222,55 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 WorkspaceFolders = new Container<WorkspaceFolder>(WorkspaceFoldersManager.CurrentWorkspaceFolders),
                 InitializationOptions = _initializationOptions
             };
+
             RegisterCapabilities(@params.Capabilities);
+
             WorkDoneManager.Initialize(@params.Capabilities.Window);
 
             ClientSettings = @params;
+
+            await LanguageProtocolEventingHelper.Run(
+                _initializeDelegates,
+                (handler, ct) => handler(this, @params, ct),
+                _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientInitialize>()),
+                (handler, ct) => handler.OnInitialize(this, @params, ct),
+                _concurrency,
+                token
+            );
 
             _connection.Open();
             var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
             _receiver.Initialized();
 
-            var tasks =
-                _startedDelegates.Select(handler => handler(this, serverParams, token))
-                    .Concat(_startedHandlers
-                        .Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientStarted>())
-                        .Select(handler => handler.OnStarted(this, serverParams, token))
-                    )
-                    .ToArray();
-            if (tasks.Length > 0)
-            {
-                await Task.WhenAll(tasks);
-            }
-
             ServerSettings = serverParams;
+
+            await LanguageProtocolEventingHelper.Run(
+                _initializedDelegates,
+                (handler, ct) => handler(this, @params, serverParams, ct),
+                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientInitialized>()),
+                (handler, ct) => handler.OnInitialized(this, @params, serverParams, ct),
+                _concurrency,
+                token
+            );
+
+            // post init
+
             if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
                 RegistrationManager.RegisterCapabilities(serverParams.Capabilities);
 
+            await LanguageProtocolEventingHelper.Run(
+                _startedDelegates,
+                (handler, ct) => handler(this, ct),
+                _startedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageClientStarted>()),
+                (handler, ct) => handler.OnStarted(this, ct),
+                _concurrency,
+                token
+            );
+
+            _started = true;
+
             // TODO: pull supported fields and add any static registrations to the registration manager
             this.SendLanguageProtocolInitialized(new InitializedParams());
-            _started = true;
         }
 
         private void RegisterCapabilities(ClientCapabilities capabilities)
@@ -347,14 +381,34 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var result = manager.GetDisposable();
             if (_started)
             {
-                foreach (var item in result.OfType<LspHandlerDescriptorDisposable>())
-                foreach (var descriptor in item.Descriptors)
+                static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
                 {
-                    if (descriptor.Handler is IOnLanguageClientStarted clientStarted)
-                    {
-                        Observable.FromAsync((ct) => clientStarted.OnStarted(this, ServerSettings, ct)).Subscribe();
-                    }
+                    return disposable.OfType<ILspHandlerDescriptor>()
+                        .Select(z => z.Handler)
+                        .OfType<T>()
+                        .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
+                        .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
+                        .Distinct();
                 }
+                static IEnumerable<T> GetLspHandlers<T>(LspHandlerDescriptorDisposable disposable)
+                {
+                    return disposable.Descriptors
+                        .Select(z => z.Handler)
+                        .OfType<T>()
+                        .Distinct();
+                }
+
+                Observable.Concat(
+                    GetUniqueHandlers<IOnLanguageClientInitialize>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialize(this, ClientSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnLanguageClientInitialized>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
+                        .Merge(),
+                    GetUniqueHandlers<IOnLanguageClientStarted>(result)
+                        .Select(handler => Observable.FromAsync((ct) => handler.OnStarted(this, ct)))
+                        .Merge()
+                ).Subscribe();
             }
 
             return result;

@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
             await SettleNext();
             observer.OnCompleted();
 
-            data.Should().ContainInOrder("1", "3", "2", "4", "5");
+            data.Should().ContainInOrder(new [] { "1", "3", "2", "4", "5" });
         }
 
         [Fact]

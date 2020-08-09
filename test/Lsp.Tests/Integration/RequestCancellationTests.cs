@@ -23,7 +23,7 @@ namespace Lsp.Tests.Integration
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
             .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
+            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(400))
         )
         {
         }
@@ -69,7 +69,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
+                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
             });
 
             Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
@@ -83,7 +83,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, x => {
                 ConfigureServer(x);
-                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(500));
+                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
             });
 
             Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {

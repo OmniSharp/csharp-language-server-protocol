@@ -1,11 +1,15 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    public interface IOnLanguageServerStarted
+    /// <summary>
+    /// Gives your class or handler an opportunity to interact with
+    /// the <see cref="ILanguageServer"/> after the connection has been established.
+    /// </summary>
+    public interface IOnLanguageServerStarted : IEventingHandler
     {
-        Task OnStarted(ILanguageServer server, InitializeResult result, CancellationToken cancellationToken);
+        Task OnStarted(ILanguageServer server, CancellationToken cancellationToken);
     }
 }

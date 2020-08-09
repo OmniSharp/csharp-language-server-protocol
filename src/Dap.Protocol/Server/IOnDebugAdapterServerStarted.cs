@@ -1,5 +1,6 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Server
 {
@@ -7,5 +8,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Server
     /// Gives your class or handler an opportunity to interact with
     /// the <see cref="IDebugAdapterServer"/> after the connection has been established.
     /// </summary>
-    public delegate Task OnDebugAdapterServerStartedDelegate(IDebugAdapterServer server, CancellationToken cancellationToken);
+    public interface IOnDebugAdapterServerStarted : IEventingHandler
+    {
+        Task OnStarted(IDebugAdapterServer server, CancellationToken cancellationToken);
+    }
 }

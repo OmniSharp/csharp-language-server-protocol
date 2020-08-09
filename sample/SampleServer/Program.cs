@@ -97,7 +97,7 @@ namespace SampleServer
                         });
                         workDone.OnCompleted();
                     })
-                    .OnStarted(async (languageServer, result, token) => {
+                    .OnStarted(async (languageServer, token) => {
                         using var manager = await languageServer.WorkDoneManager.Create(new WorkDoneProgressBegin() { Title = "Doing some work..." });
 
                         manager.OnNext(new WorkDoneProgressReport() { Message = "doing things..." });

@@ -103,7 +103,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         private IDisposable AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var cd = new CompositeDisposable();
             var descriptor = GetDescriptor(method, handler.GetType(), handler, options);
             Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
             return descriptor;
