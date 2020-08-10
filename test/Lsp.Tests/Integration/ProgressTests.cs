@@ -19,10 +19,7 @@ namespace Lsp.Tests.Integration
 {
     public class ProgressTests : LanguageProtocolTestBase
     {
-        public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
+        public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
         {
         }
 

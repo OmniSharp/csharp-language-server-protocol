@@ -23,10 +23,7 @@ namespace Lsp.Tests.Integration
 {
     public class PartialItemTests : LanguageProtocolTestBase
     {
-        public PartialItemTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(500))
-        )
+        public PartialItemTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
         {
         }
 

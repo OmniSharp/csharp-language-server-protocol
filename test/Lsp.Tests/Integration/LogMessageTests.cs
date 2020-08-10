@@ -18,10 +18,7 @@ namespace Lsp.Tests.Integration
 {
     public class LogMessageTests : LanguageProtocolTestBase
     {
-        public LogMessageTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
+        public LogMessageTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
         {
         }
 
