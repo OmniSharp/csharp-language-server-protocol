@@ -41,6 +41,7 @@ namespace Lsp.Tests.Integration
             });
 
             await ServerEvents.Settle();
+            await ClientEvents.Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
@@ -66,6 +67,7 @@ namespace Lsp.Tests.Integration
             });
 
             await ServerEvents.Settle();
+            await ClientEvents.Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);

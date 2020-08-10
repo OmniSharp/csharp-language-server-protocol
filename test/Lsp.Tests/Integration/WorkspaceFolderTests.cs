@@ -61,7 +61,8 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Add("/abcd/", nameof(Should_Add_A_Workspace_Folder));
 
-            await SettleNext();
+            await ClientEvents.Settle();
+            await ServerEvents.Settle();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);
@@ -92,7 +93,8 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(nameof(Should_Remove_Workspace_Folder_by_name));
 
-            await Settle();
+            await ClientEvents.Settle();
+            await ServerEvents.Settle();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);

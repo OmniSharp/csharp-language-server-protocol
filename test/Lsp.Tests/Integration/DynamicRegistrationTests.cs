@@ -49,7 +49,8 @@ namespace Lsp.Tests.Integration
 
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-            await SettleNext();
+            await ServerEvents.Settle();
+            await ClientEvents.Settle();
 
             server.Register(x => x
                 .OnCompletion(
@@ -59,7 +60,8 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await SettleNext();
+            await ServerEvents.Settle();
+            await ClientEvents.Settle();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
