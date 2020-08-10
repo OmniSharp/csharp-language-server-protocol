@@ -18,7 +18,11 @@ namespace Dap.Tests.Integration
 {
     public class ProgressTests : DebugAdapterProtocolTestBase
     {
-        public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
+            .ConfigureForXUnit(outputHelper)
+            .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
+            .WithSettleTimeout(TimeSpan.FromSeconds(2))
+        )
         {
         }
 
@@ -66,7 +70,7 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await Task.Delay(1000);
+            await SettleNext();
 
             var results = data.Select(z => z switch {
                 ProgressStartEvent begin => begin.Message,
@@ -104,7 +108,7 @@ namespace Dap.Tests.Integration
                 Message = "Report 2"
             });
 
-            await Task.Delay(1000);
+            await SettleNext();
 
             sub.Dispose();
 
@@ -120,7 +124,7 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await Task.Delay(1000);
+            await SettleNext();
 
             var results = data.Select(z => z switch {
                 ProgressStartEvent begin => begin.Message,

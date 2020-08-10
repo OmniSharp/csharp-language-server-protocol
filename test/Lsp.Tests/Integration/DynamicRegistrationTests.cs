@@ -24,7 +24,11 @@ namespace Lsp.Tests.Integration
 {
     public class DynamicRegistrationTests : LanguageProtocolTestBase
     {
-        public DynamicRegistrationTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public DynamicRegistrationTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions()
+            .ConfigureForXUnit(outputHelper)
+            .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
+            .WithSettleTimeout(TimeSpan.FromSeconds(2))
+        )
         {
         }
 
