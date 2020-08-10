@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                     .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                     .Services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler);
+                    .AddSingleton(ClientEvents as IRequestSettler);
                 ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
                 clientOptionsAction(options);
             });

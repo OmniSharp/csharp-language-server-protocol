@@ -1,11 +1,15 @@
 ﻿using System;
 using System.IO.Pipelines;
+using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Pipelines;
 using Xunit;
+using Unit = MediatR.Unit;
 
 namespace JsonRpc.Tests
 {

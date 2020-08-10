@@ -61,7 +61,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Add("/abcd/", nameof(Should_Add_A_Workspace_Folder));
 
-            await Settle();
+            await SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);

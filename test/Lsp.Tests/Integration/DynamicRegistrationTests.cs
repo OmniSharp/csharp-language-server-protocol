@@ -35,7 +35,7 @@ namespace Lsp.Tests.Integration
 
             client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-            await Events.Settle().Take(2);
+            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "csharp")
@@ -60,8 +60,6 @@ namespace Lsp.Tests.Integration
             );
 
             await SettleNext();
-            await SettleNext();
-            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
@@ -85,7 +83,7 @@ namespace Lsp.Tests.Integration
                     })
             );
 
-            await Settle().Take(2);
+            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
@@ -101,7 +99,7 @@ namespace Lsp.Tests.Integration
                     options.WithLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull);
                 });
 
-            await Events.Settle().Take(2);
+            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
             client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
@@ -125,11 +123,9 @@ namespace Lsp.Tests.Integration
                 })
             );
 
-            await Events.SettleNext();
-
+            await SettleNext();
             disposable.Dispose();
-
-            await Events.Settle();
+            await SettleNext();
 
             client.RegistrationManager.CurrentRegistrations.Should().NotContain(x =>
                 x.Method == TextDocumentNames.Completion && SelectorMatches(x, z=> z.HasLanguage && z.Language == "vb")
