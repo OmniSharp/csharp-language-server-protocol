@@ -17,5 +17,5 @@ jobs:
       - name: sync milestones
         uses: RocketSurgeonsGuild/actions/sync-milestone@v0.2.3
         with:
-          default-label: ':sparkles: mysterious'
+          default-label: 'mysterious'
           github-token: ${{ secrets.GITHUB_TOKEN }}
