@@ -58,7 +58,7 @@ namespace Lsp.Tests.Integration
                 Value = "5"
             });
 
-            await SettleNext();
+            await Task.Delay(1000);
             observer.OnCompleted();
 
             data.Should().ContainInOrder(new [] { "1", "3", "2", "4", "5" });
@@ -91,7 +91,7 @@ namespace Lsp.Tests.Integration
                 Value = "5"
             });
 
-            await SettleNext();
+            await Task.Delay(1000);
             observer.OnCompleted();
 
             data.Should().ContainInOrder("1", "3", "2", "4", "5");
@@ -144,9 +144,9 @@ namespace Lsp.Tests.Integration
                 Message = "Report 4"
             });
 
-            await Task.Delay(1000);
-
             workDoneObserver.OnCompleted();
+
+            await Task.Delay(1000);
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,
@@ -197,8 +197,8 @@ namespace Lsp.Tests.Integration
             });
 
             workDoneObserver.OnCompleted();
+            await Task.Delay(1000);
 
-            await SettleNext();
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,
@@ -251,9 +251,9 @@ namespace Lsp.Tests.Integration
                 Message = "Report 4"
             });
 
-            workDoneObserver.OnCompleted();
+            await Task.Delay(1000);
 
-            await SettleNext();
+            workDoneObserver.OnCompleted();
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,

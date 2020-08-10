@@ -92,7 +92,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(nameof(Should_Remove_Workspace_Folder_by_name));
 
-            await SettleNext();
+            await Settle();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);

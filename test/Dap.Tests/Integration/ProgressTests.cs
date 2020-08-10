@@ -69,7 +69,7 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             var results = data.Select(z => z switch {
                 ProgressStartEvent begin => begin.Message,
@@ -81,57 +81,7 @@ namespace Dap.Tests.Integration
         }
 
         [Fact]
-        public async Task Should_Support_Observing_Progress_From_Client_To_Server_Request()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
-
-            var data = new List<ProgressEvent>();
-            client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
-
-            using var workDoneObserver = server.ProgressManager.Create(new ProgressStartEvent() {
-                Cancellable = true,
-                Message = "Begin",
-                Percentage = 0,
-                Title = "Work is pending"
-            }, onComplete: () => new ProgressEndEvent() {
-                Message = "End"
-            });
-
-            workDoneObserver.OnNext(new ProgressUpdateEvent() {
-                Percentage = 10,
-                Message = "Report 1"
-            });
-
-            workDoneObserver.OnNext(new ProgressUpdateEvent() {
-                Percentage = 20,
-                Message = "Report 2"
-            });
-
-            workDoneObserver.OnNext(new ProgressUpdateEvent() {
-                Percentage = 30,
-                Message = "Report 3"
-            });
-
-            workDoneObserver.OnNext(new ProgressUpdateEvent() {
-                Percentage = 40,
-                Message = "Report 4"
-            });
-
-            workDoneObserver.OnCompleted();
-
-            await SettleNext();
-
-            var results = data.Select(z => z switch {
-                ProgressStartEvent begin => begin.Message,
-                ProgressUpdateEvent begin => begin.Message,
-                ProgressEndEvent begin => begin.Message,
-            });
-
-            results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
-        }
-
-        [Fact]
-        public async Task Should_Support_Cancelling_Progress_From_Client_To_Server_Request()
+        public async Task Should_Support_Cancelling_Progress_From_Server_To_Client_Request()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
@@ -157,9 +107,9 @@ namespace Dap.Tests.Integration
                 Message = "Report 2"
             });
 
-            await SettleNext();
+            await Task.Delay(1000);
+
             sub.Dispose();
-            await SettleNext();
 
             workDoneObserver.OnNext(new ProgressUpdateEvent() {
                 Percentage = 30,
@@ -173,7 +123,7 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             var results = data.Select(z => z switch {
                 ProgressStartEvent begin => begin.Message,

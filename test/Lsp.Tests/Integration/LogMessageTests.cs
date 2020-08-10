@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -42,7 +43,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await SettleNext();
+            await Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
@@ -67,7 +68,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await SettleNext();
+            await Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
