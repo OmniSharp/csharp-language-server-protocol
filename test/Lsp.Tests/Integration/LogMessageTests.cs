@@ -40,8 +40,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await ServerEvents.Settle();
-            await ClientEvents.Settle();
+            await Task.Delay(1000);
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
@@ -66,8 +65,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await ServerEvents.Settle();
-            await ClientEvents.Settle();
+            await Task.Delay(1000);
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
