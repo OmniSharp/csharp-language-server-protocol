@@ -144,9 +144,9 @@ namespace Lsp.Tests.Integration
                 Message = "Report 4"
             });
 
-            workDoneObserver.OnCompleted();
+            await Task.Delay(1000);
 
-            await SettleNext();
+            workDoneObserver.OnCompleted();
 
             var results = data.Select(z => z switch {
                 WorkDoneProgressBegin begin => begin.Message,
