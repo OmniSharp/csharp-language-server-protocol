@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
     /// <summary>
     /// This is a test class that is designed to allow you configure an in memory lsp client and and your server configuration to do integration tests against a server
     /// </summary>
-    public abstract class DebugAdapterServerTestBase : JsonRpcTestBase
+    public abstract class DebugAdapterServerTestBase : JsonRpcIntegrationServerTestBase
     {
         private IDebugAdapterClient _client;
 
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                     })
                     .Services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler);
+                    .AddSingleton(Events as IRequestSettler);
                 clientOptionsAction?.Invoke(options);
             });
 

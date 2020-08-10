@@ -1,0 +1,37 @@
+name: Dependabot Commenter
+
+on:
+  pull_request_target:
+    types:
+      - labeled
+
+jobs:
+  comment:
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
+      - name: Dump job context
+        env:
+          JOB_CONTEXT: ${{ toJson(job) }}
+        run: echo "$JOB_CONTEXT"
+      - name: Dump steps context
+        env:
+          STEPS_CONTEXT: ${{ toJson(steps) }}
+        run: echo "$STEPS_CONTEXT"
+      - name: Dump runner context
+        env:
+          RUNNER_CONTEXT: ${{ toJson(runner) }}
+        run: echo "$RUNNER_CONTEXT"
+      - uses: actions/checkout@v2
+        with:
+          ref: master
+      - name: Dependabot Commenter
+        if: |
+          (github.event.label.name == 'merge') && (github.event.pull_request.user.login == 'dependabot[bot]' || github.event.pull_request.user.login == 'dependabot-preview[bot]')
+        uses: peaceiris/actions-label-commenter@v1.3.7
+        with:
+          github_token: ${{ secrets.OMNISHARP_BOT_TOKEN }}
+          config_file: .github/label-commenter-dependabot.yml

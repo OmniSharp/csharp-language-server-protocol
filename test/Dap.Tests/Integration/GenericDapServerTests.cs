@@ -13,10 +13,7 @@ namespace Dap.Tests.Integration
 {
     public class GenericDapServerTests : DebugAdapterProtocolTestBase
     {
-        public GenericDapServerTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
+        public GenericDapServerTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
         {
         }
 

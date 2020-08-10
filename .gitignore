@@ -37,7 +37,8 @@ tools/*/
 /tools/packages.config.md5sum
 /coverage
 
-.idea
+.idea/
+node_modules/
 coverage.*.xml
 coverage.json
 coverage.info

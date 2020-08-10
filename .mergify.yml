@@ -1,0 +1,98 @@
+pull_request_rules:
+  - name: automatic merge when GitHub branch protection passes (others)
+    conditions:
+      - base=master
+      - -author~=^dependabot(|-preview)\[bot\]$
+      - 'label=merge'
+    actions:
+      merge:
+        method: squash
+        strict: smart+fasttrack
+  - name: automatic merge when GitHub branch protection passes
+    conditions:
+      - merged
+      - 'label=merge'
+    actions:
+      label:
+        remove:
+          - 'merge'
+  - name: delete head branch after merge
+    conditions:
+      - merged
+    actions:
+      label:
+        remove:
+          - 'merge'
+      delete_head_branch: {}
+  - name: automatic merge for JetBrains.ReSharper.CommandLineTools pull requests
+    conditions:
+      - title~=^Bump JetBrains\.ReSharper\.CommandLineTools.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for ReportGenerator pull requests
+    conditions:
+      - title~=^Bump ReportGenerator.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for GitVersion.Tool pull requests
+    conditions:
+      - title~=^Bump GitVersion\.Tool.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for Bogus pull requests
+    conditions:
+      - title~=^Bump Bogus.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for coverlet pull requests
+    conditions:
+      - title~=^Bump coverlet.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for FakeItEasy pull requests
+    conditions:
+      - title~=^Bump FakeItEasy.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for FluentAssertions pull requests
+    conditions:
+      - title~=^Bump FluentAssertions.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for xunit pull requests
+    conditions:
+      - title~=^Bump xunit.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'
+  - name: automatic merge for Microsoft.NET.Test.Sdk pull requests
+    conditions:
+      - title~=^Bump Microsoft\.NET\.Test\.Sdk.*$
+      - author~=^dependabot(|-preview)\[bot\]$
+    actions:
+      label:
+        add:
+          - 'merge'

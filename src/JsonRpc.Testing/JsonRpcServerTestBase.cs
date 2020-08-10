@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                 options
                     .WithServices(services => services
                     .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler)
+                    .AddSingleton(ClientEvents as IRequestSettler)
                     .AddLogging(x => {
                         x.SetMinimumLevel(LogLevel.Trace);
                         x.Services.AddSingleton(TestOptions.ClientLoggerFactory);

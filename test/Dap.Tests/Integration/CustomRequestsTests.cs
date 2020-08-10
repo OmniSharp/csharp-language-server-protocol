@@ -16,12 +16,7 @@ namespace Dap.Tests.Integration
 {
     public class CustomRequestsTests : DebugAdapterProtocolTestBase
     {
-        public CustomRequestsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromMilliseconds(200))
-        )
-        {
-        }
+        public CustomRequestsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)) { }
 
         [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Base_Class()

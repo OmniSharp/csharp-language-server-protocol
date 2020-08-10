@@ -1,19 +1,35 @@
 using JetBrains.Annotations;
 using Nuke.Common;
 using Nuke.Common.Execution;
+using Nuke.Common.Git;
+using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.GitVersion;
+using Nuke.Common.Tools.MSBuild;
 using Rocket.Surgery.Nuke;
 using Rocket.Surgery.Nuke.DotNetCore;
 
 [PublicAPI]
 [CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
-[AzurePipelinesSteps(
-    InvokedTargets = new[] { nameof(Default) },
-    NonEntryTargets = new[] { nameof(BuildVersion), nameof(Generate_Code_Coverage_Reports), nameof(Default) },
-    ExcludedTargets = new[] { nameof(Restore), nameof(DotnetToolRestore) },
-    Parameters = new[] { nameof(CoverageDirectory), nameof(ArtifactsDirectory), nameof(Verbosity), nameof(Configuration) }
-)]
-internal class Solution : DotNetCoreBuild, IDotNetCoreBuild
+[PackageIcon("http://www.omnisharp.net/images/logo.png")]
+[EnsureGitHooks(GitHook.PreCommit)]
+[EnsureReadmeIsUpdated]
+[DotNetVerbosityMapping]
+[MSBuildVerbosityMapping]
+[NuGetVerbosityMapping]
+public partial class Solution : NukeBuild,
+                        ICanRestoreWithDotNetCore,
+                        ICanBuildWithDotNetCore,
+                        ICanTestWithDotNetCore,
+                        ICanPackWithDotNetCore,
+                        IHaveDataCollector,
+                        ICanClean,
+                        ICanUpdateReadme,
+                        IGenerateCodeCoverageReport,
+                        IGenerateCodeCoverageSummary,
+                        IGenerateCodeCoverageBadges,
+                        IHaveConfiguration<Configuration>,
+                        ICanLint
 {
     /// <summary>
     /// Support plugins are available for:
@@ -24,17 +40,31 @@ internal class Solution : DotNetCoreBuild, IDotNetCoreBuild
     /// </summary>
     public static int Main() => Execute<Solution>(x => x.Default);
 
+    [OptionalGitRepository]
+    public GitRepository? GitRepository { get; }
+
     private Target Default => _ => _
        .DependsOn(Restore)
        .DependsOn(Build)
        .DependsOn(Test)
        .DependsOn(Pack);
 
-    public Target Restore => _ => _.With(this, DotNetCoreBuild.Restore);
+    public Target Build => _ => _.Inherit<ICanBuildWithDotNetCore>(x => x.CoreBuild);
 
-    public Target Build => _ => _.With(this, DotNetCoreBuild.Build);
+    public Target Pack => _ => _.Inherit<ICanPackWithDotNetCore>(x => x.CorePack)
+       .DependsOn(Clean);
 
-    public Target Test => _ => _.With(this, DotNetCoreBuild.Test);
+    [ComputedGitVersion]
+    public GitVersion GitVersion { get; } = null!;
 
-    public Target Pack => _ => _.With(this, DotNetCoreBuild.Pack);
+    public Target Clean => _ => _.Inherit<ICanClean>(x => x.Clean);
+    public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.CoreRestore);
+    public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.CoreTest);
+
+    public Target BuildVersion => _ => _.Inherit<IHaveBuildVersion>(x => x.BuildVersion)
+       .Before(Default)
+       .Before(Clean);
+
+    [Parameter("Configuration to build")]
+    public Configuration Configuration { get; } = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 }

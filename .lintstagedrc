@@ -1,0 +1,8 @@
+{
+    "*.{cs,vb}": [
+        "dotnet nuke lint --no-logo --lint-files"
+    ],
+    "*.{js,ts,jsx,tsx,json,yml,yaml}": [
+        "prettier --write"
+    ]
+}

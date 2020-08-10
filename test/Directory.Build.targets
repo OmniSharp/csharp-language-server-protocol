@@ -9,7 +9,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Serilog.Extensions.Logging" />
         <PackageReference Include="Serilog.Sinks.XUnit" />
-        <PackageReference Include="XunitXml.TestLogger" />
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="coverlet.msbuild" />
         <PackageReference Include="Microsoft.Reactive.Testing" />

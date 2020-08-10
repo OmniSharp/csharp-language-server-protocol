@@ -1,0 +1,30 @@
+# create:
+#   include-footer: false
+#   footer-heading: ''
+#   footer-content: ''
+#   footer-includes-milestone: true
+export:
+  include-created-date-in-title: true
+  created-date-string-format: MMMM dd, yyyy
+  perform-regex-removal: true
+  regex-text: '([a-f\d]{40}\s)'
+issue-labels-include:
+  - 'breaking change'
+  - 'feature'
+  - 'enhancement'
+  - 'security'
+  - 'documentation'
+  - 'bug'
+  - 'chore'
+  - 'good first issue'
+  - 'help wanted'
+  - 'mysterious'
+  - 'dependencies'
+  - 'deprecated'
+  - 'removed'
+issue-labels-exclude:
+  - 'duplicate'
+  - 'question'
+  - 'wontfix'
+  - 'merge'
+  - 'invalid'
