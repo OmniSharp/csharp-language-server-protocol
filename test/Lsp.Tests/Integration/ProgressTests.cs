@@ -238,7 +238,7 @@ namespace Lsp.Tests.Integration
                 Message = "Report 2"
             });
 
-            await Settle();
+            await SettleNext();
             workDoneObservable.Dispose();
 
             workDoneObserver.OnNext(new WorkDoneProgressReport() {
