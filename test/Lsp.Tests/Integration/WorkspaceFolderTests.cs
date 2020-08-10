@@ -114,7 +114,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(DocumentUri.From("/abcd/"));
 
-            await Task.Delay(1000);
+            await Settle();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);

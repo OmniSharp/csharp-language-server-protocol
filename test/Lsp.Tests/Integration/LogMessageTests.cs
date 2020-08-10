@@ -40,7 +40,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await Settle();
+            await ServerEvents.Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
@@ -65,7 +65,7 @@ namespace Lsp.Tests.Integration
                 Type = MessageType.Log, Message = "1234"
             });
 
-            await Settle();
+            await ServerEvents.Settle();
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);

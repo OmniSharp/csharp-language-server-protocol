@@ -18,7 +18,7 @@ namespace Lsp.Tests.Integration
 {
     public class ShowMessageTests : LanguageProtocolTestBase
     {
-        public ShowMessageTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public ShowMessageTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper).WithSettleTimeSpan(TimeSpan.FromMilliseconds(500)))
         {
         }
 
