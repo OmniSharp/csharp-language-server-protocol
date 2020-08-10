@@ -43,8 +43,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(102, Unit.Default),
-                ReactiveTest.OnCompleted(102, Unit.Default)
+                ReactiveTest.OnNext(121, Unit.Default),
+                ReactiveTest.OnCompleted(121, Unit.Default)
             );
         }
 
@@ -63,7 +63,7 @@ namespace JsonRpc.Tests
 
             observer.Messages.Should().ContainInOrder(
                 ReactiveTest.OnNext(601, Unit.Default),
-                ReactiveTest.OnCompleted(701, Unit.Default)
+                ReactiveTest.OnCompleted(802, Unit.Default)
             );
         }
 
@@ -81,16 +81,14 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(400, Unit.Default),
-                ReactiveTest.OnCompleted(400, Unit.Default)
+                ReactiveTest.OnNext(401, Unit.Default),
+                ReactiveTest.OnCompleted(401, Unit.Default)
             );
         }
 
         [Theory]
         [InlineData(SettlerType.Client, SettlerType.Client)]
         [InlineData(SettlerType.Server, SettlerType.Server)]
-        [InlineData(SettlerType.Client, SettlerType.Server)]
-        [InlineData(SettlerType.Server, SettlerType.Client)]
         public void Should_Wait_For_Subsequent_Requests_To_Finish_And_Then_Wait(SettlerType settlerTypeA, SettlerType settlerTypeB)
         {
             var testScheduler = new TestScheduler();
@@ -108,8 +106,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(500, Unit.Default),
-                ReactiveTest.OnCompleted(500, Unit.Default)
+                ReactiveTest.OnNext(502, Unit.Default),
+                ReactiveTest.OnCompleted(502, Unit.Default)
             );
         }
 
@@ -130,8 +128,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(250, Unit.Default),
-                ReactiveTest.OnCompleted(250, Unit.Default)
+                ReactiveTest.OnNext(251, Unit.Default),
+                ReactiveTest.OnCompleted(251, Unit.Default)
             );
         }
 
@@ -151,8 +149,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(450, Unit.Default),
-                ReactiveTest.OnCompleted(450, Unit.Default)
+                ReactiveTest.OnNext(451, Unit.Default),
+                ReactiveTest.OnCompleted(451, Unit.Default)
             );
         }
 
@@ -172,8 +170,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(350, Unit.Default),
-                ReactiveTest.OnCompleted(350, Unit.Default)
+                ReactiveTest.OnNext(351, Unit.Default),
+                ReactiveTest.OnCompleted(351, Unit.Default)
             );
         }
 
@@ -199,8 +197,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle(), 100, 100, 2000);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(300, Unit.Default),
-                ReactiveTest.OnCompleted(1451, Unit.Default)
+                ReactiveTest.OnNext(301, Unit.Default),
+                ReactiveTest.OnCompleted(1452, Unit.Default)
             );
         }
 

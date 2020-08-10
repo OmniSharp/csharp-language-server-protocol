@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                             .Select(z => Unit.Default);
                     }
 
-                    return Amb(Timer(scheduler.Now + waitTime, _scheduler), Timer(_timeout, _scheduler))
+                    return Amb(Timer(waitTime, _scheduler), Timer(_timeout, _scheduler))
                         .Select(z => Unit.Default);
                 })
                 .Replay(1, _scheduler);

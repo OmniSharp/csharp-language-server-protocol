@@ -43,8 +43,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(102, Unit.Default),
-                ReactiveTest.OnCompleted(102, Unit.Default)
+                ReactiveTest.OnNext(121, Unit.Default),
+                ReactiveTest.OnCompleted(121, Unit.Default)
             );
         }
 
@@ -75,8 +75,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(400, Unit.Default),
-                ReactiveTest.OnCompleted(400, Unit.Default)
+                ReactiveTest.OnNext(401, Unit.Default),
+                ReactiveTest.OnCompleted(401, Unit.Default)
             );
         }
 
@@ -93,8 +93,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(500, Unit.Default),
-                ReactiveTest.OnCompleted(500, Unit.Default)
+                ReactiveTest.OnNext(501, Unit.Default),
+                ReactiveTest.OnCompleted(501, Unit.Default)
             );
         }
 
@@ -111,8 +111,8 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(450, Unit.Default),
-                ReactiveTest.OnCompleted(450, Unit.Default)
+                ReactiveTest.OnNext(451, Unit.Default),
+                ReactiveTest.OnCompleted(451, Unit.Default)
             );
         }
 
@@ -131,11 +131,11 @@ namespace JsonRpc.Tests
             var observer = testScheduler.Start(() => settler.Settle(), 100, 100, 2000);
 
             observer.Messages.Should().ContainInOrder(
-                ReactiveTest.OnNext(300, Unit.Default),
-                ReactiveTest.OnNext(500, Unit.Default),
-                ReactiveTest.OnNext(650, Unit.Default),
-                ReactiveTest.OnNext(1451, Unit.Default),
-                ReactiveTest.OnCompleted(1451, Unit.Default)
+                ReactiveTest.OnNext(301, Unit.Default),
+                ReactiveTest.OnNext(501, Unit.Default),
+                ReactiveTest.OnNext(651, Unit.Default),
+                ReactiveTest.OnNext(1452, Unit.Default),
+                ReactiveTest.OnCompleted(1452, Unit.Default)
             );
         }
 
