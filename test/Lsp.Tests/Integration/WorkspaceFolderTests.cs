@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
             server.WorkspaceFolderManager.IsSupported.Should().Be(true);
         }
 
-        [Fact(Skip = "These have problems during CI for some reason")]
+        [Fact(Skip = "Test fails periodically on CI but not locally")]
         public async Task Should_Add_A_Workspace_Folder()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -82,7 +82,7 @@ namespace Lsp.Tests.Integration
             folder.Name.Should().Be(nameof(Should_Have_Workspace_Folder_At_Startup));
         }
 
-        [Fact(Skip = "These have problems during CI for some reason")]
+        [Fact(Skip = "Test fails periodically on CI but not locally")]
         public async Task Should_Remove_Workspace_Folder_by_name()
         {
             var (client, server) = await Initialize(options => {
@@ -105,7 +105,7 @@ namespace Lsp.Tests.Integration
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_name));
         }
 
-        [Fact(Skip = "These have problems during CI for some reason")]
+        [Fact(Skip = "Test fails periodically on CI but not locally")]
         public async Task Should_Remove_Workspace_Folder_by_uri()
         {
             var (client, server) = await Initialize(options => {
