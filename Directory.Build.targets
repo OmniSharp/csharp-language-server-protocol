@@ -40,7 +40,7 @@
         <PackageReference Update="MediatR.Extensions.Microsoft.DependencyInjection" Version="8.0.0" />
         <PackageReference Update="Bogus" Version="29.0.1" />
         <PackageReference Update="Snapper" Version="2.2.4" />
-        <PackageReference Update="Xunit.SkippableFact" Version="1.4.8" />
+        <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
         <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
         <PackageReference Update="Nerdbank.Streams" Version="2.4.60" />
         <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
