@@ -42,7 +42,7 @@
         <PackageReference Update="Snapper" Version="2.2.4" />
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
         <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
-        <PackageReference Update="Nerdbank.Streams" Version="2.4.60" />
+        <PackageReference Update="Nerdbank.Streams" Version="2.5.76" />
         <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
         <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
         <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />
