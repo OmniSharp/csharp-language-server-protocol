@@ -14,12 +14,12 @@ using Xunit.Abstractions;
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
-    ///     The base class for test suites that use a <see cref="PipeServerProcess"/>.
+    /// The base class for test suites that use a <see cref="PipeServerProcess" />.
     /// </summary>
     public abstract class PipeServerTestBase : TestBase, IAsyncLifetime
     {
         /// <summary>
-        ///     The <see cref="PipeServerProcess"/> used to connect client and server streams.
+        /// The <see cref="PipeServerProcess" /> used to connect client and server streams.
         /// </summary>
         private readonly CancellationTokenSource _cancellationTokenSource;
 
@@ -29,10 +29,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         private ILanguageServer _server;
 
         /// <summary>
-        ///     Create a new <see cref="PipeServerTestBase"/>.
+        /// Create a new <see cref="PipeServerTestBase" />.
         /// </summary>
         /// <param name="testOutput">
-        ///     Output for the current test.
+        /// Output for the current test.
         /// </param>
         protected PipeServerTestBase(ITestOutputHelper testOutput)
             : base(testOutput)
@@ -45,35 +45,40 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     The workspace root path.
+        /// The workspace root path.
         /// </summary>
         protected string WorkspaceRoot => Path.GetDirectoryName(GetType().Assembly.Location);
 
         /// <summary>
-        ///     Create a <see cref="LanguageClient"/> connected to the test's <see cref="PipeServerProcess"/>.
+        /// Create a <see cref="LanguageClient" /> connected to the test's <see cref="PipeServerProcess" />.
         /// </summary>
         /// <returns>
-        ///     The <see cref="LanguageClient"/>.
+        /// The <see cref="LanguageClient" />.
         /// </returns>
         protected async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
             Action<LanguageClientOptions> clientOptionsAction,
-            Action<LanguageServerOptions> serverOptionsAction)
+            Action<LanguageServerOptions> serverOptionsAction
+        )
         {
             var clientPipe = new Pipe();
             var serverPipe = new Pipe();
-            _client = LanguageClient.PreInit(options => {
-                options.WithServices(services => services.AddSingleton(LoggerFactory));
-                options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);
-                options.WithRootPath(WorkspaceRoot);
-                clientOptionsAction(options);
-            });
+            _client = LanguageClient.PreInit(
+                options => {
+                    options.WithServices(services => services.AddSingleton(LoggerFactory));
+                    options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);
+                    options.WithRootPath(WorkspaceRoot);
+                    clientOptionsAction(options);
+                }
+            );
             Disposal.Add(_client);
 
-            _server = OmniSharp.Extensions.LanguageServer.Server.LanguageServer.PreInit(options => {
-                options.WithServices(services => services.AddSingleton(LoggerFactory));
-                options.WithInput(clientPipe.Reader).WithOutput(serverPipe.Writer);
-                serverOptionsAction(options);
-            });
+            _server = Server.LanguageServer.PreInit(
+                options => {
+                    options.WithServices(services => services.AddSingleton(LoggerFactory));
+                    options.WithInput(clientPipe.Reader).WithOutput(serverPipe.Writer);
+                    serverOptionsAction(options);
+                }
+            );
             Disposal.Add(_server);
 
             await Task.WhenAll(
@@ -81,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 _server.Initialize(CancellationToken)
             );
 
-            return (_client, _server);
+            return ( _client, _server );
         }
 
         public virtual Task InitializeAsync() => Task.CompletedTask;

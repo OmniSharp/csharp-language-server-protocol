@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -10,14 +11,11 @@ namespace Pipeline
         private readonly Stream _input;
         public const char CR = '\r';
         public const char LF = '\n';
-        public static char[] CRLF = {CR, LF};
-        public static char[] HeaderKeys = {CR, LF, ':'};
+        public static char[] CRLF = { CR, LF };
+        public static char[] HeaderKeys = { CR, LF, ':' };
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
 
-        public ClassicHandler(Stream input)
-        {
-            _input = input;
-        }
+        public ClassicHandler(Stream input) => _input = input;
 
         // don't be async: We already allocated a seperate thread for this.
         public Task ProcessInputStream()
@@ -42,7 +40,7 @@ namespace Pipeline
                     current += n;
                 }
 
-                var headersContent = System.Text.Encoding.ASCII.GetString(buffer, 0, current);
+                var headersContent = Encoding.ASCII.GetString(buffer, 0, current);
                 var headers = headersContent.Split(HeaderKeys, StringSplitOptions.RemoveEmptyEntries);
                 long length = 0;
                 for (var i = 1; i < headers.Length; i += 2)
@@ -73,7 +71,7 @@ namespace Pipeline
                     }
 
                     // TODO sometimes: encoding should be based on the respective header (including the wrong "utf8" value)
-                    var payload = System.Text.Encoding.ASCII.GetString(requestBuffer);
+                    var payload = Encoding.ASCII.GetString(requestBuffer);
                     HandleRequest(payload, CancellationToken.None);
                 }
             }

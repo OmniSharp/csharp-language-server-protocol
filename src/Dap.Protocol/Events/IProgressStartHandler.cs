@@ -6,8 +6,10 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
-    [Parallel, Method(EventNames.ProgressStart, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
+    [Parallel]
+    [Method(EventNames.ProgressStart, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
     public interface IProgressStartHandler : IJsonRpcNotificationHandler<ProgressStartEvent>
     {
     }

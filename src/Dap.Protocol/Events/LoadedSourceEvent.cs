@@ -1,5 +1,5 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
@@ -17,5 +17,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// </summary>
         public Source Source { get; set; }
     }
-
 }

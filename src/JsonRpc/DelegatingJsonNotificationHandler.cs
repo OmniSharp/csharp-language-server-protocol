@@ -10,10 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Func<JToken, CancellationToken, Task> _handler;
 
-        public DelegatingJsonNotificationHandler(Func<JToken, CancellationToken, Task> handler)
-        {
-            _handler = handler;
-        }
+        public DelegatingJsonNotificationHandler(Func<JToken, CancellationToken, Task> handler) => _handler = handler;
 
         public async Task<Unit> Handle(DelegatingNotification<JToken> request, CancellationToken cancellationToken)
         {

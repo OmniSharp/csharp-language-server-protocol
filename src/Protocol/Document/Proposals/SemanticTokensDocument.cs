@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Immutable;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -56,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         public SemanticTokens GetSemanticTokens()
         {
             _prevData = null;
-            return new SemanticTokens() {
+            return new SemanticTokens {
                 ResultId = Id,
                 Data = _data
             };
@@ -96,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         if (currentCharOffset + charOffset + length >= range.Start.Character)
                         {
                             capturing = true;
-                            var overlap = ((currentCharOffset + charOffset + length) - range.Start.Character);
+                            var overlap = currentCharOffset + charOffset + length - range.Start.Character;
                             data.AddRange(0, 0, overlap, _data[i + 3], _data[i + 4]);
                             innerOffset = charOffset - overlap;
                             continue;
@@ -120,7 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         if (currentCharOffset + charOffset + length >= range.End.Character)
                         {
                             capturing = false;
-                            var overlap = ((currentCharOffset + charOffset + length) - range.End.Character);
+                            var overlap = currentCharOffset + charOffset + length - range.End.Character;
                             data.AddRange(lineOffset, charOffset, length - overlap, _data[i + 3], _data[i + 4]);
                             break;
                         }
@@ -133,8 +134,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                     {
                         if (innerOffset > 0)
                         {
-                            data.AddRange(_data[i], _data[i + 1] - innerOffset, _data[i + 2], _data[i + 3],
-                                _data[i + 4]);
+                            data.AddRange(
+                                _data[i], _data[i + 1] - innerOffset, _data[i + 2], _data[i + 3],
+                                _data[i + 4]
+                            );
                             innerOffset = 0;
                         }
                         else
@@ -145,7 +148,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 }
             }
 
-            return new SemanticTokens() {
+            return new SemanticTokens {
                 ResultId = Id,
                 Data = data.ToImmutable()
             };

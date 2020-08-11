@@ -10,22 +10,24 @@ namespace Lsp.Tests.Models
 {
     public class CodeActionParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeActionParams() {
-                Context = new CodeActionContext() {
-                    Diagnostics = new[] { new Diagnostic() {
-                    Code = new DiagnosticCode("abcd"),
-                    Message = "message",
-                    Range = new Range(new Position(1, 1), new Position(2,2)),
-                    Severity = DiagnosticSeverity.Error,
-                    Source = "csharp"
-                } }
-
+            var model = new CodeActionParams {
+                Context = new CodeActionContext {
+                    Diagnostics = new[] {
+                        new Diagnostic {
+                            Code = new DiagnosticCode("abcd"),
+                            Message = "message",
+                            Range = new Range(new Position(1, 1), new Position(2, 2)),
+                            Severity = DiagnosticSeverity.Error,
+                            Source = "csharp"
+                        }
+                    }
                 },
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
-                TextDocument = new TextDocumentIdentifier() {
+                TextDocument = new TextDocumentIdentifier {
                     Uri = new Uri("file:///test/123/d.cs")
                 }
             };
@@ -37,22 +39,24 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void NonStandardCharactersTest(string expected)
         {
-            var model = new CodeActionParams() {
-                Context = new CodeActionContext() {
-                    Diagnostics = new[] { new Diagnostic() {
-                    Code = new DiagnosticCode("abcd"),
-                    Message = "message",
-                    Range = new Range(new Position(1, 1), new Position(2,2)),
-                    Severity = DiagnosticSeverity.Error,
-                    Source = "csharp"
-                } }
-
+            var model = new CodeActionParams {
+                Context = new CodeActionContext {
+                    Diagnostics = new[] {
+                        new Diagnostic {
+                            Code = new DiagnosticCode("abcd"),
+                            Message = "message",
+                            Range = new Range(new Position(1, 1), new Position(2, 2)),
+                            Severity = DiagnosticSeverity.Error,
+                            Source = "csharp"
+                        }
+                    }
                 },
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
-                TextDocument = new TextDocumentIdentifier() {
+                TextDocument = new TextDocumentIdentifier {
                     // 树 - Chinese for tree
                     Uri = new Uri("file:///test/123/%E6%A0%91.cs")
                 }

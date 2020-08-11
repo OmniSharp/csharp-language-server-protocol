@@ -8,10 +8,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class SaveOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SaveOptions() {
+            var model = new SaveOptions {
                 IncludeText = false
             };
             var result = Fixture.SerializeObject(model);

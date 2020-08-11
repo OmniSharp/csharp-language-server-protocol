@@ -6,7 +6,8 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class PrepareRenameTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void Range(string expected)
         {
             var range = new Range(
@@ -21,11 +22,11 @@ namespace Lsp.Tests.Capabilities.Server
             result.Should().Be(expected);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void PlaceholderRange(string expected)
         {
-            var placeholderRange = new PlaceholderRange
-            {
+            var placeholderRange = new PlaceholderRange {
                 Range = new Range(
                     new Position(1, 2),
                     new Position(3, 4)

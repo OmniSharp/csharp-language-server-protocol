@@ -15,7 +15,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private readonly IServiceProvider _serviceProvider;
         private readonly ILanguageProtocolSettings _languageProtocolSettings;
 
-        public LanguageProtocolProxy(IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager, ILanguageProtocolSettings languageProtocolSettings)
+        public LanguageProtocolProxy(
+            IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager, ILanguageProtocolSettings languageProtocolSettings
+        )
         {
             ProgressManager = progressManager;
             _responseRouter = requestRouter;

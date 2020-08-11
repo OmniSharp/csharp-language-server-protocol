@@ -1,10 +1,8 @@
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -14,12 +12,11 @@ namespace JsonRpc.Tests
     public class MediatorTestsNotificationHandler : AutoTestBase
     {
         [Method("exit")]
-        public interface IExitHandler : IJsonRpcNotificationHandler { }
-
-        public MediatorTestsNotificationHandler(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
+        public interface IExitHandler : IJsonRpcNotificationHandler
         {
-            Container = JsonRpcTestContainer.Create(testOutputHelper);
         }
+
+        public MediatorTestsNotificationHandler(ITestOutputHelper testOutputHelper) : base(testOutputHelper) => Container = JsonRpcTestContainer.Create(testOutputHelper);
 
         [Fact]
         public async Task ExecutesHandler()
@@ -36,6 +33,5 @@ namespace JsonRpc.Tests
 
             await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
         }
-
     }
 }

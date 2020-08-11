@@ -10,7 +10,6 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageProtocol.Testing
@@ -22,10 +21,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         private readonly ConcurrentDictionary<(string section, DocumentUri scope), IConfiguration> _scopedConfigurations =
             new ConcurrentDictionary<(string section, DocumentUri scope), IConfiguration>();
 
-        public TestConfigurationProvider(IWorkspaceLanguageClient workspaceLanguageClient)
-        {
-            _workspaceLanguageClient = workspaceLanguageClient;
-        }
+        public TestConfigurationProvider(IWorkspaceLanguageClient workspaceLanguageClient) => _workspaceLanguageClient = workspaceLanguageClient;
 
         public void Update(string section, IDictionary<string, string> configuration)
         {
@@ -48,18 +44,15 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         public void Update(string section, DocumentUri documentUri, IConfiguration configuration)
         {
             if (configuration == null) return;
-            _scopedConfigurations.AddOrUpdate((section, documentUri), configuration, (a, _) => configuration);
+            _scopedConfigurations.AddOrUpdate(( section, documentUri ), configuration, (a, _) => configuration);
             TriggerChange();
         }
 
-        public void Reset(string section)
-        {
-            Reset(section, null);
-        }
+        public void Reset(string section) => Reset(section, null);
 
         public void Reset(string section, DocumentUri documentUri)
         {
-            _scopedConfigurations.TryRemove((section, documentUri), out _);
+            _scopedConfigurations.TryRemove(( section, documentUri ), out _);
             _workspaceLanguageClient.DidChangeConfiguration(new DidChangeConfigurationParams());
             TriggerChange();
         }
@@ -67,22 +60,20 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         private IConfiguration Get(ConfigurationItem configurationItem)
         {
             if (_scopedConfigurations.TryGetValue(
-                (configurationItem.Section, configurationItem.ScopeUri),
-                out var configuration)
+                    ( configurationItem.Section, configurationItem.ScopeUri ),
+                    out var configuration
+                )
             )
             {
                 return new ConfigurationBuilder()
-                    .AddConfiguration(configuration, false)
-                    .Build();
+                      .AddConfiguration(configuration, false)
+                      .Build();
             }
 
             return new ConfigurationBuilder().Build();
         }
 
-        private void TriggerChange()
-        {
-            _workspaceLanguageClient.DidChangeConfiguration(new DidChangeConfigurationParams());
-        }
+        private void TriggerChange() => _workspaceLanguageClient.DidChangeConfiguration(new DidChangeConfigurationParams());
 
         Task<Container<JToken>> IRequestHandler<ConfigurationParams, Container<JToken>>.Handle(ConfigurationParams request, CancellationToken cancellationToken)
         {
@@ -106,13 +97,13 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             var result = new JObject();
             foreach (var item in values)
             {
-                var keys = item.Key.Split(new[] {":"}, StringSplitOptions.RemoveEmptyEntries);
+                var keys = item.Key.Split(new[] { ":" }, StringSplitOptions.RemoveEmptyEntries);
                 var prop = keys.Last();
                 JToken root = result;
 
                 // This produces a simple look ahead
                 var zippedKeys = keys
-                    .Zip(keys.Skip(1), (prev, current) => (prev, current));
+                   .Zip(keys.Skip(1), (prev, current) => ( prev, current ));
 
                 foreach (var (key, next) in zippedKeys)
                 {

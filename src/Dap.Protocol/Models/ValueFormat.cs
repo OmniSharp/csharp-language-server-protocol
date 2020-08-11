@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Display the value in hex.
         /// </summary>
-        [Optional] public bool? Hex { get; set; }
+        [Optional]
+        public bool? Hex { get; set; }
     }
 }

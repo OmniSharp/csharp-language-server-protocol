@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Completion options.
+    /// Completion options.
     /// </summary>
     public class CompletionOptions : WorkDoneProgressOptions, ICompletionOptions
     {
@@ -42,15 +42,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> AllCommitCharacters { get; set; }
 
-        public static CompletionOptions Of(ICompletionOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new CompletionOptions()
-            {
+        public static CompletionOptions Of(ICompletionOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new CompletionOptions {
                 ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType == typeof(ICompletionResolveHandler)),
                 AllCommitCharacters = options.AllCommitCharacters,
                 TriggerCharacters = options.TriggerCharacters,
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

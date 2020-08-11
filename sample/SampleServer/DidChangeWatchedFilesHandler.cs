@@ -7,23 +7,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace SampleServer
 {
-    class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
+    internal class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
     {
         private DidChangeWatchedFilesCapability _capability;
 
-        public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions()
-        {
-            return new DidChangeWatchedFilesRegistrationOptions();
-        }
+        public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions() => new DidChangeWatchedFilesRegistrationOptions();
 
-        public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken)
-        {
-            return Unit.Task;
-        }
+        public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken) => Unit.Task;
 
-        public void SetCapability(DidChangeWatchedFilesCapability capability)
-        {
-            _capability = capability;
-        }
+        public void SetCapability(DidChangeWatchedFilesCapability capability) => _capability = capability;
     }
 }

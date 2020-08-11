@@ -17,17 +17,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public Range Range { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Location);
-        }
+        public override bool Equals(object obj) => Equals(obj as Location);
 
-        public bool Equals(Location other)
-        {
-            return other != null &&
-                   DocumentUri.Comparer.Equals(Uri, other.Uri) &&
-                   EqualityComparer<Range>.Default.Equals(Range, other.Range);
-        }
+        public bool Equals(Location other) =>
+            other != null &&
+            DocumentUri.Comparer.Equals(Uri, other.Uri) &&
+            EqualityComparer<Range>.Default.Equals(Range, other.Range);
 
         public override int GetHashCode()
         {
@@ -37,17 +32,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return hashCode;
         }
 
-        public static bool operator ==(Location location1, Location location2)
-        {
-            return EqualityComparer<Location>.Default.Equals(location1, location2);
-        }
+        public static bool operator ==(Location location1, Location location2) => EqualityComparer<Location>.Default.Equals(location1, location2);
 
-        public static bool operator !=(Location location1, Location location2)
-        {
-            return !(location1 == location2);
-        }
+        public static bool operator !=(Location location1, Location location2) => !( location1 == location2 );
 
         private string DebuggerDisplay => $"{{{Range} {Uri}}}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

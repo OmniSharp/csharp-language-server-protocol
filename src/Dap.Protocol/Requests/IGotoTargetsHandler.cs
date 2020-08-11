@@ -5,8 +5,10 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.GotoTargets, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
+    [Parallel]
+    [Method(RequestNames.GotoTargets, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
     public interface IGotoTargetsHandler : IJsonRpcRequestHandler<GotoTargetsArguments, GotoTargetsResponse>
     {
     }
@@ -14,7 +16,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public abstract class GotoTargetsHandler : IGotoTargetsHandler
     {
-        public abstract Task<GotoTargetsResponse> Handle(GotoTargetsArguments request,
-            CancellationToken cancellationToken);
+        public abstract Task<GotoTargetsResponse> Handle(
+            GotoTargetsArguments request,
+            CancellationToken cancellationToken
+        );
     }
 }

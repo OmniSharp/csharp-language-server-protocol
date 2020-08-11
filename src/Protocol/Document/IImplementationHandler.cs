@@ -6,19 +6,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.Implementation, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    [Parallel]
+    [Method(TextDocumentNames.Implementation, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IImplementationHandler : IJsonRpcRequestHandler<ImplementationParams, LocationOrLocationLinks>,
-        IRegistration<ImplementationRegistrationOptions>, ICapability<ImplementationCapability>
+                                              IRegistration<ImplementationRegistrationOptions>, ICapability<ImplementationCapability>
     {
     }
 
-    public abstract class ImplementationHandler :
-        AbstractHandlers.Request<ImplementationParams, LocationOrLocationLinks, ImplementationCapability,
-            ImplementationRegistrationOptions>, IImplementationHandler
+    public abstract class ImplementationHandler : AbstractHandlers.Request<ImplementationParams, LocationOrLocationLinks, ImplementationCapability,
+                                                      ImplementationRegistrationOptions>, IImplementationHandler
     {
         protected ImplementationHandler(ImplementationRegistrationOptions registrationOptions) : base(
-            registrationOptions)
+            registrationOptions
+        )
         {
         }
     }

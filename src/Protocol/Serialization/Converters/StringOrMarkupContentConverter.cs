@@ -25,12 +25,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 var result = JObject.Load(reader);
                 return new StringOrMarkupContent(
-                    new MarkupContent() {
+                    new MarkupContent {
                         Kind = Enum.TryParse<MarkupKind>(result["kind"]?.Value<string>(), true, out var kind) ? kind : MarkupKind.PlainText,
                         Value = result["value"]?.Value<string>()
                     }
                 );
             }
+
             if (reader.TokenType == JsonToken.String)
             {
                 return new StringOrMarkupContent(reader.Value as string);

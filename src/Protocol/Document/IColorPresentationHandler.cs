@@ -8,17 +8,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.ColorPresentation, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IColorPresentationHandler : IJsonRpcRequestHandler<ColorPresentationParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>, ICapability<ColorProviderCapability> { }
+    [Parallel]
+    [Method(TextDocumentNames.ColorPresentation, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    public interface IColorPresentationHandler : IJsonRpcRequestHandler<ColorPresentationParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>,
+                                                 ICapability<ColorProviderCapability>
+    {
+    }
 
     public abstract class ColorPresentationHandler : IColorPresentationHandler
     {
         private readonly DocumentColorRegistrationOptions _options;
-        public ColorPresentationHandler(DocumentColorRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public ColorPresentationHandler(DocumentColorRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public DocumentColorRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Container<ColorPresentation>> Handle(ColorPresentationParams request, CancellationToken cancellationToken);

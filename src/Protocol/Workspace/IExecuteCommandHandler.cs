@@ -13,18 +13,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Serial, Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
-    public interface IExecuteCommandHandler : IJsonRpcRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability> { }
+    [Serial]
+    [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+    public interface IExecuteCommandHandler : IJsonRpcRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability>
+    {
+    }
 
     public abstract class ExecuteCommandHandler : IExecuteCommandHandler
     {
         private readonly ExecuteCommandRegistrationOptions _options;
 
-        public ExecuteCommandHandler(ExecuteCommandRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public ExecuteCommandHandler(ExecuteCommandRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken);
@@ -36,10 +37,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -56,10 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -78,10 +75,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -102,10 +97,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -128,10 +121,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -156,10 +147,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     {
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions() { Commands = new Container<string>(command) })
-        {
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
             _serializer = serializer;
-        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -185,42 +174,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     public static partial class ExecuteCommandExtensions
     {
         public static Task ExecuteCommand(this IWorkspaceLanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
-            => mediator.ExecuteCommand(new ExecuteCommandParams() { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
+            => mediator.ExecuteCommand(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
 
         public static Task ExecuteCommand(this ILanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
-            => mediator.ExecuteCommand(new ExecuteCommandParams() { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
+            => mediator.ExecuteCommand(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
 
-        public static ILanguageServerRegistry OnExecuteCommand<T>(this ILanguageServerRegistry registry, string command, Func<T, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T>(
+            this ILanguageServerRegistry registry, string command, Func<T, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T>(this ILanguageServerRegistry registry, string command, Func<T, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T>(
-                command,
-                (arg1,  capability, token) => handler(arg1, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T>(this ILanguageServerRegistry registry, string command, Func<T, CancellationToken, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T>(
+                    command,
+                    (arg1, capability, token) => handler(arg1, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T>(this ILanguageServerRegistry registry, string command, Func<T, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T>(
-                command,
-                (arg1, capability, token) => handler(arg1),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T>(this ILanguageServerRegistry registry, string command, Func<T, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T>(
+                    command,
+                    (arg1, capability, token) => handler(arg1),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T> : ExecuteCommandHandlerBase<T>
+        private class Handler<T> : ExecuteCommandHandlerBase<T>
         {
             private readonly Func<T, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
+            public Handler(string command, Func<T, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer) =>
                 _handler = handler;
-            }
 
             public override async Task<Unit> Handle(T arg1, CancellationToken cancellationToken)
             {
@@ -229,37 +215,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             }
         }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(this ILanguageServerRegistry registry, string command, Func<T, T2, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T, T2>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(this ILanguageServerRegistry registry, string command, Func<T, T2, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2>(
-                command,
-                (arg1, arg2, capability, token) => handler(arg1, arg2, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(this ILanguageServerRegistry registry, string command, Func<T, T2, CancellationToken, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2>(
+                    command,
+                    (arg1, arg2, capability, token) => handler(arg1, arg2, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(this ILanguageServerRegistry registry, string command, Func<T, T2, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2>(
-                command,
-                (arg1, arg2, capability, token) => handler(arg1, arg2),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2>(this ILanguageServerRegistry registry, string command, Func<T, T2, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2>(
+                    command,
+                    (arg1, arg2, capability, token) => handler(arg1, arg2),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T, T2> : ExecuteCommandHandlerBase<T, T2>
+        private class Handler<T, T2> : ExecuteCommandHandlerBase<T, T2>
         {
             private readonly Func<T, T2, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, T2, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
+            public Handler(string command, Func<T, T2, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer) =>
                 _handler = handler;
-            }
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken)
             {
@@ -268,37 +251,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             }
         }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T, T2, T3>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3>(
-                command,
-                (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, CancellationToken, Task> handler
+        ) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3>(
+                    command,
+                    (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3>(
-                command,
-                (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3>(
+                    command,
+                    (arg1, arg2, arg3, capability, token) => handler(arg1, arg2, arg3),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T, T2, T3> : ExecuteCommandHandlerBase<T, T2, T3>
+        private class Handler<T, T2, T3> : ExecuteCommandHandlerBase<T, T2, T3>
         {
             private readonly Func<T, T2, T3, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, T2, T3, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
+            public Handler(string command, Func<T, T2, T3, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer) =>
                 _handler = handler;
-            }
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken)
             {
@@ -307,37 +289,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             }
         }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T, T2, T3, T4>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4>(
-                command,
-                (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, CancellationToken, Task> handler
+        ) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4>(
+                    command,
+                    (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4>(
-                command,
-                (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4>(
+                    command,
+                    (arg1, arg2, arg3, arg4, capability, token) => handler(arg1, arg2, arg3, arg4),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T, T2, T3, T4> : ExecuteCommandHandlerBase<T, T2, T3, T4>
+        private class Handler<T, T2, T3, T4> : ExecuteCommandHandlerBase<T, T2, T3, T4>
         {
             private readonly Func<T, T2, T3, T4, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, T2, T3, T4, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
+            public Handler(string command, Func<T, T2, T3, T4, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer) =>
                 _handler = handler;
-            }
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken)
             {
@@ -346,37 +327,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             }
         }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5>(
-                command,
-                (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, CancellationToken, Task> handler
+        ) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4, T5>(
+                    command,
+                    (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5>(
-                command,
-                (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, Task> handler) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4, T5>(
+                    command,
+                    (arg1, arg2, arg3, arg4, arg5, capability, token) => handler(arg1, arg2, arg3, arg4, arg5),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T, T2, T3, T4, T5> : ExecuteCommandHandlerBase<T, T2, T3, T4, T5>
+        private class Handler<T, T2, T3, T4, T5> : ExecuteCommandHandlerBase<T, T2, T3, T4, T5>
         {
             private readonly Func<T, T2, T3, T4, T5, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, T2, T3, T4, T5, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
-                _handler = handler;
-            }
+            public Handler(string command, Func<T, T2, T3, T4, T5, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) :
+                base(command, serializer) => _handler = handler;
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken)
             {
@@ -385,37 +365,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             }
         }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, ExecuteCommandCapability, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5, T6>(command, handler, _.GetRequiredService<ISerializer>()));
-        }
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, ExecuteCommandCapability, CancellationToken, Task> handler
+        ) => registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5, T6>(command, handler, _.GetRequiredService<ISerializer>()));
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, CancellationToken, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5, T6>(
-                command,
-                (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6, token),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, CancellationToken, Task> handler
+        ) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4, T5, T6>(
+                    command,
+                    (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6, token),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, Task> handler)
-        {
-            return registry.AddHandler(_ => new Handler<T, T2, T3, T4, T5, T6>(
-                command,
-                (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6),
-                _.GetRequiredService<ISerializer>())
+        public static ILanguageServerRegistry OnExecuteCommand<T, T2, T3, T4, T5, T6>(
+            this ILanguageServerRegistry registry, string command, Func<T, T2, T3, T4, T5, T6, Task> handler
+        ) =>
+            registry.AddHandler(
+                _ => new Handler<T, T2, T3, T4, T5, T6>(
+                    command,
+                    (arg1, arg2, arg3, arg4, arg5, arg6, capability, token) => handler(arg1, arg2, arg3, arg4, arg5, arg6),
+                    _.GetRequiredService<ISerializer>()
+                )
             );
-        }
 
-        class Handler<T, T2, T3, T4, T5, T6> : ExecuteCommandHandlerBase<T, T2, T3, T4, T5, T6>
+        private class Handler<T, T2, T3, T4, T5, T6> : ExecuteCommandHandlerBase<T, T2, T3, T4, T5, T6>
         {
             private readonly Func<T, T2, T3, T4, T5, T6, ExecuteCommandCapability, CancellationToken, Task> _handler;
 
-            public Handler(string command, Func<T, T2, T3, T4, T5, T6, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(command, serializer)
-            {
-                _handler = handler;
-            }
+            public Handler(string command, Func<T, T2, T3, T4, T5, T6, ExecuteCommandCapability, CancellationToken, Task> handler, ISerializer serializer) : base(
+                command, serializer
+            ) => _handler = handler;
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken)
             {

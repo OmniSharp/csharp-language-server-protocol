@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 return item;
             }
 
-            onError ??= error => new ProgressEndEvent() {
+            onError ??= error => new ProgressEndEvent {
                 Message = error.ToString()
             };
 

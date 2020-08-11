@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class DidCloseTextDocumentParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DidCloseTextDocumentParams() {
+            var model = new DidCloseTextDocumentParams {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/def.cs"))
             };
             var result = Fixture.SerializeObject(model);

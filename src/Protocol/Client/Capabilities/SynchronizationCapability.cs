@@ -4,12 +4,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class SynchronizationCapability : DynamicCapability,
-        ConnectedCapability<IDidChangeTextDocumentHandler>,
-        ConnectedCapability<IDidCloseTextDocumentHandler>,
-        ConnectedCapability<IDidOpenTextDocumentHandler>,
-        ConnectedCapability<IDidSaveTextDocumentHandler>,
-        ConnectedCapability<IWillSaveTextDocumentHandler>,
-        ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
+                                             ConnectedCapability<IDidChangeTextDocumentHandler>,
+                                             ConnectedCapability<IDidCloseTextDocumentHandler>,
+                                             ConnectedCapability<IDidOpenTextDocumentHandler>,
+                                             ConnectedCapability<IDidSaveTextDocumentHandler>,
+                                             ConnectedCapability<IWillSaveTextDocumentHandler>,
+                                             ConnectedCapability<IWillSaveWaitUntilTextDocumentHandler>
     {
         /// <summary>
         /// The client supports sending will save notifications.

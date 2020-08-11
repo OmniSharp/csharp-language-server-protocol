@@ -1,8 +1,7 @@
-using System;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.JsonRpc.Server;
 using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -16,24 +15,13 @@ namespace OmniSharp.Extensions.JsonRpc
             IServiceScopeFactory serviceScopeFactory,
             ILogger<RequestRouter> logger
         )
-            : base(serializer, serviceScopeFactory, logger)
-        {
+            : base(serializer, serviceScopeFactory, logger) =>
             _collection = collection;
-        }
 
-        private IHandlerDescriptor FindDescriptor(IMethodWithParams instance)
-        {
-            return _collection.Descriptors.FirstOrDefault(x => x.Method == instance.Method);
-        }
+        private IHandlerDescriptor FindDescriptor(IMethodWithParams instance) => _collection.Descriptors.FirstOrDefault(x => x.Method == instance.Method);
 
-        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification)
-        {
-            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(notification));
-        }
+        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Notification notification) => new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(notification));
 
-        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request)
-        {
-            return new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(request));
-        }
+        public override IRequestDescriptor<IHandlerDescriptor> GetDescriptors(Request request) => new RequestDescriptor<IHandlerDescriptor>(FindDescriptor(request));
     }
 }

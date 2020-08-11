@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Signature help options.
+    /// Signature help options.
     /// </summary>
     public class SynchronizationOptions : ISynchronizationOptions
     {
@@ -28,9 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public bool DidSave { get; set; }
 
-        public static SynchronizationOptions Of(ISynchronizationOptions options)
-        {
-            return new SynchronizationOptions() { WillSave = options.WillSave, DidSave = options.DidSave, WillSaveWaitUntil = options.WillSaveWaitUntil };
-        }
+        public static SynchronizationOptions Of(ISynchronizationOptions options) => new SynchronizationOptions
+            { WillSave = options.WillSave, DidSave = options.DidSave, WillSaveWaitUntil = options.WillSaveWaitUntil };
     }
 }

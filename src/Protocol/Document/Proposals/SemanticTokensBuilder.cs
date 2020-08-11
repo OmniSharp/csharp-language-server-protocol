@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -23,7 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public SemanticTokensBuilder(
             SemanticTokensDocument document,
-            SemanticTokensLegend legend)
+            SemanticTokensLegend legend
+        )
         {
             _document = document;
             _legend = legend;
@@ -38,10 +40,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="length"></param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(int line, int @char, int length, SemanticTokenType? tokenType, params SemanticTokenModifier[] tokenModifiers)
-        {
-            Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(int line, int @char, int length, SemanticTokenType? tokenType, params SemanticTokenModifier[] tokenModifiers) => Push(
+            line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -50,10 +51,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="range">The range, cannot span multiple lines</param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(Range range, SemanticTokenType? tokenType, params SemanticTokenModifier[] tokenModifiers)
-        {
-            Push(range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(Range range, SemanticTokenType? tokenType, params SemanticTokenModifier[] tokenModifiers) => Push(
+            range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -63,10 +63,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="length"></param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(int line, int @char, int length, SemanticTokenType? tokenType, IEnumerable<SemanticTokenModifier> tokenModifiers)
-        {
-            Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(int line, int @char, int length, SemanticTokenType? tokenType, IEnumerable<SemanticTokenModifier> tokenModifiers) => Push(
+            line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -75,10 +74,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="range">The range, cannot span multiple lines</param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(Range range, SemanticTokenType? tokenType, IEnumerable<SemanticTokenModifier> tokenModifiers)
-        {
-            Push(range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(Range range, SemanticTokenType? tokenType, IEnumerable<SemanticTokenModifier> tokenModifiers) => Push(
+            range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -88,10 +86,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="length"></param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(int line, int @char, int length, string tokenType, params string[] tokenModifiers)
-        {
-            Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(int line, int @char, int length, string tokenType, params string[] tokenModifiers) => Push(
+            line, @char, length, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -100,10 +97,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="range">The range, cannot span multiple lines</param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(Range range, string tokenType, params string[] tokenModifiers)
-        {
-            Push(range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(Range range, string tokenType, params string[] tokenModifiers) => Push(
+            range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder
@@ -113,11 +109,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="length"></param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(int line, int @char, int length, string tokenType, IEnumerable<string> tokenModifiers)
-        {
-            Push(line, @char, length, _legend.GetTokenTypeIdentity(tokenType),
-                _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(int line, int @char, int length, string tokenType, IEnumerable<string> tokenModifiers) =>
+            Push(
+                line, @char, length, _legend.GetTokenTypeIdentity(tokenType),
+                _legend.GetTokenModifiersIdentity(tokenModifiers)
+            );
 
         /// <summary>
         /// Push a token onto the builder
@@ -126,10 +122,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// <param name="range">The range, cannot span multiple lines</param>
         /// <param name="tokenType"></param>
         /// <param name="tokenModifiers"></param>
-        public void Push(Range range, string tokenType, IEnumerable<string> tokenModifiers)
-        {
-            Push(range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers));
-        }
+        public void Push(Range range, string tokenType, IEnumerable<string> tokenModifiers) => Push(
+            range, _legend.GetTokenTypeIdentity(tokenType), _legend.GetTokenModifiersIdentity(tokenModifiers)
+        );
 
         /// <summary>
         /// Push a token onto the builder

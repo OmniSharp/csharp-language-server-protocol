@@ -8,20 +8,24 @@ namespace Lsp.Tests.Models
 {
     public class SignatureHelpTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SignatureHelp() {
+            var model = new SignatureHelp {
                 ActiveParameter = 1,
                 ActiveSignature = 2,
-                Signatures = new[] { new SignatureInformation() {
-                    Documentation = "ab",
-                    Label = "ab",
-                    Parameters = new[] { new ParameterInformation() {
-                        Documentation = "param",
-                        Label = "param"
-                    } }
-                }
+                Signatures = new[] {
+                    new SignatureInformation {
+                        Documentation = "ab",
+                        Label = "ab",
+                        Parameters = new[] {
+                            new ParameterInformation {
+                                Documentation = "param",
+                                Label = "param"
+                            }
+                        }
+                    }
                 }
             };
             var result = Fixture.SerializeObject(model);
@@ -32,7 +36,8 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void NoSignaturesTest(string expected)
         {
             var model = new SignatureHelp();

@@ -3,12 +3,9 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class WorkspaceConfigurationProvider : BaseWorkspaceConfigurationProvider
+    internal class WorkspaceConfigurationProvider : BaseWorkspaceConfigurationProvider
     {
-        public WorkspaceConfigurationProvider(IEnumerable<(string key, JToken settings)> configuration)
-        {
-            Update(configuration);
-        }
+        public WorkspaceConfigurationProvider(IEnumerable<(string key, JToken settings)> configuration) => Update(configuration);
 
         internal void Update(IEnumerable<(string key, JToken settings)> values)
         {
@@ -16,6 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             {
                 ParseClientConfiguration(settings, key);
             }
+
             OnReload();
         }
     }

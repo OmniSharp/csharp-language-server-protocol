@@ -11,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         Task<TResult> AsTask();
         TaskAwaiter<TResult> GetAwaiter();
     }
+
     public interface IRequestProgressObservable<TItem> : IRequestProgressObservable<IEnumerable<TItem>, Container<TItem>>
     {
     }

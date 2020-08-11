@@ -11,6 +11,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// </summary>
     public interface IDoesNotParticipateInRegistration
     {
-
     }
 }

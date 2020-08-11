@@ -3,16 +3,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests.Models
 {
     public class TextDocumentContentChangeEventTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentContentChangeEvent() {
+            var model = new TextDocumentContentChangeEvent {
                 Range = new Range(new Position(1, 2), new Position(3, 4)),
                 RangeLength = 12,
                 Text = "abc"

@@ -9,15 +9,18 @@ namespace Lsp.Tests.Models
 {
     public class RegistrationParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new RegistrationParams() {
-                Registrations = new[] {  new Registration() {
-                    Id = "abc",
-                    Method = "method",
-                    RegisterOptions = new Dictionary<string, object>()
-                } }
+            var model = new RegistrationParams {
+                Registrations = new[] {
+                    new Registration {
+                        Id = "abc",
+                        Method = "method",
+                        RegisterOptions = new Dictionary<string, object>()
+                    }
+                }
             };
             var result = Fixture.SerializeObject(model);
 

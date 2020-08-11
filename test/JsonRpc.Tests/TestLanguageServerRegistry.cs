@@ -6,28 +6,21 @@ namespace JsonRpc.Tests
 {
     public class TestLanguageServerRegistry : JsonRpcCommonMethodsBase<IJsonRpcServerRegistry>, IJsonRpcServerRegistry
     {
-        private List<IJsonRpcHandler> Handlers { get; set; } = new List<IJsonRpcHandler>();
-        private List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; set; } = new List<(string name, IJsonRpcHandler handler)>();
+        private List<IJsonRpcHandler> Handlers { get; } = new List<IJsonRpcHandler>();
+        private List<(string name, IJsonRpcHandler handler)> NamedHandlers { get; } = new List<(string name, IJsonRpcHandler handler)>();
 
-        private List<(string name, JsonRpcHandlerFactory handlerFunc)> NamedServiceHandlers { get; set; } =
+        private List<(string name, JsonRpcHandlerFactory handlerFunc)> NamedServiceHandlers { get; } =
             new List<(string name, JsonRpcHandlerFactory handlerFunc)>();
-
-        public TestLanguageServerRegistry()
-        {
-        }
 
         public override IJsonRpcServerRegistry AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
         {
-            NamedHandlers.Add((method, handler));
+            NamedHandlers.Add(( method, handler ));
             return this;
         }
 
         public override IJsonRpcServerRegistry AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options)
-        {
-            throw new NotImplementedException();
-        }
+        public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
@@ -37,7 +30,7 @@ namespace JsonRpc.Tests
 
         public override IJsonRpcServerRegistry AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
         {
-            NamedServiceHandlers.Add((method, handlerFunc));
+            NamedServiceHandlers.Add(( method, handlerFunc ));
             return this;
         }
 

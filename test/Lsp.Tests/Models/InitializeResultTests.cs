@@ -11,62 +11,55 @@ namespace Lsp.Tests.Models
 {
     public class InitializeResultTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new InitializeResult()
-            {
-                Capabilities = new ServerCapabilities()
-                {
+            var model = new InitializeResult {
+                Capabilities = new ServerCapabilities {
                     CodeActionProvider = true,
-                    CodeLensProvider = new CodeLensOptions()
-                    {
+                    CodeLensProvider = new CodeLensOptions {
                         ResolveProvider = true,
                     },
-                    CompletionProvider = new CompletionOptions()
-                    {
+                    CompletionProvider = new CompletionOptions {
                         ResolveProvider = true,
                         TriggerCharacters = new[] { "a", "b", "c" }
                     },
                     DefinitionProvider = true,
                     DocumentFormattingProvider = true,
                     DocumentHighlightProvider = true,
-                    DocumentLinkProvider = new DocumentLinkOptions()
-                    {
+                    DocumentLinkProvider = new DocumentLinkOptions {
                         ResolveProvider = true
                     },
-                    DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions()
-                    {
+                    DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions {
                         FirstTriggerCharacter = ".",
                         MoreTriggerCharacter = new[] { ";", " " }
                     },
                     DocumentRangeFormattingProvider = true,
                     DocumentSymbolProvider = true,
-                    ExecuteCommandProvider = new ExecuteCommandOptions()
-                    {
-                        Commands = new string[] { "command1", "command2" }
+                    ExecuteCommandProvider = new ExecuteCommandOptions {
+                        Commands = new[] { "command1", "command2" }
                     },
-                    Experimental = new Dictionary<string, JToken>() {
-                    { "abc", "123" }
-                },
+                    Experimental = new Dictionary<string, JToken> {
+                        { "abc", "123" }
+                    },
                     HoverProvider = true,
                     ReferencesProvider = true,
                     RenameProvider = true,
-                    SignatureHelpProvider = new SignatureHelpOptions()
-                    {
+                    SignatureHelpProvider = new SignatureHelpOptions {
                         TriggerCharacters = new[] { ";", " " }
                     },
-                    TextDocumentSync = new TextDocumentSync(new TextDocumentSyncOptions()
-                    {
-                        Change = TextDocumentSyncKind.Full,
-                        OpenClose = true,
-                        Save = new SaveOptions()
-                        {
-                            IncludeText = true
-                        },
-                        WillSave = true,
-                        WillSaveWaitUntil = true
-                    }),
+                    TextDocumentSync = new TextDocumentSync(
+                        new TextDocumentSyncOptions {
+                            Change = TextDocumentSyncKind.Full,
+                            OpenClose = true,
+                            Save = new SaveOptions {
+                                IncludeText = true
+                            },
+                            WillSave = true,
+                            WillSaveWaitUntil = true
+                        }
+                    ),
                     WorkspaceSymbolProvider = true,
                 }
             };
@@ -78,45 +71,37 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void BooleanOrTest(string expected)
         {
-            var model = new InitializeResult()
-            {
-                Capabilities = new ServerCapabilities
-                {
-                    CodeActionProvider = new CodeActionOptions
-                    {
+            var model = new InitializeResult {
+                Capabilities = new ServerCapabilities {
+                    CodeActionProvider = new CodeActionOptions {
                         CodeActionKinds = new[] {
                             CodeActionKind.QuickFix
                         }
                     },
-                    ColorProvider = new DocumentColorOptions
-                    {
+                    ColorProvider = new DocumentColorOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    DeclarationProvider = new DeclarationOptions
-                    {
+                    DeclarationProvider = new DeclarationOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    FoldingRangeProvider = new FoldingRangeOptions
-                    {
+                    FoldingRangeProvider = new FoldingRangeOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    ImplementationProvider = new ImplementationOptions
-                    {
+                    ImplementationProvider = new ImplementationOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    RenameProvider = new RenameOptions
-                    {
+                    RenameProvider = new RenameOptions {
                         PrepareProvider = true
                     },
-                    TypeDefinitionProvider = new TypeDefinitionOptions
-                    {
+                    TypeDefinitionProvider = new TypeDefinitionOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     }

@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Ids of threads to be terminated.
         /// </summary>
-        [Optional] public Container<long> ThreadIds { get; set; }
+        [Optional]
+        public Container<long> ThreadIds { get; set; }
     }
-
 }

@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
     /// <summary>
     /// Gives your class or handler an opportunity to interact with
-    /// the <see cref="InitializeParams"/> and <see cref="InitializeResult"/> before it is processed by the client.
+    /// the <see cref="InitializeParams" /> and <see cref="InitializeResult" /> before it is processed by the client.
     /// </summary>
     public interface IOnLanguageClientInitialized : IEventingHandler
     {

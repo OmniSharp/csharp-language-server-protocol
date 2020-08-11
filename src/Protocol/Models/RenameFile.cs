@@ -11,14 +11,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A rename
         /// </summary>
         public ResourceOperationKind Kind { get; } = ResourceOperationKind.Rename;
+
         /// <summary>
         /// The old (existing) location.
         /// </summary>
         public DocumentUri OldUri { get; set; }
+
         /// <summary>
         /// The new location.
         /// </summary>
         public DocumentUri NewUri { get; set; }
+
         /// <summary>
         /// Rename Options.
         /// </summary>

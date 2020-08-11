@@ -6,13 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class ReferencesOptions : WorkDoneProgressOptions, IReferencesOptions
     {
-        public static ReferencesOptions Of(IReferencesOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new ReferencesOptions()
-            {
+        public static ReferencesOptions Of(IReferencesOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new ReferencesOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
-
             };
-        }
     }
 }

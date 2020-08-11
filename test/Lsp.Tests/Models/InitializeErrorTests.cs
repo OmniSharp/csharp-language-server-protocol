@@ -8,7 +8,8 @@ namespace Lsp.Tests.Models
 {
     public class InitializeErrorTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
             var model = new InitializeError();

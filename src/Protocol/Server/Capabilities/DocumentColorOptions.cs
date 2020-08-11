@@ -6,11 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class DocumentColorOptions : StaticWorkDoneTextDocumentRegistrationOptions, IDocumentColorOptions
     {
-        public static DocumentColorOptions Of(IDocumentColorOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new DocumentColorOptions() {
+        public static DocumentColorOptions Of(IDocumentColorOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new DocumentColorOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

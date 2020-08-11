@@ -7,7 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class WorkDoneProgressBegin : WorkDoneProgress
     {
-        public WorkDoneProgressBegin() : base(WorkDoneProgressKind.Begin) { }
+        public WorkDoneProgressBegin() : base(WorkDoneProgressKind.Begin)
+        {
+        }
 
         /// <summary>
         /// Mandatory title of the progress operation. Used to briefly inform about

@@ -16,21 +16,23 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace SampleServer
 {
-    class TextDocumentHandler : ITextDocumentSyncHandler
+    internal class TextDocumentHandler : ITextDocumentSyncHandler
     {
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
 
         private readonly DocumentSelector _documentSelector = new DocumentSelector(
-            new DocumentFilter() {
+            new DocumentFilter {
                 Pattern = "**/*.cs"
             }
         );
 
         private SynchronizationCapability _capability;
 
-        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo,
-            ILanguageServerConfiguration configuration)
+        public TextDocumentHandler(
+            ILogger<TextDocumentHandler> logger, Foo foo,
+            ILanguageServerConfiguration configuration
+        )
         {
             _logger = logger;
             _configuration = configuration;
@@ -49,18 +51,13 @@ namespace SampleServer
         }
 
         TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
-            GetRegistrationOptions()
-        {
-            return new TextDocumentChangeRegistrationOptions() {
+            GetRegistrationOptions() =>
+            new TextDocumentChangeRegistrationOptions {
                 DocumentSelector = _documentSelector,
                 SyncKind = Change
             };
-        }
 
-        public void SetCapability(SynchronizationCapability capability)
-        {
-            _capability = capability;
-        }
+        public void SetCapability(SynchronizationCapability capability) => _capability = capability;
 
         public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
@@ -70,12 +67,10 @@ namespace SampleServer
             return Unit.Value;
         }
 
-        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions()
-        {
-            return new TextDocumentRegistrationOptions() {
+        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions() =>
+            new TextDocumentRegistrationOptions {
                 DocumentSelector = _documentSelector,
             };
-        }
 
         public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
@@ -87,35 +82,31 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token)
-        {
-            return Unit.Task;
-        }
+        public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions()
-        {
-            return new TextDocumentSaveRegistrationOptions() {
+        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions() =>
+            new TextDocumentSaveRegistrationOptions {
                 DocumentSelector = _documentSelector,
                 IncludeText = true
             };
-        }
 
-        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri)
-        {
-            return new TextDocumentAttributes(uri, "csharp");
-        }
+        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
     }
 
-    class MyDocumentSymbolHandler : DocumentSymbolHandler
+    internal class MyDocumentSymbolHandler : DocumentSymbolHandler
     {
-        public MyDocumentSymbolHandler() : base(new DocumentSymbolRegistrationOptions() {
-            DocumentSelector = DocumentSelector.ForLanguage("csharp")
-        })
+        public MyDocumentSymbolHandler() : base(
+            new DocumentSymbolRegistrationOptions {
+                DocumentSelector = DocumentSelector.ForLanguage("csharp")
+            }
+        )
         {
         }
 
-        public override async Task<SymbolInformationOrDocumentSymbolContainer> Handle(DocumentSymbolParams request,
-            CancellationToken cancellationToken)
+        public override async Task<SymbolInformationOrDocumentSymbolContainer> Handle(
+            DocumentSymbolParams request,
+            CancellationToken cancellationToken
+        )
         {
             // you would normally get this from a common source that is managed by current open editor, current active editor, etc.
             var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(request), cancellationToken);
@@ -134,20 +125,24 @@ namespace SampleServer
                         continue;
                     }
 
-                    symbols.Add(new DocumentSymbol() {
-                        Detail = part,
-                        Deprecated = true,
-                        Kind = SymbolKind.Field,
-                        Tags = new [] { SymbolTag.Deprecated },
-                        Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(
-                            new Position(lineIndex, currentCharacter),
-                            new Position(lineIndex, currentCharacter + part.Length)),
-                        SelectionRange =
-                            new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(
+                    symbols.Add(
+                        new DocumentSymbol {
+                            Detail = part,
+                            Deprecated = true,
+                            Kind = SymbolKind.Field,
+                            Tags = new[] { SymbolTag.Deprecated },
+                            Range = new Range(
                                 new Position(lineIndex, currentCharacter),
-                                new Position(lineIndex, currentCharacter + part.Length)),
-                        Name = part
-                    });
+                                new Position(lineIndex, currentCharacter + part.Length)
+                            ),
+                            SelectionRange =
+                                new Range(
+                                    new Position(lineIndex, currentCharacter),
+                                    new Position(lineIndex, currentCharacter + part.Length)
+                                ),
+                            Name = part
+                        }
+                    );
                     currentCharacter += part.Length + 1;
                 }
             }
@@ -157,7 +152,7 @@ namespace SampleServer
         }
     }
 
-    class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
+    internal class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
     {
         private readonly IServerWorkDoneManager _manager;
         private readonly IServerWorkDoneManager _serverWorkDoneManager;
@@ -165,68 +160,86 @@ namespace SampleServer
         private readonly ILogger<MyWorkspaceSymbolsHandler> logger;
 
         public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
-            base(new WorkspaceSymbolRegistrationOptions() { })
+            base(new WorkspaceSymbolRegistrationOptions())
         {
             _serverWorkDoneManager = serverWorkDoneManager;
             _progressManager = progressManager;
             this.logger = logger;
         }
 
-        public override async Task<Container<SymbolInformation>> Handle(WorkspaceSymbolParams request,
-            CancellationToken cancellationToken)
+        public override async Task<Container<SymbolInformation>> Handle(
+            WorkspaceSymbolParams request,
+            CancellationToken cancellationToken
+        )
         {
-            using var reporter = _serverWorkDoneManager.For(request, new WorkDoneProgressBegin() {
-                Cancellable = true,
-                Message = "This might take a while...",
-                Title = "Some long task....",
-                Percentage = 0
-            });
+            using var reporter = _serverWorkDoneManager.For(
+                request, new WorkDoneProgressBegin {
+                    Cancellable = true,
+                    Message = "This might take a while...",
+                    Title = "Some long task....",
+                    Percentage = 0
+                }
+            );
             using var partialResults = _progressManager.For(request, cancellationToken);
             if (partialResults != null)
             {
                 await Task.Delay(2000, cancellationToken);
 
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 20
-                });
-                await Task.Delay(500, cancellationToken);
-
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 40
-                });
-                await Task.Delay(500, cancellationToken);
-
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 50
-                });
-                await Task.Delay(500, cancellationToken);
-
-                partialResults.OnNext(new[] {
-                    new SymbolInformation() {
-                        ContainerName = "Partial Container",
-                        Deprecated = true,
-                        Kind = SymbolKind.Constant,
-                        Location = new Location() {
-                            Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(2, 1),
-                                new Position(2, 10)) { }
-                        },
-                        Name = "Partial name"
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 20
                     }
-                });
-
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 70
-                });
+                );
                 await Task.Delay(500, cancellationToken);
 
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 90
-                });
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 40
+                    }
+                );
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 50
+                    }
+                );
+                await Task.Delay(500, cancellationToken);
+
+                partialResults.OnNext(
+                    new[] {
+                        new SymbolInformation {
+                            ContainerName = "Partial Container",
+                            Deprecated = true,
+                            Kind = SymbolKind.Constant,
+                            Location = new Location {
+                                Range = new Range(
+                                    new Position(2, 1),
+                                    new Position(2, 10)
+                                )
+                            },
+                            Name = "Partial name"
+                        }
+                    }
+                );
+
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 70
+                    }
+                );
+                await Task.Delay(500, cancellationToken);
+
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 90
+                    }
+                );
 
                 partialResults.OnCompleted();
                 return new SymbolInformation[] { };
@@ -235,13 +248,15 @@ namespace SampleServer
             try
             {
                 return new[] {
-                    new SymbolInformation() {
+                    new SymbolInformation {
                         ContainerName = "Container",
                         Deprecated = true,
                         Kind = SymbolKind.Constant,
-                        Location = new Location() {
-                            Range = new OmniSharp.Extensions.LanguageServer.Protocol.Models.Range(new Position(1, 1),
-                                new Position(1, 10)) { }
+                        Location = new Location {
+                            Range = new Range(
+                                new Position(1, 1),
+                                new Position(1, 10)
+                            )
                         },
                         Name = "name"
                     }
@@ -249,10 +264,12 @@ namespace SampleServer
             }
             finally
             {
-                reporter.OnNext(new WorkDoneProgressReport() {
-                    Cancellable = true,
-                    Percentage = 100
-                });
+                reporter.OnNext(
+                    new WorkDoneProgressReport {
+                        Cancellable = true,
+                        Percentage = 100
+                    }
+                );
             }
         }
     }

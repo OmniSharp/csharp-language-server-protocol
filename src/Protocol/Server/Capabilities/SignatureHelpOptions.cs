@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Signature help options.
+    /// Signature help options.
     /// </summary>
     public class SignatureHelpOptions : WorkDoneProgressOptions, ISignatureHelpOptions
     {
@@ -28,9 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<string> RetriggerCharacters { get; set; }
 
-        public static SignatureHelpOptions Of(ISignatureHelpOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new SignatureHelpOptions() { TriggerCharacters = options.TriggerCharacters, RetriggerCharacters = options.RetriggerCharacters, WorkDoneProgress = options.WorkDoneProgress };
-        }
+        public static SignatureHelpOptions Of(ISignatureHelpOptions options, IEnumerable<IHandlerDescriptor> descriptors) => new SignatureHelpOptions
+            { TriggerCharacters = options.TriggerCharacters, RetriggerCharacters = options.RetriggerCharacters, WorkDoneProgress = options.WorkDoneProgress };
     }
 }

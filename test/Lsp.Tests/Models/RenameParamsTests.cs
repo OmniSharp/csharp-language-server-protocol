@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class RenameParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new RenameParams() {
+            var model = new RenameParams {
                 NewName = "new name",
                 Position = new Position(1, 2),
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))

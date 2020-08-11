@@ -19,50 +19,57 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         {
         }
 
-        protected virtual void ConfigureClientInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, JsonRpcServerOptions options)
-        {
+        protected virtual void ConfigureClientInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, JsonRpcServerOptions options) =>
             options.WithInput(inMemoryReader).WithOutput(inMemoryWriter);
-        }
 
-        protected virtual void ConfigureServerInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, JsonRpcServerOptions options)
-        {
+        protected virtual void ConfigureServerInputOutput(PipeReader inMemoryReader, PipeWriter inMemoryWriter, JsonRpcServerOptions options) =>
             options.WithInput(inMemoryReader).WithOutput(inMemoryWriter);
-        }
 
         protected virtual async Task<(JsonRpcServer client, JsonRpcServer server)> Initialize(
             Action<JsonRpcServerOptions> clientOptionsAction,
-            Action<JsonRpcServerOptions> serverOptionsAction)
+            Action<JsonRpcServerOptions> serverOptionsAction
+        )
         {
             var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
             var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
-            var clientTask = JsonRpcServer.From(options => {
-                options
-                    .WithServices(services => services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ClientEvents as IRequestSettler)
-                    .AddLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
-                        x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
-                    })
-                );
-                ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
-                clientOptionsAction(options);
-            }, CancellationToken);
+            var clientTask = JsonRpcServer.From(
+                options => {
+                    options
+                       .WithServices(
+                            services => services
+                                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                                       .AddSingleton(ClientEvents as IRequestSettler)
+                                       .AddLogging(
+                                            x => {
+                                                x.SetMinimumLevel(LogLevel.Trace);
+                                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
+                                            }
+                                        )
+                        );
+                    ConfigureClientInputOutput(serverPipe.Reader, clientPipe.Writer, options);
+                    clientOptionsAction(options);
+                }, CancellationToken
+            );
 
-            var serverTask = JsonRpcServer.From(options => {
-                options
-                    .WithServices(services => services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(ServerEvents as IRequestSettler)
-                    .AddLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
-                        x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
-                    })
-                );
-                ConfigureServerInputOutput(clientPipe.Reader, serverPipe.Writer, options);
-                serverOptionsAction(options);
-            }, CancellationToken);
+            var serverTask = JsonRpcServer.From(
+                options => {
+                    options
+                       .WithServices(
+                            services => services
+                                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                                       .AddSingleton(ServerEvents as IRequestSettler)
+                                       .AddLogging(
+                                            x => {
+                                                x.SetMinimumLevel(LogLevel.Trace);
+                                                x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
+                                            }
+                                        )
+                        );
+                    ConfigureServerInputOutput(clientPipe.Reader, serverPipe.Writer, options);
+                    serverOptionsAction(options);
+                }, CancellationToken
+            );
 
             await Task.WhenAll(clientTask, serverTask);
             _client = clientTask.Result;
@@ -71,7 +78,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             Disposable.Add(_client);
             Disposable.Add(_server);
 
-            return (_client, _server);
+            return ( _client, _server );
         }
     }
 }

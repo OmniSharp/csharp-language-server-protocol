@@ -17,5 +17,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// </summary>
         public long ThreadId { get; set; }
     }
-
 }

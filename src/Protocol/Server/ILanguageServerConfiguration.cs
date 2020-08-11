@@ -16,9 +16,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 
         /// <summary>
         /// Gets the current configuration for a given document uri
-        /// This re-uses all the sections from the <see cref="ConfigurationItem"/>s that
+        /// This re-uses all the sections from the <see cref="ConfigurationItem" />s that
         /// the root configuration uses.
-        ///
+        /// 
         /// This will watch for changes of the scoped documents and update the configuration.
         /// </summary>
         /// <param name="scopeUri"></param>

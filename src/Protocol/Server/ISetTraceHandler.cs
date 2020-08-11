@@ -8,8 +8,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    [Parallel, Method(GeneralNames.SetTrace, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageClient), typeof(ILanguageClient))]
+    [Parallel]
+    [Method(GeneralNames.SetTrace, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IClientLanguageClient), typeof(ILanguageClient))]
     public interface ISetTraceHandler : IJsonRpcNotificationHandler<SetTraceParams>
     {
     }

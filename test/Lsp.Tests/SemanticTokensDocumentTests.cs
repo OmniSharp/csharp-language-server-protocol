@@ -9,8 +9,8 @@ using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -31,49 +31,49 @@ namespace Lsp.Tests
             _testOutputHelper = testOutputHelper;
             _loggerFactory = new TestLoggerFactory(testOutputHelper);
             _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
-            _legend = new SemanticTokensLegend() {
+            _legend = new SemanticTokensLegend {
                 // specify a specific set so that additions to the default list do not cause breaks in the tests.
                 TokenModifiers = new[] {
-                        new SemanticTokenModifier("documentation"),
-                        new SemanticTokenModifier("declaration"),
-                        new SemanticTokenModifier("definition"),
-                        new SemanticTokenModifier("static"),
-                        new SemanticTokenModifier("async"),
-                        new SemanticTokenModifier("abstract"),
-                        new SemanticTokenModifier("deprecated"),
-                        new SemanticTokenModifier("readonly"),
-                        new SemanticTokenModifier("modification"),
-                        new SemanticTokenModifier("defaultLibrary")
-                    }
-                    .Select(z => z.ToString())
-                    .ToArray(),
+                                     new SemanticTokenModifier("documentation"),
+                                     new SemanticTokenModifier("declaration"),
+                                     new SemanticTokenModifier("definition"),
+                                     new SemanticTokenModifier("static"),
+                                     new SemanticTokenModifier("async"),
+                                     new SemanticTokenModifier("abstract"),
+                                     new SemanticTokenModifier("deprecated"),
+                                     new SemanticTokenModifier("readonly"),
+                                     new SemanticTokenModifier("modification"),
+                                     new SemanticTokenModifier("defaultLibrary")
+                                 }
+                                .Select(z => z.ToString())
+                                .ToArray(),
                 TokenTypes = new[] {
-                        new SemanticTokenType("comment"),
-                        new SemanticTokenType("keyword"),
-                        new SemanticTokenType("string"),
-                        new SemanticTokenType("number"),
-                        new SemanticTokenType("regexp"),
-                        new SemanticTokenType("operator"),
-                        new SemanticTokenType("namespace"),
-                        new SemanticTokenType("type"),
-                        new SemanticTokenType("struct"),
-                        new SemanticTokenType("class"),
-                        new SemanticTokenType("interface"),
-                        new SemanticTokenType("enum"),
-                        new SemanticTokenType("typeParameter"),
-                        new SemanticTokenType("function"),
-                        new SemanticTokenType("member"),
-                        new SemanticTokenType("property"),
-                        new SemanticTokenType("macro"),
-                        new SemanticTokenType("variable"),
-                        new SemanticTokenType("parameter"),
-                        new SemanticTokenType("label"),
-                        new SemanticTokenType("modifier"),
-                        new SemanticTokenType("event"),
-                        new SemanticTokenType("enumMember"),
-                    }
-                    .Select(x => x.ToString())
-                    .ToArray(),
+                                 new SemanticTokenType("comment"),
+                                 new SemanticTokenType("keyword"),
+                                 new SemanticTokenType("string"),
+                                 new SemanticTokenType("number"),
+                                 new SemanticTokenType("regexp"),
+                                 new SemanticTokenType("operator"),
+                                 new SemanticTokenType("namespace"),
+                                 new SemanticTokenType("type"),
+                                 new SemanticTokenType("struct"),
+                                 new SemanticTokenType("class"),
+                                 new SemanticTokenType("interface"),
+                                 new SemanticTokenType("enum"),
+                                 new SemanticTokenType("typeParameter"),
+                                 new SemanticTokenType("function"),
+                                 new SemanticTokenType("member"),
+                                 new SemanticTokenType("property"),
+                                 new SemanticTokenType("macro"),
+                                 new SemanticTokenType("variable"),
+                                 new SemanticTokenType("parameter"),
+                                 new SemanticTokenType("label"),
+                                 new SemanticTokenType("modifier"),
+                                 new SemanticTokenType("event"),
+                                 new SemanticTokenType("enumMember"),
+                             }
+                            .Select(x => x.ToString())
+                            .ToArray(),
             };
         }
 
@@ -129,12 +129,12 @@ namespace Lsp.Tests
             public ReturnDocumentTokensFromScratch_ForRange_Data()
             {
                 Add(
-                    new Range() {
-                        Start = new Position() {
+                    new Range {
+                        Start = new Position {
                             Line = 12,
                             Character = 21,
                         },
-                        End = new Position() {
+                        End = new Position {
                             Line = 14,
                             Character = 27
                         }
@@ -144,12 +144,12 @@ namespace Lsp.Tests
                     }
                 );
                 Add(
-                    new Range() {
-                        Start = new Position() {
+                    new Range {
+                        Start = new Position {
                             Line = 0,
                             Character = 0,
                         },
-                        End = new Position() {
+                        End = new Position {
                             Line = 5,
                             Character = 0
                         }
@@ -162,12 +162,12 @@ namespace Lsp.Tests
                     }
                 );
                 Add(
-                    new Range() {
-                        Start = new Position() {
+                    new Range {
+                        Start = new Position {
                             Line = 14,
                             Character = 0,
                         },
-                        End = new Position() {
+                        End = new Position {
                             Line = 14,
                             Character = 30
                         }
@@ -181,8 +181,10 @@ namespace Lsp.Tests
 
         [Theory]
         [ClassData(typeof(ReturnDocumentEdits_Data))]
-        public void ReturnDocumentEdits(string originalText, string modifiedText,
-            IEnumerable<NormalizedToken> expectedTokens)
+        public void ReturnDocumentEdits(
+            string originalText, string modifiedText,
+            IEnumerable<NormalizedToken> expectedTokens
+        )
         {
             var document = new SemanticTokensDocument(_legend);
 
@@ -193,9 +195,11 @@ namespace Lsp.Tests
                 Tokenize(originalText, builder);
                 builder.Commit();
                 originalTokens = document.GetSemanticTokens();
-                builder = document.Edit(new SemanticTokensDeltaParams() {
-                    PreviousResultId = document.Id,
-                });
+                builder = document.Edit(
+                    new SemanticTokensDeltaParams {
+                        PreviousResultId = document.Id,
+                    }
+                );
                 Tokenize(modifiedText, builder);
                 builder.Commit();
             }
@@ -209,8 +213,8 @@ namespace Lsp.Tests
             var edit1 = edits.Edits.First();
 
             var edit1Tokens = originalTokens.Data
-                .RemoveRange(edit1.Start, edit1.DeleteCount)
-                .InsertRange(edit1.Start, edit1.Data);
+                                            .RemoveRange(edit1.Start, edit1.DeleteCount)
+                                            .InsertRange(edit1.Start, edit1.Data);
 
             var edit1Data = Normalize(modifiedText, edit1Tokens).ToArray();
             _logger.LogDebug("Some Data {Data}", edit1Data.AsEnumerable());
@@ -234,14 +238,19 @@ namespace Lsp.Tests
                         "string[] (property:declaration|abstract)", "args (macro:none)", "{ (interface:documentation|declaration|deprecated)", "string (struct:none)",
                         "message (enum:none)", "= (label:none)", "Hello (comment:none)", "World!! (enum:none)", "Console (interface:static)",
                         "WriteLine (event:async|modification)", "message (interface:static)", "} (operator:none)", "} (enum:async|deprecated)", "} (function:declaration|async)"
-                    });
-                Add("using", "using System;",
+                    }
+                );
+                Add(
+                    "using", "using System;",
                     new NormalizedToken[] {
                         "using (macro:async|deprecated)", "System (macro:async|deprecated)"
-                    });
-                Add("using System;", "using", new NormalizedToken[] {
-                    "using (macro:async|deprecated)"
-                });
+                    }
+                );
+                Add(
+                    "using System;", "using", new NormalizedToken[] {
+                        "using (macro:async|deprecated)"
+                    }
+                );
             }
         }
 
@@ -255,20 +264,23 @@ namespace Lsp.Tests
         private void Tokenize(string document, SemanticTokensBuilder builder)
         {
             var faker = new Faker<TokenizationValue>()
-                .RuleFor(z => z.type,
-                    f => f.PickRandom(SemanticTokenType.Defaults).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
-                )
-                .RuleFor(x => x.Modifiers,
-                    f => Enumerable.Range(0, f.Random.Int(0, 3))
-                        .Select(z =>
-                            f.PickRandom(SemanticTokenModifier.Defaults).OrNull(f, 0.2f) ??
-                            new SemanticTokenModifier("none")
+                       .RuleFor(
+                            z => z.type,
+                            f => f.PickRandom(SemanticTokenType.Defaults).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
                         )
-                        .ToArray()
-                        .OrNull(f, 0.2f)
-                );
+                       .RuleFor(
+                            x => x.Modifiers,
+                            f => Enumerable.Range(0, f.Random.Int(0, 3))
+                                           .Select(
+                                                z =>
+                                                    f.PickRandom(SemanticTokenModifier.Defaults).OrNull(f, 0.2f) ??
+                                                    new SemanticTokenModifier("none")
+                                            )
+                                           .ToArray()
+                                           .OrNull(f, 0.2f)
+                        );
 
-            foreach (var (line, text) in document.Split('\n').Select((text, line) => (line, text)))
+            foreach (var (line, text) in document.Split('\n').Select((text, line) => ( line, text )))
             {
                 var parts = text.TrimEnd().Split(';', ' ', '.', '"', '(', ')');
                 var index = 0;
@@ -287,7 +299,7 @@ namespace Lsp.Tests
                     else
                     {
                         // ensure range gets some love
-                        builder.Push(((line, index), (line, part.Length + index)), item.type, item.Modifiers);
+                        builder.Push(( ( line, index ), ( line, part.Length + index ) ), item.type, item.Modifiers);
                     }
                 }
             }
@@ -318,16 +330,13 @@ namespace Lsp.Tests
                 Modifiers = modifiers;
             }
 
-            public bool Equals(string other)
-            {
-                return string.Equals(ToString(), other);
-            }
+            public bool Equals(string other) => string.Equals(ToString(), other);
 
             public bool Equals(NormalizedToken other)
             {
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
-                return other.ToString() == this.ToString();
+                return other.ToString() == ToString();
             }
 
             public override bool Equals(object obj)
@@ -370,8 +379,8 @@ namespace Lsp.Tests
                     item[0],
                     other[0],
                     other[1].Split('|')
-                        .Select(x => new SemanticTokenModifier(x))
-                        .ToArray()
+                            .Select(x => new SemanticTokenModifier(x))
+                            .ToArray()
                 );
             }
 
@@ -388,13 +397,15 @@ namespace Lsp.Tests
         {
             var parts = Decompose(values).ToArray();
             return parts
-                .Select((item, index) => GetNormalizedToken(document, parts, index))
-                .Where(z => z != null)
-                .ToArray();
+                  .Select((item, index) => GetNormalizedToken(document, parts, index))
+                  .Where(z => z != null)
+                  .ToArray();
         }
 
-        private NormalizedToken GetNormalizedToken(string document,
-            IReadOnlyList<(int lineOffset, int charOffset, int length, int type, int modifiers)> tokens, int tokenIndex)
+        private NormalizedToken GetNormalizedToken(
+            string document,
+            IReadOnlyList<(int lineOffset, int charOffset, int length, int type, int modifiers)> tokens, int tokenIndex
+        )
         {
             var lines = document.Split('\n');
             var lineIndex = 0;
@@ -413,24 +424,26 @@ namespace Lsp.Tests
             return new NormalizedToken(
                 line.Substring(characterOffset, textToken.length),
                 _legend.TokenTypes
-                    .Where((x, i) => i == textToken.type)
-                    .Select(x => new SemanticTokenType(x))
-                    .First(),
+                       .Where((x, i) => i == textToken.type)
+                       .Select(x => new SemanticTokenType(x))
+                       .First(),
                 _legend.TokenModifiers
-                    .Where((x, i) =>
-                        (textToken.modifiers & Convert.ToInt32(Math.Pow(2, i))) == Convert.ToInt32(Math.Pow(2, i))
-                    )
-                    .Select(x => new SemanticTokenModifier(x))
-                    .ToArray()
+                       .Where(
+                            (x, i) =>
+                                ( textToken.modifiers & Convert.ToInt32(Math.Pow(2, i)) ) == Convert.ToInt32(Math.Pow(2, i))
+                        )
+                       .Select(x => new SemanticTokenModifier(x))
+                       .ToArray()
             );
         }
 
         private static IEnumerable<(int lineOffset, int charOffset, int length, int type, int modifiers)> Decompose(
-            IReadOnlyList<int> values)
+            IReadOnlyList<int> values
+        )
         {
             for (var i = 0; i < values.Count; i += 5)
             {
-                yield return (values[i], values[i + 1], values[i + 2], values[i + 3], values[i + 4]);
+                yield return ( values[i], values[i + 1], values[i + 2], values[i + 3], values[i + 4] );
             }
         }
 

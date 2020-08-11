@@ -18,19 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator CommandOrCodeActionContainer(CommandOrCodeAction[] items)
-        {
-            return new CommandOrCodeActionContainer(items);
-        }
+        public static implicit operator CommandOrCodeActionContainer(CommandOrCodeAction[] items) => new CommandOrCodeActionContainer(items);
 
-        public static implicit operator CommandOrCodeActionContainer(Collection<CommandOrCodeAction> items)
-        {
-            return new CommandOrCodeActionContainer(items);
-        }
+        public static implicit operator CommandOrCodeActionContainer(Collection<CommandOrCodeAction> items) => new CommandOrCodeActionContainer(items);
 
-        public static implicit operator CommandOrCodeActionContainer(List<CommandOrCodeAction> items)
-        {
-            return new CommandOrCodeActionContainer(items);
-        }
+        public static implicit operator CommandOrCodeActionContainer(List<CommandOrCodeAction> items) => new CommandOrCodeActionContainer(items);
     }
 }

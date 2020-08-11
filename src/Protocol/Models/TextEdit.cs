@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public string NewText { get; set; }
 
-        private string DebuggerDisplay => $"{Range} {(string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText)}";
+        private string DebuggerDisplay => $"{Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class TextDocumentPositionParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentPositionParams() {
+            var model = new TextDocumentPositionParams {
                 Position = new Position(1, 2),
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))
             };

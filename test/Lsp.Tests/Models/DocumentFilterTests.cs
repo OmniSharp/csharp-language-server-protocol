@@ -8,7 +8,8 @@ namespace Lsp.Tests.Models
 {
     public class DocumentFilterTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void Empty(string expected)
         {
             var model = new DocumentFilter();
@@ -20,10 +21,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void OnlyLanguage(string expected)
         {
-            var model = new DocumentFilter() {
+            var model = new DocumentFilter {
                 Language = "csharp"
             };
             var result = Fixture.SerializeObject(model);
@@ -34,10 +36,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void OnlyScheme(string expected)
         {
-            var model = new DocumentFilter() {
+            var model = new DocumentFilter {
                 Scheme = "abc"
             };
             var result = Fixture.SerializeObject(model);
@@ -48,10 +51,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void OnlyPattern(string expected)
         {
-            var model = new DocumentFilter() {
+            var model = new DocumentFilter {
                 Pattern = "123**"
             };
             var result = Fixture.SerializeObject(model);
@@ -62,10 +66,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void Mixed(string expected)
         {
-            var model = new DocumentFilter() {
+            var model = new DocumentFilter {
                 Pattern = "123**",
                 Language = "csharp"
             };
@@ -77,10 +82,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void Full(string expected)
         {
-            var model = new DocumentFilter() {
+            var model = new DocumentFilter {
                 Pattern = "123**",
                 Language = "csharp",
                 Scheme = "abc"

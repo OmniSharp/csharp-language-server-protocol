@@ -24,27 +24,19 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             ILogger<LspRequestRouter> logger,
             IEnumerable<IHandlerMatcher> handlerMatchers,
             ISerializer serializer,
-            IServiceScopeFactory serviceScopeFactory) :
+            IServiceScopeFactory serviceScopeFactory
+        ) :
             base(serializer, serviceScopeFactory, logger)
         {
             _collection = collection;
             _handlerMatchers = new HashSet<IHandlerMatcher>(handlerMatchers);
         }
 
-        public override IRequestDescriptor<ILspHandlerDescriptor> GetDescriptors(Notification notification)
-        {
-            return FindDescriptor(notification);
-        }
+        public override IRequestDescriptor<ILspHandlerDescriptor> GetDescriptors(Notification notification) => FindDescriptor(notification);
 
-        public override IRequestDescriptor<ILspHandlerDescriptor> GetDescriptors(Request request)
-        {
-            return FindDescriptor(request);
-        }
+        public override IRequestDescriptor<ILspHandlerDescriptor> GetDescriptors(Request request) => FindDescriptor(request);
 
-        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(IMethodWithParams instance)
-        {
-            return FindDescriptor(instance.Method, instance.Params);
-        }
+        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(IMethodWithParams instance) => FindDescriptor(instance.Method, instance.Params);
 
         private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(string method, JToken @params)
         {
@@ -52,18 +44,20 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
             if (descriptor is null)
             {
-                _logger.LogDebug("Unable to find {Method}, methods found include {Methods}", method,
-                    string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName)));
+                _logger.LogDebug(
+                    "Unable to find {Method}, methods found include {Methods}", method,
+                    string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName))
+                );
                 return new RequestDescriptor<ILspHandlerDescriptor>();
             }
 
-            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(new[] { descriptor });
+            if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(descriptor);
 
             object paramsValue = null;
             if (descriptor.IsDelegatingHandler)
             {
                 var o = @params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
-                paramsValue = Activator.CreateInstance(descriptor.Params, new object[] { o });
+                paramsValue = Activator.CreateInstance(descriptor.Params, o);
             }
             else
             {
@@ -87,14 +81,20 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, CancellationToken token) =>
             RouteNotification(
-                descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
+                descriptors is IRequestDescriptor<ILspHandlerDescriptor> d
+                    ? d
+                    : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 notification,
-                token);
+                token
+            );
 
         Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, CancellationToken token) =>
             RouteRequest(
-                descriptors is IRequestDescriptor<ILspHandlerDescriptor> d ? d : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
+                descriptors is IRequestDescriptor<ILspHandlerDescriptor> d
+                    ? d
+                    : throw new Exception("This should really never happen, seriously, only hand this correct descriptors"),
                 request,
-                token);
+                token
+            );
     }
 }

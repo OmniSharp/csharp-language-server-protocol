@@ -1,11 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.IO.Pipes;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Nerdbank.Streams;
 using NSubstitute;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
 using Xunit.Abstractions;
@@ -23,26 +20,29 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task Can_Connect_To_Stdio()
         {
-            var (client, server) = await Initialize(clientOptions => {
-                clientOptions
-                    .WithInput(Console.OpenStandardInput().UsePipeReader())
-                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
-            }, serverOptions => {
-                serverOptions
-                    .WithInput(Console.OpenStandardInput().UsePipeReader())
-                    .WithOutput(Console.OpenStandardError().UsePipeWriter());
-            });
+            var (client, server) = await Initialize(
+                clientOptions => {
+                    clientOptions
+                       .WithInput(Console.OpenStandardInput().UsePipeReader())
+                       .WithOutput(Console.OpenStandardError().UsePipeWriter());
+                }, serverOptions => {
+                    serverOptions
+                       .WithInput(Console.OpenStandardInput().UsePipeReader())
+                       .WithOutput(Console.OpenStandardError().UsePipeWriter());
+                }
+            );
         }
 
         [Fact]
         public async Task Can_Connect_To_A_Named_Pipe()
         {
             var serverPipe = new NamedPipeServerStream(
-                pipeName: _pipeName,
-                direction: PipeDirection.InOut,
-                maxNumberOfServerInstances: 1,
-                transmissionMode: PipeTransmissionMode.Byte,
-                options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+                _pipeName,
+                PipeDirection.InOut,
+                1,
+                PipeTransmissionMode.Byte,
+                PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+            );
             var clientPipe = new NamedPipeClientStream(
                 ".",
                 _pipeName,
@@ -50,15 +50,17 @@ namespace JsonRpc.Tests
                 PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
             );
 
-            var (client, server) = await Initialize(clientOptions => {
-                clientOptions
-                    .WithInput(clientPipe)
-                    .WithOutput(clientPipe);
-            }, serverOptions => {
-                serverOptions
-                    .WithInput(serverPipe)
-                    .WithOutput(serverPipe);
-            });
+            var (client, server) = await Initialize(
+                clientOptions => {
+                    clientOptions
+                       .WithInput(clientPipe)
+                       .WithOutput(clientPipe);
+                }, serverOptions => {
+                    serverOptions
+                       .WithInput(serverPipe)
+                       .WithOutput(serverPipe);
+                }
+            );
 
             await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
         }
@@ -68,11 +70,12 @@ namespace JsonRpc.Tests
         {
             {
                 var serverPipe = new NamedPipeServerStream(
-                    pipeName: _pipeName,
-                    direction: PipeDirection.InOut,
-                    maxNumberOfServerInstances: 1,
-                    transmissionMode: PipeTransmissionMode.Byte,
-                    options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+                    _pipeName,
+                    PipeDirection.InOut,
+                    1,
+                    PipeTransmissionMode.Byte,
+                    PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+                );
                 var clientPipe = new NamedPipeClientStream(
                     ".",
                     _pipeName,
@@ -80,15 +83,17 @@ namespace JsonRpc.Tests
                     PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
                 );
 
-                var (client, server) = await Initialize(clientOptions => {
-                    clientOptions
-                        .WithInput(clientPipe)
-                        .WithOutput(clientPipe);
-                }, serverOptions => {
-                    serverOptions
-                        .WithInput(serverPipe)
-                        .WithOutput(serverPipe);
-                });
+                var (client, server) = await Initialize(
+                    clientOptions => {
+                        clientOptions
+                           .WithInput(clientPipe)
+                           .WithOutput(clientPipe);
+                    }, serverOptions => {
+                        serverOptions
+                           .WithInput(serverPipe)
+                           .WithOutput(serverPipe);
+                    }
+                );
 
                 await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
 
@@ -101,11 +106,12 @@ namespace JsonRpc.Tests
 
             {
                 var serverPipe = new NamedPipeServerStream(
-                    pipeName: _pipeName,
-                    direction: PipeDirection.InOut,
-                    maxNumberOfServerInstances: 1,
-                    transmissionMode: PipeTransmissionMode.Byte,
-                    options: PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous);
+                    _pipeName,
+                    PipeDirection.InOut,
+                    1,
+                    PipeTransmissionMode.Byte,
+                    PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
+                );
                 var clientPipe = new NamedPipeClientStream(
                     ".",
                     _pipeName,
@@ -113,17 +119,19 @@ namespace JsonRpc.Tests
                     PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
                 );
 
-                var (client, server) = await Initialize(clientOptions => {
-                    clientOptions
-                        .WithInput(clientPipe)
-                        .WithOutput(clientPipe);
-                    // clientOptions.RegisterForDisposal(clientPipe);
-                }, serverOptions => {
-                    serverOptions
-                        .WithInput(serverPipe)
-                        .WithOutput(serverPipe);
-                    // serverOptions.RegisterForDisposal(serverPipe);
-                });
+                var (client, server) = await Initialize(
+                    clientOptions => {
+                        clientOptions
+                           .WithInput(clientPipe)
+                           .WithOutput(clientPipe);
+                        // clientOptions.RegisterForDisposal(clientPipe);
+                    }, serverOptions => {
+                        serverOptions
+                           .WithInput(serverPipe)
+                           .WithOutput(serverPipe);
+                        // serverOptions.RegisterForDisposal(serverPipe);
+                    }
+                );
 
                 await Task.WhenAll(clientPipe.ConnectAsync(CancellationToken), serverPipe.WaitForConnectionAsync(CancellationToken));
             }

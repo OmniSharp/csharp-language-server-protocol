@@ -24,17 +24,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override SemanticTokensFullOrDelta ReadJson(JsonReader reader, Type objectType, SemanticTokensFullOrDelta existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SemanticTokensFullOrDelta ReadJson(
+            JsonReader reader, Type objectType, SemanticTokensFullOrDelta existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("data"))
             {
                 return new SemanticTokensFullOrDelta(obj.ToObject<SemanticTokens>());
             }
-            else
-            {
-                return new SemanticTokensFullOrDelta(obj.ToObject<SemanticTokensDelta>());
-            }
+
+            return new SemanticTokensFullOrDelta(obj.ToObject<SemanticTokensDelta>());
         }
 
         public override bool CanRead => true;

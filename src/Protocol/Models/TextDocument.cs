@@ -2,6 +2,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public class TextDocument
     {
-        public static Container<string> Eol = new string[] { "\n", "\r\n", "\r" };
+        public static Container<string> Eol = new[] { "\n", "\r\n", "\r" };
     }
 }

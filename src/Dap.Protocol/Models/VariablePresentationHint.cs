@@ -2,7 +2,8 @@
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
-    /// <summary>VariablePresentationHint
+    /// <summary>
+    /// VariablePresentationHint
     /// Optional properties of a variable that can be used to determine how to render the variable in the UI.
     /// </summary>
     public class VariablePresentationHint
@@ -23,7 +24,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// 'dataBreakpoint': Indicates that a data breakpoint is registered for the object.
         /// etc.
         /// </summary>
-        [Optional] public string Kind { get; set; }
+        [Optional]
+        public string Kind { get; set; }
 
         /// <summary>
         /// Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
@@ -37,12 +39,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// 'hasSideEffects': Indicates that the evaluation had side effects.
         /// etc.
         /// </summary>
-        [Optional] public Container<string> Attributes { get; set; }
+        [Optional]
+        public Container<string> Attributes { get; set; }
 
         /// <summary>
         /// Visibility of variable. Before introducing additional values, try to use the listed values.
         /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
         /// </summary>
-        [Optional] public string Visibility { get; set; }
+        [Optional]
+        public string Visibility { get; set; }
     }
 }

@@ -10,7 +10,9 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Action _disposeAction;
 
-        public HandlerInstance(string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction)
+        public HandlerInstance(
+            string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction
+        )
         {
             _disposeAction = disposeAction;
             Handler = handler;
@@ -19,9 +21,10 @@ namespace OmniSharp.Extensions.JsonRpc
             HandlerType = handlerInterface;
             Params = @params;
             Response = response;
-            HasReturnType = HandlerType.GetInterfaces().Any(@interface =>
-                @interface.IsGenericType &&
-                typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
+            HasReturnType = HandlerType.GetInterfaces().Any(
+                @interface =>
+                    @interface.IsGenericType &&
+                    typeof(IRequestHandler<,>).IsAssignableFrom(@interface.GetGenericTypeDefinition())
             );
 
             IsDelegatingHandler = @params?.IsGenericType == true &&
@@ -31,8 +34,11 @@ namespace OmniSharp.Extensions.JsonRpc
                                   );
 
             IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerInterface) || handlerInterface
-                .GetInterfaces().Any(z =>
-                    z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+                                                                                                      .GetInterfaces().Any(
+                                                                                                           z =>
+                                                                                                               z.IsGenericType && typeof(IJsonRpcNotificationHandler<>)
+                                                                                                                  .IsAssignableFrom(z.GetGenericTypeDefinition())
+                                                                                                       );
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
         }
@@ -49,9 +55,6 @@ namespace OmniSharp.Extensions.JsonRpc
         public bool IsDelegatingHandler { get; }
         public RequestProcessType? RequestProcessType { get; }
 
-        public void Dispose()
-        {
-            _disposeAction();
-        }
+        public void Dispose() => _disposeAction();
     }
 }

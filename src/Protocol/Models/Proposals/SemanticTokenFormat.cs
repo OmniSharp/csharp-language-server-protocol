@@ -23,11 +23,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             new Lazy<IReadOnlyList<SemanticTokenFormat>>(
                 () => {
                     return typeof(SemanticTokenFormat)
-                        .GetFields(BindingFlags.Static | BindingFlags.Public)
-                        .Select(z => z.GetValue(null))
-                        .Cast<SemanticTokenFormat>()
-                        .ToArray();
-                });
+                          .GetFields(BindingFlags.Static | BindingFlags.Public)
+                          .Select(z => z.GetValue(null))
+                          .Cast<SemanticTokenFormat>()
+                          .ToArray();
+                }
+            );
 
         public static IEnumerable<SemanticTokenFormat> Defaults => _defaults.Value;
 
@@ -35,27 +36,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         private readonly string _value;
 
-        public SemanticTokenFormat(string modifier)
-        {
-            _value = modifier;
-        }
+        public SemanticTokenFormat(string modifier) => _value = modifier;
 
-        public static implicit operator SemanticTokenFormat(string kind)
-        {
-            return new SemanticTokenFormat(kind);
-        }
+        public static implicit operator SemanticTokenFormat(string kind) => new SemanticTokenFormat(kind);
 
-        public static implicit operator string(SemanticTokenFormat kind)
-        {
-            return kind._value;
-        }
+        public static implicit operator string(SemanticTokenFormat kind) => kind._value;
 
         public override string ToString() => _value;
         public bool Equals(SemanticTokenFormat other) => _value == other._value;
 
         public override bool Equals(object obj) => obj is SemanticTokenFormat other && Equals(other);
 
-        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
+        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
 
         public static bool operator ==(SemanticTokenFormat left, SemanticTokenFormat right) => left.Equals(right);
 

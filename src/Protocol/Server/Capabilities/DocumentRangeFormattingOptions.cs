@@ -6,13 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class DocumentRangeFormattingOptions : WorkDoneProgressOptions, IDocumentRangeFormattingOptions
     {
-        public static DocumentRangeFormattingOptions Of(IDocumentRangeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new DocumentRangeFormattingOptions()
-            {
+        public static DocumentRangeFormattingOptions Of(IDocumentRangeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new DocumentRangeFormattingOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
-
             };
-        }
     }
 }

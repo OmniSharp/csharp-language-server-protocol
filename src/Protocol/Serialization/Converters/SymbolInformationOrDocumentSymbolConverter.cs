@@ -23,7 +23,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override SymbolInformationOrDocumentSymbol ReadJson(JsonReader reader, Type objectType, SymbolInformationOrDocumentSymbol existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override SymbolInformationOrDocumentSymbol ReadJson(
+            JsonReader reader, Type objectType, SymbolInformationOrDocumentSymbol existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             var result = JObject.Load(reader);
 
@@ -32,10 +34,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 return new SymbolInformationOrDocumentSymbol(result.ToObject<SymbolInformation>());
             }
-            else
-            {
-                return new SymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>());
-            }
+
+            return new SymbolInformationOrDocumentSymbol(result.ToObject<DocumentSymbol>());
         }
 
         public override bool CanRead => true;

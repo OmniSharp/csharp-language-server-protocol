@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
             _long = value;
             _string = null;
         }
+
         public NumberString(string value)
         {
             _long = null;
@@ -17,35 +18,29 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         }
 
         public bool IsLong => _long.HasValue;
+
         public long Long
         {
             get => _long ?? 0;
-            set
-            {
+            set {
                 String = null;
                 _long = value;
             }
         }
 
         public bool IsString => _string != null;
+
         public string String
         {
             get => _string;
-            set
-            {
+            set {
                 _string = value;
                 _long = null;
             }
         }
 
-        public static implicit operator NumberString(long value)
-        {
-            return new NumberString(value);
-        }
+        public static implicit operator NumberString(long value) => new NumberString(value);
 
-        public static implicit operator NumberString(string value)
-        {
-            return new NumberString(value);
-        }
+        public static implicit operator NumberString(string value) => new NumberString(value);
     }
 }

@@ -202,7 +202,7 @@ namespace JsonRpc.Tests
             );
         }
 
-        class AggregateRequestSettlerScheduler
+        private class AggregateRequestSettlerScheduler
         {
             private readonly TestScheduler _testScheduler;
             private readonly IRequestSettler _clientRequestSettler;
@@ -215,71 +215,64 @@ namespace JsonRpc.Tests
                 _serverRequestSettler = serverRequestSettler;
             }
 
-            public IDisposable ScheduleAbsoluteStart(SettlerType settlerType, long dueTime)
-            {
-                return settlerType switch {
+            public IDisposable ScheduleAbsoluteStart(SettlerType settlerType, long dueTime) =>
+                settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleAbsolute(dueTime, () => _clientRequestSettler.OnStartRequest()),
                     SettlerType.Server => _testScheduler.ScheduleAbsolute(dueTime, () => _serverRequestSettler.OnStartRequest()),
-                    _ => throw new NotImplementedException()
+                    _                  => throw new NotImplementedException()
                 };
-            }
 
-            public IDisposable ScheduleAbsoluteEnd(SettlerType settlerType, long dueTime)
-            {
-                return settlerType switch {
+            public IDisposable ScheduleAbsoluteEnd(SettlerType settlerType, long dueTime) =>
+                settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleAbsolute(dueTime, () => _clientRequestSettler.OnEndRequest()),
                     SettlerType.Server => _testScheduler.ScheduleAbsolute(dueTime, () => _serverRequestSettler.OnEndRequest()),
-                    _ => throw new NotImplementedException()
+                    _                  => throw new NotImplementedException()
                 };
-            }
 
-            public IDisposable ScheduleRelativeStart(SettlerType settlerType, long dueTime)
-            {
-                return settlerType switch {
+            public IDisposable ScheduleRelativeStart(SettlerType settlerType, long dueTime) =>
+                settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleRelative(dueTime, () => _clientRequestSettler.OnStartRequest()),
                     SettlerType.Server => _testScheduler.ScheduleRelative(dueTime, () => _serverRequestSettler.OnStartRequest()),
-                    _ => throw new NotImplementedException()
+                    _                  => throw new NotImplementedException()
                 };
-            }
 
-            public IDisposable ScheduleRelativeEnd(SettlerType settlerType, long dueTime)
-            {
-                return settlerType switch {
+            public IDisposable ScheduleRelativeEnd(SettlerType settlerType, long dueTime) =>
+                settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleRelative(dueTime, () => _clientRequestSettler.OnEndRequest()),
                     SettlerType.Server => _testScheduler.ScheduleRelative(dueTime, () => _serverRequestSettler.OnEndRequest()),
-                    _ => throw new NotImplementedException()
+                    _                  => throw new NotImplementedException()
                 };
-            }
         }
 
         private (ISettler settler, AggregateRequestSettlerScheduler matcher, IRequestSettler clientRequestSettler, IRequestSettler serverRequestSettler) CreateSettlers(
-            TestScheduler scheduler, TimeSpan waitTime, TimeSpan timeout)
+            TestScheduler scheduler, TimeSpan waitTime, TimeSpan timeout
+        )
         {
             var container1 = CreateContainer(_loggerFactory);
             container1.RegisterMany<Settler>(
-                reuse: Reuse.Singleton,
-                made: Parameters.Of
-                    .Name(nameof(waitTime), defaultValue: waitTime)
-                    .Name(nameof(timeout), defaultValue: timeout)
-                    .Type<CancellationToken>(defaultValue: CancellationToken)
-                    .Type<IScheduler>(defaultValue: scheduler)
+                Reuse.Singleton,
+                Parameters.Of
+                          .Name(nameof(waitTime), defaultValue: waitTime)
+                          .Name(nameof(timeout), defaultValue: timeout)
+                          .Type<CancellationToken>(defaultValue: CancellationToken)
+                          .Type<IScheduler>(defaultValue: scheduler)
             );
             var container2 = CreateContainer(_loggerFactory);
             container2.RegisterMany<Settler>(
-                reuse: Reuse.Singleton,
-                made: Parameters.Of
-                    .Name(nameof(waitTime), defaultValue: waitTime)
-                    .Name(nameof(timeout), defaultValue: timeout)
-                    .Type<CancellationToken>(defaultValue: CancellationToken)
-                    .Type<IScheduler>(defaultValue: scheduler)
+                Reuse.Singleton,
+                Parameters.Of
+                          .Name(nameof(waitTime), defaultValue: waitTime)
+                          .Name(nameof(timeout), defaultValue: timeout)
+                          .Type<CancellationToken>(defaultValue: CancellationToken)
+                          .Type<IScheduler>(defaultValue: scheduler)
             );
 
             var settler = new AggregateSettler(container1.Resolve<ISettler>(), container2.Resolve<ISettler>());
             var clientSettler = container1.Resolve<IRequestSettler>();
             var serverSettler = container2.Resolve<IRequestSettler>();
 
-            return (settler, new AggregateRequestSettlerScheduler(scheduler, clientSettler, serverSettler), container1.Resolve<IRequestSettler>(),
-                container2.Resolve<IRequestSettler>());
+            return ( settler, new AggregateRequestSettlerScheduler(scheduler, clientSettler, serverSettler), container1.Resolve<IRequestSettler>(),
+                     container2.Resolve<IRequestSettler>() );
         }
 
         public enum SettlerType
@@ -291,11 +284,12 @@ namespace JsonRpc.Tests
         private static IContainer CreateContainer(ILoggerFactory loggerFactory)
         {
             var container = new Container()
-                .WithDependencyInjectionAdapter(new ServiceCollection().AddLogging())
-                .With(rules => rules
-                    .WithResolveIEnumerableAsLazyEnumerable()
-                    .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
-                );
+                           .WithDependencyInjectionAdapter(new ServiceCollection().AddLogging())
+                           .With(
+                                rules => rules
+                                        .WithResolveIEnumerableAsLazyEnumerable()
+                                        .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
+                            );
             container.RegisterInstance(loggerFactory);
 
             return container;

@@ -1,15 +1,9 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Concurrency;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reactive.Disposables;
 using System.Threading;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Options;
+using System.Threading.Tasks;
 using DryIoc;
-using OmniSharp.Extensions.JsonRpc.Server;
+using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -20,10 +14,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
         internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddJsonRpcServerInternals(options);
+                                  .AddJsonRpcServerInternals(options);
 
         public static JsonRpcServer Create(JsonRpcServerOptions options) => Create(options, null);
         public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction) => Create(optionsAction, null);
+
         public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider)
         {
             var options = new JsonRpcServerOptions();
@@ -31,14 +26,18 @@ namespace OmniSharp.Extensions.JsonRpc
             return Create(options, outerServiceProvider);
         }
 
-        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) => CreateContainer(options, outerServiceProvider).Resolve<JsonRpcServer>();
+        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
+            CreateContainer(options, outerServiceProvider).Resolve<JsonRpcServer>();
 
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options) => From(options, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) => From(options, outerServiceProvider, CancellationToken.None);
-        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider) => From(optionsAction, outerServiceProvider, CancellationToken.None);
+
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+            From(optionsAction, outerServiceProvider, CancellationToken.None);
+
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new JsonRpcServerOptions();
@@ -76,10 +75,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _connection.Open();
         }
 
-        public void Dispose()
-        {
-            _disposable.Dispose();
-        }
+        public void Dispose() => _disposable.Dispose();
 
         public IDisposable Register(Action<IJsonRpcServerRegistry> registryAction)
         {

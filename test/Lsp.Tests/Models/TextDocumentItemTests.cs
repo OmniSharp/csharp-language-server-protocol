@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class TextDocumentItemTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentItem() {
+            var model = new TextDocumentItem {
                 Uri = new Uri("file:///abc/def.cs"),
                 LanguageId = "csharp",
                 Text = "content",

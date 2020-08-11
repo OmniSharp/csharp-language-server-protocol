@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional content type(mime type) of the source.
         /// </summary>
-        [Optional] public string MimeType { get; set; }
+        [Optional]
+        public string MimeType { get; set; }
     }
-
 }

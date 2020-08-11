@@ -3,18 +3,15 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using Serializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Serializer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 
 namespace Lsp.Tests
 {
-    static class Fixture
+    internal static class Fixture
     {
-        public static string SerializeObject(object value, ClientVersion version = ClientVersion.Lsp3)
-        {
-            return SerializeObject(value, null, (JsonSerializerSettings)null, version);
-        }
+        public static string SerializeObject(object value, ClientVersion version = ClientVersion.Lsp3) => SerializeObject(value, null, null, version);
 
         public static string SerializeObject(object value, Type type, JsonSerializerSettings settings, ClientVersion version = ClientVersion.Lsp3)
         {
@@ -35,7 +32,7 @@ namespace Lsp.Tests
                 serializer.JsonSerializer.Serialize(jsonWriter, value, type);
             }
 
-            return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd();//?.Replace("\n", "\r\n");
+            return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd(); //?.Replace("\n", "\r\n");
         }
     }
 }

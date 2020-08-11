@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _long = value;
             _string = null;
         }
+
         public ProgressToken(string value)
         {
             _long = null;
@@ -25,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsLong => _long.HasValue;
+
         public long Long
         {
             get => _long ?? 0;
@@ -35,6 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsString => _string != null;
+
         public string String
         {
             get => _string;
@@ -44,26 +47,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
         }
 
-        public static implicit operator ProgressToken(long value)
-        {
-            return new ProgressToken(value);
-        }
+        public static implicit operator ProgressToken(long value) => new ProgressToken(value);
 
-        public static implicit operator ProgressToken(string value)
-        {
-            return new ProgressToken(value);
-        }
+        public static implicit operator ProgressToken(string value) => new ProgressToken(value);
 
-        public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer)
-        {
-            return ProgressParams.Create<T>(this, value, jsonSerializer);
-        }
+        public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer) => ProgressParams.Create(this, value, jsonSerializer);
 
-        public override bool Equals(object obj)
-        {
-            return obj is ProgressToken token &&
-                   this.Equals(token);
-        }
+        public override bool Equals(object obj) =>
+            obj is ProgressToken token &&
+            Equals(token);
 
         public override int GetHashCode()
         {
@@ -75,25 +67,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return hashCode;
         }
 
-        public bool Equals(ProgressToken other)
-        {
-            return IsLong == other.IsLong &&
-                   Long == other.Long &&
-                   IsString == other.IsString &&
-                   String == other.String;
-        }
+        public bool Equals(ProgressToken other) =>
+            IsLong == other.IsLong &&
+            Long == other.Long &&
+            IsString == other.IsString &&
+            String == other.String;
 
-        public bool Equals(long other)
-        {
-            return this.IsLong && this.Long == other;
-        }
+        public bool Equals(long other) => IsLong && Long == other;
 
-        public bool Equals(string other)
-        {
-            return this.IsString && this.String == other;
-        }
+        public bool Equals(string other) => IsString && String == other;
 
         private string DebuggerDisplay => IsString ? String : IsLong ? Long.ToString() : "";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

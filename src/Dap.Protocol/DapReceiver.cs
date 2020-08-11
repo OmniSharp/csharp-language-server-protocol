@@ -1,17 +1,8 @@
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Disposables;
-using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
-using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -27,7 +18,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
             var result = GetRenor(container).ToArray();
-            return (result, result.Any(z => z.IsResponse));
+            return ( result, result.Any(z => z.IsResponse) );
         }
 
         public bool IsValid(JToken container)
@@ -42,7 +33,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
         protected virtual IEnumerable<Renor> GetRenor(JToken @object)
         {
-            if (!(@object is JObject request))
+            if (!( @object is JObject request ))
             {
                 yield return new InvalidRequest(null, "Not an object");
                 yield break;
@@ -92,7 +83,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     // This makes it so that the cancel handler implementer must still return a positive response even if the request didn't make it through.
                     if (ro.TryGetValue("requestId", out var requestId))
                     {
-                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new {id = requestId}));
+                        yield return new Notification(JsonRpcNames.CancelRequest, JObject.FromObject(new { id = requestId }));
                         ro.Remove("requestId");
                     }
 
@@ -142,17 +133,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             throw new NotSupportedException($"Message type {messageType} is not supported");
         }
 
-        public void Initialized()
-        {
-            _initialized = true;
-        }
+        public void Initialized() => _initialized = true;
 
         public bool ShouldFilterOutput(object value)
         {
             if (_initialized) return true;
             return value is OutgoingResponse ||
-                   (value is OutgoingNotification n && (n.Params is InitializedEvent)) ||
-                   (value is OutgoingRequest r && r.Params is InitializeRequestArguments);
+                   value is OutgoingNotification n && n.Params is InitializedEvent ||
+                   value is OutgoingRequest r && r.Params is InitializeRequestArguments;
         }
     }
 }

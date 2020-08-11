@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class DidOpenTextDocumentParams : IRequest
     {
         /// <summary>
-        ///  The document that was opened.
+        /// The document that was opened.
         /// </summary>
         public TextDocumentItem TextDocument { get; set; }
     }

@@ -19,18 +19,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override MarkedStringsOrMarkupContent ReadJson(JsonReader reader, Type objectType, MarkedStringsOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override MarkedStringsOrMarkupContent ReadJson(
+            JsonReader reader, Type objectType, MarkedStringsOrMarkupContent existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             if (reader.TokenType == JsonToken.StartObject)
             {
                 var result = JObject.Load(reader);
                 return new MarkedStringsOrMarkupContent(result.ToObject<MarkupContent>(serializer));
             }
+
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var result = JArray.Load(reader);
                 return new MarkedStringsOrMarkupContent(result.ToObject<Container<MarkedString>>(serializer));
             }
+
             if (reader.TokenType == JsonToken.String)
             {
                 return new MarkedStringsOrMarkupContent(reader.Value as string);

@@ -6,7 +6,8 @@ using OmniSharp.Extensions.JsonRpc;
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
     [Method(RequestNames.BreakpointLocations, Direction.ClientToServer)]
-    public class BreakpointLocationsArguments : IRequest<BreakpointLocationsResponse> {
+    public class BreakpointLocationsArguments : IRequest<BreakpointLocationsResponse>
+    {
         /// <summary>
         /// The source location of the breakpoints; either 'source.path' or 'source.reference' must be specified.
         /// </summary>

@@ -12,8 +12,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    [Parallel, Method(GeneralNames.Progress, Direction.Bidirectional)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
+    [Parallel]
+    [Method(GeneralNames.Progress, Direction.Bidirectional)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IGeneralLanguageClient), typeof(ILanguageClient), typeof(IGeneralLanguageServer), typeof(ILanguageServer))]
     public interface IProgressHandler : IJsonRpcNotificationHandler<ProgressParams>
     {
     }
@@ -25,7 +27,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     public static partial class ProgressExtensions
     {
-        public static IRequestProgressObservable<TItem, TResponse> RequestProgress<TResponse, TItem>(this ILanguageProtocolProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default)
+        public static IRequestProgressObservable<TItem, TResponse> RequestProgress<TResponse, TItem>(
+            this ILanguageProtocolProxy requestRouter, IPartialItemRequest<TResponse, TItem> @params, Func<TItem, TResponse> factory, CancellationToken cancellationToken = default
+        )
         {
             var resultToken = new ProgressToken(Guid.NewGuid().ToString());
             @params.PartialResultToken = resultToken;
@@ -33,7 +37,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             return requestRouter.ProgressManager.MonitorUntil(@params, factory, cancellationToken);
         }
 
-        public static IRequestProgressObservable<IEnumerable<TItem>, TResponse> RequestProgress<TResponse, TItem>(this ILanguageProtocolProxy requestRouter, IPartialItemsRequest<TResponse, TItem> @params, Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken = default)
+        public static IRequestProgressObservable<IEnumerable<TItem>, TResponse> RequestProgress<TResponse, TItem>(
+            this ILanguageProtocolProxy requestRouter, IPartialItemsRequest<TResponse, TItem> @params, Func<IEnumerable<TItem>, TResponse> factory,
+            CancellationToken cancellationToken = default
+        )
             where TResponse : IEnumerable<TItem>
         {
             var resultToken = new ProgressToken(Guid.NewGuid().ToString());

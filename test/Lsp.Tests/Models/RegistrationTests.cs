@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class RegistrationTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new Registration() {
+            var model = new Registration {
                 Id = "abc",
                 Method = "method",
                 RegisterOptions = new Dictionary<string, object>()

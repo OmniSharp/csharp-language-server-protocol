@@ -27,15 +27,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((WorkspaceFolder)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((WorkspaceFolder) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (Uri.GetHashCode() * 397) ^ Name.GetHashCode();
+                return ( Uri.GetHashCode() * 397 ) ^ Name.GetHashCode();
             }
         }
 
@@ -44,6 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static bool operator !=(WorkspaceFolder left, WorkspaceFolder right) => !Equals(left, right);
 
         private string DebuggerDisplay => $"{Name} ({Uri})";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

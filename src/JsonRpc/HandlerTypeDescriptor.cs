@@ -7,7 +7,7 @@ using MediatR;
 namespace OmniSharp.Extensions.JsonRpc
 {
     [DebuggerDisplay("{" + nameof(Method) + "}")]
-    class HandlerTypeDescriptor : IHandlerTypeDescriptor
+    internal class HandlerTypeDescriptor : IHandlerTypeDescriptor
     {
         public HandlerTypeDescriptor(Type handlerType)
         {
@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 handlerType = handlerType.MakeGenericType(handlerType.GetTypeInfo().GenericTypeParameters[0].GetGenericParameterConstraints()[0]);
             }
+
             HandlerType = handlerType;
             InterfaceType = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
 
@@ -36,26 +37,30 @@ namespace OmniSharp.Extensions.JsonRpc
 
             HasParamsType = ParamsType != null && ParamsType != typeof(EmptyRequest);
             IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
-                                 .GetInterfaces().Any(z =>
-                                     z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+                                                                                                 .GetInterfaces().Any(
+                                                                                                      z =>
+                                                                                                          z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(
+                                                                                                              z.GetGenericTypeDefinition()
+                                                                                                          )
+                                                                                                  );
             IsRequest = !IsNotification;
 
             var requestInterface = ParamsType?
-                .GetInterfaces()
-                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
+                                  .GetInterfaces()
+                                  .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
             if (requestInterface != null)
                 ResponseType = requestInterface.GetGenericArguments()[0];
             HasResponseType = ResponseType != null && ResponseType != typeof(Unit);
 
             var processAttributes = HandlerType
-                .GetCustomAttributes(true)
-                .Concat(HandlerType.GetCustomAttributes(true))
-                .Concat(InterfaceType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
-                .Concat(HandlerType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
-                .OfType<ProcessAttribute>()
-                .ToArray();
+                                   .GetCustomAttributes(true)
+                                   .Concat(HandlerType.GetCustomAttributes(true))
+                                   .Concat(InterfaceType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
+                                   .Concat(HandlerType.GetInterfaces().SelectMany(x => x.GetCustomAttributes(true)))
+                                   .OfType<ProcessAttribute>()
+                                   .ToArray();
             RequestProcessType = processAttributes
-                .FirstOrDefault()?.Type;
+                                .FirstOrDefault()?.Type;
         }
 
         public string Method { get; }

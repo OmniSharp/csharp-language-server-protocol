@@ -10,15 +10,18 @@ namespace Lsp.Tests.Models
 {
     public class DidChangeConfigurationParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DidChangeConfigurationParams() {
-                Settings = JObject.FromObject(new Dictionary<string, object>() {
-                    { "abc", 1 },
-                    { "def", "a" },
-                    { "ghi", true },
-                })
+            var model = new DidChangeConfigurationParams {
+                Settings = JObject.FromObject(
+                    new Dictionary<string, object> {
+                        { "abc", 1 },
+                        { "def", "a" },
+                        { "ghi", true },
+                    }
+                )
             };
             var result = Fixture.SerializeObject(model);
 

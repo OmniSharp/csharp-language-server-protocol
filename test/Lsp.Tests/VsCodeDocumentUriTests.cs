@@ -11,10 +11,7 @@ namespace Lsp.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public VsCodeDocumentUriTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public VsCodeDocumentUriTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [Fact(DisplayName = "file#toString")]
         public void FileToString()
@@ -70,52 +67,73 @@ namespace Lsp.Tests
         [Fact(DisplayName = "http#toString")]
         public void http_toString()
         {
-            DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Authority = "www.msft.com", Path = "/my/path"}).ToString().Should().Be(
-                "http://www.msft.com/my/path");
+            DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Authority = "www.msft.com", Path = "/my/path" }
+            ).ToString().Should().Be(
+                "http://www.msft.com/my/path"
+            );
 
-            DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Authority = "www.msft.com", Path = "/my/path"}).ToString().Should().Be(
-                "http://www.msft.com/my/path");
+            DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Authority = "www.msft.com", Path = "/my/path" }
+            ).ToString().Should().Be(
+                "http://www.msft.com/my/path"
+            );
 
-            DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Authority = "www.MSFT.com", Path = "/my/path"}).ToString().Should().Be(
-                "http://www.msft.com/my/path");
+            DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Authority = "www.MSFT.com", Path = "/my/path" }
+            ).ToString().Should().Be(
+                "http://www.msft.com/my/path"
+            );
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "http", Authority = "", Path = "my/path"})
-                .ToString().Should().Be("http:/my/path");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "http", Authority = "", Path = "my/path" })
+                       .ToString().Should().Be("http:/my/path");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "http", Authority = "", Path = "/my/path"})
-                .ToString().Should().Be("http:/my/path");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "http", Authority = "", Path = "/my/path" })
+                       .ToString().Should().Be("http:/my/path");
             //http://a-test-site.com/#test=true
 
-            DocumentUri.From(new DocumentUriComponents
-                    {Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "test=true"}).ToString()
-                .Should()
-                .Be(
-                    "http://a-test-site.com/?test%3Dtrue");
+            DocumentUri.From(
+                            new DocumentUriComponents
+                                { Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "test=true" }
+                        ).ToString()
+                       .Should()
+                       .Be(
+                            "http://a-test-site.com/?test%3Dtrue"
+                        );
 
-            DocumentUri.From(new DocumentUriComponents {
-                    Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "", Fragment = "test=true"
-                })
-                .ToString().Should().Be("http://a-test-site.com/#test%3Dtrue");
+            DocumentUri.From(
+                            new DocumentUriComponents {
+                                Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "", Fragment = "test=true"
+                            }
+                        )
+                       .ToString().Should().Be("http://a-test-site.com/#test%3Dtrue");
         }
 
         [Fact(DisplayName = "http#toString, encode=FALSE")]
         public void http_toString__encode_FALSE()
         {
-            DocumentUri.From(new DocumentUriComponents
-                    {Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "test=true"})
-                .ToUnencodedString().Should().Be("http://a-test-site.com/?test=true");
+            DocumentUri.From(
+                            new DocumentUriComponents
+                                { Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "test=true" }
+                        )
+                       .ToUnencodedString().Should().Be("http://a-test-site.com/?test=true");
 
-            DocumentUri.From(new DocumentUriComponents {
-                    Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "", Fragment = "test=true"
-                })
-                .ToUnencodedString().Should().Be("http://a-test-site.com/#test=true");
+            DocumentUri.From(
+                            new DocumentUriComponents {
+                                Scheme = "http", Authority = "a-test-site.com", Path = "/", Query = "", Fragment = "test=true"
+                            }
+                        )
+                       .ToUnencodedString().Should().Be("http://a-test-site.com/#test=true");
 
-            DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Path = "/api/files/test.me", Query = "t=1234"}).ToUnencodedString().Should().Be(
-                "http:/api/files/test.me?t=1234");
+            DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Path = "/api/files/test.me", Query = "t=1234" }
+            ).ToUnencodedString().Should().Be(
+                "http:/api/files/test.me?t=1234"
+            );
 
             var value = DocumentUri.Parse("file://shares/pröjects/c%23/#l12");
             value.Authority.Should().Be("shares");
@@ -137,69 +155,82 @@ namespace Lsp.Tests
         {
             var uri = DocumentUri.Parse("foo:bar/path");
 
-            var uri2 = uri.With(new DocumentUriComponents { });
+            var uri2 = uri.With(new DocumentUriComponents());
             Assert.True(uri == uri2);
-            uri2 = uri.With(new DocumentUriComponents {Scheme = "foo", Path = "bar/path"});
+            uri2 = uri.With(new DocumentUriComponents { Scheme = "foo", Path = "bar/path" });
             Assert.True(uri == uri2);
         }
 
         [Fact(DisplayName = "with, changes")]
         public void with__changes()
         {
-            DocumentUri.Parse("before:some/file/path").With(new DocumentUriComponents {Scheme = "after"})
-                .ToString().Should().Be("after:some/file/path");
+            DocumentUri.Parse("before:some/file/path").With(new DocumentUriComponents { Scheme = "after" })
+                       .ToString().Should().Be("after:some/file/path");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents
-                {Scheme = "http", Path = "/api/files/test.me", Query = "t=1234"}).ToString().Should().Be(
-                "http:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                new DocumentUriComponents
+                    { Scheme = "http", Path = "/api/files/test.me", Query = "t=1234" }
+            ).ToString().Should().Be(
+                "http:/api/files/test.me?t%3D1234"
+            );
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents
-                    {Scheme = "http", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""})
-                .ToString().Should().Be("http:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                            new DocumentUriComponents
+                                { Scheme = "http", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = "" }
+                        )
+                       .ToString().Should().Be("http:/api/files/test.me?t%3D1234");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents {
-                    Scheme = "https", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""
-                })
-                .ToString().Should().Be("https:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                            new DocumentUriComponents {
+                                Scheme = "https", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""
+                            }
+                        )
+                       .ToString().Should().Be("https:/api/files/test.me?t%3D1234");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents
-                    {Scheme = "HTTP", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""})
-                .ToString().Should().Be("HTTP:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                            new DocumentUriComponents
+                                { Scheme = "HTTP", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = "" }
+                        )
+                       .ToString().Should().Be("HTTP:/api/files/test.me?t%3D1234");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents {
-                    Scheme = "HTTPS", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""
-                })
-                .ToString().Should().Be("HTTPS:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                            new DocumentUriComponents {
+                                Scheme = "HTTPS", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""
+                            }
+                        )
+                       .ToString().Should().Be("HTTPS:/api/files/test.me?t%3D1234");
 
-            DocumentUri.From(new DocumentUriComponents {Scheme = "s"}).With(new DocumentUriComponents
-                    {Scheme = "boo", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = ""})
-                .ToString().Should().Be("boo:/api/files/test.me?t%3D1234");
+            DocumentUri.From(new DocumentUriComponents { Scheme = "s" }).With(
+                            new DocumentUriComponents
+                                { Scheme = "boo", Authority = "", Path = "/api/files/test.me", Query = "t=1234", Fragment = "" }
+                        )
+                       .ToString().Should().Be("boo:/api/files/test.me?t%3D1234");
         }
 
         [Fact(DisplayName = "with, remove components #8465")]
         public void with__remove_components__8465()
         {
-            DocumentUri.Parse("scheme://authority/path").With(new DocumentUriComponents {Authority = ""})
-                .ToString().Should().Be("scheme:/path");
+            DocumentUri.Parse("scheme://authority/path").With(new DocumentUriComponents { Authority = "" })
+                       .ToString().Should().Be("scheme:/path");
 
-            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents {Authority = "authority"})
-                .With(new DocumentUriComponents {Authority = ""}).ToString().Should().Be("scheme:/path");
+            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents { Authority = "authority" })
+                       .With(new DocumentUriComponents { Authority = "" }).ToString().Should().Be("scheme:/path");
 
-            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents {Authority = "authority"})
-                .With(new DocumentUriComponents {Path = ""}).ToString().Should().Be("scheme://authority");
+            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents { Authority = "authority" })
+                       .With(new DocumentUriComponents { Path = "" }).ToString().Should().Be("scheme://authority");
 
-            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents {Authority = ""}).ToString().Should()
-                .Be("scheme:/path");
+            DocumentUri.Parse("scheme:/path").With(new DocumentUriComponents { Authority = "" }).ToString().Should()
+                       .Be("scheme:/path");
         }
 
         [Fact(DisplayName = "with, validation")]
         public void with_validation()
         {
             var uri = DocumentUri.Parse("foo:bar/path");
-            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents {Scheme = "fai:l"}));
-            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents {Scheme = "fäil"}));
-            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents {Authority = "fail"}));
-            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents {Path = "//fail"}));
+            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents { Scheme = "fai:l" }));
+            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents { Scheme = "fäil" }));
+            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents { Authority = "fail" }));
+            Assert.Throws<UriFormatException>(() => uri.With(new DocumentUriComponents { Path = "//fail" }));
         }
 
         [Fact(DisplayName = "parse")]
@@ -236,11 +267,13 @@ namespace Lsp.Tests
             value.GetFileSystemPath().Should().Be("\\\\shares\\files\\c#\\p.cs");
 
             value = DocumentUri.Parse(
-                "file:///c:/Source/Z%C3%BCrich%20or%20Zurich%20(%CB%88zj%CA%8A%C9%99r%C9%AAk,/Code/resources/app/plugins/c%23/plugin.json");
+                "file:///c:/Source/Z%C3%BCrich%20or%20Zurich%20(%CB%88zj%CA%8A%C9%99r%C9%AAk,/Code/resources/app/plugins/c%23/plugin.json"
+            );
             value.Scheme.Should().Be("file");
             value.Authority.Should().Be("");
             value.Path.Should().Be(
-                "/c:/Source/Zürich or Zurich (ˈzjʊərɪk,/Code/resources/app/plugins/c#/plugin.json");
+                "/c:/Source/Zürich or Zurich (ˈzjʊərɪk,/Code/resources/app/plugins/c#/plugin.json"
+            );
             value.Fragment.Should().Be("");
             value.Query.Should().Be("");
 
@@ -309,10 +342,7 @@ namespace Lsp.Tests
         }
 
         [Fact(DisplayName = "parse, disallow")]
-        public void parse_disallow()
-        {
-            Assert.Throws<UriFormatException>(() => DocumentUri.Parse("file:////shares/files/p.cs"));
-        }
+        public void parse_disallow() => Assert.Throws<UriFormatException>(() => DocumentUri.Parse("file:////shares/files/p.cs"));
 
         [Fact(DisplayName = "URI#file, win-speciale")]
         public void URI_file__win_speciale()
@@ -414,9 +444,11 @@ namespace Lsp.Tests
         public void URI_toString_lower_case_windows_drive_letter()
         {
             DocumentUri.Parse("untitled:c:/Users/jrieken/Code/abc.txt").ToString().Should().Be(
-                "untitled:c:/Users/jrieken/Code/abc.txt");
+                "untitled:c:/Users/jrieken/Code/abc.txt"
+            );
             DocumentUri.Parse("untitled:C:/Users/jrieken/Code/abc.txt").ToString().Should().Be(
-                "untitled:c:/Users/jrieken/Code/abc.txt");
+                "untitled:c:/Users/jrieken/Code/abc.txt"
+            );
         }
 
         [Fact(DisplayName = "URI#toString, escape all the bits")]
@@ -424,7 +456,8 @@ namespace Lsp.Tests
         {
             var value = DocumentUri.File("/Users/jrieken/Code/_samples/18500/Mödel + Other Thîngß/model.js");
             value.ToString().Should().Be(
-                "file:///Users/jrieken/Code/_samples/18500/M%C3%B6del%20%2B%20Other%20Th%C3%AEng%C3%9F/model.js");
+                "file:///Users/jrieken/Code/_samples/18500/M%C3%B6del%20%2B%20Other%20Th%C3%AEng%C3%9F/model.js"
+            );
         }
 
         [Fact(DisplayName = "URI#toString, don\"t encode port")]
@@ -433,8 +466,10 @@ namespace Lsp.Tests
             var value = DocumentUri.Parse("http://localhost:8080/far");
             value.ToString().Should().Be("http://localhost:8080/far");
 
-            value = DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Authority = "löcalhost:8080", Path = "/far", Query = null, Fragment = null});
+            value = DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Authority = "löcalhost:8080", Path = "/far", Query = null, Fragment = null }
+            );
             value.ToString().Should().Be("http://l%C3%B6calhost:8080/far");
         }
 
@@ -453,15 +488,17 @@ namespace Lsp.Tests
             value = DocumentUri.Parse("http://foo@localhost:8080/far");
             value.ToString().Should().Be("http://foo@localhost:8080/far");
 
-            value = DocumentUri.From(new DocumentUriComponents
-                {Scheme = "http", Authority = "föö:bör@löcalhost:8080", Path = "/far", Query = null, Fragment = null});
+            value = DocumentUri.From(
+                new DocumentUriComponents
+                    { Scheme = "http", Authority = "föö:bör@löcalhost:8080", Path = "/far", Query = null, Fragment = null }
+            );
             value.ToString().Should().Be("http://f%C3%B6%C3%B6:b%C3%B6r@l%C3%B6calhost:8080/far");
         }
 
         [Fact(DisplayName = "correctFileUriToFilePath2")]
         public void CorrectFileUriToFilePath2()
         {
-            Action<string, string> test = (string input, string expected) => {
+            Action<string, string> test = (input, expected) => {
                 var value = DocumentUri.Parse(input);
                 value.GetFileSystemPath().Should().Be(expected);
                 var value2 = DocumentUri.File(value.GetFileSystemPath());
@@ -472,13 +509,16 @@ namespace Lsp.Tests
             test("file:///c:/alex.txt", "c:\\alex.txt");
             test(
                 "file:///c:/Source/Z%C3%BCrich%20or%20Zurich%20(%CB%88zj%CA%8A%C9%99r%C9%AAk,/Code/resources/app/plugins",
-                "c:\\Source\\Zürich or Zurich (ˈzjʊərɪk,\\Code\\resources\\app\\plugins");
+                "c:\\Source\\Zürich or Zurich (ˈzjʊərɪk,\\Code\\resources\\app\\plugins"
+            );
             test(
                 "file://monacotools/folder/isi.txt",
-                "\\\\monacotools\\folder\\isi.txt");
+                "\\\\monacotools\\folder\\isi.txt"
+            );
             test(
                 "file://monacotools1/certificates/SSL/",
-                "\\\\monacotools1\\certificates\\SSL\\");
+                "\\\\monacotools1\\certificates\\SSL\\"
+            );
         }
 
         [Fact(DisplayName = "URI - http, query & toString")]
@@ -497,7 +537,8 @@ namespace Lsp.Tests
             uri.Query.Should().Be("LinkId=518008&foö&ké¥=üü");
             uri.ToUnencodedString().Should().Be("https://go.microsoft.com/fwlink/?LinkId=518008&foö&ké¥=üü");
             uri.ToString().Should().Be(
-                "https://go.microsoft.com/fwlink/?LinkId%3D518008%26fo%C3%B6%26k%C3%A9%C2%A5%3D%C3%BC%C3%BC");
+                "https://go.microsoft.com/fwlink/?LinkId%3D518008%26fo%C3%B6%26k%C3%A9%C2%A5%3D%C3%BC%C3%BC"
+            );
 
             uri2 = DocumentUri.Parse(uri.ToString());
             uri2.Query.Should().Be("LinkId=518008&foö&ké¥=üü");

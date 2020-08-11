@@ -1,8 +1,6 @@
 ﻿using System;
-using System.IO.Pipelines;
 using System.Threading.Tasks;
 using FluentAssertions;
-using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -16,9 +14,10 @@ namespace Lsp.Tests.Integration
 {
     public class ConnectionAndDisconnectionTests : LanguageProtocolTestBase
     {
-        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithTestTimeout(TimeSpan.FromSeconds(20))
+        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions()
+               .ConfigureForXUnit(outputHelper)
+               .WithTestTimeout(TimeSpan.FromSeconds(20))
         )
         {
         }
@@ -85,24 +84,28 @@ namespace Lsp.Tests.Integration
 
         private void ConfigureClient(LanguageClientOptions options)
         {
-            options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.OnRequest("keepalive", ct => Task.FromResult(true));
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
-            options.OnRequest("throw", async ct => {
-                throw new NotSupportedException();
-                return Task.CompletedTask;
-            });
+            options.OnRequest(
+                "throw", async ct => {
+                    throw new NotSupportedException();
+                    return Task.CompletedTask;
+                }
+            );
         }
 
         private void ConfigureServer(LanguageServerOptions options)
         {
-            options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.OnRequest("keepalive", ct => Task.FromResult(true));
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
-            options.OnRequest("throw", async ct => {
-                throw new NotSupportedException();
-                return Task.CompletedTask;
-            });
+            options.OnRequest(
+                "throw", async ct => {
+                    throw new NotSupportedException();
+                    return Task.CompletedTask;
+                }
+            );
         }
     }
 }

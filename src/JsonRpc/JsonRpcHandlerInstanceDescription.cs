@@ -2,7 +2,7 @@
 {
     public class JsonRpcHandlerInstanceDescription : JsonRpcHandlerDescription
     {
-        public JsonRpcHandlerInstanceDescription(string method, IJsonRpcHandler handlerInstance, JsonRpcHandlerOptions options): base(options)
+        public JsonRpcHandlerInstanceDescription(string method, IJsonRpcHandler handlerInstance, JsonRpcHandlerOptions options) : base(options)
         {
             Method = method;
             HandlerInstance = handlerInstance;

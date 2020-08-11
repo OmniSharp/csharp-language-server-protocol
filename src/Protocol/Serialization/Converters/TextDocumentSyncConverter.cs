@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
+    internal class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
     {
         public override void WriteJson(JsonWriter writer, TextDocumentSync value, JsonSerializer serializer)
         {
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new TextDocumentSync((TextDocumentSyncKind)Convert.ToInt32(reader.Value));
+                return new TextDocumentSync((TextDocumentSyncKind) Convert.ToInt32(reader.Value));
             }
 
             return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>(serializer));

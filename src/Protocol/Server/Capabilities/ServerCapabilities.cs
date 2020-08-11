@@ -14,110 +14,110 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         // Create the ability to look at the client capabilities to determine what parts we need to answer now (completion for example)
 
         /// <summary>
-        ///  Defines how text documents are synced. Is either a detailed structure defining each notification or
-        ///  for backwards compatibility the TextDocumentSyncKind number.
+        /// Defines how text documents are synced. Is either a detailed structure defining each notification or
+        /// for backwards compatibility the TextDocumentSyncKind number.
         /// </summary>
         [Optional]
         public TextDocumentSync TextDocumentSync { get; set; }
 
         /// <summary>
-        ///  The server provides hover support.
+        /// The server provides hover support.
         /// </summary>
         [Optional]
         public BooleanOr<HoverOptions> HoverProvider { get; set; }
 
         /// <summary>
-        ///  The server provides completion support.
+        /// The server provides completion support.
         /// </summary>
         [Optional]
         public CompletionOptions CompletionProvider { get; set; }
 
         /// <summary>
-        ///  The server provides signature help support.
+        /// The server provides signature help support.
         /// </summary>
         [Optional]
         public SignatureHelpOptions SignatureHelpProvider { get; set; }
 
         /// <summary>
-        ///  The server provides goto definition support.
+        /// The server provides goto definition support.
         /// </summary>
         [Optional]
         public BooleanOr<DefinitionOptions> DefinitionProvider { get; set; }
 
         /// <summary>
-        ///  The server provides find references support.
+        /// The server provides find references support.
         /// </summary>
         [Optional]
         public BooleanOr<ReferencesOptions> ReferencesProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document highlight support.
+        /// The server provides document highlight support.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentHighlightOptions> DocumentHighlightProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document symbol support.
+        /// The server provides document symbol support.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentSymbolOptions> DocumentSymbolProvider { get; set; }
 
         /// <summary>
-        ///  The server provides workspace symbol support.
+        /// The server provides workspace symbol support.
         /// </summary>
         [Optional]
         public BooleanOr<WorkspaceSymbolOptions> WorkspaceSymbolProvider { get; set; }
 
         /// <summary>
-        ///  The server provides code actions.
+        /// The server provides code actions.
         /// </summary>
         [Optional]
         public BooleanOr<CodeActionOptions> CodeActionProvider { get; set; }
 
         /// <summary>
-        ///  The server provides code lens.
+        /// The server provides code lens.
         /// </summary>
         [Optional]
         public CodeLensOptions CodeLensProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document formatting.
+        /// The server provides document formatting.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentFormattingOptions> DocumentFormattingProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document range formatting.
+        /// The server provides document range formatting.
         /// </summary>
         [Optional]
         public BooleanOr<DocumentRangeFormattingOptions> DocumentRangeFormattingProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document formatting on typing.
+        /// The server provides document formatting on typing.
         /// </summary>
         [Optional]
         public DocumentOnTypeFormattingOptions DocumentOnTypeFormattingProvider { get; set; }
 
         /// <summary>
-        ///  The server provides rename support.
+        /// The server provides rename support.
         /// </summary>
         [Optional]
         public BooleanOr<RenameOptions> RenameProvider { get; set; }
 
         /// <summary>
-        ///  The server provides document link support.
+        /// The server provides document link support.
         /// </summary>
         [Optional]
         public DocumentLinkOptions DocumentLinkProvider { get; set; }
 
         /// <summary>
-        ///  The server provides execute command support.
+        /// The server provides execute command support.
         /// </summary>
         [Optional]
         public ExecuteCommandOptions ExecuteCommandProvider { get; set; }
 
         /// <summary>
-        ///  Experimental server capabilities.
+        /// Experimental server capabilities.
         /// </summary>
         [Optional]
         public IDictionary<string, JToken> Experimental { get; set; } = new Dictionary<string, JToken>();

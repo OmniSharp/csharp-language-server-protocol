@@ -12,15 +12,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// This class is a simple parser which creates the basic component parts
     /// (http://tools.ietf.org/html/rfc3986#section-3) with minimal validation
     /// and encoding.
-    ///
+    /// 
     /// ```txt
-    ///       foo://example.com:8042/over/there?name=ferret#nose
-    ///       \_/   \______________/\_________/ \_________/ \__/
-    ///        |           |            |            |        |
-    ///     scheme     authority       path        query   fragment
-    ///        |   _____________________|__
-    ///       / \ /                        \
-    ///       urn:example:animal:ferret:nose
+    /// foo://example.com:8042/over/there?name=ferret#nose
+    /// \_/   \______________/\_________/ \_________/ \__/
+    /// |           |            |            |        |
+    /// scheme     authority       path        query   fragment
+    /// |   _____________________|__
+    /// / \ /                        \
+    /// urn:example:animal:ferret:nose
     /// ```
     /// </summary>
     /// <summary>
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public string Fragment { get; }
 
         /// <summary>
-        /// Convert the uri to a <see cref="Uri"/>
+        /// Convert the uri to a <see cref="Uri" />
         /// </summary>
         /// <returns></returns>
         /// <remarks>This will produce a uri where asian and cyrillic characters will be encoded</remarks>
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 var parts = Authority.Split(':');
                 var host = parts[0];
                 var port = int.Parse(parts[1]);
-                return new UriBuilder() {
+                return new UriBuilder {
                     Scheme = Scheme,
                     Host = host,
                     Port = port,
@@ -79,7 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }.Uri;
             }
 
-            return new UriBuilder() {
+            return new UriBuilder {
                 Scheme = Scheme,
                 Host = Authority,
                 Path = Path,
@@ -101,15 +101,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @param skipEncoding Do not encode the result, default is `false`
         /// </summary>
-        public override string ToString()
-        {
-            return _asFormatted(this, false);
-        }
+        public override string ToString() => _asFormatted(this, false);
 
-        public string ToUnencodedString()
-        {
-            return _asFormatted(this, true);
-        }
+        public string ToUnencodedString() => _asFormatted(this, true);
 
         /// <summary>
         /// Gets the file system path prefixed with / for unix platforms
@@ -152,10 +146,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             unchecked
             {
                 var hashCode = comparer.GetHashCode(Path);
-                hashCode = (hashCode * 397) ^ comparer.GetHashCode(Scheme);
-                hashCode = (hashCode * 397) ^ comparer.GetHashCode(Authority);
-                hashCode = (hashCode * 397) ^ comparer.GetHashCode(Query);
-                hashCode = (hashCode * 397) ^ comparer.GetHashCode(Fragment);
+                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Scheme);
+                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Authority);
+                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Query);
+                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Fragment);
                 return hashCode;
             }
         }
@@ -169,12 +163,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <param name="query"></param>
         /// <param name="fragment"></param>
         /// <returns></returns>
-        public void Deconstruct(out string scheme, out string authority, out string path, out string query,
-            out string fragment)
+        public void Deconstruct(
+            out string scheme, out string authority, out string path, out string query,
+            out string fragment
+        )
         {
             scheme = Scheme;
             authority = Authority;
-            path =  Path;
+            path = Path;
             query = Query;
             fragment = Fragment;
         }
@@ -196,15 +192,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static bool operator !=(DocumentUri left, DocumentUri right) => !Equals(left, right);
 
         /// <summary>
-        /// Convert this uri into a <see cref="string"/>.
+        /// Convert this uri into a <see cref="string" />.
         /// </summary>
         /// <param name="uri"></param>
-        /// <remarks>This is explicit because to string gives the schema string with file:// but if you want the file system you use <see cref="GetFileSystemPath()"/></remarks>
+        /// <remarks>This is explicit because to string gives the schema string with file:// but if you want the file system you use <see cref="GetFileSystemPath()" /></remarks>
         /// <returns></returns>
         public static explicit operator string(DocumentUri uri) => uri.ToString();
 
         /// <summary>
-        /// Convert this into a <see cref="Uri"/>.
+        /// Convert this into a <see cref="Uri" />.
         /// </summary>
         /// <param name="uri"></param>
         /// <remarks>The uri class has issues with higher level utf8 characters such as asian and cyrillic characters</remarks>
@@ -226,7 +222,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static implicit operator DocumentUri(Uri uri) => From(uri);
 
         /// <summary>
-        /// Create a new document uri from the given <see cref="Uri"/>
+        /// Create a new document uri from the given <see cref="Uri" />
         /// </summary>
         /// <param name="uri"></param>
         /// <returns></returns>
@@ -249,11 +245,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns></returns>
         public static DocumentUri From(string url)
         {
-            if (string.IsNullOrWhiteSpace (url))
+            if (string.IsNullOrWhiteSpace(url))
             {
                 throw new UriFormatException("Given uri is null or empty");
             }
-            if (url.StartsWith(@"\\") || (url.StartsWith("/")) || WindowsPath.IsMatch(url))
+
+            if (url.StartsWith(@"\\") || url.StartsWith("/") || WindowsPath.IsMatch(url))
             {
                 return File(url);
             }
@@ -262,37 +259,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
-        ///     Get the local file-system path for the specified document URI.
+        /// Get the local file-system path for the specified document URI.
         /// </summary>
         /// <param name="textDocumentIdentifierParams">
-        ///     The text document params object
+        /// The text document params object
         /// </param>
         /// <returns>
-        ///     The file-system path, or <c>null</c> if the URI does not represent a file-system path.
+        /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
         public static string GetFileSystemPath(ITextDocumentIdentifierParams textDocumentIdentifierParams) =>
             GetFileSystemPath(textDocumentIdentifierParams.TextDocument.Uri);
 
         /// <summary>
-        ///     Get the local file-system path for the specified document URI.
+        /// Get the local file-system path for the specified document URI.
         /// </summary>
         /// <param name="textDocumentIdentifier">
-        ///     The text document identifier
+        /// The text document identifier
         /// </param>
         /// <returns>
-        ///     The file-system path, or <c>null</c> if the URI does not represent a file-system path.
+        /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
         public static string GetFileSystemPath(TextDocumentIdentifier textDocumentIdentifier) =>
             GetFileSystemPath(textDocumentIdentifier.Uri);
 
         /// <summary>
-        ///     Get the local file-system path for the specified document URI.
+        /// Get the local file-system path for the specified document URI.
         /// </summary>
         /// <param name="documentUri">
-        ///     The LSP document URI.
+        /// The LSP document URI.
         /// </param>
         /// <returns>
-        ///     The file-system path, or <c>null</c> if the URI does not represent a file-system path.
+        /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
         public static string GetFileSystemPath(DocumentUri documentUri)
         {
@@ -306,13 +303,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
-        ///     Convert a file-system path to an LSP document URI.
+        /// Convert a file-system path to an LSP document URI.
         /// </summary>
         /// <param name="fileSystemPath">
-        ///     The file-system path.
+        /// The file-system path.
         /// </param>
         /// <returns>
-        ///     The LSP document URI.
+        /// The LSP document URI.
         /// </returns>
         public static DocumentUri FromFileSystemPath(string fileSystemPath) => File(fileSystemPath);
 
@@ -349,8 +346,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @internal
         /// </summary>
-        public DocumentUri(string scheme, string authority, string path, string query, string fragment,
-            bool? strict = null)
+        public DocumentUri(
+            string scheme, string authority, string path, string query, string fragment,
+            bool? strict = null
+        )
         {
             Scheme = SchemeFix(scheme, strict);
             Authority = authority ?? Empty;
@@ -371,10 +370,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         public static DocumentUri Parse(string value, bool strict = false)
         {
-            if (string.IsNullOrWhiteSpace (value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 throw new UriFormatException("Given uri is null or empty");
             }
+
             var match = Regexp.Match(value);
             if (!match.Success)
             {
@@ -404,10 +404,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         public static DocumentUri File(string path)
         {
-            if (string.IsNullOrWhiteSpace (path))
+            if (string.IsNullOrWhiteSpace(path))
             {
                 throw new UriFormatException("Given path is null or empty");
             }
+
             var authority = Empty;
 
             // normalize to fwd-slashes on windows,
@@ -441,29 +442,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 path = path.Replace("%3a", ":").Replace("%3A", ":");
             }
 
-            return new DocumentUri("file", authority, path, Empty, Empty, null);
+            return new DocumentUri("file", authority, path, Empty, Empty);
         }
 
-        public DocumentUri With(DocumentUriComponents components)
-        {
-            return new DocumentUri(
+        public DocumentUri With(DocumentUriComponents components) =>
+            new DocumentUri(
                 components.Scheme ?? Scheme,
                 components.Authority ?? Authority,
                 components.Path ?? Path,
                 components.Query ?? Query,
                 components.Fragment ?? Fragment
             );
-        }
 
-        public static DocumentUri From(DocumentUriComponents components)
-        {
-            return new DocumentUri(
+        public static DocumentUri From(DocumentUriComponents components) =>
+            new DocumentUri(
                 components.Scheme ?? string.Empty,
                 components.Authority ?? string.Empty,
                 components.Path ?? string.Empty,
                 components.Query ?? string.Empty,
                 components.Fragment ?? string.Empty
             );
-        }
     }
 }

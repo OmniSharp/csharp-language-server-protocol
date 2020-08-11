@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using System.Reactive.Joins;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -25,52 +24,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator DocumentSelector(DocumentFilter[] items)
-        {
-            return new DocumentSelector(items);
-        }
+        public static implicit operator DocumentSelector(DocumentFilter[] items) => new DocumentSelector(items);
 
-        public static implicit operator DocumentSelector(Collection<DocumentFilter> items)
-        {
-            return new DocumentSelector(items);
-        }
+        public static implicit operator DocumentSelector(Collection<DocumentFilter> items) => new DocumentSelector(items);
 
-        public static implicit operator DocumentSelector(List<DocumentFilter> items)
-        {
-            return new DocumentSelector(items);
-        }
+        public static implicit operator DocumentSelector(List<DocumentFilter> items) => new DocumentSelector(items);
 
-        public static implicit operator string(DocumentSelector documentSelector)
-        {
-            return documentSelector != null ?
-                string.Join(", ", documentSelector.Select(x => (string)x)) :
-                null;
-        }
+        public static implicit operator string(DocumentSelector documentSelector) =>
+            documentSelector != null ? string.Join(", ", documentSelector.Select(x => (string) x)) : null;
 
-        public bool IsMatch(TextDocumentAttributes attributes)
-        {
-            return this.Any(z => z.IsMatch(attributes));
-        }
+        public bool IsMatch(TextDocumentAttributes attributes) => this.Any(z => z.IsMatch(attributes));
 
-        public override string ToString()
-        {
-            return this;
-        }
+        public override string ToString() => this;
 
-        public static DocumentSelector ForPattern(params string[] wildcards)
-        {
-            return new DocumentSelector(wildcards.Select(DocumentFilter.ForPattern));
-        }
+        public static DocumentSelector ForPattern(params string[] wildcards) => new DocumentSelector(wildcards.Select(DocumentFilter.ForPattern));
 
-        public static DocumentSelector ForLanguage(params string[] languages)
-        {
-            return new DocumentSelector(languages.Select(DocumentFilter.ForLanguage));
-        }
+        public static DocumentSelector ForLanguage(params string[] languages) => new DocumentSelector(languages.Select(DocumentFilter.ForLanguage));
 
-        public static DocumentSelector ForScheme(params string[] schemes)
-        {
-            return new DocumentSelector(schemes.Select(DocumentFilter.ForScheme));
-        }
+        public static DocumentSelector ForScheme(params string[] schemes) => new DocumentSelector(schemes.Select(DocumentFilter.ForScheme));
 
         private string DebuggerDisplay => this;
     }

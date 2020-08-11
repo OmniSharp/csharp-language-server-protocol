@@ -11,10 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A delete
         /// </summary>
         public ResourceOperationKind Kind { get; } = ResourceOperationKind.Delete;
+
         /// <summary>
         /// The file to delete.
         /// </summary>
         public DocumentUri Uri { get; set; }
+
         /// <summary>
         /// Delete Options.
         /// </summary>

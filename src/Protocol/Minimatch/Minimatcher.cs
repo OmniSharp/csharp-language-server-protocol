@@ -21,6 +21,7 @@ COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -42,6 +43,7 @@ namespace Minimatch
             var m = new Minimatcher(pattern, options);
             return m.IsMatch;
         }
+
         ///<summary>Tests a single input against a pattern.</summary>
         ///<remarks>This function reparses this input on each invocation.  For performance, avoid this function and reuse a Minimatcher instance instead.</remarks>
         public static bool Check(string input, string pattern, Options options = null)
@@ -73,18 +75,15 @@ namespace Minimatch
         }
 
         ///<summary>Compiles a pattern into a single regular expression.</summary>
-        public static Regex CreateRegex(string pattern, Options options = null)
-        {
-            return new Minimatcher(pattern, options).MakeRegex();
-        }
+        public static Regex CreateRegex(string pattern, Options options = null) => new Minimatcher(pattern, options).MakeRegex();
 
 
-        readonly Options options;
+        private readonly Options options;
 
-        string pattern;
-        bool negate = false;
-        bool comment = false;
-        bool empty = false;
+        private string pattern;
+        private bool negate;
+        private bool comment;
+        private bool empty;
 
         ///<summary>Creates a new Minimatcher instance, parsing the pattern into a regex.</summary>
         public Minimatcher(string pattern, Options options = null)
@@ -95,11 +94,11 @@ namespace Minimatch
             if (this.options.AllowWindowsPaths)
                 this.pattern = this.pattern.Replace('\\', '/');
 
-            this.Make();
+            Make();
         }
 
         ///<summary>Checks whether a given string matches this pattern.</summary>
-        public bool IsMatch(string input) { return Match(input, false); }
+        public bool IsMatch(string input) => Match(input, false);
 
         ///<summary>Filters a list of inputs against this pattern.</summary>
         public IEnumerable<string> Filter(IEnumerable<string> list)
@@ -111,69 +110,73 @@ namespace Minimatch
         }
 
 
-        Regex regexp;
-        bool isError;
+        private Regex regexp;
+        private bool isError;
 
-        IEnumerable<string> globSet;
-        IEnumerable<IEnumerable<ParseItem>> set;
-        IEnumerable<IEnumerable<string>> globParts;
+        private IEnumerable<string> globSet;
+        private IEnumerable<IEnumerable<ParseItem>> set;
+        private IEnumerable<IEnumerable<string>> globParts;
 
 
         // any single thing other than /
         // don't need to escape / when using new RegExp()
-        const string qmark = "[^/]"
+        private const string qmark = "[^/]"
 
-            // * => any number of characters
-            , star = qmark + "*?"
+                             // * => any number of characters
+                            ,
+                             star = qmark + "*?"
 
-            // ** when dots are allowed.  Anything goes, except .. and .
-            // not (^ or / followed by one or two dots followed by $ or /),
-            // followed by anything, any number of times.
-            , twoStarDot = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?"
+                             // ** when dots are allowed.  Anything goes, except .. and .
+                             // not (^ or / followed by one or two dots followed by $ or /),
+                             // followed by anything, any number of times.
+                            ,
+                             twoStarDot = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?"
 
-            // not a ^ or / followed by a dot,
-            // followed by anything, any number of times.
-            , twoStarNoDot = "(?:(?!(?:\\/|^)\\.).)*?";
+                             // not a ^ or / followed by a dot,
+                             // followed by anything, any number of times.
+                            ,
+                             twoStarNoDot = "(?:(?!(?:\\/|^)\\.).)*?";
 
         // characters that need to be escaped in RegExp.
-        static readonly HashSet<char> reSpecials = new HashSet<char>("().*{}+?[]^$\\!".ToCharArray());
-        static readonly Regex slashSplit = new Regex("/+");
+        private static readonly HashSet<char> reSpecials = new HashSet<char>("().*{}+?[]^$\\!".ToCharArray());
+        private static readonly Regex slashSplit = new Regex("/+");
 
-        void Make()
+        private void Make()
         {
             // empty patterns and comments match nothing.
             if (!options.NoComment && !string.IsNullOrEmpty(pattern) && pattern[0] == '#')
             {
-                this.comment = true;
+                comment = true;
                 return;
             }
+
             if (string.IsNullOrEmpty(pattern))
             {
-                this.empty = true;
+                empty = true;
                 return;
             }
 
             // step 1: figure out negation, etc.
-            this.ParseNegate();
+            ParseNegate();
 
             // step 2: expand braces
-            this.globSet = BraceExpand(pattern, options);
+            globSet = BraceExpand(pattern, options);
 
             // step 3: now we have a set, so turn each one into a series of path-portion
             // matching patterns.
             // These will be regexps, except in the case of "**", which is
             // set to the GLOBSTAR object for globstar behavior,
             // and will not contain any / characters
-            this.globParts = globSet.Select(s => slashSplit.Split(s)).ToList();
+            globParts = globSet.Select(s => slashSplit.Split(s)).ToList();
 
             // glob --> regexps
-            this.set = globParts.Select(g => g.Select(t => this.Parse(t, false)))
-                .Where(g => !g.Contains(null))
-                .Select(g => g.Select(t => t.Item1))
-                .ToList();
+            set = globParts.Select(g => g.Select(t => Parse(t, false)))
+                           .Where(g => !g.Contains(null))
+                           .Select(g => g.Select(t => t.Item1))
+                           .ToList();
         }
 
-        void ParseNegate()
+        private void ParseNegate()
         {
             var negateOffset = 0;
 
@@ -185,11 +188,13 @@ namespace Minimatch
                 negateOffset++;
             }
 
-            if (negateOffset > 0) this.pattern = pattern.Substring(negateOffset);
+            if (negateOffset > 0) pattern = pattern.Substring(negateOffset);
         }
 
-        static readonly Regex hasBraces = new Regex(@"\{.*\}");
-        static readonly Regex numericSet = new Regex(@"^\{(-?[0-9]+)\.\.(-?[0-9]+)\}");
+        private static readonly Regex hasBraces = new Regex(@"\{.*\}");
+
+        private static readonly Regex numericSet = new Regex(@"^\{(-?[0-9]+)\.\.(-?[0-9]+)\}");
+
         // Brace expansion:
         // a{b,c}d -> abd acd
         // a{b,}c -> abc ac
@@ -208,7 +213,8 @@ namespace Minimatch
                 // shortcut. no need to expand.
                 return new[] { pattern };
             }
-            bool escaping = false;
+
+            var escaping = false;
             int i;
             // examples and comments refer to this crazy pattern:
             // a{b,c{d,e},{f,g}h}x{y,z}
@@ -272,14 +278,15 @@ namespace Minimatch
                     end = int.Parse(numset.Groups[2].Value),
                     inc = start > end ? -1 : 1;
                 var retVal = new List<string>();
-                for (var w = start; w != (end + inc); w += inc)
+                for (var w = start; w != end + inc; w += inc)
                 {
                     // append all the suffixes
                     for (var ii = 0; ii < suf.Count; ii++)
                     {
-                        retVal.Add(w.ToString() + suf[ii]);
+                        retVal.Add(w + suf[ii]);
                     }
                 }
+
                 return retVal;
             }
 
@@ -290,9 +297,9 @@ namespace Minimatch
             // interpreted as braceExpand("\\" + pattern) so that
             // the leading \{ will be interpreted literally.
             i = 1; // skip the \{
-            int depth = 1;
+            var depth = 1;
             var set = new List<string>();
-            string member = "";
+            var member = "";
 
             for (i = 1; i < pattern.Length && depth > 0; i++)
             {
@@ -343,6 +350,7 @@ namespace Minimatch
                             {
                                 member += c;
                             }
+
                             continue;
 
                         default:
@@ -388,51 +396,53 @@ namespace Minimatch
             public string Source { get; protected set; }
 
             public static readonly ParseItem Empty = new LiteralItem("");
-            public static ParseItem Literal(string source) { return new LiteralItem(source); }
+            public static ParseItem Literal(string source) => new LiteralItem(source);
             public abstract string RegexSource(Options options);
 
             public abstract bool Match(string input, Options options);
         }
-        class LiteralItem : ParseItem
+
+        private class LiteralItem : ParseItem
         {
-            public LiteralItem(string source) { Source = source; }
-            public override string RegexSource(Options options) { return Regex.Escape(Source); }
-            public override bool Match(string input, Options options)
-            {
-                return input.Equals(Source, options.NoCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
-            }
+            public LiteralItem(string source) => Source = source;
+            public override string RegexSource(Options options) => Regex.Escape(Source);
+
+            public override bool Match(string input, Options options) => input.Equals(Source, options.NoCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal);
         }
-        class MagicItem : ParseItem
+
+        private class MagicItem : ParseItem
         {
             public MagicItem(string source, Options options)
             {
                 Source = source;
                 regex = new Lazy<Regex>(() => new Regex("^" + source + "$", options.RegexOptions));
             }
-            readonly Lazy<Regex> regex;
 
-            public override string RegexSource(Options options) { return Source; }
-            public override bool Match(string input, Options options)
-            {
-                return regex.Value.IsMatch(input);
-            }
+            private readonly Lazy<Regex> regex;
+
+            public override string RegexSource(Options options) => Source;
+
+            public override bool Match(string input, Options options) => regex.Value.IsMatch(input);
         }
-        class GlobStar : ParseItem
+
+        private class GlobStar : ParseItem
         {
-            private GlobStar() { }
+            private GlobStar()
+            {
+            }
+
             public static readonly ParseItem Instance = new GlobStar();
 
-            public override string RegexSource(Options options)
-            {
-                return options.NoGlobStar ? star
-                    : options.Dot ? twoStarDot
-                        : twoStarNoDot;
-            }
+            public override string RegexSource(Options options) =>
+                options.NoGlobStar ? star
+                : options.Dot ? twoStarDot
+                : twoStarNoDot;
 
-            public override bool Match(string input, Options options) { throw new NotSupportedException(); }
+            public override bool Match(string input, Options options) => throw new NotSupportedException();
         }
 
-        static readonly Regex escapeCheck = new Regex(@"((?:\\{2})*)(\\?)\|");
+        private static readonly Regex escapeCheck = new Regex(@"((?:\\{2})*)(\\?)\|");
+
         // parse a component of the expanded set.
         // At this point, no pattern may contain "/" in it
         // so we're going to return a 2d array, where each entry is the full
@@ -450,7 +460,7 @@ namespace Minimatch
             if (!options.NoGlobStar && pattern == "**") return Tuple.Create(GlobStar.Instance, false);
             if (pattern == "") return Tuple.Create(ParseItem.Empty, false);
 
-            string re = "";
+            var re = "";
             bool hasMagic = options.NoCase, escaping = false, inClass = false;
             // ? => one single character
             var patternListStack = new Stack<PatternListEntry>();
@@ -460,10 +470,10 @@ namespace Minimatch
             int reClassStart = -1, classStart = -1;
             // . and .. never match anything that doesn't start with .,
             // even when options.dot is set.
-            string patternStart = pattern[0] == '.' ? "" // anything
-                // not (start or / followed by . or .. followed by / or end)
+            var patternStart = pattern[0] == '.' ? "" // anything
+                    // not (start or / followed by . or .. followed by / or end)
                 : options.Dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))"
-                    : "(?!\\.)";
+                : "(?!\\.)";
 
             Action clearStatechar = () => {
                 if (statechar != null)
@@ -484,6 +494,7 @@ namespace Minimatch
                             re += "\\" + statechar;
                             break;
                     }
+
                     statechar = null;
                 }
             };
@@ -585,9 +596,12 @@ namespace Minimatch
                                 break;
                             case '?':
                             case '+':
-                            case '*': re += plType; break;
+                            case '*':
+                                re += plType;
+                                break;
                             case '@': break; // the default anyway
                         }
+
                         continue;
 
                     case '|':
@@ -645,7 +659,7 @@ namespace Minimatch
                             // no need
                             escaping = false;
                         }
-                        else if (reSpecials.Contains(c) && !(c == '^' && inClass))
+                        else if (reSpecials.Contains(c) && !( c == '^' && inClass ))
                         {
                             re += "\\";
                         }
@@ -664,8 +678,8 @@ namespace Minimatch
                 // this is a huge pita.  We now have to re-walk
                 // the contents of the would-be class to re-translate
                 // any characters that were passed through as-is
-                string cs = pattern.Substring(classStart + 1);
-                var sp = this.Parse(cs, true);
+                var cs = pattern.Substring(classStart + 1);
+                var sp = Parse(cs, true);
                 re = re.Substring(0, reClassStart) + "\\[" + sp.Item1.Source;
                 hasMagic = hasMagic || sp.Item2;
             }
@@ -681,29 +695,31 @@ namespace Minimatch
                 var pl = patternListStack.Pop();
                 var tail = re.Substring(pl.ReStart + 3);
                 // maybe some even number of \, then maybe 1 \, followed by a |
-                tail = escapeCheck.Replace(tail, m => {
-                    string escape = m.Groups[2].Value;
-                    // the | isn't already escaped, so escape it.
-                    if (string.IsNullOrEmpty(escape)) escape = "\\";
+                tail = escapeCheck.Replace(
+                    tail, m => {
+                        var escape = m.Groups[2].Value;
+                        // the | isn't already escaped, so escape it.
+                        if (string.IsNullOrEmpty(escape)) escape = "\\";
 
-                    // need to escape all those slashes *again*, without escaping the
-                    // one that we need for escaping the | character.  As it works out,
-                    // escaping an even number of slashes can be done by simply repeating
-                    // it exactly after itself.  That's why this trick works.
-                    //
-                    // I am sorry that you have to see this.
-                    return m.Groups[1].Value + m.Groups[1].Value + escape + "|";
-                });
+                        // need to escape all those slashes *again*, without escaping the
+                        // one that we need for escaping the | character.  As it works out,
+                        // escaping an even number of slashes can be done by simply repeating
+                        // it exactly after itself.  That's why this trick works.
+                        //
+                        // I am sorry that you have to see this.
+                        return m.Groups[1].Value + m.Groups[1].Value + escape + "|";
+                    }
+                );
 
                 // console.error("tail=%j\n   %s", tail, tail)
                 var t = pl.Type == '*' ? star
                     : pl.Type == '?' ? qmark
-                        : "\\" + pl.Type;
+                    : "\\" + pl.Type;
 
                 hasMagic = true;
                 re = re.Remove(pl.ReStart)
-                     + t + "\\("
-                     + tail;
+                   + t + "\\("
+                   + tail;
             }
 
             // handle trailing things that only matter at the very end.
@@ -721,7 +737,9 @@ namespace Minimatch
             {
                 case '.':
                 case '[':
-                case '(': addPatternStart = true; break;
+                case '(':
+                    addPatternStart = true;
+                    break;
             }
 
             // if the re is not "" at this point, then we need to make sure
@@ -744,13 +762,14 @@ namespace Minimatch
             {
                 return Tuple.Create(ParseItem.Literal(GlobUnescape(pattern)), false);
             }
+
             return new Tuple<ParseItem, bool>(new MagicItem(re, options), false);
         }
 
 
-        Regex MakeRegex()
+        private Regex MakeRegex()
         {
-            if (this.regexp != null || isError) return this.regexp;
+            if (regexp != null || isError) return regexp;
 
             // at this point, this.set is a 2d array of partial
             // pattern strings, or "**".
@@ -760,27 +779,33 @@ namespace Minimatch
             // when you just want to work with a regex.
             if (comment || empty || !set.Any())
             {
-                this.isError = true;
+                isError = true;
                 return null;
             }
-            var re = string.Join("|", set.Select(pattern =>
-                string.Join("\\/", pattern.Select(p => p.RegexSource(options))
-                )));
+
+            var re = string.Join(
+                "|", set.Select(
+                    pattern =>
+                        string.Join(
+                            "\\/", pattern.Select(p => p.RegexSource(options))
+                        )
+                )
+            );
 
             // must match entire pattern
             // ending in a * or ** will make it less strict.
             re = "^(?:" + re + ")$";
 
             // can match anything, as long as it's not this.
-            if (this.negate) re = "^(?!" + re + ").*$";
+            if (negate) re = "^(?!" + re + ").*$";
 
             try
             {
-                return this.regexp = new Regex(re, options.RegexOptions);
+                return regexp = new Regex(re, options.RegexOptions);
             }
             catch
             {
-                this.isError = true;
+                isError = true;
                 return null;
             }
         }
@@ -791,8 +816,8 @@ namespace Minimatch
             // console.error("match", f, this.pattern)
             // short-circuit in the case of busted things.
             // comments, etc.
-            if (this.comment) return false;
-            if (this.empty) return input == "";
+            if (comment) return false;
+            if (empty) return input == "";
 
             if (input == "/" && partial) return true;
 
@@ -815,19 +840,18 @@ namespace Minimatch
 
             foreach (var pattern in set)
             {
-                var hit = this.MatchOne(f, pattern.ToList(), partial);
+                var hit = MatchOne(f, pattern.ToList(), partial);
                 if (hit)
                 {
                     if (options.FlipNegate) return true;
-                    return !this.negate;
+                    return !negate;
                 }
-
             }
 
             // didn't get any hits.  this is success if it's a negative
             // pattern, failure otherwise.
             if (options.FlipNegate) return false;
-            return this.negate;
+            return negate;
         }
 
         // set partial to true to test if, for example,
@@ -835,9 +859,8 @@ namespace Minimatch
         // Partial means, if you run out of file before you run
         // out of pattern, then that's fine, as long as all
         // the parts match.
-        bool MatchOne(IList<string> file, IList<ParseItem> pattern, bool partial)
+        private bool MatchOne(IList<string> file, IList<ParseItem> pattern, bool partial)
         {
-
             //if (options.debug) {
             //  console.error("matchOne",
             //                { "this": this
@@ -854,14 +877,13 @@ namespace Minimatch
             //  console.error("matchOne", file.length, pattern.length)
             //}
             int fi = 0, pi = 0;
-            for (; (fi < file.Count) && (pi < pattern.Count); fi++, pi++)
+            for (; fi < file.Count && pi < pattern.Count; fi++, pi++)
             {
-
                 //if (options.debug) {
                 //  console.error("matchOne loop")
                 //}
-                ParseItem p = pattern[pi];
-                string f = file[fi];
+                var p = pattern[pi];
+                var f = file[fi];
 
                 //if (options.debug) {
                 //  console.error(pattern, p, f)
@@ -912,8 +934,9 @@ namespace Minimatch
                         for (; fi < file.Count; fi++)
                         {
                             if (file[fi] == "." || file[fi] == ".." ||
-                                (!options.Dot && !string.IsNullOrEmpty(file[fi]) && file[fi][0] == '.')) return false;
+                                !options.Dot && !string.IsNullOrEmpty(file[fi]) && file[fi][0] == '.') return false;
                         }
+
                         return true;
                     }
 
@@ -928,31 +951,30 @@ namespace Minimatch
                         //}
 
                         // XXX remove this slice.  Just pass the start index.
-                        if (this.MatchOne(file.Skip(fr).ToList(), pattern.Skip(pr).ToList(), partial))
+                        if (MatchOne(file.Skip(fr).ToList(), pattern.Skip(pr).ToList(), partial))
                         {
                             //if (options.debug)
                             //  console.error('globstar found match!', fr, file.Count, swallowee)
                             // found a match.
                             return true;
                         }
-                        else
-                        {
-                            // can't swallow "." or ".." ever.
-                            // can only swallow ".foo" when explicitly asked.
-                            if (swallowee == "." || swallowee == ".." ||
-                                (!options.Dot && swallowee[0] == '.'))
-                            {
-                                //if (options.debug)
-                                //  console.error("dot detected!", file, fr, pattern, pr)
-                                break;
-                            }
 
-                            // ** swallows a segment, and continue.
+                        // can't swallow "." or ".." ever.
+                        // can only swallow ".foo" when explicitly asked.
+                        if (swallowee == "." || swallowee == ".." ||
+                            !options.Dot && swallowee[0] == '.')
+                        {
                             //if (options.debug)
-                            //  console.error('globstar swallow a segment, and continue')
-                            fr++;
+                            //  console.error("dot detected!", file, fr, pattern, pr)
+                            break;
                         }
+
+                        // ** swallows a segment, and continue.
+                        //if (options.debug)
+                        //  console.error('globstar swallow a segment, and continue')
+                        fr++;
                     }
+
                     // no match was found.
                     // However, in partial mode, we can't say this is necessarily over.
                     // If there's more *pattern* left, then
@@ -962,6 +984,7 @@ namespace Minimatch
                         // console.error("\n>>> no match, partial?", file, fr, pattern, pr)
                         if (fr == file.Count) return true;
                     }
+
                     return false;
                 }
 
@@ -990,20 +1013,22 @@ namespace Minimatch
                 // an exact hit!
                 return true;
             }
-            else if (fi == file.Count)
+
+            if (fi == file.Count)
             {
                 // ran out of file, but still had pattern left.
                 // this is ok if we're doing the match as part of
                 // a glob fs traversal.
                 return partial;
             }
-            else if (pi == pattern.Count)
+
+            if (pi == pattern.Count)
             {
                 // ran out of pattern, still have file left.
                 // this is only acceptable if we're on the very last
                 // empty segment of a file with a trailing slash.
                 // a/* should match a/b/
-                var emptyFileEnd = (fi == file.Count - 1) && (file[fi] == "");
+                var emptyFileEnd = fi == file.Count - 1 && file[fi] == "";
                 return emptyFileEnd;
             }
 
@@ -1013,10 +1038,7 @@ namespace Minimatch
 
 
         // replace stuff like \* with *
-        static readonly Regex globUnescaper = new Regex(@"\\(.)");
-        static string GlobUnescape(string s)
-        {
-            return globUnescaper.Replace(s, "$1");
-        }
+        private static readonly Regex globUnescaper = new Regex(@"\\(.)");
+        private static string GlobUnescape(string s) => globUnescaper.Replace(s, "$1");
     }
 }

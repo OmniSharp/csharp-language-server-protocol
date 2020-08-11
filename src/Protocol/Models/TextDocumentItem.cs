@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string Text { get; set; }
 
         private string DebuggerDisplay => $"({LanguageId}@{Version}) {Uri}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -2,5 +2,7 @@
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IExternalServiceProvider : IServiceProvider { }
+    public interface IExternalServiceProvider : IServiceProvider
+    {
+    }
 }

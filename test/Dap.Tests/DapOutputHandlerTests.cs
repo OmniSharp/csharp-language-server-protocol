@@ -9,6 +9,7 @@ using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 
@@ -29,8 +30,10 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OutgoingResponse(1, new object(),
-                new OmniSharp.Extensions.JsonRpc.Server.Request(1, "command", new JObject()));
+            var value = new OutgoingResponse(
+                1, new object(),
+                new Request(1, "command", new JObject())
+            );
 
             handler.Send(value);
             await handler.WriteAndFlush();
@@ -49,7 +52,7 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
+            var value = new OutgoingNotification {
                 Method = "method",
                 Params = new object()
             };
@@ -71,7 +74,7 @@ namespace Dap.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
+            var value = new OutgoingRequest {
                 Method = "method",
                 Id = 1,
                 Params = new object(),

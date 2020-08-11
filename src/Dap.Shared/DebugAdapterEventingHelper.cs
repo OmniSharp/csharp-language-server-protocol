@@ -20,21 +20,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         )
         {
             var events = delegates.Select(z => Observable.FromAsync(ct => executeDelegate(z, ct)))
-                .Concat(handlers.Select(z => Observable.FromAsync(ct => executeHandler(z, ct))))
-                .ToObservable();
+                                  .Concat(handlers.Select(z => Observable.FromAsync(ct => executeHandler(z, ct))))
+                                  .ToObservable();
 
 
             if (concurrency.HasValue)
             {
                 return events.Merge(concurrency.Value)
-                    .LastOrDefaultAsync()
-                    .ToTask(cancellationToken);
+                             .LastOrDefaultAsync()
+                             .ToTask(cancellationToken);
             }
 
             return events
-                .Merge()
-                .LastOrDefaultAsync()
-                .ToTask(cancellationToken);
+                  .Merge()
+                  .LastOrDefaultAsync()
+                  .ToTask(cancellationToken);
         }
     }
 }

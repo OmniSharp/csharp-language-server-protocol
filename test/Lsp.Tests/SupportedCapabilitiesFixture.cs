@@ -10,7 +10,8 @@ namespace Lsp.Tests
     {
         public static readonly ISupportedCapabilities AlwaysTrue = new AlwaysTrueSupportedCapabilities();
         public static readonly ISupportedCapabilities AlwaysFalse = new AlwaysFalseSupportedCapabilities();
-        class AlwaysTrueSupportedCapabilities : ISupportedCapabilities
+
+        private class AlwaysTrueSupportedCapabilities : ISupportedCapabilities
         {
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => true;
 
@@ -25,7 +26,7 @@ namespace Lsp.Tests
             }
         }
 
-        class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
+        private class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
         {
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => false;
 

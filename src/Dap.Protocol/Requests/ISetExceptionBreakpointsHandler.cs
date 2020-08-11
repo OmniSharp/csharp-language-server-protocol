@@ -5,8 +5,10 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.SetExceptionBreakpoints, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
+    [Parallel]
+    [Method(RequestNames.SetExceptionBreakpoints, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
     public interface ISetExceptionBreakpointsHandler : IJsonRpcRequestHandler<SetExceptionBreakpointsArguments,
         SetExceptionBreakpointsResponse>
     {
@@ -14,7 +16,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 
     public abstract class SetExceptionBreakpointsHandler : ISetExceptionBreakpointsHandler
     {
-        public abstract Task<SetExceptionBreakpointsResponse> Handle(SetExceptionBreakpointsArguments request,
-            CancellationToken cancellationToken);
+        public abstract Task<SetExceptionBreakpointsResponse> Handle(
+            SetExceptionBreakpointsArguments request,
+            CancellationToken cancellationToken
+        );
     }
 }

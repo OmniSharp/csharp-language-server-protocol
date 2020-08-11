@@ -8,10 +8,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-
-    [Parallel, Method(TextDocumentNames.PublishDiagnostics, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageServer), typeof(ILanguageServer))]
-    public interface IPublishDiagnosticsHandler : IJsonRpcNotificationHandler<PublishDiagnosticsParams> { }
+    [Parallel]
+    [Method(TextDocumentNames.PublishDiagnostics, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageServer), typeof(ILanguageServer))]
+    public interface IPublishDiagnosticsHandler : IJsonRpcNotificationHandler<PublishDiagnosticsParams>
+    {
+    }
 
     public abstract class PublishDiagnosticsHandler : IPublishDiagnosticsHandler
     {

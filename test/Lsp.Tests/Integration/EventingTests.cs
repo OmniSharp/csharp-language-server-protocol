@@ -56,13 +56,14 @@ namespace Lsp.Tests.Integration
         public async Task Initialize_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialize =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientInitialize;
+                Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientInitialize;
             var onLanguageServerInitialize =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerInitialize), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerInitialize;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onLanguageClientInitialize as IJsonRpcHandler),
-                options => options.AddHandler(onLanguageServerInitialize as IJsonRpcHandler));
+                options => options.AddHandler(onLanguageServerInitialize as IJsonRpcHandler)
+            );
 
             await onLanguageClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
@@ -72,9 +73,9 @@ namespace Lsp.Tests.Integration
         public async Task Initialize_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialize =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientInitialize;
+                Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientInitialize;
             var onLanguageServerInitialize =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerInitialize), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerInitialize;
             var (client, server) = await Initialize(o => { }, o => { });
 
@@ -120,13 +121,14 @@ namespace Lsp.Tests.Integration
         public async Task Initialized_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientInitialized =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientInitialized;
+                Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientInitialized;
             var onLanguageServerInitialized =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerInitialized), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerInitialized;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onLanguageClientInitialized as IJsonRpcHandler),
-                options => options.AddHandler(onLanguageServerInitialized as IJsonRpcHandler));
+                options => options.AddHandler(onLanguageServerInitialized as IJsonRpcHandler)
+            );
 
             await onLanguageClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
             await onLanguageServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
@@ -136,9 +138,9 @@ namespace Lsp.Tests.Integration
         public async Task Initialized_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientInitialized =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientInitialized;
+                Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientInitialized;
             var onLanguageServerInitialized =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerInitialized), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerInitialized;
             var (client, server) = await Initialize(o => { }, o => { });
 
@@ -184,13 +186,14 @@ namespace Lsp.Tests.Integration
         public async Task Started_Interface_Is_Supported_On_Handlers()
         {
             var onLanguageClientStarted =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientStarted;
+                Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientStarted;
             var onLanguageServerStarted =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerStarted), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerStarted;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onLanguageClientStarted as IJsonRpcHandler),
-                options => options.AddHandler(onLanguageServerStarted as IJsonRpcHandler));
+                options => options.AddHandler(onLanguageServerStarted as IJsonRpcHandler)
+            );
 
             await onLanguageClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
             await onLanguageServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());
@@ -200,9 +203,9 @@ namespace Lsp.Tests.Integration
         public async Task Started_Interface_Is_Supported_On_Handlers_After_Startup()
         {
             var onLanguageClientStarted =
-                Substitute.For(new Type[] {typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandler)}, Array.Empty<object>()) as IOnLanguageClientStarted;
+                Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandler) }, Array.Empty<object>()) as IOnLanguageClientStarted;
             var onLanguageServerStarted =
-                Substitute.For(new Type[] {typeof(IOnLanguageServerStarted), typeof(CompletionHandler)}, new object[] {new CompletionRegistrationOptions()}) as
+                Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandler) }, new object[] { new CompletionRegistrationOptions() }) as
                     IOnLanguageServerStarted;
             var (client, server) = await Initialize(o => { }, o => { });
 

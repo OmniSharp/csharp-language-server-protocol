@@ -6,41 +6,41 @@ using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     public class Serializer : JsonRpcSerializer, ISerializer
     {
         private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum
-            .GetValues(typeof(CompletionItemKind))
-            .Cast<CompletionItemKind>()
-            .ToArray();
+                                                                                 .GetValues(typeof(CompletionItemKind))
+                                                                                 .Cast<CompletionItemKind>()
+                                                                                 .ToArray();
 
         private static readonly CompletionItemTag[] DefaultCompletionItemTags = Enum
-            .GetValues(typeof(CompletionItemTag))
-            .Cast<CompletionItemTag>()
-            .ToArray();
+                                                                               .GetValues(typeof(CompletionItemTag))
+                                                                               .Cast<CompletionItemTag>()
+                                                                               .ToArray();
 
         private static readonly SymbolKind[] DefaultSymbolKinds = Enum.GetValues(typeof(SymbolKind))
-            .Cast<SymbolKind>()
-            .ToArray();
+                                                                      .Cast<SymbolKind>()
+                                                                      .ToArray();
 
         private static readonly SymbolTag[] DefaultSymbolTags = Enum.GetValues(typeof(SymbolTag))
-            .Cast<SymbolTag>()
-            .ToArray();
+                                                                    .Cast<SymbolTag>()
+                                                                    .ToArray();
 
         private static readonly DiagnosticTag[] DefaultDiagnosticTags = Enum.GetValues(typeof(DiagnosticTag))
-            .Cast<DiagnosticTag>()
-            .ToArray();
+                                                                            .Cast<DiagnosticTag>()
+                                                                            .ToArray();
 
         private static readonly CodeActionKind[] DefaultCodeActionKinds = typeof(CodeActionKind).GetFields(BindingFlags.Static | BindingFlags.Public)
-            .Select(z => z.GetValue(null) )
-            .Cast<CodeActionKind>()
-            .ToArray();
+                                                                                                .Select(z => z.GetValue(null))
+                                                                                                .Cast<CodeActionKind>()
+                                                                                                .ToArray();
 
-        public ClientVersion ClientVersion { get; private set; }
+        public ClientVersion ClientVersion { get; }
 
         public static Serializer Instance { get; } = new Serializer();
 
@@ -48,10 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
         }
 
-        public Serializer(ClientVersion clientVersion)
-        {
-            ClientVersion = clientVersion;
-        }
+        public Serializer(ClientVersion clientVersion) => ClientVersion = clientVersion;
 
 
         protected override JsonSerializer CreateSerializer()
@@ -156,6 +153,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 {
                     documentSymbolKinds = symbolKindSet.ToArray();
                 }
+
                 var valueSet = symbol?.TagSupport.Value?.ValueSet;
                 if (valueSet != null)
                 {
@@ -171,6 +169,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 {
                     workspaceSymbolKinds = symbolKindSet.ToArray();
                 }
+
                 var tagSupportSet = symbol?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet != null)
                 {

@@ -2,7 +2,8 @@
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
-    /// <summary>ExceptionBreakpointsFilter
+    /// <summary>
+    /// ExceptionBreakpointsFilter
     /// An ExceptionBreakpointsFilter is shown in the UI as an option for configuring how exceptions are dealt with.
     /// </summary>
     public class ExceptionBreakpointsFilter
@@ -20,6 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Initial value of the filter. If not specified a value 'false' is assumed.
         /// </summary>
-        [Optional] public bool? Default { get; set; }
+        [Optional]
+        public bool? Default { get; set; }
     }
 }

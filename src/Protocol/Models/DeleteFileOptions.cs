@@ -12,6 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public bool Recursive { get; set; }
+
         /// <summary>
         /// Ignore the operation if the file doesn't exist.
         /// </summary>

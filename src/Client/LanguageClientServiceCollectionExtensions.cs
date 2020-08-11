@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 throw new ArgumentException("Receiver is missing!", nameof(options));
             }
 
-            container  = container.AddLanguageProtocolInternals(options);
+            container = container.AddLanguageProtocolInternals(options);
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterInstanceMany(options.Receiver);
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             }
             else
             {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => _.GetRequiredService<LanguageClient>().Shutdown()), reuse: Reuse.Singleton);
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => _.GetRequiredService<LanguageClient>().Shutdown()), Reuse.Singleton);
             }
 
             container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton);
@@ -45,15 +45,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterMany<LanguageClient>(serviceTypeCondition: type => type == typeof(ILanguageClient) || type == typeof(LanguageClient), reuse: Reuse.Singleton);
 
-            container.RegisterInstance(options.ClientInfo ?? new ClientInfo() {
-                Name = Assembly.GetEntryAssembly()?.GetName().Name,
-                Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                              ?.InformationalVersion ??
-                          Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
-            });
+            container.RegisterInstance(
+                options.ClientInfo ?? new ClientInfo {
+                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                     ?.InformationalVersion ??
+                              Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+                }
+            );
 
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
-            container.RegisterDelegate<IConfiguration>(_ => {
+            container.RegisterDelegate<IConfiguration>(
+                _ => {
                     var builder = new ConfigurationBuilder();
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
@@ -69,21 +72,24 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
                     return builder
                         //.AddConfiguration(didChangeConfigurationProvider)
-                        .Build();
+                       .Build();
                 },
-                reuse: Reuse.Singleton);
+                Reuse.Singleton
+            );
 
-            container.RegisterMany<LanguageClientWorkDoneManager>(reuse: Reuse.Singleton);
-            container.RegisterMany<LanguageClientWorkspaceFoldersManager>(serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
-            container.RegisterMany<LanguageClientRegistrationManager>(serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageClientWorkDoneManager>(Reuse.Singleton);
+            container.RegisterMany<LanguageClientWorkspaceFoldersManager>(
+                serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
+            );
+            container.RegisterMany<LanguageClientRegistrationManager>(
+                serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
+            );
 
             return container;
         }
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions> configureOptions = null)
-        {
-            return AddLanguageClient(services, Options.DefaultName, configureOptions);
-        }
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions> configureOptions = null) =>
+            AddLanguageClient(services, Options.DefaultName, configureOptions);
 
         public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions> configureOptions = null)
         {
@@ -93,15 +99,19 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             {
                 services.RemoveAll<LanguageClient>();
                 services.RemoveAll<ILanguageClient>();
-                services.AddSingleton<ILanguageClient>(_ =>
-                    throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead"));
-                services.AddSingleton<LanguageClient>(_ =>
-                    throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead"));
+                services.AddSingleton<ILanguageClient>(
+                    _ =>
+                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead")
+                );
+                services.AddSingleton<LanguageClient>(
+                    _ =>
+                        throw new NotSupportedException("LanguageClient has been registered multiple times, you must use LanguageClient instead")
+                );
             }
 
             services
-                .AddOptions()
-                .AddLogging();
+               .AddOptions()
+               .AddLogging();
             services.TryAddSingleton<LanguageClientResolver>();
             services.TryAddSingleton(_ => _.GetRequiredService<LanguageClientResolver>().Get(name));
             services.TryAddSingleton<ILanguageClient>(_ => _.GetRequiredService<LanguageClientResolver>().Get(name));

@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class WorkspaceSymbolParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new WorkspaceSymbolParams() {
+            var model = new WorkspaceSymbolParams {
                 Query = "query"
             };
             var result = Fixture.SerializeObject(model);

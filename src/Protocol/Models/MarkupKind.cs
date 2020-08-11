@@ -17,12 +17,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Plain text is supported as a content format
         /// </summary>
-        [EnumMember(Value="plaintext")]
-        PlainText, // Only capitalize the first letter because the above converter will only lower case the first letter today
+        [EnumMember(Value = "plaintext")] PlainText, // Only capitalize the first letter because the above converter will only lower case the first letter today
+
         /// <summary>
         /// Markdown is supported as a content format
         /// </summary>
-        [EnumMember(Value="markdown")]
-        Markdown,
+        [EnumMember(Value = "markdown")] Markdown,
     }
 }

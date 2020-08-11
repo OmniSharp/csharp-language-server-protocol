@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -16,7 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Evaluate the expression in the scope of this stack frame. If not specified, the expression is evaluated in the global scope.
         /// </summary>
-        [Optional] public long? FrameId { get; set; }
+        [Optional]
+        public long? FrameId { get; set; }
 
         /// <summary>
         /// The context in which the evaluate request is run.
@@ -26,12 +27,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// 'hover': evaluate is run from a data hover.
         /// etc.
         /// </summary>
-        [Optional] public string Context { get; set; }
+        [Optional]
+        public string Context { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the Evaluate result.
         /// </summary>
-        [Optional] public ValueFormat Format { get; set; }
+        [Optional]
+        public ValueFormat Format { get; set; }
     }
-
 }

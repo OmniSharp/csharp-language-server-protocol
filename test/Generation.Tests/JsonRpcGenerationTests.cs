@@ -1,7 +1,4 @@
 using System.Threading.Tasks;
-using Snapper;
-using Snapper.Attributes;
-using Snapper.Core;
 using Xunit;
 using static Generation.Tests.GenerationHelpers;
 
@@ -656,6 +653,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 }";
             await AssertGeneratedAsExpected(source, expected);
         }
+
         [Fact]
         public async Task Supports_Allow_Generic_Types()
         {

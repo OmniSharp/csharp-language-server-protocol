@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// An optional column location for which the goto targets are determined.
         /// </summary>
-        [Optional] public long? Column { get; set; }
+        [Optional]
+        public long? Column { get; set; }
     }
-
 }

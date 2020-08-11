@@ -22,10 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 return new LocationOrLocationLink(obj.ToObject<Location>());
             }
-            else
-            {
-                return new LocationOrLocationLink(obj.ToObject<LocationLink>());
-            }
+
+            return new LocationOrLocationLink(obj.ToObject<LocationLink>());
         }
 
         public override bool CanRead => true;

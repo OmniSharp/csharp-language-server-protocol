@@ -11,10 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A create
         /// </summary>
         public ResourceOperationKind Kind { get; } = ResourceOperationKind.Create;
+
         /// <summary>
         /// The resource to create.
         /// </summary>
         public DocumentUri Uri { get; set; }
+
         /// <summary>
         /// Additional Options
         /// </summary>

@@ -7,11 +7,11 @@ namespace Lsp.Tests.Capabilities.Client
 {
     public class SynchronizationCapabilityTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SynchronizationCapability()
-            {
+            var model = new SynchronizationCapability {
                 WillSave = false,
                 WillSaveWaitUntil = false,
                 DidSave = false,

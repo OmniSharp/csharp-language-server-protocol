@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class DocumentLinkParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentLinkParams() {
+            var model = new DocumentLinkParams {
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))
             };
             var result = Fixture.SerializeObject(model);

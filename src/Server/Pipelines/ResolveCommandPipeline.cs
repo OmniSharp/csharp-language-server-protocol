@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -36,7 +35,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 _logger.LogTrace(
                     "Updating Resolve items with wrapped data for {Method}:{Handler}",
                     _descriptor.Method,
-                    _descriptor.ImplementationType.FullName);
+                    _descriptor.ImplementationType.FullName
+                );
                 foreach (var item in canBeResolvedItems)
                 {
                     item.Data ??= new JObject();

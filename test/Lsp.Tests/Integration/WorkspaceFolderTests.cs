@@ -5,18 +5,12 @@ using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
-using Microsoft.Reactive.Testing;
-using Newtonsoft.Json;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
@@ -26,10 +20,11 @@ namespace Lsp.Tests.Integration
 {
     public class WorkspaceFolderTests : LanguageProtocolTestBase
     {
-        public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
-            .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
-            .WithSettleTimeout(TimeSpan.FromSeconds(2))
+        public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions()
+               .ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
+               .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
+               .WithSettleTimeout(TimeSpan.FromSeconds(2))
         )
         {
         }
@@ -37,12 +32,12 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Disable_If_Not_Supported()
         {
-            var (client, server) = await Initialize(options => {
-                options.DisableAllCapabilities();
-                options.OnInitialize(async (languageClient, request, token) => {
-                    request.Capabilities.Workspace.WorkspaceFolders = false;
-                });
-            }, ConfigureServer);
+            var (client, server) = await Initialize(
+                options => {
+                    options.DisableAllCapabilities();
+                    options.OnInitialize(async (languageClient, request, token) => { request.Capabilities.Workspace.WorkspaceFolders = false; });
+                }, ConfigureServer
+            );
             server.WorkspaceFolderManager.IsSupported.Should().Be(false);
             var folders = await server.WorkspaceFolderManager.Refresh().ToArray().ToTask();
             folders.Should().BeEmpty();
@@ -85,9 +80,7 @@ namespace Lsp.Tests.Integration
         [Fact(Skip = "Test fails periodically on CI but not locally")]
         public async Task Should_Remove_Workspace_Folder_by_name()
         {
-            var (client, server) = await Initialize(options => {
-                options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_name));
-            }, ConfigureServer);
+            var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_name)); }, ConfigureServer);
 
             var folders = new List<WorkspaceFolderChange>();
             server.WorkspaceFolderManager.Changed.Subscribe(x => folders.Add(x));
@@ -108,9 +101,7 @@ namespace Lsp.Tests.Integration
         [Fact(Skip = "Test fails periodically on CI but not locally")]
         public async Task Should_Remove_Workspace_Folder_by_uri()
         {
-            var (client, server) = await Initialize(options => {
-                options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_uri));
-            }, ConfigureServer);
+            var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_uri)); }, ConfigureServer);
 
             var folders = new List<WorkspaceFolderChange>();
             server.WorkspaceFolderManager.Changed.Subscribe(x => folders.Add(x));
@@ -128,14 +119,14 @@ namespace Lsp.Tests.Integration
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_uri));
         }
 
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.WithClientCapabilities(new ClientCapabilities() {
-                Workspace = new WorkspaceClientCapabilities() {
-                    WorkspaceFolders = true
+        private void ConfigureClient(LanguageClientOptions options) =>
+            options.WithClientCapabilities(
+                new ClientCapabilities {
+                    Workspace = new WorkspaceClientCapabilities {
+                        WorkspaceFolders = true
+                    }
                 }
-            });
-        }
+            );
 
         private void ConfigureServer(LanguageServerOptions options)
         {

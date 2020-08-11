@@ -1,9 +1,7 @@
 using System.Linq;
 using FluentAssertions;
-using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
@@ -29,18 +27,18 @@ namespace Dap.Tests
                 var response = result[i];
 
                 inSerializer.SerializeObject(response)
-                    .Should().Be(outSerializer.SerializeObject(r));
+                            .Should().Be(outSerializer.SerializeObject(r));
             }
         }
 
-        class SpecificationMessages : TheoryData<string, Renor[]>
+        private class SpecificationMessages : TheoryData<string, Renor[]>
         {
             public SpecificationMessages()
             {
                 Add(
                     @"{""seq"": ""0"", ""type"": ""request"", ""command"": ""attach"", ""arguments"": { ""__restart"": 3 }}",
                     new Renor[] {
-                        new Request(0, "attach", new JObject() {{"__restart", 3}})
+                        new Request(0, "attach", new JObject { { "__restart", 3 } })
                     }
                 );
 
@@ -54,7 +52,7 @@ namespace Dap.Tests
                 Add(
                     @"{""seq"": ""0"", ""type"": ""event"", ""event"": ""breakpoint"", ""body"": { ""reason"": ""new"" }}",
                     new Renor[] {
-                        new Notification("breakpoint", new JObject() {{"reason", "new"}}),
+                        new Notification("breakpoint", new JObject { { "reason", "new" } }),
                     }
                 );
 
@@ -98,7 +96,8 @@ namespace Dap.Tests
                     @"[1]",
                     new Renor[] {
                         new InvalidRequest(string.Empty, "Not an object")
-                    });
+                    }
+                );
             }
         }
 
@@ -111,7 +110,7 @@ namespace Dap.Tests
             result.Should().Be(expected);
         }
 
-        class InvalidMessages : TheoryData<string, bool>
+        private class InvalidMessages : TheoryData<string, bool>
         {
             public InvalidMessages()
             {

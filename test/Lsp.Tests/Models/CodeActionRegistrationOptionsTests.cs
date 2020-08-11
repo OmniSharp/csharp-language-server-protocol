@@ -8,19 +8,22 @@ namespace Lsp.Tests.Models
 {
     public class CodeActionRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeActionRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new[] { new DocumentFilter(){
-                    Language = "csharp",
-                    Pattern = "pattern",
-                    Scheme = "scheme"
-                }, new DocumentFilter(){
-                    Language = "vb",
-                    Pattern = "pattern",
-                    Scheme = "scheme"
-                } }),
+            var model = new CodeActionRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp",
+                        Pattern = "pattern",
+                        Scheme = "scheme"
+                    }, new DocumentFilter {
+                        Language = "vb",
+                        Pattern = "pattern",
+                        Scheme = "scheme"
+                    }
+                ),
                 CodeActionKinds = new[] {
                     CodeActionKind.QuickFix,
                     CodeActionKind.Refactor,

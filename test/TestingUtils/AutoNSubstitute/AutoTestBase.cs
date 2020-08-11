@@ -25,8 +25,8 @@ namespace NSubstitute
             _action = cb => {
                 action(cb);
                 Services
-                    .AddLogging()
-                    .AddSingleton(LoggerFactory);
+                   .AddLogging()
+                   .AddSingleton(LoggerFactory);
                 cb.Populate(Services);
             };
         }
@@ -35,18 +35,22 @@ namespace NSubstitute
         public ILogger Logger { get; }
         public IServiceCollection Services { get; } = new ServiceCollection();
 
-        internal AutoSubstitute AutoSubstitute => _autoSubstitute ??= new AutoSubstitute(new Container().WithDependencyInjectionAdapter(), _ => {
-            _action(_);
-            return _;
-        });
+        internal AutoSubstitute AutoSubstitute => _autoSubstitute ??= new AutoSubstitute(
+            new Container().WithDependencyInjectionAdapter(), _ => {
+                _action(_);
+                return _;
+            }
+        );
 
         internal IContainer Container
         {
             get => AutoSubstitute.Container;
-            set => _autoSubstitute = new AutoSubstitute(value, _ => {
-                _action(_);
-                return _;
-            });
+            set => _autoSubstitute = new AutoSubstitute(
+                value, _ => {
+                    _action(_);
+                    return _;
+                }
+            );
         }
 
         public IServiceProvider ServiceProvider => AutoSubstitute.Container.Resolve<IServiceProvider>();

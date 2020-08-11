@@ -9,19 +9,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Serial, Method(TextDocumentNames.DidChange, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    [Serial]
+    [Method(TextDocumentNames.DidChange, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IDidChangeTextDocumentHandler : IJsonRpcNotificationHandler<DidChangeTextDocumentParams>,
-        IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<SynchronizationCapability>
-    { }
+                                                     IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<SynchronizationCapability>
+    {
+    }
 
     public abstract class DidChangeTextDocumentHandler : IDidChangeTextDocumentHandler
     {
         private readonly TextDocumentChangeRegistrationOptions _options;
-        public DidChangeTextDocumentHandler(TextDocumentChangeRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public DidChangeTextDocumentHandler(TextDocumentChangeRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public TextDocumentChangeRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);

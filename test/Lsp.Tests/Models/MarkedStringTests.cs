@@ -8,7 +8,8 @@ namespace Lsp.Tests.Models
 {
     public class MarkedStringTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
             var model = new MarkedString("csharp", "some documented text...");

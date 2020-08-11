@@ -5,9 +5,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
     [JsonConverter(typeof(StringEnumConverter))]
     public enum SteppingGranularity
-    { 
-        Statement, 
-        Line, 
+    {
+        Statement,
+        Line,
         Instruction,
     }
 }

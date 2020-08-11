@@ -8,13 +8,16 @@ namespace Lsp.Tests.Models
 {
     public class TextDocumentSaveRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentSaveRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                    Language = "csharp"
-                }),
+            var model = new TextDocumentSaveRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp"
+                    }
+                ),
                 IncludeText = true
             };
             var result = Fixture.SerializeObject(model);

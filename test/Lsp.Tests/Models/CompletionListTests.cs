@@ -9,14 +9,18 @@ namespace Lsp.Tests.Models
 {
     public class CompletionListTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionList(new List<CompletionItem>() { new CompletionItem()
-            {
-                Kind = CompletionItemKind.Class,
-                Detail = "details"
-            } });
+            var model = new CompletionList(
+                new List<CompletionItem> {
+                    new CompletionItem {
+                        Kind = CompletionItemKind.Class,
+                        Detail = "details"
+                    }
+                }
+            );
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
@@ -25,15 +29,18 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void ComplexTest(string expected)
         {
-            var model = new CompletionList(new List<CompletionItem>() {
-                new CompletionItem()
-            {
-                Kind = CompletionItemKind.Class,
-                Detail = "details"
-            } }, true);
+            var model = new CompletionList(
+                new List<CompletionItem> {
+                    new CompletionItem {
+                        Kind = CompletionItemKind.Class,
+                        Detail = "details"
+                    }
+                }, true
+            );
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

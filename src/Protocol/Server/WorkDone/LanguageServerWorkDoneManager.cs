@@ -7,16 +7,14 @@ using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 {
-    class LanguageServerWorkDoneManager : IServerWorkDoneManager
+    internal class LanguageServerWorkDoneManager : IServerWorkDoneManager
     {
         private readonly IResponseRouter _router;
         private readonly ISerializer _serializer;
-        private bool _supported;
 
         private readonly ConcurrentDictionary<ProgressToken, CancellationTokenSource> _activeObserverTokens
             = new ConcurrentDictionary<ProgressToken, CancellationTokenSource>(EqualityComparer<ProgressToken>.Default);
@@ -30,22 +28,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             _serializer = serializer;
         }
 
-        public void Initialized(WindowClientCapabilities windowClientCapabilities)
-        {
-            _supported = windowClientCapabilities.WorkDoneProgress.IsSupported &&
-                         windowClientCapabilities.WorkDoneProgress.Value;
-        }
+        public void Initialized(WindowClientCapabilities windowClientCapabilities) =>
+            IsSupported = windowClientCapabilities.WorkDoneProgress.IsSupported &&
+                          windowClientCapabilities.WorkDoneProgress.Value;
 
-        public bool IsSupported => _supported;
+        public bool IsSupported { get; private set; }
 
         /// <summary>
         /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
         /// </summary>
-        public async Task<IWorkDoneObserver> Create(ProgressToken progressToken, WorkDoneProgressBegin begin,
-            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default)
+        public async Task<IWorkDoneObserver> Create(
+            ProgressToken progressToken, WorkDoneProgressBegin begin,
+            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default
+        )
         {
-            if (!_supported)
+            if (!IsSupported)
             {
                 return NoopWorkDoneObserver.Instance;
             }
@@ -55,9 +53,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
                 return item;
             }
 
-            await _router.SendRequest(new WorkDoneProgressCreateParams() {Token = progressToken}, cancellationToken);
+            await _router.SendRequest(new WorkDoneProgressCreateParams { Token = progressToken }, cancellationToken);
 
-            onError ??= error => new WorkDoneProgressEnd() {
+            onError ??= error => new WorkDoneProgressEnd {
                 Message = error.ToString()
             };
 
@@ -83,20 +81,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// Creates a <see cref="IObserver{WorkDoneProgressReport}" /> that will send all of its progress information to the same source.
         /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
         /// </summary>
-        public Task<IWorkDoneObserver> Create(WorkDoneProgressBegin begin,
-            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default)
-        {
-            return Create(new ProgressToken(Guid.NewGuid().ToString()), begin, onError, onComplete, cancellationToken);
-        }
+        public Task<IWorkDoneObserver> Create(
+            WorkDoneProgressBegin begin,
+            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default
+        ) =>
+            Create(new ProgressToken(Guid.NewGuid().ToString()), begin, onError, onComplete, cancellationToken);
 
         /// <summary>
         /// Creates a <see cref="IWorkDoneObserver" /> that will send all of its progress information to the same source.
         /// </summary>
-        public IWorkDoneObserver For(IWorkDoneProgressParams request,
+        public IWorkDoneObserver For(
+            IWorkDoneProgressParams request,
             WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null,
-            Func<WorkDoneProgressEnd> onComplete = null)
+            Func<WorkDoneProgressEnd> onComplete = null
+        )
         {
-            if (!_supported || request.WorkDoneToken == null)
+            if (!IsSupported || request.WorkDoneToken == null)
             {
                 return NoopWorkDoneObserver.Instance;
             }
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
                 return item;
             }
 
-            onError ??= error => new WorkDoneProgressEnd() {
+            onError ??= error => new WorkDoneProgressEnd {
                 Message = error.ToString()
             };
 
@@ -127,8 +127,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             return observer;
         }
 
-        Task<MediatR.Unit> IRequestHandler<WorkDoneProgressCancelParams, MediatR.Unit>.Handle(
-            WorkDoneProgressCancelParams request, CancellationToken cancellationToken)
+        Task<Unit> IRequestHandler<WorkDoneProgressCancelParams, Unit>.Handle(
+            WorkDoneProgressCancelParams request, CancellationToken cancellationToken
+        )
         {
             if (_activeObserverTokens.TryRemove(request.Token, out var cts))
             {
@@ -137,7 +138,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 
             _activeObservers.TryRemove(request.Token, out var observer);
 
-            return MediatR.Unit.Task;
+            return Unit.Task;
         }
     }
 }

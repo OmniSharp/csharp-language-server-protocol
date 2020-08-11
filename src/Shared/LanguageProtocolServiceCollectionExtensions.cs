@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
@@ -16,9 +13,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
     {
         internal static IContainer AddLanguageProtocolInternals<T>(this IContainer container, LanguageProtocolRpcOptionsBase<T> options) where T : IJsonRpcHandlerRegistry<T>
         {
-            options.RequestProcessIdentifier ??= (options.SupportsContentModified
+            options.RequestProcessIdentifier ??= options.SupportsContentModified
                 ? new RequestProcessIdentifier(RequestProcessType.Parallel)
-                : new RequestProcessIdentifier(RequestProcessType.Serial));
+                : new RequestProcessIdentifier();
 
             if (options.Serializer == null)
             {
@@ -31,19 +28,19 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterMany<LanguageProtocolSettingsBag>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
-            container.RegisterMany<SupportedCapabilities>(reuse: Reuse.Singleton);
-            container.Register<TextDocumentIdentifiers>(reuse: Reuse.Singleton);
-            container.RegisterInitializer<TextDocumentIdentifiers>((identifiers, context) => {
-                identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray());
-            });
-            container.RegisterMany<LspRequestRouter>(reuse: Reuse.Singleton);
+            container.RegisterMany<SupportedCapabilities>(Reuse.Singleton);
+            container.Register<TextDocumentIdentifiers>(Reuse.Singleton);
+            container.RegisterInitializer<TextDocumentIdentifiers>((identifiers, context) => { identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray()); });
+            container.RegisterMany<LspRequestRouter>(Reuse.Singleton);
             container.RegisterMany<SharedHandlerCollection>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
-            container.RegisterInitializer<SharedHandlerCollection>((manager, context) => {
-                var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                descriptions.Populate(context, manager);
-            });
-            container.RegisterMany<ResponseRouter>(reuse: Reuse.Singleton);
-            container.RegisterMany<ProgressManager>(reuse: Reuse.Singleton);
+            container.RegisterInitializer<SharedHandlerCollection>(
+                (manager, context) => {
+                    var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
+                    descriptions.Populate(context, manager);
+                }
+            );
+            container.RegisterMany<ResponseRouter>(Reuse.Singleton);
+            container.RegisterMany<ProgressManager>(Reuse.Singleton);
 
             return container;
         }

@@ -1,13 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reactive.Disposables;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,22 +13,19 @@ namespace JsonRpc.Tests
 {
     public class RequestRouterTests : AutoTestBase
     {
-        public RequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-        {
-            Container = JsonRpcTestContainer.Create(testOutputHelper);
-        }
+        public RequestRouterTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper) => Container = JsonRpcTestContainer.Create(testOutputHelper);
 
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Func<string, Task<long>>>();
             method.Invoke(Arg.Any<string>()).Returns(1000L);
-            registry.OnRequest<string, long>("$/my/something/awesome", method);
+            registry.OnRequest("$/my/something/awesome", method);
 
             registry.Populate(collection, ServiceProvider);
 
@@ -44,14 +38,14 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Func<string, Task>>();
             method.Invoke(Arg.Any<string>()).Returns(Task.CompletedTask);
-            registry.OnRequest<string>("$/my/something/awesome", method);
+            registry.OnRequest("$/my/something/awesome", method);
 
             registry.Populate(collection, ServiceProvider);
 
@@ -64,13 +58,13 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
             var mediator = AutoSubstitute.Resolve<RequestRouter>();
             var method = Substitute.For<Action<string>>();
-            registry.OnNotification<string>("$/my/something/awesome", method);
+            registry.OnNotification("$/my/something/awesome", method);
 
             registry.Populate(collection, ServiceProvider);
 
@@ -83,7 +77,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

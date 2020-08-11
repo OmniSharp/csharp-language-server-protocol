@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

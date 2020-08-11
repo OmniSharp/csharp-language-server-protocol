@@ -8,7 +8,8 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class TextDocumentSyncTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void TextDocumentSyncKind_Full(string expected)
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.Full);
@@ -20,7 +21,8 @@ namespace Lsp.Tests.Capabilities.Server
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void TextDocumentSyncKind_Incremental(string expected)
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.Incremental);
@@ -32,7 +34,8 @@ namespace Lsp.Tests.Capabilities.Server
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void TextDocumentSyncKind_None(string expected)
         {
             var model = new TextDocumentSync(TextDocumentSyncKind.None);
@@ -44,20 +47,21 @@ namespace Lsp.Tests.Capabilities.Server
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void TextDocumentSyncOptions(string expected)
         {
-            var model = new TextDocumentSync(new TextDocumentSyncOptions()
-            {
-                OpenClose = true,
-                Change = TextDocumentSyncKind.Full,
-                Save = new SaveOptions()
-                {
-                    IncludeText = true
-                },
-                WillSave = true,
-                WillSaveWaitUntil = true
-            });
+            var model = new TextDocumentSync(
+                new TextDocumentSyncOptions {
+                    OpenClose = true,
+                    Change = TextDocumentSyncKind.Full,
+                    Save = new SaveOptions {
+                        IncludeText = true
+                    },
+                    WillSave = true,
+                    WillSaveWaitUntil = true
+                }
+            );
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

@@ -2,7 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    class LanguageProtocolSettingsBag : ILanguageProtocolSettings
+    internal class LanguageProtocolSettingsBag : ILanguageProtocolSettings
     {
         public InitializeParams ClientSettings { get; internal set; }
 

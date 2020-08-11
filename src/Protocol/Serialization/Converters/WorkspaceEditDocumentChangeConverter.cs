@@ -15,7 +15,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsTextDocumentEdit) serializer.Serialize(writer, value.TextDocumentEdit);
         }
 
-        public override WorkspaceEditDocumentChange ReadJson(JsonReader reader, Type objectType, WorkspaceEditDocumentChange existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override WorkspaceEditDocumentChange ReadJson(
+            JsonReader reader, Type objectType, WorkspaceEditDocumentChange existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             var obj = JObject.Load(reader);
             if (obj.ContainsKey("kind"))
@@ -33,10 +35,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                         throw new NotSupportedException("Object with " + kind + " is not supported");
                 }
             }
-            else
-            {
-                return new WorkspaceEditDocumentChange(obj.ToObject<TextDocumentEdit>());
-            }
+
+            return new WorkspaceEditDocumentChange(obj.ToObject<TextDocumentEdit>());
         }
 
         public override bool CanRead => true;

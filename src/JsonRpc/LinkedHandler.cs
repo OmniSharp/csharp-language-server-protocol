@@ -15,6 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _disposeAction = disposeAction;
             Method = method;
         }
+
         public string Method { get; }
         public Type HandlerType => _descriptor.HandlerType;
 
@@ -32,9 +33,6 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public RequestProcessType? RequestProcessType => _descriptor.RequestProcessType;
 
-        public void Dispose()
-        {
-            _disposeAction();
-        }
+        public void Dispose() => _disposeAction();
     }
 }

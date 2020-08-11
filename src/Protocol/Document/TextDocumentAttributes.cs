@@ -22,18 +22,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public string Scheme { get; }
         public string LanguageId { get; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as TextDocumentAttributes);
-        }
+        public override bool Equals(object obj) => Equals(obj as TextDocumentAttributes);
 
-        public bool Equals(TextDocumentAttributes other)
-        {
-            return other != null &&
-                   DocumentUri.Comparer.Equals(Uri, other.Uri) &&
-                   Scheme == other.Scheme &&
-                   LanguageId == other.LanguageId;
-        }
+        public bool Equals(TextDocumentAttributes other) =>
+            other != null &&
+            DocumentUri.Comparer.Equals(Uri, other.Uri) &&
+            Scheme == other.Scheme &&
+            LanguageId == other.LanguageId;
 
         public override int GetHashCode()
         {
@@ -44,14 +39,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             return hashCode;
         }
 
-        public static bool operator ==(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2)
-        {
-            return EqualityComparer<TextDocumentAttributes>.Default.Equals(attributes1, attributes2);
-        }
+        public static bool operator ==(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2) =>
+            EqualityComparer<TextDocumentAttributes>.Default.Equals(attributes1, attributes2);
 
-        public static bool operator !=(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2)
-        {
-            return !(attributes1 == attributes2);
-        }
+        public static bool operator !=(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2) => !( attributes1 == attributes2 );
     }
 }

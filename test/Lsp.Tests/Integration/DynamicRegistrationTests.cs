@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -24,10 +23,11 @@ namespace Lsp.Tests.Integration
 {
     public class DynamicRegistrationTests : LanguageProtocolTestBase
     {
-        public DynamicRegistrationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
-            .WithSettleTimeout(TimeSpan.FromSeconds(2))
+        public DynamicRegistrationTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions()
+               .ConfigureForXUnit(outputHelper)
+               .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
+               .WithSettleTimeout(TimeSpan.FromSeconds(2))
         )
         {
         }
@@ -41,8 +41,9 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
-            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
-                x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(
+                x =>
+                    x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
             );
         }
 
@@ -56,19 +57,22 @@ namespace Lsp.Tests.Integration
             await ServerEvents.Settle();
             await ClientEvents.Settle();
 
-            server.Register(x => x
-                .OnCompletion(
-                    (@params, token) => Task.FromResult(new CompletionList()),
-                    registrationOptions: new CompletionRegistrationOptions() {
-                        DocumentSelector = DocumentSelector.ForLanguage("vb")
-                    })
+            server.Register(
+                x => x
+                   .OnCompletion(
+                        (@params, token) => Task.FromResult(new CompletionList()),
+                        new CompletionRegistrationOptions {
+                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                        }
+                    )
             );
 
             await ServerEvents.Settle();
             await ClientEvents.Settle();
 
-            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
-                x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(
+                x =>
+                    x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
             );
         }
 
@@ -81,29 +85,34 @@ namespace Lsp.Tests.Integration
 
             await SettleNext();
 
-            server.Register(x => x
-                .OnCompletion(
-                    (@params, token) => Task.FromResult(new CompletionList()),
-                    registrationOptions: new CompletionRegistrationOptions() {
-                        DocumentSelector = DocumentSelector.ForLanguage("vb")
-                    })
+            server.Register(
+                x => x
+                   .OnCompletion(
+                        (@params, token) => Task.FromResult(new CompletionList()),
+                        new CompletionRegistrationOptions {
+                            DocumentSelector = DocumentSelector.ForLanguage("vb")
+                        }
+                    )
             );
 
             await SettleNext();
 
-            client.RegistrationManager.CurrentRegistrations.Should().Contain(x =>
-                x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
+            client.RegistrationManager.CurrentRegistrations.Should().Contain(
+                x =>
+                    x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
             );
         }
 
         [Fact]
         public async Task Should_Gather_Linked_Registrations()
         {
-            var (client, server) = await Initialize(ConfigureClient,
+            var (client, server) = await Initialize(
+                ConfigureClient,
                 options => {
                     ConfigureServer(options);
                     options.WithLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull);
-                });
+                }
+            );
 
             await SettleNext();
 
@@ -122,33 +131,37 @@ namespace Lsp.Tests.Integration
 
             await Events.SettleNext();
 
-            var disposable = server.Register(x => x.OnCompletion(
-                (@params, token) => Task.FromResult(new CompletionList()),
-                registrationOptions: new CompletionRegistrationOptions() {
-                    DocumentSelector = DocumentSelector.ForLanguage("vb")
-                })
+            var disposable = server.Register(
+                x => x.OnCompletion(
+                    (@params, token) => Task.FromResult(new CompletionList()),
+                    new CompletionRegistrationOptions {
+                        DocumentSelector = DocumentSelector.ForLanguage("vb")
+                    }
+                )
             );
 
             await SettleNext();
             disposable.Dispose();
             await SettleNext();
 
-            client.RegistrationManager.CurrentRegistrations.Should().NotContain(x =>
-                x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(
+                x =>
+                    x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
             );
         }
 
         [Fact]
         public async Task Should_Gather_Static_Registrations()
         {
-            var (client, server) = await Initialize(ConfigureClient,
+            var (client, server) = await Initialize(
+                ConfigureClient,
                 options => {
                     ConfigureServer(options);
-                    var semanticRegistrationOptions = new SemanticTokensRegistrationOptions() {
+                    var semanticRegistrationOptions = new SemanticTokensRegistrationOptions {
                         Id = Guid.NewGuid().ToString(),
                         Legend = new SemanticTokensLegend(),
-                        Full = new SemanticTokensCapabilityRequestFull() {Delta = true},
-                        Range = new SemanticTokensCapabilityRequestRange() { },
+                        Full = new SemanticTokensCapabilityRequestFull { Delta = true },
+                        Range = new SemanticTokensCapabilityRequestRange(),
                         DocumentSelector = DocumentSelector.ForLanguage("csharp")
                     };
 
@@ -156,119 +169,140 @@ namespace Lsp.Tests.Integration
                     // This forces it to do that.
                     options.OnInitialized(
                         (server, request, response, token) => {
-                            response.Capabilities.SemanticTokensProvider = SemanticTokensOptions.Of(semanticRegistrationOptions,
-                                Enumerable.Empty<ILspHandlerDescriptor>());
+                            response.Capabilities.SemanticTokensProvider = SemanticTokensOptions.Of(
+                                semanticRegistrationOptions,
+                                Enumerable.Empty<ILspHandlerDescriptor>()
+                            );
                             response.Capabilities.SemanticTokensProvider.Id = semanticRegistrationOptions.Id;
                             return Task.CompletedTask;
-                        });
-                });
+                        }
+                    );
+                }
+            );
             client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
         }
 
         [Fact]
         public async Task Should_Register_Static_When_Dynamic_Is_Disabled()
         {
-            var (client, server) = await Initialize(options => {
-                ConfigureClient(options);
-                options.DisableDynamicRegistration();
-            }, ConfigureServer);
+            var (client, server) = await Initialize(
+                options => {
+                    ConfigureClient(options);
+                    options.DisableDynamicRegistration();
+                }, ConfigureServer
+            );
 
-            client.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(new CompletionOptions() {
-                ResolveProvider = true,
-                TriggerCharacters = new Container<string>("a", "b"),
-                AllCommitCharacters = new Container<string>("1", "2"),
-            }, x => x.Excluding(z => z.WorkDoneProgress));
-            server.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(new CompletionCapability() {
-                CompletionItem = new CompletionItemCapability() {
-                    DeprecatedSupport = true,
-                    DocumentationFormat = new[] {MarkupKind.Markdown},
-                    PreselectSupport = true,
-                    SnippetSupport = true,
-                    TagSupport = new CompletionItemTagSupportCapability() {
-                        ValueSet = new[] {
-                            CompletionItemTag.Deprecated
-                        }
+            client.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(
+                new CompletionOptions {
+                    ResolveProvider = true,
+                    TriggerCharacters = new Container<string>("a", "b"),
+                    AllCommitCharacters = new Container<string>("1", "2"),
+                }, x => x.Excluding(z => z.WorkDoneProgress)
+            );
+            server.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                new CompletionCapability {
+                    CompletionItem = new CompletionItemCapability {
+                        DeprecatedSupport = true,
+                        DocumentationFormat = new[] { MarkupKind.Markdown },
+                        PreselectSupport = true,
+                        SnippetSupport = true,
+                        TagSupport = new CompletionItemTagSupportCapability {
+                            ValueSet = new[] {
+                                CompletionItemTag.Deprecated
+                            }
+                        },
+                        CommitCharactersSupport = true
                     },
-                    CommitCharactersSupport = true
-                },
-                ContextSupport = true,
-                CompletionItemKind = new CompletionItemKindCapability() {
-                    ValueSet = new Container<CompletionItemKind>(Enum.GetValues(typeof(CompletionItemKind))
-                        .Cast<CompletionItemKind>())
-                }
-            }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration));
-            client.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(new CompletionCapability() {
-                CompletionItem = new CompletionItemCapability() {
-                    DeprecatedSupport = true,
-                    DocumentationFormat = new[] {MarkupKind.Markdown},
-                    PreselectSupport = true,
-                    SnippetSupport = true,
-                    TagSupport = new CompletionItemTagSupportCapability() {
-                        ValueSet = new[] {
-                            CompletionItemTag.Deprecated
-                        }
+                    ContextSupport = true,
+                    CompletionItemKind = new CompletionItemKindCapability {
+                        ValueSet = new Container<CompletionItemKind>(
+                            Enum.GetValues(typeof(CompletionItemKind))
+                                .Cast<CompletionItemKind>()
+                        )
+                    }
+                }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration)
+            );
+            client.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                new CompletionCapability {
+                    CompletionItem = new CompletionItemCapability {
+                        DeprecatedSupport = true,
+                        DocumentationFormat = new[] { MarkupKind.Markdown },
+                        PreselectSupport = true,
+                        SnippetSupport = true,
+                        TagSupport = new CompletionItemTagSupportCapability {
+                            ValueSet = new[] {
+                                CompletionItemTag.Deprecated
+                            }
+                        },
+                        CommitCharactersSupport = true
                     },
-                    CommitCharactersSupport = true
-                },
-                ContextSupport = true,
-                CompletionItemKind = new CompletionItemKindCapability() {
-                    ValueSet = new Container<CompletionItemKind>(Enum.GetValues(typeof(CompletionItemKind))
-                        .Cast<CompletionItemKind>())
-                }
-            }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration));
+                    ContextSupport = true,
+                    CompletionItemKind = new CompletionItemKindCapability {
+                        ValueSet = new Container<CompletionItemKind>(
+                            Enum.GetValues(typeof(CompletionItemKind))
+                                .Cast<CompletionItemKind>()
+                        )
+                    }
+                }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration)
+            );
 
             client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFull);
         }
 
         private void ConfigureClient(LanguageClientOptions options)
         {
-            options.WithCapability(new CompletionCapability() {
-                CompletionItem = new CompletionItemCapability() {
-                    DeprecatedSupport = true,
-                    DocumentationFormat = new[] {MarkupKind.Markdown},
-                    PreselectSupport = true,
-                    SnippetSupport = true,
-                    TagSupport = new CompletionItemTagSupportCapability() {
-                        ValueSet = new[] {
-                            CompletionItemTag.Deprecated
-                        }
+            options.WithCapability(
+                new CompletionCapability {
+                    CompletionItem = new CompletionItemCapability {
+                        DeprecatedSupport = true,
+                        DocumentationFormat = new[] { MarkupKind.Markdown },
+                        PreselectSupport = true,
+                        SnippetSupport = true,
+                        TagSupport = new CompletionItemTagSupportCapability {
+                            ValueSet = new[] {
+                                CompletionItemTag.Deprecated
+                            }
+                        },
+                        CommitCharactersSupport = true
                     },
-                    CommitCharactersSupport = true
-                },
-                ContextSupport = true,
-                CompletionItemKind = new CompletionItemKindCapability() {
-                    ValueSet = new Container<CompletionItemKind>(Enum.GetValues(typeof(CompletionItemKind))
-                        .Cast<CompletionItemKind>())
+                    ContextSupport = true,
+                    CompletionItemKind = new CompletionItemKindCapability {
+                        ValueSet = new Container<CompletionItemKind>(
+                            Enum.GetValues(typeof(CompletionItemKind))
+                                .Cast<CompletionItemKind>()
+                        )
+                    }
                 }
-            });
+            );
 
-            options.WithCapability(new SemanticTokensCapability() {
-                TokenModifiers = SemanticTokenModifier.Defaults.ToArray(),
-                TokenTypes = SemanticTokenType.Defaults.ToArray()
-            });
+            options.WithCapability(
+                new SemanticTokensCapability {
+                    TokenModifiers = SemanticTokenModifier.Defaults.ToArray(),
+                    TokenTypes = SemanticTokenType.Defaults.ToArray()
+                }
+            );
         }
 
         private void ConfigureServer(LanguageServerOptions options)
         {
             options.OnCompletion(
                 (@params, token) => Task.FromResult(new CompletionList()),
-                registrationOptions: new CompletionRegistrationOptions() {
+                new CompletionRegistrationOptions {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                     ResolveProvider = false,
                     TriggerCharacters = new Container<string>("a", "b"),
                     AllCommitCharacters = new Container<string>("1", "2"),
-                });
+                }
+            );
 
             options.OnSemanticTokens(
                 (builder, @params, ct) => { return Task.CompletedTask; },
                 (@params, token) => { return Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())); },
-                new SemanticTokensRegistrationOptions());
+                new SemanticTokensRegistrationOptions()
+            );
         }
 
-        private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter)
-        {
-            return SelectorMatches(registration.RegisterOptions, documentFilter);
-        }
+        private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions, documentFilter);
 
         private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
         {

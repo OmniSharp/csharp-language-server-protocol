@@ -4,8 +4,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(LocationOrLocationLinkConverter))]
-    public struct LocationOrLocationLink {
-
+    public struct LocationOrLocationLink
+    {
         public LocationOrLocationLink(Location location)
         {
             Location = location;
@@ -24,14 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public bool IsLocationLink => LocationLink != null;
         public LocationLink LocationLink { get; }
 
-        public static implicit operator LocationOrLocationLink(Location location)
-        {
-            return new LocationOrLocationLink(location);
-        }
+        public static implicit operator LocationOrLocationLink(Location location) => new LocationOrLocationLink(location);
 
-        public static implicit operator LocationOrLocationLink(LocationLink locationLink)
-        {
-            return new LocationOrLocationLink(locationLink);
-        }
+        public static implicit operator LocationOrLocationLink(LocationLink locationLink) => new LocationOrLocationLink(locationLink);
     }
 }

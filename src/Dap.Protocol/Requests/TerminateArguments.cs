@@ -1,5 +1,5 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -10,6 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// A value of true indicates that this 'terminate' request is part of a restart sequence.
         /// </summary>
-        [Optional] public bool? Restart { get; set; }
+        [Optional]
+        public bool? Restart { get; set; }
     }
 }

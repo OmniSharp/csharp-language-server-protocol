@@ -13,18 +13,14 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using NSubstitute.Core;
-using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
@@ -36,17 +32,11 @@ namespace Lsp.Tests
     {
         private readonly ILogger _logger;
 
-        public FoundationTests(ITestOutputHelper outputHelper)
-        {
-            _logger = new TestLoggerFactory(outputHelper).CreateLogger(typeof(FoundationTests));
-        }
+        public FoundationTests(ITestOutputHelper outputHelper) => _logger = new TestLoggerFactory(outputHelper).CreateLogger(typeof(FoundationTests));
 
         [Theory]
         [ClassData(typeof(ActionDelegateData))]
-        public void All_Create_Methods_Should_Work(ActionDelegate createDelegate)
-        {
-            createDelegate.Method.Should().NotThrow();
-        }
+        public void All_Create_Methods_Should_Work(ActionDelegate createDelegate) => createDelegate.Method.Should().NotThrow();
 
         public class ActionDelegateData : TheoryData<ActionDelegate>
         {
@@ -54,7 +44,12 @@ namespace Lsp.Tests
             {
                 {
                     var baseOptions = new LanguageServerOptions().WithPipe(new Pipe());
-                    void BaseDelegate(LanguageServerOptions o) => o.WithPipe(new Pipe());
+
+                    void BaseDelegate(LanguageServerOptions o)
+                    {
+                        o.WithPipe(new Pipe());
+                    }
+
                     var serviceProvider = new ServiceCollection().BuildServiceProvider();
                     Add(new ActionDelegate("create (server): options", () => LanguageServer.Create(baseOptions)));
                     Add(new ActionDelegate("create (server): options, serviceProvider", () => LanguageServer.Create(baseOptions, serviceProvider)));
@@ -63,16 +58,29 @@ namespace Lsp.Tests
 
                     Add(new ActionDelegate("from (server): options", () => LanguageServer.From(baseOptions)));
                     Add(new ActionDelegate("from (server): options, cancellationToken", () => LanguageServer.From(baseOptions, CancellationToken.None)));
-                    Add(new ActionDelegate("from (server): options, serviceProvider, cancellationToken", () => LanguageServer.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(
+                        new ActionDelegate(
+                            "from (server): options, serviceProvider, cancellationToken", () => LanguageServer.From(baseOptions, serviceProvider, CancellationToken.None)
+                        )
+                    );
                     Add(new ActionDelegate("from (server): options, serviceProvider", () => LanguageServer.From(baseOptions, serviceProvider)));
                     Add(new ActionDelegate("from (server): action", () => LanguageServer.From(BaseDelegate)));
                     Add(new ActionDelegate("from (server): action, cancellationToken", () => LanguageServer.From(BaseDelegate, CancellationToken.None)));
-                    Add(new ActionDelegate("from (server): action, serviceProvider, cancellationToken", () => LanguageServer.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(
+                        new ActionDelegate(
+                            "from (server): action, serviceProvider, cancellationToken", () => LanguageServer.From(BaseDelegate, serviceProvider, CancellationToken.None)
+                        )
+                    );
                     Add(new ActionDelegate("from (server): action, serviceProvider", () => LanguageServer.From(BaseDelegate, serviceProvider)));
                 }
                 {
                     var baseOptions = new LanguageClientOptions().WithPipe(new Pipe());
-                    void BaseDelegate(LanguageClientOptions o) => o.WithPipe(new Pipe());
+
+                    void BaseDelegate(LanguageClientOptions o)
+                    {
+                        o.WithPipe(new Pipe());
+                    }
+
                     var serviceProvider = new ServiceCollection().BuildServiceProvider();
                     Add(new ActionDelegate("create (client): options", () => LanguageClient.Create(baseOptions)));
                     Add(new ActionDelegate("create (client): options, serviceProvider", () => LanguageClient.Create(baseOptions, serviceProvider)));
@@ -81,11 +89,19 @@ namespace Lsp.Tests
 
                     Add(new ActionDelegate("from (client): options", () => LanguageClient.From(baseOptions)));
                     Add(new ActionDelegate("from (client): options, cancellationToken", () => LanguageClient.From(baseOptions, CancellationToken.None)));
-                    Add(new ActionDelegate("from (client): options, serviceProvider, cancellationToken", () => LanguageClient.From(baseOptions, serviceProvider, CancellationToken.None)));
+                    Add(
+                        new ActionDelegate(
+                            "from (client): options, serviceProvider, cancellationToken", () => LanguageClient.From(baseOptions, serviceProvider, CancellationToken.None)
+                        )
+                    );
                     Add(new ActionDelegate("from (client): options, serviceProvider", () => LanguageClient.From(baseOptions, serviceProvider)));
                     Add(new ActionDelegate("from (client): action", () => LanguageClient.From(BaseDelegate)));
                     Add(new ActionDelegate("from (client): action, cancellationToken", () => LanguageClient.From(BaseDelegate, CancellationToken.None)));
-                    Add(new ActionDelegate("from (client): action, serviceProvider, cancellationToken", () => LanguageClient.From(BaseDelegate, serviceProvider, CancellationToken.None)));
+                    Add(
+                        new ActionDelegate(
+                            "from (client): action, serviceProvider, cancellationToken", () => LanguageClient.From(BaseDelegate, serviceProvider, CancellationToken.None)
+                        )
+                    );
                     Add(new ActionDelegate("from (client): action, serviceProvider", () => LanguageClient.From(BaseDelegate, serviceProvider)));
                 }
             }
@@ -99,7 +115,7 @@ namespace Lsp.Tests
             public ActionDelegate(string name, Action method)
             {
                 _name = name;
-                this.Method = method;
+                Method = method;
             }
 
             public override string ToString() => _name;
@@ -119,14 +135,14 @@ namespace Lsp.Tests
             a2.Should().NotThrow().And.NotBeNull();
         }
 
-        class DebuggerDisplayTypes : TheoryData<Type>
+        private class DebuggerDisplayTypes : TheoryData<Type>
         {
             public DebuggerDisplayTypes()
             {
                 foreach (var item in typeof(DocumentSymbol).Assembly.ExportedTypes
-                    .Where(z => !z.IsGenericTypeDefinition)
-                    .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
-                    .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))
+                                                           .Where(z => !z.IsGenericTypeDefinition)
+                                                           .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
+                                                           .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))
                 )
                 {
                     Add(item);
@@ -136,19 +152,15 @@ namespace Lsp.Tests
 
         [Theory(DisplayName = "Params types should have a method attribute")]
         [ClassData(typeof(ParamsShouldHaveMethodAttributeData))]
-        public void ParamsShouldHaveMethodAttribute(Type type)
-        {
+        public void ParamsShouldHaveMethodAttribute(Type type) =>
             MethodAttribute.AllFrom(type).Any(z => z.Direction != Direction.Unspecified).Should()
-                .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
-        }
+                           .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
 
         [Theory(DisplayName = "Handler interfaces should have a method attribute")]
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
-        public void HandlersShouldHaveMethodAttribute(Type type)
-        {
+        public void HandlersShouldHaveMethodAttribute(Type type) =>
             MethodAttribute.AllFrom(type).Any(z => z.Direction != Direction.Unspecified).Should()
-                .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
-        }
+                           .Be(true, $"{type.Name} is missing a method attribute or the direction is not specified");
 
         [Theory(DisplayName = "Handler method should match params method")]
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
@@ -179,150 +191,171 @@ namespace Lsp.Tests
             var abstractHandler = descriptor.HandlerType.Assembly.ExportedTypes.FirstOrDefault(z => z.IsAbstract && z.IsClass && descriptor.HandlerType.IsAssignableFrom(z));
             abstractHandler.Should().NotBeNull($"{descriptor.HandlerType.FullName} is missing abstract base class");
 
-            var delegatingHandler = descriptor.HandlerType.Assembly.DefinedTypes.FirstOrDefault(z =>
-                abstractHandler.IsAssignableFrom(z)
-                && abstractHandler != z
-                && !z.IsGenericTypeDefinition
+            var delegatingHandler = descriptor.HandlerType.Assembly.DefinedTypes.FirstOrDefault(
+                z =>
+                    abstractHandler.IsAssignableFrom(z)
+                 && abstractHandler != z
+                 && !z.IsGenericTypeDefinition
             );
             if (delegatingHandler != null)
             {
                 _logger.LogInformation("Delegating Handler: {Type}", delegatingHandler);
                 delegatingHandler.DeclaringType.Should().NotBeNull();
                 delegatingHandler.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
-                    .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
+                                 .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
             }
         }
 
         [Theory(DisplayName = "Handler extension method classes with appropriately named methods")]
         [ClassData(typeof(TypeHandlerExtensionData))]
-        public void HandlersShouldExtensionMethodClassWithMethods(ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
-            Type extensionClass, string extensionClassName)
+        public void HandlersShouldExtensionMethodClassWithMethods(
+            ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
+            Type extensionClass, string extensionClassName
+        )
         {
             // This test requires a refactor, the delegating handlers have been removed and replaced by shared implementations
             // TODO:
             // * Check for IPartialItem(s)<> extension methods
             // * Also update events to have a nicer fire and forget abstract class
 
-            _logger.LogInformation("Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
-                extensionClass, extensionClassName, onMethodName, sendMethodName);
+            _logger.LogInformation(
+                "Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
+                extensionClass, extensionClassName, onMethodName, sendMethodName
+            );
 
             extensionClass.Should().NotBeNull($"{descriptor.HandlerType.FullName} is missing extension method class");
             extensionClass.GetMethods().Any(z => z.Name == onMethodName && typeof(IJsonRpcHandlerRegistry).IsAssignableFrom(z.GetParameters()[0].ParameterType)).Should()
-                .BeTrue($"{descriptor.HandlerType.FullName} is missing event extension methods named {onMethodName}");
+                          .BeTrue($"{descriptor.HandlerType.FullName} is missing event extension methods named {onMethodName}");
             extensionClass.GetMethods().Any(z => z.Name == sendMethodName && typeof(IResponseRouter).IsAssignableFrom(z.GetParameters()[0].ParameterType)).Should()
-                .BeTrue($"{descriptor.HandlerType.FullName} is missing execute extension methods named {sendMethodName}");
+                          .BeTrue($"{descriptor.HandlerType.FullName} is missing execute extension methods named {sendMethodName}");
 
             var registries = extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .Where(z => z.Name == onMethodName || z.Name == sendMethodName)
-                .Select(z => z.GetParameters()[0].ParameterType)
-                .Distinct()
-                .ToHashSet();
+                                           .Where(z => z.Name == onMethodName || z.Name == sendMethodName)
+                                           .Select(z => z.GetParameters()[0].ParameterType)
+                                           .Distinct()
+                                           .ToHashSet();
 
             if (descriptor.Direction == Direction.Bidirectional)
             {
                 registries
-                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
-                    .Should().HaveCountGreaterOrEqualTo(1,
-                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                   .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                   .Should().HaveCountGreaterOrEqualTo(
+                        1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
+                    );
                 registries
-                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
-                    .Should().HaveCountGreaterOrEqualTo(1,
-                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                   .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                   .Should().HaveCountGreaterOrEqualTo(
+                        1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
+                    );
             }
             else if (descriptor.Direction == Direction.ServerToClient)
             {
                 registries
-                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
-                    .Should().HaveCountGreaterOrEqualTo(1,
-                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                   .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                   .Should().HaveCountGreaterOrEqualTo(
+                        1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
+                    );
                 registries
-                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
-                    .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
+                   .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                   .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
             }
             else if (descriptor.Direction == Direction.ClientToServer)
             {
                 registries
-                    .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
-                    .Should().HaveCountGreaterOrEqualTo(1,
-                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event");
+                   .Where(z => typeof(ILanguageClientProxy).IsAssignableFrom(z) || typeof(ILanguageServerRegistry).IsAssignableFrom(z))
+                   .Should().HaveCountGreaterOrEqualTo(
+                        1,
+                        $"{descriptor.HandlerType.FullName} there should be methods for both handing the event and sending the event"
+                    );
                 registries
-                    .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
-                    .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
+                   .Where(z => typeof(ILanguageServerProxy).IsAssignableFrom(z) || typeof(ILanguageClientRegistry).IsAssignableFrom(z))
+                   .Should().HaveCount(0, $"{descriptor.HandlerType.FullName} must not cross the streams or be made bidirectional");
             }
         }
 
         [Theory(DisplayName = "Handler all expected extensions methods based on method direction")]
         [ClassData(typeof(TypeHandlerExtensionData))]
-        public void HandlersShouldHaveExpectedExtensionMethodsBasedOnDirection(ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
-            Type extensionClass, string extensionClassName)
+        public void HandlersShouldHaveExpectedExtensionMethodsBasedOnDirection(
+            ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
+            Type extensionClass, string extensionClassName
+        )
         {
-            _logger.LogInformation("Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
-                extensionClass, extensionClassName, onMethodName, sendMethodName);
+            _logger.LogInformation(
+                "Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
+                extensionClass, extensionClassName, onMethodName, sendMethodName
+            );
 
             var expectedEventRegistries = descriptor.Direction switch {
-                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] {("Server", info => info.ParameterType.Name.EndsWith("ServerRegistry"))},
-                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] {("Client", info => info.ParameterType.Name.EndsWith("ClientRegistry"))},
+                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Server", info => info.ParameterType.Name.EndsWith("ServerRegistry") ) },
+                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Client", info => info.ParameterType.Name.EndsWith("ClientRegistry") ) },
                 Direction.Bidirectional => new (string type, Func<ParameterInfo, bool> matcher)[]
-                    {("Server", info => info.ParameterType.Name.EndsWith("ServerRegistry")), ("Client", info => info.ParameterType.Name.EndsWith("ClientRegistry"))},
+                    { ( "Server", info => info.ParameterType.Name.EndsWith("ServerRegistry") ), ( "Client", info => info.ParameterType.Name.EndsWith("ClientRegistry") ) },
                 _ => throw new NotImplementedException(descriptor.HandlerType.FullName)
             };
 
             var expectedRequestHandlers = descriptor.Direction switch {
-                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] {("Server", info => info.ParameterType.Name.EndsWith("Client"))},
-                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] {("Client", info => info.ParameterType.Name.EndsWith("Server"))},
+                Direction.ClientToServer => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Server", info => info.ParameterType.Name.EndsWith("Client") ) },
+                Direction.ServerToClient => new (string type, Func<ParameterInfo, bool> matcher)[] { ( "Client", info => info.ParameterType.Name.EndsWith("Server") ) },
                 Direction.Bidirectional => new (string type, Func<ParameterInfo, bool> matcher)[]
-                    {("Server", info => info.ParameterType.Name.EndsWith("Client")), ("Client", info => info.ParameterType.Name.EndsWith("Server"))},
+                    { ( "Server", info => info.ParameterType.Name.EndsWith("Client") ), ( "Client", info => info.ParameterType.Name.EndsWith("Server") ) },
                 _ => throw new NotImplementedException(descriptor.HandlerType.FullName)
             };
 
             foreach (var item in expectedEventRegistries)
             {
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .Where(z => z.Name == onMethodName)
-                    .Where(z => item.matcher(z.GetParameters()[0]))
-                    .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
+                              .Where(z => z.Name == onMethodName)
+                              .Where(z => item.matcher(z.GetParameters()[0]))
+                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a registry implementation for {item.type}");
             }
 
             foreach (var item in expectedRequestHandlers)
             {
                 extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                    .Where(z => z.Name == sendMethodName)
-                    .Where(z => item.matcher(z.GetParameters()[0]))
-                    .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
+                              .Where(z => z.Name == sendMethodName)
+                              .Where(z => item.matcher(z.GetParameters()[0]))
+                              .Should().HaveCountGreaterOrEqualTo(1, $"{descriptor.HandlerType.FullName} is missing a request implementation for {item.type}");
             }
         }
 
         [Theory(DisplayName = "Extension methods handle partial results for partial items")]
         [ClassData(typeof(TypeHandlerExtensionData))]
-        public void HandlersShouldHaveActionsForBothCompleteAndPartialResults(ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
-            Type extensionClass, string extensionClassName)
+        public void HandlersShouldHaveActionsForBothCompleteAndPartialResults(
+            ILspHandlerTypeDescriptor descriptor, string onMethodName, string sendMethodName,
+            Type extensionClass, string extensionClassName
+        )
         {
-            _logger.LogInformation("Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
-                extensionClass, extensionClassName, onMethodName, sendMethodName);
+            _logger.LogInformation(
+                "Handler: {Type} {Extension} {ExtensionName} {OnMethod} {SendMethod}", descriptor.HandlerType,
+                extensionClass, extensionClassName, onMethodName, sendMethodName
+            );
 
             var onMethodRegistries = extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .Where(z => z.Name == onMethodName)
-                .Select(z => z.GetParameters()[0].ParameterType)
-                .Distinct()
-                .ToHashSet();
+                                                   .Where(z => z.Name == onMethodName)
+                                                   .Select(z => z.GetParameters()[0].ParameterType)
+                                                   .Distinct()
+                                                   .ToHashSet();
 
             var sendMethodRegistries = extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                .Where(z => z.Name == sendMethodName)
-                .Select(z => z.GetParameters()[0].ParameterType)
-                .Distinct()
-                .ToHashSet();
+                                                     .Where(z => z.Name == sendMethodName)
+                                                     .Select(z => z.GetParameters()[0].ParameterType)
+                                                     .Distinct()
+                                                     .ToHashSet();
 
             {
                 var matcher = new MethodMatcher(onMethodRegistries, descriptor, extensionClass);
 
                 Func<MethodInfo, bool> ForAnyParameter(Func<ParameterInfo, bool> m)
                 {
-                    return (info) => info.GetParameters().Any(m);
+                    return info => info.GetParameters().Any(m);
                 }
 
                 Func<MethodInfo, bool> ForParameter(int index, Func<ParameterInfo, bool> m)
                 {
-                    return (info) => m(info.GetParameters()[index]);
+                    return info => m(info.GetParameters()[index]);
                 }
 
                 var containsCancellationToken = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Reverse().Take(2).Any(x => x == typeof(CancellationToken)));
@@ -340,20 +373,26 @@ namespace Lsp.Tests
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                     if (descriptor.HasCapability)
                     {
-                        matcher.Match($"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
-                            takesCapability, containsCancellationToken, returns);
+                        matcher.Match(
+                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
+                            takesCapability, containsCancellationToken, returns
+                        );
                     }
 
                     if (descriptor.HasPartialItem)
                     {
                         var capability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(2).FirstOrDefault() == descriptor.CapabilityType);
-                        var observesPartialResultType = ForAnyParameter(info =>
-                            info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == typeof(IObserver<>).MakeGenericType(descriptor.PartialItemType));
+                        var observesPartialResultType = ForAnyParameter(
+                            info =>
+                                info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == typeof(IObserver<>).MakeGenericType(descriptor.PartialItemType)
+                        );
 
                         matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>>", isAction, takesParameter, observesPartialResultType);
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, Task>", isFunc, takesParameter, observesPartialResultType, returnsTask);
-                        matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, CancellationToken>", isAction, takesParameter,
-                            containsCancellationToken, observesPartialResultType);
+                        matcher.Match(
+                            $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, CancellationToken>", isAction, takesParameter,
+                            containsCancellationToken, observesPartialResultType
+                        );
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, CancellationToken, Task>", isFunc, takesParameter,
                         //     containsCancellationToken, observesPartialResultType, returnsTask);
                         if (descriptor.HasCapability)
@@ -362,7 +401,8 @@ namespace Lsp.Tests
                                 $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken>",
                                 isAction,
                                 takesParameter,
-                                capability, containsCancellationToken, observesPartialResultType);
+                                capability, containsCancellationToken, observesPartialResultType
+                            );
                             // matcher.Match(
                             //     $"Func<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken, Task>",
                             //     isFunc,
@@ -374,17 +414,23 @@ namespace Lsp.Tests
                     if (descriptor.HasPartialItems)
                     {
                         var capability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(2).FirstOrDefault() == descriptor.CapabilityType);
-                        var observesPartialResultType = ForAnyParameter(info =>
-                            info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() ==
-                            typeof(IObserver<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType)));
+                        var observesPartialResultType = ForAnyParameter(
+                            info =>
+                                info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() ==
+                                typeof(IObserver<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType))
+                        );
 
-                        matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>>", isAction, takesParameter,
-                            observesPartialResultType);
+                        matcher.Match(
+                            $"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>>", isAction, takesParameter,
+                            observesPartialResultType
+                        );
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>, Task>", isFunc, takesParameter,
                         //     observesPartialResultType, returnsTask);
-                        matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>, CancellationToken>", isAction,
+                        matcher.Match(
+                            $"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>, CancellationToken>", isAction,
                             takesParameter,
-                            containsCancellationToken, observesPartialResultType);
+                            containsCancellationToken, observesPartialResultType
+                        );
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>, CancellationToken, Task>", isFunc,
                         //     takesParameter,
                         //     containsCancellationToken, observesPartialResultType, returnsTask);
@@ -394,7 +440,8 @@ namespace Lsp.Tests
                                 $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemsType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken>",
                                 isAction,
                                 takesParameter,
-                                capability, containsCancellationToken, observesPartialResultType);
+                                capability, containsCancellationToken, observesPartialResultType
+                            );
                             // matcher.Match(
                             //     $"Func<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemsType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken, Task>",
                             //     isFunc,
@@ -412,10 +459,14 @@ namespace Lsp.Tests
                     matcher.Match($"Action<{descriptor.ParamsType.Name}, CancellationToken>", isAction, takesParameter, containsCancellationToken);
                     if (descriptor.HasCapability)
                     {
-                        matcher.Match($"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
-                            takesCapability, containsCancellationToken, returns);
-                        matcher.Match($"Action<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken>", isAction, takesParameter, takesCapability,
-                            containsCancellationToken);
+                        matcher.Match(
+                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
+                            takesCapability, containsCancellationToken, returns
+                        );
+                        matcher.Match(
+                            $"Action<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken>", isAction, takesParameter, takesCapability,
+                            containsCancellationToken
+                        );
                     }
                 }
             }
@@ -431,17 +482,20 @@ namespace Lsp.Tests
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
                         typeof(IRequestProgressObservable<,>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType), descriptor.ResponseType)
-                            .IsAssignableFrom(info.ReturnType);
+                                                             .IsAssignableFrom(info.ReturnType);
                     matcher.Match(
                         $"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<IEnumerable<{descriptor.PartialItemsType.Name}>, {descriptor.ResponseType.Name}>>",
-                        takesParameter, containsCancellationToken, partialReturnType);
+                        takesParameter, containsCancellationToken, partialReturnType
+                    );
                 }
                 else if (descriptor.IsRequest && descriptor.HasPartialItem)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
                         typeof(IRequestProgressObservable<,>).MakeGenericType(descriptor.PartialItemType, descriptor.ResponseType).IsAssignableFrom(info.ReturnType);
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<{descriptor.PartialItemType.Name}, {descriptor.ResponseType.Name}>>",
-                        takesParameter, containsCancellationToken, partialReturnType);
+                    matcher.Match(
+                        $"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<{descriptor.PartialItemType.Name}, {descriptor.ResponseType.Name}>>",
+                        takesParameter, containsCancellationToken, partialReturnType
+                    );
                 }
                 else if (descriptor.IsRequest)
                 {
@@ -455,15 +509,17 @@ namespace Lsp.Tests
         }
 
 
-        class MethodMatcher
+        private class MethodMatcher
         {
             private readonly IEnumerable<Type> _registries;
             private readonly ILspHandlerTypeDescriptor _descriptor;
             private readonly Type _extensionClass;
             private readonly string _methodName;
 
-            public MethodMatcher(IEnumerable<Type> registries,
-                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string methodName = null)
+            public MethodMatcher(
+                IEnumerable<Type> registries,
+                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string methodName = null
+            )
             {
                 _registries = registries;
                 _descriptor = descriptor;
@@ -476,54 +532,68 @@ namespace Lsp.Tests
                 foreach (var registry in _registries)
                 {
                     var methods = _extensionClass.GetMethods(BindingFlags.Static | BindingFlags.Public)
-                        .Where(z => _methodName == null || z.Name == _methodName)
-                        .Where(z => matchers.All(matcher => matcher(z)))
-                        .ToHashSet();
-                    methods.Count.Should().BeGreaterThan(0,
-                        $"{_descriptor.HandlerType.FullName} missing extension with parameter type {description} method for {registry.FullName}");
+                                                 .Where(z => _methodName == null || z.Name == _methodName)
+                                                 .Where(z => matchers.All(matcher => matcher(z)))
+                                                 .ToHashSet();
+                    methods.Count.Should().BeGreaterThan(
+                        0,
+                        $"{_descriptor.HandlerType.FullName} missing extension with parameter type {description} method for {registry.FullName}"
+                    );
 
                     foreach (var method in methods)
                     {
                         if (method.Name == GetOnMethodName(_descriptor))
                         {
-                            var registrySub = Substitute.For(new Type[] {method.GetParameters()[0].ParameterType}, Array.Empty<object>());
+                            var registrySub = Substitute.For(new[] { method.GetParameters()[0].ParameterType }, Array.Empty<object>());
                             SubstitutionContext.Current.GetCallRouterFor(registrySub).SetReturnForType(
                                 method.GetParameters()[0].ParameterType,
-                                (IReturn) new ReturnValue(registrySub)
+                                new ReturnValue(registrySub)
                             );
                             // registrySub.ReturnsForAll(x => registrySub);
 
-                            method.Invoke(null,
+                            method.Invoke(
+                                null,
                                 new[] {
-                                        registrySub, Substitute.For(new Type[] {method.GetParameters()[1].ParameterType}, Array.Empty<object>()),
-                                    }.Concat(method.GetParameters().Skip(2).Select(z =>
-                                        !z.ParameterType.IsGenericType
-                                            ? Activator.CreateInstance(z.ParameterType)
-                                            : Substitute.For(new Type[] {z.ParameterType}, Array.Empty<object>()))
-                                    )
-                                    .ToArray());
+                                        registrySub, Substitute.For(new[] { method.GetParameters()[1].ParameterType }, Array.Empty<object>()),
+                                    }.Concat(
+                                          method.GetParameters().Skip(2).Select(
+                                              z =>
+                                                  !z.ParameterType.IsGenericType
+                                                      ? Activator.CreateInstance(z.ParameterType)
+                                                      : Substitute.For(new[] { z.ParameterType }, Array.Empty<object>())
+                                          )
+                                      )
+                                     .ToArray()
+                            );
 
                             registrySub.Received().ReceivedCalls()
-                                .Any(z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) &&
-                                          z.GetArguments().Length == 3 &&
-                                          z.GetArguments()[0].Equals(_descriptor.Method))
-                                .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
+                                       .Any(
+                                            z => z.GetMethodInfo().Name == nameof(IJsonRpcHandlerRegistry<IJsonRpcHandlerRegistry<IJsonRpcServerRegistry>>.AddHandler) &&
+                                                 z.GetArguments().Length == 3 &&
+                                                 z.GetArguments()[0].Equals(_descriptor.Method)
+                                        )
+                                       .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
 
                             if (_descriptor.HasRegistration && method.GetParameters().Length == 3)
                             {
-                                method.GetParameters()[2].ParameterType.Should().Be(_descriptor.RegistrationType,
-                                    $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}");
+                                method.GetParameters()[2].ParameterType.Should().Be(
+                                    _descriptor.RegistrationType,
+                                    $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}"
+                                );
                                 method.GetParameters()[2].IsOptional.Should()
-                                    .BeFalse($"{_descriptor.HandlerType.FullName} {description} Registration types should not be optional");
+                                      .BeFalse($"{_descriptor.HandlerType.FullName} {description} Registration types should not be optional");
                             }
                         }
 
                         if (_descriptor.IsRequest && method.Name == GetSendMethodName(_descriptor))
                         {
-                            method.GetParameters().Last().ParameterType.Should().Be(typeof(CancellationToken),
-                                $"{_descriptor.HandlerType.Name} {description} send method must have optional cancellation token");
+                            method.GetParameters().Last().ParameterType.Should().Be(
+                                typeof(CancellationToken),
+                                $"{_descriptor.HandlerType.Name} {description} send method must have optional cancellation token"
+                            );
                             method.GetParameters().Last().IsOptional.Should().BeTrue(
-                                $"{_descriptor.HandlerType.Name} {description} send method must have optional cancellation token");
+                                $"{_descriptor.HandlerType.Name} {description} send method must have optional cancellation token"
+                            );
                         }
                     }
                 }
@@ -534,8 +604,10 @@ namespace Lsp.Tests
         {
             public ParamsShouldHaveMethodAttributeData()
             {
-                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z =>
-                    z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(z => z.IsGenericType && typeof(IRequest<>).IsAssignableFrom(z.GetGenericTypeDefinition()))))
+                foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(
+                    z =>
+                        z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(z => z.IsGenericType && typeof(IRequest<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                ))
                 {
                     Add(type);
                 }
@@ -547,8 +619,8 @@ namespace Lsp.Tests
             public HandlersShouldHaveMethodAttributeData()
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
-                    .Where(z => !z.Name.EndsWith("Manager"))
-                    .Except(new[] {typeof(ITextDocumentSyncHandler)})
+                                                             .Where(z => !z.Name.EndsWith("Manager"))
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -562,8 +634,8 @@ namespace Lsp.Tests
             public TypeHandlerData()
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
-                    .Where(z => !z.Name.EndsWith("Manager"))
-                    .Except(new[] {typeof(ITextDocumentSyncHandler)})
+                                                             .Where(z => !z.Name.EndsWith("Manager"))
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -574,7 +646,7 @@ namespace Lsp.Tests
 
         public class TypeHandlerExtensionData : TheoryData<ILspHandlerTypeDescriptor, string, string, Type, string>
         {
-            public static Type[] HandlersToSkip = new[] {
+            public static Type[] HandlersToSkip = {
                 typeof(ISemanticTokensHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
@@ -583,9 +655,9 @@ namespace Lsp.Tests
             public TypeHandlerExtensionData()
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
-                    .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
-                    .Where(z => !z.Name.EndsWith("Manager"))
-                    .Except(new[] {typeof(ITextDocumentSyncHandler)})
+                                                             .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
+                                                             .Where(z => !z.Name.EndsWith("Manager"))
+                                                             .Except(new[] { typeof(ITextDocumentSyncHandler) })
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
@@ -610,44 +682,36 @@ namespace Lsp.Tests
             }
         }
 
-        private static string GetExtensionClassName(IHandlerTypeDescriptor descriptor)
-        {
-            return SpecialCasedHandlerName(descriptor) + "Extensions";
-            ;
-        }
+        private static string GetExtensionClassName(IHandlerTypeDescriptor descriptor) => SpecialCasedHandlerName(descriptor) + "Extensions";
 
-        private static string SpecialCasedHandlerName(IHandlerTypeDescriptor descriptor)
-        {
-            return new Regex(@"(\w+(?:\`\d)?)$")
-                    .Replace(descriptor.HandlerType.Name ?? string.Empty,
-                        descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1))
-                ;
-        }
+        private static string SpecialCasedHandlerName(IHandlerTypeDescriptor descriptor) =>
+            new Regex(@"(\w+(?:\`\d)?)$")
+               .Replace(
+                    descriptor.HandlerType.Name ?? string.Empty,
+                    descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
+                );
 
         private static Type GetExtensionClass(IHandlerTypeDescriptor descriptor)
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                .FirstOrDefault(z => z.IsClass && z.IsAbstract && (z.Name == name || z.Name == name + "Base"));
+                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && ( z.Name == name || z.Name == name + "Base" ));
         }
 
-        private static string GetOnMethodName(IHandlerTypeDescriptor descriptor)
-        {
-            return "On" + SpecialCasedHandlerName(descriptor);
-        }
+        private static string GetOnMethodName(IHandlerTypeDescriptor descriptor) => "On" + SpecialCasedHandlerName(descriptor);
 
         private static string GetSendMethodName(ILspHandlerTypeDescriptor descriptor)
         {
             var name = SpecialCasedHandlerName(descriptor);
             if (name.StartsWith("Did")
-                || name.StartsWith("Log")
-                || name.StartsWith("Show")
-                || name.StartsWith("Register")
-                || name.StartsWith("Prepare")
-                || name.StartsWith("Publish")
-                || name.StartsWith("ApplyWorkspaceEdit")
-                || name.StartsWith("Execute")
-                || name.StartsWith("Unregister"))
+             || name.StartsWith("Log")
+             || name.StartsWith("Show")
+             || name.StartsWith("Register")
+             || name.StartsWith("Prepare")
+             || name.StartsWith("Publish")
+             || name.StartsWith("ApplyWorkspaceEdit")
+             || name.StartsWith("Execute")
+             || name.StartsWith("Unregister"))
             {
                 return name;
             }

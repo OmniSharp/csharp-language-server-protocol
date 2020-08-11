@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    class LanguageServerLoggerProvider : ILoggerProvider
+    internal class LanguageServerLoggerProvider : ILoggerProvider
     {
         private readonly ILanguageServer _languageServer;
         private readonly LanguageServerLoggerSettings _settings;
@@ -14,10 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _settings = settings;
         }
 
-        public ILogger CreateLogger(string categoryName)
-        {
-            return new LanguageServerLogger(_languageServer, categoryName, () => _settings.MinimumLogLevel);
-        }
+        public ILogger CreateLogger(string categoryName) => new LanguageServerLogger(_languageServer, categoryName, () => _settings.MinimumLogLevel);
 
         public void Dispose()
         {

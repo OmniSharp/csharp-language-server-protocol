@@ -6,13 +6,7 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
-using OmniSharp.Extensions.LanguageServer.Server;
 
 namespace OmniSharp.Extensions.LanguageProtocol.Testing
 {
@@ -28,28 +22,32 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         public static Task WaitForChange(this IConfiguration configuration, CancellationToken cancellationToken)
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
-            return Observable.Create<Unit>(observer =>
-            {
-                var reloadToken = configuration.GetReloadToken();
-                return reloadToken.RegisterChangeCallback(_ =>
-                {
-                    observer.OnNext(Unit.Default);
-                    observer.OnCompleted();
-                }, Unit.Default);
-            }).ToTask(cancellationToken);
+            return Observable.Create<Unit>(
+                observer => {
+                    var reloadToken = configuration.GetReloadToken();
+                    return reloadToken.RegisterChangeCallback(
+                        _ => {
+                            observer.OnNext(Unit.Default);
+                            observer.OnCompleted();
+                        }, Unit.Default
+                    );
+                }
+            ).ToTask(cancellationToken);
         }
 
         public static Task WaitForChange<T>(this IOptionsMonitor<T> options, CancellationToken cancellationToken)
         {
             if (options == null) throw new ArgumentNullException(nameof(options));
-            return Observable.Create<Unit>(observer =>
-            {
-                return options.OnChange(_ =>
-                {
-                    observer.OnNext(Unit.Default);
-                    observer.OnCompleted();
-                });
-            }).ToTask(cancellationToken);
+            return Observable.Create<Unit>(
+                observer => {
+                    return options.OnChange(
+                        _ => {
+                            observer.OnNext(Unit.Default);
+                            observer.OnCompleted();
+                        }
+                    );
+                }
+            ).ToTask(cancellationToken);
         }
     }
 }

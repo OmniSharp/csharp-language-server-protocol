@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class CompletionListConverter : JsonConverter<CompletionList>
+    internal class CompletionListConverter : JsonConverter<CompletionList>
     {
         public override void WriteJson(JsonWriter writer, CompletionList value, JsonSerializer serializer)
         {
@@ -27,6 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 serializer.Serialize(writer, item);
             }
+
             writer.WriteEndArray();
             writer.WriteEndObject();
         }

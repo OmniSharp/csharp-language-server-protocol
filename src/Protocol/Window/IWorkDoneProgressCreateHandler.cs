@@ -8,9 +8,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 {
-    [Parallel, Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-    public interface IWorkDoneProgressCreateHandler : IJsonRpcRequestHandler<WorkDoneProgressCreateParams> { }
+    [Parallel]
+    [Method(WindowNames.WorkDoneProgressCreate, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+    public interface IWorkDoneProgressCreateHandler : IJsonRpcRequestHandler<WorkDoneProgressCreateParams>
+    {
+    }
 
     public abstract class WorkDoneProgressCreateHandler : IWorkDoneProgressCreateHandler
     {

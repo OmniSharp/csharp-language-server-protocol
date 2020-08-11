@@ -4,9 +4,9 @@ using System.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class RequestDescriptor<TDescriptor> : IRequestDescriptor<TDescriptor>
+    internal class RequestDescriptor<TDescriptor> : IRequestDescriptor<TDescriptor>
     {
-        private IEnumerable<TDescriptor> _descriptors;
+        private readonly IEnumerable<TDescriptor> _descriptors;
 
         public RequestDescriptor(IEnumerable<TDescriptor> descriptors)
         {
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public IEnumerator<TDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
-        IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable) _descriptors).GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable) _descriptors ).GetEnumerator();
 
         public TDescriptor Default { get; }
     }

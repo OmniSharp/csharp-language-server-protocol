@@ -8,8 +8,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 {
-    [Serial, Method(GeneralNames.Shutdown, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    [Serial]
+    [Method(GeneralNames.Shutdown, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IShutdownHandler : IJsonRpcRequestHandler<ShutdownParams>
     {
     }
@@ -27,9 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static partial class ShutdownExtensions
     {
-        public static Task RequestShutdown(this ILanguageClient mediator, CancellationToken cancellationToken = default)
-        {
-            return mediator.SendRequest(ShutdownParams.Instance, cancellationToken);
-        }
+        public static Task RequestShutdown(this ILanguageClient mediator, CancellationToken cancellationToken = default) =>
+            mediator.SendRequest(ShutdownParams.Instance, cancellationToken);
     }
 }

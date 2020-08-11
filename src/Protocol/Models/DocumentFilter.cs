@@ -11,20 +11,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentFilter : IEquatable<DocumentFilter>
     {
-        public static DocumentFilter ForPattern(string wildcard)
-        {
-            return new DocumentFilter() { Pattern = wildcard };
-        }
+        public static DocumentFilter ForPattern(string wildcard) => new DocumentFilter { Pattern = wildcard };
 
-        public static DocumentFilter ForLanguage(string language)
-        {
-            return new DocumentFilter() { Language = language };
-        }
+        public static DocumentFilter ForLanguage(string language) => new DocumentFilter { Language = language };
 
-        public static DocumentFilter ForScheme(string scheme)
-        {
-            return new DocumentFilter() { Scheme = scheme };
-        }
+        public static DocumentFilter ForScheme(string scheme) => new DocumentFilter { Scheme = scheme };
 
         /// <summary>
         /// A language id, like `typescript`.
@@ -59,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             get => _pattern;
             set {
                 _pattern = value;
-                _minimatcher = new Minimatcher(value, new Options() { MatchBase = true });
+                _minimatcher = new Minimatcher(value, new Options { MatchBase = true });
             }
         }
 
@@ -144,17 +135,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((DocumentFilter)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((DocumentFilter) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                var hashCode = (_pattern != null ? _pattern.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Language != null ? Language.GetHashCode() : 0);
-                hashCode = (hashCode * 397) ^ (Scheme != null ? Scheme.GetHashCode() : 0);
+                var hashCode = _pattern != null ? _pattern.GetHashCode() : 0;
+                hashCode = ( hashCode * 397 ) ^ ( Language != null ? Language.GetHashCode() : 0 );
+                hashCode = ( hashCode * 397 ) ^ ( Scheme != null ? Scheme.GetHashCode() : 0 );
                 return hashCode;
             }
         }
@@ -163,7 +154,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static bool operator !=(DocumentFilter left, DocumentFilter right) => !Equals(left, right);
 
-        private string DebuggerDisplay => (string)this;
+        private string DebuggerDisplay => (string) this;
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class BooleanStringConverter : JsonConverter<BooleanString>
+    internal class BooleanStringConverter : JsonConverter<BooleanString>
     {
         public override void WriteJson(JsonWriter writer, BooleanString value, JsonSerializer serializer)
         {
@@ -17,9 +17,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             switch (reader.TokenType)
             {
                 case JsonToken.String:
-                    return new BooleanString((string)reader.Value);
+                    return new BooleanString((string) reader.Value);
                 case JsonToken.Boolean:
-                    return new BooleanString((bool)reader.Value);
+                    return new BooleanString((bool) reader.Value);
             }
 
             return new BooleanString();

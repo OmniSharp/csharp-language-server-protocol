@@ -15,7 +15,7 @@ namespace JsonRpc.Tests.Server
         {
         }
 
-        class Data
+        private class Data
         {
             public string Value { get; set; }
         }
@@ -24,15 +24,15 @@ namespace JsonRpc.Tests.Server
         public async Task Should_Throw_Method_Not_Supported()
         {
             var (client, server) = await Initialize(
-                clientOptions => {
-                },
-                serverOptions => {
-                    serverOptions.OnRequest("method", async (Data data) => new Data() { Value = data.Value});
-                });
+                clientOptions => { },
+                serverOptions => { serverOptions.OnRequest("method", async (Data data) => new Data { Value = data.Value }); }
+            );
 
-            Func<Task> action = () => client.SendRequest("method2", new Data() {
-                Value = "Echo"
-            }).Returning<Data>(CancellationToken);
+            Func<Task> action = () => client.SendRequest(
+                "method2", new Data {
+                    Value = "Echo"
+                }
+            ).Returning<Data>(CancellationToken);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
         }
     }

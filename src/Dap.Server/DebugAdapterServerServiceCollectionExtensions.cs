@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             }
             else
             {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { }), reuse: Reuse.Singleton);
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { }), Reuse.Singleton);
             }
 
             container.RegisterInstance<IOptionsFactory<DebugAdapterServerOptions>>(new ValueOptionsFactory<DebugAdapterServerOptions>(options));
@@ -32,11 +32,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             container.RegisterInstance(options.RequestProcessIdentifier);
 
             container.RegisterMany<DebugAdapterServerProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
-            container.RegisterMany<DebugAdapterServer>(serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer), reuse: Reuse.Singleton);
+            container.RegisterMany<DebugAdapterServer>(
+                serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer), reuse: Reuse.Singleton
+            );
 
             // container.
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
-            container.RegisterDelegate<IConfiguration>(_ => {
+            container.RegisterDelegate<IConfiguration>(
+                _ => {
                     var builder = new ConfigurationBuilder();
                     if (outerServiceProvider != null)
                     {
@@ -54,15 +57,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
                     return builder.Build();
                 },
-                reuse: Reuse.Singleton);
+                Reuse.Singleton
+            );
 
             return container;
         }
 
-        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, Action<DebugAdapterServerOptions> configureOptions = null)
-        {
-            return AddDebugAdapterServer(services, Options.DefaultName, configureOptions);
-        }
+        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, Action<DebugAdapterServerOptions> configureOptions = null) =>
+            AddDebugAdapterServer(services, Options.DefaultName, configureOptions);
 
         public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, string name, Action<DebugAdapterServerOptions> configureOptions = null)
         {
@@ -72,15 +74,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             {
                 services.RemoveAll<DebugAdapterServer>();
                 services.RemoveAll<IDebugAdapterServer>();
-                services.AddSingleton<IDebugAdapterServer>(_ =>
-                    throw new NotSupportedException("DebugAdapterServer has been registered multiple times, you must use DebugAdapterServer instead"));
-                services.AddSingleton<DebugAdapterServer>(_ =>
-                    throw new NotSupportedException("DebugAdapterServer has been registered multiple times, you must use DebugAdapterServer instead"));
+                services.AddSingleton<IDebugAdapterServer>(
+                    _ =>
+                        throw new NotSupportedException("DebugAdapterServer has been registered multiple times, you must use DebugAdapterServer instead")
+                );
+                services.AddSingleton<DebugAdapterServer>(
+                    _ =>
+                        throw new NotSupportedException("DebugAdapterServer has been registered multiple times, you must use DebugAdapterServer instead")
+                );
             }
 
             services
-                .AddOptions()
-                .AddLogging();
+               .AddOptions()
+               .AddLogging();
             services.TryAddSingleton<DebugAdapterServerResolver>();
             services.TryAddSingleton(_ => _.GetRequiredService<DebugAdapterServerResolver>().Get(name));
             services.TryAddSingleton<IDebugAdapterServer>(_ => _.GetRequiredService<DebugAdapterServerResolver>().Get(name));

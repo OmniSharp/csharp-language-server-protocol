@@ -5,6 +5,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class WorkDoneProgressEnd : WorkDoneProgress
     {
-        public WorkDoneProgressEnd() : base(WorkDoneProgressKind.End) { }
+        public WorkDoneProgressEnd() : base(WorkDoneProgressKind.End)
+        {
+        }
     }
 }

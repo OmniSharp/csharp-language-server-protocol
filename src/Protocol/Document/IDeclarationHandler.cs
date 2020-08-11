@@ -8,17 +8,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.Declaration, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDeclarationHandler : IJsonRpcRequestHandler<DeclarationParams, LocationOrLocationLinks>, IRegistration<DeclarationRegistrationOptions>, ICapability<DeclarationCapability> { }
+    [Parallel]
+    [Method(TextDocumentNames.Declaration, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    public interface IDeclarationHandler : IJsonRpcRequestHandler<DeclarationParams, LocationOrLocationLinks>, IRegistration<DeclarationRegistrationOptions>,
+                                           ICapability<DeclarationCapability>
+    {
+    }
 
     public abstract class DeclarationHandler : IDeclarationHandler
     {
         private readonly DeclarationRegistrationOptions _options;
-        public DeclarationHandler(DeclarationRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public DeclarationHandler(DeclarationRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public DeclarationRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationOrLocationLinks> Handle(DeclarationParams request, CancellationToken cancellationToken);

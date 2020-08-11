@@ -1,5 +1,5 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -16,12 +16,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Optional offset(in bytes) to be applied to the reference location before reading data.Can be negative.
         /// </summary>
 
-        [Optional] public long? Offset { get; set; }
+        [Optional]
+        public long? Offset { get; set; }
 
         /// <summary>
         /// Number of bytes to read at the specified location and offset.
         /// </summary>
         public long Count { get; set; }
     }
-
 }

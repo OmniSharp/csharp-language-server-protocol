@@ -20,12 +20,11 @@ namespace JsonRpc.Tests
         {
         }
 
-        class Request : IRequest<Data>
+        private class Request : IRequest<Data>
         {
-
         }
 
-        class Data
+        private class Data
         {
             public string Value { get; set; }
         }
@@ -34,8 +33,8 @@ namespace JsonRpc.Tests
         public async Task Should_Send_and_receive_requests()
         {
             var (client, server) = await Initialize(
-                client => { client.OnRequest("myrequest", async () => new Data() {Value = "myresponse"}); },
-                server => { server.OnRequest("myrequest", async () => new Data() {Value = string.Join("", "myresponse".Reverse())}); }
+                client => { client.OnRequest("myrequest", async () => new Data { Value = "myresponse" }); },
+                server => { server.OnRequest("myrequest", async () => new Data { Value = string.Join("", "myresponse".Reverse()) }); }
             );
 
             var serverResponse = await client.SendRequest("myrequest").Returning<Data>(CancellationToken);
@@ -49,14 +48,14 @@ namespace JsonRpc.Tests
         public async Task Should_throw_when_sending_requests()
         {
             var (client, server) = await Initialize(
-                client => { client.OnRequest("myrequest", async (Request request) => new Data() {Value = "myresponse"}); },
-                server => { server.OnRequest("myrequest", async (Request request) => new Data() {Value = string.Join("", "myresponse".Reverse())}); }
+                client => { client.OnRequest("myrequest", async (Request request) => new Data { Value = "myresponse" }); },
+                server => { server.OnRequest("myrequest", async (Request request) => new Data { Value = string.Join("", "myresponse".Reverse()) }); }
             );
 
-            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
+            Func<Task> clientRequest = () => client.SendRequest("myrequest", (Request) null).Returning<Data>(CancellationToken);
             clientRequest.Should().Throw<InvalidParametersException>();
 
-            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request)null).Returning<Data>(CancellationToken);
+            Func<Task> serverRequest = () => server.SendRequest("myrequest", (Request) null).Returning<Data>(CancellationToken);
             serverRequest.Should().Throw<InvalidParametersException>();
         }
 
@@ -64,8 +63,8 @@ namespace JsonRpc.Tests
         public async Task Should_throw_when_receiving_requests()
         {
             var (client, server) = await Initialize(
-                client => { client.OnRequest("myrequest", async (Request request) => (Data)null); },
-                server => { server.OnRequest("myrequest", async (Request request) => (Data)null); }
+                client => { client.OnRequest("myrequest", async (Request request) => (Data) null); },
+                server => { server.OnRequest("myrequest", async (Request request) => (Data) null); }
             );
 
             Func<Task> clientRequest = () => client.SendRequest("myrequest", new Request()).Returning<Data>(CancellationToken);
@@ -82,24 +81,28 @@ namespace JsonRpc.Tests
             var serverNotification = new AsyncSubject<Data>();
             var (client, server) = await Initialize(
                 client => {
-                    client.OnNotification("mynotification", (Data data) => {
-                        clientNotification.OnNext(data);
-                        clientNotification.OnCompleted();
-                    });
+                    client.OnNotification(
+                        "mynotification", (Data data) => {
+                            clientNotification.OnNext(data);
+                            clientNotification.OnCompleted();
+                        }
+                    );
                 },
                 server => {
-                    server.OnNotification("mynotification", (Data data) => {
-                        serverNotification.OnNext(data);
-                        serverNotification.OnCompleted();
-                    });
+                    server.OnNotification(
+                        "mynotification", (Data data) => {
+                            serverNotification.OnNext(data);
+                            serverNotification.OnCompleted();
+                        }
+                    );
                 }
             );
 
-            client.SendNotification("mynotification", new Data() {Value = "myresponse"});
+            client.SendNotification("mynotification", new Data { Value = "myresponse" });
             var serverResponse = await serverNotification;
             serverResponse.Value.Should().Be("myresponse");
 
-            server.SendNotification("mynotification", new Data() {Value = string.Join("", "myresponse".Reverse())});
+            server.SendNotification("mynotification", new Data { Value = string.Join("", "myresponse".Reverse()) });
             var clientResponse = await clientNotification;
             clientResponse.Value.Should().Be("esnopserym");
         }
@@ -109,16 +112,20 @@ namespace JsonRpc.Tests
         {
             var (client, server) = await Initialize(
                 client => {
-                    client.OnRequest("myrequest", async (ct) => {
-                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
-                        return new Data() {Value = "myresponse"};
-                    });
+                    client.OnRequest(
+                        "myrequest", async ct => {
+                            await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                            return new Data { Value = "myresponse" };
+                        }
+                    );
                 },
                 server => {
-                    server.OnRequest("myrequest", async (ct) => {
-                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
-                        return new Data() {Value = string.Join("", "myresponse".Reverse())};
-                    });
+                    server.OnRequest(
+                        "myrequest", async ct => {
+                            await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                            return new Data { Value = string.Join("", "myresponse".Reverse()) };
+                        }
+                    );
                 }
             );
 
@@ -141,16 +148,20 @@ namespace JsonRpc.Tests
         {
             var (client, server) = await Initialize(
                 client => {
-                    client.OnRequest("myrequest", async (ct) => {
-                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
-                        return new Data() {Value = "myresponse"};
-                    });
+                    client.OnRequest(
+                        "myrequest", async ct => {
+                            await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                            return new Data { Value = "myresponse" };
+                        }
+                    );
                 },
                 server => {
-                    server.OnRequest("myrequest", async (ct) => {
-                        await Task.Delay(TimeSpan.FromMinutes(1), ct);
-                        return new Data() {Value = string.Join("", "myresponse".Reverse())};
-                    });
+                    server.OnRequest(
+                        "myrequest", async ct => {
+                            await Task.Delay(TimeSpan.FromMinutes(1), ct);
+                            return new Data { Value = string.Join("", "myresponse".Reverse()) };
+                        }
+                    );
                 }
             );
 
@@ -176,29 +187,31 @@ namespace JsonRpc.Tests
                 client => {
                     client.OnRequest(
                         "parallelrequest",
-                        async (ct) => {
+                        async ct => {
                             await Task.Delay(TimeSpan.FromSeconds(10), ct);
-                            return new Data() {Value = "myresponse"};
+                            return new Data { Value = "myresponse" };
                         },
-                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                        new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel }
+                    );
                     client.OnRequest(
                         "serialrequest",
-                        async (ct) => new Data() {Value = "myresponse"},
-                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial}
+                        async ct => new Data { Value = "myresponse" },
+                        new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
                     );
                 },
                 server => {
                     server.OnRequest(
                         "parallelrequest",
-                        async (ct) => {
+                        async ct => {
                             await Task.Delay(TimeSpan.FromSeconds(10), ct);
-                            return new Data() {Value = "myresponse"};
+                            return new Data { Value = "myresponse" };
                         },
-                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
+                        new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel }
+                    );
                     server.OnRequest(
                         "serialrequest",
-                        async (ct) => new Data() {Value = "myresponse"},
-                        new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial}
+                        async ct => new Data { Value = "myresponse" },
+                        new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
                     );
                 }
             );
@@ -224,14 +237,14 @@ namespace JsonRpc.Tests
             var (client, server) = await Initialize(
                 client => {
                     client
-                        .OnRequest("myrequest", async () => new Data() {Value = "myresponse"})
-                        .WithLink("myrequest", "myrequest2")
+                       .OnRequest("myrequest", async () => new Data { Value = "myresponse" })
+                       .WithLink("myrequest", "myrequest2")
                         ;
                 },
                 server => {
                     server
-                        .OnRequest("myrequest", async () => new Data() {Value = string.Join("", "myresponse".Reverse())})
-                        .WithLink("myrequest", "myrequest2")
+                       .OnRequest("myrequest", async () => new Data { Value = string.Join("", "myresponse".Reverse()) })
+                       .WithLink("myrequest", "myrequest2")
                         ;
                 }
             );

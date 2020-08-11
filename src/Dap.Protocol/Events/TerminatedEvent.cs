@@ -1,7 +1,7 @@
-using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
@@ -17,5 +17,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         [JsonProperty(PropertyName = "__restart")]
         public JToken Restart { get; set; }
     }
-
 }

@@ -6,10 +6,13 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
-
-    [Parallel, Method(EventNames.Breakpoint, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
-    public interface IBreakpointHandler : IJsonRpcNotificationHandler<BreakpointEvent> { }
+    [Parallel]
+    [Method(EventNames.Breakpoint, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
+    public interface IBreakpointHandler : IJsonRpcNotificationHandler<BreakpointEvent>
+    {
+    }
 
     public abstract class BreakpointHandler : IBreakpointHandler
     {

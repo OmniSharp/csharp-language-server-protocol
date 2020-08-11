@@ -9,15 +9,16 @@ namespace Lsp.Tests.Models
 {
     public class DocumentOnTypeFormattingParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentOnTypeFormattingParams() {
+            var model = new DocumentOnTypeFormattingParams {
                 Character = "c",
-                Options = new FormattingOptions() {
+                Options = new FormattingOptions {
                     { "abc", 1 }
                 },
-                Position = new Position(1,2),
+                Position = new Position(1, 2),
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))
             };
             var result = Fixture.SerializeObject(model);

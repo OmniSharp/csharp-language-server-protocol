@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 
@@ -8,12 +7,9 @@ namespace OmniSharp.Extensions.JsonRpc
     public class CompositeHandlersManager : IHandlersManager
     {
         private readonly IHandlersManager _parent;
-        private CompositeDisposable _compositeDisposable = new CompositeDisposable();
+        private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
 
-        public CompositeHandlersManager(IHandlersManager parent)
-        {
-            _parent = parent;
-        }
+        public CompositeHandlersManager(IHandlersManager parent) => _parent = parent;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _parent.Descriptors;
 

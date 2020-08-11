@@ -8,16 +8,17 @@ namespace Lsp.Tests.Models
 {
     public class UnregistrationParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new UnregistrationParams()
-            {
-                Unregisterations = new UnregistrationContainer(new Unregistration()
-                {
-                    Id = "abc",
-                    Method = "ads"
-                })
+            var model = new UnregistrationParams {
+                Unregisterations = new UnregistrationContainer(
+                    new Unregistration {
+                        Id = "abc",
+                        Method = "ads"
+                    }
+                )
             };
             var result = Fixture.SerializeObject(model);
 

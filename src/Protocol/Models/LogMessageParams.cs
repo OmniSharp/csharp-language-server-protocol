@@ -7,12 +7,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class LogMessageParams : IRequest
     {
         /// <summary>
-        ///  The message type. See {@link MessageType}
+        /// The message type. See {@link MessageType}
         /// </summary>
         public MessageType Type { get; set; }
 
         /// <summary>
-        ///  The actual message
+        /// The actual message
         /// </summary>
         public string Message { get; set; }
     }

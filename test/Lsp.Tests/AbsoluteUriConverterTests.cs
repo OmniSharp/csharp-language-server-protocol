@@ -11,10 +11,7 @@ namespace Lsp.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public AbsoluteUriConverterTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public AbsoluteUriConverterTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [Theory]
         [ClassData(typeof(DocumentUriTests.WindowsPathStringUris))]
@@ -25,8 +22,8 @@ namespace Lsp.Tests
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
-            var serializer = new JsonSerializerSettings() {
-                Converters = {new DocumentUriConverter()}
+            var serializer = new JsonSerializerSettings {
+                Converters = { new DocumentUriConverter() }
             };
             JsonConvert.DeserializeObject<DocumentUri>($"\"{uri}\"", serializer).ToString().Should().Be(expected);
         }
@@ -40,8 +37,8 @@ namespace Lsp.Tests
         {
             _testOutputHelper.WriteLine($"Given: {uri}");
             _testOutputHelper.WriteLine($"Expected: {expected}");
-            var serializer = new JsonSerializerSettings() {
-                Converters = {new DocumentUriConverter()}
+            var serializer = new JsonSerializerSettings {
+                Converters = { new DocumentUriConverter() }
             };
             JsonConvert.SerializeObject(DocumentUri.Parse(uri), serializer).Trim('"').Should().Be(expected);
         }

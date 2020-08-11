@@ -1,11 +1,9 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -135,7 +133,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public JToken Data { get; set; }
 
-        private string DebuggerDisplay => $"[{Kind}] {Label}{(Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "")}";
+        private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }
@@ -268,14 +267,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public T Data
         {
-            get => ((ICanBeResolved)this).Data?.ToObject<T>();
-            set => ((ICanBeResolved)this).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
         }
 
         JToken ICanBeResolved.Data { get; set; }
 
         public static implicit operator CompletionItem(CompletionItem<T> value) => new CompletionItem {
-            Data = ((ICanBeResolved)value).Data,
+            Data = ( (ICanBeResolved) value ).Data,
             Command = value.Command,
             Deprecated = value.Deprecated,
             Detail = value.Detail,
@@ -312,7 +311,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
                 AdditionalTextEdits = value.AdditionalTextEdits,
                 InsertTextFormat = value.InsertTextFormat,
             };
-            ((ICanBeResolved)item).Data = value.Data;
+            ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
     }

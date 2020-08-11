@@ -38,12 +38,13 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 results.Add(GetRenor(container));
             }
-            return (results, results.Any(z => z.IsResponse));
+
+            return ( results, results.Any(z => z.IsResponse) );
         }
 
         protected virtual Renor GetRenor(JToken @object)
         {
-            if (!(@object is JObject request))
+            if (!( @object is JObject request ))
             {
                 return new InvalidRequest(null, "Not an object");
             }
@@ -58,9 +59,9 @@ namespace OmniSharp.Extensions.JsonRpc
             bool hasRequestId;
             if (hasRequestId = request.TryGetValue("id", out var id))
             {
-                var idString = id.Type == JTokenType.String ? (string)id : null;
-                var idLong = id.Type == JTokenType.Integer ? (long?)id : null;
-                requestId = idString ?? (idLong.HasValue ? (object)idLong.Value : null);
+                var idString = id.Type == JTokenType.String ? (string) id : null;
+                var idLong = id.Type == JTokenType.Integer ? (long?) id : null;
+                requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
             }
 
             if (hasRequestId && request.TryGetValue("result", out var response))
@@ -99,10 +100,8 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 return new Notification(method, @params);
             }
-            else
-            {
-                return new Request(requestId, method, @params);
-            }
+
+            return new Request(requestId, method, @params);
         }
     }
 }

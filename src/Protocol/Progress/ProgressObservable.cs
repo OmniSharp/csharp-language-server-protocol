@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
-    class ProgressObservable<T> : IProgressObservable<T>, IObserver<JToken>
+    internal class ProgressObservable<T> : IProgressObservable<T>, IObserver<JToken>
     {
         private readonly Func<JToken, T> _factory;
         private readonly CompositeDisposable _disposable;
@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             _factory = factory;
             _dataSubject = new ReplaySubject<JToken>(1);
-            _disposable = new CompositeDisposable() {Disposable.Create(_dataSubject.OnCompleted), Disposable.Create(disposal)};
+            _disposable = new CompositeDisposable { Disposable.Create(_dataSubject.OnCompleted), Disposable.Create(disposal) };
 
             ProgressToken = token;
             if (_dataSubject is IDisposable disposable)
@@ -36,14 +36,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public void OnNext(JToken value) => _dataSubject.OnNext(value);
 
-        public void Dispose()
-        {
-            _disposable.Dispose();
-        }
+        public void Dispose() => _disposable.Dispose();
 
-        public IDisposable Subscribe(IObserver<T> observer)
-        {
-            return _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Select(_factory).Subscribe(observer);
-        }
+        public IDisposable Subscribe(IObserver<T> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Select(_factory).Subscribe(observer);
     }
 }

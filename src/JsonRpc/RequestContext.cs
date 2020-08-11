@@ -1,6 +1,6 @@
 ﻿namespace OmniSharp.Extensions.JsonRpc
 {
-    class RequestContext : IRequestContext
+    internal class RequestContext : IRequestContext
     {
         public IHandlerDescriptor Descriptor { get; set; }
     }

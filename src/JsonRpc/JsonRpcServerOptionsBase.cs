@@ -9,7 +9,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
-using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -34,10 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
         internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
         IDisposable IJsonRpcServerOptions.RegisteredDisposables => CompositeDisposable;
 
-        public void RegisterForDisposal(IDisposable disposable)
-        {
-            CompositeDisposable.Add(disposable);
-        }
+        public void RegisterForDisposal(IDisposable disposable) => CompositeDisposable.Add(disposable);
 
         public T WithAssemblies(IEnumerable<Assembly> assemblies)
         {
@@ -98,20 +94,12 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public T WithHandler<THandler>(JsonRpcHandlerOptions options = null)
-            where THandler : class, IJsonRpcHandler
-        {
-            return AddHandler<THandler>(options);
-        }
+            where THandler : class, IJsonRpcHandler =>
+            AddHandler<THandler>(options);
 
-        public T WithHandlersFrom(Type type, JsonRpcHandlerOptions options = null)
-        {
-            return AddHandler(type, options);
-        }
+        public T WithHandlersFrom(Type type, JsonRpcHandlerOptions options = null) => AddHandler(type, options);
 
-        public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions options = null)
-        {
-            return AddHandler(typeInfo.AsType(), options);
-        }
+        public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions options = null) => AddHandler(typeInfo.AsType(), options);
 
         public T WithResponseExceptionFactory(CreateResponseExceptionHandler handler)
         {

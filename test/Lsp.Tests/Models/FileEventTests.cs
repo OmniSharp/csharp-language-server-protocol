@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class FileEventTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new FileEvent() {
+            var model = new FileEvent {
                 Type = FileChangeType.Deleted,
                 Uri = new Uri("file:///abc/123.cs")
             };

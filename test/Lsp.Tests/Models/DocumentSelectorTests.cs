@@ -8,24 +8,19 @@ namespace Lsp.Tests.Models
 {
     public class DocumentSelectorTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentSelector(new DocumentFilter[]
-            {
-                new DocumentFilter()
-                {
+            var model = new DocumentSelector(
+                new DocumentFilter {
                     Language = "csharp",
-                },
-                new DocumentFilter()
-                {
+                }, new DocumentFilter {
                     Pattern = "**/*.vb"
-                },
-                new DocumentFilter()
-                {
+                }, new DocumentFilter {
                     Scheme = "visualbasic"
-                },
-            });
+                }
+            );
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

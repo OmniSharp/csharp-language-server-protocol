@@ -16,6 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public SelectionRange Parent { get; set; }
 
         private string DebuggerDisplay => $"{Range} {{{Parent}}}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

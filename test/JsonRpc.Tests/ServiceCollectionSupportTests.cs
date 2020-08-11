@@ -17,10 +17,7 @@ namespace JsonRpc.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public ServiceCollectionSupportTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public ServiceCollectionSupportTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [Fact]
         public async Task Should_Bootstrap_Server_Through_Service_Collection()
@@ -28,16 +25,18 @@ namespace JsonRpc.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddSingleton(new OutsideService("servername"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddSingleton(new OutsideService("servername"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var server = services.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cts.Token);
@@ -55,17 +54,19 @@ namespace JsonRpc.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(s => s.AddSingleton(new OutsideService("override")))
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddSingleton(new OutsideService("servername"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(s => s.AddSingleton(new OutsideService("override")))
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddSingleton(new OutsideService("servername"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var server = services.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cts.Token);
@@ -82,18 +83,21 @@ namespace JsonRpc.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(services =>
-                            services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                        );
-                })
-                .AddSingleton(new OutsideService("servername"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(
+                                           services =>
+                                               services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                       );
+                               }
+                           )
+                          .AddSingleton(new OutsideService("servername"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var server = services.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cts.Token);
@@ -110,21 +114,24 @@ namespace JsonRpc.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(services =>
-                            services
-                                .AddSingleton(new OutsideService("inside"))
-                                .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                                .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                        );
-                })
-                .AddSingleton(new OutsideService("outside"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(
+                                           services =>
+                                               services
+                                                  .AddSingleton(new OutsideService("inside"))
+                                                  .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                                  .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                       );
+                               }
+                           )
+                          .AddSingleton(new OutsideService("outside"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var server = services.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cts.Token);
@@ -145,21 +152,24 @@ namespace JsonRpc.Tests
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var count = 1;
             var services = new ServiceCollection()
-                .AddJsonRpcServer(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(services =>
-                            services
-                                .AddSingleton(new OutsideService("inside"))
-                                .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                                .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                        );
-                })
-                .AddTransient(_ => new OutsideService($"outside{count++}"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(
+                                           services =>
+                                               services
+                                                  .AddSingleton(new OutsideService("inside"))
+                                                  .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                                  .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                       );
+                               }
+                           )
+                          .AddTransient(_ => new OutsideService($"outside{count++}"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var server = services.GetRequiredService<JsonRpcServer>();
             await server.Initialize(cts.Token);
@@ -182,23 +192,27 @@ namespace JsonRpc.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddJsonRpcServer("serial", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddJsonRpcServer("parallel", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
-                })
-                .AddSingleton(new OutsideService("outside"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               "serial", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddJsonRpcServer(
+                               "parallel", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel });
+                               }
+                           )
+                          .AddSingleton(new OutsideService("outside"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var resolver = services.GetRequiredService<JsonRpcServerResolver>();
             var serialServer = resolver.Get("serial").Should().NotBeNull().And.Subject;
@@ -216,83 +230,70 @@ namespace JsonRpc.Tests
             cts.CancelAfter(TimeSpan.FromSeconds(30));
 
             var services = new ServiceCollection()
-                .AddJsonRpcServer("serial", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddJsonRpcServer("parallel", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
-                })
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddJsonRpcServer(
+                               "serial", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddJsonRpcServer(
+                               "parallel", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel });
+                               }
+                           )
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             Action a = () => services.GetRequiredService<JsonRpcServer>();
             a.Should().Throw<NotSupportedException>();
         }
 
         [Method("outside")]
-        class Request : IRequest<Response>
+        private class Request : IRequest<Response>
         {
         }
 
         [Method("ext-outside")]
-        class ExternalRequest : IRequest<Response>
+        private class ExternalRequest : IRequest<Response>
         {
         }
 
-        class Response
+        private class Response
         {
             public string Value { get; }
 
-            public Response(string value)
-            {
-                Value = value;
-            }
+            public Response(string value) => Value = value;
         }
 
-        class Handler : IJsonRpcRequestHandler<Request, Response>
+        private class Handler : IJsonRpcRequestHandler<Request, Response>
         {
             private readonly OutsideService _outsideService;
 
-            public Handler(OutsideService outsideService)
-            {
-                _outsideService = outsideService;
-            }
+            public Handler(OutsideService outsideService) => _outsideService = outsideService;
 
-            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(new Response(_outsideService.Value));
-            }
+            public Task<Response> Handle(Request request, CancellationToken cancellationToken) => Task.FromResult(new Response(_outsideService.Value));
         }
 
-        class ExternalHandler : IJsonRpcRequestHandler<ExternalRequest, Response>
+        private class ExternalHandler : IJsonRpcRequestHandler<ExternalRequest, Response>
         {
             private readonly IExternalServiceProvider _outsideService;
 
-            public ExternalHandler(IExternalServiceProvider outsideService)
-            {
-                _outsideService = outsideService;
-            }
+            public ExternalHandler(IExternalServiceProvider outsideService) => _outsideService = outsideService;
 
-            public Task<Response> Handle(ExternalRequest request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(new Response(_outsideService.GetRequiredService<OutsideService>().Value));
-            }
+            public Task<Response> Handle(ExternalRequest request, CancellationToken cancellationToken) =>
+                Task.FromResult(new Response(_outsideService.GetRequiredService<OutsideService>().Value));
         }
 
-        class OutsideService
+        private class OutsideService
         {
-            public OutsideService(string value)
-            {
-                Value = value;
-            }
+            public OutsideService(string value) => Value = value;
 
             public string Value { get; }
         }

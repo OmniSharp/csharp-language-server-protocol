@@ -6,19 +6,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class BooleanOrConverter : JsonConverter
+    internal class BooleanOrConverter : JsonConverter
     {
         private static readonly MethodInfo WriteJsonGenericMethod = typeof(BooleanOrConverter)
-            .GetTypeInfo()
-            .GetMethod(nameof(WriteJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+                                                                   .GetTypeInfo()
+                                                                   .GetMethod(nameof(WriteJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+
         private static readonly MethodInfo ReadJsonGenericMethod = typeof(BooleanOrConverter)
-            .GetTypeInfo()
-            .GetMethod(nameof(ReadJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+                                                                  .GetTypeInfo()
+                                                                  .GetMethod(nameof(ReadJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             if (value == null) return;
             WriteJsonGenericMethod.MakeGenericMethod(value.GetType().GetTypeInfo().GenericTypeArguments[0])
-                .Invoke(null, new object[] { writer, value, serializer });
+                                  .Invoke(null, new[] { writer, value, serializer });
         }
 
         private static void WriteJsonGeneric<T>(JsonWriter writer, BooleanOr<T> value, JsonSerializer serializer)
@@ -42,14 +44,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var parentType = objectType.GetTypeInfo().GenericTypeArguments[0];
             return ReadJsonGenericMethod.MakeGenericMethod(parentType)
-                .Invoke(null, new object[] { reader, existingValue, serializer });
+                                        .Invoke(null, new[] { reader, existingValue, serializer });
         }
 
         private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, object existingValue, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Boolean)
             {
-                return new BooleanOr<T>((bool)reader.Value);
+                return new BooleanOr<T>((bool) reader.Value);
             }
 
             if (reader.TokenType == JsonToken.StartObject)

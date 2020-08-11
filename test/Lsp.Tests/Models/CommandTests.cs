@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class CommandTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new Command() {
+            var model = new Command {
                 Arguments = new JArray { 1, "2", true },
                 Name = "abc",
                 Title = "Cool story bro"

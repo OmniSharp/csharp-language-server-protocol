@@ -7,7 +7,6 @@ using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Testing;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using Xunit;
 using Xunit.Abstractions;
@@ -16,7 +15,9 @@ namespace Dap.Tests.Integration
 {
     public class CustomRequestsTests : DebugAdapterProtocolTestBase
     {
-        public CustomRequestsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)) { }
+        public CustomRequestsTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        {
+        }
 
         [Fact]
         public async Task Should_Support_Custom_Attach_Request_Using_Base_Class()
@@ -24,11 +25,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(new CustomAttachRequestArguments() {
-                ComputerName = "computer",
-                RunspaceId = "1234",
-                ProcessId = "4321"
-            });
+            await client.RequestAttach(
+                new CustomAttachRequestArguments {
+                    ComputerName = "computer",
+                    RunspaceId = "1234",
+                    ProcessId = "4321"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -44,11 +47,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandler>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(new CustomAttachRequestArguments() {
-                ComputerName = "computer",
-                RunspaceId = "1234",
-                ProcessId = "4321"
-            });
+            await client.RequestAttach(
+                new CustomAttachRequestArguments {
+                    ComputerName = "computer",
+                    RunspaceId = "1234",
+                    ProcessId = "4321"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -64,13 +69,15 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<AttachHandlerBase<CustomAttachRequestArguments>>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestAttach(new AttachRequestArguments() {
-                ExtensionData = new Dictionary<string, object>() {
-                    ["ComputerName"] = "computer",
-                    ["RunspaceId"] = "1234",
-                    ["ProcessId"] = "4321"
+            await client.RequestAttach(
+                new AttachRequestArguments {
+                    ExtensionData = new Dictionary<string, object> {
+                        ["ComputerName"] = "computer",
+                        ["RunspaceId"] = "1234",
+                        ["ProcessId"] = "4321"
+                    }
                 }
-            });
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -86,9 +93,11 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                Script = "build.ps1"
-            });
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    Script = "build.ps1"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -102,9 +111,11 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandler>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                Script = "build.ps1"
-            });
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    Script = "build.ps1"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -118,11 +129,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<LaunchHandlerBase<CustomLaunchRequestArguments>>();
             var (client, server) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                ExtensionData = new Dictionary<string, object>() {
-                    ["Script"] = "build.ps1"
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    ExtensionData = new Dictionary<string, object> {
+                        ["Script"] = "build.ps1"
+                    }
                 }
-            });
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -136,11 +149,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(new CustomAttachRequestArguments() {
-                ComputerName = "computer",
-                RunspaceId = "1234",
-                ProcessId = "4321"
-            });
+            await client.RequestAttach(
+                new CustomAttachRequestArguments {
+                    ComputerName = "computer",
+                    RunspaceId = "1234",
+                    ProcessId = "4321"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -156,11 +171,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(new CustomAttachRequestArguments() {
-                ComputerName = "computer",
-                RunspaceId = "1234",
-                ProcessId = "4321"
-            });
+            await client.RequestAttach(
+                new CustomAttachRequestArguments {
+                    ComputerName = "computer",
+                    RunspaceId = "1234",
+                    ProcessId = "4321"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -176,13 +193,15 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomAttachRequestArguments, CancellationToken, Task<AttachResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnAttach(fake); });
 
-            await client.RequestAttach(new AttachRequestArguments() {
-                ExtensionData = new Dictionary<string, object>() {
-                    ["ComputerName"] = "computer",
-                    ["RunspaceId"] = "1234",
-                    ["ProcessId"] = "4321"
+            await client.RequestAttach(
+                new AttachRequestArguments {
+                    ExtensionData = new Dictionary<string, object> {
+                        ["ComputerName"] = "computer",
+                        ["RunspaceId"] = "1234",
+                        ["ProcessId"] = "4321"
+                    }
                 }
-            });
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -198,9 +217,11 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                Script = "build.ps1"
-            });
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    Script = "build.ps1"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -214,9 +235,11 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<LaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                Script = "build.ps1"
-            });
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    Script = "build.ps1"
+                }
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
@@ -230,11 +253,13 @@ namespace Dap.Tests.Integration
             var fake = Substitute.For<Func<CustomLaunchRequestArguments, CancellationToken, Task<LaunchResponse>>>();
             var (client, server) = await Initialize(options => { }, options => { options.OnLaunch(fake); });
 
-            await client.RequestLaunch(new CustomLaunchRequestArguments() {
-                ExtensionData = new Dictionary<string, object>() {
-                    ["Script"] = "build.ps1"
+            await client.RequestLaunch(
+                new CustomLaunchRequestArguments {
+                    ExtensionData = new Dictionary<string, object> {
+                        ["Script"] = "build.ps1"
+                    }
                 }
-            });
+            );
 
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();

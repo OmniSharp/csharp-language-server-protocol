@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The total number of modules available.
         /// </summary>
-        [Optional] public long? TotalModules { get; set; }
+        [Optional]
+        public long? TotalModules { get; set; }
     }
-
 }

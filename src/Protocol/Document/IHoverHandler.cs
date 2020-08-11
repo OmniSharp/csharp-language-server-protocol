@@ -8,17 +8,18 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.Hover, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover>, IRegistration<HoverRegistrationOptions>, ICapability<HoverCapability> { }
+    [Parallel]
+    [Method(TextDocumentNames.Hover, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover>, IRegistration<HoverRegistrationOptions>, ICapability<HoverCapability>
+    {
+    }
 
     public abstract class HoverHandler : IHoverHandler
     {
         private readonly HoverRegistrationOptions _options;
-        public HoverHandler(HoverRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public HoverHandler(HoverRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public HoverRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken);

@@ -11,7 +11,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class ClientInfo
     {
-
         /// <summary>
         /// The name of the client as defined by the client.
         /// </summary>
@@ -24,6 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string Version { get; set; }
 
         private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -8,10 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
     public abstract class DebugAdapterRpcOptionsBase<T> : JsonRpcServerOptionsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
-        public DebugAdapterRpcOptionsBase()
-        {
-            Services.AddLogging(builder => LoggingBuilderAction?.Invoke(builder));
-        }
+        public DebugAdapterRpcOptionsBase() => Services.AddLogging(builder => LoggingBuilderAction?.Invoke(builder));
         public ISerializer Serializer { get; set; } = new DapSerializer();
         public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
         internal bool AddDefaultLoggingProvider { get; set; }

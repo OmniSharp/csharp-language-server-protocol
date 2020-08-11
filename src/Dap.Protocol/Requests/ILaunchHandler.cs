@@ -5,8 +5,10 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Launch, Direction.ClientToServer)]
-    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
+    [Parallel]
+    [Method(RequestNames.Launch, Direction.ClientToServer)]
+    [GenerateHandlerMethods(AllowDerivedRequests = true)]
+    [GenerateRequestMethods]
     public interface ILaunchHandler<in T> : IJsonRpcRequestHandler<T, LaunchResponse> where T : LaunchRequestArguments
     {
     }

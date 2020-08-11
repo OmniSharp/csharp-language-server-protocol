@@ -9,6 +9,7 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Serialization;
+using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
 
@@ -22,6 +23,7 @@ namespace JsonRpc.Tests
             rec.ShouldFilterOutput(Arg.Any<object>()).Returns(true);
             return new OutputHandler(writer, new JsonRpcSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
+
         private static OutputHandler NewHandler(PipeWriter writer, Func<object, bool> filter)
         {
             var rec = Substitute.For<IReceiver>();
@@ -35,7 +37,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OutgoingResponse(1, 1, new OmniSharp.Extensions.JsonRpc.Server.Request(1, "a", null));
+            var value = new OutgoingResponse(1, 1, new Request(1, "a", null));
 
 
             handler.Send(value);
@@ -55,7 +57,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
+            var value = new OutgoingNotification {
                 Method = "method",
                 Params = new object()
             };
@@ -77,7 +79,7 @@ namespace JsonRpc.Tests
             var pipe = new Pipe(new PipeOptions());
             using var handler = NewHandler(pipe.Writer);
 
-            var value = new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
+            var value = new OutgoingRequest {
                 Method = "method",
                 Id = 1,
                 Params = new object(),

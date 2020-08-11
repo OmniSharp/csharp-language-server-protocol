@@ -9,7 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         public Position()
         {
-
         }
 
         public Position(int line, int character)
@@ -17,6 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             Line = line;
             Character = character;
         }
+
         /// <summary>
         /// Line position in a document (zero-based).
         /// </summary>
@@ -27,17 +27,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public int Character { get; set; }
 
-        public override bool Equals(object obj)
-        {
-            return Equals(obj as Position);
-        }
+        public override bool Equals(object obj) => Equals(obj as Position);
 
-        public bool Equals(Position other)
-        {
-            return other != null &&
-                   Line == other.Line &&
-                   Character == other.Character;
-        }
+        public bool Equals(Position other) =>
+            other != null &&
+            Line == other.Line &&
+            Character == other.Character;
 
         public override int GetHashCode()
         {
@@ -47,22 +42,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return hashCode;
         }
 
-        public static bool operator ==(Position position1, Position position2)
-        {
-            return EqualityComparer<Position>.Default.Equals(position1, position2);
-        }
+        public static bool operator ==(Position position1, Position position2) => EqualityComparer<Position>.Default.Equals(position1, position2);
 
-        public static bool operator !=(Position position1, Position position2)
-        {
-            return !(position1 == position2);
-        }
+        public static bool operator !=(Position position1, Position position2) => !( position1 == position2 );
 
-        public static implicit operator Position((int line, int character) value)
-        {
-            return new Position(value.line, value.character);
-        }
+        public static implicit operator Position((int line, int character) value) => new Position(value.line, value.character);
 
         private string DebuggerDisplay => $"(line: {Line}, char: {Character})";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -7,7 +7,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
@@ -15,12 +14,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler, IOnLanguageServerStarted, ILanguageServerConfiguration
+    internal class DidChangeConfigurationProvider : BaseWorkspaceConfigurationProvider, IDidChangeConfigurationHandler, IOnLanguageServerStarted, ILanguageServerConfiguration
     {
         private readonly IEnumerable<ConfigurationItem> _configurationItems;
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
@@ -35,13 +33,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             IEnumerable<ConfigurationItem> configurationItems,
             Action<IConfigurationBuilder> configurationBuilderAction,
             ILogger<DidChangeConfigurationProvider> logger,
-            IWorkspaceLanguageServer workspaceLanguageServer)
+            IWorkspaceLanguageServer workspaceLanguageServer
+        )
         {
             _configurationItems = configurationItems;
             _logger = logger;
             _workspaceLanguageServer = workspaceLanguageServer;
             var builder = new ConfigurationBuilder()
-                .Add(new DidChangeConfigurationSource(this));
+               .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
             _configuration = builder.Build() as ConfigurationRoot;
         }
@@ -80,12 +79,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             }
 
             {
-                var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
-                    Items = configurationItems
-                })).ToArray();
+                var configurations = ( await _workspaceLanguageServer.RequestConfiguration(
+                    new ConfigurationParams {
+                        Items = configurationItems
+                    }
+                ) ).ToArray();
 
-                foreach (var (scope, settings) in configurationItems.Zip(configurations,
-                    (scope, settings) => (scope, settings)))
+                foreach (var (scope, settings) in configurationItems.Zip(
+                    configurations,
+                    (scope, settings) => ( scope, settings )
+                ))
                 {
                     ParseClientConfiguration(settings, scope.Section);
                 }
@@ -95,25 +98,27 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
             {
                 var scopedConfigurationItems = configurationItems
-                    .SelectMany(scope =>
-                        _openScopes.Keys.Select(scopeUri => new ConfigurationItem() { ScopeUri = scopeUri, Section = scope.Section })
-                    ).ToArray();
+                                              .SelectMany(
+                                                   scope =>
+                                                       _openScopes.Keys.Select(scopeUri => new ConfigurationItem { ScopeUri = scopeUri, Section = scope.Section })
+                                               ).ToArray();
 
                 try
                 {
-
-                    var configurations = (await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
-                        Items = scopedConfigurationItems
-                    })).ToArray();
+                    var configurations = ( await _workspaceLanguageServer.RequestConfiguration(
+                        new ConfigurationParams {
+                            Items = scopedConfigurationItems
+                        }
+                    ) ).ToArray();
 
                     var groups = scopedConfigurationItems
-                        .Zip(configurations, (scope, settings) => (scope, settings))
-                        .GroupBy(z => z.scope.ScopeUri);
+                                .Zip(configurations, (scope, settings) => ( scope, settings ))
+                                .GroupBy(z => z.scope.ScopeUri);
 
                     foreach (var group in groups)
                     {
                         if (!_openScopes.TryGetValue(group.Key, out var source)) continue;
-                        source.Update(group.Select(z => (z.scope.Section, z.settings)));
+                        source.Update(group.Select(z => ( z.scope.Section, z.settings )));
                     }
                 }
                 catch (Exception e)
@@ -142,19 +147,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return new ConfigurationBuilder().AddInMemoryCollection(_configuration.AsEnumerable()).Build();
             }
 
-            var configurations = await _workspaceLanguageServer.RequestConfiguration(new ConfigurationParams() {
-                Items = items
-            });
-            var data = items.Zip(configurations,
-                (scope, settings) => (scope.Section, settings));
+            var configurations = await _workspaceLanguageServer.RequestConfiguration(
+                new ConfigurationParams {
+                    Items = items
+                }
+            );
+            var data = items.Zip(
+                configurations,
+                (scope, settings) => ( scope.Section, settings )
+            );
             return new ConfigurationBuilder()
-                // this avoids chaining the configurations
-                // so that the returned configuration object
-                // is stateless.
-                // scoped configuration should be a snapshot of the current state.
-                .AddInMemoryCollection(_configuration.AsEnumerable())
-                .Add(new WorkspaceConfigurationSource(data))
-                .Build();
+                   // this avoids chaining the configurations
+                   // so that the returned configuration object
+                   // is stateless.
+                   // scoped configuration should be a snapshot of the current state.
+                  .AddInMemoryCollection(_configuration.AsEnumerable())
+                  .Add(new WorkspaceConfigurationSource(data))
+                  .Build();
         }
 
         public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri)
@@ -163,19 +172,24 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
-            var configurations = await _workspaceLanguageServer .RequestConfiguration(new ConfigurationParams() {
-                Items = scopes.Select(z => new ConfigurationItem() { Section = z.Section, ScopeUri = scopeUri }).ToArray()
-            });
+            var configurations = await _workspaceLanguageServer.RequestConfiguration(
+                new ConfigurationParams {
+                    Items = scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }).ToArray()
+                }
+            );
 
-            var data = scopes.Zip(configurations,
-                (scope, settings) => (scope.Section, settings));
+            var data = scopes.Zip(
+                configurations,
+                (scope, settings) => ( scope.Section, settings )
+            );
 
             var config = new DisposableConfiguration(
                 new ConfigurationBuilder()
-                    .AddConfiguration(_configuration),
+                   .AddConfiguration(_configuration),
                 new WorkspaceConfigurationSource(data),
                 Disposable.Create(
-                    () => _openScopes.TryRemove(scopeUri, out _))
+                    () => _openScopes.TryRemove(scopeUri, out _)
+                )
             );
 
             _openScopes.TryAdd(scopeUri, config);

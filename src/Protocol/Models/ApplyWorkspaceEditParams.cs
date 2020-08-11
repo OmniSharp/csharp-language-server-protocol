@@ -14,6 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public string Label { get; set; }
+
         /// <summary>
         /// The edits to apply.
         /// </summary>

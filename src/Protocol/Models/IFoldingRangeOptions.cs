@@ -1,4 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public interface IFoldingRangeOptions : IWorkDoneProgressOptions { }
+    public interface IFoldingRangeOptions : IWorkDoneProgressOptions
+    {
+    }
 }

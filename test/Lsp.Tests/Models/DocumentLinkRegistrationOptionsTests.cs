@@ -8,13 +8,16 @@ namespace Lsp.Tests.Models
 {
     public class DocumentLinkRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentLinkRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                    Language = "csharp"
-                }),
+            var model = new DocumentLinkRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp"
+                    }
+                ),
                 ResolveProvider = true
             };
             var result = Fixture.SerializeObject(model);

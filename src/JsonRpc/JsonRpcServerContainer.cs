@@ -1,12 +1,7 @@
 using System;
-using System.IO.Pipelines;
-using System.Linq;
-using System.Reflection;
 using DryIoc;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.JsonRpc.Pipelines;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -14,18 +9,19 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public static IContainer Create(IServiceProvider outerServiceProvider)
         {
-            IContainer container = new Container()
-                .WithDependencyInjectionAdapter()
-                .With(rules =>
-                    rules
-                        .WithTrackingDisposableTransients()
-                        .WithoutThrowOnRegisteringDisposableTransient()
-                        .WithFactorySelector(Rules.SelectLastRegisteredFactory())
-                        .WithResolveIEnumerableAsLazyEnumerable()
-                        .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
-                        //.WithDefaultReuse(Reuse.Singleton)
-                        .WithDefaultReuse(Reuse.Scoped)
-                );
+            var container = new Container()
+                           .WithDependencyInjectionAdapter()
+                           .With(
+                                rules =>
+                                    rules
+                                       .WithTrackingDisposableTransients()
+                                       .WithoutThrowOnRegisteringDisposableTransient()
+                                       .WithFactorySelector(Rules.SelectLastRegisteredFactory())
+                                       .WithResolveIEnumerableAsLazyEnumerable()
+                                       .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
+                                        //.WithDefaultReuse(Reuse.Singleton)
+                                       .WithDefaultReuse(Reuse.Scoped)
+                            );
 
             var outerLoggerFactory = outerServiceProvider?.GetService<ILoggerFactory>();
             if (outerLoggerFactory != null)
@@ -36,10 +32,14 @@ namespace OmniSharp.Extensions.JsonRpc
             if (outerServiceProvider != null)
             {
                 container.RegisterInstance<IExternalServiceProvider>(new ExternalServiceProvider(outerServiceProvider));
-                container = container.With(rules => rules.WithUnknownServiceResolvers((request) => {
-                    var value = outerServiceProvider.GetService(request.ServiceType);
-                    return value == null ? null : (Factory)new RegisteredInstanceFactory(value, Reuse.Transient);
-                }));
+                container = container.With(
+                    rules => rules.WithUnknownServiceResolvers(
+                        request => {
+                            var value = outerServiceProvider.GetService(request.ServiceType);
+                            return value == null ? null : (Factory) new RegisteredInstanceFactory(value, Reuse.Transient);
+                        }
+                    )
+                );
             }
             else
             {

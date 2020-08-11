@@ -4,7 +4,7 @@ using System.Reactive.Subjects;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
-    class EmptySubject<T> : SubjectBase<T>
+    internal class EmptySubject<T> : SubjectBase<T>
     {
         public override void Dispose()
         {

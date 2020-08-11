@@ -6,8 +6,9 @@ namespace OmniSharp.Extensions.JsonRpc
     public abstract class JsonRpcOptionsRegistryBase<T> : JsonRpcCommonMethodsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
         public IServiceCollection Services { get; set; } = new ServiceCollection()
-            .AddOptions()
-            .AddLogging();
+                                                          .AddOptions()
+                                                          .AddLogging();
+
         public IJsonRpcHandlerCollection Handlers { get; } = new JsonRpcHandlerCollection();
 
         public T WithServices(Action<IServiceCollection> servicesAction)
@@ -52,15 +53,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options = null)
-        {
-            return AddHandler(typeof(THandler), options);
-        }
+        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options = null) => AddHandler(typeof(THandler), options);
 
-        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null)
-        {
-            return AddHandler(method, typeof(THandler), options);
-        }
+        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null) => AddHandler(method, typeof(THandler), options);
 
         public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options = null)
         {

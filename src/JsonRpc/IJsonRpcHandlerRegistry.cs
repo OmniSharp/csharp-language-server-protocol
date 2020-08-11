@@ -1,10 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -13,7 +9,11 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public RequestProcessType RequestProcessType { get; set; }
     }
-    public interface IJsonRpcHandlerRegistry {}
+
+    public interface IJsonRpcHandlerRegistry
+    {
+    }
+
     public interface IJsonRpcHandlerRegistry<out T> : IJsonRpcHandlerRegistry where T : IJsonRpcHandlerRegistry<T>
     {
         T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null);

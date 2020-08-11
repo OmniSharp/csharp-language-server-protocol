@@ -5,7 +5,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.DebugAdapter.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Testing;
 
@@ -26,20 +25,24 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
         protected virtual async Task<IDebugAdapterClient> InitializeClient(Action<DebugAdapterClientOptions> clientOptionsAction = null)
         {
-            _client = DebugAdapterClient.Create(options => {
-                var (reader, writer) = SetupServer();
-                options
-                    .WithInput(reader)
-                    .WithOutput(writer)
-                    .ConfigureLogging(x => {
-                        x.SetMinimumLevel(LogLevel.Trace);
-                        x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
-                    })
-                    .Services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(Events as IRequestSettler);
-                clientOptionsAction?.Invoke(options);
-            });
+            _client = DebugAdapterClient.Create(
+                options => {
+                    var (reader, writer) = SetupServer();
+                    options
+                       .WithInput(reader)
+                       .WithOutput(writer)
+                       .ConfigureLogging(
+                            x => {
+                                x.SetMinimumLevel(LogLevel.Trace);
+                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
+                            }
+                        )
+                       .Services
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                       .AddSingleton(Events as IRequestSettler);
+                    clientOptionsAction?.Invoke(options);
+                }
+            );
 
             Disposable.Add(_client);
 

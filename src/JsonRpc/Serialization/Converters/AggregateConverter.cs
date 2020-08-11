@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
@@ -17,11 +16,13 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                     serializer.Serialize(writer, v);
                 }
             }
+
             writer.WriteEndArray();
         }
 
         public override bool CanRead => false;
 
-        public override AggregateResponse<T> ReadJson(JsonReader reader, Type objectType, AggregateResponse<T> existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException();
+        public override AggregateResponse<T> ReadJson(JsonReader reader, Type objectType, AggregateResponse<T> existingValue, bool hasExistingValue, JsonSerializer serializer) =>
+            throw new NotImplementedException();
     }
 }

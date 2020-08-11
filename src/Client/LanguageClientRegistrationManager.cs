@@ -9,17 +9,17 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
-    class LanguageClientRegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
+    internal class LanguageClientRegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
     {
         private readonly ISerializer _serializer;
         private readonly ILogger<LanguageClientRegistrationManager> _logger;
@@ -62,7 +62,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public void RegisterCapabilities(ServerCapabilities serverCapabilities)
         {
             foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(
-                serverCapabilities))
+                serverCapabilities
+            ))
             {
                 var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
                 if (descriptor == null)
@@ -71,12 +72,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
-                var reg = new Registration() {
+                var reg = new Registration {
                     Id = registrationOptions.Id,
                     Method = descriptor.Method,
                     RegisterOptions = registrationOptions
                 };
-                _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
+                _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
             }
 
             if (serverCapabilities.Workspace == null)
@@ -85,8 +86,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 return;
             }
 
-            foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(serverCapabilities
-                .Workspace))
+            foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(
+                serverCapabilities
+                   .Workspace
+            ))
             {
                 var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
                 if (descriptor == null)
@@ -95,12 +98,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
-                var reg = new Registration() {
+                var reg = new Registration {
                     Id = registrationOptions.Id,
                     Method = descriptor.Method,
                     RegisterOptions = registrationOptions
                 };
-                _registrations.AddOrUpdate(registrationOptions.Id, (x) => reg, (a, b) => reg);
+                _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
             }
         }
 
@@ -117,18 +120,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(registration.Method);
             if (typeDescriptor == null)
             {
-                _registrations.AddOrUpdate(registration.Id, (x) => registration, (a, b) => registration);
+                _registrations.AddOrUpdate(registration.Id, x => registration, (a, b) => registration);
                 return;
             }
 
-            var deserializedRegistration = new Registration() {
+            var deserializedRegistration = new Registration {
                 Id = registration.Id,
                 Method = registration.Method,
                 RegisterOptions = registration.RegisterOptions is JToken token
                     ? token.ToObject(typeDescriptor.RegistrationType, _serializer.JsonSerializer)
                     : registration.RegisterOptions
             };
-            _registrations.AddOrUpdate(deserializedRegistration.Id, (x) => deserializedRegistration, (a, b) => deserializedRegistration);
+            _registrations.AddOrUpdate(deserializedRegistration.Id, x => deserializedRegistration, (a, b) => deserializedRegistration);
         }
 
         public IObservable<IEnumerable<Registration>> Registrations => _registrationSubject.AsObservable();
@@ -138,16 +141,19 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IEnumerable<Registration> GetRegistrationsMatchingSelector(DocumentSelector documentSelector) =>
             _registrations
-                .Select(z => z.Value)
-                .Where(x => x.RegisterOptions is ITextDocumentRegistrationOptions ro && ro.DocumentSelector
-                    .Join(documentSelector,
-                        z => z.HasLanguage ? z.Language :
-                            z.HasScheme ? z.Scheme :
-                            z.HasPattern ? z.Pattern : string.Empty,
-                        z => z.HasLanguage ? z.Language :
-                            z.HasScheme ? z.Scheme :
-                            z.HasPattern ? z.Pattern : string.Empty, (a, b) => a)
-                    .Any(x => x.HasLanguage || x.HasPattern || x.HasScheme)
+               .Select(z => z.Value)
+               .Where(
+                    x => x.RegisterOptions is ITextDocumentRegistrationOptions ro && ro.DocumentSelector
+                                                                                       .Join(
+                                                                                            documentSelector,
+                                                                                            z => z.HasLanguage ? z.Language :
+                                                                                                z.HasScheme ? z.Scheme :
+                                                                                                z.HasPattern ? z.Pattern : string.Empty,
+                                                                                            z => z.HasLanguage ? z.Language :
+                                                                                                z.HasScheme ? z.Scheme :
+                                                                                                z.HasPattern ? z.Pattern : string.Empty, (a, b) => a
+                                                                                        )
+                                                                                       .Any(x => x.HasLanguage || x.HasPattern || x.HasScheme)
                 );
 
         public void Dispose() => _registrationSubject.Dispose();

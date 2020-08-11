@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Configuration options for selected exceptions.
         /// </summary>
-        [Optional] public Container<ExceptionOptions> ExceptionOptions { get; set; }
+        [Optional]
+        public Container<ExceptionOptions> ExceptionOptions { get; set; }
     }
-
 }

@@ -52,6 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public Command Command { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Title}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

@@ -6,70 +6,90 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
     public static class WorkDoneProxyExtensions
     {
-        public static TResult ObserveWorkDone<T, TResult>(this IClientLanguageClient proxy, T @params, Func<IClientLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IClientLanguageClient proxy, T @params, Func<IClientLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IClientLanguageClient proxy, T @params, Func<IClientLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IClientLanguageClient proxy, T @params, Func<IClientLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IGeneralLanguageClient proxy, T @params, Func<IGeneralLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IGeneralLanguageClient proxy, T @params, Func<IGeneralLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IGeneralLanguageClient proxy, T @params, Func<IGeneralLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IGeneralLanguageClient proxy, T @params, Func<IGeneralLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this ITextDocumentLanguageClient proxy, T @params, Func<ITextDocumentLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this ITextDocumentLanguageClient proxy, T @params, Func<ITextDocumentLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this ITextDocumentLanguageClient proxy, T @params, Func<ITextDocumentLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this ITextDocumentLanguageClient proxy, T @params, Func<ITextDocumentLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IWindowLanguageClient proxy, T @params, Func<IWindowLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IWindowLanguageClient proxy, T @params, Func<IWindowLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IWindowLanguageClient proxy, T @params, Func<IWindowLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IWindowLanguageClient proxy, T @params, Func<IWindowLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IWorkspaceLanguageClient proxy, T @params, Func<IWorkspaceLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IWorkspaceLanguageClient proxy, T @params, Func<IWorkspaceLanguageClient, T, TResult> func, IObserver<WorkDoneProgress> observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
             return func(proxy, @params);
         }
 
-        public static TResult ObserveWorkDone<T, TResult>(this IWorkspaceLanguageClient proxy, T @params, Func<IWorkspaceLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer)
+        public static TResult ObserveWorkDone<T, TResult>(
+            this IWorkspaceLanguageClient proxy, T @params, Func<IWorkspaceLanguageClient, T, TResult> func, IWorkDoneProgressObserver observer
+        )
             where T : IWorkDoneProgressParams
         {
             DoObserveWorkDone(proxy, @params, observer);
@@ -102,7 +122,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
                     }
                 },
                 observer.OnError,
-                observer.OnCompleted);
+                observer.OnCompleted
+            );
         }
     }
 }

@@ -8,22 +8,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Document link options
+    /// Document link options
     /// </summary>
     public class DocumentLinkOptions : WorkDoneProgressOptions, IDocumentLinkOptions
     {
         /// <summary>
-        ///  Document links have a resolve provider as well.
+        /// Document links have a resolve provider as well.
         /// </summary>
         [Optional]
         public bool ResolveProvider { get; set; }
 
-        public static DocumentLinkOptions Of(IDocumentLinkOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new DocumentLinkOptions() {
-                ResolveProvider = options.ResolveProvider  || descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)) ,
+        public static DocumentLinkOptions Of(IDocumentLinkOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new DocumentLinkOptions {
+                ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)),
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

@@ -6,10 +6,13 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
-
-    [Parallel, Method(EventNames.Process, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
-    public interface IProcessHandler : IJsonRpcNotificationHandler<ProcessEvent> { }
+    [Parallel]
+    [Method(EventNames.Process, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
+    public interface IProcessHandler : IJsonRpcNotificationHandler<ProcessEvent>
+    {
+    }
 
     public abstract class ProcessHandler : IProcessHandler
     {

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
@@ -24,10 +23,10 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Not_Support_Configuration_It_Not_Configured()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, o => {});
+            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, o => { });
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
-            configuration.Update("mysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration.AsEnumerable().Should().BeEmpty();
@@ -39,7 +38,7 @@ namespace Lsp.Tests.Integration
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
-            configuration.Update("mysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
@@ -51,9 +50,9 @@ namespace Lsp.Tests.Integration
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
 
-            configuration.Update("mysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
-            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>() {["key"] = "scopedvalue"});
+            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
@@ -66,15 +65,15 @@ namespace Lsp.Tests.Integration
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
 
-            configuration.Update("mysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
-            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>() {["key"] = "scopedvalue"});
+            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
             scopedConfiguration["mysection:key"].Should().Be("scopedvalue");
 
-            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>() {});
+            configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             await scopedConfiguration.WaitForChange(CancellationToken);
 
             await Task.Delay(1000);
@@ -88,9 +87,9 @@ namespace Lsp.Tests.Integration
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
-            configuration.Update("mysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
-            configuration.Update("notmysection", new Dictionary<string, string>() {["key"] = "value"});
+            configuration.Update("notmysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
@@ -101,9 +100,6 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        private void ConfigureServer(LanguageServerOptions options)
-        {
-            options.WithConfigurationSection("mysection");
-        }
+        private void ConfigureServer(LanguageServerOptions options) => options.WithConfigurationSection("mysection");
     }
 }

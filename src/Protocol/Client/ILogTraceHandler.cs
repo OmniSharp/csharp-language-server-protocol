@@ -8,9 +8,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    [Parallel, Method(GeneralNames.LogTrace, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-    public interface ILogTraceHandler : IJsonRpcNotificationHandler<LogTraceParams> { }
+    [Parallel]
+    [Method(GeneralNames.LogTrace, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
+    public interface ILogTraceHandler : IJsonRpcNotificationHandler<LogTraceParams>
+    {
+    }
 
     public abstract class LogTraceHandler : ILogTraceHandler
     {

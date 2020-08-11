@@ -7,11 +7,12 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
     public class ClientResponseConverter : JsonConverter<OutgoingResponse>
     {
         public override bool CanRead => false;
-        public override OutgoingResponse ReadJson(JsonReader reader, Type objectType, OutgoingResponse existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
-        {
+
+        public override OutgoingResponse ReadJson(
+            JsonReader reader, Type objectType, OutgoingResponse existingValue,
+            bool hasExistingValue, JsonSerializer serializer
+        ) =>
             throw new NotImplementedException();
-        }
 
         public override void WriteJson(JsonWriter writer, OutgoingResponse value, JsonSerializer serializer)
         {
@@ -25,9 +26,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
             {
                 serializer.Serialize(writer, value.Result);
             }
-            else{
+            else
+            {
                 writer.WriteNull();
             }
+
             writer.WriteEndObject();
         }
     }

@@ -12,10 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public string Method { get; }
         public Direction Direction { get; }
 
-        public MethodAttribute(string method)
-        {
-            Method = method;
-        }
+        public MethodAttribute(string method) => Method = method;
 
         /// <summary>
         /// Decorate the method given the given direction
@@ -28,18 +25,15 @@ namespace OmniSharp.Extensions.JsonRpc
             Direction = direction;
         }
 
-        public static MethodAttribute From(Type type)
-        {
-            return AllFrom(type).FirstOrDefault();
-        }
+        public static MethodAttribute From(Type type) => AllFrom(type).FirstOrDefault();
 
-        public static IEnumerable<MethodAttribute> AllFrom(Type type)
-        {
-            return CollectMethodAttributes(type)
-                .Concat(type
-                    .GetInterfaces()
-                    .SelectMany(CollectMethodAttributes));
-        }
+        public static IEnumerable<MethodAttribute> AllFrom(Type type) =>
+            CollectMethodAttributes(type)
+               .Concat(
+                    type
+                       .GetInterfaces()
+                       .SelectMany(CollectMethodAttributes)
+                );
 
         private static IEnumerable<MethodAttribute> CollectMethodAttributes(Type t)
         {

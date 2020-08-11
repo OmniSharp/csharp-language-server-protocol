@@ -27,20 +27,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // Dynamic registration will cause us to double register things if we report our capabilities staticly.
             // However if the client does not tell us it's capabilities we should just assume that they do not support
             // dynamic registraiton but we should report any capabilities statically
-            if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration == true) return false;
+            if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration) return false;
 
             var handlerTypes = typeof(T).GetTypeInfo().ImplementedInterfaces
-                .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
-                .Select(x => x.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo());
+                                        .Where(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == typeof(ConnectedCapability<>))
+                                        .Select(x => x.GetTypeInfo().GetGenericArguments()[0].GetTypeInfo());
 
             return handlerTypes.Any(_collection.ContainsHandler);
         }
 
         public IOptionsGetter GetStaticOptions<T>(Supports<T> capability)
-            where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler>
-        {
-            return !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
-        }
+            where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler> =>
+            !HasStaticHandler(capability) ? Null : new OptionsGetter(_collection, _supportsProgress);
 
         private static readonly IOptionsGetter Null = new NullOptionsGetter();
 
@@ -70,16 +68,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private class NullOptionsGetter : IOptionsGetter
         {
             public TOptions Get<TInterface, TOptions>(Func<TInterface, IEnumerable<IHandlerDescriptor>, TOptions> action)
-                where TOptions : class
-            {
-                return null;
-            }
+                where TOptions : class =>
+                null;
 
             public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
-                where TOptions : class
-            {
-                return null;
-            }
+                where TOptions : class =>
+                null;
         }
 
         private class OptionsGetter : IOptionsGetter
@@ -97,12 +91,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 where TOptions : class
             {
                 var value = _collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
-                    .FirstOrDefault(x => x != null);
+                           .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
+                           .FirstOrDefault(x => x != null);
                 if (value is IWorkDoneProgressOptions wdpo)
                 {
                     wdpo.WorkDoneProgress = _supportsProgress;
                 }
+
                 return value;
             }
 
@@ -110,12 +105,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 where TOptions : class
             {
                 var options = _collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
-                    .FirstOrDefault(x => x != null);
+                             .Select(x => x.RegistrationOptions is TInterface cl ? action(cl, _collection) : null)
+                             .FirstOrDefault(x => x != null);
                 if (options is IWorkDoneProgressOptions wdpo)
                 {
                     wdpo.WorkDoneProgress = _supportsProgress;
                 }
+
                 if (options == null)
                     return Supports.OfBoolean<TOptions>(false);
 
@@ -125,9 +121,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             public TOptions Reduce<TInterface, TOptions>(Func<IEnumerable<TInterface>, IEnumerable<IHandlerDescriptor>, TOptions> action)
                 where TOptions : class
             {
-                var value = action(_collection
-                    .Select(x => x.RegistrationOptions is TInterface cl ? cl : default)
-                    .Where(x => x != null), _collection);
+                var value = action(
+                    _collection
+                       .Select(x => x.RegistrationOptions is TInterface cl ? cl : default)
+                       .Where(x => x != null), _collection
+                );
 
                 if (value is IWorkDoneProgressOptions wdpo)
                 {

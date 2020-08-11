@@ -9,5 +9,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public Container<StepInTarget> Targets { get; set; }
     }
-
 }

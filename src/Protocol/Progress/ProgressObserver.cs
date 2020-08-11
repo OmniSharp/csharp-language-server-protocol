@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,13 +10,13 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
-    class ProgressObserver<T> : IProgressObserver<T>
+    internal class ProgressObserver<T> : IProgressObserver<T>
     {
         private readonly IResponseRouter _responseRouter;
         private readonly ISerializer _serializer;
         private readonly Action _disposal;
-        private readonly TaskCompletionSource<System.Reactive.Unit> _completionSource;
-        private bool _isComplete = false;
+        private readonly TaskCompletionSource<Unit> _completionSource;
+        private bool _isComplete;
 
         public static ProgressObserver<T> Noop { get; } =
             new ProgressObserver<T>(new ProgressToken(nameof(Noop)), null, null, CancellationToken.None, () => { });
@@ -25,17 +26,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IResponseRouter responseRouter,
             ISerializer serializer,
             CancellationToken cancellationToken,
-            Action disposal)
+            Action disposal
+        )
         {
             _responseRouter = responseRouter;
             _serializer = serializer;
             _disposal = disposal;
             ProgressToken = token;
             CancellationToken = cancellationToken;
-            _completionSource = new TaskCompletionSource<System.Reactive.Unit>();
+            _completionSource = new TaskCompletionSource<Unit>();
         }
 
-        public TaskAwaiter<System.Reactive.Unit> GetAwaiter() => _completionSource.Task.GetAwaiter();
+        public TaskAwaiter<Unit> GetAwaiter() => _completionSource.Task.GetAwaiter();
         public ProgressToken ProgressToken { get; }
         public CancellationToken CancellationToken { get; }
         public Type ParamsType { get; } = typeof(T);
@@ -43,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public void OnCompleted()
         {
             if (_isComplete) return;
-            _completionSource.TrySetResult(System.Reactive.Unit.Default);
+            _completionSource.TrySetResult(Unit.Default);
             _isComplete = true;
         }
 
@@ -57,15 +59,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public void OnNext(T value)
         {
             if (_isComplete) return;
-            _responseRouter.SendNotification(new ProgressParams() {
-                Token = ProgressToken,
-                Value = JToken.FromObject(value, _serializer.JsonSerializer)
-            });
+            _responseRouter.SendNotification(
+                new ProgressParams {
+                    Token = ProgressToken,
+                    Value = JToken.FromObject(value, _serializer.JsonSerializer)
+                }
+            );
         }
 
-        public void Dispose()
-        {
-            _disposal();
-        }
+        public void Dispose() => _disposal();
     }
 }

@@ -24,11 +24,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             new Lazy<IReadOnlyList<SemanticTokenModifier>>(
                 () => {
                     return typeof(SemanticTokenModifier)
-                        .GetFields(BindingFlags.Static | BindingFlags.Public)
-                        .Select(z => z.GetValue(null))
-                        .Cast<SemanticTokenModifier>()
-                        .ToArray();
-                });
+                          .GetFields(BindingFlags.Static | BindingFlags.Public)
+                          .Select(z => z.GetValue(null))
+                          .Cast<SemanticTokenModifier>()
+                          .ToArray();
+                }
+            );
 
         public static IEnumerable<SemanticTokenModifier> Defaults => _defaults.Value;
 
@@ -45,27 +46,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         private readonly string _value;
 
-        public SemanticTokenModifier(string modifier)
-        {
-            _value = modifier;
-        }
+        public SemanticTokenModifier(string modifier) => _value = modifier;
 
-        public static implicit operator SemanticTokenModifier(string kind)
-        {
-            return new SemanticTokenModifier(kind);
-        }
+        public static implicit operator SemanticTokenModifier(string kind) => new SemanticTokenModifier(kind);
 
-        public static implicit operator string(SemanticTokenModifier kind)
-        {
-            return kind._value;
-        }
+        public static implicit operator string(SemanticTokenModifier kind) => kind._value;
 
         public override string ToString() => _value;
         public bool Equals(SemanticTokenModifier other) => _value == other._value;
 
         public override bool Equals(object obj) => obj is SemanticTokenModifier other && Equals(other);
 
-        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
+        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
 
         public static bool operator ==(SemanticTokenModifier left, SemanticTokenModifier right) => left.Equals(right);
 

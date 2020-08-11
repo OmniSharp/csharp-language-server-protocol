@@ -8,10 +8,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class DocumentLinkOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentLinkOptions() {
+            var model = new DocumentLinkOptions {
                 ResolveProvider = true,
             };
             var result = Fixture.SerializeObject(model);

@@ -9,14 +9,15 @@ namespace Lsp.Tests.Models
 {
     public class ReferenceParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ReferenceParams() {
-                Context = new ReferenceContext() {
+            var model = new ReferenceParams {
+                Context = new ReferenceContext {
                     IncludeDeclaration = true,
                 },
-                Position = new Position(1,2),
+                Position = new Position(1, 2),
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/123.cs"))
             };
             var result = Fixture.SerializeObject(model);

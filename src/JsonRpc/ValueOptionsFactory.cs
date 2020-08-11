@@ -2,13 +2,11 @@
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    internal class ValueOptionsFactory<T> : IOptionsFactory<T> where T : class, new() {
+    internal class ValueOptionsFactory<T> : IOptionsFactory<T> where T : class, new()
+    {
         private readonly T _options;
 
-        public ValueOptionsFactory(T options)
-        {
-            _options = options;
-        }
+        public ValueOptionsFactory(T options) => _options = options;
 
         public T Create(string name) => _options;
     }

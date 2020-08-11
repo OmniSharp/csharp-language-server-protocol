@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.Reactive.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -34,12 +32,16 @@ namespace Lsp.Tests.Integration
             server.Window.ShowInfo("Here's something cool...");
             server.Window.ShowWarning("Uh-oh...");
             server.Window.Show("Just gotta let you know!");
-            server.Window.Show(new ShowMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
-            server.Window.ShowMessage(new ShowMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
+            server.Window.Show(
+                new ShowMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
+            server.Window.ShowMessage(
+                new ShowMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
 
             await Task.Delay(1000);
 
@@ -59,12 +61,16 @@ namespace Lsp.Tests.Integration
             server.ShowInfo("Here's something cool...");
             server.ShowWarning("Uh-oh...");
             server.Show("Just gotta let you know!");
-            server.Show(new ShowMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
-            server.ShowMessage(new ShowMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
+            server.Show(
+                new ShowMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
+            server.ShowMessage(
+                new ShowMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
 
             await Task.Delay(1000);
 
@@ -75,10 +81,7 @@ namespace Lsp.Tests.Integration
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Log).And.Subject.Count(z => z.Type == MessageType.Log).Should().Be(3);
         }
 
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.OnShowMessage((request) => { _receivedMessages.Add(request); });
-        }
+        private void ConfigureClient(LanguageClientOptions options) => options.OnShowMessage(request => { _receivedMessages.Add(request); });
 
         private void ConfigureServer(LanguageServerOptions options)
         {

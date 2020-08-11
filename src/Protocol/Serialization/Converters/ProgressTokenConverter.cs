@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class ProgressTokenConverter : JsonConverter<ProgressToken>
+    internal class ProgressTokenConverter : JsonConverter<ProgressToken>
     {
         public override void WriteJson(JsonWriter writer, ProgressToken value, JsonSerializer serializer)
         {
@@ -17,12 +17,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new ProgressToken((long)reader.Value);
+                return new ProgressToken((long) reader.Value);
             }
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new ProgressToken((string)reader.Value);
+                return new ProgressToken((string) reader.Value);
             }
 
             return new ProgressToken(string.Empty);
