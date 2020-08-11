@@ -89,20 +89,22 @@ namespace Lsp.Tests.Integration
         }
 
         [Fact]
-        public async Task Should_Cancel_Requests_After_Timeout_without_Content_Modified()
+        public void Should_Cancel_Requests_After_Timeout_without_Content_Modified()
         {
-            var (client, server) = await Initialize(
-                ConfigureClient, x => {
-                    ConfigureServer(x);
-                    x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
-                }
-            );
+            Func<Task> action = async () => {
+                var (client, server) = await Initialize(
+                    ConfigureClient, x => {
+                        ConfigureServer(x);
+                        x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
+                    }
+                );
 
-            Func<Task> action = () => client.TextDocument.RequestCompletion(
-                new CompletionParams {
-                    TextDocument = "/a/file.cs"
-                }, CancellationToken
-            ).AsTask();
+                await client.TextDocument.RequestCompletion(
+                    new CompletionParams {
+                        TextDocument = "/a/file.cs"
+                    }, CancellationToken
+                ).AsTask();
+            };
             action.Should().Throw<RequestCancelledException>();
         }
 

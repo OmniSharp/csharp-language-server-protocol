@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public ILoggerFactory ServerLoggerFactory { get; internal set; } = NullLoggerFactory.Instance;
         public TimeSpan SettleTimeSpan { get; internal set; } = TimeSpan.FromMilliseconds(100);
         public TimeSpan SettleTimeout { get; internal set; } = TimeSpan.FromMilliseconds(500);
-        public TimeSpan TestTimeout { get; internal set; } = TimeSpan.FromSeconds(30);
+        public TimeSpan TestTimeout { get; internal set; } = TimeSpan.FromMinutes(5);
         public PipeOptions DefaultPipeOptions { get; internal set; } = new PipeOptions();
     }
 }

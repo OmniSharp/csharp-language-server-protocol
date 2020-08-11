@@ -34,16 +34,18 @@ namespace Dap.Tests.Integration
         }
 
         [Fact]
-        public async Task Should_Cancel_Requests_After_Timeout()
+        public void Should_Cancel_Requests_After_Timeout()
         {
-            var (client, server) = await Initialize(
-                ConfigureClient, x => {
-                    ConfigureServer(x);
-                    x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
-                }
-            );
+            Func<Task<CompletionsResponse>> action = async () => {
+                var (client, server) = await Initialize(
+                    ConfigureClient, x => {
+                        ConfigureServer(x);
+                        x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
+                    }
+                );
 
-            Func<Task<CompletionsResponse>> action = () => client.RequestCompletions(new CompletionsArguments());
+                return await client.RequestCompletions(new CompletionsArguments());
+            };
             action.Should().Throw<RequestCancelledException>();
         }
 
