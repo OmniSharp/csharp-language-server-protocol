@@ -22,9 +22,3 @@ issue-labels-include:
   - 'dependencies'
   - 'deprecated'
   - 'removed'
-issue-labels-exclude:
-  - 'duplicate'
-  - 'question'
-  - 'wontfix'
-  - 'merge'
-  - 'invalid'
