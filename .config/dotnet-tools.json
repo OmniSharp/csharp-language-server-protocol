@@ -3,31 +3,27 @@
     "isRoot": true,
     "tools": {
         "cake.tool": {
-            "version": "0.35.0",
+            "version": "0.38.4",
             "commands": ["dotnet-cake"]
         },
         "gitversion.tool": {
-            "version": "5.2.4",
+            "version": "5.3.7",
             "commands": ["dotnet-gitversion"]
         },
         "dotnet-reportgenerator-globaltool": {
-            "version": "4.3.0",
+            "version": "4.6.4",
             "commands": ["reportgenerator"]
         },
         "codecov.tool": {
-            "version": "1.10.0",
+            "version": "1.12.1",
             "commands": ["codecov"]
         },
-        "gitreleasemanager.tool": {
-            "version": "0.11.0",
-            "commands": ["dotnet-gitreleasemanager"]
-        },
         "nuke.globaltool": {
-            "version": "0.24.4",
+            "version": "0.24.11",
             "commands": ["nuke"]
         },
         "nukeeper": {
-            "version": "0.26.1",
+            "version": "0.33.0",
             "commands": ["nukeeper"]
         },
         "jetbrains.resharper.globaltools": {
