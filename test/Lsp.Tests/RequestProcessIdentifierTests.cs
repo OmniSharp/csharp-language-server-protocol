@@ -48,9 +48,9 @@ namespace Lsp.Tests
         [InlineData(typeof(ISignatureHelpHandler))]
         public void ShouldIdentifyAs_Parallel(Type type)
         {
-            var identifier = new RequestProcessIdentifier(RequestProcessType.Serial);
+            var identifier = new RequestProcessIdentifier();
             var handler = Substitute.For<IHandlerDescriptor>();
-            handler.Handler.Returns((IJsonRpcHandler)Substitute.For(new Type[] { type }, new object[0]));
+            handler.Handler.Returns((IJsonRpcHandler) Substitute.For(new[] { type }, new object[0]));
             handler.HandlerType.Returns(type);
             handler.ImplementationType.Returns(x => handler.Handler.GetType());
 
@@ -76,7 +76,7 @@ namespace Lsp.Tests
         {
             var identifier = new RequestProcessIdentifier(RequestProcessType.Parallel);
             var handler = Substitute.For<IHandlerDescriptor>();
-            handler.Handler.Returns((IJsonRpcHandler)Substitute.For(new Type[] { type }, new object[0]));
+            handler.Handler.Returns((IJsonRpcHandler) Substitute.For(new[] { type }, new object[0]));
             handler.HandlerType.Returns(type);
             handler.ImplementationType.Returns(x => handler.Handler.GetType());
 

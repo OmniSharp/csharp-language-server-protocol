@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public CompletionItemKindCapability CompletionItemKind { get; set; }
 
         /// <summary>
-        ///  The client supports to send additional context information for a `textDocument/completion` request.
+        /// The client supports to send additional context information for a `textDocument/completion` request.
         /// </summary>
         [Optional]
         public bool ContextSupport { get; set; }

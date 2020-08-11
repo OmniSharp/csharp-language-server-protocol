@@ -8,7 +8,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 {
-    [Serial, Method(GeneralNames.Exit, Direction.ClientToServer), GenerateHandlerMethods, GenerateRequestMethods]
+    [Serial]
+    [Method(GeneralNames.Exit, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
     public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
     {
     }
@@ -26,9 +29,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 
     public static partial class ExitExtensions
     {
-        public static void SendExit(this ILanguageClient mediator)
-        {
-            mediator.SendNotification(ExitParams.Instance);
-        }
+        public static void SendExit(this ILanguageClient mediator) => mediator.SendNotification(ExitParams.Instance);
     }
 }

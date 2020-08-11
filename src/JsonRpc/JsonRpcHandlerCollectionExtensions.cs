@@ -36,6 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         continue;
                 }
             }
+
             foreach (var link in links)
             {
                 handlersManager.AddLink(link.Method, link.LinkToMethod);

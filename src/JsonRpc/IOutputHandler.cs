@@ -7,6 +7,5 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         void Send(object value);
         Task StopAsync();
-
     }
 }

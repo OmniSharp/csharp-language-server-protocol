@@ -18,29 +18,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             String = value;
         }
 
-        public bool IsLong => this.String == null;
+        public bool IsLong => String == null;
         public long Long { get; set; }
-        public bool IsString => this.String != null;
+        public bool IsString => String != null;
         public string String { get; set; }
 
-        public static implicit operator DiagnosticCode(long value)
-        {
-            return new DiagnosticCode(value);
-        }
+        public static implicit operator DiagnosticCode(long value) => new DiagnosticCode(value);
 
-        public static implicit operator DiagnosticCode(string value)
-        {
-            return new DiagnosticCode(value);
-        }
+        public static implicit operator DiagnosticCode(string value) => new DiagnosticCode(value);
 
-        public static implicit operator long(DiagnosticCode value)
-        {
-            return value.IsLong ? value.Long : 0;
-        }
+        public static implicit operator long(DiagnosticCode value) => value.IsLong ? value.Long : 0;
 
-        public static implicit operator string(DiagnosticCode value)
-        {
-            return value.IsString ? value.String : null;
-        }
+        public static implicit operator string(DiagnosticCode value) => value.IsString ? value.String : null;
     }
 }

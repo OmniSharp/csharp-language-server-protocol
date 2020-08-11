@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class ShowMessageParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ShowMessageParams() {
+            var model = new ShowMessageParams {
                 Message = "message",
                 Type = MessageType.Log
             };

@@ -1,29 +1,28 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Xunit;
-using Xunit.Abstractions;
-using System.Collections.Generic;
-using System;
 using MediatR;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using Xunit;
+using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
-    ///     Tests for <see cref="LanguageClient"/>.
+    /// Tests for <see cref="LanguageClient" />.
     /// </summary>
     public class ClientTests : PipeServerTestBase
     {
         /// <summary>
-        ///     Create a new <see cref="LanguageClient"/> test suite.
+        /// Create a new <see cref="LanguageClient" /> test suite.
         /// </summary>
         /// <param name="testOutput">
-        ///     Output for the current test.
+        /// Output for the current test.
         /// </param>
         public ClientTests(ITestOutputHelper testOutput)
             : base(testOutput)
@@ -31,12 +30,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     Get an absolute document path for use in tests.
+        /// Get an absolute document path for use in tests.
         /// </summary>
-        string AbsoluteDocumentPath => IsWindows ? @"c:\Foo.txt" : "/Foo.txt";
+        private string AbsoluteDocumentPath => IsWindows ? @"c:\Foo.txt" : "/Foo.txt";
 
         /// <summary>
-        ///     Ensure that the language client can successfully request Hover information.
+        /// Ensure that the language client can successfully request Hover information.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request hover info")]
         public async Task Hover_Success()
@@ -47,36 +46,45 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var (client, server) = await Initialize(
                 client => {
-                    client.WithCapability(new HoverCapability() {
-                        ContentFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
-                    });
+                    client.WithCapability(
+                        new HoverCapability {
+                            ContentFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
+                        }
+                    );
                 },
                 server => {
-                    server.OnHover((request, token) => {
-                        Assert.NotNull(request.TextDocument);
+                    server.OnHover(
+                        (request, token) => {
+                            Assert.NotNull(request.TextDocument);
 
-                        Assert.Equal(AbsoluteDocumentPath,
-                            DocumentUri.GetFileSystemPath(request.TextDocument.Uri)
-                        );
+                            Assert.Equal(
+                                AbsoluteDocumentPath,
+                                DocumentUri.GetFileSystemPath(request.TextDocument.Uri)
+                            );
 
-                        Assert.Equal(line, request.Position.Line);
-                        Assert.Equal(column, request.Position.Character);
+                            Assert.Equal(line, request.Position.Line);
+                            Assert.Equal(column, request.Position.Character);
 
-                        return Task.FromResult(new Hover {
-                            Contents = expectedHoverContent,
-                            Range = new Range {
-                                Start = request.Position,
-                                End = request.Position
-                            }
-                        });
-                    }, new HoverRegistrationOptions());
+                            return Task.FromResult(
+                                new Hover {
+                                    Contents = expectedHoverContent,
+                                    Range = new Range {
+                                        Start = request.Position,
+                                        End = request.Position
+                                    }
+                                }
+                            );
+                        }, new HoverRegistrationOptions()
+                    );
                 }
             );
 
-            var hover = await client.TextDocument.RequestHover(new HoverParams() {
-                TextDocument = AbsoluteDocumentPath,
-                Position = (line, column)
-            });
+            var hover = await client.TextDocument.RequestHover(
+                new HoverParams {
+                    TextDocument = AbsoluteDocumentPath,
+                    Position = ( line, column )
+                }
+            );
 
             Assert.NotNull(hover.Range);
             Assert.NotNull(hover.Range.Start);
@@ -90,8 +98,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             Assert.NotNull(hover.Contents);
             Assert.True(expectedHoverContent.HasMarkedStrings);
-            Assert.Equal(expectedHoverContent.MarkedStrings
-                    .Select(markedString => markedString.Value),
+            Assert.Equal(
+                expectedHoverContent.MarkedStrings
+                                    .Select(markedString => markedString.Value),
                 hover.Contents.MarkedStrings.Select(
                     markedString => markedString.Value
                 )
@@ -99,7 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request Completions.
+        /// Ensure that the language client can successfully request Completions.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request completions")]
         public async Task Completions_Success()
@@ -108,12 +117,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             const int column = 5;
             var expectedDocumentPath = AbsoluteDocumentPath;
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
-            var expectedCompletionItems = new CompletionItem[] {
+            var expectedCompletionItems = new[] {
                 new CompletionItem {
                     Kind = CompletionItemKind.Class,
                     Label = "Class1",
                     TextEdit = new TextEdit {
-                        Range = ((line, column), (line, column)),
+                        Range = ( ( line, column ), ( line, column ) ),
                         NewText = "Class1",
                     }
                 }
@@ -121,69 +130,88 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var (client, server) = await Initialize(
                 client => {
-                    client.WithCapability(new CompletionCapability() {
-                        CompletionItem = new CompletionItemCapability() {
-                            DeprecatedSupport = true,
-                            DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
-                            PreselectSupport = true,
-                            SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability() {
-                                ValueSet = new[] {CompletionItemTag.Deprecated}
-                            },
-                            CommitCharactersSupport = true
+                    client.WithCapability(
+                        new CompletionCapability {
+                            CompletionItem = new CompletionItemCapability {
+                                DeprecatedSupport = true,
+                                DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
+                                PreselectSupport = true,
+                                SnippetSupport = true,
+                                TagSupport = new CompletionItemTagSupportCapability {
+                                    ValueSet = new[] { CompletionItemTag.Deprecated }
+                                },
+                                CommitCharactersSupport = true
+                            }
                         }
-                    });
+                    );
                 },
                 server => {
-                    server.OnCompletion((request, cancellationToken) => {
-                        Assert.NotNull(request.TextDocument);
+                    server.OnCompletion(
+                        (request, cancellationToken) => {
+                            Assert.NotNull(request.TextDocument);
 
-                        Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                            Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
 
-                        Assert.Equal(line, request.Position.Line);
-                        Assert.Equal(column, request.Position.Character);
+                            Assert.Equal(line, request.Position.Line);
+                            Assert.Equal(column, request.Position.Character);
 
-                        return Task.FromResult(new CompletionList(
-                            expectedCompletionItems,
-                            isIncomplete: true
-                        ));
-                    }, new CompletionRegistrationOptions());
-                });
+                            return Task.FromResult(
+                                new CompletionList(
+                                    expectedCompletionItems,
+                                    true
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
+                }
+            );
 
-            var actualCompletions = await client.TextDocument.RequestCompletion(new CompletionParams() {
-                TextDocument = AbsoluteDocumentPath,
-                Position = (line, column),
-            }, CancellationToken);
+            var actualCompletions = await client.TextDocument.RequestCompletion(
+                new CompletionParams {
+                    TextDocument = AbsoluteDocumentPath,
+                    Position = ( line, column ),
+                }, CancellationToken
+            );
 
             Assert.True(actualCompletions.IsIncomplete, "completions.IsIncomplete");
             Assert.NotNull(actualCompletions.Items);
 
             var actualCompletionItems = actualCompletions.Items.ToArray();
-            Assert.Collection(actualCompletionItems, actualCompletionItem => {
-                var expectedCompletionItem = expectedCompletionItems[0];
+            Assert.Collection(
+                actualCompletionItems, actualCompletionItem => {
+                    var expectedCompletionItem = expectedCompletionItems[0];
 
-                Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
-                Assert.Equal(expectedCompletionItem.Label, actualCompletionItem.Label);
+                    Assert.Equal(expectedCompletionItem.Kind, actualCompletionItem.Kind);
+                    Assert.Equal(expectedCompletionItem.Label, actualCompletionItem.Label);
 
-                Assert.NotNull(actualCompletionItem.TextEdit);
-                Assert.Equal(expectedCompletionItem.TextEdit.NewText, actualCompletionItem.TextEdit.NewText);
+                    Assert.NotNull(actualCompletionItem.TextEdit);
+                    Assert.Equal(expectedCompletionItem.TextEdit.NewText, actualCompletionItem.TextEdit.NewText);
 
-                Assert.NotNull(actualCompletionItem.TextEdit.Range);
-                Assert.NotNull(actualCompletionItem.TextEdit.Range.Start);
-                Assert.NotNull(actualCompletionItem.TextEdit.Range.End);
-                Assert.Equal(expectedCompletionItem.TextEdit.Range.Start.Line,
-                    actualCompletionItem.TextEdit.Range.Start.Line);
-                Assert.Equal(expectedCompletionItem.TextEdit.Range.Start.Character,
-                    actualCompletionItem.TextEdit.Range.Start.Character);
-                Assert.Equal(expectedCompletionItem.TextEdit.Range.End.Line,
-                    actualCompletionItem.TextEdit.Range.End.Line);
-                Assert.Equal(expectedCompletionItem.TextEdit.Range.End.Character,
-                    actualCompletionItem.TextEdit.Range.End.Character);
-            });
+                    Assert.NotNull(actualCompletionItem.TextEdit.Range);
+                    Assert.NotNull(actualCompletionItem.TextEdit.Range.Start);
+                    Assert.NotNull(actualCompletionItem.TextEdit.Range.End);
+                    Assert.Equal(
+                        expectedCompletionItem.TextEdit.Range.Start.Line,
+                        actualCompletionItem.TextEdit.Range.Start.Line
+                    );
+                    Assert.Equal(
+                        expectedCompletionItem.TextEdit.Range.Start.Character,
+                        actualCompletionItem.TextEdit.Range.Start.Character
+                    );
+                    Assert.Equal(
+                        expectedCompletionItem.TextEdit.Range.End.Line,
+                        actualCompletionItem.TextEdit.Range.End.Line
+                    );
+                    Assert.Equal(
+                        expectedCompletionItem.TextEdit.Range.End.Character,
+                        actualCompletionItem.TextEdit.Range.End.Character
+                    );
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request SignatureHelp.
+        /// Ensure that the language client can successfully request SignatureHelp.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request signature help")]
         public async Task SignatureHelp_Success()
@@ -213,15 +241,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var (client, server) = await Initialize(
                 client => {
                     client.WithCapability(
-                        new SignatureHelpCapability() {
+                        new SignatureHelpCapability {
                             ContextSupport = true,
-                            SignatureInformation = new SignatureInformationCapability() {
+                            SignatureInformation = new SignatureInformationCapability {
                                 DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown),
-                                ParameterInformation = new SignatureParameterInformationCapability() {
+                                ParameterInformation = new SignatureParameterInformationCapability {
                                     LabelOffsetSupport = true
                                 }
                             }
-                        });
+                        }
+                    );
                 },
                 server => {
                     server.OnSignatureHelp(
@@ -234,40 +263,48 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(column, request.Position.Character);
 
                             return Task.FromResult(expectedSignatureHelp);
-                        }, new SignatureHelpRegistrationOptions());
-                });
+                        }, new SignatureHelpRegistrationOptions()
+                    );
+                }
+            );
 
-            var actualSignatureHelp = await client.TextDocument.RequestSignatureHelp(new SignatureHelpParams() {
-                TextDocument = AbsoluteDocumentPath,
-                Position = (line, column),
-            }, CancellationToken);
+            var actualSignatureHelp = await client.TextDocument.RequestSignatureHelp(
+                new SignatureHelpParams {
+                    TextDocument = AbsoluteDocumentPath,
+                    Position = ( line, column ),
+                }, CancellationToken
+            );
 
             Assert.Equal(expectedSignatureHelp.ActiveParameter, actualSignatureHelp.ActiveParameter);
             Assert.Equal(expectedSignatureHelp.ActiveSignature, actualSignatureHelp.ActiveSignature);
 
             var actualSignatures = actualSignatureHelp.Signatures.ToArray();
-            Assert.Collection(actualSignatures, actualSignature => {
-                var expectedSignature = expectedSignatureHelp.Signatures.ToArray()[0];
+            Assert.Collection(
+                actualSignatures, actualSignature => {
+                    var expectedSignature = expectedSignatureHelp.Signatures.ToArray()[0];
 
-                Assert.True(actualSignature.Documentation.HasString);
-                Assert.Equal(expectedSignature.Documentation.String, actualSignature.Documentation.String);
+                    Assert.True(actualSignature.Documentation.HasString);
+                    Assert.Equal(expectedSignature.Documentation.String, actualSignature.Documentation.String);
 
-                Assert.Equal(expectedSignature.Label, actualSignature.Label);
+                    Assert.Equal(expectedSignature.Label, actualSignature.Label);
 
-                var expectedParameters = expectedSignature.Parameters.ToArray();
-                var actualParameters = actualSignature.Parameters.ToArray();
+                    var expectedParameters = expectedSignature.Parameters.ToArray();
+                    var actualParameters = actualSignature.Parameters.ToArray();
 
-                Assert.Collection(actualParameters, actualParameter => {
-                    var expectedParameter = expectedParameters[0];
-                    Assert.True(actualParameter.Documentation.HasString);
-                    Assert.Equal(expectedParameter.Documentation.String, actualParameter.Documentation.String);
-                    Assert.Equal(expectedParameter.Label.Label, actualParameter.Label.Label);
-                });
-            });
+                    Assert.Collection(
+                        actualParameters, actualParameter => {
+                            var expectedParameter = expectedParameters[0];
+                            Assert.True(actualParameter.Documentation.HasString);
+                            Assert.Equal(expectedParameter.Documentation.String, actualParameter.Documentation.String);
+                            Assert.Equal(expectedParameter.Label.Label, actualParameter.Label.Label);
+                        }
+                    );
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request Definition.
+        /// Ensure that the language client can successfully request Definition.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request definition")]
         public async Task Definition_Success()
@@ -278,58 +315,72 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedDocumentUri = DocumentUri.FromFileSystemPath(expectedDocumentPath);
 
             var expectedDefinitions = new LocationOrLocationLinks(
-                new LocationOrLocationLink(new Location {
-                    Uri = expectedDocumentUri,
-                    Range = ((line, column), (line, column)),
-                }));
+                new LocationOrLocationLink(
+                    new Location {
+                        Uri = expectedDocumentUri,
+                        Range = ( ( line, column ), ( line, column ) ),
+                    }
+                )
+            );
 
             var (client, server) = await Initialize(
                 client => {
                     client.WithCapability(
-                        new DefinitionCapability() {
+                        new DefinitionCapability {
                             LinkSupport = true
                         }
                     );
                 },
                 server => {
-                    server.OnDefinition((request, cancellationToken) => {
-                        Assert.NotNull(request.TextDocument);
+                    server.OnDefinition(
+                        (request, cancellationToken) => {
+                            Assert.NotNull(request.TextDocument);
 
-                        Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                            Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
 
-                        Assert.Equal(line, request.Position.Line);
-                        Assert.Equal(column, request.Position.Character);
+                            Assert.Equal(line, request.Position.Line);
+                            Assert.Equal(column, request.Position.Character);
 
-                        return Task.FromResult(expectedDefinitions);
-                    }, new DefinitionRegistrationOptions());
-                });
+                            return Task.FromResult(expectedDefinitions);
+                        }, new DefinitionRegistrationOptions()
+                    );
+                }
+            );
 
-            var definitions = await client.TextDocument.RequestDefinition(new DefinitionParams() {
-                TextDocument = AbsoluteDocumentPath,
-                Position = (line, column),
-            }, CancellationToken);
+            var definitions = await client.TextDocument.RequestDefinition(
+                new DefinitionParams {
+                    TextDocument = AbsoluteDocumentPath,
+                    Position = ( line, column ),
+                }, CancellationToken
+            );
 
             var actualDefinitions = definitions.ToArray();
-            Assert.Collection(actualDefinitions, actualDefinition => {
-                var expectedDefinition = expectedDefinitions.Single();
+            Assert.Collection(
+                actualDefinitions, actualDefinition => {
+                    var expectedDefinition = expectedDefinitions.Single();
 
-                Assert.NotNull(actualDefinition.Location);
-                Assert.Equal(expectedDefinition.Location.Uri, actualDefinition.Location.Uri);
+                    Assert.NotNull(actualDefinition.Location);
+                    Assert.Equal(expectedDefinition.Location.Uri, actualDefinition.Location.Uri);
 
-                Assert.NotNull(actualDefinition.Location.Range);
-                Assert.NotNull(actualDefinition.Location.Range.Start);
-                Assert.NotNull(actualDefinition.Location.Range.End);
-                Assert.Equal(expectedDefinition.Location.Range.Start.Line, actualDefinition.Location.Range.Start.Line);
-                Assert.Equal(expectedDefinition.Location.Range.Start.Character,
-                    actualDefinition.Location.Range.Start.Character);
-                Assert.Equal(expectedDefinition.Location.Range.End.Line, actualDefinition.Location.Range.End.Line);
-                Assert.Equal(expectedDefinition.Location.Range.End.Character,
-                    actualDefinition.Location.Range.End.Character);
-            });
+                    Assert.NotNull(actualDefinition.Location.Range);
+                    Assert.NotNull(actualDefinition.Location.Range.Start);
+                    Assert.NotNull(actualDefinition.Location.Range.End);
+                    Assert.Equal(expectedDefinition.Location.Range.Start.Line, actualDefinition.Location.Range.Start.Line);
+                    Assert.Equal(
+                        expectedDefinition.Location.Range.Start.Character,
+                        actualDefinition.Location.Range.Start.Character
+                    );
+                    Assert.Equal(expectedDefinition.Location.Range.End.Line, actualDefinition.Location.Range.End.Line);
+                    Assert.Equal(
+                        expectedDefinition.Location.Range.End.Character,
+                        actualDefinition.Location.Range.End.Character
+                    );
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request DocumentHighlight.
+        /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request document highlights")]
         public async Task DocumentHighlights_Success()
@@ -342,51 +393,59 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             var expectedHighlights = new DocumentHighlightContainer(
                 new DocumentHighlight {
                     Kind = DocumentHighlightKind.Write,
-                    Range = ((line, column), (line, column)),
-                });
+                    Range = ( ( line, column ), ( line, column ) ),
+                }
+            );
 
             var (client, server) = await Initialize(
                 client => {
                     client.WithCapability(
-                        new DocumentHighlightCapability() { }
+                        new DocumentHighlightCapability()
                     );
                 },
                 server => {
-                    server.OnDocumentHighlight((request, cancellationToken) => {
-                        Assert.NotNull(request.TextDocument);
+                    server.OnDocumentHighlight(
+                        (request, cancellationToken) => {
+                            Assert.NotNull(request.TextDocument);
 
-                        Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                            Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
 
-                        Assert.Equal(line, request.Position.Line);
-                        Assert.Equal(column, request.Position.Character);
+                            Assert.Equal(line, request.Position.Line);
+                            Assert.Equal(column, request.Position.Character);
 
-                        return Task.FromResult(expectedHighlights);
-                    }, new DocumentHighlightRegistrationOptions());
-                });
+                            return Task.FromResult(expectedHighlights);
+                        }, new DocumentHighlightRegistrationOptions()
+                    );
+                }
+            );
 
-            var definitions = await client.TextDocument.RequestDocumentHighlight(new DocumentHighlightParams() {
-                TextDocument = AbsoluteDocumentPath,
-                Position = (line, column),
-            }, CancellationToken);
+            var definitions = await client.TextDocument.RequestDocumentHighlight(
+                new DocumentHighlightParams {
+                    TextDocument = AbsoluteDocumentPath,
+                    Position = ( line, column ),
+                }, CancellationToken
+            );
 
             var actualDefinitions = definitions.ToArray();
-            Assert.Collection(actualDefinitions, actualHighlight => {
-                var expectedHighlight = expectedHighlights.Single();
+            Assert.Collection(
+                actualDefinitions, actualHighlight => {
+                    var expectedHighlight = expectedHighlights.Single();
 
-                Assert.Equal(DocumentHighlightKind.Write, expectedHighlight.Kind);
+                    Assert.Equal(DocumentHighlightKind.Write, expectedHighlight.Kind);
 
-                Assert.NotNull(actualHighlight.Range);
-                Assert.NotNull(actualHighlight.Range.Start);
-                Assert.NotNull(actualHighlight.Range.End);
-                Assert.Equal(expectedHighlight.Range.Start.Line, actualHighlight.Range.Start.Line);
-                Assert.Equal(expectedHighlight.Range.Start.Character, actualHighlight.Range.Start.Character);
-                Assert.Equal(expectedHighlight.Range.End.Line, actualHighlight.Range.End.Line);
-                Assert.Equal(expectedHighlight.Range.End.Character, actualHighlight.Range.End.Character);
-            });
+                    Assert.NotNull(actualHighlight.Range);
+                    Assert.NotNull(actualHighlight.Range.Start);
+                    Assert.NotNull(actualHighlight.Range.End);
+                    Assert.Equal(expectedHighlight.Range.Start.Line, actualHighlight.Range.Start.Line);
+                    Assert.Equal(expectedHighlight.Range.Start.Character, actualHighlight.Range.Start.Character);
+                    Assert.Equal(expectedHighlight.Range.End.Line, actualHighlight.Range.End.Line);
+                    Assert.Equal(expectedHighlight.Range.End.Character, actualHighlight.Range.End.Character);
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request DocumentHighlight.
+        /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request document symbols")]
         public async Task DocumentSymbols_DocumentSymbol_Success()
@@ -403,57 +462,75 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 Range = new Range(new Position(line, character), new Position(line, character))
             };
             var expectedSymbols = new SymbolInformationOrDocumentSymbolContainer(
-                new SymbolInformationOrDocumentSymbol(documentSymbol));
+                new SymbolInformationOrDocumentSymbol(documentSymbol)
+            );
 
             var (client, server) = await Initialize(
                 client => {
-                    client.WithCapability(new DocumentSymbolCapability() {
-                        DynamicRegistration = true,
-                        SymbolKind = new SymbolKindCapability() {
-                            ValueSet = new Container<SymbolKind>(Enum.GetValues(typeof(SymbolKind)).Cast<SymbolKind>()
-                                .ToArray())
-                        },
-                        TagSupport = new TagSupportCapability() {
-                            ValueSet = new[] {SymbolTag.Deprecated}
-                        },
-                        HierarchicalDocumentSymbolSupport = true
-                    });
+                    client.WithCapability(
+                        new DocumentSymbolCapability {
+                            DynamicRegistration = true,
+                            SymbolKind = new SymbolKindCapability {
+                                ValueSet = new Container<SymbolKind>(
+                                    Enum.GetValues(typeof(SymbolKind)).Cast<SymbolKind>()
+                                        .ToArray()
+                                )
+                            },
+                            TagSupport = new TagSupportCapability {
+                                ValueSet = new[] { SymbolTag.Deprecated }
+                            },
+                            HierarchicalDocumentSymbolSupport = true
+                        }
+                    );
                 },
                 server => {
-                    server.OnDocumentSymbol((request, cancellationToken) => {
-                        Assert.NotNull(request.TextDocument);
+                    server.OnDocumentSymbol(
+                        (request, cancellationToken) => {
+                            Assert.NotNull(request.TextDocument);
 
-                        Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                            Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
 
-                        return Task.FromResult(expectedSymbols);
-                    }, new DocumentSymbolRegistrationOptions());
-                });
+                            return Task.FromResult(expectedSymbols);
+                        }, new DocumentSymbolRegistrationOptions()
+                    );
+                }
+            );
 
-            var symbols = await client.TextDocument.RequestDocumentSymbol(new DocumentSymbolParams {
-                TextDocument = expectedDocumentUri
-            }, CancellationToken);
+            var symbols = await client.TextDocument.RequestDocumentSymbol(
+                new DocumentSymbolParams {
+                    TextDocument = expectedDocumentUri
+                }, CancellationToken
+            );
 
             var actualSymbols = symbols.ToArray();
-            Assert.Collection(actualSymbols, actualSymbol => {
-                var expectedSymbol = expectedSymbols.Single();
+            Assert.Collection(
+                actualSymbols, actualSymbol => {
+                    var expectedSymbol = expectedSymbols.Single();
 
-                Assert.True(expectedSymbol.IsDocumentSymbol);
+                    Assert.True(expectedSymbol.IsDocumentSymbol);
 
-                Assert.NotNull(actualSymbol.DocumentSymbol);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Detail, actualSymbol.DocumentSymbol.Detail);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Kind, actualSymbol.DocumentSymbol.Kind);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Range.Start.Line,
-                    actualSymbol.DocumentSymbol.Range.Start.Line);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Range.Start.Character,
-                    actualSymbol.DocumentSymbol.Range.Start.Character);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Range.End.Line, actualSymbol.DocumentSymbol.Range.End.Line);
-                Assert.Equal(expectedSymbol.DocumentSymbol.Range.End.Character,
-                    actualSymbol.DocumentSymbol.Range.End.Character);
-            });
+                    Assert.NotNull(actualSymbol.DocumentSymbol);
+                    Assert.Equal(expectedSymbol.DocumentSymbol.Detail, actualSymbol.DocumentSymbol.Detail);
+                    Assert.Equal(expectedSymbol.DocumentSymbol.Kind, actualSymbol.DocumentSymbol.Kind);
+                    Assert.Equal(
+                        expectedSymbol.DocumentSymbol.Range.Start.Line,
+                        actualSymbol.DocumentSymbol.Range.Start.Line
+                    );
+                    Assert.Equal(
+                        expectedSymbol.DocumentSymbol.Range.Start.Character,
+                        actualSymbol.DocumentSymbol.Range.Start.Character
+                    );
+                    Assert.Equal(expectedSymbol.DocumentSymbol.Range.End.Line, actualSymbol.DocumentSymbol.Range.End.Line);
+                    Assert.Equal(
+                        expectedSymbol.DocumentSymbol.Range.End.Character,
+                        actualSymbol.DocumentSymbol.Range.End.Character
+                    );
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully request FoldingRanges.
+        /// Ensure that the language client can successfully request FoldingRanges.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully request document folding ranges")]
         public async Task FoldingRanges_Success()
@@ -468,42 +545,52 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     StartCharacter = 1,
                     EndLine = 7,
                     EndCharacter = 2,
-                });
+                }
+            );
 
             var (client, server) = await Initialize(
                 client => {
-                    client.WithCapability(new FoldingRangeCapability() {
-                        RangeLimit = 100,
-                        LineFoldingOnly = true
-                    });
+                    client.WithCapability(
+                        new FoldingRangeCapability {
+                            RangeLimit = 100,
+                            LineFoldingOnly = true
+                        }
+                    );
                 },
                 server => {
-                    server.OnFoldingRange((request, cancellationToken) => {
-                        Assert.NotNull(request.TextDocument);
-                        Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
-                        return Task.FromResult(expectedFoldingRanges);
-                    }, new FoldingRangeRegistrationOptions());
-                });
+                    server.OnFoldingRange(
+                        (request, cancellationToken) => {
+                            Assert.NotNull(request.TextDocument);
+                            Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
+                            return Task.FromResult(expectedFoldingRanges);
+                        }, new FoldingRangeRegistrationOptions()
+                    );
+                }
+            );
 
-            var foldingRanges = await client.TextDocument.RequestFoldingRange(new FoldingRangeRequestParam() {
-                TextDocument = AbsoluteDocumentPath
-            }, CancellationToken);
+            var foldingRanges = await client.TextDocument.RequestFoldingRange(
+                new FoldingRangeRequestParam {
+                    TextDocument = AbsoluteDocumentPath
+                }, CancellationToken
+            );
 
             var actualFoldingRanges = foldingRanges.ToArray();
-            Assert.Collection(actualFoldingRanges, actualFoldingRange => {
-                var expectedFoldingRange = expectedFoldingRanges.Single();
+            Assert.Collection(
+                actualFoldingRanges, actualFoldingRange => {
+                    var expectedFoldingRange = expectedFoldingRanges.Single();
 
-                Assert.Equal(FoldingRangeKind.Region, expectedFoldingRange.Kind);
+                    Assert.Equal(FoldingRangeKind.Region, expectedFoldingRange.Kind);
 
-                Assert.Equal(expectedFoldingRange.StartLine, actualFoldingRange.StartLine);
-                Assert.Equal(expectedFoldingRange.StartCharacter, actualFoldingRange.StartCharacter);
-                Assert.Equal(expectedFoldingRange.EndLine, actualFoldingRange.EndLine);
-                Assert.Equal(expectedFoldingRange.EndCharacter, actualFoldingRange.EndCharacter);
-            });
+                    Assert.Equal(expectedFoldingRange.StartLine, actualFoldingRange.StartLine);
+                    Assert.Equal(expectedFoldingRange.StartCharacter, actualFoldingRange.StartCharacter);
+                    Assert.Equal(expectedFoldingRange.EndLine, actualFoldingRange.EndLine);
+                    Assert.Equal(expectedFoldingRange.EndCharacter, actualFoldingRange.EndCharacter);
+                }
+            );
         }
 
         /// <summary>
-        ///     Ensure that the language client can successfully receive Diagnostics from the server.
+        /// Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
         [Fact(DisplayName = "Language client can successfully receive diagnostics")]
         public async Task Diagnostics_Success()
@@ -536,21 +623,25 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 
             var (client, server) = await Initialize(
                 client => {
-                    client.OnPublishDiagnostics((request) => {
-                        actualDocumentUri = request.Uri;
-                        actualDiagnostics = request.Diagnostics.ToList();
+                    client.OnPublishDiagnostics(
+                        request => {
+                            actualDocumentUri = request.Uri;
+                            actualDiagnostics = request.Diagnostics.ToList();
 
-                        receivedDiagnosticsNotification.SetResult(null);
-                        return Unit.Task;
-                    });
+                            receivedDiagnosticsNotification.SetResult(null);
+                            return Unit.Task;
+                        }
+                    );
                 },
-                server => {
-                });
+                server => { }
+            );
 
-            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams {
-                Uri = DocumentUri.FromFileSystemPath(documentPath),
-                Diagnostics = expectedDiagnostics
-            });
+            server.TextDocument.PublishDiagnostics(
+                new PublishDiagnosticsParams {
+                    Uri = DocumentUri.FromFileSystemPath(documentPath),
+                    Diagnostics = expectedDiagnostics
+                }
+            );
 
             CancellationToken.Register(() => receivedDiagnosticsNotification.SetCanceled());
 

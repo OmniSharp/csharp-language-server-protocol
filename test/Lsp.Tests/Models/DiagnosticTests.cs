@@ -10,10 +10,11 @@ namespace Lsp.Tests.Models
 {
     public class DiagnosticTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new Diagnostic() {
+            var model = new Diagnostic {
                 Code = new DiagnosticCode("abcd"),
                 Message = "message",
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
@@ -28,10 +29,11 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void RelatedInformationTest(string expected)
         {
-            var model = new Diagnostic() {
+            var model = new Diagnostic {
                 Code = new DiagnosticCode("abcd"),
                 Message = "message",
                 Range = new Range(new Position(1, 1), new Position(2, 2)),
@@ -63,7 +65,8 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void OptionalTest(string expected)
         {
             var model = new Diagnostic();

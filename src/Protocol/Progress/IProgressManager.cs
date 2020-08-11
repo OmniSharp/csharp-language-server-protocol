@@ -11,10 +11,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         IProgressObservable<T> Monitor<T>(ProgressToken token);
         IProgressObservable<T> Monitor<T>(ProgressToken token, Func<JToken, T> factory);
 
-        IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(IPartialItemRequest<TResult, TItem> request, Func<TItem, TResult> factory, CancellationToken cancellationToken);
-        IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(IPartialItemRequest<TResult, TItem> request, Func<TItem, TResult, TResult> factory, CancellationToken cancellationToken);
+        IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
+            IPartialItemRequest<TResult, TItem> request, Func<TItem, TResult> factory, CancellationToken cancellationToken
+        );
 
-        IRequestProgressObservable<IEnumerable<TItem>, TResponse> MonitorUntil<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken)
+        IRequestProgressObservable<TItem, TResult> MonitorUntil<TItem, TResult>(
+            IPartialItemRequest<TResult, TItem> request, Func<TItem, TResult, TResult> factory, CancellationToken cancellationToken
+        );
+
+        IRequestProgressObservable<IEnumerable<TItem>, TResponse> MonitorUntil<TResponse, TItem>(
+            IPartialItemsRequest<TResponse, TItem> request, Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken
+        )
             where TResponse : IEnumerable<TItem>;
 
         IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<TItem> request, CancellationToken cancellationToken);

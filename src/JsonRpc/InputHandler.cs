@@ -1,7 +1,6 @@
 using System;
 using System.Buffers;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
@@ -14,11 +13,10 @@ using System.Reactive.Threading.Tasks;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 using Microsoft.Extensions.Logging;
 using Nerdbank.Streams;
 using Newtonsoft.Json;
-using OmniSharp.Extensions.JsonRpc.Client;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Notification = OmniSharp.Extensions.JsonRpc.Server.Notification;
@@ -28,10 +26,10 @@ namespace OmniSharp.Extensions.JsonRpc
     public class InputHandler : IInputHandler, IDisposable
     {
         public static readonly byte[] HeadersFinished =
-            new byte[] {(byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n'}.ToArray();
+            new[] { (byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n' }.ToArray();
 
         public const int HeadersFinishedLength = 4;
-        public static readonly char[] HeaderKeys = {'\r', '\n', ':'};
+        public static readonly char[] HeaderKeys = { '\r', '\n', ':' };
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
         public static readonly byte[] ContentLength = "Content-Length".Select(x => (byte) x).ToArray();
         public static readonly int ContentLengthLength = 14;
@@ -55,8 +53,8 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly CompositeDisposable _disposable;
         private readonly AsyncSubject<Unit> _inputActive;
 
-        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource,  IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
-            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource,  IRequestDescriptor<IHandlerDescriptor> descriptor)>();
+        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
+            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)>();
 
         private readonly Subject<IObservable<Unit>> _inputQueue;
 
@@ -114,12 +112,13 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             _disposable.Add(
                 Observable.FromAsync(() => ProcessInputStream(_stopProcessing.Token))
-                    .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
-                    .Subscribe(_inputActive));
+                          .Do(_ => { }, e => _logger.LogCritical(e, "unhandled exception"))
+                          .Subscribe(_inputActive)
+            );
             _disposable.Add(
                 _inputQueue
-                    .Concat()
-                    .Subscribe()
+                   .Concat()
+                   .Subscribe()
             );
         }
 
@@ -180,7 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
-        static bool IsEqual(in Span<byte> headers, in byte[] bytes)
+        private static bool IsEqual(in Span<byte> headers, in byte[] bytes)
         {
             var isEqual = true;
             var len = bytes.Length;
@@ -194,8 +193,10 @@ namespace OmniSharp.Extensions.JsonRpc
             return isEqual;
         }
 
-        private bool TryParseBodyString(in long length, ref ReadOnlySequence<byte> buffer,
-            out ReadOnlySequence<byte> line)
+        private bool TryParseBodyString(
+            in long length, ref ReadOnlySequence<byte> buffer,
+            out ReadOnlySequence<byte> line
+        )
         {
             if (buffer.Length < length)
             {
@@ -209,7 +210,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return true;
         }
 
-        bool TryParseContentLength(ref ReadOnlySequence<byte> buffer, out long length)
+        private bool TryParseContentLength(ref ReadOnlySequence<byte> buffer, out long length)
         {
             do
             {
@@ -228,7 +229,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var position = buffer.GetPosition(1, colon.Value);
                     var offset = 1;
 
-                    while (buffer.TryGet(ref position, out var memory, true) && !memory.Span.IsEmpty)
+                    while (buffer.TryGet(ref position, out var memory) && !memory.Span.IsEmpty)
                     {
                         foreach (var t in memory.Span)
                         {
@@ -267,10 +268,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     _logger.LogError("Unable to get length from content length header...");
                     return false;
                 }
-                else
-                {
-                    buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte) '\n') ?? buffer.End));
-                }
+
+                buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte) '\n') ?? buffer.End));
             } while (true);
         }
 
@@ -386,21 +385,25 @@ namespace OmniSharp.Extensions.JsonRpc
                         continue;
                     }
 
-                    _inputQueue.OnNext(Observable.Create<Unit>(observer => {
-                        if (response is ServerResponse serverResponse)
-                        {
-                            // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
-                            tcs.TrySetResult(serverResponse.Result);
-                        }
-                        else if (response is ServerError serverError)
-                        {
-                            // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
-                            tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
-                        }
+                    _inputQueue.OnNext(
+                        Observable.Create<Unit>(
+                            observer => {
+                                if (response is ServerResponse serverResponse)
+                                {
+                                    // _logger.LogDebug("Setting successful Response for {ResponseId}", response.Id);
+                                    tcs.TrySetResult(serverResponse.Result);
+                                }
+                                else if (response is ServerError serverError)
+                                {
+                                    // _logger.LogDebug("Setting error for {ResponseId}", response.Id);
+                                    tcs.TrySetException(DefaultErrorParser(method, serverError, _getException));
+                                }
 
-                        observer.OnCompleted();
-                        return Disposable.Empty;
-                    }));
+                                observer.OnCompleted();
+                                return Disposable.Empty;
+                            }
+                        )
+                    );
                 }
 
                 return;
@@ -470,70 +473,103 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             // start request, create cts, etc
             var cts = new CancellationTokenSource();
-            _requests.TryAdd(request.Id, (cts, descriptors));
+            _requests.TryAdd(request.Id, ( cts, descriptors ));
 
-            return (contentModifiedToken, scheduler) => Observable.Create<ErrorResponse>(observer => {
-                    // ITS A RACE!
-                    var sub = Observable.Amb(
-                            contentModifiedToken.Select(_ => {
-                                _logger.LogTrace("Request {Id} was abandoned due to content be modified", request.Id);
-                                return new ErrorResponse(new ContentModified(request.Id, request.Method));
-                            }),
-                            Observable.Timer(_requestTimeout, scheduler).Select(z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))),
-                            Observable.FromAsync(async (ct) => {
-                                using var timer = _logger.TimeDebug("Processing request {Method} {ResponseId}", request.Method, request.Id);
-                                ct.Register(cts.Cancel);
-                                // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
-                                try
-                                {
-                                    return await _requestRouter.RouteRequest(descriptors, request, cts.Token);
-                                }
-                                catch (OperationCanceledException)
-                                {
-                                    _logger.LogTrace("Request {Id} was cancelled", request.Id);
-                                    return new RequestCancelled(request.Id, request.Method);
-                                }
-                                catch (RpcErrorException e)
-                                {
-                                    _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new RpcError(request.Id, request.Method, new ErrorMessage(e.Code, e.Message, e.Error));
-                                }
-                                catch (Exception e)
-                                {
-                                    _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method} {RequestId}", request.Method, request.Id);
-                                    return new InternalError(request.Id, request.Method, e.ToString());
-                                }
-                            })
-                        )
-                        .Subscribe(observer);
-                    return new CompositeDisposable() {
-                        sub,
-                        Disposable.Create(() => {
-                            if (_requests.TryRemove(request.Id, out var v))
-                            {
-                                v.cancellationTokenSource.Dispose();
-                            }
-                        })
-                    };
-                })
-                .Select(response => {
-                    _outputHandler.Send(response.Value);
-                    return Unit.Default;
-                });
+            return (contentModifiedToken, scheduler) => Observable.Create<ErrorResponse>(
+                                                                       observer => {
+                                                                           // ITS A RACE!
+                                                                           var sub = Observable.Amb(
+                                                                                                    contentModifiedToken.Select(
+                                                                                                        _ => {
+                                                                                                            _logger.LogTrace(
+                                                                                                                "Request {Id} was abandoned due to content be modified", request.Id
+                                                                                                            );
+                                                                                                            return new ErrorResponse(
+                                                                                                                new ContentModified(request.Id, request.Method)
+                                                                                                            );
+                                                                                                        }
+                                                                                                    ),
+                                                                                                    Observable.Timer(_requestTimeout, scheduler).Select(
+                                                                                                        z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
+                                                                                                    ),
+                                                                                                    Observable.FromAsync(
+                                                                                                        async ct => {
+                                                                                                            using var timer = _logger.TimeDebug(
+                                                                                                                "Processing request {Method} {ResponseId}", request.Method,
+                                                                                                                request.Id
+                                                                                                            );
+                                                                                                            ct.Register(cts.Cancel);
+                                                                                                            // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
+                                                                                                            try
+                                                                                                            {
+                                                                                                                return await _requestRouter.RouteRequest(
+                                                                                                                    descriptors, request, cts.Token
+                                                                                                                );
+                                                                                                            }
+                                                                                                            catch (OperationCanceledException)
+                                                                                                            {
+                                                                                                                _logger.LogTrace("Request {Id} was cancelled", request.Id);
+                                                                                                                return new RequestCancelled(request.Id, request.Method);
+                                                                                                            }
+                                                                                                            catch (RpcErrorException e)
+                                                                                                            {
+                                                                                                                _logger.LogCritical(
+                                                                                                                    Events.UnhandledRequest, e,
+                                                                                                                    "Failed to handle request {Method} {RequestId}", request.Method,
+                                                                                                                    request.Id
+                                                                                                                );
+                                                                                                                return new RpcError(
+                                                                                                                    request.Id, request.Method,
+                                                                                                                    new ErrorMessage(e.Code, e.Message, e.Error)
+                                                                                                                );
+                                                                                                            }
+                                                                                                            catch (Exception e)
+                                                                                                            {
+                                                                                                                _logger.LogCritical(
+                                                                                                                    Events.UnhandledRequest, e,
+                                                                                                                    "Failed to handle request {Method} {RequestId}", request.Method,
+                                                                                                                    request.Id
+                                                                                                                );
+                                                                                                                return new InternalError(request.Id, request.Method, e.ToString());
+                                                                                                            }
+                                                                                                        }
+                                                                                                    )
+                                                                                                )
+                                                                                               .Subscribe(observer);
+                                                                           return new CompositeDisposable {
+                                                                               sub,
+                                                                               Disposable.Create(
+                                                                                   () => {
+                                                                                       if (_requests.TryRemove(request.Id, out var v))
+                                                                                       {
+                                                                                           v.cancellationTokenSource.Dispose();
+                                                                                       }
+                                                                                   }
+                                                                               )
+                                                                           };
+                                                                       }
+                                                                   )
+                                                                  .Select(
+                                                                       response => {
+                                                                           _outputHandler.Send(response.Value);
+                                                                           return Unit.Default;
+                                                                       }
+                                                                   );
         }
 
-        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification)
-        {
-            return (contentModifiedToken, scheduler) =>
-                    // ITS A RACE!
-                    Observable.Amb(
-                        contentModifiedToken
-                            .Do(_ => { _logger.LogTrace("Notification was abandoned due to content be modified"); }),
-                        Observable.Timer(_requestTimeout, scheduler)
-                            .Select(z => Unit.Default)
-                            .Do(z => _logger.LogTrace("Notification was cancelled due to timeout")
-                            ),
-                        Observable.FromAsync(async (ct) => {
+        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification) =>
+            (contentModifiedToken, scheduler) =>
+                // ITS A RACE!
+                Observable.Amb(
+                    contentModifiedToken
+                       .Do(_ => { _logger.LogTrace("Notification was abandoned due to content be modified"); }),
+                    Observable.Timer(_requestTimeout, scheduler)
+                              .Select(z => Unit.Default)
+                              .Do(
+                                   z => _logger.LogTrace("Notification was cancelled due to timeout")
+                               ),
+                    Observable.FromAsync(
+                        async ct => {
                             using var timer = _logger.TimeDebug("Processing notification {Method}", notification.Method);
                             try
                             {
@@ -547,30 +583,27 @@ namespace OmniSharp.Extensions.JsonRpc
                             {
                                 _logger.LogCritical(Events.UnhandledRequest, e, "Failed to handle request {Method}", notification.Method);
                             }
-                        })
+                        }
                     )
-                ;
-        }
+                );
 
-        private static Exception DefaultErrorParser(string method, ServerError error, CreateResponseExceptionHandler customHandler)
-        {
-            return error.Error?.Code switch {
+        private static Exception DefaultErrorParser(string method, ServerError error, CreateResponseExceptionHandler customHandler) =>
+            error.Error?.Code switch {
                 ErrorCodes.ServerNotInitialized => new ServerNotInitializedException(error.Id),
-                ErrorCodes.MethodNotSupported => new MethodNotSupportedException(error.Id, method ?? "UNKNOWN"),
-                ErrorCodes.InvalidRequest => new InvalidRequestException(error.Id),
-                ErrorCodes.InvalidParameters => new InvalidParametersException(error.Id),
-                ErrorCodes.InternalError => new InternalErrorException(error.Id, error.Error.Data?.ToString() ?? string.Empty),
-                ErrorCodes.ParseError => new ParseErrorException(error.Id),
-                ErrorCodes.RequestCancelled => new RequestCancelledException(error.Id),
-                ErrorCodes.ContentModified => new ContentModifiedException(error.Id),
-                ErrorCodes.UnknownErrorCode => new UnknownErrorException(error.Id),
-                ErrorCodes.Exception => new JsonRpcException(ErrorCodes.Exception, error.Id, error.Error.Message ?? string.Empty, error.Error.Data.ToString()),
+                ErrorCodes.MethodNotSupported   => new MethodNotSupportedException(error.Id, method ?? "UNKNOWN"),
+                ErrorCodes.InvalidRequest       => new InvalidRequestException(error.Id),
+                ErrorCodes.InvalidParameters    => new InvalidParametersException(error.Id),
+                ErrorCodes.InternalError        => new InternalErrorException(error.Id, error.Error.Data?.ToString() ?? string.Empty),
+                ErrorCodes.ParseError           => new ParseErrorException(error.Id),
+                ErrorCodes.RequestCancelled     => new RequestCancelledException(error.Id),
+                ErrorCodes.ContentModified      => new ContentModifiedException(error.Id),
+                ErrorCodes.UnknownErrorCode     => new UnknownErrorException(error.Id),
+                ErrorCodes.Exception            => new JsonRpcException(ErrorCodes.Exception, error.Id, error.Error.Message ?? string.Empty, error.Error.Data.ToString()),
                 _ => customHandler?.Invoke(error, method) ??
                      new JsonRpcException(
                          error.Error?.Code ?? ErrorCodes.UnknownErrorCode, error.Id, error.Error?.Message ?? string.Empty,
                          error.Error?.Data.ToString() ?? string.Empty
                      )
             };
-        }
     }
 }

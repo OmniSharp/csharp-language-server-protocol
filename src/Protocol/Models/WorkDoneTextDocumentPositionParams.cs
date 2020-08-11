@@ -4,7 +4,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public abstract class WorkDoneTextDocumentPositionParams : TextDocumentPositionParams, IWorkDoneProgressParams
     {
-        /// <inheritdoc/>
+        /// <inheritdoc />
         [Optional]
         public ProgressToken WorkDoneToken { get; set; }
     }

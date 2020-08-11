@@ -1,5 +1,5 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
@@ -15,6 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// If 'allThreadsContinued' is true, a debug adapter can announce that all threads have continued.
         /// </summary>
-        [Optional] public bool? AllThreadsContinued { get; set; }
+        [Optional]
+        public bool? AllThreadsContinued { get; set; }
     }
 }

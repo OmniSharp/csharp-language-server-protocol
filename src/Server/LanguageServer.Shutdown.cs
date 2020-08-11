@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public void ForcefulShutdown()
         {
-            ((IShutdownHandler) this).Handle(ShutdownParams.Instance, CancellationToken.None);
-            ((IExitHandler) this).Handle(ExitParams.Instance, CancellationToken.None);
+            ( (IShutdownHandler) this ).Handle(ShutdownParams.Instance, CancellationToken.None);
+            ( (IExitHandler) this ).Handle(ExitParams.Instance, CancellationToken.None);
         }
 
         async Task<Unit> IRequestHandler<ExitParams, Unit>.Handle(ExitParams request, CancellationToken token)
@@ -52,6 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 _shutdownSubject.OnCompleted();
             }
+
             return Unit.Value;
         }
     }

@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -16,17 +16,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The index of the first frame to return; if omitted frames start at 0.
         /// </summary>
-        [Optional] public long? StartFrame { get; set; }
+        [Optional]
+        public long? StartFrame { get; set; }
 
         /// <summary>
         /// The maximum number of frames to return. If levels is not specified or 0, all frames are returned.
         /// </summary>
-        [Optional] public long? Levels { get; set; }
+        [Optional]
+        public long? Levels { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the stack frames.
         /// </summary>
-        [Optional] public StackFrameFormat Format { get; set; }
+        [Optional]
+        public StackFrameFormat Format { get; set; }
     }
-
 }

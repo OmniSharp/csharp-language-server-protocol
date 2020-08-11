@@ -9,17 +9,19 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.DidClose, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDidCloseTextDocumentHandler : IJsonRpcNotificationHandler<DidCloseTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability> { }
+    [Parallel]
+    [Method(TextDocumentNames.DidClose, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    public interface IDidCloseTextDocumentHandler : IJsonRpcNotificationHandler<DidCloseTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>,
+                                                    ICapability<SynchronizationCapability>
+    {
+    }
 
     public abstract class DidCloseTextDocumentHandler : IDidCloseTextDocumentHandler
     {
         private readonly TextDocumentRegistrationOptions _options;
-        public DidCloseTextDocumentHandler(TextDocumentRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public DidCloseTextDocumentHandler(TextDocumentRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidCloseTextDocumentParams request, CancellationToken cancellationToken);

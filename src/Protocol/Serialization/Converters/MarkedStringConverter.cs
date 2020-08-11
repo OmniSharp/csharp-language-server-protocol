@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class MarkedStringConverter : JsonConverter<MarkedString>
+    internal class MarkedStringConverter : JsonConverter<MarkedString>
     {
         public override void WriteJson(JsonWriter writer, MarkedString value, JsonSerializer serializer)
         {
@@ -31,6 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 var result = JObject.Load(reader);
                 return new MarkedString(result["language"]?.Value<string>(), result["value"]?.Value<string>());
             }
+
             if (reader.TokenType == JsonToken.String)
             {
                 return new MarkedString(reader.Value as string);

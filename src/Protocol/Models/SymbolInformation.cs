@@ -44,6 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public string ContainerName { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}@{Location}] {Name}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

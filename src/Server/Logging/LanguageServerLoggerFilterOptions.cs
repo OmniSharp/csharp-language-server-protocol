@@ -10,10 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Logging
         private readonly List<IDisposable> _registrations = new List<IDisposable>();
         private event Action<LoggerFilterOptions, string> _onChange;
 
-        public LanguageServerLoggerFilterOptions(IOptions<LoggerFilterOptions> options)
-        {
-            CurrentValue = options.Value;
-        }
+        public LanguageServerLoggerFilterOptions(IOptions<LoggerFilterOptions> options) => CurrentValue = options.Value;
 
         public LoggerFilterOptions CurrentValue { get; private set; }
 

@@ -5,17 +5,17 @@ using System.Threading.Tasks;
 namespace OmniSharp.Extensions.JsonRpc.Server
 {
     /// <summary>
-    ///     Exception raised when request parameters are invalid according to the target method.
+    /// Exception raised when request parameters are invalid according to the target method.
     /// </summary>
     [Serializable]
     public class ContentModifiedException
         : TaskCanceledException, IRequestException
     {
         /// <summary>
-        ///     Create a new <see cref="ContentModifiedException"/>.
+        /// Create a new <see cref="ContentModifiedException" />.
         /// </summary>
         /// <param name="requestId">
-        ///     The LSP / JSON-RPC request Id (if known).
+        /// The LSP / JSON-RPC request Id (if known).
         /// </param>
         public ContentModifiedException(object requestId)
             : this(ErrorCodes.ContentModified, requestId.ToString(), "Content not modified.", null)
@@ -23,13 +23,13 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         }
 
         /// <summary>
-        ///     Create a new <see cref="ContentModifiedException"/>.
+        /// Create a new <see cref="ContentModifiedException" />.
         /// </summary>
         /// <param name="requestId">
-        ///     The LSP / JSON-RPC request Id (if known).
+        /// The LSP / JSON-RPC request Id (if known).
         /// </param>
         /// <param name="inner">
-        ///     The exception that caused this exception to be raised.
+        /// The exception that caused this exception to be raised.
         /// </param>
         public ContentModifiedException(object requestId, Exception inner)
             : this(ErrorCodes.ContentModified, requestId.ToString(), "Content not modified.", inner)
@@ -37,19 +37,19 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         }
 
         /// <summary>
-        ///     Create a new <see cref="ContentModifiedException"/>.
+        /// Create a new <see cref="ContentModifiedException" />.
         /// </summary>
         /// <param name="errorCode">
-        ///     The LSP / JSON-RPC error code.
+        /// The LSP / JSON-RPC error code.
         /// </param>
         /// <param name="message">
-        ///     The exception message.
+        /// The exception message.
         /// </param>
         /// <param name="requestId">
-        ///     The LSP / JSON-RPC request Id (if known).
+        /// The LSP / JSON-RPC request Id (if known).
         /// </param>
         /// <param name="inner">
-        ///     The exception that caused this exception to be raised.
+        /// The exception that caused this exception to be raised.
         /// </param>
         public ContentModifiedException(int errorCode, string message, string requestId, Exception inner) : base(message, inner)
         {
@@ -58,13 +58,13 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         }
 
         /// <summary>
-        ///     Serialisation constructor.
+        /// Serialisation constructor.
         /// </summary>
         /// <param name="info">
-        ///     The serialisation data-store.
+        /// The serialisation data-store.
         /// </param>
         /// <param name="context">
-        ///     The serialisation streaming context.
+        /// The serialisation streaming context.
         /// </param>
         protected ContentModifiedException(SerializationInfo info, StreamingContext context)
         {
@@ -73,17 +73,17 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         }
 
         /// <summary>
-        ///     The LSP / JSON-RPC request Id (if known).
+        /// The LSP / JSON-RPC request Id (if known).
         /// </summary>
         public object RequestId { get; }
 
         /// <summary>
-        ///     The LSP / JSON-RPC error code.
+        /// The LSP / JSON-RPC error code.
         /// </summary>
         public int ErrorCode { get; }
 
         /// <summary>
-        ///     The request Id used when no valid request Id was supplied.
+        /// The request Id used when no valid request Id was supplied.
         /// </summary>
         public const string UnknownRequestId = "(unknown)";
     }

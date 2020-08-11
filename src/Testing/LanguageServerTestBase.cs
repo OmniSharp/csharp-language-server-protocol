@@ -1,8 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.IO.Pipelines;
-using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,8 +8,6 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Server;
 
 namespace OmniSharp.Extensions.LanguageProtocol.Testing
 {
@@ -31,18 +26,20 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         protected virtual ILanguageClient CreateClient(Action<LanguageClientOptions> clientOptionsAction = null)
         {
-            _client = LanguageClient.PreInit(options => {
-                var (reader, writer) = SetupServer();
-                options
-                    .WithInput(reader)
-                    .WithOutput(writer)
-                    .WithLoggerFactory(TestOptions.ClientLoggerFactory)
-                    .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
-                    .Services
-                    .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
-                    .AddSingleton(Events as IRequestSettler);
-                clientOptionsAction?.Invoke(options);
-            });
+            _client = LanguageClient.PreInit(
+                options => {
+                    var (reader, writer) = SetupServer();
+                    options
+                       .WithInput(reader)
+                       .WithOutput(writer)
+                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                       .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
+                       .Services
+                       .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
+                       .AddSingleton(Events as IRequestSettler);
+                    clientOptionsAction?.Invoke(options);
+                }
+            );
 
             Disposable.Add(_client);
 
@@ -59,16 +56,19 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         protected virtual async Task<(ILanguageClient client, TestConfigurationProvider configurationProvider)> InitializeClientWithConfiguration(
             Action<LanguageClientOptions> clientOptionsAction = null
-        ) {
-            var client = CreateClient(options => {
-                clientOptionsAction?.Invoke(options);
-                options.WithCapability(new DidChangeConfigurationCapability());
-                options.AddHandler<TestConfigurationProvider>();
-            });
+        )
+        {
+            var client = CreateClient(
+                options => {
+                    clientOptionsAction?.Invoke(options);
+                    options.WithCapability(new DidChangeConfigurationCapability());
+                    options.AddHandler<TestConfigurationProvider>();
+                }
+            );
 
             await client.Initialize(CancellationToken);
 
-            return (client, client.GetRequiredService<TestConfigurationProvider>());
+            return ( client, client.GetRequiredService<TestConfigurationProvider>() );
         }
     }
 }

@@ -21,7 +21,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public Range Range { get; set; }
 
-        private string DebuggerDisplay => $"{Contents}{(Range != null ? $" {Range}" : string.Empty)}";
+        private string DebuggerDisplay => $"{Contents}{( Range != null ? $" {Range}" : string.Empty )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

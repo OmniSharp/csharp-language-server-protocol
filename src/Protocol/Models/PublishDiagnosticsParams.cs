@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class PublishDiagnosticsParams : IRequest
     {
         /// <summary>
-        ///  The URI for which diagnostic information is reported.
+        /// The URI for which diagnostic information is reported.
         /// </summary>
         public DocumentUri Uri { get; set; }
 
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public int? Version { get; set; }
 
         /// <summary>
-        ///  An array of diagnostic information items.
+        /// An array of diagnostic information items.
         /// </summary>
         public Container<Diagnostic> Diagnostics { get; set; }
     }

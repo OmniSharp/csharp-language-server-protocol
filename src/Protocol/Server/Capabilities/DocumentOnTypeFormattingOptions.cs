@@ -6,28 +6,25 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Format document on type options
+    /// Format document on type options
     /// </summary>
     public class DocumentOnTypeFormattingOptions : IDocumentOnTypeFormattingOptions
     {
         /// <summary>
-        ///  A character on which formatting should be triggered, like `}`.
+        /// A character on which formatting should be triggered, like `}`.
         /// </summary>
         public string FirstTriggerCharacter { get; set; }
 
         /// <summary>
-        ///  More trigger characters.
+        /// More trigger characters.
         /// </summary>
         [Optional]
         public Container<string> MoreTriggerCharacter { get; set; }
 
-        public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new DocumentOnTypeFormattingOptions()
-            {
+        public static DocumentOnTypeFormattingOptions Of(IDocumentOnTypeFormattingOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new DocumentOnTypeFormattingOptions {
                 FirstTriggerCharacter = options.FirstTriggerCharacter,
                 MoreTriggerCharacter = options.MoreTriggerCharacter,
             };
-        }
     }
 }

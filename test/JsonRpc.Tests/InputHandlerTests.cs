@@ -1,16 +1,13 @@
 using System;
-using System.Buffers;
 using System.IO;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -20,7 +17,6 @@ using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
-using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace JsonRpc.Tests
 {
@@ -30,10 +26,7 @@ namespace JsonRpc.Tests
         private readonly TestLoggerFactory _loggerFactory;
         private readonly OnUnhandledExceptionHandler _unhandledException = Substitute.For<OnUnhandledExceptionHandler>();
 
-        public InputHandlerTests(ITestOutputHelper testOutputHelper)
-        {
-            _loggerFactory = new TestLoggerFactory(testOutputHelper);
-        }
+        public InputHandlerTests(ITestOutputHelper testOutputHelper) => _loggerFactory = new TestLoggerFactory(testOutputHelper);
 
         private InputHandler NewHandler(
             PipeReader inputStream,
@@ -42,9 +35,9 @@ namespace JsonRpc.Tests
             IRequestProcessIdentifier requestProcessIdentifier,
             IRequestRouter<IHandlerDescriptor> requestRouter,
             ILoggerFactory loggerFactory,
-            IResponseRouter responseRouter)
-        {
-            return new InputHandler(
+            IResponseRouter responseRouter
+        ) =>
+            new InputHandler(
                 inputStream,
                 outputHandler,
                 receiver,
@@ -58,7 +51,6 @@ namespace JsonRpc.Tests
                 true,
                 null
             );
-        }
 
         [Fact]
         public async Task Should_Pass_In_Requests()
@@ -68,9 +60,11 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"));
 
             var cts = new CancellationTokenSource();
@@ -91,14 +85,16 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
             await pipe.Writer.WriteAsync(
                 Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}")
-                    .Concat(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"))
-                    .Concat(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"))
-                    .ToArray()
+                        .Concat(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"))
+                        .Concat(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"))
+                        .ToArray()
             );
 
             var cts = new CancellationTokenSource();
@@ -113,13 +109,16 @@ namespace JsonRpc.Tests
 
         [Theory]
         [InlineData(
-            "Content-Length:                    2                       \r\nContent-Type: application/json\r\n\r\n{}")]
+            "Content-Length:                    2                       \r\nContent-Type: application/json\r\n\r\n{}"
+        )]
         [InlineData("Content-Type: application/json\r\nContent-Length: 2\r\n\r\n{}")]
         [InlineData("Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length: 2\r\n\r\n{}")]
         [InlineData(
-            "Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length:2                                                                                               \r\n\r\n{}")]
+            "Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length:2                                                                                               \r\n\r\n{}"
+        )]
         [InlineData(
-            "Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length:                                                                                                2\r\n\r\n{}")]
+            "Content-Type: application/json\r\nNot-A-Header: really\r\nContent-Length:                                                                                                2\r\n\r\n{}"
+        )]
         public async Task Should_Handle_Different_Additional_Headers_and_Whitespace(string data)
         {
             var pipe = new Pipe(new PipeOptions());
@@ -127,9 +126,11 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes(data));
 
             var cts = new CancellationTokenSource();
@@ -152,9 +153,11 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(5));
@@ -182,9 +185,11 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(5));
@@ -212,7 +217,9 @@ namespace JsonRpc.Tests
         }
 
         [Theory]
-        [InlineData("Content-Length: 894\r\n\r\n{\"edit\":{\"documentChanges\":[{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/d.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text2\"}]},{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/b.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text2\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text3\"}]},{\"kind\":\"create\",\"uri\":\"file:///abc/123/b.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"rename\",\"oldUri\":\"file:///abc/123/b.cs\",\"newUri\":\"file:///abc/123/c.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"delete\",\"uri\":\"file:///abc/123/c.cs\",\"options\":{\"recursive\":false,\"ignoreIfNotExists\":true}}]}}")]
+        [InlineData(
+            "Content-Length: 894\r\n\r\n{\"edit\":{\"documentChanges\":[{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/d.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text2\"}]},{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/b.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text2\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text3\"}]},{\"kind\":\"create\",\"uri\":\"file:///abc/123/b.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"rename\",\"oldUri\":\"file:///abc/123/b.cs\",\"newUri\":\"file:///abc/123/c.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"delete\",\"uri\":\"file:///abc/123/c.cs\",\"options\":{\"recursive\":false,\"ignoreIfNotExists\":true}}]}}"
+        )]
         public async Task Should_Handle_Multiple_Chunked_Requests(string content)
         {
             var pipe = new Pipe(new PipeOptions());
@@ -220,9 +227,11 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromMinutes(2));
@@ -245,14 +254,16 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task Should_Handle_Header_Terminiator_Being_Incomplete()
         {
-            var pipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.ThreadPool, writerScheduler: PipeScheduler.Inline, useSynchronizationContext:false));
+            var pipe = new Pipe(new PipeOptions(readerScheduler: PipeScheduler.ThreadPool, writerScheduler: PipeScheduler.Inline, useSynchronizationContext: false));
 
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromMinutes(5));
@@ -300,16 +311,19 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var receiver = Substitute.For<IReceiver>();
 
-            using var handler = NewHandler(pipe.Reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                pipe.Reader, outputHandler, receiver,
                 Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
-                _loggerFactory, Substitute.For<IResponseRouter>());
+                _loggerFactory, Substitute.For<IResponseRouter>()
+            );
 
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(5));
             var processTask = handler.ProcessInputStream(cts.Token);
 
             await pipe.Writer.WriteAsync(
-                Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetBytes(data).Length}\r\n\r\n{data}"));
+                Encoding.UTF8.GetBytes($"Content-Length: {Encoding.UTF8.GetBytes(data).Length}\r\n\r\n{data}")
+            );
             await Task.Yield();
 
             await pipe.Writer.FlushAsync();
@@ -339,7 +353,8 @@ namespace JsonRpc.Tests
             var outputHandler = Substitute.For<IOutputHandler>();
             var responseRouter = Substitute.For<IResponseRouter>();
 
-            using var handler = NewHandler(reader, outputHandler, receiver,
+            using var handler = NewHandler(
+                reader, outputHandler, receiver,
                 new ParallelRequestProcessIdentifier(),
                 incomingRequestRouter,
                 _loggerFactory,
@@ -375,10 +390,9 @@ namespace JsonRpc.Tests
             }
 
             logger.LogInformation("End");
-
         }
 
-        class JsonRpcLogs : TheoryData<string, Func<PipeReader>, ILookup<string, string>>
+        private class JsonRpcLogs : TheoryData<string, Func<PipeReader>, ILookup<string, string>>
         {
             public JsonRpcLogs()
             {
@@ -387,32 +401,34 @@ namespace JsonRpc.Tests
                 {
                     var data = GetData(assembly, streamName);
 
-                    var msgTypes = data.Select(z => {
-                        if (z.MsgKind.EndsWith("response"))
-                        {
-                            return (type:"response", kind:z.MsgType);
-                        }
+                    var msgTypes = data.Select(
+                                            z => {
+                                                if (z.MsgKind.EndsWith("response"))
+                                                {
+                                                    return ( type: "response", kind: z.MsgType );
+                                                }
 
-                        if (z.MsgKind.EndsWith("request"))
-                        {
-                            return (type:"request", kind:z.MsgType);
-                        }
+                                                if (z.MsgKind.EndsWith("request"))
+                                                {
+                                                    return ( type: "request", kind: z.MsgType );
+                                                }
 
-                        if (z.MsgKind.EndsWith("notification") && z.MsgType != JsonRpcNames.CancelRequest)
-                        {
-                            return (type: "notification", kind:z.MsgType);
-                        }
+                                                if (z.MsgKind.EndsWith("notification") && z.MsgType != JsonRpcNames.CancelRequest)
+                                                {
+                                                    return ( type: "notification", kind: z.MsgType );
+                                                }
 
-                        return (type:null, kind:null);
-                    })
-                        .Where(z => z.type != null)
-                        .ToLookup(z => z.kind, z => z.type);
+                                                return ( type: null, kind: null );
+                                            }
+                                        )
+                                       .Where(z => z.type != null)
+                                       .ToLookup(z => z.kind, z => z.type);
 
-                    Add(streamName, () => CreateReader(data), msgTypes );
+                    Add(streamName, () => CreateReader(data), msgTypes);
                 }
             }
 
-            DataItem[] GetData(Assembly assembly, string name)
+            private DataItem[] GetData(Assembly assembly, string name)
             {
                 var stream = assembly.GetManifestResourceStream(name);
                 using var streamReader = new StreamReader(stream);
@@ -421,60 +437,64 @@ namespace JsonRpc.Tests
                 return serializer.Deserialize<DataItem[]>(jsonReader);
             }
 
-            PipeReader CreateReader(DataItem[] data)
+            private PipeReader CreateReader(DataItem[] data)
             {
                 var outputData = data
-                    .Select<DataItem, object>(z => {
-                        if (z.MsgKind.EndsWith("response"))
-                        {
-                            return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
-                        }
+                   .Select<DataItem, object>(
+                        z => {
+                            if (z.MsgKind.EndsWith("response"))
+                            {
+                                return new OutgoingResponse(z.MsgId, z.Arg, new Request(z.MsgId, z.MsgType, JValue.CreateNull()));
+                            }
 
-                        if (z.MsgKind.EndsWith("request"))
-                        {
-                            return new OmniSharp.Extensions.JsonRpc.Client.OutgoingRequest() {
-                                Id = z.MsgId,
-                                Method = z.MsgType,
-                                Params = z.Arg
-                            };
-                        }
+                            if (z.MsgKind.EndsWith("request"))
+                            {
+                                return new OutgoingRequest {
+                                    Id = z.MsgId,
+                                    Method = z.MsgType,
+                                    Params = z.Arg
+                                };
+                            }
 
-                        if (z.MsgKind.EndsWith("notification"))
-                        {
-                            return new OmniSharp.Extensions.JsonRpc.Client.OutgoingNotification() {
-                                Method = z.MsgType,
-                                Params = z.Arg
-                            };
-                        }
+                            if (z.MsgKind.EndsWith("notification"))
+                            {
+                                return new OutgoingNotification {
+                                    Method = z.MsgType,
+                                    Params = z.Arg
+                                };
+                            }
 
-                        throw new NotSupportedException("unknown message kind " + z.MsgKind);
-                    });
+                            throw new NotSupportedException("unknown message kind " + z.MsgKind);
+                        }
+                    );
 
                 var pipeIn = new Pipe();
 
                 var _serializer = new JsonRpcSerializer();
 
-                Task.Run(async () => {
-                    foreach (var item in outputData)
-                    {
+                Task.Run(
+                    async () => {
+                        foreach (var item in outputData)
+                        {
+                            var content = _serializer.SerializeObject(item);
+                            var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
 
-                        var content = _serializer.SerializeObject(item);
-                        var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
+                            await pipeIn.Writer.WriteAsync(
+                                Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n")
+                            );
+                            await pipeIn.Writer.WriteAsync(contentBytes);
+                            await pipeIn.Writer.FlushAsync();
+                        }
 
-                        await pipeIn.Writer.WriteAsync(
-                            Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"));
-                        await pipeIn.Writer.WriteAsync(contentBytes);
-                        await pipeIn.Writer.FlushAsync();
+                        await pipeIn.Writer.CompleteAsync();
                     }
-
-                    await pipeIn.Writer.CompleteAsync();
-                });
+                );
 
 
                 return pipeIn.Reader;
             }
 
-            class DataItem
+            private class DataItem
             {
                 public string Time { get; set; }
                 public string Msg { get; set; }

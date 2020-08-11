@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
 {
-    class TextDocumentMatcher : IHandlerMatcher
+    internal class TextDocumentMatcher : IHandlerMatcher
     {
         private readonly ILogger<TextDocumentMatcher> _logger;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
@@ -17,7 +17,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         public TextDocumentMatcher(ILogger<TextDocumentMatcher> logger, TextDocumentIdentifiers textDocumentIdentifiers)
         {
             _logger = logger;
-            _textDocumentIdentifiers = textDocumentIdentifiers; ;
+            _textDocumentIdentifiers = textDocumentIdentifiers;
+            ;
         }
 
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
@@ -25,50 +26,46 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             switch (parameters)
             {
                 case ITextDocumentIdentifierParams textDocumentIdentifierParams:
-                    {
-                        if (textDocumentIdentifierParams.TextDocument?.Uri == null) break;
-                        var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
+                {
+                    if (textDocumentIdentifierParams.TextDocument?.Uri == null) break;
+                    var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
-                        _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
+                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
-                        return GetHandler(descriptors, attributes);
-                    }
+                    return GetHandler(descriptors, attributes);
+                }
                 case DidOpenTextDocumentParams openTextDocumentParams:
-                    {
-                        if (openTextDocumentParams.TextDocument?.Uri == null) break;
-                        var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
+                {
+                    if (openTextDocumentParams.TextDocument?.Uri == null) break;
+                    var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
 
-                        _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
+                    _logger.LogTrace("Created attribute {Attribute}", $"{attributes.LanguageId}:{attributes.Scheme}:{attributes.Uri}");
 
-                        return GetHandler(descriptors, attributes);
-                    }
+                    return GetHandler(descriptors, attributes);
+                }
                 case DidChangeTextDocumentParams didChangeDocumentParams:
-                    {
-                        if (didChangeDocumentParams.TextDocument?.Uri == null) break;
-                        // TODO: Do something with document version here?
-                        var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
+                {
+                    if (didChangeDocumentParams.TextDocument?.Uri == null) break;
+                    // TODO: Do something with document version here?
+                    var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);
 
-                        _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
+                    _logger.LogTrace("Found attributes {Count}, {Attributes}", attributes.Count, attributes.Select(x => $"{x.LanguageId}:{x.Scheme}:{x.Uri}"));
 
-                        return GetHandler(descriptors, attributes);
-                    }
+                    return GetHandler(descriptors, attributes);
+                }
             }
 
             return Enumerable.Empty<ILspHandlerDescriptor>();
         }
 
-        private List<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri)
-        {
-            return _textDocumentIdentifiers
-                .Select(x => x.GetTextDocumentAttributes(uri))
-                .Where(x => x != null)
-                .ToList();
-        }
+        private List<TextDocumentAttributes> GetTextDocumentAttributes(DocumentUri uri) =>
+            _textDocumentIdentifiers
+               .Select(x => x.GetTextDocumentAttributes(uri))
+               .Where(x => x != null)
+               .ToList();
 
-        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, IEnumerable<TextDocumentAttributes> attributes)
-        {
-            return attributes.SelectMany(z => GetHandler(descriptors, z)).Distinct();
-        }
+        private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, IEnumerable<TextDocumentAttributes> attributes) =>
+            attributes.SelectMany(z => GetHandler(descriptors, z)).Distinct();
 
         private IEnumerable<ILspHandlerDescriptor> GetHandler(IEnumerable<ILspHandlerDescriptor> descriptors, TextDocumentAttributes attributes)
         {
@@ -83,7 +80,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 _logger.LogTrace("Document Selector {DocumentSelector}", registrationOptions?.DocumentSelector.ToString());
                 if (registrationOptions?.DocumentSelector == null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
-                    _logger.LogTrace("Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", descriptor.ImplementationType.FullName, registrationOptions?.DocumentSelector?.ToString(), descriptor.HandlerType.FullName);
+                    _logger.LogTrace(
+                        "Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", descriptor.ImplementationType.FullName,
+                        registrationOptions?.DocumentSelector?.ToString(), descriptor.HandlerType.FullName
+                    );
                     yield return descriptor;
                 }
             }

@@ -1,27 +1,26 @@
-using Microsoft.Extensions.Logging;
 using System;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
+using Microsoft.Extensions.Logging;
+using OmniSharp.Extensions.LanguageServer.Client.Tests.Logging;
 using Xunit;
 using Xunit.Abstractions;
 
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
-    using Logging;
-
     /// <summary>
-    ///     The base class for test suites.
+    /// The base class for test suites.
     /// </summary>
     public abstract class TestBase
         : IDisposable
     {
         /// <summary>
-        ///     Create a new test-suite.
+        /// Create a new test-suite.
         /// </summary>
         /// <param name="testOutput">
-        ///     Output for the current test.
+        /// Output for the current test.
         /// </param>
         protected TestBase(ITestOutputHelper testOutput)
         {
@@ -45,8 +44,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             // Ugly hack to get access to the current test.
             CurrentTest = (ITest)
                 TestOutput.GetType()
-                    .GetField("test", BindingFlags.NonPublic | BindingFlags.Instance)
-                    .GetValue(TestOutput);
+                          .GetField("test", BindingFlags.NonPublic | BindingFlags.Instance)
+                          .GetValue(TestOutput);
 
             Assert.True(CurrentTest != null, "Cannot retrieve current test from ITestOutputHelper.");
 
@@ -58,15 +57,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     Finaliser for <see cref="PipeServerTestBase"/>.
+        /// Finaliser for <see cref="PipeServerTestBase" />.
         /// </summary>
-        ~TestBase()
-        {
-            Dispose(false);
-        }
+        ~TestBase() => Dispose(false);
 
         /// <summary>
-        ///     Dispose of resources being used by the test suite.
+        /// Dispose of resources being used by the test suite.
         /// </summary>
         public void Dispose()
         {
@@ -75,10 +71,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     Dispose of resources being used by the test suite.
+        /// Dispose of resources being used by the test suite.
         /// </summary>
         /// <param name="disposing">
-        ///     Explicit disposal?
+        /// Explicit disposal?
         /// </param>
         protected virtual void Dispose(bool disposing)
         {
@@ -97,42 +93,42 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         /// <summary>
-        ///     A <see cref="CompositeDisposable"/> representing resources used by the test.
+        /// A <see cref="CompositeDisposable" /> representing resources used by the test.
         /// </summary>
         protected CompositeDisposable Disposal { get; } = new CompositeDisposable();
 
         /// <summary>
-        ///     Output for the current test.
+        /// Output for the current test.
         /// </summary>
         protected ITestOutputHelper TestOutput { get; }
 
         /// <summary>
-        ///     A <see cref="ITest"/> representing the current test.
+        /// A <see cref="ITest" /> representing the current test.
         /// </summary>
         protected ITest CurrentTest { get; }
 
         /// <summary>
-        ///     The Serilog logger for the current test.
+        /// The Serilog logger for the current test.
         /// </summary>
         protected ILoggerFactory LoggerFactory { get; }
 
         /// <summary>
-        ///     The Serilog logger for the current test.
+        /// The Serilog logger for the current test.
         /// </summary>
         protected ILogger Log { get; }
 
         /// <summary>
-        ///     The logging level for the current test.
+        /// The logging level for the current test.
         /// </summary>
         protected virtual LogLevel LogLevel => LogLevel.Information;
 
         /// <summary>
-        ///     Is the test running on Windows?
+        /// Is the test running on Windows?
         /// </summary>
         protected virtual bool IsWindows => RuntimeInformation.IsOSPlatform(OSPlatform.Windows);
 
         /// <summary>
-        ///     Is the test running on a Unix-like operating system?
+        /// Is the test running on a Unix-like operating system?
         /// </summary>
         protected virtual bool IsUnix => RuntimeInformation.IsOSPlatform(OSPlatform.Linux) || RuntimeInformation.IsOSPlatform(OSPlatform.OSX);
     }

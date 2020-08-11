@@ -14,11 +14,13 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
-    class DebugAdapterClientProgressManager : IProgressStartHandler, IProgressUpdateHandler, IProgressEndHandler, IDebugAdapterClientProgressManager, IDisposable
+    internal class DebugAdapterClientProgressManager : IProgressStartHandler, IProgressUpdateHandler, IProgressEndHandler, IDebugAdapterClientProgressManager, IDisposable
     {
         private readonly IObserver<IProgressObservable> _observer;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
-        private readonly ConcurrentDictionary<ProgressToken, ProgressObservable> _activeObservables = new ConcurrentDictionary<ProgressToken, ProgressObservable>(EqualityComparer<ProgressToken>.Default);
+
+        private readonly ConcurrentDictionary<ProgressToken, ProgressObservable> _activeObservables =
+            new ConcurrentDictionary<ProgressToken, ProgressObservable>(EqualityComparer<ProgressToken>.Default);
 
         public DebugAdapterClientProgressManager()
         {

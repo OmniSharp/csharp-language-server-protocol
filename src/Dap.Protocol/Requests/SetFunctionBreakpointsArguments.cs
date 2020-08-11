@@ -1,5 +1,5 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using MediatR;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -12,5 +12,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public Container<FunctionBreakpoint> Breakpoints { get; set; }
     }
-
 }

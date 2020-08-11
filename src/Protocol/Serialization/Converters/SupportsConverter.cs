@@ -4,33 +4,36 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class SupportsConverter : JsonConverter
+    internal class SupportsConverter : JsonConverter
     {
         private static readonly MethodInfo OfValueMethod = typeof(Supports)
-            .GetTypeInfo()
-            .GetMethod(nameof(Supports.OfValue), BindingFlags.Static | BindingFlags.Public);
+                                                          .GetTypeInfo()
+                                                          .GetMethod(nameof(Supports.OfValue), BindingFlags.Static | BindingFlags.Public);
+
         private static readonly MethodInfo OfBooleanMethod = typeof(Supports)
-            .GetTypeInfo()
-            .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public);
+                                                            .GetTypeInfo()
+                                                            .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public);
 
         private static readonly PropertyInfo ValueProperty = typeof(Supports<>)
-            .GetTypeInfo()
-            .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance);
+                                                            .GetTypeInfo()
+                                                            .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance);
 
         private static readonly PropertyInfo IsSupportedProperty = typeof(Supports<>)
-            .GetTypeInfo()
-            .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
+                                                                  .GetTypeInfo()
+                                                                  .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var isSupported = value?.GetType().GetTypeInfo()
-                ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
-                ?.GetValue(value) as bool?;
+                                   ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
+                                   ?.GetValue(value) as bool?;
             if (isSupported == true)
             {
-                serializer.Serialize(writer, value.GetType().GetTypeInfo()
-                    .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
-                    .GetValue(value));
+                serializer.Serialize(
+                    writer, value.GetType().GetTypeInfo()
+                                 .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
+                                 .GetValue(value)
+                );
             }
             else
             {
@@ -45,11 +48,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 if (targetType == typeof(bool))
                 {
-                    return new Supports<bool>(true, (bool)reader.Value);
+                    return new Supports<bool>(true, (bool) reader.Value);
                 }
+
                 return OfBooleanMethod
-                    .MakeGenericMethod(targetType)
-                    .Invoke(null, new [] { reader.Value });
+                      .MakeGenericMethod(targetType)
+                      .Invoke(null, new[] { reader.Value });
             }
 
             if (targetType == typeof(bool))
@@ -60,8 +64,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var target = serializer.Deserialize(reader, targetType);
 
             return OfValueMethod
-                .MakeGenericMethod(targetType)
-                .Invoke(null, new[] {target});
+                  .MakeGenericMethod(targetType)
+                  .Invoke(null, new[] { target });
         }
 
         public override bool CanRead => true;

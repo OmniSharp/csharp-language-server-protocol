@@ -46,5 +46,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public const string RunInTerminal = "runInTerminal";
         public const string Cancel = "cancel";
     }
-
 }

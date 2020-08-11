@@ -17,15 +17,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((VersionedTextDocumentIdentifier)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((VersionedTextDocumentIdentifier) obj);
         }
 
         public override int GetHashCode()
         {
             unchecked
             {
-                return (base.GetHashCode() * 397) ^ Version.GetHashCode();
+                return ( base.GetHashCode() * 397 ) ^ Version.GetHashCode();
             }
         }
 
@@ -39,6 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public int? Version { get; set; }
 
         private string DebuggerDisplay => $"{Uri}@({Version})";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

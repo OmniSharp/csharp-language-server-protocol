@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class BooleanNumberStringConverter : JsonConverter<BooleanNumberString>
+    internal class BooleanNumberStringConverter : JsonConverter<BooleanNumberString>
     {
         public override void WriteJson(JsonWriter writer, BooleanNumberString value, JsonSerializer serializer)
         {
@@ -18,17 +18,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new BooleanNumberString((long)reader.Value);
+                return new BooleanNumberString((long) reader.Value);
             }
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new BooleanNumberString((string)reader.Value);
+                return new BooleanNumberString((string) reader.Value);
             }
 
             if (reader.TokenType == JsonToken.Boolean)
             {
-                return new BooleanNumberString((bool)reader.Value);
+                return new BooleanNumberString((bool) reader.Value);
             }
 
             return new BooleanNumberString();

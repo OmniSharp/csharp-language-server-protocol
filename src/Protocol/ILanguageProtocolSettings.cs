@@ -4,8 +4,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public interface ILanguageProtocolSettings
     {
-        InitializeParams ClientSettings { get;   }
+        InitializeParams ClientSettings { get; }
 
-        InitializeResult ServerSettings { get;   }
+        InitializeResult ServerSettings { get; }
     }
 }

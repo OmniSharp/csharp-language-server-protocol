@@ -13,10 +13,7 @@ namespace Lsp.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public DocumentUriTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public DocumentUriTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [Fact]
         public void IsEquatable()
@@ -26,8 +23,8 @@ namespace Lsp.Tests
             var uri3 = DocumentUri.Parse("file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/NotNamespaces.cs");
             uri1.Should().Be(uri2);
             uri1.Should().NotBe(uri3);
-            (uri1 == uri2).Should().BeTrue();
-            (uri1 != uri2).Should().BeFalse();
+            ( uri1 == uri2 ).Should().BeTrue();
+            ( uri1 != uri2 ).Should().BeFalse();
         }
 
         [Theory]
@@ -43,7 +40,9 @@ namespace Lsp.Tests
         {
             private const string WindowsPath = "c:\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
 
-            public WindowsFileSystemPaths() : base(WindowsPath, "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
+            public WindowsFileSystemPaths() : base(WindowsPath, "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs")
+            {
+            }
         }
 
         [Theory]
@@ -59,7 +58,9 @@ namespace Lsp.Tests
         {
             private const string UncPath = "\\\\myserver\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
 
-            public UncFileSystemPaths() : base(UncPath, "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
+            public UncFileSystemPaths() : base(UncPath, "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs")
+            {
+            }
         }
 
         [Theory]
@@ -75,7 +76,9 @@ namespace Lsp.Tests
         {
             private const string UnixPath = "/usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UnixFileSystemPaths() : base(UnixPath, "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs") { }
+            public UnixFileSystemPaths() : base(UnixPath, "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs")
+            {
+            }
         }
 
         [Theory]
@@ -91,7 +94,9 @@ namespace Lsp.Tests
         {
             private const string WindowsPath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public WindowsPathStringUris() : base(WindowsPath, WindowsPath) { }
+            public WindowsPathStringUris() : base(WindowsPath, WindowsPath)
+            {
+            }
         }
 
         [Theory]
@@ -107,7 +112,9 @@ namespace Lsp.Tests
         {
             private const string WindowsPathAlt = "file://c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public WindowsPathAltStringUris() : base(WindowsPathAlt, WindowsPathAlt) { }
+            public WindowsPathAltStringUris() : base(WindowsPathAlt, WindowsPathAlt)
+            {
+            }
         }
 
         [Theory]
@@ -123,7 +130,9 @@ namespace Lsp.Tests
         {
             private const string UncPath = "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UncPathStringUris() : base(UncPath, UncPath) { }
+            public UncPathStringUris() : base(UncPath, UncPath)
+            {
+            }
         }
 
         [Theory]
@@ -139,7 +148,9 @@ namespace Lsp.Tests
         {
             private const string UnixPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UnixPathStringUris() : base(UnixPath, UnixPath) { }
+            public UnixPathStringUris() : base(UnixPath, UnixPath)
+            {
+            }
         }
 
         [Theory]
@@ -155,13 +166,19 @@ namespace Lsp.Tests
         public class ResourceStringUris : BaseSourceDestination
         {
             private const string ResourcePath = "untitled:{0}-1";
-            public ResourceStringUris() : base(ResourcePath, ResourcePath) { }
+
+            public ResourceStringUris() : base(ResourcePath, ResourcePath)
+            {
+            }
         }
 
         public class ResourceStringUrisWithPaths : BaseSourceDestination
         {
             private const string ResourcePathWithPath = "untitled:{0}-1/some/path";
-            public ResourceStringUrisWithPaths() : base(ResourcePathWithPath, ResourcePathWithPath) { }
+
+            public ResourceStringUrisWithPaths() : base(ResourcePathWithPath, ResourcePathWithPath)
+            {
+            }
         }
 
         [Theory]
@@ -176,7 +193,10 @@ namespace Lsp.Tests
         public class WindowsPathUris : UriSourceDestination
         {
             private const string WindowsPath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
-            public WindowsPathUris() : base(WindowsPath, WindowsPath) { }
+
+            public WindowsPathUris() : base(WindowsPath, WindowsPath)
+            {
+            }
         }
 
         [Theory]
@@ -191,7 +211,10 @@ namespace Lsp.Tests
         public class UncPathUris : UriSourceDestination
         {
             private const string UncPath = "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
-            public UncPathUris() : base(UncPath, UncPath) { }
+
+            public UncPathUris() : base(UncPath, UncPath)
+            {
+            }
         }
 
         [Theory]
@@ -206,7 +229,10 @@ namespace Lsp.Tests
         public class UnixPathUris : UriSourceDestination
         {
             private const string UnixPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
-            public UnixPathUris() : base(UnixPath, UnixPath) { }
+
+            public UnixPathUris() : base(UnixPath, UnixPath)
+            {
+            }
         }
 
         [Theory]
@@ -223,7 +249,9 @@ namespace Lsp.Tests
             private const string WindowsSourcePath = "c:\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
             private const string WindowsDestinationPath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public WindowsFileSystemToFileUri() : base(WindowsSourcePath, WindowsDestinationPath) { }
+            public WindowsFileSystemToFileUri() : base(WindowsSourcePath, WindowsDestinationPath)
+            {
+            }
         }
 
         [Theory]
@@ -240,7 +268,9 @@ namespace Lsp.Tests
             private const string UncSourcePath = "\\\\myserver\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
             private const string UncDestinationPath = "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UncFileSystemToFileUri() : base(UncSourcePath, UncDestinationPath) { }
+            public UncFileSystemToFileUri() : base(UncSourcePath, UncDestinationPath)
+            {
+            }
         }
 
         [Theory]
@@ -257,7 +287,9 @@ namespace Lsp.Tests
             private const string UnixSourcePath = "/usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
             private const string UnixDestinationPath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UnixFileSystemToFileUri() : base(UnixSourcePath, UnixDestinationPath) { }
+            public UnixFileSystemToFileUri() : base(UnixSourcePath, UnixDestinationPath)
+            {
+            }
         }
 
         [Theory]
@@ -274,7 +306,9 @@ namespace Lsp.Tests
             private const string WindowsSourcePath = "file:///c:/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
             private const string WindowsDestinationPath = "c:\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
 
-            public WindowsFileUriToFileSystem() : base(WindowsSourcePath, WindowsDestinationPath, false) { }
+            public WindowsFileUriToFileSystem() : base(WindowsSourcePath, WindowsDestinationPath, false)
+            {
+            }
         }
 
         [Theory]
@@ -291,7 +325,9 @@ namespace Lsp.Tests
             private const string UncSourcePath = "file://myserver/Users/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
             private const string UncDestinationPath = "\\\\myserver\\Users\\mb\\src\\gh\\Cake.Json\\src\\Cake.Json\\{0}s.cs";
 
-            public UncFileUriToFileSystem() : base(UncSourcePath, UncDestinationPath, false) { }
+            public UncFileUriToFileSystem() : base(UncSourcePath, UncDestinationPath, false)
+            {
+            }
         }
 
         [Theory]
@@ -308,10 +344,12 @@ namespace Lsp.Tests
             private const string UnixSourcePath = "file:///usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
             private const string UnixDestinationPath = "/usr/mb/src/gh/Cake.Json/src/Cake.Json/{0}s.cs";
 
-            public UnixFileUriToFileSystem() : base(UnixSourcePath, UnixDestinationPath, false) { }
+            public UnixFileUriToFileSystem() : base(UnixSourcePath, UnixDestinationPath, false)
+            {
+            }
         }
 
-        private static string[] EncodedStrings = new[] {"Namespace", "Пространствоимен", "汉字漢字", "のはでした", "コンサート"};
+        private static readonly string[] EncodedStrings = { "Namespace", "Пространствоимен", "汉字漢字", "のはでした", "コンサート" };
 
         public class UriSourceDestination : IEnumerable<object[]>
         {
@@ -333,24 +371,30 @@ namespace Lsp.Tests
                 {
                     var encodedData = _encode ? Uri.EscapeDataString(data) : data;
                     if (_sourceFormat.Replace("c:", "c%3A") != string.Format(_sourceFormat, data))
-                        items.Add((
-                            new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3A")),
-                            string.Format(_destinationFormat, encodedData)
-                        ));
+                        items.Add(
+                            (
+                                new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3A")),
+                                string.Format(_destinationFormat, encodedData)
+                            )
+                        );
                     if (_sourceFormat.Replace("c:", "c%3a") != string.Format(_sourceFormat, data))
-                        items.Add((
-                            new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3a")),
+                        items.Add(
+                            (
+                                new Uri(string.Format(_sourceFormat, data).Replace("c:", "c%3a")),
+                                string.Format(_destinationFormat, encodedData)
+                            )
+                        );
+                    items.Add(
+                        (
+                            new Uri(string.Format(_sourceFormat, data)),
                             string.Format(_destinationFormat, encodedData)
-                        ));
-                    items.Add((
-                        new Uri(string.Format(_sourceFormat, data)),
-                        string.Format(_destinationFormat, encodedData)
-                    ));
+                        )
+                    );
                 }
 
                 foreach (var item in items.Distinct())
                 {
-                    yield return new object[] {item.source, item.destination};
+                    yield return new object[] { item.source, item.destination };
                 }
             }
 
@@ -374,24 +418,30 @@ namespace Lsp.Tests
                 foreach (var data in EncodedStrings)
                 {
                     if (_sourceFormat.Replace("c:", "c%3A") != string.Format(_sourceFormat, data))
-                        items.Add((
-                            string.Format(_sourceFormat, data).Replace("c:", "c%3A"),
-                            string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                        ));
+                        items.Add(
+                            (
+                                string.Format(_sourceFormat, data).Replace("c:", "c%3A"),
+                                string.Format(_destinationFormat, Uri.EscapeDataString(data))
+                            )
+                        );
                     if (_sourceFormat.Replace("c:", "c%3a") != string.Format(_sourceFormat, data))
-                        items.Add((
-                            string.Format(_sourceFormat, data).Replace("c:", "c%3a"),
+                        items.Add(
+                            (
+                                string.Format(_sourceFormat, data).Replace("c:", "c%3a"),
+                                string.Format(_destinationFormat, Uri.EscapeDataString(data))
+                            )
+                        );
+                    items.Add(
+                        (
+                            string.Format(_sourceFormat, data),
                             string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                        ));
-                    items.Add((
-                        string.Format(_sourceFormat, data),
-                        string.Format(_destinationFormat, Uri.EscapeDataString(data))
-                    ));
+                        )
+                    );
                 }
 
                 foreach (var item in items.Distinct())
                 {
-                    yield return new object[] {item.source, item.destination};
+                    yield return new object[] { item.source, item.destination };
                 }
             }
 

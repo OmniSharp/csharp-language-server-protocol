@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [Obsolete(Constants.Proposal)]
     [Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
     public class SemanticTokensRangeParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
-        IPartialItemRequest<SemanticTokens, SemanticTokensPartialResult>
+                                             IPartialItemRequest<SemanticTokens, SemanticTokensPartialResult>
     {
         /// <summary>
         /// The text document.

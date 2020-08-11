@@ -1,15 +1,13 @@
 using System;
 using System.Linq;
-using System.Threading.Tasks;
-using Xunit;
-using FluentAssertions;
 using System.Reactive;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
 using Microsoft.Reactive.Testing;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
 using static Microsoft.Reactive.Testing.ReactiveTest;
@@ -18,14 +16,11 @@ namespace JsonRpc.Tests
 {
     public class ProcessSchedulerTests
     {
-        public ProcessSchedulerTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public ProcessSchedulerTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         private readonly ITestOutputHelper _testOutputHelper;
 
-        class AllRequestProcessTypes : TheoryData<RequestProcessType>
+        private class AllRequestProcessTypes : TheoryData<RequestProcessType>
         {
             public AllRequestProcessTypes()
             {
@@ -34,7 +29,8 @@ namespace JsonRpc.Tests
             }
         }
 
-        [Theory, ClassData(typeof(AllRequestProcessTypes))]
+        [Theory]
+        [ClassData(typeof(AllRequestProcessTypes))]
         public void ShouldScheduleCompletedTask(RequestProcessType type)
         {
             var testScheduler = new TestScheduler();
@@ -49,7 +45,7 @@ namespace JsonRpc.Tests
 
             s.Add(type, "bogus", DoStuff(testObservable, testObserver));
 
-            testScheduler.AdvanceTo(Subscribed/2);
+            testScheduler.AdvanceTo(Subscribed / 2);
 
             testObservable.Subscriptions.Count.Should().Be(1);
 
@@ -80,17 +76,17 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(8);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 4, Unit.Default),
-                    OnNext(Subscribed * 5, Unit.Default),
-                    OnNext(Subscribed * 6, Unit.Default),
-                    OnNext(Subscribed * 7, Unit.Default),
-                    OnNext(Subscribed * 8, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 4, Unit.Default),
+                             OnNext(Subscribed * 5, Unit.Default),
+                             OnNext(Subscribed * 6, Unit.Default),
+                             OnNext(Subscribed * 7, Unit.Default),
+                             OnNext(Subscribed * 8, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -112,17 +108,17 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(8);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -150,17 +146,17 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(8);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 4, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 4, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -191,14 +187,14 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(11);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -223,13 +219,13 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(4);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 4, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 4, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -258,17 +254,17 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(8);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 4, Unit.Default),
-                    OnNext(Subscribed * 4, Unit.Default),
-                    OnNext(Subscribed * 5, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 4, Unit.Default),
+                             OnNext(Subscribed * 4, Unit.Default),
+                             OnNext(Subscribed * 5, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -299,14 +295,14 @@ namespace JsonRpc.Tests
 
             testObservable.Subscriptions.Count.Should().Be(11);
             testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
-                .ContainInOrder(
-                    OnNext(Subscribed, Unit.Default),
-                    OnNext(Subscribed * 2, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default),
-                    OnNext(Subscribed * 3, Unit.Default)
-                );
+                        .Where(z => z.Value.Kind != NotificationKind.OnCompleted).Should()
+                        .ContainInOrder(
+                             OnNext(Subscribed, Unit.Default),
+                             OnNext(Subscribed * 2, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default),
+                             OnNext(Subscribed * 3, Unit.Default)
+                         );
         }
 
         [Fact]
@@ -333,8 +329,8 @@ namespace JsonRpc.Tests
             testObservable.Subscriptions.Count.Should().Be(2);
             errorObservable.Subscriptions.Should().HaveCount(1);
             var messages = testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
-                .ToArray();
+                                       .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
+                                       .ToArray();
 
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed);
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is OperationCanceledException);
@@ -365,17 +361,15 @@ namespace JsonRpc.Tests
             testObservable.Subscriptions.Count.Should().Be(2);
             errorObservable.Subscriptions.Should().HaveCount(1);
             var messages = testObserver.Messages
-                .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
-                .ToArray();
+                                       .Where(z => z.Value.Kind != NotificationKind.OnCompleted)
+                                       .ToArray();
 
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed);
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnError && x.Time == Subscribed * 2 && x.Value.Exception is NotSameException);
             messages.Should().Contain(x => x.Value.Kind == NotificationKind.OnNext && x.Time == Subscribed * 3);
         }
 
-        private static SchedulerDelegate DoStuff(IObservable<Unit> testObservable, IObserver<Unit> testObserver)
-        {
-            return (contentModifiedToken, scheduler) => testObservable.Amb(contentModifiedToken).Do(testObserver);
-        }
+        private static SchedulerDelegate DoStuff(IObservable<Unit> testObservable, IObserver<Unit> testObserver) =>
+            (contentModifiedToken, scheduler) => testObservable.Amb(contentModifiedToken).Do(testObserver);
     }
 }

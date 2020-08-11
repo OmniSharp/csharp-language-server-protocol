@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
             else
             {
-                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { _.GetRequiredService<LanguageServer>().ForcefulShutdown(); }), reuse: Reuse.Singleton);
+                container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => { _.GetRequiredService<LanguageServer>().ForcefulShutdown(); }), Reuse.Singleton);
             }
 
             container.RegisterMany<TextDocumentLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageServer)), reuse: Reuse.Singleton);
@@ -50,12 +50,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             container.RegisterMany<DidChangeConfigurationProvider>(
                 made: Parameters.Of
-                    .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
+                                .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
             );
 
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
-            container.RegisterDelegate<IConfiguration>(_ => {
+            container.RegisterDelegate<IConfiguration>(
+                _ => {
                     var builder = new ConfigurationBuilder();
                     var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
@@ -71,30 +72,31 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                     return builder.AddConfiguration(didChangeConfigurationProvider).Build();
                 },
-                reuse: Reuse.Singleton);
+                Reuse.Singleton
+            );
 
             container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
-            container.RegisterInstance(options.ServerInfo ?? new ServerInfo() {
-                Name = Assembly.GetEntryAssembly()?.GetName().Name,
-                Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
-                              ?.InformationalVersion ??
-                          Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
-            });
+            container.RegisterInstance(
+                options.ServerInfo ?? new ServerInfo {
+                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
+                                     ?.InformationalVersion ??
+                              Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+                }
+            );
 
-            container.RegisterMany<TextDocumentMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany<ExecuteCommandMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany<ResolveCommandMatcher>(reuse: Reuse.Singleton);
-            container.RegisterMany(new[] {typeof(ResolveCommandPipeline<,>)});
-            container.RegisterMany<LanguageServerWorkDoneManager>(reuse: Reuse.Singleton);
-            container.RegisterMany<LanguageServerWorkspaceFolderManager>(reuse: Reuse.Singleton);
+            container.RegisterMany<TextDocumentMatcher>(Reuse.Singleton);
+            container.RegisterMany<ExecuteCommandMatcher>(Reuse.Singleton);
+            container.RegisterMany<ResolveCommandMatcher>(Reuse.Singleton);
+            container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
+            container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
 
             return container;
         }
 
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions> configureOptions = null)
-        {
-            return AddLanguageServer(services, Options.DefaultName, configureOptions);
-        }
+        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions> configureOptions = null) =>
+            AddLanguageServer(services, Options.DefaultName, configureOptions);
 
         public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions> configureOptions = null)
         {
@@ -104,15 +106,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 services.RemoveAll<LanguageServer>();
                 services.RemoveAll<ILanguageServer>();
-                services.AddSingleton<ILanguageServer>(_ =>
-                    throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead"));
-                services.AddSingleton<LanguageServer>(_ =>
-                    throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead"));
+                services.AddSingleton<ILanguageServer>(
+                    _ =>
+                        throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead")
+                );
+                services.AddSingleton<LanguageServer>(
+                    _ =>
+                        throw new NotSupportedException("LanguageServer has been registered multiple times, you must use LanguageServer instead")
+                );
             }
 
             services
-                .AddOptions()
-                .AddLogging();
+               .AddOptions()
+               .AddLogging();
             services.TryAddSingleton<LanguageServerResolver>();
             services.TryAddSingleton(_ => _.GetRequiredService<LanguageServerResolver>().Get(name));
             services.TryAddSingleton<ILanguageServer>(_ => _.GetRequiredService<LanguageServerResolver>().Get(name));

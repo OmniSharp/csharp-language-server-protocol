@@ -23,7 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public StringOrMarkupContent Documentation { get; set; }
 
-        private string DebuggerDisplay => $"{Label}{(Documentation != null ? $" {Documentation}" : string.Empty)}";
+        private string DebuggerDisplay => $"{Label}{( Documentation != null ? $" {Documentation}" : string.Empty )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

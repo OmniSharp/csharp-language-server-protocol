@@ -16,12 +16,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         public Container<CodeActionKind> CodeActionKinds { get; set; }
 
-        public static CodeActionOptions Of(ICodeActionOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new CodeActionOptions() {
+        public static CodeActionOptions Of(ICodeActionOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new CodeActionOptions {
                 CodeActionKinds = options.CodeActionKinds,
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

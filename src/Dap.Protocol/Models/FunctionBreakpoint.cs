@@ -2,7 +2,8 @@
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 {
-    /// <summary>FunctionBreakpoint
+    /// <summary>
+    /// FunctionBreakpoint
     /// Properties of a breakpoint passed to the setFunctionBreakpoints request.
     /// </summary>
     public class FunctionBreakpoint
@@ -15,11 +16,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An optional expression for conditional breakpoints.
         /// </summary>
-        [Optional] public string Condition { get; set; }
+        [Optional]
+        public string Condition { get; set; }
 
         /// <summary>
         /// An optional expression that controls how many hits of the breakpoint are ignored. The backend is expected to interpret the expression as needed.
         /// </summary>
-        [Optional] public string HitCondition { get; set; }
+        [Optional]
+        public string HitCondition { get; set; }
     }
 }

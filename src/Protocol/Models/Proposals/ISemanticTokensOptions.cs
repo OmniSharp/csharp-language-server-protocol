@@ -13,20 +13,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     public interface ISemanticTokensOptions : IWorkDoneProgressOptions
     {
         /// <summary>
-        ///  The legend used by the server
+        /// The legend used by the server
         /// </summary>
         public SemanticTokensLegend Legend { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a sepcific range
-        ///  of a document.
+        /// Server supports providing semantic tokens for a sepcific range
+        /// of a document.
         /// </summary>
 
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a full document.
+        /// Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }

@@ -3,7 +3,6 @@ using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -36,7 +35,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public JToken Data { get; set; }
 
-        private string DebuggerDisplay => $"{Range}{(Command != null ? $" {Command}" : "")}";
+        private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }
@@ -68,14 +68,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public T Data
         {
-            get => ((ICanBeResolved)this).Data?.ToObject<T>();
-            set => ((ICanBeResolved)this).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
         }
 
         JToken ICanBeResolved.Data { get; set; }
 
         public static implicit operator CodeLens(CodeLens<T> value) => new CodeLens {
-            Data = ((ICanBeResolved)value).Data,
+            Data = ( (ICanBeResolved) value ).Data,
             Command = value.Command,
             Range = value.Range,
         };
@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
                 Command = value.Command,
                 Range = value.Range,
             };
-            ((ICanBeResolved)item).Data = value.Data;
+            ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
     }

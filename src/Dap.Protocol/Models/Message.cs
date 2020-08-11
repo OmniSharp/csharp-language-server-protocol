@@ -22,26 +22,31 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An object used as a dictionary for looking up the variables in the format string.
         /// </summary>
-        [Optional] public IDictionary<string, string> Variables { get; set; }
+        [Optional]
+        public IDictionary<string, string> Variables { get; set; }
 
         /// <summary>
         /// If true send to telemetry.
         /// </summary>
-        [Optional] public bool? SendTelemetry { get; set; }
+        [Optional]
+        public bool? SendTelemetry { get; set; }
 
         /// <summary>
         /// If true show user.
         /// </summary>
-        [Optional] public bool? ShowUser { get; set; }
+        [Optional]
+        public bool? ShowUser { get; set; }
 
         /// <summary>
         /// An optional url where additional information about this message can be found.
         /// </summary>
-        [Optional] public string Url { get; set; }
+        [Optional]
+        public string Url { get; set; }
 
         /// <summary>
         /// An optional label that is presented to the user as the UI for opening the url.
         /// </summary>
-        [Optional] public string UrlLabel { get; set; }
+        [Optional]
+        public string UrlLabel { get; set; }
     }
 }

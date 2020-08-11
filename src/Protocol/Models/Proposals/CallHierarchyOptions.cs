@@ -12,11 +12,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [Obsolete(Constants.Proposal)]
     public class CallHierarchyOptions : WorkDoneProgressOptions, ICallHierarchyOptions
     {
-        public static CallHierarchyOptions Of(ICallHierarchyOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new CallHierarchyOptions() {
+        public static CallHierarchyOptions Of(ICallHierarchyOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new CallHierarchyOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

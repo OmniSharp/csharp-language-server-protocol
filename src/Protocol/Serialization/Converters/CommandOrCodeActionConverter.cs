@@ -28,15 +28,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             var result = JObject.Load(reader);
 
             // Commands have a name, CodeActions do not
-            JToken command = result["command"];
+            var command = result["command"];
             if (command?.Type == JTokenType.String)
             {
                 return new CommandOrCodeAction(result.ToObject<Command>());
             }
-            else
-            {
-                return new CommandOrCodeAction(result.ToObject<CodeAction>());
-            }
+
+            return new CommandOrCodeAction(result.ToObject<CodeAction>());
         }
 
         public override bool CanRead => true;

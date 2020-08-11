@@ -1,6 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -20,15 +19,15 @@ namespace Lsp.Tests
             var handler = Substitute.For<IExecuteCommandHandler>();
             handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
 
-            var handlerCollection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider()) { handler };
+            var handlerCollection = new SharedHandlerCollection(
+                SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider()
+            ) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection, true);
 
             Provider = capabilityProvider;
         }
 
-        public ClientCapabilityProvider.IOptionsGetter GetStaticOptions()
-        {
-            return Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
-        }
+        public ClientCapabilityProvider.IOptionsGetter GetStaticOptions() =>
+            Provider.GetStaticOptions(new Supports<ExecuteCommandCapability>(true, new ExecuteCommandCapability { DynamicRegistration = false }));
     }
 }

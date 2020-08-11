@@ -21,19 +21,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator LocationOrLocationLinks(LocationOrLocationLink[] items)
-        {
-            return new LocationOrLocationLinks(items);
-        }
+        public static implicit operator LocationOrLocationLinks(LocationOrLocationLink[] items) => new LocationOrLocationLinks(items);
 
-        public static implicit operator LocationOrLocationLinks(Collection<LocationOrLocationLink> items)
-        {
-            return new LocationOrLocationLinks(items);
-        }
+        public static implicit operator LocationOrLocationLinks(Collection<LocationOrLocationLink> items) => new LocationOrLocationLinks(items);
 
-        public static implicit operator LocationOrLocationLinks(List<LocationOrLocationLink> items)
-        {
-            return new LocationOrLocationLinks(items);
-        }
+        public static implicit operator LocationOrLocationLinks(List<LocationOrLocationLink> items) => new LocationOrLocationLinks(items);
     }
 }

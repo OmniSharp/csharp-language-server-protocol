@@ -4,17 +4,17 @@ using System.Threading;
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
 {
     /// <summary>
-    ///     Log scope for <see cref="TestOutputLogger"/>.
+    /// Log scope for <see cref="TestOutputLogger" />.
     /// </summary>
     internal class TestOutputLogScope
     {
         /// <summary>
-        ///     Storage for the current <see cref="TestOutputLogScope"/>.
+        /// Storage for the current <see cref="TestOutputLogScope" />.
         /// </summary>
-        static readonly AsyncLocal<TestOutputLogScope> _currentScope = new AsyncLocal<TestOutputLogScope>();
+        private static readonly AsyncLocal<TestOutputLogScope> _currentScope = new AsyncLocal<TestOutputLogScope>();
 
         /// <summary>
-        ///     The current <see cref="TestOutputLogScope"/> (if any).
+        /// The current <see cref="TestOutputLogScope" /> (if any).
         /// </summary>
         public static TestOutputLogScope Current
         {
@@ -23,23 +23,23 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         }
 
         /// <summary>
-        ///     The scope name.
+        /// The scope name.
         /// </summary>
-        readonly string _name;
+        private readonly string _name;
 
         /// <summary>
-        ///     State associated with the scope.
+        /// State associated with the scope.
         /// </summary>
-        readonly object _state;
+        private readonly object _state;
 
         /// <summary>
-        ///     Create a new <see cref="TestOutputLogScope"/>.
+        /// Create a new <see cref="TestOutputLogScope" />.
         /// </summary>
         /// <param name="name">
-        ///     The scope name.
+        /// The scope name.
         /// </param>
         /// <param name="state">
-        ///     State associated with the scope.
+        /// State associated with the scope.
         /// </param>
         public TestOutputLogScope(string name, object state)
         {
@@ -48,25 +48,25 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         }
 
         /// <summary>
-        ///     The scope's parent scope (if any).
+        /// The scope's parent scope (if any).
         /// </summary>
         public TestOutputLogScope Parent { get; private set; }
 
         /// <summary>
-        ///     Create a new <see cref="TestOutputLogScope"/> and make it the current <see cref="TestOutputLogScope"/>.
+        /// Create a new <see cref="TestOutputLogScope" /> and make it the current <see cref="TestOutputLogScope" />.
         /// </summary>
         /// <param name="name">
-        ///     The scope name.
+        /// The scope name.
         /// </param>
         /// <param name="state">
-        ///     State associated with the scope.
+        /// State associated with the scope.
         /// </param>
         /// <returns>
-        ///     An <see cref="IDisposable"/> representing the scope.
+        /// An <see cref="IDisposable" /> representing the scope.
         /// </returns>
         public static IDisposable Push(string name, object state)
         {
-            TestOutputLogScope parent = Current;
+            var parent = Current;
             Current = new TestOutputLogScope(name, state) {
                 Parent = parent
             };
@@ -75,26 +75,26 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         }
 
         /// <summary>
-        ///     Get a string representation of the scope.
+        /// Get a string representation of the scope.
         /// </summary>
         /// <returns>
-        ///     The scope's string representation.
+        /// The scope's string representation.
         /// </returns>
         public override string ToString() => _state?.ToString();
 
         /// <summary>
-        ///     Wrapper for disposal of log scope.
+        /// Wrapper for disposal of log scope.
         /// </summary>
-        class ScopeDisposal
+        private class ScopeDisposal
             : IDisposable
         {
             /// <summary>
-            ///     Has the scope been disposed?
+            /// Has the scope been disposed?
             /// </summary>
-            bool _disposed;
+            private bool _disposed;
 
             /// <summary>
-            ///     Revert to the previous scope (if any).
+            /// Revert to the previous scope (if any).
             /// </summary>
             public void Dispose()
             {

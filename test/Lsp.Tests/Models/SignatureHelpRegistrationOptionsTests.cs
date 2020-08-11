@@ -8,14 +8,17 @@ namespace Lsp.Tests.Models
 {
     public class SignatureHelpRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SignatureHelpRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                    Language = "csharp"
-                }),
-                TriggerCharacters = new [] {"a","b"}
+            var model = new SignatureHelpRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp"
+                    }
+                ),
+                TriggerCharacters = new[] { "a", "b" }
             };
             var result = Fixture.SerializeObject(model);
 

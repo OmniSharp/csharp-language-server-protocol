@@ -8,7 +8,8 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class TextDocumentSyncKindTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
             var model = TextDocumentSyncKind.Full;

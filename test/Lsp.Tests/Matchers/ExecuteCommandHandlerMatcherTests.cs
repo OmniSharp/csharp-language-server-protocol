@@ -52,15 +52,16 @@ namespace Lsp.Tests.Matchers
             // Given
             var handlerMatcher = AutoSubstitute.Resolve<ExecuteCommandMatcher>();
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>().With(new Container<string>("Command"));
-            var registrationsOptions = new ExecuteCommandRegistrationOptions()
-            {
+            var registrationsOptions = new ExecuteCommandRegistrationOptions {
                 Commands = new Container<string>("Command")
             };
 
             // When
-            var result = handlerMatcher.FindHandler(new ExecuteCommandParams { Command = "Command" },
+            var result = handlerMatcher.FindHandler(
+                new ExecuteCommandParams { Command = "Command" },
                 new List<LspHandlerDescriptor> {
-                    new LspHandlerDescriptor("workspace/executeCommand",
+                    new LspHandlerDescriptor(
+                        "workspace/executeCommand",
                         "Key",
                         executeCommandHandler,
                         executeCommandHandler.GetType(),
@@ -71,8 +72,10 @@ namespace Lsp.Tests.Matchers
                         typeof(ExecuteCommandCapability),
                         null,
                         () => { },
-                        Substitute.For<ILspHandlerTypeDescriptor>())
-                });
+                        Substitute.For<ILspHandlerTypeDescriptor>()
+                    )
+                }
+            );
 
             // Then
             result.Should().NotBeNullOrEmpty();

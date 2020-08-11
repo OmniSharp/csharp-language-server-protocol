@@ -24,11 +24,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             new Lazy<IReadOnlyList<SemanticTokenType>>(
                 () => {
                     return typeof(SemanticTokenType)
-                        .GetFields(BindingFlags.Static | BindingFlags.Public)
-                        .Select(z => z.GetValue(null))
-                        .Cast<SemanticTokenType>()
-                        .ToArray();
-                });
+                          .GetFields(BindingFlags.Static | BindingFlags.Public)
+                          .Select(z => z.GetValue(null))
+                          .Cast<SemanticTokenType>()
+                          .ToArray();
+                }
+            );
 
         public static IEnumerable<SemanticTokenType> Defaults => _defaults.Value;
 
@@ -58,27 +59,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         private readonly string _value;
 
-        public SemanticTokenType(string type)
-        {
-            _value = type;
-        }
+        public SemanticTokenType(string type) => _value = type;
 
-        public static implicit operator SemanticTokenType(string kind)
-        {
-            return new SemanticTokenType(kind);
-        }
+        public static implicit operator SemanticTokenType(string kind) => new SemanticTokenType(kind);
 
-        public static implicit operator string(SemanticTokenType kind)
-        {
-            return kind._value;
-        }
+        public static implicit operator string(SemanticTokenType kind) => kind._value;
 
         public override string ToString() => _value;
         public bool Equals(SemanticTokenType other) => _value == other._value;
 
         public override bool Equals(object obj) => obj is SemanticTokenType other && Equals(other);
 
-        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
+        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
 
         public static bool operator ==(SemanticTokenType left, SemanticTokenType right) => left.Equals(right);
 

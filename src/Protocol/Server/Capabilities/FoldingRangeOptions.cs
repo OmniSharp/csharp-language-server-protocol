@@ -6,11 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class FoldingRangeOptions : StaticWorkDoneTextDocumentRegistrationOptions, IFoldingRangeOptions
     {
-        public static FoldingRangeOptions Of(IFoldingRangeOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new FoldingRangeOptions() {
+        public static FoldingRangeOptions Of(IFoldingRangeOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new FoldingRangeOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

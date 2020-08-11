@@ -6,12 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class SelectionRangeOptions : StaticWorkDoneTextDocumentRegistrationOptions, ISelectionRangeOptions
     {
-        public static SelectionRangeOptions Of(ISelectionRangeOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new SelectionRangeOptions()
-            {
+        public static SelectionRangeOptions Of(ISelectionRangeOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new SelectionRangeOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
             };
-        }
     }
 }

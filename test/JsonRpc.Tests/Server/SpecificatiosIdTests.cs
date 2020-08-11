@@ -24,22 +24,25 @@ namespace JsonRpc.Tests.Server
             }
         }
 
-        class SimpleTestMessages : TheoryData<string, Type, object>
+        private class SimpleTestMessages : TheoryData<string, Type, object>
         {
             public SimpleTestMessages()
             {
-                Add (
+                Add(
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": ""canbestring"" }",
                     typeof(string),
-                    "canbestring" as object);
-                Add (
+                    "canbestring"
+                );
+                Add(
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": 12345 }",
                     typeof(long),
-                    12345L as object);
-                Add (
+                    12345L
+                );
+                Add(
                     @"{ ""jsonrpc"": ""2.0"", ""method"": ""method1"", ""id"": null }",
                     typeof(object),
-                    (object)null);
+                    null
+                );
             }
         }
     }

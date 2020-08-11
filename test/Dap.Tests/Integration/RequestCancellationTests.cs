@@ -1,14 +1,9 @@
 ﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
@@ -19,7 +14,6 @@ using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration
 {
-
     public class RequestCancellationTests : DebugAdapterProtocolTestBase
     {
         public RequestCancellationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
@@ -42,10 +36,12 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Should_Cancel_Requests_After_Timeout()
         {
-            var (client, server) = await Initialize(ConfigureClient, x => {
-                ConfigureServer(x);
-                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
-            });
+            var (client, server) = await Initialize(
+                ConfigureClient, x => {
+                    ConfigureServer(x);
+                    x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));
+                }
+            );
 
             Func<Task<CompletionsResponse>> action = () => client.RequestCompletions(new CompletionsArguments());
             action.Should().Throw<RequestCancelledException>();
@@ -55,12 +51,12 @@ namespace Dap.Tests.Integration
         {
         }
 
-        private void ConfigureServer(DebugAdapterServerOptions options)
-        {
-            options.OnCompletions(async  (x, ct) => {
-                await Task.Delay(50000, ct);
-                return new CompletionsResponse();
-            });
-        }
+        private void ConfigureServer(DebugAdapterServerOptions options) =>
+            options.OnCompletions(
+                async (x, ct) => {
+                    await Task.Delay(50000, ct);
+                    return new CompletionsResponse();
+                }
+            );
     }
 }

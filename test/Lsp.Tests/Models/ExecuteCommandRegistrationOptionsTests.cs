@@ -8,11 +8,12 @@ namespace Lsp.Tests.Models
 {
     public class ExecuteCommandRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ExecuteCommandRegistrationOptions() {
-                Commands = new [] { "1", "2" }
+            var model = new ExecuteCommandRegistrationOptions {
+                Commands = new[] { "1", "2" }
             };
             var result = Fixture.SerializeObject(model);
 

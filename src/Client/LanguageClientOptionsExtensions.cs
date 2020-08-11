@@ -1,19 +1,12 @@
 ﻿using System;
-using System.IO;
-using System.IO.Pipelines;
-using System.Reflection;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Nerdbank.Streams;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
@@ -25,8 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithReceiver(this LanguageClientOptions options,
-            ILspClientReceiver serverReceiver)
+        public static LanguageClientOptions WithReceiver(
+            this LanguageClientOptions options,
+            ILspClientReceiver serverReceiver
+        )
         {
             options.Receiver = serverReceiver;
             return options;
@@ -58,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public static LanguageClientOptions WithWorkspaceFolder(this LanguageClientOptions options, DocumentUri documentUri, string name)
         {
-            options.Services.AddSingleton(new WorkspaceFolder() { Name = name, Uri = documentUri});
+            options.Services.AddSingleton(new WorkspaceFolder { Name = name, Uri = documentUri });
             return options;
         }
 
@@ -68,8 +63,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions WithInitializationOptions(this LanguageClientOptions options,
-            object initializationOptions)
+        public static LanguageClientOptions WithInitializationOptions(
+            this LanguageClientOptions options,
+            object initializationOptions
+        )
         {
             options.InitializationOptions = initializationOptions;
             return options;
@@ -82,6 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             {
                 options.Services.AddSingleton(item);
             }
+
             return options;
         }
 
@@ -110,8 +108,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions ConfigureLogging(this LanguageClientOptions options,
-            Action<ILoggingBuilder> builderAction)
+        public static LanguageClientOptions ConfigureLogging(
+            this LanguageClientOptions options,
+            Action<ILoggingBuilder> builderAction
+        )
         {
             options.LoggingBuilderAction = builderAction;
             return options;
@@ -123,8 +123,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
-        public static LanguageClientOptions ConfigureConfiguration(this LanguageClientOptions options,
-            Action<IConfigurationBuilder> builderAction)
+        public static LanguageClientOptions ConfigureConfiguration(
+            this LanguageClientOptions options,
+            Action<IConfigurationBuilder> builderAction
+        )
         {
             options.ConfigurationBuilderAction = builderAction;
             return options;

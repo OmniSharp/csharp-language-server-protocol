@@ -15,14 +15,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public long TabSize
         {
-            get
-            {
-                return this["tabSize"].IsLong ? this["tabSize"].Long : -1;
-            }
-            set
-            {
-                this["tabSize"] = value;
-            }
+            get => this["tabSize"].IsLong ? this["tabSize"].Long : -1;
+            set => this["tabSize"] = value;
         }
 
         /// <summary>
@@ -31,14 +25,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool InsertSpaces
         {
-            get
-            {
-                return this["insertSpaces"].IsBool ? this["insertSpaces"].Bool : false;
-            }
-            set
-            {
-                this["insertSpaces"] = value;
-            }
+            get => this["insertSpaces"].IsBool ? this["insertSpaces"].Bool : false;
+            set => this["insertSpaces"] = value;
         }
 
         /// <summary>
@@ -49,14 +37,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool TrimTrailingWhitespace
         {
-            get
-            {
-                return this["trimTrailingWhitespace"].IsBool ? this["trimTrailingWhitespace"].Bool : false;
-            }
-            set
-            {
-                this["trimTrailingWhitespace"] = value;
-            }
+            get => this["trimTrailingWhitespace"].IsBool ? this["trimTrailingWhitespace"].Bool : false;
+            set => this["trimTrailingWhitespace"] = value;
         }
 
         /// <summary>
@@ -67,14 +49,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool InsertFinalNewline
         {
-            get
-            {
-                return this["insertFinalNewline"].IsBool ? this["insertFinalNewline"].Bool : false;
-            }
-            set
-            {
-                this["insertFinalNewline"] = value;
-            }
+            get => this["insertFinalNewline"].IsBool ? this["insertFinalNewline"].Bool : false;
+            set => this["insertFinalNewline"] = value;
         }
 
         /// <summary>
@@ -85,14 +61,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool TrimFinalNewlines
         {
-            get
-            {
-                return this["trimFinalNewlines"].IsBool ? this["trimFinalNewlines"].Bool : false;
-            }
-            set
-            {
-                this["trimFinalNewlines"] = value;
-            }
+            get => this["trimFinalNewlines"].IsBool ? this["trimFinalNewlines"].Bool : false;
+            set => this["trimFinalNewlines"] = value;
         }
     }
 }

@@ -13,7 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
     }
 
-    public interface ICanBeResolvedHandler {
+    public interface ICanBeResolvedHandler
+    {
     }
 
     public interface ICanBeIdentifiedHandler

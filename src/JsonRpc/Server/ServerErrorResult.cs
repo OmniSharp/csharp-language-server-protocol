@@ -12,6 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
             Message = message;
             Data = data;
         }
+
         public ServerErrorResult(int code, string message)
         {
             Code = code;
@@ -21,6 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public int Code { get; set; }
         public string Message { get; set; }
+
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
         public JToken Data { get; set; }
     }

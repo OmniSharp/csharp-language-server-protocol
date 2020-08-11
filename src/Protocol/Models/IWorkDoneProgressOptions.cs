@@ -4,7 +4,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     public interface IWorkDoneProgressOptions
     {
-        [Optional]
-        bool WorkDoneProgress { get; set; }
+        [Optional] bool WorkDoneProgress { get; set; }
     }
 }

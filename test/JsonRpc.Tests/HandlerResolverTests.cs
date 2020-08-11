@@ -12,21 +12,37 @@ namespace JsonRpc.Tests
 {
     public class HandlerResolverTests
     {
-        public class Request : IRequest, IRequest<Response> { }
-        public class Response { }
-        public class Notification : IRequest { }
+        public class Request : IRequest, IRequest<Response>
+        {
+        }
+
+        public class Response
+        {
+        }
+
+        public class Notification : IRequest
+        {
+        }
 
         [Method("request")]
-        public interface IJsonRpcRequestHandler : IJsonRpcRequestHandler<Request> { }
+        public interface IJsonRpcRequestHandler : IJsonRpcRequestHandler<Request>
+        {
+        }
 
         [Method("requestresponse")]
-        public interface IJsonRpcRequestResponseHandler : IJsonRpcRequestHandler<Request, Response> { }
+        public interface IJsonRpcRequestResponseHandler : IJsonRpcRequestHandler<Request, Response>
+        {
+        }
 
         [Method("notificationdata")]
-        public interface IJsonRpcNotificationDataHandler : IJsonRpcNotificationHandler<Notification> { }
+        public interface IJsonRpcNotificationDataHandler : IJsonRpcNotificationHandler<Notification>
+        {
+        }
 
         [Method("notification")]
-        public interface IInlineJsonRpcNotificationHandler : IJsonRpcNotificationHandler { }
+        public interface IInlineJsonRpcNotificationHandler : IJsonRpcNotificationHandler
+        {
+        }
 
         [Theory]
         [InlineData(typeof(IJsonRpcRequestHandler), "request")]
@@ -36,7 +52,7 @@ namespace JsonRpc.Tests
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key)
         {
             var handler = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) {
-                (IJsonRpcHandler) Substitute.For(new Type[] {requestHandler}, new object[0])
+                (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0])
             };
             handler.Should().Contain(x => x.Method == key);
         }
@@ -49,7 +65,7 @@ namespace JsonRpc.Tests
         public void Should_Have_CorrectParams(Type requestHandler, string key, Type expected)
         {
             var handler = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) {
-                (IJsonRpcHandler) Substitute.For(new Type[] {requestHandler}, new object[0])
+                (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0])
             };
             handler.First(x => x.Method == key).Params.Should().IsSameOrEqualTo(expected);
         }

@@ -5,12 +5,9 @@ using Newtonsoft.Json.Serialization;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
 {
-    class ContractResolver : DefaultContractResolver
+    internal class ContractResolver : DefaultContractResolver
     {
-        public ContractResolver()
-        {
-            NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
-        }
+        public ContractResolver() => NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
 
         protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
         {

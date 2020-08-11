@@ -42,20 +42,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
             }
 
-            return (newResults, hasResponse);
+            return ( newResults, hasResponse );
         }
 
-        public void Initialized()
-        {
-            _initialized = true;
-        }
+        public void Initialized() => _initialized = true;
 
         public override bool ShouldFilterOutput(object value)
         {
             if (_initialized) return true;
             return value is OutgoingResponse ||
-                   (value is OutgoingNotification n && (n.Params is LogMessageParams || n.Params is ShowMessageParams || n.Params is TelemetryEventParams)) ||
-                   (value is OutgoingRequest r && r.Params is ShowMessageRequestParams);
+                   value is OutgoingNotification n && ( n.Params is LogMessageParams || n.Params is ShowMessageParams || n.Params is TelemetryEventParams ) ||
+                   value is OutgoingRequest r && r.Params is ShowMessageRequestParams;
         }
     }
 }

@@ -8,15 +8,15 @@ namespace Lsp.Tests.Models
 {
     public class CompletionItemTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItem()
-            {
+            var model = new CompletionItem {
                 Kind = CompletionItemKind.Text,
                 CommitCharacters = new[] { ";", "/", "." },
                 AdditionalTextEdits = new[] {
-                    new TextEdit() {
+                    new TextEdit {
                         NewText = "new text"
                     }
                 }

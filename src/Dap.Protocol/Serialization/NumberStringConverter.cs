@@ -4,7 +4,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
 {
-    class NumberStringConverter : JsonConverter<NumberString>
+    internal class NumberStringConverter : JsonConverter<NumberString>
     {
         public override void WriteJson(JsonWriter writer, NumberString value, JsonSerializer serializer)
         {
@@ -17,12 +17,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Serialization
         {
             if (reader.TokenType == JsonToken.Integer)
             {
-                return new NumberString((long)reader.Value);
+                return new NumberString((long) reader.Value);
             }
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new NumberString((string)reader.Value);
+                return new NumberString((string) reader.Value);
             }
 
             return new NumberString();

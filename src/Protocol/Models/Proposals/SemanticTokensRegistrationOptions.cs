@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -12,19 +8,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     public class SemanticTokensRegistrationOptions : StaticWorkDoneTextDocumentRegistrationOptions, ISemanticTokensOptions
     {
         /// <summary>
-        ///  The legend used by the server
+        /// The legend used by the server
         /// </summary>
         public SemanticTokensLegend Legend { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a specific range
-        ///  of a document.
+        /// Server supports providing semantic tokens for a specific range
+        /// of a document.
         /// </summary>
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a full document.
+        /// Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }

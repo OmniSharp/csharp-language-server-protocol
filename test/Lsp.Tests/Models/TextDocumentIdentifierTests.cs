@@ -10,7 +10,8 @@ namespace Lsp.Tests.Models
 {
     public class TextDocumentIdentifierTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
             var model = new TextDocumentIdentifier(new Uri("file:///abc/123/d.cs"));
@@ -26,11 +27,17 @@ namespace Lsp.Tests.Models
         public void Should_Deserialize_For_Example_Value()
         {
             var serializer = new Serializer(ClientVersion.Lsp3);
-            var result = serializer.DeserializeObject<TextDocumentIdentifier>(@"{
+            var result = serializer.DeserializeObject<TextDocumentIdentifier>(
+                @"{
                 ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""
-            }");
+            }"
+            );
 
-            result.Uri.Should().Be(DocumentUri.Parse("file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1"));
+            result.Uri.Should().Be(
+                DocumentUri.Parse(
+                    "file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1"
+                )
+            );
         }
     }
 }

@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class DiagnosticCodeConverter : JsonConverter<DiagnosticCode>
+    internal class DiagnosticCodeConverter : JsonConverter<DiagnosticCode>
     {
         public override void WriteJson(JsonWriter writer, DiagnosticCode value, JsonSerializer serializer)
         {
@@ -12,8 +12,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsString) serializer.Serialize(writer, value.String);
         }
 
-        public override DiagnosticCode ReadJson(JsonReader reader, Type objectType, DiagnosticCode existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override DiagnosticCode ReadJson(
+            JsonReader reader, Type objectType, DiagnosticCode existingValue,
+            bool hasExistingValue, JsonSerializer serializer
+        )
         {
             if (reader.TokenType == JsonToken.String)
             {

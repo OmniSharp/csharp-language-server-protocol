@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public JArray Arguments { get; set; }
 
         private string DebuggerDisplay =>
-            $"{Title}{(string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}")}{(Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))))}";
+            $"{Title}{( string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}" )}{( Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))) )}";
 
         public override string ToString() => DebuggerDisplay;
 
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return this;
         }
 
-        public static Command Create(string name, params object[] args) => new Command() {
+        public static Command Create(string name, params object[] args) => new Command {
             Name = name,
             Arguments = JArray.FromObject(args)
         };

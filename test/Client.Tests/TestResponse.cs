@@ -1,12 +1,12 @@
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
-    ///     A test response.
+    /// A test response.
     /// </summary>
-    class TestResponse
+    internal class TestResponse
     {
         /// <summary>
-        ///     A test value for the response.
+        /// A test value for the response.
         /// </summary>
         public string Value { get; set; }
     }

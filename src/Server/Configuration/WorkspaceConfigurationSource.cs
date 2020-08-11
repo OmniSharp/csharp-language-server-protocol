@@ -4,14 +4,11 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class WorkspaceConfigurationSource : IConfigurationSource
+    internal class WorkspaceConfigurationSource : IConfigurationSource
     {
-        private WorkspaceConfigurationProvider _provider;
+        private readonly WorkspaceConfigurationProvider _provider;
 
-        public WorkspaceConfigurationSource(IEnumerable<(string key, JToken settings)> configuration)
-        {
-            _provider = new WorkspaceConfigurationProvider(configuration);
-        }
+        public WorkspaceConfigurationSource(IEnumerable<(string key, JToken settings)> configuration) => _provider = new WorkspaceConfigurationProvider(configuration);
 
         public IConfigurationProvider Build(IConfigurationBuilder builder) => _provider;
 

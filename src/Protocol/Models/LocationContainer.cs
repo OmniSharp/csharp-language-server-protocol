@@ -18,19 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator LocationContainer(Location[] items)
-        {
-            return new LocationContainer(items);
-        }
+        public static implicit operator LocationContainer(Location[] items) => new LocationContainer(items);
 
-        public static implicit operator LocationContainer(Collection<Location> items)
-        {
-            return new LocationContainer(items);
-        }
+        public static implicit operator LocationContainer(Collection<Location> items) => new LocationContainer(items);
 
-        public static implicit operator LocationContainer(List<Location> items)
-        {
-            return new LocationContainer(items);
-        }
+        public static implicit operator LocationContainer(List<Location> items) => new LocationContainer(items);
     }
 }

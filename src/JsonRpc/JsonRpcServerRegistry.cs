@@ -1,8 +1,6 @@
-﻿using System;
-
-namespace OmniSharp.Extensions.JsonRpc
+﻿namespace OmniSharp.Extensions.JsonRpc
 {
-    class JsonRpcServerRegistry : InterimJsonRpcServerRegistry<IJsonRpcServerRegistry>, IJsonRpcServerRegistry
+    internal class JsonRpcServerRegistry : InterimJsonRpcServerRegistry<IJsonRpcServerRegistry>, IJsonRpcServerRegistry
     {
         public JsonRpcServerRegistry(CompositeHandlersManager handlersManager) : base(handlersManager)
         {

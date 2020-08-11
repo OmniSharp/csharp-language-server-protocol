@@ -19,5 +19,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         [Optional]
         public SteppingGranularity Granularity { get; set; }
     }
-
 }

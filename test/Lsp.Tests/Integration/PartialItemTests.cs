@@ -31,9 +31,11 @@ namespace Lsp.Tests.Integration
         public async Task Should_Behave_Like_A_Task()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
-            var result = await client.TextDocument.RequestCodeLens(new CodeLensParams() {
-                TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-            }, CancellationToken);
+            var result = await client.TextDocument.RequestCodeLens(
+                new CodeLensParams {
+                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                }, CancellationToken
+            );
 
             result.Should().HaveCount(3);
             result.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
@@ -45,9 +47,11 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
 
             var items = new List<CodeLens>();
-            await client.TextDocument.RequestCodeLens(new CodeLensParams() {
-                TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-            }, CancellationToken).ForEachAsync(x => items.AddRange(x));
+            await client.TextDocument.RequestCodeLens(
+                new CodeLensParams {
+                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                }, CancellationToken
+            ).ForEachAsync(x => items.AddRange(x));
 
             items.Should().HaveCount(3);
             items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
@@ -58,9 +62,11 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
 
-            var response = await client.SendRequest(new CodeLensParams() {
-                TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-            }, CancellationToken);
+            var response = await client.SendRequest(
+                new CodeLensParams {
+                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                }, CancellationToken
+            );
 
             response.Should().HaveCount(3);
             response.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
@@ -74,11 +80,11 @@ namespace Lsp.Tests.Integration
             var items = new List<CodeLens>();
             var work = new List<WorkDoneProgress>();
             client.TextDocument
-                .ObserveWorkDone(
-                    new CodeLensParams() {TextDocument = new TextDocumentIdentifier(@"c:\test.cs")},
-                    (client, request) => CodeLensExtensions.RequestCodeLens(client, request, CancellationToken),
-                    Observer.Create<WorkDoneProgress>(z => work.Add(z))
-                ).Subscribe(x => items.AddRange(x));
+                  .ObserveWorkDone(
+                       new CodeLensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") },
+                       (client, request) => client.RequestCodeLens(request, CancellationToken),
+                       Observer.Create<WorkDoneProgress>(z => work.Add(z))
+                   ).Subscribe(x => items.AddRange(x));
 
             await Task.Delay(1000);
 
@@ -92,45 +98,45 @@ namespace Lsp.Tests.Integration
 
         private void ConfigureClient(LanguageClientOptions options)
         {
-
         }
 
-        private void ConfigureServerWithDelegateCodeLens(LanguageServerOptions options)
-        {
-            options.OnCodeLens((@params, observer, capability, cancellationToken) => {
-                observer.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 1"
+        private void ConfigureServerWithDelegateCodeLens(LanguageServerOptions options) =>
+            options.OnCodeLens(
+                (@params, observer, capability, cancellationToken) => {
+                    observer.OnNext(
+                        new[] {
+                            new CodeLens {
+                                Command = new Command {
+                                    Name = "CodeLens 1"
+                                }
+                            },
                         }
-                    },
-                });
-                observer.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 2"
+                    );
+                    observer.OnNext(
+                        new[] {
+                            new CodeLens {
+                                Command = new Command {
+                                    Name = "CodeLens 2"
+                                }
+                            },
                         }
-                    },
-                });
-                observer.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 3"
+                    );
+                    observer.OnNext(
+                        new[] {
+                            new CodeLens {
+                                Command = new Command {
+                                    Name = "CodeLens 3"
+                                }
+                            },
                         }
-                    },
-                });
-                observer.OnCompleted();
-            }, new CodeLensRegistrationOptions() {
-                // DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
-            });
-        }
+                    );
+                    observer.OnCompleted();
+                }, new CodeLensRegistrationOptions()
+            );
 
-        private void ConfigureServerWithClassCodeLens(LanguageServerOptions options)
-        {
-            options.AddHandler<InnerCodeLensHandler>();
-        }
+        private void ConfigureServerWithClassCodeLens(LanguageServerOptions options) => options.AddHandler<InnerCodeLensHandler>();
 
-        class InnerCodeLensHandler : CodeLensHandler
+        private class InnerCodeLensHandler : CodeLensHandler
         {
             private readonly IServerWorkDoneManager _workDoneManager;
             private readonly IProgressManager _progressManager;
@@ -144,63 +150,80 @@ namespace Lsp.Tests.Integration
             public override async Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken)
             {
                 var partial = _progressManager.For(request, cancellationToken);
-                var workDone = _workDoneManager.For(request, new WorkDoneProgressBegin() {
+                var workDone = _workDoneManager.For(
+                    request, new WorkDoneProgressBegin {
+                        Cancellable = true,
+                        Message = "Begin",
+                        Percentage = 0,
+                        Title = "Work is pending"
+                    }, onComplete: () => new WorkDoneProgressEnd {
+                        Message = "End"
+                    }
+                );
 
-                    Cancellable = true,
-                    Message = "Begin",
-                    Percentage = 0,
-                    Title = "Work is pending"
-                }, onComplete: () => new WorkDoneProgressEnd() {
-                    Message = "End"
-                });
+                partial.OnNext(
+                    new[] {
+                        new CodeLens {
+                            Command = new Command {
+                                Name = "CodeLens 1"
+                            }
+                        },
+                    }
+                );
+                workDone.OnNext(
+                    new WorkDoneProgressReport {
+                        Percentage = 10,
+                        Message = "Report 1"
+                    }
+                );
 
-                partial.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 1"
-                        }
-                    },
-                });
-                workDone.OnNext(new WorkDoneProgressReport() {
-                    Percentage = 10,
-                    Message = "Report 1"
-                });
+                partial.OnNext(
+                    new[] {
+                        new CodeLens {
+                            Command = new Command {
+                                Name = "CodeLens 2"
+                            }
+                        },
+                    }
+                );
+                workDone.OnNext(
+                    new WorkDoneProgressReport {
+                        Percentage = 20,
+                        Message = "Report 2"
+                    }
+                );
 
-                partial.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 2"
-                        }
-                    },
-                });
-                workDone.OnNext(new WorkDoneProgressReport() {
-                    Percentage = 20,
-                    Message = "Report 2"
-                });
+                partial.OnNext(
+                    new[] {
+                        new CodeLens {
+                            Command = new Command {
+                                Name = "CodeLens 3"
+                            }
+                        },
+                    }
+                );
+                workDone.OnNext(
+                    new WorkDoneProgressReport {
+                        Percentage = 30,
+                        Message = "Report 3"
+                    }
+                );
 
-                partial.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 3"
-                        }
-                    },
-                });
-                workDone.OnNext(new WorkDoneProgressReport() {
-                    Percentage = 30,
-                    Message = "Report 3"
-                });
-
-                partial.OnNext(new [] {
-                    new CodeLens() {
-                        Command = new Command() {
-                            Name = "CodeLens 4"
-                        }
-                    },
-                });
-                workDone.OnNext(new WorkDoneProgressReport() {
-                    Percentage = 40,
-                    Message = "Report 4"
-                });
+                partial.OnNext(
+                    new[] {
+                        new CodeLens {
+                            Command = new Command {
+                                Name = "CodeLens 4"
+                            }
+                        },
+                    }
+                );
+                workDone.OnNext(
+                    new WorkDoneProgressReport {
+                        Percentage = 40,
+                        Message = "Report 4"
+                    }
+                );
 
                 workDone.OnCompleted();
 
@@ -211,6 +234,5 @@ namespace Lsp.Tests.Integration
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
         }
-
     }
 }

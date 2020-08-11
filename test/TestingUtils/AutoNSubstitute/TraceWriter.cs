@@ -9,10 +9,7 @@ namespace NSubstitute
     {
         private readonly ILogger _logger;
 
-        public TraceWriter(ILogger logger)
-        {
-            _logger = logger;
-        }
+        public TraceWriter(ILogger logger) => _logger = logger;
 
         public void AddSingle(string trace) => _logger.LogInformation(trace);
 

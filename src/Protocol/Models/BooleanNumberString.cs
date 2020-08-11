@@ -16,12 +16,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _string = null;
             _bool = null;
         }
+
         public BooleanNumberString(string value)
         {
             _long = null;
             _string = value;
             _bool = null;
         }
+
         public BooleanNumberString(bool value)
         {
             _long = null;
@@ -30,11 +32,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsLong => _long.HasValue;
+
         public long Long
         {
             get => _long ?? 0;
-            set
-            {
+            set {
                 String = null;
                 _long = value;
                 _bool = null;
@@ -42,11 +44,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsString => _string != null;
+
         public string String
         {
             get => _string;
-            set
-            {
+            set {
                 _string = value;
                 _long = null;
                 _bool = null;
@@ -54,30 +56,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsBool => _bool.HasValue;
+
         public bool Bool
         {
             get => _bool.HasValue && _bool.Value;
-            set
-            {
+            set {
                 String = null;
                 _long = null;
                 _bool = value;
             }
         }
 
-        public static implicit operator BooleanNumberString(long value)
-        {
-            return new BooleanNumberString(value);
-        }
+        public static implicit operator BooleanNumberString(long value) => new BooleanNumberString(value);
 
-        public static implicit operator BooleanNumberString(string value)
-        {
-            return new BooleanNumberString(value);
-        }
+        public static implicit operator BooleanNumberString(string value) => new BooleanNumberString(value);
 
-        public static implicit operator BooleanNumberString(bool value)
-        {
-            return new BooleanNumberString(value);
-        }
+        public static implicit operator BooleanNumberString(bool value) => new BooleanNumberString(value);
     }
 }

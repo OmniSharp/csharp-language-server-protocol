@@ -2,5 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class DefinitionCapability : LinkSupportCapability, ConnectedCapability<IDefinitionHandler> { }
+    public class DefinitionCapability : LinkSupportCapability, ConnectedCapability<IDefinitionHandler>
+    {
+    }
 }

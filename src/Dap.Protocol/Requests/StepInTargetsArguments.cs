@@ -11,5 +11,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         public long FrameId { get; set; }
     }
-
 }

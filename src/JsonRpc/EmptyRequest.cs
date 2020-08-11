@@ -4,7 +4,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class EmptyRequest : IRequest
     {
-        private EmptyRequest() { }
+        private EmptyRequest()
+        {
+        }
+
         public static EmptyRequest Instance { get; } = new EmptyRequest();
     }
 }

@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal static class TimeLoggerExtensions
     {
-        class Disposable : IDisposable
+        private class Disposable : IDisposable
         {
             private readonly IDisposable _disposable;
             private readonly Action<long> _action;
@@ -40,11 +40,12 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             var scope = logger.BeginScope(new { });
             logger.LogTrace($"Starting: {message}", args);
-            return new Disposable(scope, elapsed =>
-            {
-                var a = args.Concat(new object[] { elapsed }).ToArray();
-                logger.LogTrace($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
-            });
+            return new Disposable(
+                scope, elapsed => {
+                    var a = args.Concat(new object[] { elapsed }).ToArray();
+                    logger.LogTrace($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
+                }
+            );
         }
 
         /// <summary>
@@ -58,11 +59,12 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             var scope = logger.BeginScope(new { });
             logger.LogDebug($"Starting: {message}", args);
-            return new Disposable(scope, elapsed =>
-            {
-                var a = args.Concat(new object[] { elapsed }).ToArray();
-                logger.LogDebug($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
-            });
+            return new Disposable(
+                scope, elapsed => {
+                    var a = args.Concat(new object[] { elapsed }).ToArray();
+                    logger.LogDebug($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
+                }
+            );
         }
 
         /// <summary>
@@ -76,11 +78,12 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             var scope = logger.BeginScope(new { });
             logger.LogInformation($"Starting: {message}", args);
-            return new Disposable(scope, elapsed =>
-            {
-                var a = args.Concat(new object[] { elapsed }).ToArray();
-                logger.LogInformation($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
-            });
+            return new Disposable(
+                scope, elapsed => {
+                    var a = args.Concat(new object[] { elapsed }).ToArray();
+                    logger.LogInformation($"Finished: {message} in {{ElapsedMilliseconds}}ms", a);
+                }
+            );
         }
     }
 }

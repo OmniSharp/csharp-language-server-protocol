@@ -11,8 +11,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     /// <summary>
     /// InitializeError
     /// </summary>
-    [Serial, Method(GeneralNames.Initialize, Direction.ClientToServer)]
-    [GenerateHandlerMethods(typeof(ILanguageServerRegistry), MethodName = "OnLanguageProtocolInitialize"), GenerateRequestMethods(typeof(ILanguageClient), MethodName = "RequestLanguageProtocolInitialize")]
+    [Serial]
+    [Method(GeneralNames.Initialize, Direction.ClientToServer)]
+    [GenerateHandlerMethods(typeof(ILanguageServerRegistry), MethodName = "OnLanguageProtocolInitialize")]
+    [GenerateRequestMethods(typeof(ILanguageClient), MethodName = "RequestLanguageProtocolInitialize")]
     public interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult>
     {
     }

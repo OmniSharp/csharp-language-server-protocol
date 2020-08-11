@@ -64,6 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public Container<DocumentSymbol> Children { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Name} {{ range: {Range}, selection: {SelectionRange}, detail: {Detail ?? string.Empty} }}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

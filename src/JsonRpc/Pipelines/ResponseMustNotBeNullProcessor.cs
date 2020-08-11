@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR.Pipeline;
 
 namespace OmniSharp.Extensions.JsonRpc.Pipelines
 {
-    public class ResponseMustNotBeNullProcessor<T, R> : MediatR.Pipeline.IRequestPostProcessor<T, R>
+    public class ResponseMustNotBeNullProcessor<T, R> : IRequestPostProcessor<T, R>
     {
         public Task Process(T request, R response, CancellationToken cancellationToken)
         {

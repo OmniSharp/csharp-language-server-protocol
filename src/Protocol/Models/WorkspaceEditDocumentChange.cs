@@ -50,24 +50,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public bool IsDeleteFile => DeleteFile != null;
         public DeleteFile DeleteFile { get; }
 
-        public static implicit operator WorkspaceEditDocumentChange(TextDocumentEdit textDocumentEdit)
-        {
-            return new WorkspaceEditDocumentChange(textDocumentEdit);
-        }
+        public static implicit operator WorkspaceEditDocumentChange(TextDocumentEdit textDocumentEdit) => new WorkspaceEditDocumentChange(textDocumentEdit);
 
-        public static implicit operator WorkspaceEditDocumentChange(CreateFile createFile)
-        {
-            return new WorkspaceEditDocumentChange(createFile);
-        }
+        public static implicit operator WorkspaceEditDocumentChange(CreateFile createFile) => new WorkspaceEditDocumentChange(createFile);
 
-        public static implicit operator WorkspaceEditDocumentChange(RenameFile renameFile)
-        {
-            return new WorkspaceEditDocumentChange(renameFile);
-        }
+        public static implicit operator WorkspaceEditDocumentChange(RenameFile renameFile) => new WorkspaceEditDocumentChange(renameFile);
 
-        public static implicit operator WorkspaceEditDocumentChange(DeleteFile deleteFile)
-        {
-            return new WorkspaceEditDocumentChange(deleteFile);
-        }
+        public static implicit operator WorkspaceEditDocumentChange(DeleteFile deleteFile) => new WorkspaceEditDocumentChange(deleteFile);
     }
 }

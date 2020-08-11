@@ -2,5 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class DocumentHighlightCapability : DynamicCapability, ConnectedCapability<IDocumentHighlightHandler> { }
+    public class DocumentHighlightCapability : DynamicCapability, ConnectedCapability<IDocumentHighlightHandler>
+    {
+    }
 }

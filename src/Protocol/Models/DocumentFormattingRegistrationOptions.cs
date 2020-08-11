@@ -1,4 +1,6 @@
 ﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class DocumentFormattingRegistrationOptions : WorkDoneTextDocumentRegistrationOptions, IDocumentFormattingOptions { }
+    public class DocumentFormattingRegistrationOptions : WorkDoneTextDocumentRegistrationOptions, IDocumentFormattingOptions
+    {
+    }
 }

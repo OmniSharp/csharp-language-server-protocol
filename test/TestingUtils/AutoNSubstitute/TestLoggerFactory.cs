@@ -13,23 +13,25 @@ namespace NSubstitute
     {
         private readonly SerilogLoggerProvider _loggerProvider;
 
-        public TestLoggerFactory(ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}", LogEventLevel logEventLevel = LogEventLevel.Debug)
-        {
+        public TestLoggerFactory(
+            ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}",
+            LogEventLevel logEventLevel = LogEventLevel.Debug
+        ) =>
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()
-                    .MinimumLevel.Is(logEventLevel)
-                    .WriteTo.TestOutput(testOutputHelper)
-                    .CreateLogger()
+                   .MinimumLevel.Is(logEventLevel)
+                   .WriteTo.TestOutput(testOutputHelper)
+                   .CreateLogger()
             );
-        }
 
-        ILogger ILoggerFactory.CreateLogger(string categoryName)
+        ILogger ILoggerFactory.CreateLogger(string categoryName) => _loggerProvider.CreateLogger(categoryName);
+
+        void ILoggerFactory.AddProvider(ILoggerProvider provider)
         {
-            return _loggerProvider.CreateLogger(categoryName);
         }
 
-        void ILoggerFactory.AddProvider(ILoggerProvider provider) { }
-
-        void IDisposable.Dispose() { }
+        void IDisposable.Dispose()
+        {
+        }
     }
 }

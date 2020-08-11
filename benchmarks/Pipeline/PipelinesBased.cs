@@ -23,10 +23,10 @@ namespace Pipeline
 
 
         public static readonly byte[] HeadersFinished =
-            new byte[] {(byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n'}.ToArray();
+            new[] { (byte) '\r', (byte) '\n', (byte) '\r', (byte) '\n' }.ToArray();
 
         public const int HeadersFinishedLength = 4;
-        public static readonly char[] HeaderKeys = {'\r', '\n', ':'};
+        public static readonly char[] HeaderKeys = { '\r', '\n', ':' };
         public const short MinBuffer = 21; // Minimum size of the buffer "Content-Length: X\r\n\r\n"
         public static readonly byte[] ContentLength = "Content-Length".Select(x => (byte) x).ToArray();
         public static readonly int ContentLengthLength = 14;
@@ -75,7 +75,7 @@ namespace Pipeline
             return false;
         }
 
-        static bool IsEqual(in Span<byte> headers, in byte[] bytes)
+        private static bool IsEqual(in Span<byte> headers, in byte[] bytes)
         {
             var isEqual = true;
             var len = bytes.Length;
@@ -89,8 +89,10 @@ namespace Pipeline
             return isEqual;
         }
 
-        private bool TryParseBodyString(in long length, ref ReadOnlySequence<byte> buffer,
-            out ReadOnlySequence<byte> line)
+        private bool TryParseBodyString(
+            in long length, ref ReadOnlySequence<byte> buffer,
+            out ReadOnlySequence<byte> line
+        )
         {
             if (buffer.Length < length)
             {
@@ -104,7 +106,7 @@ namespace Pipeline
             return true;
         }
 
-        bool TryParseContentLength(ref ReadOnlySequence<byte> buffer, out long length)
+        private bool TryParseContentLength(ref ReadOnlySequence<byte> buffer, out long length)
         {
             do
             {
@@ -123,7 +125,7 @@ namespace Pipeline
                     var position = buffer.GetPosition(1, colon.Value);
                     var offset = 1;
 
-                    while (buffer.TryGet(ref position, out var memory, true) && !memory.Span.IsEmpty)
+                    while (buffer.TryGet(ref position, out var memory) && !memory.Span.IsEmpty)
                     {
                         foreach (var t in memory.Span)
                         {
@@ -155,16 +157,15 @@ namespace Pipeline
                         for (var i = 0; i < lengthSlice.Length; i++) _contentLengthValueMemory.Span[i] = 0;
                         return true;
                     }
+
                     // Reset the array otherwise smaller numbers will be inflated;
                     for (var i = 0; i < lengthSlice.Length; i++) _contentLengthValueMemory.Span[i] = 0;
 
                     // _logger.LogError("Unable to get length from content length header...");
                     return false;
                 }
-                else
-                {
-                    buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte) '\n') ?? buffer.End));
-                }
+
+                buffer = buffer.Slice(buffer.GetPosition(1, buffer.PositionOf((byte) '\n') ?? buffer.End));
             } while (true);
         }
 

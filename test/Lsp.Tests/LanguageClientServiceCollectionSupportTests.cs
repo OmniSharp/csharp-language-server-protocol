@@ -18,10 +18,7 @@ namespace Lsp.Tests
     {
         private readonly ITestOutputHelper _testOutputHelper;
 
-        public LanguageClientServiceCollectionSupportTests(ITestOutputHelper testOutputHelper)
-        {
-            _testOutputHelper = testOutputHelper;
-        }
+        public LanguageClientServiceCollectionSupportTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
 
         [Fact]
         public void Inner_Services_Should_Override_Outer_Services()
@@ -29,17 +26,19 @@ namespace Lsp.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddLanguageClient(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(s => s.AddSingleton(new OutsideService("override")))
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddSingleton(new OutsideService("servername"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddLanguageClient(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(s => s.AddSingleton(new OutsideService("override")))
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddSingleton(new OutsideService("servername"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             using var server = services.GetRequiredService<LanguageClient>();
             server.GetRequiredService<OutsideService>().Value.Should().Be("override");
@@ -51,18 +50,21 @@ namespace Lsp.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddLanguageClient(options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .WithServices(services =>
-                            services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial})
-                        );
-                })
-                .AddSingleton(new OutsideService("servername"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddLanguageClient(
+                               options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .WithServices(
+                                           services =>
+                                               services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                       );
+                               }
+                           )
+                          .AddSingleton(new OutsideService("servername"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             using var server = services.GetRequiredService<LanguageClient>();
             server.HandlersManager.Descriptors.Should().Contain(z => z.Handler.GetType() == typeof(Handler));
@@ -74,23 +76,27 @@ namespace Lsp.Tests
             var cts = new CancellationTokenSource();
             cts.CancelAfter(TimeSpan.FromSeconds(30));
             var services = new ServiceCollection()
-                .AddLanguageClient("serial", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddLanguageClient("parallel", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
-                })
-                .AddSingleton(new OutsideService("outside"))
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddLanguageClient(
+                               "serial", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddLanguageClient(
+                               "parallel", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel });
+                               }
+                           )
+                          .AddSingleton(new OutsideService("outside"))
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             var resolver = services.GetRequiredService<LanguageClientResolver>();
             var serialServer = resolver.Get("serial").Should().NotBeNull().And.Subject;
@@ -108,63 +114,55 @@ namespace Lsp.Tests
             cts.CancelAfter(TimeSpan.FromSeconds(30));
 
             var services = new ServiceCollection()
-                .AddLanguageClient("serial", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Serial});
-                })
-                .AddLanguageClient("parallel", options => {
-                    var pipe = new Pipe();
-                    options
-                        .WithInput(pipe.Reader)
-                        .WithOutput(pipe.Writer)
-                        .AddHandler<Handler>(new JsonRpcHandlerOptions() {RequestProcessType = RequestProcessType.Parallel});
-                })
-                .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
-                .BuildServiceProvider();
+                          .AddLanguageClient(
+                               "serial", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial });
+                               }
+                           )
+                          .AddLanguageClient(
+                               "parallel", options => {
+                                   var pipe = new Pipe();
+                                   options
+                                      .WithInput(pipe.Reader)
+                                      .WithOutput(pipe.Writer)
+                                      .AddHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Parallel });
+                               }
+                           )
+                          .AddSingleton<ILoggerFactory>(new TestLoggerFactory(_testOutputHelper))
+                          .BuildServiceProvider();
 
             Action a = () => services.GetRequiredService<LanguageClient>();
             a.Should().Throw<NotSupportedException>();
         }
 
         [Method("outside")]
-        class Request : IRequest<Response>
+        private class Request : IRequest<Response>
         {
         }
 
-        class Response
+        private class Response
         {
             public string Value { get; }
 
-            public Response(string value)
-            {
-                Value = value;
-            }
+            public Response(string value) => Value = value;
         }
 
-        class Handler : IJsonRpcRequestHandler<Request, Response>
+        private class Handler : IJsonRpcRequestHandler<Request, Response>
         {
             private readonly OutsideService _outsideService;
 
-            public Handler(OutsideService outsideService)
-            {
-                _outsideService = outsideService;
-            }
+            public Handler(OutsideService outsideService) => _outsideService = outsideService;
 
-            public Task<Response> Handle(Request request, CancellationToken cancellationToken)
-            {
-                return Task.FromResult(new Response(_outsideService.Value));
-            }
+            public Task<Response> Handle(Request request, CancellationToken cancellationToken) => Task.FromResult(new Response(_outsideService.Value));
         }
 
-        class OutsideService
+        private class OutsideService
         {
-            public OutsideService(string value)
-            {
-                Value = value;
-            }
+            public OutsideService(string value) => Value = value;
 
             public string Value { get; }
         }

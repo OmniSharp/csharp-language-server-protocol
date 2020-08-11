@@ -6,10 +6,13 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
 {
-
-    [Parallel, Method(EventNames.Thread, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
-    public interface IThreadHandler : IJsonRpcNotificationHandler<ThreadEvent> { }
+    [Parallel]
+    [Method(EventNames.Thread, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
+    public interface IThreadHandler : IJsonRpcNotificationHandler<ThreadEvent>
+    {
+    }
 
     public abstract class ThreadHandler : IThreadHandler
     {

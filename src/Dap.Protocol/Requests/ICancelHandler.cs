@@ -9,8 +9,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     /// DAP is kind of silly....
     /// Cancellation is for requests and progress tokens... hopefully if isn't ever expanded any further... because that would be fun.
     /// </summary>
-    [Parallel, Method(RequestNames.Cancel, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
+    [Parallel]
+    [Method(RequestNames.Cancel, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
     public interface ICancelHandler : IJsonRpcRequestHandler<CancelArguments, CancelResponse>
     {
     }

@@ -16,14 +16,16 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.DocumentLink, Direction.ClientToServer)]
+    [Parallel]
+    [Method(TextDocumentNames.DocumentLink, Direction.ClientToServer)]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IDocumentLinkHandler : IJsonRpcRequestHandler<DocumentLinkParams, DocumentLinkContainer>,
-        IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability>
+                                            IRegistration<DocumentLinkRegistrationOptions>, ICapability<DocumentLinkCapability>
     {
     }
 
-    [Parallel, Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
+    [Parallel]
+    [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IDocumentLinkResolveHandler : ICanBeResolvedHandler<DocumentLink>, ICanBeIdentifiedHandler
     {
@@ -51,8 +53,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         AbstractHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>, IDocumentLinkHandler,
         IDocumentLinkResolveHandler
     {
-        protected PartialDocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, IProgressManager progressManager) : base(registrationOptions, progressManager,
-            lenses => new DocumentLinkContainer(lenses))
+        protected PartialDocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
+            registrationOptions, progressManager,
+            lenses => new DocumentLinkContainer(lenses)
+        )
         {
         }
 
@@ -64,10 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     {
         private readonly ISerializer _serializer;
 
-        public DocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, ISerializer serializer) : base(registrationOptions)
-        {
-            _serializer = serializer;
-        }
+        public DocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, ISerializer serializer) : base(registrationOptions) => _serializer = serializer;
 
 
         public sealed override async Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
@@ -92,10 +93,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         protected PartialDocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, IProgressManager progressManager, ISerializer serializer) : base(
             registrationOptions,
-            progressManager)
-        {
+            progressManager
+        ) =>
             _serializer = serializer;
-        }
 
         protected sealed override void Handle(DocumentLinkParams request, IObserver<IEnumerable<DocumentLink>> results, CancellationToken cancellationToken) => Handle(
             request,
@@ -103,7 +103,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 x => results.OnNext(x.Select(z => (DocumentLink) z)),
                 results.OnError,
                 results.OnCompleted
-            ), cancellationToken);
+            ), cancellationToken
+        );
 
         public sealed override async Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken)
         {
@@ -117,161 +118,199 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public static partial class DocumentLinkExtensions
     {
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer>> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, DocumentLinkCapability, CancellationToken, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (link, cap, token) => Task.FromResult(link);
             var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.DocumentLink,
-                        new LanguageProtocolDelegatingHandlers.Request<DocumentLinkParams, DocumentLinkContainer, DocumentLinkCapability,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+            return registry.AddHandler(
+                                TextDocumentNames.DocumentLink,
+                                new LanguageProtocolDelegatingHandlers.Request<DocumentLinkParams, DocumentLinkContainer, DocumentLinkCapability,
+                                    DocumentLinkRegistrationOptions>(
+                                    id,
+                                    handler,
+                                    registrationOptions
+                                )
+                            )
+                           .AddHandler(
+                                TextDocumentNames.DocumentLinkResolve,
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
+                                    id,
+                                    resolveHandler,
+                                    registrationOptions
+                                )
+                            )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (link, c, token) => Task.FromResult(link);
 
-            return registry.AddHandler(_ => new DelegatingDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<ISerializer>(),
-                handler,
-                resolveHandler)
+            return registry.AddHandler(
+                _ => new DelegatingDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<ISerializer>(),
+                    handler,
+                    resolveHandler
+                )
             );
         }
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer>> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (link, token) => Task.FromResult(link);
             var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.DocumentLink,
-                        new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+            return registry.AddHandler(
+                                TextDocumentNames.DocumentLink,
+                                new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
+                                    DocumentLinkRegistrationOptions>(
+                                    id,
+                                    handler,
+                                    registrationOptions
+                                )
+                            )
+                           .AddHandler(
+                                TextDocumentNames.DocumentLinkResolve,
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                                    id,
+                                    resolveHandler,
+                                    registrationOptions
+                                )
+                            )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (link, token) => Task.FromResult(link);
 
-            return registry.AddHandler(_ => new DelegatingDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<ISerializer>(),
-                (@params, capability, token) => handler(@params, token),
-                (lens, capability, token) => resolveHandler(lens, token))
+            return registry.AddHandler(
+                _ => new DelegatingDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<ISerializer>(),
+                    (@params, capability, token) => handler(@params, token),
+                    (lens, capability, token) => resolveHandler(lens, token)
+                )
             );
         }
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer>> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer>> handler,
             Func<DocumentLink, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= Task.FromResult;
             var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.DocumentLink,
-                        new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+            return registry.AddHandler(
+                                TextDocumentNames.DocumentLink,
+                                new LanguageProtocolDelegatingHandlers.RequestRegistration<DocumentLinkParams, DocumentLinkContainer,
+                                    DocumentLinkRegistrationOptions>(
+                                    id,
+                                    handler,
+                                    registrationOptions
+                                )
+                            )
+                           .AddHandler(
+                                TextDocumentNames.DocumentLinkResolve,
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                                    id,
+                                    resolveHandler,
+                                    registrationOptions
+                                )
+                            )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Func<DocumentLinkParams, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= Task.FromResult;
 
-            return registry.AddHandler(_ => new DelegatingDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<ISerializer>(),
-                (@params, capability, token) => handler(@params),
-                (lens, capability, token) => resolveHandler(lens))
+            return registry.AddHandler(
+                _ => new DelegatingDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<ISerializer>(),
+                    (@params, capability, token) => handler(@params),
+                    (lens, capability, token) => resolveHandler(lens)
+                )
             );
         }
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, DocumentLinkCapability, CancellationToken> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, DocumentLinkCapability, CancellationToken> handler,
             Func<DocumentLink, DocumentLinkCapability, CancellationToken, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -279,143 +318,177 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             var id = Guid.NewGuid();
 
             return
-                registry.AddHandler(TextDocumentNames.DocumentLink,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink, DocumentLinkCapability,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions,
-                            _.GetRequiredService<IProgressManager>(),
-                            x => new DocumentLinkContainer(x)))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+                registry.AddHandler(
+                             TextDocumentNames.DocumentLink,
+                             _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink, DocumentLinkCapability,
+                                 DocumentLinkRegistrationOptions>(
+                                 id,
+                                 handler,
+                                 registrationOptions,
+                                 _.GetRequiredService<IProgressManager>(),
+                                 x => new DocumentLinkContainer(x)
+                             )
+                         )
+                        .AddHandler(
+                             TextDocumentNames.DocumentLinkResolve,
+                             new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkCapability, DocumentLinkRegistrationOptions>(
+                                 id,
+                                 resolveHandler,
+                                 registrationOptions
+                             )
+                         )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (lens, capability, token) => Task.FromResult(lens);
 
-            return registry.AddHandler(_ => new DelegatingPartialDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<IProgressManager>(),
-                _.GetRequiredService<ISerializer>(),
-                handler,
-                resolveHandler)
+            return registry.AddHandler(
+                _ => new DelegatingPartialDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<IProgressManager>(),
+                    _.GetRequiredService<ISerializer>(),
+                    handler,
+                    resolveHandler
+                )
             );
         }
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, CancellationToken> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>, CancellationToken> handler,
             Func<DocumentLink, CancellationToken, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (lens, token) => Task.FromResult(lens);
             var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.DocumentLink,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions,
-                            _.GetRequiredService<IProgressManager>(),
-                            x => new DocumentLinkContainer(x)))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+            return registry.AddHandler(
+                                TextDocumentNames.DocumentLink,
+                                _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
+                                    DocumentLinkRegistrationOptions>(
+                                    id,
+                                    handler,
+                                    registrationOptions,
+                                    _.GetRequiredService<IProgressManager>(),
+                                    x => new DocumentLinkContainer(x)
+                                )
+                            )
+                           .AddHandler(
+                                TextDocumentNames.DocumentLinkResolve,
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                                    id,
+                                    resolveHandler,
+                                    registrationOptions
+                                )
+                            )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, CancellationToken> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= (lens, token) => Task.FromResult(lens);
 
-            return registry.AddHandler(_ => new DelegatingPartialDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<IProgressManager>(),
-                _.GetRequiredService<ISerializer>(),
-                (@params, observer, capability, token) => handler(@params, observer, token),
-                (lens, capability, token) => resolveHandler(lens, token))
+            return registry.AddHandler(
+                _ => new DelegatingPartialDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<IProgressManager>(),
+                    _.GetRequiredService<ISerializer>(),
+                    (@params, observer, capability, token) => handler(@params, observer, token),
+                    (lens, capability, token) => resolveHandler(lens, token)
+                )
             );
         }
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>> handler,
-            DocumentLinkRegistrationOptions registrationOptions)
-        {
-            return OnDocumentLink(registry, handler, null, registrationOptions);
-        }
+            DocumentLinkRegistrationOptions registrationOptions
+        ) =>
+            OnDocumentLink(registry, handler, null, registrationOptions);
 
-        public static ILanguageServerRegistry OnDocumentLink(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink>>> handler,
             Func<DocumentLink, Task<DocumentLink>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions)
+            DocumentLinkRegistrationOptions registrationOptions
+        )
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= Task.FromResult;
             var id = Guid.NewGuid();
 
-            return registry.AddHandler(TextDocumentNames.DocumentLink,
-                        _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
-                            DocumentLinkRegistrationOptions>(
-                            id,
-                            handler,
-                            registrationOptions,
-                            _.GetRequiredService<IProgressManager>(),
-                            x => new DocumentLinkContainer(x)))
-                    .AddHandler(TextDocumentNames.DocumentLinkResolve,
-                        new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
-                            id,
-                            resolveHandler,
-                            registrationOptions))
+            return registry.AddHandler(
+                                TextDocumentNames.DocumentLink,
+                                _ => new LanguageProtocolDelegatingHandlers.PartialResults<DocumentLinkParams, DocumentLinkContainer, DocumentLink,
+                                    DocumentLinkRegistrationOptions>(
+                                    id,
+                                    handler,
+                                    registrationOptions,
+                                    _.GetRequiredService<IProgressManager>(),
+                                    x => new DocumentLinkContainer(x)
+                                )
+                            )
+                           .AddHandler(
+                                TextDocumentNames.DocumentLinkResolve,
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<DocumentLink, DocumentLinkRegistrationOptions>(
+                                    id,
+                                    resolveHandler,
+                                    registrationOptions
+                                )
+                            )
                 ;
         }
 
-        public static ILanguageServerRegistry OnDocumentLink<T>(this ILanguageServerRegistry registry,
+        public static ILanguageServerRegistry OnDocumentLink<T>(
+            this ILanguageServerRegistry registry,
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>> resolveHandler,
-            DocumentLinkRegistrationOptions registrationOptions) where T : HandlerIdentity, new()
+            DocumentLinkRegistrationOptions registrationOptions
+        ) where T : HandlerIdentity, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
             resolveHandler ??= Task.FromResult;
 
-            return registry.AddHandler(_ => new DelegatingPartialDocumentLinkHandler<T>(
-                registrationOptions,
-                _.GetRequiredService<IProgressManager>(),
-                _.GetRequiredService<ISerializer>(),
-                (@params, observer, capability, token) => handler(@params, observer),
-                (lens, capability, token) => resolveHandler(lens))
+            return registry.AddHandler(
+                _ => new DelegatingPartialDocumentLinkHandler<T>(
+                    registrationOptions,
+                    _.GetRequiredService<IProgressManager>(),
+                    _.GetRequiredService<ISerializer>(),
+                    (@params, observer, capability, token) => handler(@params, observer),
+                    (lens, capability, token) => resolveHandler(lens)
+                )
             );
         }
 
-        class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
         {
             private readonly Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;
@@ -438,7 +511,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleResolve(request, Capability, cancellationToken);
         }
 
-        class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
         {
             private readonly Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;

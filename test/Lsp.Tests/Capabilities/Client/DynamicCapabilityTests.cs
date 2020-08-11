@@ -7,10 +7,11 @@ namespace Lsp.Tests.Capabilities.Client
 {
     public class DynamicCapabilityTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DynamicCapability() { DynamicRegistration = false };
+            var model = new DynamicCapability { DynamicRegistration = false };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

@@ -2,5 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class DocumentFormattingCapability : DynamicCapability, ConnectedCapability<IDocumentFormattingHandler> { }
+    public class DocumentFormattingCapability : DynamicCapability, ConnectedCapability<IDocumentFormattingHandler>
+    {
+    }
 }

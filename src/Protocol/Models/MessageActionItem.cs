@@ -6,11 +6,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class MessageActionItem
     {
         /// <summary>
-        ///  A short title like 'Retry', 'Open Log' etc.
+        /// A short title like 'Retry', 'Open Log' etc.
         /// </summary>
         public string Title { get; set; }
 
         private string DebuggerDisplay => Title;
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

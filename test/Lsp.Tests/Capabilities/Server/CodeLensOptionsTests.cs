@@ -8,10 +8,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class CodeLensOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CodeLensOptions() {
+            var model = new CodeLensOptions {
                 ResolveProvider = true,
             };
             var result = Fixture.SerializeObject(model);

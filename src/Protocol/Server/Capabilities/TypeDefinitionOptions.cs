@@ -6,12 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class TypeDefinitionOptions : StaticWorkDoneTextDocumentRegistrationOptions, ITypeDefinitionOptions
     {
-        public static TypeDefinitionOptions Of(ITypeDefinitionOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new TypeDefinitionOptions()
-            {
+        public static TypeDefinitionOptions Of(ITypeDefinitionOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new TypeDefinitionOptions {
                 WorkDoneProgress = options.WorkDoneProgress
             };
-        }
     }
 }

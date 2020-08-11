@@ -10,14 +10,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
     {
         private readonly ISerializer _serializer;
 
-        public DapRpcErrorConverter(ISerializer serializer)
-        {
-            _serializer = serializer;
-        }
+        public DapRpcErrorConverter(ISerializer serializer) => _serializer = serializer;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            if (!(value is RpcError error))
+            if (!( value is RpcError error ))
             {
                 throw new NotSupportedException($"{typeof(RpcError).FullName} was not found!");
             }
@@ -32,6 +29,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
                 writer.WritePropertyName("request_seq");
                 writer.WriteValue(error.Id);
             }
+
             writer.WritePropertyName("success");
             writer.WriteValue(false);
             writer.WritePropertyName("command");

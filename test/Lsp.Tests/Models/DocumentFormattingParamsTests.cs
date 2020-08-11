@@ -9,11 +9,12 @@ namespace Lsp.Tests.Models
 {
     public class DocumentFormattingParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentFormattingParams() {
-                Options = new FormattingOptions() {
+            var model = new DocumentFormattingParams {
+                Options = new FormattingOptions {
                     { "abc", 1 }
                 },
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc123.cs"))

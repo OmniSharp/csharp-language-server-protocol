@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class ApplyWorkspaceEditResponseTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ApplyWorkspaceEditResponse() {
+            var model = new ApplyWorkspaceEditResponse {
                 Applied = true,
             };
             var result = Fixture.SerializeObject(model);

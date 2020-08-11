@@ -16,25 +16,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     {
         private readonly AttributeData _attributeData;
 
-        public GenerateRequestMethodsGenerator(AttributeData attributeData)
-        {
-            _attributeData = attributeData;
-        }
+        public GenerateRequestMethodsGenerator(AttributeData attributeData) => _attributeData = attributeData;
 
-        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
-        {
+        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken) =>
             throw new NotImplementedException();
-        }
 
         public Task<RichGenerationResult> GenerateRichAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
         {
-            if (!(context.ProcessingNode is InterfaceDeclarationSyntax handlerInterface))
+            if (!( context.ProcessingNode is InterfaceDeclarationSyntax handlerInterface ))
             {
                 return Task.FromResult(new RichGenerationResult());
             }
 
             var methods = new List<MemberDeclarationSyntax>();
-            var additionalUsings = new HashSet<string>() {
+            var additionalUsings = new HashSet<string> {
                 "System",
                 "System.Collections.Generic",
                 "System.Threading",
@@ -50,8 +45,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             if (_attributeData.ConstructorArguments[0].Values.Length == 0 && !symbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
             {
-                progress.Report(Diagnostic.Create(GeneratorDiagnostics.NoResponseRouterProvided, handlerInterface.Identifier.GetLocation(), symbol.Name,
-                    string.Join(", ", registries.Select(z => z.ToFullString()))));
+                progress.Report(
+                    Diagnostic.Create(
+                        GeneratorDiagnostics.NoResponseRouterProvided, handlerInterface.Identifier.GetLocation(), symbol.Name,
+                        string.Join(", ", registries.Select(z => z.ToFullString()))
+                    )
+                );
             }
 
             foreach (var registry in registries)
@@ -71,42 +70,58 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
 
-            var attributes = List(new[] {
-                AttributeList(SeparatedList(new[] {
-                    Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                    Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
-                }))
-            });
+            var attributes = List(
+                new[] {
+                    AttributeList(
+                        SeparatedList(
+                            new[] {
+                                Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
+                                Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
+                            }
+                        )
+                    )
+                }
+            );
             if (symbol.GetAttributes().Any(z => z.AttributeClass.Name == "GenerateRequestMethodsAttribute"))
             {
                 attributes = List<AttributeListSyntax>();
             }
 
             var existingUsings = context.CompilationUnitUsings
-                    .Join(additionalUsings, z => z.Name.ToFullString(), z => z, (a, b) => b)
+                                        .Join(additionalUsings, z => z.Name.ToFullString(), z => z, (a, b) => b)
                 ;
 
             var newUsings = additionalUsings
-                    .Except(existingUsings)
-                    .Select(z => UsingDirective(IdentifierName(z)))
+                           .Except(existingUsings)
+                           .Select(z => UsingDirective(IdentifierName(z)))
                 ;
-            return Task.FromResult(new RichGenerationResult() {
-                Usings = List(newUsings),
-                Members = List<MemberDeclarationSyntax>(new[] {
-                    NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
-                        .WithMembers(List(new MemberDeclarationSyntax[] {
-                            ClassDeclaration(className)
-                                .WithAttributeLists(attributes)
-                                .WithModifiers(TokenList(
-                                    Token(SyntaxKind.PublicKeyword),
-                                    Token(SyntaxKind.StaticKeyword),
-                                    Token(SyntaxKind.PartialKeyword)
-                                ))
-                                .WithMembers(List(methods))
-                                .NormalizeWhitespace()
-                        }))
-                })
-            });
+            return Task.FromResult(
+                new RichGenerationResult {
+                    Usings = List(newUsings),
+                    Members = List<MemberDeclarationSyntax>(
+                        new[] {
+                            NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
+                               .WithMembers(
+                                    List(
+                                        new MemberDeclarationSyntax[] {
+                                            ClassDeclaration(className)
+                                               .WithAttributeLists(attributes)
+                                               .WithModifiers(
+                                                    TokenList(
+                                                        Token(SyntaxKind.PublicKeyword),
+                                                        Token(SyntaxKind.StaticKeyword),
+                                                        Token(SyntaxKind.PartialKeyword)
+                                                    )
+                                                )
+                                               .WithMembers(List(methods))
+                                               .NormalizeWhitespace()
+                                        }
+                                    )
+                                )
+                        }
+                    )
+                }
+            );
         }
 
         public static IEnumerable<NameSyntax> GetProxies(
@@ -115,12 +130,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             INamedTypeSymbol interfaceType,
             TransformationContext context,
             IProgress<Diagnostic> progress,
-            HashSet<string> additionalUsings)
+            HashSet<string> additionalUsings
+        )
         {
             if (attributeData.ConstructorArguments[0].Values.Length > 0)
             {
                 return attributeData.ConstructorArguments[0].Values.Select(z => z.Value).OfType<INamedTypeSymbol>()
-                    .Select(ResolveTypeName);
+                                    .Select(ResolveTypeName);
             }
 
             if (interfaceType.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.LanguageServer.Protocol"))
@@ -140,25 +156,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 ClientToServer = 0b0010,
                 Bidirectional = 0b0011
                  */
-                var maskedDirection = (0b0011 & direction);
+                var maskedDirection = 0b0011 & direction;
 
                 if (maskedDirection == 1)
                 {
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
-                    return new[] {LanguageProtocolServerToClient};
+                    return new[] { LanguageProtocolServerToClient };
                 }
 
                 if (maskedDirection == 2)
                 {
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
-                    return new[] {LanguageProtocolClientToServer};
+                    return new[] { LanguageProtocolClientToServer };
                 }
 
                 if (maskedDirection == 3)
                 {
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
-                    return new[] {LanguageProtocolClientToServer, LanguageProtocolServerToClient};
+                    return new[] { LanguageProtocolClientToServer, LanguageProtocolServerToClient };
                 }
             }
 
@@ -179,22 +195,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 ClientToServer = 0b0010,
                 Bidirectional = 0b0011
                  */
-                var maskedDirection = (0b0011 & direction);
+                var maskedDirection = 0b0011 & direction;
                 additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol");
 
                 if (maskedDirection == 1)
                 {
-                    return new[] {DebugProtocolServerToClient};
+                    return new[] { DebugProtocolServerToClient };
                 }
 
                 if (maskedDirection == 2)
                 {
-                    return new[] {DebugProtocolClientToServer};
+                    return new[] { DebugProtocolClientToServer };
                 }
 
                 if (maskedDirection == 3)
                 {
-                    return new[] {DebugProtocolClientToServer, DebugProtocolServerToClient};
+                    return new[] { DebugProtocolClientToServer, DebugProtocolServerToClient };
                 }
             }
 
@@ -213,80 +229,101 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static NameSyntax DebugProtocolClientToServer { get; } =
             ParseName("IDebugAdapterClient");
 
-        IEnumerable<MemberDeclarationSyntax> HandleNotifications(
+        private IEnumerable<MemberDeclarationSyntax> HandleNotifications(
             InterfaceDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
             NameSyntax registryType,
-            HashSet<string> additionalUsings)
+            HashSet<string> additionalUsings
+        )
         {
             var methodName = GetSendMethodName(interfaceType, _attributeData);
             var method = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), methodName)
-                .WithModifiers(TokenList(
-                    Token(SyntaxKind.PublicKeyword),
-                    Token(SyntaxKind.StaticKeyword))
-                )
-                .WithExpressionBody(GetNotificationInvokeExpression())
-                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithExpressionBody(GetNotificationInvokeExpression())
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             yield return method
-                .WithParameterList(
-                    ParameterList(SeparatedList(new[] {
-                        Parameter(Identifier("mediator"))
-                            .WithType(registryType)
-                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
-                        Parameter(Identifier("@params"))
-                            .WithType(IdentifierName(requestType.Name))
-                    })))
-                .NormalizeWhitespace();
+                        .WithParameterList(
+                             ParameterList(
+                                 SeparatedList(
+                                     new[] {
+                                         Parameter(Identifier("mediator"))
+                                            .WithType(registryType)
+                                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                                         Parameter(Identifier("@params"))
+                                            .WithType(IdentifierName(requestType.Name))
+                                     }
+                                 )
+                             )
+                         )
+                        .NormalizeWhitespace();
         }
 
-        IEnumerable<MemberDeclarationSyntax> HandleRequests(
+        private IEnumerable<MemberDeclarationSyntax> HandleRequests(
             InterfaceDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
             INamedTypeSymbol responseType,
             NameSyntax registryType,
-            HashSet<string> additionalUsings)
+            HashSet<string> additionalUsings
+        )
         {
             var methodName = GetSendMethodName(interfaceType, _attributeData);
-            var parameterList = ParameterList(SeparatedList(new[] {
-                Parameter(Identifier("mediator"))
-                    .WithType(registryType)
-                    .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
-                Parameter(Identifier("@params"))
-                    .WithType(IdentifierName(requestType.Name)),
-                Parameter(Identifier("cancellationToken"))
-                    .WithType(IdentifierName("CancellationToken"))
-                    .WithDefault(EqualsValueClause(
-                        LiteralExpression(SyntaxKind.DefaultLiteralExpression, Token(SyntaxKind.DefaultKeyword)))
-                    )
-            }));
+            var parameterList = ParameterList(
+                SeparatedList(
+                    new[] {
+                        Parameter(Identifier("mediator"))
+                           .WithType(registryType)
+                           .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                        Parameter(Identifier("@params"))
+                           .WithType(IdentifierName(requestType.Name)),
+                        Parameter(Identifier("cancellationToken"))
+                           .WithType(IdentifierName("CancellationToken"))
+                           .WithDefault(
+                                EqualsValueClause(
+                                    LiteralExpression(SyntaxKind.DefaultLiteralExpression, Token(SyntaxKind.DefaultKeyword))
+                                )
+                            )
+                    }
+                )
+            );
             var partialItem = GetPartialItem(requestType);
             if (partialItem != null)
             {
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
                 var partialTypeSyntax = ResolveTypeName(partialItem);
                 yield return MethodDeclaration(
-                        GenericName(
-                                Identifier("IRequestProgressObservable"))
-                            .WithTypeArgumentList(
-                                TypeArgumentList(
-                                    SeparatedList(
-                                        new TypeSyntax[] {
-                                            partialTypeSyntax,
-                                            ResolveTypeName(responseType)
-                                        }))),
-                        Identifier(methodName)
-                    )
-                    .WithModifiers(TokenList(
-                        Token(SyntaxKind.PublicKeyword),
-                        Token(SyntaxKind.StaticKeyword))
-                    )
-                    .WithParameterList(parameterList)
-                    .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
-                    .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                    .NormalizeWhitespace();
+                                 GenericName(
+                                         Identifier("IRequestProgressObservable")
+                                     )
+                                    .WithTypeArgumentList(
+                                         TypeArgumentList(
+                                             SeparatedList(
+                                                 new TypeSyntax[] {
+                                                     partialTypeSyntax,
+                                                     ResolveTypeName(responseType)
+                                                 }
+                                             )
+                                         )
+                                     ),
+                                 Identifier(methodName)
+                             )
+                            .WithModifiers(
+                                 TokenList(
+                                     Token(SyntaxKind.PublicKeyword),
+                                     Token(SyntaxKind.StaticKeyword)
+                                 )
+                             )
+                            .WithParameterList(parameterList)
+                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            .NormalizeWhitespace();
                 yield break;
             }
 
@@ -295,44 +332,52 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
                 var partialTypeSyntax = ResolveTypeName(partialItems);
-                var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] {partialTypeSyntax})));
+                var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { partialTypeSyntax })));
                 yield return MethodDeclaration(
-                            GenericName(
-                                    Identifier("IRequestProgressObservable"))
-                                .WithTypeArgumentList(
-                                    TypeArgumentList(
-                                        SeparatedList(
-                                            new TypeSyntax[] {
-                                                partialItemsSyntax,
-                                                ResolveTypeName(responseType)
-                                            }))),
-                            Identifier(methodName)
-                        )
-                        .WithModifiers(TokenList(
-                            Token(SyntaxKind.PublicKeyword),
-                            Token(SyntaxKind.StaticKeyword))
-                        )
-                        .WithParameterList(parameterList)
-                        .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
-                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                        .NormalizeWhitespace();
-                    ;
+                                 GenericName(
+                                         Identifier("IRequestProgressObservable")
+                                     )
+                                    .WithTypeArgumentList(
+                                         TypeArgumentList(
+                                             SeparatedList(
+                                                 new TypeSyntax[] {
+                                                     partialItemsSyntax,
+                                                     ResolveTypeName(responseType)
+                                                 }
+                                             )
+                                         )
+                                     ),
+                                 Identifier(methodName)
+                             )
+                            .WithModifiers(
+                                 TokenList(
+                                     Token(SyntaxKind.PublicKeyword),
+                                     Token(SyntaxKind.StaticKeyword)
+                                 )
+                             )
+                            .WithParameterList(parameterList)
+                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            .NormalizeWhitespace();
+                ;
                 yield break;
             }
 
 
             var responseSyntax = responseType.Name == "Unit"
                 ? IdentifierName("Task") as NameSyntax
-                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] {ResolveTypeName(responseType)})));
-            yield return  MethodDeclaration(responseSyntax, methodName)
-                .WithModifiers(TokenList(
-                    Token(SyntaxKind.PublicKeyword),
-                    Token(SyntaxKind.StaticKeyword))
-                )
-                .WithParameterList(parameterList)
-                .WithExpressionBody(GetRequestInvokeExpression())
-                .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                .NormalizeWhitespace();
+                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { ResolveTypeName(responseType) })));
+            yield return MethodDeclaration(responseSyntax, methodName)
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithParameterList(parameterList)
+                        .WithExpressionBody(GetRequestInvokeExpression())
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                        .NormalizeWhitespace();
         }
     }
 }

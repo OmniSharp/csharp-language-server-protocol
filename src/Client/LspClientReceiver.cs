@@ -32,23 +32,22 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     newResults.Add(item);
                 }
                 else if (item.IsNotification &&
-                         HandlerTypeDescriptorHelper.IsMethodName(item.Notification.Method,
+                         HandlerTypeDescriptorHelper.IsMethodName(
+                             item.Notification.Method,
                              typeof(IShowMessageHandler),
                              typeof(ILogMessageHandler),
-                             typeof(ITelemetryEventHandler))
+                             typeof(ITelemetryEventHandler)
+                         )
                 )
                 {
                     newResults.Add(item);
                 }
             }
 
-            return (newResults, hasResponse);
+            return ( newResults, hasResponse );
         }
 
-        public void Initialized()
-        {
-            _initialized = true;
-        }
+        public void Initialized() => _initialized = true;
 
         public override bool ShouldFilterOutput(object value)
         {

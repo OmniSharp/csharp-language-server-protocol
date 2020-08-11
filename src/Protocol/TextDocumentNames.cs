@@ -36,17 +36,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WillSaveWaitUntil = "textDocument/willSaveWaitUntil";
         public const string PublishDiagnostics = "textDocument/publishDiagnostics";
         public const string FoldingRange = "textDocument/foldingRange";
-        [Obsolete(Constants.Proposal)]
-        public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
-        [Obsolete(Constants.Proposal)]
-        public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
-        [Obsolete(Constants.Proposal)]
-        public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
-        [Obsolete(Constants.Proposal)]
-        public const string SemanticTokensFull = "textDocument/semanticTokens/full";
-        [Obsolete(Constants.Proposal)]
-        public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
-        [Obsolete(Constants.Proposal)]
-        public const string SemanticTokensRange = "textDocument/semanticTokens/range";
+        [Obsolete(Constants.Proposal)] public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
+        [Obsolete(Constants.Proposal)] public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
+        [Obsolete(Constants.Proposal)] public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
+        [Obsolete(Constants.Proposal)] public const string SemanticTokensFull = "textDocument/semanticTokens/full";
+        [Obsolete(Constants.Proposal)] public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
+        [Obsolete(Constants.Proposal)] public const string SemanticTokensRange = "textDocument/semanticTokens/range";
     }
 }

@@ -2,7 +2,7 @@
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
-    class DebugAdapterSettingsBag : IDebugAdapterProtocolSettings
+    internal class DebugAdapterSettingsBag : IDebugAdapterProtocolSettings
     {
         public InitializeRequestArguments ClientSettings { get; internal set; }
 

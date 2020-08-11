@@ -9,11 +9,11 @@ namespace Lsp.Tests.Capabilities.Client
 {
     public class CompletionItemCapabilityTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItemCapability()
-            {
+            var model = new CompletionItemCapability {
                 SnippetSupport = true
             };
             var result = Fixture.SerializeObject(model);
@@ -28,9 +28,11 @@ namespace Lsp.Tests.Capabilities.Client
         public void TagSupportTrue()
         {
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>("{\"tagSupport\":true}");
-            deresult.Should().BeEquivalentTo(new CompletionItemCapability() {
-                TagSupport = new Supports<CompletionItemTagSupportCapability>(true)
-            });
+            deresult.Should().BeEquivalentTo(
+                new CompletionItemCapability {
+                    TagSupport = new Supports<CompletionItemTagSupportCapability>(true)
+                }
+            );
         }
 
         [Fact]

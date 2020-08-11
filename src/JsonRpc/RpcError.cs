@@ -23,7 +23,6 @@ namespace OmniSharp.Extensions.JsonRpc
         public object Id { get; }
         public ErrorMessage Error { get; }
 
-        [JsonIgnore]
-        public string Method { get; }
+        [JsonIgnore] public string Method { get; }
     }
 }

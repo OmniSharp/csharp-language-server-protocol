@@ -24,6 +24,5 @@ namespace OmniSharp.Extensions.JsonRpc
     /// </summary>
     public interface IEventingHandler
     {
-
     }
 }

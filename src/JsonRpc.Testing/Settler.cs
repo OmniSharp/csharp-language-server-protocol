@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -31,52 +30,41 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             var data = subject;
 
             var connectable = data
-                .StartWith(0)
-                .Scan(0, (acc, next) => {
-                    acc += next;
-                    return acc;
-                })
-                .DistinctUntilChanged()
-                .Select(z => {
-                    if (z > 0)
-                    {
-                        return Timer(_timeout, _scheduler)
-                            .Select(z => Unit.Default);
-                    }
+                             .StartWith(0)
+                             .Scan(
+                                  0, (acc, next) => {
+                                      acc += next;
+                                      return acc;
+                                  }
+                              )
+                             .DistinctUntilChanged()
+                             .Select(
+                                  z => {
+                                      if (z > 0)
+                                      {
+                                          return Timer(_timeout, _scheduler)
+                                             .Select(z => Unit.Default);
+                                      }
 
-                    return Amb(Timer(waitTime, _scheduler), Timer(_timeout, _scheduler))
-                        .Select(z => Unit.Default);
-                })
-                .Replay(1, _scheduler);
+                                      return Amb(Timer(waitTime, _scheduler), Timer(_timeout, _scheduler))
+                                         .Select(z => Unit.Default);
+                                  }
+                              )
+                             .Replay(1, _scheduler);
             _connectable = connectable.Connect();
             _settle = connectable
-                .Switch();
+               .Switch();
             _requester = subject.AsObserver();
         }
 
-        public Task SettleNext()
-        {
-            return _settle.Take(1).IgnoreElements().LastOrDefaultAsync().ToTask(_cancellationToken);
-        }
+        public Task SettleNext() => _settle.Take(1).IgnoreElements().LastOrDefaultAsync().ToTask(_cancellationToken);
 
-        public IObservable<Unit> Settle()
-        {
-            return _settle.Timeout(_timeout, _scheduler).Catch<Unit, Exception>(_ => _defaultValue);
-        }
+        public IObservable<Unit> Settle() => _settle.Timeout(_timeout, _scheduler).Catch<Unit, Exception>(_ => _defaultValue);
 
-        void IRequestSettler.OnStartRequest()
-        {
-            _requester.OnNext(1);
-        }
+        void IRequestSettler.OnStartRequest() => _requester.OnNext(1);
 
-        void IRequestSettler.OnEndRequest()
-        {
-            _requester.OnNext(-1);
-        }
+        void IRequestSettler.OnEndRequest() => _requester.OnNext(-1);
 
-        public void Dispose()
-        {
-            _connectable?.Dispose();
-        }
+        public void Dispose() => _connectable?.Dispose();
     }
 }

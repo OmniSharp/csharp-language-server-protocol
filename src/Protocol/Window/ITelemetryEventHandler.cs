@@ -8,9 +8,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 {
-    [Parallel, Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-    public interface ITelemetryEventHandler : IJsonRpcNotificationHandler<TelemetryEventParams> { }
+    [Parallel]
+    [Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+    public interface ITelemetryEventHandler : IJsonRpcNotificationHandler<TelemetryEventParams>
+    {
+    }
 
     public abstract class TelemetryEventHandler : ITelemetryEventHandler
     {

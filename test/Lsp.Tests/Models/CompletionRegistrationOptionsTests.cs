@@ -8,13 +8,16 @@ namespace Lsp.Tests.Models
 {
     public class CompletionRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                    Language = "csharp"
-                }),
+            var model = new CompletionRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp"
+                    }
+                ),
                 ResolveProvider = true,
                 TriggerCharacters = new[] { "." }
             };

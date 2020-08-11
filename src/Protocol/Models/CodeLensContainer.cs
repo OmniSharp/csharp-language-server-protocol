@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -20,20 +18,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator CodeLensContainer(CodeLens[] items)
-        {
-            return new CodeLensContainer(items);
-        }
+        public static implicit operator CodeLensContainer(CodeLens[] items) => new CodeLensContainer(items);
 
-        public static implicit operator CodeLensContainer(Collection<CodeLens> items)
-        {
-            return new CodeLensContainer(items);
-        }
+        public static implicit operator CodeLensContainer(Collection<CodeLens> items) => new CodeLensContainer(items);
 
-        public static implicit operator CodeLensContainer(List<CodeLens> items)
-        {
-            return new CodeLensContainer(items);
-        }
+        public static implicit operator CodeLensContainer(List<CodeLens> items) => new CodeLensContainer(items);
     }
 
     /// <remarks>
@@ -53,21 +42,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
         }
 
-        public static implicit operator CodeLensContainer<T>(CodeLens<T>[] items)
-        {
-            return new CodeLensContainer<T>(items);
-        }
+        public static implicit operator CodeLensContainer<T>(CodeLens<T>[] items) => new CodeLensContainer<T>(items);
 
-        public static implicit operator CodeLensContainer<T>(Collection<CodeLens<T>> items)
-        {
-            return new CodeLensContainer<T>(items);
-        }
+        public static implicit operator CodeLensContainer<T>(Collection<CodeLens<T>> items) => new CodeLensContainer<T>(items);
 
-        public static implicit operator CodeLensContainer<T>(List<CodeLens<T>> items)
-        {
-            return new CodeLensContainer<T>(items);
-        }
+        public static implicit operator CodeLensContainer<T>(List<CodeLens<T>> items) => new CodeLensContainer<T>(items);
 
-        public static implicit operator CodeLensContainer(CodeLensContainer<T> container) => new CodeLensContainer(container.Select(z => (CodeLens)z));
+        public static implicit operator CodeLensContainer(CodeLensContainer<T> container) => new CodeLensContainer(container.Select(z => (CodeLens) z));
     }
 }

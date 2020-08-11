@@ -8,5 +8,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     {
         Indexed, Named
     }
-
 }

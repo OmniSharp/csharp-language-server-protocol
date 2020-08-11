@@ -4,24 +4,24 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests.Models
 {
     public class DidChangeTextDocumentParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DidChangeTextDocumentParams() {
+            var model = new DidChangeTextDocumentParams {
                 ContentChanges = new[] {
-                    new TextDocumentContentChangeEvent() {
-                        Range = new Range(new Position(1,1), new Position(2, 2)),
+                    new TextDocumentContentChangeEvent {
+                        Range = new Range(new Position(1, 1), new Position(2, 2)),
                         RangeLength = 12,
                         Text = "abc"
                     }
                 },
-                TextDocument = new VersionedTextDocumentIdentifier() {
+                TextDocument = new VersionedTextDocumentIdentifier {
                     Uri = "/somepath/to/a/file.ext",
                 }
             };
@@ -33,18 +33,19 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void NonStandardCharactersTest(string expected)
         {
-            var model = new DidChangeTextDocumentParams() {
+            var model = new DidChangeTextDocumentParams {
                 ContentChanges = new[] {
-                    new TextDocumentContentChangeEvent() {
-                        Range = new Range(new Position(1,1), new Position(2, 2)),
+                    new TextDocumentContentChangeEvent {
+                        Range = new Range(new Position(1, 1), new Position(2, 2)),
                         RangeLength = 12,
                         Text = "abc"
                     }
                 },
-                TextDocument = new VersionedTextDocumentIdentifier() {
+                TextDocument = new VersionedTextDocumentIdentifier {
                     Uri = DocumentUri.FromFileSystemPath("c:\\abc\\Mörkö.cs")
                 }
             };

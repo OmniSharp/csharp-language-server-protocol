@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class DidSaveTextDocumentParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DidSaveTextDocumentParams() {
+            var model = new DidSaveTextDocumentParams {
                 Text = "content",
                 TextDocument = new TextDocumentIdentifier(new Uri("file:///abc/def.cs"))
             };

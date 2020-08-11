@@ -22,21 +22,17 @@ namespace Lsp.Tests.Testing
             var clientPipe = new Pipe(TestOptions.DefaultPipeOptions);
             var serverPipe = new Pipe(TestOptions.DefaultPipeOptions);
 
-            var server = LanguageServer.PreInit(options => {
-                options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer);
-            });
+            var server = LanguageServer.PreInit(options => { options.WithInput(serverPipe.Reader).WithOutput(clientPipe.Writer); });
 
             server.Initialize(CancellationToken);
 
-            return (clientPipe.Reader.AsStream(), serverPipe.Writer.AsStream());
+            return ( clientPipe.Reader.AsStream(), serverPipe.Writer.AsStream() );
         }
 
         [Fact]
         public async Task Should_Connect_To_Server()
         {
-            var client = await InitializeClient(x => {
-
-            });
+            var client = await InitializeClient(x => { });
 
             client.ClientSettings.Should().NotBeNull();
             client.ServerSettings.Should().NotBeNull();

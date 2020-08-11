@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -7,14 +6,15 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Serial, Method(WorkspaceNames.DidChangeConfiguration, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
+    [Serial]
+    [Method(WorkspaceNames.DidChangeConfiguration, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
     public interface IDidChangeConfigurationHandler : IJsonRpcNotificationHandler<DidChangeConfigurationParams>,
-        IRegistration<object>, ICapability<DidChangeConfigurationCapability>
+                                                      IRegistration<object>, ICapability<DidChangeConfigurationCapability>
     {
     }
 

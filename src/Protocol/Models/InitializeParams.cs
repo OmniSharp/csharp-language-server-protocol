@@ -32,8 +32,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public string RootPath
         {
-            get { return RootUri?.GetFileSystemPath(); }
-            set { RootUri = value == null ? null : DocumentUri.FromFileSystemPath(value); }
+            get => RootUri?.GetFileSystemPath();
+            set => RootUri = value == null ? null : DocumentUri.FromFileSystemPath(value);
         }
 
         /// <summary>
@@ -64,9 +64,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// This property is only available if the client supports workspace folders.
         /// It can be `null` if the client supports workspace folders but none are
         /// configured.
-        ///
+        /// 
         /// Since 3.6.0
-        /// <summary/>
+        /// <summary />
         public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
 
         /// <inheritdoc />

@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// </summary>
     [Obsolete(Constants.Proposal)]
     public class CallHierarchyCapability : DynamicCapability, ConnectedCapability<ICallHierarchyHandler>,
-        ConnectedCapability<ICallHierarchyIncomingHandler>, ConnectedCapability<ICallHierarchyOutgoingHandler>
+                                           ConnectedCapability<ICallHierarchyIncomingHandler>, ConnectedCapability<ICallHierarchyOutgoingHandler>
     {
     }
 }

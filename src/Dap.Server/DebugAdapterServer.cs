@@ -2,14 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
@@ -18,8 +16,6 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
-using IOutputHandler = OmniSharp.Extensions.JsonRpc.IOutputHandler;
-using OutputHandler = OmniSharp.Extensions.JsonRpc.OutputHandler;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
@@ -40,11 +36,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly ISubject<InitializeResponse> _initializeComplete = new AsyncSubject<InitializeResponse>();
         private readonly Capabilities _capabilities;
         private bool _started;
-        private int? _concurrency;
+        private readonly int? _concurrency;
 
         internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddDebugAdapterServerInternals(options, outerServiceProvider);
+                                  .AddDebugAdapterServerInternals(options, outerServiceProvider);
 
         public static DebugAdapterServer Create(DebugAdapterServerOptions options) => Create(options, null);
         public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction) => Create(optionsAction, null);
@@ -100,7 +96,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             IDebugAdapterServerProgressManager progressManager,
             IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
             IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers) : base(collection, responseRouter)
+            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers
+        ) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
             _receiver = receiver;
@@ -165,8 +162,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             }
         }
 
-        async Task<InitializeResponse> IRequestHandler<InitializeRequestArguments, InitializeResponse>.Handle(InitializeRequestArguments request,
-            CancellationToken cancellationToken)
+        async Task<InitializeResponse> IRequestHandler<InitializeRequestArguments, InitializeResponse>.Handle(
+            InitializeRequestArguments request,
+            CancellationToken cancellationToken
+        )
         {
             ClientSettings = request;
 
@@ -181,7 +180,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
             _receiver.Initialized();
 
-            var response = new InitializeResponse() {
+            var response = new InitializeResponse {
                 AdditionalModuleColumns = _capabilities.AdditionalModuleColumns,
                 ExceptionBreakpointFilters = _capabilities.ExceptionBreakpointFilters,
                 SupportedChecksumAlgorithms = _capabilities.SupportedChecksumAlgorithms,

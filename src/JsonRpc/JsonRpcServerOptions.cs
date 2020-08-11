@@ -1,12 +1,4 @@
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO.Pipelines;
-using System.Reactive.Disposables;
-using System.Reflection;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

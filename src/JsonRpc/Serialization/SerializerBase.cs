@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
 {
     public abstract class SerializerBase : ISerializer
     {
-        private long _id = 0;
+        private long _id;
 
         protected virtual JsonSerializer CreateSerializer()
         {
@@ -33,34 +33,23 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
                 foreach (var converter in existingConverters)
                     converters.Remove(converter);
             }
+
             converters.Add(item);
         }
 
         private JsonSerializer _jsonSerializer;
-        public JsonSerializer JsonSerializer => _jsonSerializer ?? ( CreateSerializer() );
+        public JsonSerializer JsonSerializer => _jsonSerializer ?? CreateSerializer();
 
 
         private JsonSerializerSettings _settings;
-        public JsonSerializerSettings Settings => _settings ?? ( CreateSerializerSettings() );
+        public JsonSerializerSettings Settings => _settings ?? CreateSerializerSettings();
 
-        public string SerializeObject(object value)
-        {
-            return JsonConvert.SerializeObject(value, Settings);
-        }
+        public string SerializeObject(object value) => JsonConvert.SerializeObject(value, Settings);
 
-        public object DeserializeObject(string json, Type type)
-        {
-            return JsonConvert.DeserializeObject(json, type, Settings);
-        }
+        public object DeserializeObject(string json, Type type) => JsonConvert.DeserializeObject(json, type, Settings);
 
-        public T DeserializeObject<T>(string json)
-        {
-            return JsonConvert.DeserializeObject<T>(json, Settings);
-        }
-        public long GetNextId()
-        {
-            return Interlocked.Increment(ref _id);
-        }
+        public T DeserializeObject<T>(string json) => JsonConvert.DeserializeObject<T>(json, Settings);
+        public long GetNextId() => Interlocked.Increment(ref _id);
         protected abstract void AddOrReplaceConverters(ICollection<JsonConverter> converters);
     }
 }

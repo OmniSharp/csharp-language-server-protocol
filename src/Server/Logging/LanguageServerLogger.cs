@@ -10,7 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
-    class LanguageServerLogger : ILogger
+    internal class LanguageServerLogger : ILogger
     {
         private readonly ILanguageServer _responseRouter;
         private readonly string _categoryName;
@@ -23,32 +23,32 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _categoryName = categoryName;
         }
 
-        public IDisposable BeginScope<TState>(TState state)
-        {
-            return new CompositeDisposable();
-        }
+        public IDisposable BeginScope<TState>(TState state) => new CompositeDisposable();
 
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();
 
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
-            Func<TState, Exception, string> formatter)
+        public void Log<TState>(
+            LogLevel logLevel, EventId eventId, TState state, Exception exception,
+            Func<TState, Exception, string> formatter
+        )
         {
             if (logLevel < _logLevelGetter())
                 return;
 
             if (TryGetMessageType(logLevel, out var messageType))
             {
-                _responseRouter.Window.Log(new LogMessageParams()
-                {
-                    Type = messageType,
-                    Message = _categoryName + ": " + formatter(state, exception) +
-                              (exception != null ? " - " + exception : "") + " | " +
-                              //Hopefully this isn't too expensive in the long run
-                              (state is IEnumerable<KeyValuePair<string, object>> dict
-                                  ? string.Join(" ", dict.Where(z => z.Key != "{OriginalFormat}").Select(z => $"{z.Key}='{z.Value}'"))
-                                  : JsonConvert.SerializeObject(state).Replace("\"", "'")
-                              )
-                });
+                _responseRouter.Window.Log(
+                    new LogMessageParams {
+                        Type = messageType,
+                        Message = _categoryName + ": " + formatter(state, exception) +
+                                  ( exception != null ? " - " + exception : "" ) + " | " +
+                                  //Hopefully this isn't too expensive in the long run
+                                  ( state is IEnumerable<KeyValuePair<string, object>> dict
+                                      ? string.Join(" ", dict.Where(z => z.Key != "{OriginalFormat}").Select(z => $"{z.Key}='{z.Value}'"))
+                                      : JsonConvert.SerializeObject(state).Replace("\"", "'")
+                                  )
+                    }
+                );
             }
         }
 

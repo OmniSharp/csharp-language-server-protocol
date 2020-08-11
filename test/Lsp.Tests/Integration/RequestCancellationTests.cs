@@ -34,9 +34,11 @@ namespace Lsp.Tests.Integration
             Func<Task<CompletionList>> action = () => {
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
                 CancellationToken.Register(cts.Cancel);
-                return client.TextDocument.RequestCompletion(new CompletionParams() {
-                    TextDocument = "/a/file.cs"
-                }, cts.Token).AsTask();
+                return client.TextDocument.RequestCompletion(
+                    new CompletionParams {
+                        TextDocument = "/a/file.cs"
+                    }, cts.Token
+                ).AsTask();
             };
             action.Should().Throw<TaskCanceledException>();
         }
@@ -46,17 +48,21 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
-            var request1 = client.TextDocument.RequestCompletion(new CompletionParams() {
-                TextDocument = "/a/file.cs"
-            }, CancellationToken).AsTask();
+            var request1 = client.TextDocument.RequestCompletion(
+                new CompletionParams {
+                    TextDocument = "/a/file.cs"
+                }, CancellationToken
+            ).AsTask();
 
-            client.TextDocument.DidChangeTextDocument(new DidChangeTextDocumentParams() {
-                TextDocument = new VersionedTextDocumentIdentifier() {
-                    Uri = "/a/file.cs",
-                    Version = 123,
-                },
-                ContentChanges = new Container<TextDocumentContentChangeEvent>()
-            });
+            client.TextDocument.DidChangeTextDocument(
+                new DidChangeTextDocumentParams {
+                    TextDocument = new VersionedTextDocumentIdentifier {
+                        Uri = "/a/file.cs",
+                        Version = 123,
+                    },
+                    ContentChanges = new Container<TextDocumentContentChangeEvent>()
+                }
+            );
 
             Func<Task> action = () => request1;
             action.Should().Throw<ContentModifiedException>();
@@ -66,14 +72,18 @@ namespace Lsp.Tests.Integration
         public async Task Should_Cancel_Requests_After_Timeout()
         {
             Func<Task> action = async () => {
-                var (client, server) = await Initialize(ConfigureClient, x => {
-                    ConfigureServer(x);
-                    x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
-                });
+                var (client, server) = await Initialize(
+                    ConfigureClient, x => {
+                        ConfigureServer(x);
+                        x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
+                    }
+                );
 
-                await client.TextDocument.RequestCompletion(new CompletionParams() {
-                    TextDocument = "/a/file.cs"
-                }, CancellationToken).AsTask();
+                await client.TextDocument.RequestCompletion(
+                    new CompletionParams {
+                        TextDocument = "/a/file.cs"
+                    }, CancellationToken
+                ).AsTask();
             };
             action.Should().Throw<RequestCancelledException>();
         }
@@ -81,32 +91,42 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Cancel_Requests_After_Timeout_without_Content_Modified()
         {
-            var (client, server) = await Initialize(ConfigureClient, x => {
-                ConfigureServer(x);
-                x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
-            });
+            var (client, server) = await Initialize(
+                ConfigureClient, x => {
+                    ConfigureServer(x);
+                    x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
+                }
+            );
 
-            Func<Task> action = () => client.TextDocument.RequestCompletion(new CompletionParams() {
-                TextDocument = "/a/file.cs"
-            }, CancellationToken).AsTask();
+            Func<Task> action = () => client.TextDocument.RequestCompletion(
+                new CompletionParams {
+                    TextDocument = "/a/file.cs"
+                }, CancellationToken
+            ).AsTask();
             action.Should().Throw<RequestCancelledException>();
         }
 
         [Fact]
         public async Task Can_Publish_Diagnostics_Delayed()
         {
-            var (client, server) = await Initialize(ConfigureClient, x => {
-                ConfigureServer(x);
-                x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(10000));
-            });
+            var (client, server) = await Initialize(
+                ConfigureClient, x => {
+                    ConfigureServer(x);
+                    x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(10000));
+                }
+            );
 
-            server.TextDocument.PublishDiagnostics(new PublishDiagnosticsParams() {
-                Diagnostics = new Container<Diagnostic>(new Diagnostic() {
-                    Message = "asdf",
-                }),
-                Uri = DocumentUri.File("/from/file"),
-                Version = 1
-            });
+            server.TextDocument.PublishDiagnostics(
+                new PublishDiagnosticsParams {
+                    Diagnostics = new Container<Diagnostic>(
+                        new Diagnostic {
+                            Message = "asdf",
+                        }
+                    ),
+                    Uri = DocumentUri.File("/from/file"),
+                    Version = 1
+                }
+            );
 
             await ServerEvents.Settle();
             await ClientEvents.Settle();
@@ -118,29 +138,31 @@ namespace Lsp.Tests.Integration
 
         private readonly ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>> _diagnostics = new ConcurrentDictionary<DocumentUri, IEnumerable<Diagnostic>>();
 
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.OnPublishDiagnostics(async (request, ct) => {
-                try
-                {
-                    TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical("start");
-                    await Task.Delay(500, ct);
-                    _diagnostics.AddOrUpdate(request.Uri, (a) => request.Diagnostics, (a, b) => request.Diagnostics);
+        private void ConfigureClient(LanguageClientOptions options) =>
+            options.OnPublishDiagnostics(
+                async (request, ct) => {
+                    try
+                    {
+                        TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical("start");
+                        await Task.Delay(500, ct);
+                        _diagnostics.AddOrUpdate(request.Uri, a => request.Diagnostics, (a, b) => request.Diagnostics);
+                    }
+                    catch (Exception e)
+                    {
+                        TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical(e, "error");
+                    }
                 }
-                catch (Exception e)
-                {
-                    TestOptions.ClientLoggerFactory.CreateLogger("test").LogCritical(e, "error");
-                }
-            });
-        }
+            );
 
         private void ConfigureServer(LanguageServerOptions options)
         {
             options.WithContentModifiedSupport(true);
-            options.OnCompletion(async (x, ct) => {
-                await Task.Delay(50000, ct);
-                return new CompletionList();
-            }, new CompletionRegistrationOptions());
+            options.OnCompletion(
+                async (x, ct) => {
+                    await Task.Delay(50000, ct);
+                    return new CompletionList();
+                }, new CompletionRegistrationOptions()
+            );
             options.OnDidChangeTextDocument(async x => { await Task.Delay(20); }, new TextDocumentChangeRegistrationOptions());
         }
     }

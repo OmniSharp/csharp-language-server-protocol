@@ -6,12 +6,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     public class DocumentHighlightOptions : WorkDoneProgressOptions, IDocumentHighlightOptions
     {
-        public static DocumentHighlightOptions Of(IDocumentHighlightOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new DocumentHighlightOptions()
-            {
+        public static DocumentHighlightOptions Of(IDocumentHighlightOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new DocumentHighlightOptions {
                 WorkDoneProgress = options.WorkDoneProgress
             };
-        }
     }
 }

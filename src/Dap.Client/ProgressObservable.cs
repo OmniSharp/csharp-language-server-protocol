@@ -7,7 +7,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
-    class ProgressObservable : IProgressObservable, IObserver<ProgressEvent>, IDisposable
+    internal class ProgressObservable : IProgressObservable, IObserver<ProgressEvent>, IDisposable
     {
         private readonly CompositeDisposable _disposable;
         private readonly ReplaySubject<ProgressEvent> _dataSubject;
@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         public ProgressObservable(ProgressToken token)
         {
             _dataSubject = new ReplaySubject<ProgressEvent>(1);
-            _disposable = new CompositeDisposable() {Disposable.Create(_dataSubject.OnCompleted)};
+            _disposable = new CompositeDisposable { Disposable.Create(_dataSubject.OnCompleted) };
 
             ProgressToken = token;
             if (_dataSubject is IDisposable disposable)
@@ -32,14 +32,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public void OnNext(ProgressEvent value) => _dataSubject.OnNext(value);
 
-        public void Dispose()
-        {
-            _disposable.Dispose();
-        }
+        public void Dispose() => _disposable.Dispose();
 
-        public IDisposable Subscribe(IObserver<ProgressEvent> observer)
-        {
-            return _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
-        }
+        public IDisposable Subscribe(IObserver<ProgressEvent> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
     }
 }

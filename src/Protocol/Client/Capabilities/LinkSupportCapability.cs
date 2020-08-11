@@ -4,7 +4,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public abstract class LinkSupportCapability : DynamicCapability
     {
-        [Optional]
-        public bool LinkSupport { get; set; }
+        [Optional] public bool LinkSupport { get; set; }
     }
 }

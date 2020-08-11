@@ -8,10 +8,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Parallel, Method(TextDocumentNames.CodeAction, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
+    [Parallel]
+    [Method(TextDocumentNames.CodeAction, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>,
-        IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability>
+                                          IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability>
     {
     }
 
@@ -19,15 +21,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     {
         private readonly CodeActionRegistrationOptions _options;
 
-        public CodeActionHandler(CodeActionRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
+        public CodeActionHandler(CodeActionRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
 
-        public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request,
-            CancellationToken cancellationToken);
+        public abstract Task<CommandOrCodeActionContainer> Handle(
+            CodeActionParams request,
+            CancellationToken cancellationToken
+        );
 
         public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
         protected CodeActionCapability Capability { get; private set; }

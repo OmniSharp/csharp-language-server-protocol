@@ -7,7 +7,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class WorkDoneProgressReport : WorkDoneProgress
     {
-        public WorkDoneProgressReport() : base(WorkDoneProgressKind.Report) { }
+        public WorkDoneProgressReport() : base(WorkDoneProgressKind.Report)
+        {
+        }
 
         /// <summary>
         /// Controls enablement state of a cancel button. This property is only valid if a cancel

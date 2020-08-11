@@ -2,6 +2,5 @@
 {
     public class WorkspaceSymbolRegistrationOptions : WorkDoneProgressOptions, IWorkspaceSymbolOptions
     {
-
     }
 }

@@ -17,26 +17,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     public class SemanticTokensOptions : WorkDoneProgressOptions, ISemanticTokensOptions, IStaticRegistrationOptions
     {
         /// <summary>
-        ///  The legend used by the server
+        /// The legend used by the server
         /// </summary>
         public SemanticTokensLegend Legend { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a specific range
-        ///  of a document.
+        /// Server supports providing semantic tokens for a specific range
+        /// of a document.
         /// </summary>
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
 
         /// <summary>
-        ///  Server supports providing semantic tokens for a full document.
+        /// Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
         public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }
 
         public static SemanticTokensOptions Of(ISemanticTokensOptions options, IEnumerable<IHandlerDescriptor> descriptors)
         {
-            var result = new SemanticTokensOptions() {
+            var result = new SemanticTokensOptions {
                 WorkDoneProgress = options.WorkDoneProgress,
                 Legend = options.Legend ?? new SemanticTokensLegend(),
                 Full = options.Full,
@@ -47,9 +47,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                 var edits = descriptors.Any(z => z.HandlerType == typeof(ISemanticTokensDeltaHandler));
                 if (edits)
                 {
-                    result.Full = new BooleanOr<SemanticTokensCapabilityRequestFull>(new SemanticTokensCapabilityRequestFull() {
-                        Delta = true
-                    });
+                    result.Full = new BooleanOr<SemanticTokensCapabilityRequestFull>(
+                        new SemanticTokensCapabilityRequestFull {
+                            Delta = true
+                        }
+                    );
                 }
             }
 

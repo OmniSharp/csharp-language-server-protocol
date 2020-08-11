@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class LocationOrLocationLinksConverter : JsonConverter<LocationOrLocationLinks>
+    internal class LocationOrLocationLinksConverter : JsonConverter<LocationOrLocationLinks>
     {
         public override void WriteJson(JsonWriter writer, LocationOrLocationLinks value, JsonSerializer serializer)
         {
@@ -21,13 +21,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             serializer.Serialize(writer, v);
         }
 
-        public override LocationOrLocationLinks ReadJson(JsonReader reader, Type objectType, LocationOrLocationLinks existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override LocationOrLocationLinks ReadJson(
+            JsonReader reader, Type objectType, LocationOrLocationLinks existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             if (reader.TokenType == JsonToken.StartArray)
             {
                 return new LocationOrLocationLinks(JArray.Load(reader).ToObject<IEnumerable<LocationOrLocationLink>>(serializer));
             }
-            else if (reader.TokenType == JsonToken.StartObject)
+
+            if (reader.TokenType == JsonToken.StartObject)
             {
                 return new LocationOrLocationLinks(JObject.Load(reader).ToObject<Location>(serializer));
             }

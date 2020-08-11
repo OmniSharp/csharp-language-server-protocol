@@ -33,9 +33,9 @@ namespace Minimatch.Tests
 {
     public class BasicTests
     {
-        static readonly List<Tuple<string, string>> actualRegexes = new List<Tuple<string, string>>();
+        private static readonly List<Tuple<string, string>> actualRegexes = new List<Tuple<string, string>>();
 
-        static void TestCase(string pattern, IList<string> expected, Options options = null, IEnumerable<string> input = null)
+        private static void TestCase(string pattern, IList<string> expected, Options options = null, IEnumerable<string> input = null)
         {
             input ??= files;
 
@@ -45,30 +45,35 @@ namespace Minimatch.Tests
             );
 
             var regex = Minimatcher.CreateRegex(pattern, options);
-            actualRegexes.Add(Tuple.Create(pattern, regex == null ? "false" : "/" + regex.ToString() + "/" + (regex.Options == RegexOptions.IgnoreCase ? "i" : "")));
+            actualRegexes.Add(Tuple.Create(pattern, regex == null ? "false" : "/" + regex + "/" + ( regex.Options == RegexOptions.IgnoreCase ? "i" : "" )));
         }
 
-        static void AssertRegexes(params string[] expectedRegexes)
+        private static void AssertRegexes(params string[] expectedRegexes)
         {
             Assert.Equal(expectedRegexes.Length, actualRegexes.Count);
-            for (int i = 0; i < actualRegexes.Count; i++)
+            for (var i = 0; i < actualRegexes.Count; i++)
             {
                 Assert.Equal(expectedRegexes[i], actualRegexes[i].Item2);
             }
         }
 
-        static void AddFiles(params string[] entries) { files.AddRange(entries); }
-        static void ReplaceFiles(params string[] entries) { files.Clear(); files.AddRange(entries); }
+        private static void AddFiles(params string[] entries) => files.AddRange(entries);
 
-        static readonly List<string> files = new List<string>();
+        private static void ReplaceFiles(params string[] entries)
+        {
+            files.Clear();
+            files.AddRange(entries);
+        }
+
+        private static readonly List<string> files = new List<string>();
 
         public BasicTests()
         {
             ReplaceFiles(
                 "a", "b", "c", "d", "abc"
-                , "abd", "abe", "bb", "bcd"
-                , "ca", "cb", "dd", "de"
-                , "bdir/", "bdir/cfile"
+              , "abd", "abe", "bb", "bcd"
+              , "ca", "cb", "dd", "de"
+              , "bdir/", "bdir/cfile"
             );
             actualRegexes.Clear();
         }
@@ -76,7 +81,6 @@ namespace Minimatch.Tests
         [Fact]
         public void BashCookBook()
         {
-
             //"http://www.bashcookbook.com/bashinfo/source/bash-1.14.7/tests/glob-test"
             TestCase("a*", new[] { "a", "abc", "abd", "abe" });
             TestCase("X*", new[] { "X*" }, new Options { NoNull = true });
@@ -112,25 +116,35 @@ namespace Minimatch.Tests
                 "/^(?:s\\/(?=.)\\.\\.[^/]*?\\/)$/"
             );
         }
+
         [Fact]
         public void LegendaryLarryCrashesBashes()
         {
-            TestCase("/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/"
-                , new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/" }, new Options { NoNull = true });
-            TestCase("/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/"
-                , new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/" }, new Options { NoNull = true });
+            TestCase(
+                "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/"
+              , new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\\1/" }, new Options { NoNull = true }
+            );
+            TestCase(
+                "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/"
+              , new[] { "/^root:/{s/^[^:]*:[^:]*:([^:]*).*$/\u0001/" }, new Options { NoNull = true }
+            );
 
             AssertRegexes(
                 "/^(?:\\/\\^root:\\/\\{s\\/(?=.)\\^[^:][^/]*?:[^:][^/]*?:\\([^:]\\)[^/]*?\\.[^/]*?\\$\\/1\\/)$/",
                 "/^(?:\\/\\^root:\\/\\{s\\/(?=.)\\^[^:][^/]*?:[^:][^/]*?:\\([^:]\\)[^/]*?\\.[^/]*?\\$\\/\u0001\\/)$/"
             );
         }
+
         [Fact]
         public void CharacterClasses()
         {
             TestCase("[a-c]b*", new[] { "abc", "abd", "abe", "bb", "cb" });
-            TestCase("[a-y]*[^c]", new[] { "abd", "abe", "bb", "bcd",
-                "bdir/", "ca", "cb", "dd", "de" });
+            TestCase(
+                "[a-y]*[^c]", new[] {
+                    "abd", "abe", "bb", "bcd",
+                    "bdir/", "ca", "cb", "dd", "de"
+                }
+            );
             TestCase("a*[^c]", new[] { "abd", "abe" });
             AddFiles("a-b", "aXb");
             TestCase("a[X-]b", new[] { "a-b", "aXb" });
@@ -139,14 +153,14 @@ namespace Minimatch.Tests
             AddFiles("a*b/", "a*b/ooo");
             TestCase("a\\*b/*", new[] { "a*b/ooo" });
             TestCase("a\\*?/*", new[] { "a*b/ooo" });
-            TestCase("*\\\\!*", new string[0], new Options { /*null = true*/ }, new[] { "echo !7" });
+            TestCase("*\\\\!*", new string[0], new Options(), new[] { "echo !7" });
             TestCase("*\\!*", new[] { "echo !7" }, null, new[] { "echo !7" });
             TestCase("*.\\*", new[] { "r.*" }, null, new[] { "r.*" });
             TestCase("a[b]c", new[] { "abc" });
             TestCase("a[\\b]c", new[] { "abc" });
             TestCase("a?c", new[] { "abc" });
-            TestCase("a\\*c", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("", new[] { "" }, new Options { /*null = true*/ }, new[] { "" });
+            TestCase("a\\*c", new string[0], new Options(), new[] { "abc" });
+            TestCase("", new[] { "" }, new Options(), new[] { "" });
 
             AssertRegexes(
                 "/^(?:(?!\\.)(?=.)[a-c]b[^/]*?)$/",
@@ -166,6 +180,7 @@ namespace Minimatch.Tests
                 "false"
             );
         }
+
         [Fact]
         public void AppleBash()
         {
@@ -208,14 +223,14 @@ namespace Minimatch.Tests
             TestCase("[]]", new[] { "]" }, null, new[] { "]" });
             TestCase("[]-]", new[] { "]" }, null, new[] { "]" });
             TestCase(@"[a-\z]", new[] { "p" }, null, new[] { "p" });
-            TestCase("??**********?****?", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("??**********?****c", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("?************c****?****", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("*c*?**", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("a*****c*?**", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("a********???*******", new string[0], new Options { /*null = true*/ }, new[] { "abc" });
-            TestCase("[]", new string[0], new Options { /*null = true*/ }, new[] { "a" });
-            TestCase("[abc", new string[0], new Options { /*null = true*/ }, new[] { "[" });
+            TestCase("??**********?****?", new string[0], new Options(), new[] { "abc" });
+            TestCase("??**********?****c", new string[0], new Options(), new[] { "abc" });
+            TestCase("?************c****?****", new string[0], new Options(), new[] { "abc" });
+            TestCase("*c*?**", new string[0], new Options(), new[] { "abc" });
+            TestCase("a*****c*?**", new string[0], new Options(), new[] { "abc" });
+            TestCase("a********???*******", new string[0], new Options(), new[] { "abc" });
+            TestCase("[]", new string[0], new Options(), new[] { "a" });
+            TestCase("[abc", new string[0], new Options(), new[] { "[" });
 
             AssertRegexes(
                 "/^(?:(?!\\.)(?=.)[^/]*?\\/(?=.)man[^/]*?\\/(?=.)bash\\.[^/]*?)$/",
@@ -256,18 +271,25 @@ namespace Minimatch.Tests
                 "/^(?:\\[abc)$/"
             );
         }
+
         [Fact]
         public void NoCase()
         {
             AddFiles("a-b", "aXb", ".x", ".y", "a*b/", "a*b/ooo", "man/", "man/man1/", "man/man1/bash.1");
 
 
-            TestCase("XYZ", new[] { "xYz" }, new Options { NoCase = true, /*null = true*/ }
-                , new[] { "xYz", "ABC", "IjK" });
-            TestCase("ab*", new[] { "ABC" }, new Options { NoCase = true, /*null = true*/ }
-                , new[] { "xYz", "ABC", "IjK" });
-            TestCase("[ia]?[ck]", new[] { "ABC", "IjK" }, new Options { NoCase = true, /*null = true*/ }
-                , new[] { "xYz", "ABC", "IjK" });
+            TestCase(
+                "XYZ", new[] { "xYz" }, new Options { NoCase = true, /*null = true*/ }
+              , new[] { "xYz", "ABC", "IjK" }
+            );
+            TestCase(
+                "ab*", new[] { "ABC" }, new Options { NoCase = true, /*null = true*/ }
+              , new[] { "xYz", "ABC", "IjK" }
+            );
+            TestCase(
+                "[ia]?[ck]", new[] { "ABC", "IjK" }, new Options { NoCase = true, /*null = true*/ }
+              , new[] { "xYz", "ABC", "IjK" }
+            );
 
 
             AssertRegexes(
@@ -276,28 +298,29 @@ namespace Minimatch.Tests
                 "/^(?:(?!\\.)(?=.)[ia][^/][ck])$/i"
             );
         }
+
         [Fact]
         public void OneStar_TwoStar()
         {
             AddFiles("a-b", "aXb", ".x", ".y", "a*b/", "a*b/ooo", "man/", "man/man1/", "man/man1/bash.1");
 
             // [ pattern, new [] { matches }, MM opts, files, TAP opts]
-            TestCase("{/*,*}", new string[0], new Options { /*null = true*/ }, new[] { "/asdf/asdf/asdf" });
-            TestCase("{/?,*}", new[] { "/a", "bb" }, new Options { /*null = true*/ }
-                , new[] { "/a", "/b/b", "/a/b/c", "bb" });
+            TestCase("{/*,*}", new string[0], new Options(), new[] { "/asdf/asdf/asdf" });
+            TestCase("{/?,*}", new[] { "/a", "bb" }, new Options(), new[] { "/a", "/b/b", "/a/b/c", "bb" });
 
             AssertRegexes(
                 "/^(?:\\/(?!\\.)(?=.)[^/]*?|(?!\\.)(?=.)[^/]*?)$/",
                 "/^(?:\\/(?!\\.)(?=.)[^/]|(?!\\.)(?=.)[^/]*?)$/"
             );
         }
+
         [Fact]
         public void DotMatching()
         {
             AddFiles("a-b", "aXb", ".x", ".y", "a*b/", "a*b/ooo", "man/", "man/man1/", "man/man1/bash.1");
 
             //"Dots should not match unless requested"
-            TestCase("**", new[] { "a/b" }, new Options { }, new[] { "a/b", "a/.d", ".a/.d" });
+            TestCase("**", new[] { "a/b" }, new Options(), new[] { "a/b", "a/.d", ".a/.d" });
 
             // .. and . can only match patterns starting with .,
             // even when options.Dot is set.
@@ -311,8 +334,10 @@ namespace Minimatch.Tests
             // this also tests that changing the options needs
             // to change the cache key, even if the pattern is
             // the same!
-            TestCase("**", new[] { "a/b", "a/.d", ".a/.d" }, new Options { Dot = true }
-                , new[] { ".a/.d", "a/.d", "a/b" });
+            TestCase(
+                "**", new[] { "a/b", "a/.d", ".a/.d" }, new Options { Dot = true }
+              , new[] { ".a/.d", "a/.d", "a/b" }
+            );
 
             AssertRegexes(
                 "/^(?:(?:(?!(?:\\/|^)\\.).)*?)$/",
@@ -323,6 +348,7 @@ namespace Minimatch.Tests
                 "/^(?:(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?)$/"
             );
         }
+
         [Fact]
         public void ParenSlashes()
         {
@@ -345,28 +371,31 @@ namespace Minimatch.Tests
             // bash/bsdglob says this:
             // , new [] { "*(a|{b),c)}", ["*(a|{b),c)}" }, new Options {}, new [] { "a", "ab", "ac", "ad" });
             // but we do this instead:
-            TestCase("*(a|{b),c)}", new[] { "a", "ab", "ac" }, new Options { }, new[] { "a", "ab", "ac", "ad" });
+            TestCase("*(a|{b),c)}", new[] { "a", "ab", "ac" }, new Options(), new[] { "a", "ab", "ac", "ad" });
 
             // test partial parsing in the presence of comment/negation chars
-            TestCase("[!a*", new[] { "[!ab" }, new Options { }, new[] { "[!ab", "[ab" });
-            TestCase("[#a*", new[] { "[#ab" }, new Options { }, new[] { "[#ab", "[ab" });
+            TestCase("[!a*", new[] { "[!ab" }, new Options(), new[] { "[!ab", "[ab" });
+            TestCase("[#a*", new[] { "[#ab" }, new Options(), new[] { "[#ab", "[ab" });
 
             // like: {a,b|c\\,d\\\|e} except it's unclosed, so it has to be escaped.
-            TestCase("+(a|*\\|c\\\\|d\\\\\\|e\\\\\\\\|f\\\\\\\\\\|g"
-                , new[] { "+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g" }
-                , new Options { }
-                , new[] { "+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g", "a", "b\\c" });
+            TestCase(
+                "+(a|*\\|c\\\\|d\\\\\\|e\\\\\\\\|f\\\\\\\\\\|g"
+              , new[] { "+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g" }
+              , new Options(), new[] { "+(a|b\\|c\\\\|d\\\\|e\\\\\\\\|f\\\\\\\\|g", "a", "b\\c" }
+            );
 
 
             // crazy nested {,,} and *(||) tests.
-            ReplaceFiles("a", "b", "c", "d"
-                , "ab", "ac", "ad"
-                , "bc", "cb"
-                , "bc,d", "c,db", "c,d"
-                , "d)", "(b|c", "*(b|c"
-                , "b|c", "b|cc", "cb|c"
-                , "x(a|b|c)", "x(a|c)"
-                , "(a|b|c)", "(a|c)");
+            ReplaceFiles(
+                "a", "b", "c", "d"
+              , "ab", "ac", "ad"
+              , "bc", "cb"
+              , "bc,d", "c,db", "c,d"
+              , "d)", "(b|c", "*(b|c"
+              , "b|c", "b|cc", "cb|c"
+              , "x(a|b|c)", "x(a|c)"
+              , "(a|b|c)", "(a|c)"
+            );
             TestCase("*(a|{b,c})", new[] { "a", "b", "c", "ab", "ac" });
             TestCase("{a,*(b|c,d)}", new[] { "a", "(b|c", "*(b|c", "d)" });
             // a
@@ -377,10 +406,14 @@ namespace Minimatch.Tests
 
 
             // test various flag settings.
-            TestCase("*(a|{b|c,c})", new[] { "x(a|b|c)", "x(a|c)", "(a|b|c)", "(a|c)" }
-                , new Options { NoExt = true });
-            TestCase("a?b", new[] { "x/y/acb", "acb/" }, new Options { MatchBase = true }
-                , new[] { "x/y/acb", "acb/", "acb/d/e", "x/y/acb/d" });
+            TestCase(
+                "*(a|{b|c,c})", new[] { "x(a|b|c)", "x(a|c)", "(a|b|c)", "(a|c)" }
+              , new Options { NoExt = true }
+            );
+            TestCase(
+                "a?b", new[] { "x/y/acb", "acb/" }, new Options { MatchBase = true }
+              , new[] { "x/y/acb", "acb/", "acb/d/e", "x/y/acb/d" }
+            );
             TestCase("#*", new[] { "#a", "#b" }, new Options { NoComment = true }, new[] { "#a", "#b", "c#d" });
 
             AssertRegexes(
@@ -398,6 +431,7 @@ namespace Minimatch.Tests
                 "/^(?:(?=.)#[^/]*?)$/"
             );
         }
+
         [Fact]
         public void NegationTests()
         {
@@ -417,37 +451,34 @@ namespace Minimatch.Tests
             TestCase("!\\!a*", new[] { "a!b", "d", "e", "\\!a" });
 
             // negation nestled within a pattern
-            ReplaceFiles("foo.js"
-                , "foo.bar"
+            ReplaceFiles(
+                "foo.js"
+              , "foo.bar"
                 // can't match this one without negative lookbehind.
-                , "foo.js.js"
-                , "blar.js"
-                , "foo."
-                , "boo.js.boo");
+              , "foo.js.js"
+              , "blar.js"
+              , "foo."
+              , "boo.js.boo"
+            );
             TestCase("*.!(js)", new[] { "foo.bar", "foo.", "boo.js.boo" });
 
             // https://github.com/isaacs/minimatch/issues/5
-            ReplaceFiles("a/b/.x/c"
-                , "a/b/.x/c/d"
-                , "a/b/.x/c/d/e"
-                , "a/b/.x"
-                , "a/b/.x/"
-                , "a/.x/b"
-                , ".x"
-                , ".x/"
-                , ".x/a"
-                , ".x/a/b"
-                , "a/.x/b/.x/c"
-                , ".x/.x");
+            ReplaceFiles(
+                "a/b/.x/c"
+              , "a/b/.x/c/d"
+              , "a/b/.x/c/d/e"
+              , "a/b/.x"
+              , "a/b/.x/"
+              , "a/.x/b"
+              , ".x"
+              , ".x/"
+              , ".x/a"
+              , ".x/a/b"
+              , "a/.x/b/.x/c"
+              , ".x/.x"
+            );
 
-            TestCase("**/.x/**", new[] {  ".x/"
-                , ".x/a"
-                , ".x/a/b"
-                , "a/.x/b"
-                , "a/b/.x/"
-                , "a/b/.x/c"
-                , "a/b/.x/c/d"
-                , "a/b/.x/c/d/e"  });
+            TestCase("**/.x/**", new[] { ".x/", ".x/a", ".x/a/b", "a/.x/b", "a/b/.x/", "a/b/.x/c", "a/b/.x/c/d", "a/b/.x/c/d/e" });
 
             AssertRegexes(
                 "/^(?!^(?:(?=.)a[^/]*?)$).*$/",

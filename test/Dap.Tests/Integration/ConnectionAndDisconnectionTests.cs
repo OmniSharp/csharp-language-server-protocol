@@ -14,9 +14,10 @@ namespace Dap.Tests.Integration
 {
     public class ConnectionAndDisconnectionTests : DebugAdapterProtocolTestBase
     {
-        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper)  : base(new JsonRpcTestOptions()
-            .ConfigureForXUnit(outputHelper)
-            .WithTestTimeout(TimeSpan.FromSeconds(20))
+        public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions()
+               .ConfigureForXUnit(outputHelper)
+               .WithTestTimeout(TimeSpan.FromSeconds(20))
         )
         {
         }
@@ -83,24 +84,28 @@ namespace Dap.Tests.Integration
 
         private void ConfigureClient(DebugAdapterClientOptions options)
         {
-            options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.OnRequest("keepalive", ct => Task.FromResult(true));
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
-            options.OnRequest("throw", async ct => {
-                throw new NotSupportedException();
-                return Task.CompletedTask;
-            });
+            options.OnRequest(
+                "throw", async ct => {
+                    throw new NotSupportedException();
+                    return Task.CompletedTask;
+                }
+            );
         }
 
         private void ConfigureServer(DebugAdapterServerOptions options)
         {
-            options.OnRequest("keepalive", (ct) => Task.FromResult(true));
+            options.OnRequest("keepalive", ct => Task.FromResult(true));
             options.WithLink("keepalive", "ka");
             options.WithLink("throw", "t");
-            options.OnRequest("throw", async ct => {
-                throw new NotSupportedException();
-                return Task.CompletedTask;
-            });
+            options.OnRequest(
+                "throw", async ct => {
+                    throw new NotSupportedException();
+                    return Task.CompletedTask;
+                }
+            );
         }
     }
 }

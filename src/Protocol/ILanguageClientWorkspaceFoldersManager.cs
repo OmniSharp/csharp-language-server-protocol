@@ -5,7 +5,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public interface ILanguageClientWorkspaceFoldersManager: IWorkspaceFoldersHandler
+    public interface ILanguageClientWorkspaceFoldersManager : IWorkspaceFoldersHandler
     {
         void Add(DocumentUri uri, string name);
         void Add(WorkspaceFolder workspaceFolder, params WorkspaceFolder[] workspaceFolders);

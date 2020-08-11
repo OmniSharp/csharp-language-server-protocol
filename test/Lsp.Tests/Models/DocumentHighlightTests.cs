@@ -3,16 +3,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace Lsp.Tests.Models
 {
     public class DocumentHighlightTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentHighlight() {
+            var model = new DocumentHighlight {
                 Kind = DocumentHighlightKind.Text,
                 Range = new Range(new Position(1, 1), new Position(2, 2))
             };

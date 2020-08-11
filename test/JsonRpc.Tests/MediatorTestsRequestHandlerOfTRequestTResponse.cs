@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -9,7 +8,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
@@ -19,7 +17,9 @@ namespace JsonRpc.Tests
     public class MediatorTestsRequestHandlerOfTRequestTResponse : AutoTestBase
     {
         [Method("textDocument/codeAction")]
-        public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, IEnumerable<Command>> { }
+        public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, IEnumerable<Command>>
+        {
+        }
 
         public class CodeActionParams : IRequest<IEnumerable<Command>>
         {
@@ -31,14 +31,11 @@ namespace JsonRpc.Tests
         public class Command
         {
             public string Title { get; set; }
-            [JsonProperty("command")]
-            public string Name { get; set; }
+            [JsonProperty("command")] public string Name { get; set; }
         }
 
-        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
-        {
+        public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper) =>
             Container = JsonRpcTestContainer.Create(testOutputHelper);
-        }
 
         [Fact]
         public async Task ExecutesHandler()
@@ -51,7 +48,7 @@ namespace JsonRpc.Tests
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
             var id = Guid.NewGuid().ToString();
-            var @params = new CodeActionParams() { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
+            var @params = new CodeActionParams { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
             var response = await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);

@@ -33,17 +33,25 @@ namespace Lsp.Tests.Integration
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a", 1, "2", false)
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2", false)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand(command, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-a")
-                    });
-                });
+                    options.OnExecuteCommand(
+                        command, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-a")
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -63,25 +71,37 @@ namespace Lsp.Tests.Integration
             var commandb = Substitute.For<Func<ExecuteCommandParams, ExecuteCommandCapability, CancellationToken, Task>>();
             var (client, server) = await Initialize(
                 options => {
-                    options.WithCapability(new ExecuteCommandCapability() {
-                        DynamicRegistration = false
-                    });
+                    options.WithCapability(
+                        new ExecuteCommandCapability {
+                            DynamicRegistration = false
+                        }
+                    );
                 }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-b", 1, "2", false )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-b", 1, "2", false)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand(commanda, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-a")
-                    });
+                    options.OnExecuteCommand(
+                        commanda, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-a")
+                        }
+                    );
 
-                    options.OnExecuteCommand(commandb, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-b")
-                    });
-                });
+                    options.OnExecuteCommand(
+                        commandb, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-b")
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -102,13 +122,19 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a", 1, "2", false )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
-                });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2", false)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -126,19 +152,27 @@ namespace Lsp.Tests.Integration
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = new Command() {
-                                Arguments = JArray.FromObject(new object[] { 1, "2", false })
-                            }
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = new Command {
+                                            Arguments = JArray.FromObject(new object[] { 1, "2", false })
+                                        }
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand(command, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-a")
-                    });
-                });
+                    options.OnExecuteCommand(
+                        command, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-a")
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -159,21 +193,31 @@ namespace Lsp.Tests.Integration
             var commandb = Substitute.For<Func<ExecuteCommandParams, Task>>();
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a",1, "2", false )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2", false)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand(commandb, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-b")
-                    });
+                    options.OnExecuteCommand(
+                        commandb, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-b")
+                        }
+                    );
 
-                    options.OnExecuteCommand(commandc, new ExecuteCommandRegistrationOptions() {
-                        Commands = new Container<string>("execute-c")
-                    });
-                });
+                    options.OnExecuteCommand(
+                        commandc, new ExecuteCommandRegistrationOptions {
+                            Commands = new Container<string>("execute-c")
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -193,19 +237,27 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a", 1 )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int>("execute-a", (i) => {
-                        i.Should().Be(1);
+                    options.OnExecuteCommand<int>(
+                        "execute-a", i => {
+                            i.Should().Be(1);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -222,20 +274,28 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a",  1, "2" )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string>("execute-a", (i, s) => {
-                        i.Should().Be(1);
-                        s.Should().Be("2");
+                    options.OnExecuteCommand<int, string>(
+                        "execute-a", (i, s) => {
+                            i.Should().Be(1);
+                            s.Should().Be("2");
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -252,21 +312,29 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a", 1, "2", true )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2", true)
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool>("execute-a", (i, s, arg3) => {
-                        i.Should().Be(1);
-                        s.Should().Be("2");
-                        arg3.Should().BeTrue();
+                    options.OnExecuteCommand<int, string, bool>(
+                        "execute-a", (i, s, arg3) => {
+                            i.Should().Be(1);
+                            s.Should().Be("2");
+                            arg3.Should().BeTrue();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -283,22 +351,30 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a",  1, "2", true, new Range((0, 1), (1, 1)) )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )))
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range>("execute-a", (i, s, arg3, arg4) => {
-                        i.Should().Be(1);
-                        s.Should().Be("2");
-                        arg3.Should().BeTrue();
-                        arg4.Should().Be(new Range((0, 1), (1, 1)));
+                    options.OnExecuteCommand<int, string, bool, Range>(
+                        "execute-a", (i, s, arg3, arg4) => {
+                            i.Should().Be(1);
+                            s.Should().Be("2");
+                            arg3.Should().BeTrue();
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -315,23 +391,33 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a",  1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" } )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create(
+                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" }
+                                        )
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>("execute-a", (i, s, arg3, arg4, arg5) => {
-                        i.Should().Be(1);
-                        s.Should().Be("2");
-                        arg3.Should().BeTrue();
-                        arg4.Should().Be(new Range((0, 1), (1, 1)));
-                        arg5.Should().ContainKeys("a", "b");
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
+                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                            i.Should().Be(1);
+                            s.Should().Be("2");
+                            arg3.Should().BeTrue();
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
+                            arg5.Should().ContainKeys("a", "b");
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -348,24 +434,35 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a",1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string>() { ["a"] = "123", ["b"] = "456" }, Guid.NewGuid() )
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create(
+                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" },
+                                            Guid.NewGuid()
+                                        )
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>("execute-a", (i, s, arg3, arg4, arg5, arg6) => {
-                        i.Should().Be(1);
-                        s.Should().Be("2");
-                        arg3.Should().BeTrue();
-                        arg4.Should().Be(new Range((0, 1), (1, 1)));
-                        arg5.Should().ContainKeys("a", "b");
-                        arg6.Should().NotBeEmpty();
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                            i.Should().Be(1);
+                            s.Should().Be("2");
+                            arg3.Should().BeTrue();
+                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
+                            arg5.Should().ContainKeys("a", "b");
+                            arg6.Should().NotBeEmpty();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -382,19 +479,27 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int>("execute-a", (i) => {
-                        i.Should().Be(default);
+                    options.OnExecuteCommand<int>(
+                        "execute-a", i => {
+                            i.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -411,20 +516,28 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string>("execute-a", (i, s) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
+                    options.OnExecuteCommand<int, string>(
+                        "execute-a", (i, s) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -441,21 +554,29 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool>("execute-a", (i, s, arg3) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
+                    options.OnExecuteCommand<int, string, bool>(
+                        "execute-a", (i, s, arg3) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -472,22 +593,30 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range>("execute-a", (i, s, arg3, arg4) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
+                    options.OnExecuteCommand<int, string, bool, Range>(
+                        "execute-a", (i, s, arg3, arg4) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -504,23 +633,31 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>("execute-a", (i, s, arg3, arg4, arg5) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
-                        arg5.Should().BeNull();
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
+                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
+                            arg5.Should().BeNull();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -537,24 +674,32 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>("execute-a", (i, s, arg3, arg4, arg5, arg6) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
-                        arg5.Should().BeNull();
-                        arg6.Should().BeEmpty();
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
+                            arg5.Should().BeNull();
+                            arg6.Should().BeEmpty();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -571,19 +716,27 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int>("execute-a", (i) => {
-                        i.Should().Be(default);
+                    options.OnExecuteCommand<int>(
+                        "execute-a", i => {
+                            i.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -600,20 +753,28 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string>("execute-a", (i, s) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
+                    options.OnExecuteCommand<int, string>(
+                        "execute-a", (i, s) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -630,21 +791,29 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool>("execute-a", (i, s, arg3) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
+                    options.OnExecuteCommand<int, string, bool>(
+                        "execute-a", (i, s, arg3) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -661,22 +830,30 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range>("execute-a", (i, s, arg3, arg4) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
+                    options.OnExecuteCommand<int, string, bool, Range>(
+                        "execute-a", (i, s, arg3, arg4) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -693,23 +870,31 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>("execute-a", (i, s, arg3, arg4, arg5) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
-                        arg5.Should().BeNull();
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
+                        "execute-a", (i, s, arg3, arg4, arg5) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
+                            arg5.Should().BeNull();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 
@@ -726,24 +911,32 @@ namespace Lsp.Tests.Integration
         {
             var (client, server) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(x => {
-                        return Task.FromResult(new CompletionList(new CompletionItem() {
-                            Command = Command.Create("execute-a")
-                        }));
-                    }, new CompletionRegistrationOptions() {
-                    });
+                    options.OnCompletion(
+                        x => {
+                            return Task.FromResult(
+                                new CompletionList(
+                                    new CompletionItem {
+                                        Command = Command.Create("execute-a")
+                                    }
+                                )
+                            );
+                        }, new CompletionRegistrationOptions()
+                    );
 
-                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>("execute-a", (i, s, arg3, arg4, arg5, arg6) => {
-                        i.Should().Be(default);
-                        s.Should().Be(default);
-                        arg3.Should().Be(default);
-                        arg4.Should().Be(default);
-                        arg5.Should().BeNull();
-                        arg6.Should().BeEmpty();
+                    options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(
+                        "execute-a", (i, s, arg3, arg4, arg5, arg6) => {
+                            i.Should().Be(default);
+                            s.Should().Be(default);
+                            arg3.Should().Be(default);
+                            arg4.Should().Be(default);
+                            arg5.Should().BeNull();
+                            arg6.Should().BeEmpty();
 
-                        return Task.CompletedTask;
-                    });
-                });
+                            return Task.CompletedTask;
+                        }
+                    );
+                }
+            );
 
             var items = await client.RequestCompletion(new CompletionParams());
 

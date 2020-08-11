@@ -1,5 +1,4 @@
 using System;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {

@@ -13,7 +13,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Descriptive text for the exception provided by the debug adapter.
         /// </summary>
-        [Optional] public string Description { get; set; }
+        [Optional]
+        public string Description { get; set; }
 
         /// <summary>
         /// Mode that caused the exception notification to be raised.
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Detailed information about the exception.
         /// </summary>
-        [Optional] public ExceptionDetails Details { get; set; }
+        [Optional]
+        public ExceptionDetails Details { get; set; }
     }
-
 }

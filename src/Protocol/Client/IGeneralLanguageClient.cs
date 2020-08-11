@@ -1,6 +1,6 @@
-﻿using OmniSharp.Extensions.JsonRpc;
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
+﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    public interface IGeneralLanguageClient : ILanguageClientProxy { }
+    public interface IGeneralLanguageClient : ILanguageClientProxy
+    {
+    }
 }

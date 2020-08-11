@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -27,7 +26,8 @@ namespace OmniSharp.Extensions.JsonRpc
             ISerializer serializer,
             IReceiver receiver,
             IScheduler scheduler,
-            ILogger<OutputHandler> logger)
+            ILogger<OutputHandler> logger
+        )
         {
             _pipeWriter = pipeWriter;
             _serializer = serializer;
@@ -37,11 +37,11 @@ namespace OmniSharp.Extensions.JsonRpc
 
             _disposable = new CompositeDisposable {
                 _queue
-                    .ObserveOn(scheduler)
-                    .Where(receiver.ShouldFilterOutput)
-                    .Select(value => Observable.FromAsync(ct => ProcessOutputStream(value, ct)))
-                    .Concat()
-                    .Subscribe(),
+                   .ObserveOn(scheduler)
+                   .Where(receiver.ShouldFilterOutput)
+                   .Select(value => Observable.FromAsync(ct => ProcessOutputStream(value, ct)))
+                   .Concat()
+                   .Subscribe(),
                 _queue
             };
         }
@@ -50,12 +50,14 @@ namespace OmniSharp.Extensions.JsonRpc
             PipeWriter pipeWriter,
             ISerializer serializer,
             IReceiver receiver,
-            ILogger<OutputHandler> logger): this(
+            ILogger<OutputHandler> logger
+        ) : this(
             pipeWriter,
             serializer,
             receiver,
-            new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "OutputHandler"}),
-            logger)
+            new EventLoopScheduler(_ => new Thread(_) { IsBackground = true, Name = "OutputHandler" }),
+            logger
+        )
         {
         }
 
@@ -105,10 +107,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public Task WaitForShutdown()
-        {
-            return _outputIsFinished.Task;
-        }
+        public Task WaitForShutdown() => _outputIsFinished.Task;
 
         private void Error(Exception ex)
         {

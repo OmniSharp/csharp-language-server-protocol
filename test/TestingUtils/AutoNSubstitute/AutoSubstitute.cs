@@ -1,11 +1,7 @@
 using System;
-using System.Collections.Concurrent;
-using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 // ReSharper disable once CheckNamespace
 namespace NSubstitute.Internals
@@ -22,16 +18,17 @@ namespace NSubstitute.Internals
         /// <param name="configureAction"></param>
         internal AutoSubstitute(
             IContainer container = null,
-            Func<IContainer, IContainer> configureAction = null)
+            Func<IContainer, IContainer> configureAction = null
+        )
         {
             Container = container ?? new Container();
 
             Container = Container
-
-                .With(rules => rules
-                        .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))
-                        .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
-                        .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
+               .With(
+                    rules => rules
+                            .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))
+                            .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
+                            .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
                 );
 
             if (configureAction != null)
@@ -41,7 +38,7 @@ namespace NSubstitute.Internals
         }
 
         /// <summary>
-        /// Gets the <see cref="IContainer"/> that handles the component resolution.
+        /// Gets the <see cref="IContainer" /> that handles the component resolution.
         /// </summary>
         internal IContainer Container { get; }
 

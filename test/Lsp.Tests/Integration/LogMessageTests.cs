@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -33,12 +31,16 @@ namespace Lsp.Tests.Integration
             server.Window.LogInfo("Here's something cool...");
             server.Window.LogWarning("Uh-oh...");
             server.Window.Log("Just gotta let you know!");
-            server.Window.Log(new LogMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
-            server.Window.LogMessage(new LogMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
+            server.Window.Log(
+                new LogMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
+            server.Window.LogMessage(
+                new LogMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
 
             await Task.Delay(1000);
 
@@ -58,12 +60,16 @@ namespace Lsp.Tests.Integration
             server.LogInfo("Here's something cool...");
             server.LogWarning("Uh-oh...");
             server.Log("Just gotta let you know!");
-            server.Log(new LogMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
-            server.LogMessage(new LogMessageParams() {
-                Type = MessageType.Log, Message = "1234"
-            });
+            server.Log(
+                new LogMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
+            server.LogMessage(
+                new LogMessageParams {
+                    Type = MessageType.Log, Message = "1234"
+                }
+            );
 
             await Task.Delay(1000);
 
@@ -74,10 +80,7 @@ namespace Lsp.Tests.Integration
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Log).And.Subject.Count(z => z.Type == MessageType.Log).Should().Be(3);
         }
 
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.OnLogMessage((request) => { _receivedMessages.Add(request); });
-        }
+        private void ConfigureClient(LanguageClientOptions options) => options.OnLogMessage(request => { _receivedMessages.Add(request); });
 
         private void ConfigureServer(LanguageServerOptions options)
         {

@@ -8,13 +8,14 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class TextDocumentSyncOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentSyncOptions() {
+            var model = new TextDocumentSyncOptions {
                 Change = TextDocumentSyncKind.Full,
                 OpenClose = true,
-                Save = new SaveOptions() {
+                Save = new SaveOptions {
                     IncludeText = true
                 },
                 WillSave = true,

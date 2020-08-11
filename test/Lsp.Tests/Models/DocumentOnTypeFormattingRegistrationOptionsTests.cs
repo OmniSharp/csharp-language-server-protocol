@@ -8,15 +8,18 @@ namespace Lsp.Tests.Models
 {
     public class DocumentOnTypeFormattingRegistrationOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentOnTypeFormattingRegistrationOptions() {
-                DocumentSelector = new DocumentSelector(new DocumentFilter() {
-                    Language = "csharp"
-                }),
+            var model = new DocumentOnTypeFormattingRegistrationOptions {
+                DocumentSelector = new DocumentSelector(
+                    new DocumentFilter {
+                        Language = "csharp"
+                    }
+                ),
                 FirstTriggerCharacter = "1",
-                MoreTriggerCharacter = new [] { "1", "2" }
+                MoreTriggerCharacter = new[] { "1", "2" }
             };
             var result = Fixture.SerializeObject(model);
 

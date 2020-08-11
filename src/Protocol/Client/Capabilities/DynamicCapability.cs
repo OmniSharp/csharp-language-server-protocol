@@ -8,7 +8,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// Whether completion supports dynamic registration.
         /// </summary>
-        [Optional, EditorBrowsable(EditorBrowsableState.Never)]
+        [Optional]
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public bool DynamicRegistration { get; set; }
     }
 }

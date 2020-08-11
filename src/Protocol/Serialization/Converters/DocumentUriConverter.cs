@@ -7,15 +7,18 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class DocumentUriConverter : JsonConverter<DocumentUri>
+    internal class DocumentUriConverter : JsonConverter<DocumentUri>
     {
-        public override DocumentUri ReadJson(JsonReader reader, Type objectType, DocumentUri existingValue,
-            bool hasExistingValue, JsonSerializer serializer)
+        public override DocumentUri ReadJson(
+            JsonReader reader, Type objectType, DocumentUri existingValue,
+            bool hasExistingValue, JsonSerializer serializer
+        )
         {
             if (reader.TokenType == JsonToken.Null)
             {
                 return null;
             }
+
             if (reader.TokenType == JsonToken.String)
             {
                 try

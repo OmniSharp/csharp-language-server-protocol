@@ -14,7 +14,9 @@ namespace Lsp.Tests.Integration
 {
     public class InitializationTests : LanguageProtocolTestBase
     {
-        public InitializationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)) { }
+        public InitializationTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        {
+        }
 
         [Fact]
         public async Task Logs_should_be_allowed_during_startup()
@@ -25,25 +27,25 @@ namespace Lsp.Tests.Integration
             _logs.Should().ContainInOrder("OnInitialize", "OnInitialized");
         }
 
-        private List<string> _logs = new List<string>();
+        private readonly List<string> _logs = new List<string>();
 
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-            options.OnLogMessage(log => {
-                _logs.Add(log.Message);
-            });
-        }
+        private void ConfigureClient(LanguageClientOptions options) =>
+            options.OnLogMessage(log => { _logs.Add(log.Message); });
 
         private void ConfigureServer(LanguageServerOptions options)
         {
-            options.OnInitialize((server, request, token) => {
-                server.Window.LogInfo("OnInitialize");
-                return Task.CompletedTask;
-            });
-            options.OnInitialized((server, request, response, token) => {
-                server.Window.LogInfo("OnInitialized");
-                return Task.CompletedTask;
-            });
+            options.OnInitialize(
+                (server, request, token) => {
+                    server.Window.LogInfo("OnInitialize");
+                    return Task.CompletedTask;
+                }
+            );
+            options.OnInitialized(
+                (server, request, response, token) => {
+                    server.Window.LogInfo("OnInitialized");
+                    return Task.CompletedTask;
+                }
+            );
         }
     }
 }

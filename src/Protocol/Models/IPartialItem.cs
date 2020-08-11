@@ -12,5 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         ProgressToken PartialResultToken { get; set; }
     }
-    public interface IPartialItemRequest<out TResponse, T> : IRequest<TResponse>, IPartialItem<T> { }
+
+    public interface IPartialItemRequest<out TResponse, T> : IRequest<TResponse>, IPartialItem<T>
+    {
+    }
 }

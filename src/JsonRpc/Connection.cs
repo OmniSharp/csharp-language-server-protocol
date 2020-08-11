@@ -2,7 +2,6 @@ using System;
 using System.IO.Pipelines;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.JsonRpc.Server;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -23,8 +22,8 @@ namespace OmniSharp.Extensions.JsonRpc
             TimeSpan requestTimeout,
             bool supportContentModified,
             int concurrency,
-            CreateResponseExceptionHandler getException = null)
-        {
+            CreateResponseExceptionHandler getException = null
+        ) =>
             _inputHandler = new InputHandler(
                 input,
                 outputHandler,
@@ -37,9 +36,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 getException,
                 requestTimeout,
                 supportContentModified,
-                concurrency > 1 ? (int?)concurrency : null
+                concurrency > 1 ? (int?) concurrency : null
             );
-        }
 
         public void Open()
         {

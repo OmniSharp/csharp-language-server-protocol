@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -13,8 +12,6 @@ using MediatR;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
-using Microsoft.Extensions.DependencyInjection;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -28,8 +25,7 @@ namespace Generation.Tests
         {
             // this "core assemblies hack" is from https://stackoverflow.com/a/47196516/4418060
             var coreAssemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
-            var coreAssemblyNames = new[]
-            {
+            var coreAssemblyNames = new[] {
                 "mscorlib.dll",
                 "netstandard.dll",
                 "System.dll",
@@ -41,8 +37,7 @@ namespace Generation.Tests
             };
             var coreMetaReferences =
                 coreAssemblyNames.Select(x => MetadataReference.CreateFromFile(Path.Combine(coreAssemblyPath, x)));
-            var otherAssemblies = new[]
-            {
+            var otherAssemblies = new[] {
                 typeof(CSharpCompilation).Assembly,
                 typeof(CodeGenerationAttributeAttribute).Assembly,
                 typeof(GenerateHandlerMethodsAttribute).Assembly,
@@ -51,8 +46,8 @@ namespace Generation.Tests
                 typeof(ILanguageServerRegistry).Assembly,
             };
             MetadataReferences = coreMetaReferences
-                .Concat<MetadataReference>(otherAssemblies.Distinct().Select(x => MetadataReference.CreateFromFile(x.Location)))
-                .ToImmutableArray();
+                                .Concat<MetadataReference>(otherAssemblies.Distinct().Select(x => MetadataReference.CreateFromFile(x.Location)))
+                                .ToImmutableArray();
         }
 
         internal const string CrLf = "\r\n";
@@ -84,10 +79,7 @@ namespace Generation.Tests
             return generatedText;
         }
 
-        public static string NormalizeToLf(string input)
-        {
-            return input.Replace(CrLf, Lf);
-        }
+        public static string NormalizeToLf(string input) => input.Replace(CrLf, Lf);
 
         public static async Task<SyntaxTree> GenerateAsync(string source)
         {
@@ -98,7 +90,7 @@ namespace Generation.Tests
                 throw new InvalidOperationException("Could not get the syntax tree of the sources");
             }
 
-            var compilation = (CSharpCompilation?)await document.Project.GetCompilationAsync();
+            var compilation = (CSharpCompilation?) await document.Project.GetCompilationAsync();
             if (compilation is null)
             {
                 throw new InvalidOperationException("Could not compile the sources");
@@ -113,26 +105,29 @@ namespace Generation.Tests
 
         public static Project CreateProject(params string[] sources)
         {
-            var projectId = ProjectId.CreateNewId(debugName: TestProjectName);
+            var projectId = ProjectId.CreateNewId(TestProjectName);
             var solution = new AdhocWorkspace()
-                .CurrentSolution
-                .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
-                .WithProjectCompilationOptions(
-                    projectId,
-                    new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary))
-                .WithProjectParseOptions(
-                    projectId,
-                    new CSharpParseOptions(preprocessorSymbols: new[] { "SOMETHING_ACTIVE" }))
-                .AddMetadataReferences(projectId, MetadataReferences);
+                          .CurrentSolution
+                          .AddProject(projectId, TestProjectName, TestProjectName, LanguageNames.CSharp)
+                          .WithProjectCompilationOptions(
+                               projectId,
+                               new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+                           )
+                          .WithProjectParseOptions(
+                               projectId,
+                               new CSharpParseOptions(preprocessorSymbols: new[] { "SOMETHING_ACTIVE" })
+                           )
+                          .AddMetadataReferences(projectId, MetadataReferences);
 
-            int count = 0;
+            var count = 0;
             foreach (var source in sources)
             {
                 var newFileName = DefaultFilePathPrefix + count + "." + CSharpDefaultFileExt;
-                var documentId = DocumentId.CreateNewId(projectId, debugName: newFileName);
+                var documentId = DocumentId.CreateNewId(projectId, newFileName);
                 solution = solution.AddDocument(documentId, newFileName, SourceText.From(source));
                 count++;
             }
+
             var project = solution.GetProject(projectId);
             if (project is null)
             {

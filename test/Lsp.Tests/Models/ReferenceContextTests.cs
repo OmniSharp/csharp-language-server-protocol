@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class ReferenceContextTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ReferenceContext() {
+            var model = new ReferenceContext {
                 IncludeDeclaration = true
             };
             var result = Fixture.SerializeObject(model);

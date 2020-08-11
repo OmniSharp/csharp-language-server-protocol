@@ -9,10 +9,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class DocumentOnTypeFormattingOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DocumentOnTypeFormattingOptions() {
+            var model = new DocumentOnTypeFormattingOptions {
                 FirstTriggerCharacter = ".",
                 MoreTriggerCharacter = ";`".Select(x => x.ToString()).ToArray(),
             };
@@ -24,10 +25,11 @@ namespace Lsp.Tests.Capabilities.Server
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void Optional(string expected)
         {
-            var model = new DocumentOnTypeFormattingOptions() {
+            var model = new DocumentOnTypeFormattingOptions {
                 FirstTriggerCharacter = "."
             };
             var result = Fixture.SerializeObject(model);

@@ -6,16 +6,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class EmptyDisposableConfiguration : IScopedConfiguration
+    internal class EmptyDisposableConfiguration : IScopedConfiguration
     {
         public static EmptyDisposableConfiguration Instance { get; } = new EmptyDisposableConfiguration();
-        private ConfigurationRoot _configuration;
+        private readonly ConfigurationRoot _configuration;
 
-        private EmptyDisposableConfiguration()
+        private EmptyDisposableConfiguration() => _configuration = new ConfigurationBuilder().Build() as ConfigurationRoot;
+
+        void IDisposable.Dispose()
         {
-            _configuration = new ConfigurationBuilder().Build() as ConfigurationRoot;
         }
-        void IDisposable.Dispose() { }
 
         IConfigurationSection IConfiguration.GetSection(string key) => _configuration.GetSection(key);
 

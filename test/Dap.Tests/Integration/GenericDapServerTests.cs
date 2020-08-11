@@ -1,4 +1,3 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -36,9 +35,9 @@ namespace Dap.Tests.Integration
             handler.Count.Should().Be(6);
         }
 
-        class Handler : IStepBackHandler, IStepInTargetsHandler, IStepInHandler, IStepOutHandler, INextHandler, IReverseContinueHandler
+        private class Handler : IStepBackHandler, IStepInTargetsHandler, IStepInHandler, IStepOutHandler, INextHandler, IReverseContinueHandler
         {
-            public int Count { get; set; } = 0;
+            public int Count { get; set; }
 
             public Task<StepBackResponse> Handle(StepBackArguments request, CancellationToken cancellationToken)
             {

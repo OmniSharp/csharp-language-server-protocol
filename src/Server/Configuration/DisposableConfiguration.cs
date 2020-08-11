@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class DisposableConfiguration : IScopedConfiguration
+    internal class DisposableConfiguration : IScopedConfiguration
     {
         private readonly ConfigurationRoot _configuration;
         private readonly WorkspaceConfigurationSource _configurationSource;

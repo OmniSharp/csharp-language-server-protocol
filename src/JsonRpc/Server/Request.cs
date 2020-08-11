@@ -7,7 +7,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         public Request(
             object id,
             string method,
-            JToken @params)
+            JToken @params
+        )
         {
             Id = id;
             Method = method;

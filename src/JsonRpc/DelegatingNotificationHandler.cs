@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ISerializer _serializer;
         private readonly Func<T, CancellationToken, Task> _handler;
 
-        public DelegatingNotificationHandler( ISerializer serializer, Func<T, CancellationToken, Task> handler)
+        public DelegatingNotificationHandler(ISerializer serializer, Func<T, CancellationToken, Task> handler)
         {
             _serializer = serializer;
             _handler = handler;

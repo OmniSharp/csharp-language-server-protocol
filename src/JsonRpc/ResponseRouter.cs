@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Concurrent;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.JsonRpc.Server;
+using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -23,40 +22,29 @@ namespace OmniSharp.Extensions.JsonRpc
             Serializer = serializer;
         }
 
-        public void SendNotification(string method)
-        {
-            OutputHandler.Send(new Client.OutgoingNotification() {
-                Method = method
-            });
-        }
+        public void SendNotification(string method) =>
+            OutputHandler.Send(
+                new OutgoingNotification {
+                    Method = method
+                }
+            );
 
-        public void SendNotification<T>(string method, T @params)
-        {
-            OutputHandler.Send(new Client.OutgoingNotification() {
-                Method = method,
-                Params = @params
-            });
-        }
+        public void SendNotification<T>(string method, T @params) =>
+            OutputHandler.Send(
+                new OutgoingNotification {
+                    Method = method,
+                    Params = @params
+                }
+            );
 
-        public void SendNotification(IRequest @params)
-        {
-            SendNotification(GetMethodName(@params.GetType()), @params);
-        }
+        public void SendNotification(IRequest @params) => SendNotification(GetMethodName(@params.GetType()), @params);
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken)
-        {
-            return SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
-        }
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> @params, CancellationToken cancellationToken) =>
+            SendRequest(GetMethodName(@params.GetType()), @params).Returning<TResponse>(cancellationToken);
 
-        public IResponseRouterReturns SendRequest(string method)
-        {
-            return new ResponseRouterReturnsImpl(this, method, new object());
-        }
+        public IResponseRouterReturns SendRequest(string method) => new ResponseRouterReturnsImpl(this, method, new object());
 
-        public IResponseRouterReturns SendRequest<T>(string method, T @params)
-        {
-            return new ResponseRouterReturnsImpl(this, method, @params);
-        }
+        public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
 
         public (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id)
         {
@@ -64,12 +52,10 @@ namespace OmniSharp.Extensions.JsonRpc
             return source;
         }
 
-        private string GetMethodName(Type type)
-        {
-            return HandlerTypeDescriptorHelper.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
-        }
+        private string GetMethodName(Type type) =>
+            HandlerTypeDescriptorHelper.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
 
-        class ResponseRouterReturnsImpl : IResponseRouterReturns
+        private class ResponseRouterReturnsImpl : IResponseRouterReturns
         {
             private readonly ResponseRouter _router;
             private readonly string _method;
@@ -86,19 +72,23 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 var nextId = _router.Serializer.GetNextId();
                 var tcs = new TaskCompletionSource<JToken>();
-                _router.Requests.TryAdd(nextId, (_method, tcs));
+                _router.Requests.TryAdd(nextId, ( _method, tcs ));
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                _router.OutputHandler.Send(new Client.OutgoingRequest() {
-                    Method = _method,
-                    Params = _params,
-                    Id = nextId
-                });
-                cancellationToken.Register(() => {
-                    if (tcs.Task.IsCompleted) return;
-                    _router.CancelRequest(new CancelParams() {Id = nextId});
-                });
+                _router.OutputHandler.Send(
+                    new OutgoingRequest {
+                        Method = _method,
+                        Params = _params,
+                        Id = nextId
+                    }
+                );
+                cancellationToken.Register(
+                    () => {
+                        if (tcs.Task.IsCompleted) return;
+                        _router.CancelRequest(new CancelParams { Id = nextId });
+                    }
+                );
 
                 try
                 {
@@ -116,10 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken)
-            {
-                await Returning<Unit>(cancellationToken);
-            }
+            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken);
         }
     }
 }

@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [Obsolete(Constants.Proposal)]
     [Method(TextDocumentNames.SemanticTokensFullDelta, Direction.ClientToServer)]
     public class SemanticTokensDeltaParams : IWorkDoneProgressParams, ITextDocumentIdentifierParams,
-        IPartialItemRequest<SemanticTokensFullOrDelta, SemanticTokensFullOrDeltaPartialResult>
+                                             IPartialItemRequest<SemanticTokensFullOrDelta, SemanticTokensFullOrDeltaPartialResult>
     {
         /// <summary>
         /// The text document.

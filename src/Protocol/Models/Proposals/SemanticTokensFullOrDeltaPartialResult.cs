@@ -9,14 +9,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     public struct SemanticTokensFullOrDeltaPartialResult
     {
         public SemanticTokensFullOrDeltaPartialResult(
-            SemanticTokensPartialResult full)
+            SemanticTokensPartialResult full
+        )
         {
             Full = full;
             Delta = null;
         }
 
         public SemanticTokensFullOrDeltaPartialResult(
-            SemanticTokensDeltaPartialResult delta)
+            SemanticTokensDeltaPartialResult delta
+        )
         {
             Full = null;
             Delta = delta;
@@ -28,14 +30,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         public bool IsFull => Full != null;
         public SemanticTokensPartialResult Full { get; }
 
-        public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensPartialResult semanticTokensPartialResult)
-        {
-            return new SemanticTokensFullOrDeltaPartialResult(semanticTokensPartialResult);
-        }
+        public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensPartialResult semanticTokensPartialResult) =>
+            new SemanticTokensFullOrDeltaPartialResult(semanticTokensPartialResult);
 
-        public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensDeltaPartialResult semanticTokensDeltaPartialResult)
-        {
-            return new SemanticTokensFullOrDeltaPartialResult(semanticTokensDeltaPartialResult);
-        }
+        public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensDeltaPartialResult semanticTokensDeltaPartialResult) =>
+            new SemanticTokensFullOrDeltaPartialResult(semanticTokensDeltaPartialResult);
     }
 }

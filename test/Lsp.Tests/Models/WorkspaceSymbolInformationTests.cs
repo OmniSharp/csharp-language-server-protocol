@@ -10,13 +10,14 @@ namespace Lsp.Tests.Models
 {
     public class WorkspaceSymbolInformationTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SymbolInformation() {
+            var model = new SymbolInformation {
                 ContainerName = "abc",
                 Kind = SymbolKind.Boolean,
-                Location = new Location() {
+                Location = new Location {
                     Range = new Range(new Position(1, 2), new Position(3, 4)),
                     Uri = new Uri("file:///abc/123.cs")
                 },

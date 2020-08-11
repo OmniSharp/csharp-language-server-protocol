@@ -26,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public WatchKind Kind { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {GlobPattern}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

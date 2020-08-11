@@ -80,28 +80,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         private readonly string _value;
 
-        public CodeActionKind(string kind)
-        {
-            _value = kind;
-        }
+        public CodeActionKind(string kind) => _value = kind;
 
-        public static implicit operator CodeActionKind(string kind)
-        {
-            return new CodeActionKind(kind);
-        }
+        public static implicit operator CodeActionKind(string kind) => new CodeActionKind(kind);
 
-        public static implicit operator string(CodeActionKind kind)
-        {
-            return kind._value;
-        }
+        public static implicit operator string(CodeActionKind kind) => kind._value;
 
         /// <inheritdoc />
         public override string ToString() => _value;
+
         public bool Equals(CodeActionKind other) => _value == other._value;
 
         public override bool Equals(object obj) => obj is CodeActionKind other && Equals(other);
 
-        public override int GetHashCode() => (_value != null ? _value.GetHashCode() : 0);
+        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
 
         public static bool operator ==(CodeActionKind left, CodeActionKind right) => left.Equals(right);
 

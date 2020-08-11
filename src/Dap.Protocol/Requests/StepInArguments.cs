@@ -1,6 +1,6 @@
-using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -16,7 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Optional id of the target to step into.
         /// </summary>
-        [Optional] public long? TargetId { get; set; }
+        [Optional]
+        public long? TargetId { get; set; }
 
         /// <summary>
         /// Optional granularity to step. If no granularity is specified, a granularity of 'statement' is assumed.
@@ -24,5 +25,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         [Optional]
         public SteppingGranularity Granularity { get; set; }
     }
-
 }

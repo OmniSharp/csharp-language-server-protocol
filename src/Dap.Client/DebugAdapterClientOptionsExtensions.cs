@@ -2,16 +2,13 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
     public static class DebugAdapterClientOptionsExtensions
     {
-
         public static DebugAdapterClientOptions WithSerializer(this DebugAdapterClientOptions options, ISerializer serializer)
         {
             options.Serializer = serializer;
@@ -42,8 +39,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return options;
         }
 
-        public static DebugAdapterClientOptions ConfigureLogging(this DebugAdapterClientOptions options,
-            Action<ILoggingBuilder> builderAction)
+        public static DebugAdapterClientOptions ConfigureLogging(
+            this DebugAdapterClientOptions options,
+            Action<ILoggingBuilder> builderAction
+        )
         {
             options.LoggingBuilderAction = builderAction;
             return options;
@@ -55,8 +54,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return options;
         }
 
-        public static DebugAdapterClientOptions ConfigureConfiguration(this DebugAdapterClientOptions options,
-            Action<IConfigurationBuilder> builderAction)
+        public static DebugAdapterClientOptions ConfigureConfiguration(
+            this DebugAdapterClientOptions options,
+            Action<IConfigurationBuilder> builderAction
+        )
         {
             options.ConfigurationBuilderAction = builderAction;
             return options;

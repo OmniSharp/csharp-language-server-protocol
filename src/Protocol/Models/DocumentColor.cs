@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using System.Reflection.Emit;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -30,6 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public double Alpha { get; set; }
 
         private string DebuggerDisplay => $"R:{Red} G:{Green} B:{Blue} A:{Alpha}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

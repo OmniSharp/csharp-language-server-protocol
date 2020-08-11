@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    class ContractResolver : DefaultContractResolver
+    internal class ContractResolver : DefaultContractResolver
     {
         private readonly CompletionItemKind[] _completionItemKinds;
         private readonly CompletionItemTag[] _completionItemTags;
@@ -30,7 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             SymbolTag[] documentSymbolTags,
             SymbolTag[] workspaceSymbolTags,
             DiagnosticTag[] diagnosticTags,
-            CodeActionKind[] codeActionKinds)
+            CodeActionKind[] codeActionKinds
+        )
         {
             _completionItemKinds = completionItemKinds;
             _completionItemTags = completionItemTags;
@@ -52,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 foreach (var property in contract.Properties)
                 {
                     var isSupportedGetter = property.PropertyType.GetTypeInfo()
-                        .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
+                                                    .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
                     property.NullValueHandling = NullValueHandling.Ignore;
                     property.GetIsSpecified = o => {
                         var propertyValue = property.ValueProvider.GetValue(o);
@@ -69,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
             var property = base.CreateProperty(member, memberSerialization);
             if (member.GetCustomAttributes<OptionalAttribute>(true).Any()
-                || property.DeclaringType.Name.EndsWith("Capabilities")
+             || property.DeclaringType.Name.EndsWith("Capabilities")
             )
             {
                 property.NullValueHandling = NullValueHandling.Ignore;
@@ -146,28 +147,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             return property;
         }
 
-        class SupportsValueProvider : IValueProvider
+        private class SupportsValueProvider : IValueProvider
         {
             private readonly IValueProvider _valueProvider;
-            public SupportsValueProvider(IValueProvider valueProvider)
-            {
-                _valueProvider = valueProvider;
-            }
-            public void SetValue(object target, object value)
-            {
-                _valueProvider.SetValue(target, value);
-            }
+            public SupportsValueProvider(IValueProvider valueProvider) => _valueProvider = valueProvider;
 
-            public object GetValue(object target)
-            {
-                return _valueProvider.GetValue(target) switch {
+            public void SetValue(object target, object value) => _valueProvider.SetValue(target, value);
+
+            public object GetValue(object target) =>
+                _valueProvider.GetValue(target) switch {
                     ISupports supports when supports.IsSupported => supports,
-                    _ => null
+                    _                                            => null
                 };
-            }
         }
 
-        class RangeValueProvider<T> : IValueProvider
+        private class RangeValueProvider<T> : IValueProvider
             where T : struct
         {
             private readonly IValueProvider _valueProvider;
@@ -181,10 +175,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 _defaultValue = validValues[0];
             }
 
-            public void SetValue(object target, object value)
-            {
-                _valueProvider.SetValue(target, value);
-            }
+            public void SetValue(object target, object value) => _valueProvider.SetValue(target, value);
 
             public object GetValue(object target)
             {
@@ -198,7 +189,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             }
         }
 
-        class ArrayRangeValueProvider<T> : IValueProvider
+        private class ArrayRangeValueProvider<T> : IValueProvider
             where T : struct
         {
             private readonly IValueProvider _valueProvider;
@@ -210,10 +201,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 _validValues = validValues;
             }
 
-            public void SetValue(object target, object value)
-            {
-                _valueProvider.SetValue(target, value);
-            }
+            public void SetValue(object target, object value) => _valueProvider.SetValue(target, value);
 
             public object GetValue(object target)
             {

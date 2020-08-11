@@ -8,14 +8,17 @@ namespace Lsp.Tests.Models
 {
     public class ShowMessageRequestParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ShowMessageRequestParams() {
+            var model = new ShowMessageRequestParams {
                 Message = "message",
-                Actions = new Container<MessageActionItem>(new MessageActionItem() {
-                    Title = "abc"
-                }),
+                Actions = new Container<MessageActionItem>(
+                    new MessageActionItem {
+                        Title = "abc"
+                    }
+                ),
                 Type = MessageType.Error
             };
             var result = Fixture.SerializeObject(model);

@@ -1,7 +1,7 @@
 using System;
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -17,18 +17,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The code locations of the breakpoints.
         /// </summary>
-        [Optional] public Container<SourceBreakpoint> Breakpoints { get; set; }
+        [Optional]
+        public Container<SourceBreakpoint> Breakpoints { get; set; }
 
         /// <summary>
         /// Deprecated: The code locations of the breakpoints.
         /// </summary>
         [Obsolete("Deprecated")]
-        [Optional] public Container<long> Lines { get; set; }
+        [Optional]
+        public Container<long> Lines { get; set; }
 
         /// <summary>
         /// A value of true indicates that the underlying source has been modified which results in new breakpoint locations.
         /// </summary>
-        [Optional] public bool? SourceModified { get; set; }
+        [Optional]
+        public bool? SourceModified { get; set; }
     }
-
 }

@@ -16,12 +16,14 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                 writer.WritePropertyName("data");
                 serializer.Serialize(writer, value.Data);
             }
+
             writer.WritePropertyName("message");
             writer.WriteValue(value.Message);
             writer.WriteEndObject();
         }
 
-        public override ErrorMessage ReadJson(JsonReader reader, Type objectType, ErrorMessage existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException();
+        public override ErrorMessage ReadJson(JsonReader reader, Type objectType, ErrorMessage existingValue, bool hasExistingValue, JsonSerializer serializer) =>
+            throw new NotImplementedException();
 
         public override bool CanRead => false;
     }

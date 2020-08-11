@@ -1,10 +1,8 @@
-using System.ComponentModel;
 using System.Diagnostics;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -46,7 +44,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public string Tooltip { get; set; }
 
-        private string DebuggerDisplay => $"{Range}{(Target != null ? $" {Target}" : "")}{(string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "")}";
+        private string DebuggerDisplay => $"{Range}{( Target != null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }
@@ -88,14 +87,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public T Data
         {
-            get => ((ICanBeResolved)this).Data?.ToObject<T>();
-            set => ((ICanBeResolved)this).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
         }
 
         JToken ICanBeResolved.Data { get; set; }
 
         public static implicit operator DocumentLink(DocumentLink<T> value) => new DocumentLink {
-            Data = ((ICanBeResolved)value).Data,
+            Data = ( (ICanBeResolved) value ).Data,
             Range = value.Range,
             Target = value.Target,
             Tooltip = value.Tooltip,
@@ -108,7 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
                 Target = value.Target,
                 Tooltip = value.Tooltip,
             };
-            ((ICanBeResolved)item).Data = value.Data;
+            ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
     }

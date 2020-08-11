@@ -12,34 +12,31 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Shared
 {
-    class DebugAdapterHandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
+    internal class DebugAdapterHandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
-        private ImmutableHashSet<HandlerDescriptor> _descriptors =  ImmutableHashSet<HandlerDescriptor>.Empty;
+        private ImmutableHashSet<HandlerDescriptor> _descriptors = ImmutableHashSet<HandlerDescriptor>.Empty;
         private readonly IServiceProvider _serviceProvider;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
-        public IEnumerator<IHandlerDescriptor> GetEnumerator()
-        {
-            return _descriptors.GetEnumerator();
-        }
+        public IEnumerator<IHandlerDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(handler, options);
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => AddHandler(method, handler, options);
         public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => AddHandler(factory(_serviceProvider), options);
         public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => AddHandler(method, factory(_serviceProvider), options);
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => AddHandler(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => AddHandler(
+            ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options
+        );
+
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => AddHandler(
+            method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options
+        );
 
         IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
         {
@@ -49,9 +46,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 destinationMethod,
                 source.HandlerType,
                 source.Handler,
-                source.RequestProcessType.HasValue ? new JsonRpcHandlerOptions() {RequestProcessType = source.RequestProcessType.Value} : null,
+                source.RequestProcessType.HasValue ? new JsonRpcHandlerOptions { RequestProcessType = source.RequestProcessType.Value } : null,
                 source.TypeDescriptor,
-                source.HandlerType);
+                source.HandlerType
+            );
             Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
 
             return descriptor;
@@ -64,6 +62,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             {
                 cd.Add(AddHandler(handler, null));
             }
+
             return cd;
         }
 
@@ -74,6 +73,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             {
                 cd.Add(AddHandler(handlerFactory(_serviceProvider), null));
             }
+
             return cd;
         }
 
@@ -84,21 +84,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             {
                 cd.Add(AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, null));
             }
-            return cd;
 
+            return cd;
         }
 
-        class EqualityComparer : IEqualityComparer<(string method, Type implementedInterface)>
+        private class EqualityComparer : IEqualityComparer<(string method, Type implementedInterface)>
         {
-            public bool Equals((string method, Type implementedInterface) x, (string method, Type implementedInterface) y)
-            {
-                return x.method?.Equals(y.method) == true;
-            }
+            public bool Equals((string method, Type implementedInterface) x, (string method, Type implementedInterface) y) => x.method?.Equals(y.method) == true;
 
-            public int GetHashCode((string method, Type implementedInterface) obj)
-            {
-                return obj.method?.GetHashCode() ?? 0;
-            }
+            public int GetHashCode((string method, Type implementedInterface) obj) => obj.method?.GetHashCode() ?? 0;
         }
 
         private IDisposable AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
@@ -112,10 +106,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         {
             var cd = new CompositeDisposable();
             foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
-                .ImplementedInterfaces
-                .Select(x => (method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x))
-                .Distinct(new EqualityComparer())
-                .Where(x => !string.IsNullOrWhiteSpace(x.method))
+                                                                  .ImplementedInterfaces
+                                                                  .Select(x => ( method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x ))
+                                                                  .Distinct(new EqualityComparer())
+                                                                  .Where(x => !string.IsNullOrWhiteSpace(x.method))
             )
             {
                 var descriptor = GetDescriptor(method, implementedInterface, handler, options);
@@ -134,9 +128,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             return GetDescriptor(method, handlerType, handler, options, typeDescriptor, @interface);
         }
 
-        private HandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options,
+        private HandlerDescriptor GetDescriptor(
+            string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options,
             IHandlerTypeDescriptor typeDescriptor,
-            Type @interface)
+            Type @interface
+        )
         {
             Type @params = null;
             Type response = null;
@@ -144,7 +140,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             {
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
                 var requestInterface = @params.GetInterfaces()
-                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
+                                              .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
                 if (requestInterface != null)
                 {
                     response = requestInterface.GetGenericArguments()[0];
@@ -155,9 +151,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 options?.RequestProcessType ??
                 typeDescriptor?.RequestProcessType ??
                 handlerType.GetCustomAttributes(true)
-                    .Concat(@interface.GetCustomAttributes(true))
-                    .OfType<ProcessAttribute>()
-                    .FirstOrDefault()?.Type;
+                           .Concat(@interface.GetCustomAttributes(true))
+                           .OfType<ProcessAttribute>()
+                           .FirstOrDefault()?.Type;
 
             var descriptor = new HandlerDescriptor(
                 method,
@@ -176,19 +172,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                     }
 
                     Interlocked.Exchange(ref _descriptors, descriptors.ToImmutable());
-                });
+                }
+            );
 
             return descriptor;
         }
 
-        public bool ContainsHandler(Type type)
-        {
-            return ContainsHandler(type.GetTypeInfo());
-        }
+        public bool ContainsHandler(Type type) => ContainsHandler(type.GetTypeInfo());
 
-        public bool ContainsHandler(TypeInfo typeInfo)
-        {
-            return this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
-        }
+        public bool ContainsHandler(TypeInfo typeInfo) =>
+            this.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
     }
 }

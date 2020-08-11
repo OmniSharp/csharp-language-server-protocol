@@ -19,37 +19,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             try
             {
                 KnownHandlers = HandlerTypeDescriptorHelper.KnownHandlers.Values
-                    .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
-                    .ToImmutableSortedDictionary(x => x.Method, x => x, StringComparer.Ordinal);
+                                                           .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
+                                                           .ToImmutableSortedDictionary(x => x.Method, x => x, StringComparer.Ordinal);
             }
             catch (Exception e)
             {
-                throw new AggregateException($"Failed", e);
+                throw new AggregateException("Failed", e);
             }
         }
 
         public static ILspHandlerTypeDescriptor GetHandlerTypeForRegistrationOptions(object registrationOptions)
         {
             var registrationType = registrationOptions.GetType();
-            var interfaces = new HashSet<Type>(registrationOptions.GetType().GetInterfaces()
-                .Except(registrationType.BaseType?.GetInterfaces() ?? Enumerable.Empty<Type>()));
-            return interfaces.SelectMany(x =>
-                    KnownHandlers.Values
-                        .Where(z => z.HasRegistration)
-                        .Where(z => x.IsAssignableFrom(z.RegistrationType)))
-                .FirstOrDefault();
+            var interfaces = new HashSet<Type>(
+                registrationOptions.GetType().GetInterfaces()
+                                   .Except(registrationType.BaseType?.GetInterfaces() ?? Enumerable.Empty<Type>())
+            );
+            return interfaces.SelectMany(
+                                  x =>
+                                      KnownHandlers.Values
+                                                   .Where(z => z.HasRegistration)
+                                                   .Where(z => x.IsAssignableFrom(z.RegistrationType))
+                              )
+                             .FirstOrDefault();
         }
 
-        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(string method)
-        {
-            return KnownHandlers.TryGetValue(method, out var descriptor) ? descriptor : null;
-        }
+        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(string method) => KnownHandlers.TryGetValue(method, out var descriptor) ? descriptor : null;
 
-        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor<T>()
-        {
-            return KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == typeof(T)) ??
-                   GetHandlerTypeDescriptor(HandlerTypeDescriptorHelper.GetMethodName(typeof(T)));
-        }
+        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor<T>() =>
+            KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == typeof(T)) ??
+            GetHandlerTypeDescriptor(HandlerTypeDescriptorHelper.GetMethodName(typeof(T)));
 
         public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(Type type)
         {

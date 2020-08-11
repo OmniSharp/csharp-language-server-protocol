@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    class BaseWorkspaceConfigurationProvider : ConfigurationProvider
+    internal class BaseWorkspaceConfigurationProvider : ConfigurationProvider
     {
         protected void ParseClientConfiguration(JToken settings, string prefix = null)
         {
@@ -24,12 +24,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             {
                 foreach (var item in
                     JObject.FromObject(settings)
-                        .Descendants()
-                        .Where(p => !p.Any())
-                        .OfType<JValue>()
-                        .Select(item =>
-                            new KeyValuePair<string, string>(GetKey(item, prefix),
-                                item.ToString(CultureInfo.InvariantCulture))))
+                           .Descendants()
+                           .Where(p => !p.Any())
+                           .OfType<JValue>()
+                           .Select(
+                                item =>
+                                    new KeyValuePair<string, string>(
+                                        GetKey(item, prefix),
+                                        item.ToString(CultureInfo.InvariantCulture)
+                                    )
+                            ))
                 {
                     Data[item.Key] = item.Value;
                 }
@@ -39,10 +43,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 // Might not have been json... try xml.
                 foreach (var item in
                     XDocument.Parse(settings.ToString())
-                        .Descendants()
-                        .Where(p => !p.Descendants().Any())
-                        .Select(item =>
-                            new KeyValuePair<string, string>(GetKey(item, prefix), item.ToString())))
+                             .Descendants()
+                             .Where(p => !p.Descendants().Any())
+                             .Select(
+                                  item =>
+                                      new KeyValuePair<string, string>(GetKey(item, prefix), item.ToString())
+                              ))
                 {
                     Data[item.Key] = item.Value;
                 }

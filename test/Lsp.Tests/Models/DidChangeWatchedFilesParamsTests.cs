@@ -9,12 +9,13 @@ namespace Lsp.Tests.Models
 {
     public class DidChangeWatchedFilesParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new DidChangeWatchedFilesParams() {
+            var model = new DidChangeWatchedFilesParams {
                 Changes = new[] {
-                    new FileEvent() {
+                    new FileEvent {
                         Type = FileChangeType.Created,
                         Uri = new Uri("file:///someawesomefile")
                     }
@@ -28,12 +29,13 @@ namespace Lsp.Tests.Models
             deresult.Should().BeEquivalentTo(model);
         }
 
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void NonStandardCharactersTest(string expected)
         {
-            var model = new DidChangeWatchedFilesParams() {
+            var model = new DidChangeWatchedFilesParams {
                 Changes = new[] {
-                    new FileEvent() {
+                    new FileEvent {
                         Type = FileChangeType.Created,
                         // Mörkö
                         Uri = new Uri("file:///M%C3%B6rk%C3%B6.cs")

@@ -8,13 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         public TextDocumentIdentifier()
         {
-
         }
 
-        public TextDocumentIdentifier(DocumentUri uri)
-        {
-            Uri = uri;
-        }
+        public TextDocumentIdentifier(DocumentUri uri) => Uri = uri;
 
         /// <summary>
         /// The text document's URI.
@@ -32,8 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
-            return Equals((TextDocumentIdentifier)obj);
+            if (obj.GetType() != GetType()) return false;
+            return Equals((TextDocumentIdentifier) obj);
         }
 
         public override int GetHashCode() => Uri.GetHashCode();
@@ -42,17 +38,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static bool operator !=(TextDocumentIdentifier left, TextDocumentIdentifier right) => !Equals(left, right);
 
-        public static implicit operator TextDocumentIdentifier(DocumentUri uri)
-        {
-            return new TextDocumentIdentifier() { Uri = uri };
-        }
+        public static implicit operator TextDocumentIdentifier(DocumentUri uri) => new TextDocumentIdentifier { Uri = uri };
 
-        public static implicit operator TextDocumentIdentifier(string uri)
-        {
-            return new TextDocumentIdentifier() { Uri = uri };
-        }
+        public static implicit operator TextDocumentIdentifier(string uri) => new TextDocumentIdentifier { Uri = uri };
 
         private string DebuggerDisplay => Uri?.ToString();
+
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
     }

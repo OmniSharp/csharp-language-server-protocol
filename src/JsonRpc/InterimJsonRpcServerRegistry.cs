@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -7,10 +6,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly IHandlersManager _handlersManager;
 
-        public InterimJsonRpcServerRegistry(IHandlersManager handlersManager)
-        {
-            _handlersManager = handlersManager;
-        }
+        public InterimJsonRpcServerRegistry(IHandlersManager handlersManager) => _handlersManager = handlersManager;
 
         public sealed override T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
@@ -46,15 +42,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options)
-        {
-            return AddHandler(typeof(THandler), options);
-        }
+        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options) => AddHandler(typeof(THandler), options);
 
-        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options)
-        {
-            return AddHandler(method, typeof(THandler), options);
-        }
+        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options) => AddHandler(method, typeof(THandler), options);
 
         public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options)
         {

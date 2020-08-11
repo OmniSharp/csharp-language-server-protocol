@@ -8,22 +8,17 @@ using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using MediatR;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
@@ -63,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
-                .AddLanguageClientInternals(options, outerServiceProvider);
+                                  .AddLanguageClientInternals(options, outerServiceProvider);
 
         public static LanguageClient Create(LanguageClientOptions options) => Create(options, null);
         public static LanguageClient Create(Action<LanguageClientOptions> optionsAction) => Create(optionsAction, null);
@@ -110,10 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// </summary>
         /// <param name="optionsAction"></param>
         /// <returns></returns>
-        public static LanguageClient PreInit(Action<LanguageClientOptions> optionsAction)
-        {
-            return Create(optionsAction);
-        }
+        public static LanguageClient PreInit(Action<LanguageClientOptions> optionsAction) => Create(optionsAction);
 
         /// <summary>
         /// Create the server without connecting to the client
@@ -122,10 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         /// </summary>
         /// <param name="options"></param>
         /// <returns></returns>
-        public static LanguageClient PreInit(LanguageClientOptions options)
-        {
-            return Create(options);
-        }
+        public static LanguageClient PreInit(LanguageClientOptions options) => Create(options);
 
         internal LanguageClient(
             Connection connection,
@@ -151,7 +140,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IRegistrationManager registrationManager,
             ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager, IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
             IEnumerable<IOnLanguageClientInitialize> initializeHandlers, IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
-            IEnumerable<IOnLanguageClientInitialized> initializedHandlers) : base(handlerCollection, responseRouter)
+            IEnumerable<IOnLanguageClientInitialized> initializedHandlers
+        ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
             _capabilities = capabilities;
@@ -359,10 +349,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id)
-        {
-            return _responseRouter.GetRequest(id);
-        }
+        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id) => _responseRouter.GetRequest(id);
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
@@ -384,30 +371,31 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
                 {
                     return disposable.OfType<ILspHandlerDescriptor>()
-                        .Select(z => z.Handler)
-                        .OfType<T>()
-                        .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
-                        .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
-                        .Distinct();
+                                     .Select(z => z.Handler)
+                                     .OfType<T>()
+                                     .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
+                                     .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
+                                     .Distinct();
                 }
+
                 static IEnumerable<T> GetLspHandlers<T>(LspHandlerDescriptorDisposable disposable)
                 {
                     return disposable.Descriptors
-                        .Select(z => z.Handler)
-                        .OfType<T>()
-                        .Distinct();
+                                     .Select(z => z.Handler)
+                                     .OfType<T>()
+                                     .Distinct();
                 }
 
                 Observable.Concat(
                     GetUniqueHandlers<IOnLanguageClientInitialize>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialize(this, ClientSettings, ct)))
-                        .Merge(),
+                       .Select(handler => Observable.FromAsync(ct => handler.OnInitialize(this, ClientSettings, ct)))
+                       .Merge(),
                     GetUniqueHandlers<IOnLanguageClientInitialized>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
-                        .Merge(),
+                       .Select(handler => Observable.FromAsync(ct => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
+                       .Merge(),
                     GetUniqueHandlers<IOnLanguageClientStarted>(result)
-                        .Select(handler => Observable.FromAsync((ct) => handler.OnStarted(this, ct)))
-                        .Merge()
+                       .Select(handler => Observable.FromAsync(ct => handler.OnStarted(this, ct)))
+                       .Merge()
                 ).Subscribe();
             }
 

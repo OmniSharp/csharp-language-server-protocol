@@ -21,12 +21,13 @@ namespace JsonRpc.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
-                .Do(call =>
-                {
-                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
-                    tcs.SetResult(new JObject());
-                });
+               .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
+               .Do(
+                    call => {
+                        var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
+                        tcs.SetResult(new JObject());
+                    }
+                );
 
             var response = await router.SendRequest(new ItemParams(), CancellationToken.None);
 
@@ -44,12 +45,13 @@ namespace JsonRpc.Tests
             var router = new ResponseRouter(outputHandler, new JsonRpcSerializer());
 
             outputHandler
-                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
-                .Do(call =>
-                {
-                    var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
-                    tcs.SetResult(new JObject());
-                });
+               .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
+               .Do(
+                    call => {
+                        var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
+                        tcs.SetResult(new JObject());
+                    }
+                );
 
             await router.SendRequest(new UnitParams(), CancellationToken.None);
 

@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
@@ -13,10 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         private readonly RequestProcessType _defaultRequestProcessType;
 
-        public RequestProcessIdentifier(RequestProcessType defaultRequestProcessType = RequestProcessType.Serial)
-        {
-            _defaultRequestProcessType = defaultRequestProcessType;
-        }
+        public RequestProcessIdentifier(RequestProcessType defaultRequestProcessType = RequestProcessType.Serial) => _defaultRequestProcessType = defaultRequestProcessType;
 
         public RequestProcessType Identify(IHandlerDescriptor descriptor)
         {
@@ -36,10 +32,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             else
             {
                 var processAttribute = descriptor.ImplementationType
-                    .GetCustomAttributes(true)
-                    .Concat(descriptor.HandlerType.GetCustomAttributes(true))
-                    .OfType<ProcessAttribute>()
-                    .FirstOrDefault();
+                                                 .GetCustomAttributes(true)
+                                                 .Concat(descriptor.HandlerType.GetCustomAttributes(true))
+                                                 .OfType<ProcessAttribute>()
+                                                 .FirstOrDefault();
                 if (processAttribute != null)
                 {
                     type = processAttribute.Type;

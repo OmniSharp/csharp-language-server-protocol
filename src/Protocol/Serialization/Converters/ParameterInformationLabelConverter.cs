@@ -12,20 +12,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (value.IsLabel)
                 serializer.Serialize(writer, value.Label);
             if (value.IsRange)
-                serializer.Serialize(writer, new [] { value.Range.start, value.Range.end });
+                serializer.Serialize(writer, new[] { value.Range.start, value.Range.end });
         }
 
-        public override ParameterInformationLabel ReadJson(JsonReader reader, Type objectType, ParameterInformationLabel existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override ParameterInformationLabel ReadJson(
+            JsonReader reader, Type objectType, ParameterInformationLabel existingValue, bool hasExistingValue, JsonSerializer serializer
+        )
         {
             if (reader.TokenType == JsonToken.String)
             {
-                return new ParameterInformationLabel((string)reader.Value);
+                return new ParameterInformationLabel((string) reader.Value);
             }
+
             if (reader.TokenType == JsonToken.StartArray)
             {
                 var a = JArray.Load(reader);
-                return new ParameterInformationLabel((a[0].ToObject<int>(), a[1].ToObject<int>()));
+                return new ParameterInformationLabel(( a[0].ToObject<int>(), a[1].ToObject<int>() ));
             }
+
             throw new NotSupportedException();
         }
 

@@ -1,12 +1,12 @@
 ﻿using System.Buffers;
-using System.Text;
-using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Running;
 
 namespace Pipeline
 {
@@ -26,10 +26,6 @@ namespace Pipeline
 
         private ClassicHandler _classic;
         private PipelinesBased _pipelines;
-
-        public ClassicVsPipelines()
-        {
-        }
 
         [Params(
             sampleCommand,

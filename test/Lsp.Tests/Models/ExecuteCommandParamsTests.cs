@@ -9,10 +9,11 @@ namespace Lsp.Tests.Models
 {
     public class ExecuteCommandParamsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ExecuteCommandParams() {
+            var model = new ExecuteCommandParams {
                 Arguments = new JArray(1, "2"),
                 Command = "command"
             };

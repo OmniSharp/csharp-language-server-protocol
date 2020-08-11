@@ -5,9 +5,13 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
-    [Parallel, Method(RequestNames.Completions, Direction.ClientToServer)]
-    [GenerateHandlerMethods, GenerateRequestMethods]
-    public interface ICompletionsHandler : IJsonRpcRequestHandler<CompletionsArguments, CompletionsResponse> { }
+    [Parallel]
+    [Method(RequestNames.Completions, Direction.ClientToServer)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods]
+    public interface ICompletionsHandler : IJsonRpcRequestHandler<CompletionsArguments, CompletionsResponse>
+    {
+    }
 
     public abstract class CompletionsHandler : ICompletionsHandler
     {

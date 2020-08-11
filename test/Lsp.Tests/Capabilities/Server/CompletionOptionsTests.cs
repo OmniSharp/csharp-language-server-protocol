@@ -8,10 +8,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class CompletionOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionOptions() {
+            var model = new CompletionOptions {
                 ResolveProvider = false,
             };
             var result = Fixture.SerializeObject(model);

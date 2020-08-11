@@ -5,23 +5,19 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
-using System.Threading;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    class HandlerCollection : IHandlersManager, IEnumerable<IHandlerDescriptor>
+    internal class HandlerCollection : IHandlersManager, IEnumerable<IHandlerDescriptor>
     {
         private readonly IServiceProvider _serviceProvider;
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public HandlerCollection(IServiceProvider serviceProvider)
-        {
-            _serviceProvider = serviceProvider;
-        }
+        public HandlerCollection(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
 
         private void Remove(IJsonRpcHandler handler)
         {
@@ -42,13 +38,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 if (_descriptors.Any(z => z.Handler == handler)) continue;
                 cd.Add(Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, null));
             }
+
             return cd;
         }
 
-        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
-        {
-            return Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, options);
-        }
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, options);
 
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
@@ -61,7 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
                 var requestInterface = @params.GetInterfaces()
-                    .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
+                                              .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>));
                 if (requestInterface != null)
                 {
                     response = requestInterface.GetGenericArguments()[0];
@@ -71,9 +65,9 @@ namespace OmniSharp.Extensions.JsonRpc
             var requestProcessType =
                 options?.RequestProcessType ??
                 type.GetCustomAttributes(true)
-                .Concat(@interface.GetCustomAttributes(true))
-                .OfType<ProcessAttribute>()
-                .FirstOrDefault()?.Type;
+                    .Concat(@interface.GetCustomAttributes(true))
+                    .OfType<ProcessAttribute>()
+                    .FirstOrDefault()?.Type;
 
             var descriptor = new HandlerInstance(method, handler, @interface, @params, response, requestProcessType, () => Remove(handler));
             ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
@@ -84,9 +78,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(method, factory(_serviceProvider), options);
 
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) =>  Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) =>
+            Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
 
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) =>  Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => Add(
+            method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options
+        );
 
         public IDisposable AddLink(string sourceMethod, string destinationMethod)
         {
@@ -96,24 +93,12 @@ namespace OmniSharp.Extensions.JsonRpc
             return descriptor;
         }
 
-        public bool ContainsHandler(Type type)
-        {
-            return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
-        }
+        public bool ContainsHandler(Type type) => _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
 
-        public bool ContainsHandler(TypeInfo type)
-        {
-            return _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
-        }
+        public bool ContainsHandler(TypeInfo type) => _descriptors.Any(z => type.IsAssignableFrom(z.HandlerType));
 
-        public IEnumerator<IHandlerDescriptor> GetEnumerator()
-        {
-            return ((IEnumerable<IHandlerDescriptor>)_descriptors).GetEnumerator();
-        }
+        public IEnumerator<IHandlerDescriptor> GetEnumerator() => ( (IEnumerable<IHandlerDescriptor>) _descriptors ).GetEnumerator();
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_descriptors).GetEnumerator();
-        }
+        IEnumerator IEnumerable.GetEnumerator() => ( (IEnumerable) _descriptors ).GetEnumerator();
     }
 }

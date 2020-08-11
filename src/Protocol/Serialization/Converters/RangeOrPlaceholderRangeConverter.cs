@@ -5,7 +5,7 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    class RangeOrPlaceholderRangeConverter : JsonConverter<RangeOrPlaceholderRange>
+    internal class RangeOrPlaceholderRangeConverter : JsonConverter<RangeOrPlaceholderRange>
     {
         public override void WriteJson(JsonWriter writer, RangeOrPlaceholderRange value, JsonSerializer serializer)
         {
@@ -19,10 +19,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override RangeOrPlaceholderRange ReadJson(JsonReader reader, Type objectType, RangeOrPlaceholderRange existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            return new RangeOrPlaceholderRange((Range) null);
-        }
+        public override RangeOrPlaceholderRange ReadJson(
+            JsonReader reader, Type objectType, RangeOrPlaceholderRange existingValue, bool hasExistingValue, JsonSerializer serializer
+        ) => new RangeOrPlaceholderRange((Range) null);
 
         public override bool CanRead => false;
     }

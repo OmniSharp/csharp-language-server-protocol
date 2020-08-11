@@ -22,6 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                         serializer.Serialize(writer, v);
                     }
                 }
+
                 writer.WriteEndArray();
                 return;
             }
@@ -39,12 +40,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                     serializer.Serialize(writer, v);
                 }
             }
+
             writer.WriteEndArray();
             writer.WriteEndObject();
         }
 
         public override bool CanRead => false;
 
-        public override AggregateResponse<CompletionList> ReadJson(JsonReader reader, Type objectType, AggregateResponse<CompletionList> existingValue, bool hasExistingValue, JsonSerializer serializer) => throw new NotImplementedException();
+        public override AggregateResponse<CompletionList> ReadJson(
+            JsonReader reader, Type objectType, AggregateResponse<CompletionList> existingValue, bool hasExistingValue, JsonSerializer serializer
+        ) => throw new NotImplementedException();
     }
 }

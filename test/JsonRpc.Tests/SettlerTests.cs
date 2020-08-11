@@ -143,25 +143,26 @@ namespace JsonRpc.Tests
         {
             var container = CreateContainer(_loggerFactory);
             container.RegisterMany<Settler>(
-                reuse: Reuse.Singleton,
-                made: Parameters.Of
-                    .Name(nameof(waitTime), defaultValue: waitTime)
-                    .Name(nameof(timeout), defaultValue: timeout)
-                    .Type<CancellationToken>(defaultValue: CancellationToken)
-                    .Type<IScheduler>(defaultValue: scheduler)
+                Reuse.Singleton,
+                Parameters.Of
+                          .Name(nameof(waitTime), defaultValue: waitTime)
+                          .Name(nameof(timeout), defaultValue: timeout)
+                          .Type<CancellationToken>(defaultValue: CancellationToken)
+                          .Type<IScheduler>(defaultValue: scheduler)
             );
 
-            return (container.Resolve<ISettler>(), container.Resolve<IRequestSettler>());
+            return ( container.Resolve<ISettler>(), container.Resolve<IRequestSettler>() );
         }
 
         private static IContainer CreateContainer(ILoggerFactory loggerFactory)
         {
             var container = new Container()
-                .WithDependencyInjectionAdapter(new ServiceCollection().AddLogging())
-                .With(rules => rules
-                    .WithResolveIEnumerableAsLazyEnumerable()
-                    .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
-                );
+                           .WithDependencyInjectionAdapter(new ServiceCollection().AddLogging())
+                           .With(
+                                rules => rules
+                                        .WithResolveIEnumerableAsLazyEnumerable()
+                                        .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
+                            );
             container.RegisterInstance(loggerFactory);
 
             return container;

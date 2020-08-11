@@ -7,9 +7,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Parallel, Method(WorkspaceNames.WorkspaceFolders, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-    public interface IWorkspaceFoldersHandler : IJsonRpcRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>> { }
+    [Parallel]
+    [Method(WorkspaceNames.WorkspaceFolders, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+    public interface IWorkspaceFoldersHandler : IJsonRpcRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>>
+    {
+    }
 
     public abstract class WorkspaceFoldersHandler : IWorkspaceFoldersHandler
     {

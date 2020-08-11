@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class MessageActionItemTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new MessageActionItem() {
+            var model = new MessageActionItem {
                 Title = "abc"
             };
             var result = Fixture.SerializeObject(model);

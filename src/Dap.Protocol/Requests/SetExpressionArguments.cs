@@ -1,6 +1,6 @@
+using MediatR;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
@@ -21,12 +21,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Evaluate the expressions in the scope of this stack frame. If not specified, the expressions are evaluated in the global scope.
         /// </summary>
-        [Optional] public long? FrameId { get; set; }
+        [Optional]
+        public long? FrameId { get; set; }
 
         /// <summary>
         /// Specifies how the resulting value should be formatted.
         /// </summary>
-        [Optional] public ValueFormat Format { get; set; }
+        [Optional]
+        public ValueFormat Format { get; set; }
     }
-
 }

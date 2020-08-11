@@ -18,19 +18,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         {
         }
 
-        public static implicit operator Container<T>(T[] items)
-        {
-            return new Container<T>(items);
-        }
+        public static implicit operator Container<T>(T[] items) => new Container<T>(items);
 
-        public static implicit operator Container<T>(Collection<T> items)
-        {
-            return new Container<T>(items);
-        }
+        public static implicit operator Container<T>(Collection<T> items) => new Container<T>(items);
 
-        public static implicit operator Container<T>(List<T> items)
-        {
-            return new Container<T>(items);
-        }
+        public static implicit operator Container<T>(List<T> items) => new Container<T>(items);
     }
 }

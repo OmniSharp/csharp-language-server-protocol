@@ -8,22 +8,20 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
     /// <summary>
-    ///  Code Lens options.
+    /// Code Lens options.
     /// </summary>
     public class CodeLensOptions : WorkDoneProgressOptions, ICodeLensOptions
     {
         /// <summary>
-        ///  Code lens has a resolve provider as well.
+        /// Code lens has a resolve provider as well.
         /// </summary>
         [Optional]
         public bool ResolveProvider { get; set; }
 
-        public static CodeLensOptions Of(ICodeLensOptions options, IEnumerable<IHandlerDescriptor> descriptors)
-        {
-            return new CodeLensOptions() {
+        public static CodeLensOptions Of(ICodeLensOptions options, IEnumerable<IHandlerDescriptor> descriptors) =>
+            new CodeLensOptions {
                 ResolveProvider = options.ResolveProvider || descriptors.Any(z => z.HandlerType == typeof(ICodeLensResolveHandler)),
                 WorkDoneProgress = options.WorkDoneProgress
             };
-        }
     }
 }

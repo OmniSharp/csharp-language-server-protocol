@@ -8,10 +8,11 @@ namespace Lsp.Tests.Capabilities.Server
 {
     public class SignatureHelpOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new SignatureHelpOptions() {
+            var model = new SignatureHelpOptions {
                 TriggerCharacters = new[] { "1", "2" }
             };
             var result = Fixture.SerializeObject(model);

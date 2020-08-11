@@ -9,9 +9,8 @@ using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
-    class ProgressObserver : IProgressObserver
+    internal class ProgressObserver : IProgressObserver
     {
-        private readonly ProgressToken _progressToken;
         private readonly IResponseRouter _router;
         private readonly Func<Exception, ProgressEndEvent> _onError;
         private readonly Func<ProgressEndEvent> _onComplete;
@@ -22,13 +21,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             ProgressStartEvent begin,
             Func<Exception, ProgressEndEvent> onError,
             Func<ProgressEndEvent> onComplete,
-            CancellationToken cancellationToken)
+            CancellationToken cancellationToken
+        )
         {
-            _progressToken = begin.ProgressId;
+            ProgressId = begin.ProgressId;
             _router = router;
             _onError = onError;
             _onComplete = onComplete;
-            _disposable = new CompositeDisposable {Disposable.Create(OnCompleted)};
+            _disposable = new CompositeDisposable { Disposable.Create(OnCompleted) };
             cancellationToken.Register(Dispose);
             _router.SendNotification(begin);
         }
@@ -36,10 +36,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         public void OnCompleted()
         {
             if (_disposable.IsDisposed) return;
-            var @event = _onComplete?.Invoke() ?? new ProgressEndEvent() {Message = "", ProgressId = _progressToken};
+            var @event = _onComplete?.Invoke() ?? new ProgressEndEvent { Message = "", ProgressId = ProgressId };
             if (EqualityComparer<ProgressToken>.Default.Equals(@event.ProgressId, default))
             {
-                @event.ProgressId = _progressToken;
+                @event.ProgressId = ProgressId;
             }
 
             _router.SendNotification(@event);
@@ -48,10 +48,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         void IObserver<ProgressUpdateEvent>.OnError(Exception error)
         {
             if (_disposable.IsDisposed) return;
-            var @event = _onError?.Invoke(error) ?? new ProgressEndEvent() {Message = error.ToString(), ProgressId = _progressToken};
+            var @event = _onError?.Invoke(error) ?? new ProgressEndEvent { Message = error.ToString(), ProgressId = ProgressId };
             if (EqualityComparer<ProgressToken>.Default.Equals(@event.ProgressId, default))
             {
-                @event.ProgressId = _progressToken;
+                @event.ProgressId = ProgressId;
             }
 
             _router.SendNotification(@event);
@@ -62,22 +62,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             if (_disposable.IsDisposed) return;
             if (EqualityComparer<ProgressToken>.Default.Equals(value.ProgressId, default))
             {
-                value.ProgressId = _progressToken;
+                value.ProgressId = ProgressId;
             }
 
             _router.SendNotification(value);
         }
 
-        public ProgressToken ProgressId => _progressToken;
+        public ProgressToken ProgressId { get; }
 
-        public void OnNext(string message, double? percentage)
-        {
-            OnNext(new ProgressUpdateEvent() {
-                ProgressId = _progressToken,
-                Message = message,
-                Percentage = percentage
-            });
-        }
+        public void OnNext(string message, double? percentage) =>
+            OnNext(
+                new ProgressUpdateEvent {
+                    ProgressId = ProgressId,
+                    Message = message,
+                    Percentage = percentage
+                }
+            );
 
         public void Dispose() => _disposable?.Dispose();
     }

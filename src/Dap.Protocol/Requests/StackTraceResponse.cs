@@ -14,8 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The total number of frames available.
         /// </summary>
-        [Optional] public long? TotalFrames { get; set; }
-
+        [Optional]
+        public long? TotalFrames { get; set; }
     }
-
 }

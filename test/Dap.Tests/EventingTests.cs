@@ -5,7 +5,6 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Server;
@@ -15,7 +14,6 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
-using OnDebugAdapterServerInitializedDelegate = OmniSharp.Extensions.DebugAdapter.Protocol.Server.OnDebugAdapterServerInitializedDelegate;
 
 namespace Dap.Tests
 {
@@ -57,13 +55,14 @@ namespace Dap.Tests
         public async Task Initialize_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientInitialize =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientInitialize), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientInitialize;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialize), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialize;
             var onDebugAdapterServerInitialize =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandler)}, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialize;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onDebugAdapterClientInitialize as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerInitialize as IJsonRpcHandler));
+                options => options.AddHandler(onDebugAdapterServerInitialize as IJsonRpcHandler)
+            );
 
             await onDebugAdapterClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
             await onDebugAdapterServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
@@ -101,13 +100,14 @@ namespace Dap.Tests
         public async Task Initialized_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientInitialized =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientInitialized), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientInitialized;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialized), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialized;
             var onDebugAdapterServerInitialized =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandler)}, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialized;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onDebugAdapterClientInitialized as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerInitialized as IJsonRpcHandler));
+                options => options.AddHandler(onDebugAdapterServerInitialized as IJsonRpcHandler)
+            );
 
             await onDebugAdapterClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
             await onDebugAdapterServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
@@ -145,13 +145,14 @@ namespace Dap.Tests
         public async Task Started_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientStarted =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandler)}, Array.Empty<object>()) as IOnDebugAdapterClientStarted;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientStarted;
             var onDebugAdapterServerStarted =
-                Substitute.For(new Type[] {typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandler)}, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerStarted;
             var (client, server) = await Initialize(
                 options => options.AddHandler(onDebugAdapterClientStarted as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerStarted as IJsonRpcHandler));
+                options => options.AddHandler(onDebugAdapterServerStarted as IJsonRpcHandler)
+            );
 
             await onDebugAdapterClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
             await onDebugAdapterServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());

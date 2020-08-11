@@ -8,5 +8,4 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
     {
         Launch, Attach, AttachForSuspendedLaunch
     }
-
 }

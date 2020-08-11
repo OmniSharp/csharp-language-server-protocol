@@ -12,6 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public bool Overwrite { get; set; }
+
         /// <summary>
         /// Ignores if target exists.
         /// </summary>

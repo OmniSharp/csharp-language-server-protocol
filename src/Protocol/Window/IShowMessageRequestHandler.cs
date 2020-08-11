@@ -7,9 +7,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 {
-    [Serial, Method(WindowNames.ShowMessageRequest, Direction.ServerToClient)]
-    [GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
-    public interface IShowMessageRequestHandler : IJsonRpcRequestHandler<ShowMessageRequestParams, MessageActionItem> { }
+    [Serial]
+    [Method(WindowNames.ShowMessageRequest, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+    public interface IShowMessageRequestHandler : IJsonRpcRequestHandler<ShowMessageRequestParams, MessageActionItem>
+    {
+    }
 
     public abstract class ShowMessageRequestHandler : IShowMessageRequestHandler
     {

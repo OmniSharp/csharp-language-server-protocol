@@ -8,10 +8,11 @@ namespace Lsp.Tests.Models
 {
     public class UnregistrationTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new Unregistration() {
+            var model = new Unregistration {
                 Id = "abc",
                 Method = "ads"
             };

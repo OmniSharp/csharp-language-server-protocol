@@ -8,11 +8,12 @@ namespace Lsp.Tests.Models
 {
     public class FormattingOptionsTests
     {
-        [Theory, JsonFixture]
+        [Theory]
+        [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new FormattingOptions() {
-                {  "tabSize", 4 },
+            var model = new FormattingOptions {
+                { "tabSize", 4 },
                 { "insertSpaces", true },
                 { "somethingElse", "cool" }
             };

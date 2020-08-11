@@ -36,12 +36,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         {
             foreach (var item in identifiers)
                 _textDocumentIdentifiers.Add(item);
-            return Disposable.Create(() => {
-                foreach (var textDocumentIdentifier in identifiers)
-                {
-                    _textDocumentIdentifiers.Remove(textDocumentIdentifier);
+            return Disposable.Create(
+                () => {
+                    foreach (var textDocumentIdentifier in identifiers)
+                    {
+                        _textDocumentIdentifiers.Remove(textDocumentIdentifier);
+                    }
                 }
-            });
+            );
         }
     }
 }

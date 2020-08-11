@@ -12,7 +12,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     /// To avoid an unnecessary proliferation of additional attributes with similar semantics but different names
     /// we recommend to re-use attributes from the ‘recommended’ list below first, and only introduce new attributes if nothing appropriate could be found.
     /// </summary>
-
     public class Module
     {
         /// <summary>
@@ -31,46 +30,55 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         ///
         /// Logical full path to the module. The exact definition is implementation defined, but usually this would be a full path to the on-disk file for the module.
         /// </summary>
-        [Optional] public string Path { get; set; }
+        [Optional]
+        public string Path { get; set; }
 
         /// <summary>
         /// True if the module is optimized.
         /// </summary>
-        [Optional] public bool? IsOptimized { get; set; }
+        [Optional]
+        public bool? IsOptimized { get; set; }
 
         /// <summary>
         /// True if the module is considered 'user code' by a debugger that supports 'Just My Code'.
         /// </summary>
-        [Optional] public bool? IsUserCode { get; set; }
+        [Optional]
+        public bool? IsUserCode { get; set; }
 
         /// <summary>
         /// Version of Module.
         /// </summary>
-        [Optional] public string Version { get; set; }
+        [Optional]
+        public string Version { get; set; }
 
         /// <summary>
         /// User understandable description of if symbols were found for the module (ex: 'Symbols Loaded', 'Symbols not found', etc.
         /// </summary>
-        [Optional] public string SymbolStatus { get; set; }
+        [Optional]
+        public string SymbolStatus { get; set; }
 
         /// <summary>
         /// Logical full path to the symbol file. The exact definition is implementation defined.
         /// </summary>
-        [Optional] public string SymbolFilePath { get; set; }
+        [Optional]
+        public string SymbolFilePath { get; set; }
 
         /// <summary>
         /// Module created or modified.
         /// </summary>
-        [Optional] public string DateTimeStamp { get; set; }
+        [Optional]
+        public string DateTimeStamp { get; set; }
 
         /// <summary>
         /// Address range covered by this module.
         /// </summary>
-        [Optional] public string AddressRange { get; set; }
+        [Optional]
+        public string AddressRange { get; set; }
 
         /// <summary>
         /// Allows additional data to be displayed
         /// </summary>
-        [JsonExtensionData] public Dictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+        [JsonExtensionData]
+        public Dictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
     }
 }

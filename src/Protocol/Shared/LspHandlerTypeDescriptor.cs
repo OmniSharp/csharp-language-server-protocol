@@ -9,15 +9,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 {
     [DebuggerDisplay("{" + nameof(Method) + "}")]
-    class LspHandlerTypeDescriptor : HandlerTypeDescriptor, ILspHandlerTypeDescriptor
+    internal class LspHandlerTypeDescriptor : HandlerTypeDescriptor, ILspHandlerTypeDescriptor
     {
         public LspHandlerTypeDescriptor(Type handlerType) : base(handlerType)
         {
             PartialItemsType = ParamsType.GetInterfaces().FirstOrDefault(z => z.IsGenericType && typeof(IPartialItems<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
-                ?.GetGenericArguments()[0];
+                                        ?.GetGenericArguments()[0];
             HasPartialItems = PartialItemsType != null;
             PartialItemType = ParamsType.GetInterfaces().FirstOrDefault(z => z.IsGenericType && typeof(IPartialItem<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
-                ?.GetGenericArguments()[0];
+                                       ?.GetGenericArguments()[0];
             HasPartialItem = PartialItemType != null;
             RegistrationType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);
             HasRegistration = RegistrationType != null && RegistrationType != typeof(object);
