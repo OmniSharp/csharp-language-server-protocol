@@ -23,6 +23,9 @@ pull_request_rules:
       label:
         remove:
           - 'merge'
+          - 'github-actions'
+          - 'javascript'
+          - '.NET'
       delete_head_branch: {}
   - name: automatic merge for JetBrains.ReSharper.CommandLineTools pull requests
     conditions:

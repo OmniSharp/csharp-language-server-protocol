@@ -28,8 +28,6 @@
         <PackageReference Update="xunit" Version="2.4.1" />
         <PackageReference Update="FluentAssertions" Version="5.10.3" />
         <PackageReference Update="NSubstitute" Version="4.2.1" />
-        <PackageReference Update="DryIoc.dll" Version="4.2.5" />
-        <PackageReference Update="DryIoc.Microsoft.DependencyInjection " Version="4.0.0" />
         <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2" />
         <PackageReference Update="Serilog.Sinks.XUnit" Version="1.0.21" />
         <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
