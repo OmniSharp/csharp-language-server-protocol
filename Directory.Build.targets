@@ -26,7 +26,7 @@
         <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.5.0" />
         <PackageReference Update="xunit.runner.visualstudio" Version="2.4.1" />
         <PackageReference Update="xunit" Version="2.4.1" />
-        <PackageReference Update="FluentAssertions" Version="5.10.2" />
+        <PackageReference Update="FluentAssertions" Version="5.10.3" />
         <PackageReference Update="NSubstitute" Version="4.2.1" />
         <PackageReference Update="DryIoc.dll" Version="4.2.5" />
         <PackageReference Update="DryIoc.Microsoft.DependencyInjection " Version="4.0.0" />
@@ -43,7 +43,7 @@
         <PackageReference Update="Bogus" Version="29.0.1" />
         <PackageReference Update="Snapper" Version="2.2.4" />
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.8" />
-        <PackageReference Update="System.IO.Pipelines" Version="4.7.1" />
+        <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
         <PackageReference Update="Nerdbank.Streams" Version="2.4.60" />
         <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
         <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
