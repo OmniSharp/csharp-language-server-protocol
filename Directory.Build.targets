@@ -9,7 +9,7 @@
         <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Update="GitVersion.Tool" Version="5.2.4" />
+        <PackageReference Update="GitVersion.Tool" Version="5.3.7" />
         <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2019.3.4" />
         <PackageReference Update="ReportGenerator" Version="4.5.2" />
         <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.9" />
