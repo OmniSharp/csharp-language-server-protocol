@@ -15,7 +15,6 @@
         <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="MediatR" />
-        <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" />
         <PackageReference Include="System.IO.Pipelines" />
         <PackageReference Include="Nerdbank.Streams" />
         <PackageReference Include="CodeGeneration.Roslyn.Attributes" />
