@@ -7,8 +7,6 @@
     <ItemGroup>
         <None Remove="**\*.json" />
         <EmbeddedResource Include="**\*.json" />
-        <EmbeddedResource Remove="Integration\**" />
-        <None Remove="Integration\**" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
