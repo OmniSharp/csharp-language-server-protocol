@@ -47,8 +47,7 @@ namespace Lsp.Tests.Integration
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                await ServerEvents.Settle();
-                await ClientEvents.Settle();
+                await SettleNext();
 
                 using var _ = Server.Register(
                     x => x
@@ -60,8 +59,7 @@ namespace Lsp.Tests.Integration
                         )
                 );
 
-                await ServerEvents.Settle();
-                await ClientEvents.Settle();
+                await SettleNext();
 
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
@@ -112,7 +110,7 @@ namespace Lsp.Tests.Integration
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                await Events.SettleNext();
+                await SettleNext();
 
                 var disposable = Server.Register(
                     x => x.OnCompletion(

@@ -133,6 +133,8 @@ namespace Dap.Tests.Integration
                 }
             );
 
+            await SettleNext();
+
             workDoneObserver.OnCompleted();
 
             await SettleNext();
