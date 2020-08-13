@@ -65,16 +65,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 serverCapabilities
             ))
             {
-                var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
-                if (descriptor == null)
+                var method = LspHandlerTypeDescriptorHelper.GetMethodForRegistrationOptions(registrationOptions);
+                if (method == null)
                 {
-                    _logger.LogWarning("Unable to find handler type descriptor for the given {@RegistrationOptions}", registrationOptions);
+                    _logger.LogWarning("Unable to find method for given {@RegistrationOptions}", registrationOptions);
                     continue;
                 }
 
                 var reg = new Registration {
                     Id = registrationOptions.Id,
-                    Method = descriptor.Method,
+                    Method = method,
                     RegisterOptions = registrationOptions
                 };
                 _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
@@ -91,8 +91,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                    .Workspace
             ))
             {
-                var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeForRegistrationOptions(registrationOptions);
-                if (descriptor == null)
+                var method = LspHandlerTypeDescriptorHelper.GetMethodForRegistrationOptions(registrationOptions);
+                if (method == null)
                 {
                     // TODO: Log this
                     continue;
@@ -100,7 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
                 var reg = new Registration {
                     Id = registrationOptions.Id,
-                    Method = descriptor.Method,
+                    Method = method,
                     RegisterOptions = registrationOptions
                 };
                 _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
@@ -117,8 +117,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         private void Register(Registration registration)
         {
-            var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(registration.Method);
-            if (typeDescriptor == null)
+            var registrationType = LspHandlerTypeDescriptorHelper.GetRegistrationType(registration.Method);
+            if (registrationType == null)
             {
                 _registrations.AddOrUpdate(registration.Id, x => registration, (a, b) => registration);
                 return;
@@ -128,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 Id = registration.Id,
                 Method = registration.Method,
                 RegisterOptions = registration.RegisterOptions is JToken token
-                    ? token.ToObject(typeDescriptor.RegistrationType, _serializer.JsonSerializer)
+                    ? token.ToObject(registrationType, _serializer.JsonSerializer)
                     : registration.RegisterOptions
             };
             _registrations.AddOrUpdate(deserializedRegistration.Id, x => deserializedRegistration, (a, b) => deserializedRegistration);

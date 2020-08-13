@@ -7,6 +7,8 @@
     <ItemGroup>
         <None Remove="**\*.json" />
         <EmbeddedResource Include="**\*.json" />
+        <EmbeddedResource Remove="Integration\**" />
+        <None Remove="Integration\**" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
@@ -14,8 +16,5 @@
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
-    </ItemGroup>
-    <ItemGroup>
-        <Folder Include="obj\Release\netcoreapp3.1\" />
     </ItemGroup>
 </Project>

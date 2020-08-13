@@ -475,86 +475,87 @@ namespace OmniSharp.Extensions.JsonRpc
             var cts = new CancellationTokenSource();
             _requests.TryAdd(request.Id, ( cts, descriptors ));
 
-            return (contentModifiedToken, scheduler) => Observable.Create<ErrorResponse>(
-                                                                       observer => {
-                                                                           // ITS A RACE!
-                                                                           var sub = Observable.Amb(
-                                                                                                    contentModifiedToken.Select(
-                                                                                                        _ => {
-                                                                                                            _logger.LogTrace(
-                                                                                                                "Request {Id} was abandoned due to content be modified", request.Id
-                                                                                                            );
-                                                                                                            return new ErrorResponse(
-                                                                                                                new ContentModified(request.Id, request.Method)
-                                                                                                            );
-                                                                                                        }
-                                                                                                    ),
-                                                                                                    Observable.Timer(_requestTimeout, scheduler).Select(
-                                                                                                        z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
-                                                                                                    ),
-                                                                                                    Observable.FromAsync(
-                                                                                                        async ct => {
-                                                                                                            using var timer = _logger.TimeDebug(
-                                                                                                                "Processing request {Method} {ResponseId}", request.Method,
-                                                                                                                request.Id
-                                                                                                            );
-                                                                                                            ct.Register(cts.Cancel);
-                                                                                                            // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
-                                                                                                            try
-                                                                                                            {
-                                                                                                                return await _requestRouter.RouteRequest(
-                                                                                                                    descriptors, request, cts.Token
-                                                                                                                );
-                                                                                                            }
-                                                                                                            catch (OperationCanceledException)
-                                                                                                            {
-                                                                                                                _logger.LogTrace("Request {Id} was cancelled", request.Id);
-                                                                                                                return new RequestCancelled(request.Id, request.Method);
-                                                                                                            }
-                                                                                                            catch (RpcErrorException e)
-                                                                                                            {
-                                                                                                                _logger.LogCritical(
-                                                                                                                    Events.UnhandledRequest, e,
-                                                                                                                    "Failed to handle request {Method} {RequestId}", request.Method,
-                                                                                                                    request.Id
-                                                                                                                );
-                                                                                                                return new RpcError(
-                                                                                                                    request.Id, request.Method,
-                                                                                                                    new ErrorMessage(e.Code, e.Message, e.Error)
-                                                                                                                );
-                                                                                                            }
-                                                                                                            catch (Exception e)
-                                                                                                            {
-                                                                                                                _logger.LogCritical(
-                                                                                                                    Events.UnhandledRequest, e,
-                                                                                                                    "Failed to handle request {Method} {RequestId}", request.Method,
-                                                                                                                    request.Id
-                                                                                                                );
-                                                                                                                return new InternalError(request.Id, request.Method, e.ToString());
-                                                                                                            }
-                                                                                                        }
-                                                                                                    )
-                                                                                                )
-                                                                                               .Subscribe(observer);
-                                                                           return new CompositeDisposable {
-                                                                               sub,
-                                                                               Disposable.Create(
-                                                                                   () => {
-                                                                                       if (_requests.TryRemove(request.Id, out var v))
-                                                                                       {
-                                                                                           v.cancellationTokenSource.Dispose();
-                                                                                       }
-                                                                                   }
-                                                                               )
-                                                                           };
-                                                                       }
-                                                                   )
-                                                                  .Select(
-                                                                       response => {
-                                                                           _outputHandler.Send(response.Value);
-                                                                           return Unit.Default;
-                                                                       }
-                                                                   );
+            return (contentModifiedToken, scheduler) =>
+                Observable.Create<ErrorResponse>(
+                               observer => {
+                                   // ITS A RACE!
+                                   var sub = Observable.Amb(
+                                                            contentModifiedToken.Select(
+                                                                _ => {
+                                                                    _logger.LogTrace(
+                                                                        "Request {Id} was abandoned due to content be modified", request.Id
+                                                                    );
+                                                                    return new ErrorResponse(
+                                                                        new ContentModified(request.Id, request.Method)
+                                                                    );
+                                                                }
+                                                            ),
+                                                            Observable.Timer(_requestTimeout, scheduler).Select(
+                                                                z => new ErrorResponse(new RequestCancelled(request.Id, request.Method))
+                                                            ),
+                                                            Observable.FromAsync(
+                                                                async ct => {
+                                                                    using var timer = _logger.TimeDebug(
+                                                                        "Processing request {Method} {ResponseId}", request.Method,
+                                                                        request.Id
+                                                                    );
+                                                                    ct.Register(cts.Cancel);
+                                                                    // ObservableToToken(contentModifiedToken).Register(cts.Cancel);
+                                                                    try
+                                                                    {
+                                                                        return await _requestRouter.RouteRequest(
+                                                                            descriptors, request, cts.Token
+                                                                        );
+                                                                    }
+                                                                    catch (OperationCanceledException)
+                                                                    {
+                                                                        _logger.LogTrace("Request {Id} was cancelled", request.Id);
+                                                                        return new RequestCancelled(request.Id, request.Method);
+                                                                    }
+                                                                    catch (RpcErrorException e)
+                                                                    {
+                                                                        _logger.LogCritical(
+                                                                            Events.UnhandledRequest, e,
+                                                                            "Failed to handle request {Method} {RequestId}", request.Method,
+                                                                            request.Id
+                                                                        );
+                                                                        return new RpcError(
+                                                                            request.Id, request.Method,
+                                                                            new ErrorMessage(e.Code, e.Message, e.Error)
+                                                                        );
+                                                                    }
+                                                                    catch (Exception e)
+                                                                    {
+                                                                        _logger.LogCritical(
+                                                                            Events.UnhandledRequest, e,
+                                                                            "Failed to handle request {Method} {RequestId}", request.Method,
+                                                                            request.Id
+                                                                        );
+                                                                        return new InternalError(request.Id, request.Method, e.ToString());
+                                                                    }
+                                                                }
+                                                            )
+                                                        )
+                                                       .Subscribe(observer);
+                                   return new CompositeDisposable {
+                                       sub,
+                                       Disposable.Create(
+                                           () => {
+                                               if (_requests.TryRemove(request.Id, out var v))
+                                               {
+                                                   v.cancellationTokenSource.Dispose();
+                                               }
+                                           }
+                                       )
+                                   };
+                               }
+                           )
+                          .Select(
+                               response => {
+                                   _outputHandler.Send(response.Value);
+                                   return Unit.Default;
+                               }
+                           );
         }
 
         private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification) =>
