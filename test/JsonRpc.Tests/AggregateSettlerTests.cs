@@ -37,7 +37,7 @@ namespace JsonRpc.Tests
         public void Should_Complete_If_There_Are_No_Pending_Requests()
         {
             var testScheduler = new TestScheduler();
-            var (settler, _, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(20), TimeSpan.FromTicks(100));
+            var (settler, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(20), TimeSpan.FromTicks(100));
 
             // simulate SettleNext
             var observer = testScheduler.Start(() => settler.Settle().Take(1), 100, 100, ReactiveTest.Disposed);
@@ -54,7 +54,7 @@ namespace JsonRpc.Tests
         public void Should_Timeout_If_A_Request_Takes_To_Long(SettlerType settlerType)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(200), TimeSpan.FromTicks(500));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(200), TimeSpan.FromTicks(500));
 
             matcher.ScheduleAbsoluteStart(settlerType, 0);
             matcher.ScheduleAbsoluteEnd(settlerType, ReactiveTest.Disposed);
@@ -73,7 +73,7 @@ namespace JsonRpc.Tests
         public void Should_Wait_For_Request_To_Finish_And_Then_Wait(SettlerType settlerType)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleRelativeStart(settlerType, 0);
             matcher.ScheduleRelativeEnd(settlerType, 300);
@@ -92,7 +92,7 @@ namespace JsonRpc.Tests
         public void Should_Wait_For_Subsequent_Requests_To_Finish_And_Then_Wait(SettlerType settlerTypeA, SettlerType settlerTypeB)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleRelativeStart(settlerTypeA, 0);
             matcher.ScheduleRelativeEnd(settlerTypeA, 150);
@@ -118,7 +118,7 @@ namespace JsonRpc.Tests
         public void Should_Wait_For_Subsequent_Requests_To_Finish_And_Then_Wait_On_Either_Side(SettlerType settlerTypeA, SettlerType settlerTypeB)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleRelativeStart(settlerTypeA, 0);
             matcher.ScheduleRelativeEnd(settlerTypeA, 150);
@@ -139,7 +139,7 @@ namespace JsonRpc.Tests
         public void Should_Wait_For_Overlapping_Requests_To_Finish_And_Then_Wait(SettlerType settlerTypeA, SettlerType settlerTypeB)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleAbsoluteStart(settlerTypeA, 0);
             matcher.ScheduleAbsoluteStart(settlerTypeB, 200);
@@ -160,7 +160,7 @@ namespace JsonRpc.Tests
         public void Should_Wait_For_Overlapping_Requests_To_Finish_And_Then_Wait_On_Either_Side(SettlerType settlerTypeA, SettlerType settlerTypeB)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleAbsoluteStart(settlerTypeA, 0);
             matcher.ScheduleAbsoluteStart(settlerTypeB, 200);
@@ -185,7 +185,7 @@ namespace JsonRpc.Tests
         public void Should_Complete_After_Final_Request_Timeout(SettlerType settlerTypeA, SettlerType settlerTypeB, SettlerType settlerTypeC)
         {
             var testScheduler = new TestScheduler();
-            var (settler, matcher, _, _) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
+            var (settler, matcher) = CreateSettlers(testScheduler, TimeSpan.FromTicks(100), TimeSpan.FromTicks(800));
 
             matcher.ScheduleAbsoluteStart(settlerTypeA, 0);
             matcher.ScheduleAbsoluteEnd(settlerTypeA, 200);
@@ -244,7 +244,7 @@ namespace JsonRpc.Tests
                 };
         }
 
-        private (ISettler settler, AggregateRequestSettlerScheduler matcher, IRequestSettler clientRequestSettler, IRequestSettler serverRequestSettler) CreateSettlers(
+        private (ISettler settler, AggregateRequestSettlerScheduler matcher) CreateSettlers(
             TestScheduler scheduler, TimeSpan waitTime, TimeSpan timeout
         )
         {
@@ -252,8 +252,7 @@ namespace JsonRpc.Tests
             container1.RegisterMany<Settler>(
                 Reuse.Singleton,
                 Parameters.Of
-                          .Name(nameof(waitTime), defaultValue: waitTime)
-                          .Name(nameof(timeout), defaultValue: timeout)
+                          .Type<JsonRpcTestOptions>(defaultValue: new JsonRpcTestOptions().WithWaitTime(waitTime).WithTimeout(timeout))
                           .Type<CancellationToken>(defaultValue: CancellationToken)
                           .Type<IScheduler>(defaultValue: scheduler)
             );
@@ -261,8 +260,7 @@ namespace JsonRpc.Tests
             container2.RegisterMany<Settler>(
                 Reuse.Singleton,
                 Parameters.Of
-                          .Name(nameof(waitTime), defaultValue: waitTime)
-                          .Name(nameof(timeout), defaultValue: timeout)
+                          .Type<JsonRpcTestOptions>(defaultValue: new JsonRpcTestOptions().WithWaitTime(waitTime).WithTimeout(timeout))
                           .Type<CancellationToken>(defaultValue: CancellationToken)
                           .Type<IScheduler>(defaultValue: scheduler)
             );
@@ -271,8 +269,7 @@ namespace JsonRpc.Tests
             var clientSettler = container1.Resolve<IRequestSettler>();
             var serverSettler = container2.Resolve<IRequestSettler>();
 
-            return ( settler, new AggregateRequestSettlerScheduler(scheduler, clientSettler, serverSettler), container1.Resolve<IRequestSettler>(),
-                     container2.Resolve<IRequestSettler>() );
+            return ( settler, new AggregateRequestSettlerScheduler(scheduler, clientSettler, serverSettler) );
         }
 
         public enum SettlerType

@@ -23,8 +23,8 @@ namespace Lsp.Tests.Integration
         public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(
             new JsonRpcTestOptions()
                .ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
-               .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
-               .WithSettleTimeout(TimeSpan.FromSeconds(2))
+               .WithWaitTime(TimeSpan.FromSeconds(1))
+               .WithTimeout(TimeSpan.FromSeconds(2))
         )
         {
         }
@@ -60,8 +60,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Add("/abcd/", nameof(Should_Add_A_Workspace_Folder));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);
@@ -90,8 +89,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(nameof(Should_Remove_Workspace_Folder_by_name));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);
@@ -111,8 +109,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(DocumentUri.From("/abcd/"));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);

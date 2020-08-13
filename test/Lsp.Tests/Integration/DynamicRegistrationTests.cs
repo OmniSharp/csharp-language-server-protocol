@@ -126,7 +126,7 @@ namespace Lsp.Tests.Integration
                 var registrations = await Observable.Create<IEnumerable<Registration>>(
                     observer => {
                         disposable.Dispose();
-                        return Client.RegistrationManager.Registrations.Throttle(TestOptions.SettleTimeout).Take(1).Subscribe(observer);
+                        return Client.RegistrationManager.Registrations.Throttle(TestOptions.Timeout).Take(1).Subscribe(observer);
                     }
                 ).ToTask(CancellationToken);
 

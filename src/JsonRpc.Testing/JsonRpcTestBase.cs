@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             _cancellationTokenSource = new CancellationTokenSource();
             if (!Debugger.IsAttached)
             {
-                _cancellationTokenSource.CancelAfter(testOptions.TestTimeout);
+                _cancellationTokenSource.CancelAfter(testOptions.CancellationTimeout);
             }
 
             ClientEvents = new Settler(TestOptions, CancellationToken);
