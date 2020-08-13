@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Dap.Tests.Integration.Fixtures;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
@@ -15,31 +16,20 @@ using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration
 {
-    public class ProgressTests : DebugAdapterProtocolTestBase
+    public class ProgressTests : DebugAdapterProtocolFixtureTest<DefaultOptions, DefaultClient, DefaultServer>
     {
-        public ProgressTests(ITestOutputHelper outputHelper) : base(
-            new JsonRpcTestOptions()
-               .ConfigureForXUnit(outputHelper)
-               .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
-               .WithSettleTimeout(TimeSpan.FromSeconds(2))
-        )
+
+        public ProgressTests(ITestOutputHelper testOutputHelper, DebugAdapterProtocolFixture<DefaultOptions, DefaultClient, DefaultServer> fixture) : base(testOutputHelper, fixture)
         {
         }
 
-        private class Data
-        {
-            public string Value { get; set; } = "Value";
-        }
-
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Support_Progress_From_Sever_To_Client()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
-
             var data = new List<ProgressEvent>();
-            client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
+            Client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
 
-            using var workDoneObserver = server.ProgressManager.Create(
+            using var workDoneObserver = Server.ProgressManager.Create(
                 new ProgressStartEvent {
                     Cancellable = true,
                     Message = "Begin",
@@ -93,15 +83,14 @@ namespace Dap.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Support_Cancelling_Progress_From_Server_To_Client_Request()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             var data = new List<ProgressEvent>();
-            var sub = client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
+            var sub = Client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
 
-            using var workDoneObserver = server.ProgressManager.Create(
+            using var workDoneObserver = Server.ProgressManager.Create(
                 new ProgressStartEvent {
                     Cancellable = true,
                     Message = "Begin",
@@ -157,15 +146,6 @@ namespace Dap.Tests.Integration
             );
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2");
-        }
-
-        private void ConfigureClient(DebugAdapterClientOptions options)
-        {
-        }
-
-        private void ConfigureServer(DebugAdapterServerOptions options)
-        {
-            // options.OnCodeLens()
         }
     }
 }

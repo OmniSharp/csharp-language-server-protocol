@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -16,9 +17,9 @@ using Xunit.Abstractions;
 
 namespace Lsp.Tests.Integration
 {
-    public class ProgressTests : LanguageProtocolTestBase
+    public class ProgressTests : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, DefaultServer>
     {
-        public ProgressTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public ProgressTests(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DefaultServer> fixture) : base(testOutputHelper, fixture)
         {
         }
 
@@ -27,16 +28,15 @@ namespace Lsp.Tests.Integration
             public string Value { get; set; } = "Value";
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Send_Progress_From_Server_To_Client()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var data = new List<string>();
 
-            var observer = client.ProgressManager.For<Data>(token, CancellationToken);
-            server.ProgressManager.Monitor(token, x => x.ToObject<Data>(server.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
+            Server.ProgressManager.Monitor(token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
 
             observer.OnNext(
                 new Data {
@@ -70,16 +70,15 @@ namespace Lsp.Tests.Integration
             data.Should().ContainInOrder("1", "3", "2", "4", "5");
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Send_Progress_From_Client_To_Server()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var data = new List<string>();
 
-            using var observer = server.ProgressManager.For<Data>(token, CancellationToken);
-            client.ProgressManager.Monitor(token, x => x.ToObject<Data>(client.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            using var observer = Server.ProgressManager.For<Data>(token, CancellationToken);
+            Client.ProgressManager.Monitor(token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
 
             observer.OnNext(
                 new Data {
@@ -116,22 +115,20 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task WorkDone_Should_Be_Supported()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
-            server.WorkDoneManager.IsSupported.Should().BeTrue();
-            client.WorkDoneManager.IsSupported.Should().BeTrue();
+            Server.WorkDoneManager.IsSupported.Should().BeTrue();
+            Client.WorkDoneManager.IsSupported.Should().BeTrue();
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Support_Creating_Work_Done_From_Sever_To_Client()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = client.WorkDoneManager.Monitor(token);
+            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
             workDoneObservable.Subscribe(x => data.Add(x));
 
-            using var workDoneObserver = await server.WorkDoneManager.Create(
+            using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
                     Cancellable = true,
                     Message = "Begin",
@@ -185,17 +182,16 @@ namespace Lsp.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Support_Observing_Work_Done_From_Client_To_Server_Request()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = client.WorkDoneManager.Monitor(token);
+            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
             workDoneObservable.Subscribe(x => data.Add(x));
 
-            using var workDoneObserver = await server.WorkDoneManager.Create(
+            using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
                     Cancellable = true,
                     Message = "Begin",
@@ -249,17 +245,16 @@ namespace Lsp.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Support_Cancelling_Work_Done_From_Client_To_Server_Request()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
             var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = client.WorkDoneManager.Monitor(token);
+            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
             workDoneObservable.Subscribe(x => data.Add(x));
 
-            using var workDoneObserver = await server.WorkDoneManager.Create(
+            using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
                     Cancellable = true,
                     Message = "Begin",
@@ -314,15 +309,6 @@ namespace Lsp.Tests.Integration
             );
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2");
-        }
-
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-        }
-
-        private void ConfigureServer(LanguageServerOptions options)
-        {
-            // options.OnCodeLens()
         }
     }
 }

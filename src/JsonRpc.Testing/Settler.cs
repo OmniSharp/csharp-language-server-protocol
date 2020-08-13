@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 {
     public class Settler : ISettler, IRequestSettler, IDisposable
     {
-        private readonly TimeSpan _timeout;
+        private readonly JsonRpcTestOptions _options;
         private readonly CancellationToken _cancellationToken;
         private readonly IScheduler _scheduler;
         private readonly IObservable<Unit> _settle;
@@ -19,9 +19,9 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         private readonly IDisposable _connectable;
         private readonly IObservable<Unit> _defaultValue;
 
-        public Settler(TimeSpan waitTime, TimeSpan timeout, CancellationToken cancellationToken, IScheduler scheduler = null)
+        public Settler(JsonRpcTestOptions options, CancellationToken cancellationToken, IScheduler scheduler = null)
         {
-            _timeout = timeout;
+            _options = options;
             _cancellationToken = cancellationToken;
             scheduler ??= Scheduler.Immediate;
             _scheduler = scheduler;
@@ -42,11 +42,11 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                   z => {
                                       if (z > 0)
                                       {
-                                          return Timer(_timeout, _scheduler)
+                                          return Timer(_options.SettleTimeout, _scheduler)
                                              .Select(z => Unit.Default);
                                       }
 
-                                      return Amb(Timer(waitTime, _scheduler), Timer(_timeout, _scheduler))
+                                      return Amb(Timer(_options.SettleTimeout, _scheduler), Timer(_options.SettleTimeout, _scheduler))
                                          .Select(z => Unit.Default);
                                   }
                               )
@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public Task SettleNext() => _settle.Take(1).IgnoreElements().LastOrDefaultAsync().ToTask(_cancellationToken);
 
-        public IObservable<Unit> Settle() => _settle.Timeout(_timeout, _scheduler).Catch<Unit, Exception>(_ => _defaultValue);
+        public IObservable<Unit> Settle() => _settle.Timeout(_options.SettleTimeout, _scheduler).Catch<Unit, Exception>(_ => _defaultValue);
 
         void IRequestSettler.OnStartRequest() => _requester.OnNext(1);
 

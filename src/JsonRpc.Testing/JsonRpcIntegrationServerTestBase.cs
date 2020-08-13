@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                 _cancellationTokenSource.CancelAfter(testOptions.TestTimeout);
             }
 
-            Events = ClientEvents = new Settler(TestOptions.SettleTimeSpan, TestOptions.SettleTimeout, CancellationToken);
+            Events = ClientEvents = new Settler(TestOptions, CancellationToken);
         }
 
         protected CompositeDisposable Disposable { get; }
