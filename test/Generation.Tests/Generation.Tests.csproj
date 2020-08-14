@@ -7,10 +7,8 @@
     <ItemGroup>
         <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" />
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
-<!--        <ProjectReference Include="..\..\src\Dap.Protocol\Dap.Protocol.csproj" />-->
-<!--        <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />-->
-<!--        <PackageReference Include="CodeGeneration.Roslyn.Engine" Version="0.7.63" />-->
-<!--        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />-->
+        <ProjectReference Include="..\..\src\Dap.Protocol\Dap.Protocol.csproj" />
+        <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
 <!--        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />-->
     </ItemGroup>

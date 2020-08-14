@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -13,6 +14,7 @@ using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
+    [Generator]
     public class GenerateHandlerMethodsGenerator : ISourceGenerator
     {
         public void Initialize(InitializationContext context)
@@ -30,23 +32,125 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
 
-            var attributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateHandlerMethodsAttribute");
+            var generateHandlerMethodsAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateHandlerMethodsAttribute");
+            var generateRequestMethodsAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateRequestMethodsAttribute");
+
+//            context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"generateHandlerMethodsAttributeSymbol: {generateHandlerMethodsAttributeSymbol.ToDisplayString()}"));
+//            context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"generateRequestMethodsAttributeSymbol: {generateRequestMethodsAttributeSymbol.ToDisplayString()}"));
 
             foreach (var candidateClass in syntaxReceiver.Candidates)
             {
+//                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"candidate: {candidateClass.Identifier.ToFullString()}"));
                 // can this be async???
                 context.CancellationToken.ThrowIfCancellationRequested();
 
                 var model = compilation.GetSemanticModel(candidateClass.SyntaxTree);
                 var symbol = model.GetDeclaredSymbol(candidateClass);
-                var attribute = symbol?.GetAttributes().FirstOrDefault(z => z.AttributeClass == attributeSymbol);
-                if (attribute == null) continue;
 
-                GetExtensionHandlers(
-                    context,
-                    candidateClass,
-                    symbol,
-                    attribute
+                var methods = new List<MemberDeclarationSyntax>();
+                var additionalUsings = new HashSet<string> {
+                    "System",
+                    "System.Collections.Generic",
+                    "System.Threading",
+                    "System.Threading.Tasks",
+                    "MediatR",
+                    "Microsoft.Extensions.DependencyInjection",
+                };
+
+//                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"candidate: {candidateClass.Identifier.ToFullString()}"));
+
+                var attribute = symbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateHandlerMethodsAttributeSymbol));
+                if (attribute != null)
+                {
+                    GetExtensionHandlers(
+                        context,
+                        candidateClass,
+                        symbol,
+                        attribute,
+                        methods,
+                        additionalUsings
+                    );
+                }
+
+                attribute = symbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateRequestMethodsAttributeSymbol));
+                if (attribute != null)
+                {
+                    GetExtensionRequestHandlers(
+                        context,
+                        candidateClass,
+                        symbol,
+                        attribute,
+                        methods,
+                        additionalUsings
+                    );
+                }
+
+                if (!methods.Any()) continue;
+
+                var className = GetExtensionClassName(symbol);
+
+                var existingUsings = candidateClass.SyntaxTree.GetCompilationUnitRoot()
+                                                   .Usings
+                                                   .Select(x => x.WithoutTrivia())
+                                                   .Union(
+                                                        additionalUsings
+                                                           .Except(
+                                                                candidateClass.SyntaxTree.GetCompilationUnitRoot()
+                                                                              .Usings.Select(z => z.Name.ToFullString())
+                                                            )
+                                                           .Distinct()
+                                                           .Select(z => UsingDirective(IdentifierName(z)))
+                                                    )
+                                                   .OrderBy(x => x.Name.ToFullString())
+                                                   .ToImmutableArray();
+
+                var attributes = List(
+                    new[] {
+                        AttributeList(
+                            SeparatedList(
+                                new[] {
+                                    Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
+                                    Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
+                                }
+                            )
+                        )
+                    }
+                );
+
+                var cu = CompilationUnit(
+                             List<ExternAliasDirectiveSyntax>(),
+                             List(existingUsings),
+                             List<AttributeListSyntax>(),
+                             List<MemberDeclarationSyntax>(
+                                 new[] {
+                                     NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
+                                        .WithMembers(
+                                             List(
+                                                 new MemberDeclarationSyntax[] {
+                                                     ClassDeclaration(className)
+                                                        .WithAttributeLists(attributes)
+                                                        .WithModifiers(
+                                                             TokenList(
+                                                                 Token(SyntaxKind.PublicKeyword),
+                                                                 Token(SyntaxKind.StaticKeyword),
+                                                                 Token(SyntaxKind.PartialKeyword)
+                                                             )
+                                                         )
+                                                        .WithMembers(List(methods))
+                                                        .NormalizeWhitespace()
+                                                 }
+                                             )
+                                         )
+                                 }
+                             )
+                         )
+                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
+                        .WithTrailingTrivia(CarriageReturnLineFeed)
+                        .NormalizeWhitespace();
+
+                context.AddSource(
+                    $"JsonRpc_Handlers_{candidateClass.Identifier.ToFullString().Replace(".", "_")}.cs",
+                    cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }
         }
@@ -56,21 +160,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             SourceGeneratorContext context,
             TypeDeclarationSyntax handlerClassOrInterface,
             INamedTypeSymbol symbol,
-            AttributeData attributeData
+            AttributeData attributeData,
+            List<MemberDeclarationSyntax> methods,
+            HashSet<string> additionalUsings
         )
         {
-            var methods = new List<MemberDeclarationSyntax>();
-            var additionalUsings = new HashSet<string> {
-                "System",
-                "System.Collections.Generic",
-                "System.Threading",
-                "System.Threading.Tasks",
-                "MediatR",
-                "Microsoft.Extensions.DependencyInjection",
-            };
-
-            var className = GetExtensionClassName(symbol);
-
             foreach (var registry in GetRegistries(attributeData, handlerClassOrInterface, symbol, context, additionalUsings))
             {
                 if (IsNotification(symbol))
@@ -85,66 +179,55 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     methods.AddRange(HandleRequest(handlerClassOrInterface, symbol, requestType, responseType, registry, additionalUsings, attributeData));
                 }
             }
+        }
 
-            var existingUsings = handlerClassOrInterface.SyntaxTree.GetCompilationUnitRoot()
-                                                        .Usings
-                                                        .Select(x => x.WithoutTrivia())
-                                                        .ToImmutableArray()
-                                                        .Join(additionalUsings, z => z.Name.ToFullString(), z => z, (a, b) => b);
 
-            var newUsings = additionalUsings
-                           .Except(existingUsings)
-                           .Select(z => UsingDirective(IdentifierName(z)))
-                ;
+        private void GetExtensionRequestHandlers(
+            SourceGeneratorContext context,
+            TypeDeclarationSyntax handlerClassOrInterface,
+            INamedTypeSymbol symbol,
+            AttributeData attributeData,
+            List<MemberDeclarationSyntax> methods,
+            HashSet<string> additionalUsings
+        )
+        {
+            var registries = GetProxies(
+                context,
+                attributeData,
+                handlerClassOrInterface,
+                symbol,
+                methods,
+                additionalUsings
+            );
 
-            var attributes = List(
-                new[] {
-                    AttributeList(
-                        SeparatedList(
-                            new[] {
-                                Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                                Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
-                            }
-                        )
+            if (( attributeData.ConstructorArguments.Length == 0 ||
+                  ( attributeData.ConstructorArguments[0].Kind != TypedConstantKind.Array && attributeData.ConstructorArguments[0].Value == null )
+               || ( attributeData.ConstructorArguments[0].Kind == TypedConstantKind.Array && attributeData.ConstructorArguments[0].Values.Length == 0 ) )
+             && !symbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
+            {
+                context.ReportDiagnostic(
+                    Diagnostic.Create(
+                        GeneratorDiagnostics.NoResponseRouterProvided, handlerClassOrInterface.Identifier.GetLocation(), symbol.Name,
+                        string.Join(", ", registries.Select(z => z.ToFullString()))
                     )
+                );
+            }
+
+            foreach (var registry in registries)
+            {
+                if (IsNotification(symbol))
+                {
+                    var requestType = GetRequestType(symbol);
+                    methods.AddRange(HandleRequestNotifications(handlerClassOrInterface, symbol, requestType, registry, additionalUsings, attributeData));
                 }
-            );
 
-            var cu = CompilationUnit(
-                         List<ExternAliasDirectiveSyntax>(),
-                         List(newUsings),
-                         List<AttributeListSyntax>(),
-                         List<MemberDeclarationSyntax>(
-                             new[] {
-                                 NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
-                                    .WithMembers(
-                                         List(
-                                             new MemberDeclarationSyntax[] {
-                                                 ClassDeclaration(className)
-                                                    .WithAttributeLists(attributes)
-                                                    .WithModifiers(
-                                                         TokenList(
-                                                             Token(SyntaxKind.PublicKeyword),
-                                                             Token(SyntaxKind.StaticKeyword),
-                                                             Token(SyntaxKind.PartialKeyword)
-                                                         )
-                                                     )
-                                                    .WithMembers(List(methods))
-                                                    .NormalizeWhitespace()
-                                             }
-                                         )
-                                     )
-                             }
-                         )
-                     )
-                    .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                    .WithTrailingTrivia(CarriageReturnLineFeed)
-                    .NormalizeWhitespace();
-
-            context.AddSource(
-                $"JsonRpc_Handlers_{handlerClassOrInterface.Identifier.ToFullString().Replace(".", "_")}.cs",
-                cu.SyntaxTree.GetText()
-            );
+                if (IsRequest(symbol))
+                {
+                    var requestType = GetRequestType(symbol);
+                    var responseType = GetResponseType(symbol);
+                    methods.AddRange(HandleRequestRequests(handlerClassOrInterface, symbol, requestType, responseType, registry, additionalUsings, attributeData));
+                }
+            }
         }
 
         private IEnumerable<MemberDeclarationSyntax> HandleNotifications(
@@ -557,13 +640,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities");
-                    return new[] { LanguageProtocolServerToClient };
+                    return new[] { LanguageProtocolServerToClientRegistry };
                 }
 
                 if (maskedDirection == 2)
                 {
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
-                    return new[] { LanguageProtocolClientToServer };
+                    return new[] { LanguageProtocolClientToServerRegistry };
                 }
 
                 if (maskedDirection == 3)
@@ -571,7 +654,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities");
                     additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
-                    return new[] { LanguageProtocolClientToServer, LanguageProtocolServerToClient };
+                    return new[] { LanguageProtocolClientToServerRegistry, LanguageProtocolServerToClientRegistry };
                 }
             }
 
@@ -599,6 +682,117 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (maskedDirection == 1)
                 {
+                    return new[] { DebugProtocolServerToClientRegistry };
+                }
+
+                if (maskedDirection == 2)
+                {
+                    return new[] { DebugProtocolClientToServerRegistry };
+                }
+
+                if (maskedDirection == 3)
+                {
+                    return new[] { DebugProtocolClientToServerRegistry, DebugProtocolServerToClientRegistry };
+                }
+            }
+
+            throw new NotImplementedException("Add inference logic here " + interfaceSyntax.Identifier.ToFullString());
+        }
+
+        private static NameSyntax LanguageProtocolServerToClientRegistry { get; } =
+            IdentifierName("ILanguageClientRegistry");
+
+        private static NameSyntax LanguageProtocolClientToServerRegistry { get; } =
+            IdentifierName("ILanguageServerRegistry");
+
+        private static NameSyntax DebugProtocolServerToClientRegistry { get; } =
+            IdentifierName("IDebugAdapterClientRegistry");
+
+        private static NameSyntax DebugProtocolClientToServerRegistry { get; } =
+            IdentifierName("IDebugAdapterServerRegistry");
+
+
+        public static IEnumerable<NameSyntax> GetProxies(
+            SourceGeneratorContext context,
+            AttributeData attributeData,
+            TypeDeclarationSyntax interfaceSyntax,
+            INamedTypeSymbol interfaceType,
+            List<MemberDeclarationSyntax> methods,
+            HashSet<string> additionalUsings
+        )
+        {
+            if (attributeData.ConstructorArguments[0].Kind != TypedConstantKind.Array)
+            {
+                if (attributeData.ConstructorArguments[0].Value is INamedTypeSymbol namedTypeSymbol)
+                    return new[] { ResolveTypeName(namedTypeSymbol) };
+            }
+            else if (attributeData.ConstructorArguments[0].Kind == TypedConstantKind.Array && attributeData.ConstructorArguments[0].Values.Length > 0)
+            {
+                return attributeData.ConstructorArguments[0].Values.Select(z => z.Value).OfType<INamedTypeSymbol>()
+                                    .Select(ResolveTypeName);
+            }
+
+            if (interfaceType.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.LanguageServer.Protocol"))
+            {
+                var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
+                if (attribute.ConstructorArguments.Length < 2)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
+                    return Enumerable.Empty<NameSyntax>();
+                }
+
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+
+                /*
+                Unspecified = 0b0000,
+                ServerToClient = 0b0001,
+                ClientToServer = 0b0010,
+                Bidirectional = 0b0011
+                 */
+                var maskedDirection = 0b0011 & direction;
+
+                if (maskedDirection == 1)
+                {
+                    additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
+                    return new[] { LanguageProtocolServerToClient };
+                }
+
+                if (maskedDirection == 2)
+                {
+                    additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
+                    return new[] { LanguageProtocolClientToServer };
+                }
+
+                if (maskedDirection == 3)
+                {
+                    additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Server");
+                    additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Client");
+                    return new[] { LanguageProtocolClientToServer, LanguageProtocolServerToClient };
+                }
+            }
+
+            if (interfaceType.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
+            {
+                var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
+                if (attribute.ConstructorArguments.Length < 2)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
+                    return Enumerable.Empty<NameSyntax>();
+                }
+
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+
+                /*
+                Unspecified = 0b0000,
+                ServerToClient = 0b0001,
+                ClientToServer = 0b0010,
+                Bidirectional = 0b0011
+                 */
+                var maskedDirection = 0b0011 & direction;
+                additionalUsings.Add("OmniSharp.Extensions.DebugAdapter.Protocol");
+
+                if (maskedDirection == 1)
+                {
                     return new[] { DebugProtocolServerToClient };
                 }
 
@@ -617,16 +811,169 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         private static NameSyntax LanguageProtocolServerToClient { get; } =
-            IdentifierName("ILanguageClientRegistry");
+            ParseName("ILanguageServer");
 
         private static NameSyntax LanguageProtocolClientToServer { get; } =
-            IdentifierName("ILanguageServerRegistry");
+            ParseName("ILanguageClient");
 
         private static NameSyntax DebugProtocolServerToClient { get; } =
-            IdentifierName("IDebugAdapterClientRegistry");
+            ParseName("IDebugAdapterServer");
 
         private static NameSyntax DebugProtocolClientToServer { get; } =
-            IdentifierName("IDebugAdapterServerRegistry");
+            ParseName("IDebugAdapterClient");
+
+        private IEnumerable<MemberDeclarationSyntax> HandleRequestNotifications(
+            TypeDeclarationSyntax handlerInterface,
+            INamedTypeSymbol interfaceType,
+            INamedTypeSymbol requestType,
+            NameSyntax registryType,
+            HashSet<string> additionalUsings,
+            AttributeData attributeData
+        )
+        {
+            var methodName = GetSendMethodName(interfaceType, attributeData);
+            var method = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), methodName)
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithExpressionBody(GetNotificationInvokeExpression())
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
+
+            yield return method
+                        .WithParameterList(
+                             ParameterList(
+                                 SeparatedList(
+                                     new[] {
+                                         Parameter(Identifier("mediator"))
+                                            .WithType(registryType)
+                                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                                         Parameter(Identifier("@params"))
+                                            .WithType(IdentifierName(requestType.Name))
+                                     }
+                                 )
+                             )
+                         )
+                        .NormalizeWhitespace();
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> HandleRequestRequests(
+            TypeDeclarationSyntax handlerInterface,
+            INamedTypeSymbol interfaceType,
+            INamedTypeSymbol requestType,
+            INamedTypeSymbol responseType,
+            NameSyntax registryType,
+            HashSet<string> additionalUsings,
+            AttributeData attributeData
+        )
+        {
+            var methodName = GetSendMethodName(interfaceType, attributeData);
+            var parameterList = ParameterList(
+                SeparatedList(
+                    new[] {
+                        Parameter(Identifier("mediator"))
+                           .WithType(registryType)
+                           .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                        Parameter(Identifier("@params"))
+                           .WithType(IdentifierName(requestType.Name)),
+                        Parameter(Identifier("cancellationToken"))
+                           .WithType(IdentifierName("CancellationToken"))
+                           .WithDefault(
+                                EqualsValueClause(
+                                    LiteralExpression(SyntaxKind.DefaultLiteralExpression, Token(SyntaxKind.DefaultKeyword))
+                                )
+                            )
+                    }
+                )
+            );
+            var partialItem = GetPartialItem(requestType);
+            if (partialItem != null)
+            {
+                additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
+                var partialTypeSyntax = ResolveTypeName(partialItem);
+                yield return MethodDeclaration(
+                                 GenericName(
+                                         Identifier("IRequestProgressObservable")
+                                     )
+                                    .WithTypeArgumentList(
+                                         TypeArgumentList(
+                                             SeparatedList(
+                                                 new TypeSyntax[] {
+                                                     partialTypeSyntax,
+                                                     ResolveTypeName(responseType)
+                                                 }
+                                             )
+                                         )
+                                     ),
+                                 Identifier(methodName)
+                             )
+                            .WithModifiers(
+                                 TokenList(
+                                     Token(SyntaxKind.PublicKeyword),
+                                     Token(SyntaxKind.StaticKeyword)
+                                 )
+                             )
+                            .WithParameterList(parameterList)
+                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            .NormalizeWhitespace();
+                yield break;
+            }
+
+            var partialItems = GetPartialItems(requestType);
+            if (partialItems != null)
+            {
+                additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
+                var partialTypeSyntax = ResolveTypeName(partialItems);
+                var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { partialTypeSyntax })));
+                yield return MethodDeclaration(
+                                 GenericName(
+                                         Identifier("IRequestProgressObservable")
+                                     )
+                                    .WithTypeArgumentList(
+                                         TypeArgumentList(
+                                             SeparatedList(
+                                                 new TypeSyntax[] {
+                                                     partialItemsSyntax,
+                                                     ResolveTypeName(responseType)
+                                                 }
+                                             )
+                                         )
+                                     ),
+                                 Identifier(methodName)
+                             )
+                            .WithModifiers(
+                                 TokenList(
+                                     Token(SyntaxKind.PublicKeyword),
+                                     Token(SyntaxKind.StaticKeyword)
+                                 )
+                             )
+                            .WithParameterList(parameterList)
+                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                            .NormalizeWhitespace();
+                ;
+                yield break;
+            }
+
+
+            var responseSyntax = responseType.Name == "Unit"
+                ? IdentifierName("Task") as NameSyntax
+                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { ResolveTypeName(responseType) })));
+            yield return MethodDeclaration(responseSyntax, methodName)
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithParameterList(parameterList)
+                        .WithExpressionBody(GetRequestInvokeExpression())
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                        .NormalizeWhitespace();
+        }
 
 
         /// <summary>

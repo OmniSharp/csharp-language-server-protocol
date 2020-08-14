@@ -17,8 +17,8 @@
         <PackageReference Include="MediatR" />
         <PackageReference Include="System.IO.Pipelines" />
         <PackageReference Include="Nerdbank.Streams" />
-<!--        <PackageReference Include="CodeGeneration.Roslyn.Attributes" />-->
         <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
+        <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
     </ItemGroup>
     <ItemGroup>
         <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">

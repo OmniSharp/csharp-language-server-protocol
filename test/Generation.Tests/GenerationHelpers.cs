@@ -16,10 +16,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
 using NSubstitute;
-//using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.JsonRpc.Generators;
-//using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;
 
 namespace Generation.Tests
@@ -45,9 +45,9 @@ namespace Generation.Tests
             var otherAssemblies = new[] {
                 typeof(CSharpCompilation).Assembly,
                 typeof(GenerateHandlerMethodsAttribute).Assembly,
-//                typeof(IDebugAdapterClientRegistry).Assembly,
+                typeof(IDebugAdapterClientRegistry).Assembly,
                 typeof(Unit).Assembly,
-//                typeof(ILanguageServerRegistry).Assembly,
+                typeof(ILanguageServerRegistry).Assembly,
             };
             MetadataReferences = coreMetaReferences
                                 .Concat<MetadataReference>(otherAssemblies.Distinct().Select(x => MetadataReference.CreateFromFile(x.Location)))
@@ -100,8 +100,8 @@ namespace Generation.Tests
                 throw new InvalidOperationException("Could not compile the sources");
             }
 
-//            var diagnostics = compilation.GetDiagnostics();
-//            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
+            var diagnostics = compilation.GetDiagnostics();
+            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
             // TODO: fix this junk
             var optionsProvider = Substitute.For<AnalyzerConfigOptionsProvider>();
