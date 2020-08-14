@@ -9,11 +9,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "No direction defined for Language Server Protocol Handler", "JsonRPC", DiagnosticSeverity.Warning, true
         );
 
-        public static DiagnosticDescriptor Message { get; } = new DiagnosticDescriptor(
-            "LSP9999", "DEBUG",
-            "{0}", "JsonRPC", DiagnosticSeverity.Error, true
-        );
-
         public static DiagnosticDescriptor NoHandlerRegistryProvided { get; } = new DiagnosticDescriptor(
             "JRPC1000", "No Handler Registry Provided",
             "No Handler Registry Provided for handler {0}.", "JsonRPC", DiagnosticSeverity.Warning, true
