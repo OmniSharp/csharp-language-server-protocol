@@ -42,11 +42,13 @@
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
         <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
         <PackageReference Update="Nerdbank.Streams" Version="2.5.76" />
-        <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
-        <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
-        <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />
-        <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
-        <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
+
+<!--        <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />-->
+<!--        <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />-->
+<!--        <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />-->
+
+        <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.7.0" />
+        <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.0" />
         <PackageReference Update="DryIoc.Internal" Version="4.3.1" />
     </ItemGroup>
 </Project>

@@ -17,7 +17,7 @@
         <PackageReference Include="MediatR" />
         <PackageReference Include="System.IO.Pipelines" />
         <PackageReference Include="Nerdbank.Streams" />
-        <PackageReference Include="CodeGeneration.Roslyn.Attributes" />
+<!--        <PackageReference Include="CodeGeneration.Roslyn.Attributes" />-->
         <PackageReference Include="DryIoc.Internal" PrivateAssets="All" />
     </ItemGroup>
     <ItemGroup>

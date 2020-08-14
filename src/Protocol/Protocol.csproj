@@ -8,8 +8,8 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
-        <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" PrivateAssets="all" />
-        <PackageReference Include="CodeGeneration.Roslyn.Tool" />
+        <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
+<!--        <PackageReference Include="CodeGeneration.Roslyn.Tool" />-->
     </ItemGroup>
     <ItemGroup>
       <Compile Remove="Client\RegisterCapabilityExtensions.cs" />

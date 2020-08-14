@@ -1,30 +1,64 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using CodeGeneration.Roslyn;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
-    public class GenerateHandlerMethodsGenerator : IRichCodeGenerator
+    public class GenerateHandlerMethodsGenerator : ISourceGenerator
     {
-        private readonly AttributeData _attributeData;
-
-        public GenerateHandlerMethodsGenerator(AttributeData attributeData) => _attributeData = attributeData;
-
-        public Task<RichGenerationResult> GenerateRichAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken)
+        public void Initialize(InitializationContext context)
         {
-            if (!( context.ProcessingNode is InterfaceDeclarationSyntax handlerInterface ))
+            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
+        }
+
+        public void Execute(SourceGeneratorContext context)
+        {
+            if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
             {
-                return Task.FromResult(new RichGenerationResult());
+                return;
             }
 
+            var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
+            var compilation = context.Compilation;
+
+            var attributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateHandlerMethodsAttribute");
+
+            foreach (var candidateClass in syntaxReceiver.Candidates)
+            {
+                // can this be async???
+                context.CancellationToken.ThrowIfCancellationRequested();
+
+                var model = compilation.GetSemanticModel(candidateClass.SyntaxTree);
+                var symbol = model.GetDeclaredSymbol(candidateClass);
+                var attribute = symbol?.GetAttributes().FirstOrDefault(z => z.AttributeClass == attributeSymbol);
+                if (attribute == null) continue;
+
+                GetExtensionHandlers(
+                    context,
+                    candidateClass,
+                    symbol,
+                    attribute
+                );
+            }
+        }
+
+
+        private void GetExtensionHandlers(
+            SourceGeneratorContext context,
+            TypeDeclarationSyntax handlerClassOrInterface,
+            INamedTypeSymbol symbol,
+            AttributeData attributeData
+        )
+        {
             var methods = new List<MemberDeclarationSyntax>();
             var additionalUsings = new HashSet<string> {
                 "System",
@@ -34,28 +68,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 "MediatR",
                 "Microsoft.Extensions.DependencyInjection",
             };
-            var symbol = context.SemanticModel.GetDeclaredSymbol(handlerInterface);
 
             var className = GetExtensionClassName(symbol);
 
-            foreach (var registry in GetRegistries(_attributeData, handlerInterface, symbol, context, progress, additionalUsings))
+            foreach (var registry in GetRegistries(attributeData, handlerClassOrInterface, symbol, context, additionalUsings))
             {
                 if (IsNotification(symbol))
                 {
                     var requestType = GetRequestType(symbol);
-                    methods.AddRange(HandleNotifications(handlerInterface, symbol, requestType, registry, additionalUsings));
+                    methods.AddRange(HandleNotifications(handlerClassOrInterface, symbol, requestType, registry, additionalUsings, attributeData));
                 }
                 else if (IsRequest(symbol))
                 {
                     var requestType = GetRequestType(symbol);
                     var responseType = GetResponseType(symbol);
-                    methods.AddRange(HandleRequest(handlerInterface, symbol, requestType, responseType, registry, additionalUsings));
+                    methods.AddRange(HandleRequest(handlerClassOrInterface, symbol, requestType, responseType, registry, additionalUsings, attributeData));
                 }
             }
 
-            var existingUsings = context.CompilationUnitUsings
-                                        .Join(additionalUsings, z => z.Name.ToFullString(), z => z, (a, b) => b)
-                ;
+            var existingUsings = handlerClassOrInterface.SyntaxTree.GetCompilationUnitRoot()
+                                                        .Usings
+                                                        .Select(x => x.WithoutTrivia())
+                                                        .ToImmutableArray()
+                                                        .Join(additionalUsings, z => z.Name.ToFullString(), z => z, (a, b) => b);
 
             var newUsings = additionalUsings
                            .Except(existingUsings)
@@ -75,44 +110,53 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
             );
 
-            return Task.FromResult(
-                new RichGenerationResult {
-                    Usings = List(newUsings),
-                    Members = List<MemberDeclarationSyntax>(
-                        new[] {
-                            NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
-                               .WithMembers(
-                                    List(
-                                        new MemberDeclarationSyntax[] {
-                                            ClassDeclaration(className)
-                                               .WithAttributeLists(attributes)
-                                               .WithModifiers(
-                                                    TokenList(
-                                                        Token(SyntaxKind.PublicKeyword),
-                                                        Token(SyntaxKind.StaticKeyword),
-                                                        Token(SyntaxKind.PartialKeyword)
-                                                    )
-                                                )
-                                               .WithMembers(List(methods))
-                                               .NormalizeWhitespace()
-                                        }
-                                    )
-                                )
-                        }
-                    )
-                }
+            var cu = CompilationUnit(
+                         List<ExternAliasDirectiveSyntax>(),
+                         List(newUsings),
+                         List<AttributeListSyntax>(),
+                         List<MemberDeclarationSyntax>(
+                             new[] {
+                                 NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
+                                    .WithMembers(
+                                         List(
+                                             new MemberDeclarationSyntax[] {
+                                                 ClassDeclaration(className)
+                                                    .WithAttributeLists(attributes)
+                                                    .WithModifiers(
+                                                         TokenList(
+                                                             Token(SyntaxKind.PublicKeyword),
+                                                             Token(SyntaxKind.StaticKeyword),
+                                                             Token(SyntaxKind.PartialKeyword)
+                                                         )
+                                                     )
+                                                    .WithMembers(List(methods))
+                                                    .NormalizeWhitespace()
+                                             }
+                                         )
+                                     )
+                             }
+                         )
+                     )
+                    .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
+                    .WithTrailingTrivia(CarriageReturnLineFeed)
+                    .NormalizeWhitespace();
+
+            context.AddSource(
+                $"JsonRpc_Handlers_{handlerClassOrInterface.Identifier.ToFullString().Replace(".", "_")}.cs",
+                cu.SyntaxTree.GetText()
             );
         }
 
         private IEnumerable<MemberDeclarationSyntax> HandleNotifications(
-            InterfaceDeclarationSyntax handlerInterface,
+            TypeDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
             NameSyntax registryType,
-            HashSet<string> additionalUsings
+            HashSet<string> additionalUsings,
+            AttributeData attributeData
         )
         {
-            var methodName = GetOnMethodName(interfaceType, _attributeData);
+            var methodName = GetOnMethodName(interfaceType, attributeData);
 
             var parameters = ParameterList(
                 SeparatedList(
@@ -210,15 +254,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         private IEnumerable<MemberDeclarationSyntax> HandleRequest(
-            InterfaceDeclarationSyntax handlerInterface,
+            TypeDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
             INamedTypeSymbol responseType,
             NameSyntax registryType,
-            HashSet<string> additionalUsings
+            HashSet<string> additionalUsings,
+            AttributeData attributeData
         )
         {
-            var methodName = GetOnMethodName(interfaceType, _attributeData);
+            var methodName = GetOnMethodName(interfaceType, attributeData);
 
             var capability = GetCapability(interfaceType);
             var registrationOptions = GetRegistrationOptions(interfaceType);
@@ -239,10 +284,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-            var allowDerivedRequests = _attributeData.NamedArguments
-                                                     .Where(z => z.Key == "AllowDerivedRequests")
-                                                     .Select(z => z.Value.Value)
-                                                     .FirstOrDefault() is bool b && b;
+            var allowDerivedRequests = attributeData.NamedArguments
+                                                    .Where(z => z.Key == "AllowDerivedRequests")
+                                                    .Select(z => z.Value.Value)
+                                                    .FirstOrDefault() is bool b && b;
 
 
             if (registrationOptions == null)
@@ -471,14 +516,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private static IEnumerable<NameSyntax> GetRegistries(
             AttributeData attributeData,
-            InterfaceDeclarationSyntax interfaceSyntax,
+            TypeDeclarationSyntax interfaceSyntax,
             INamedTypeSymbol interfaceType,
-            TransformationContext context,
-            IProgress<Diagnostic> progress,
+            SourceGeneratorContext context,
             HashSet<string> additionalUsings
         )
         {
-            if (attributeData.ConstructorArguments[0].Values.Length > 0)
+            if (attributeData.ConstructorArguments[0].Kind != TypedConstantKind.Array)
+            {
+                if (attributeData.ConstructorArguments[0].Value is INamedTypeSymbol namedTypeSymbol)
+                    return new[] { ResolveTypeName(namedTypeSymbol) };
+            }
+            else if (attributeData.ConstructorArguments[0].Kind == TypedConstantKind.Array && attributeData.ConstructorArguments[0].Values.Length > 0)
             {
                 return attributeData.ConstructorArguments[0].Values.Select(z => z.Value).OfType<INamedTypeSymbol>()
                                     .Select(ResolveTypeName);
@@ -489,7 +538,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    progress.Report(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
                     return Enumerable.Empty<NameSyntax>();
                 }
 
@@ -531,7 +580,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    progress.Report(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, interfaceSyntax.Identifier.GetLocation()));
                     return Enumerable.Empty<NameSyntax>();
                 }
 
@@ -579,13 +628,35 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private static NameSyntax DebugProtocolClientToServer { get; } =
             IdentifierName("IDebugAdapterServerRegistry");
 
-        public Task<SyntaxList<MemberDeclarationSyntax>> GenerateAsync(TransformationContext context, IProgress<Diagnostic> progress, CancellationToken cancellationToken) =>
-            throw new NotImplementedException();
-    }
 
-    /*
-     IJsonRpcNotificationHandler<in TNotification>
-     IJsonRpcRequestHandler<in TRequest, TResponse>
-     IJsonRpcRequestHandler<in TRequest>
-     */
+        /// <summary>
+        /// Created on demand before each generation pass
+        /// </summary>
+        internal class SyntaxReceiver : ISyntaxReceiver
+        {
+            public List<TypeDeclarationSyntax> Candidates { get; } = new List<TypeDeclarationSyntax>();
+
+            /// <summary>
+            /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
+            /// </summary>
+            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+            {
+                // any field with at least one attribute is a candidate for property generation
+                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
+                    classDeclarationSyntax.AttributeLists.Count > 0
+                )
+                {
+                    Candidates.Add(classDeclarationSyntax);
+                }
+
+                // any field with at least one attribute is a candidate for property generation
+                if (syntaxNode is InterfaceDeclarationSyntax interfaceDeclarationSyntax &&
+                    interfaceDeclarationSyntax.AttributeLists.Count > 0
+                )
+                {
+                    Candidates.Add(interfaceDeclarationSyntax);
+                }
+            }
+        }
+    }
 }

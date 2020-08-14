@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc.Generators;
 using Xunit;
 using static Generation.Tests.GenerationHelpers;
 
@@ -61,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public static void SendExit(this ILanguageClient mediator, ExitParams @params) => mediator.SendNotification(@params);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -113,7 +114,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
         public static void SendCapabilities(this IDebugAdapterServer mediator, CapabilitiesEvent @params) => mediator.SendNotification(@params);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
 
@@ -172,7 +173,7 @@ namespace Test
         public static void SendExit(this ILanguageClient mediator, ExitParams @params) => mediator.SendNotification(@params);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -264,7 +265,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public static void DidChangeTextDocument(this ILanguageClient mediator, DidChangeTextDocumentParams @params) => mediator.SendNotification(@params);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -360,7 +361,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public static IRequestProgressObservable<IEnumerable<FoldingRange>, OmniSharp.Extensions.LanguageServer.Protocol.Models.Container<OmniSharp.Extensions.LanguageServer.Protocol.Models.FoldingRange>> RequestFoldingRange(this ILanguageClient mediator, FoldingRangeRequestParam @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new OmniSharp.Extensions.LanguageServer.Protocol.Models.Container<OmniSharp.Extensions.LanguageServer.Protocol.Models.FoldingRange>(value), cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -451,7 +452,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public static IRequestProgressObservable<IEnumerable<LocationOrLocationLink>, LocationOrLocationLinks> RequestDefinition(this ILanguageClient mediator, DefinitionParams @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new LocationOrLocationLinks(value), cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
 
@@ -465,11 +466,6 @@ using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 
 namespace Test
 {
@@ -543,7 +539,7 @@ namespace Test
         public static IRequestProgressObservable<IEnumerable<LocationOrLocationLink>, LocationOrLocationLinks> RequestDefinition(this ITextDocumentLanguageClient mediator, DefinitionParams @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new LocationOrLocationLinks(value), cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -596,7 +592,7 @@ namespace Test
         public static Task<InitializeResult> RequestLanguageProtocolInitialize(this ITextDocumentLanguageClient mediator, InitializeParams @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -651,7 +647,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -711,7 +707,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
         public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
     }
 }
