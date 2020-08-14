@@ -75,9 +75,9 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            await SettleNext();
             workDoneObserver.OnCompleted();
-            await SettleNext();
+
+            await Settle().Take(6);
 
             var results = data.Select(
                 z => z switch {
@@ -123,9 +123,9 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await Settle().Take(3);
+
             sub.Dispose();
-            await SettleNext();
 
             workDoneObserver.OnNext(
                 new ProgressUpdateEvent {
@@ -141,8 +141,8 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            await SettleNext();
             workDoneObserver.OnCompleted();
+
             await SettleNext();
 
             var results = data.Select(
