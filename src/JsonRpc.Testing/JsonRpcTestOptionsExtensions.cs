@@ -18,21 +18,21 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             return options;
         }
 
-        public static JsonRpcTestOptions WithSettleTimeSpan(this JsonRpcTestOptions options, TimeSpan settleTimeSpan)
+        public static JsonRpcTestOptions WithWaitTime(this JsonRpcTestOptions options, TimeSpan waitTime)
         {
-            options.SettleTimeSpan = settleTimeSpan;
+            options.WaitTime = waitTime;
             return options;
         }
 
-        public static JsonRpcTestOptions WithSettleTimeout(this JsonRpcTestOptions options, TimeSpan timeout)
+        public static JsonRpcTestOptions WithTimeout(this JsonRpcTestOptions options, TimeSpan timeout)
         {
-            options.SettleTimeout = timeout;
+            options.Timeout = timeout;
             return options;
         }
 
-        public static JsonRpcTestOptions WithTestTimeout(this JsonRpcTestOptions options, TimeSpan testTimeout)
+        public static JsonRpcTestOptions WithCancellationTimeout(this JsonRpcTestOptions options, TimeSpan cancellationTimeout)
         {
-            options.TestTimeout = testTimeout;
+            options.CancellationTimeout = cancellationTimeout;
             return options;
         }
 

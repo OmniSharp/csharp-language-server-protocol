@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reactive;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -11,21 +12,21 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 {
     public class Settler : ISettler, IRequestSettler, IDisposable
     {
-        private readonly TimeSpan _timeout;
+        private readonly JsonRpcTestOptions _options;
         private readonly CancellationToken _cancellationToken;
         private readonly IScheduler _scheduler;
         private readonly IObservable<Unit> _settle;
         private readonly IObserver<int> _requester;
         private readonly IDisposable _connectable;
-        private readonly IObservable<Unit> _defaultValue;
+        private readonly IObservable<Unit> _timeoutValue;
 
-        public Settler(TimeSpan waitTime, TimeSpan timeout, CancellationToken cancellationToken, IScheduler scheduler = null)
+        public Settler(JsonRpcTestOptions options, CancellationToken cancellationToken, IScheduler scheduler = null)
         {
-            _timeout = timeout;
+            _options = options;
             _cancellationToken = cancellationToken;
             scheduler ??= Scheduler.Immediate;
             _scheduler = scheduler;
-            _defaultValue = Return(Unit.Default, _scheduler);
+            _timeoutValue = Return(Unit.Default, _scheduler);
             var subject = new Subject<int>();
             var data = subject;
 
@@ -42,24 +43,34 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                   z => {
                                       if (z > 0)
                                       {
-                                          return Timer(_timeout, _scheduler)
-                                             .Select(z => Unit.Default);
+                                          return Never<Unit>();
+//                                          return Timer(_options.Timeout, _scheduler)
+//                                             .Select(z => Unit.Default);
                                       }
 
-                                      return Amb(Timer(waitTime, _scheduler), Timer(_timeout, _scheduler))
+                                      return Timer(_options.WaitTime, _scheduler)
                                          .Select(z => Unit.Default);
                                   }
                               )
                              .Replay(1, _scheduler);
             _connectable = connectable.Connect();
             _settle = connectable
-               .Switch();
+                     .Select(o => o.Timeout(_options.Timeout, _scheduler))
+                     .Switch();
             _requester = subject.AsObserver();
         }
 
-        public Task SettleNext() => _settle.Take(1).IgnoreElements().LastOrDefaultAsync().ToTask(_cancellationToken);
+        public Task SettleNext() => SettleNextInternal().ToTask(_cancellationToken);
 
-        public IObservable<Unit> Settle() => _settle.Timeout(_timeout, _scheduler).Catch<Unit, Exception>(_ => _defaultValue);
+        public IObservable<Unit> SettleNextInternal() => _settle
+                                                        .Catch<Unit, Exception>(_ => _timeoutValue)
+                                                        .Take(1)
+                                                        .IgnoreElements()
+                                                        .LastOrDefaultAsync();
+
+        public IObservable<Unit> Settle() =>  _settle
+                                            .Timeout(_options.Timeout, _scheduler)
+                                             .Catch<Unit, Exception>(_ => _timeoutValue);
 
         void IRequestSettler.OnStartRequest() => _requester.OnNext(1);
 

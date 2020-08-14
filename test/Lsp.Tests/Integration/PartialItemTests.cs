@@ -6,14 +6,17 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
+using Lsp.Tests.Integration.Fixtures;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
@@ -21,120 +24,125 @@ using Xunit.Abstractions;
 
 namespace Lsp.Tests.Integration
 {
-    public class PartialItemTests : LanguageProtocolTestBase
+    public static class PartialItemTests
     {
-        public PartialItemTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper))
+        public class Delegates : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, Delegates.DelegateServer>
         {
-        }
+            public Delegates(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, DelegateServer> fixture) : base(testOutputHelper, fixture)
+            {
+            }
 
-        [Fact]
-        public async Task Should_Behave_Like_A_Task()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
-            var result = await client.TextDocument.RequestCodeLens(
-                new CodeLensParams {
-                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-                }, CancellationToken
-            );
+            [Fact]
+            public async Task Should_Behave_Like_A_Task()
+            {
+                var result = await Client.TextDocument.RequestCodeLens(
+                    new CodeLensParams {
+                        TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                    }, CancellationToken
+                );
 
-            result.Should().HaveCount(3);
-            result.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
-        }
+                result.Should().HaveCount(3);
+                result.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+            }
 
-        [Fact]
-        public async Task Should_Behave_Like_An_Observable()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
+            [Fact]
+            public async Task Should_Behave_Like_An_Observable()
+            {
+                var items = new List<CodeLens>();
+                await Client.TextDocument.RequestCodeLens(
+                    new CodeLensParams {
+                        TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                    }, CancellationToken
+                ).ForEachAsync(x => items.AddRange(x));
 
-            var items = new List<CodeLens>();
-            await client.TextDocument.RequestCodeLens(
-                new CodeLensParams {
-                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-                }, CancellationToken
-            ).ForEachAsync(x => items.AddRange(x));
+                items.Should().HaveCount(3);
+                items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+            }
 
-            items.Should().HaveCount(3);
-            items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
-        }
+            [Fact]
+            public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
+            {
+                var response = await Client.SendRequest(
+                    new CodeLensParams {
+                        TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                    }, CancellationToken
+                );
 
-        [Fact]
-        public async Task Should_Behave_Like_An_Observable_Without_Progress_Support()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithDelegateCodeLens);
+                response.Should().HaveCount(3);
+                response.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+            }
 
-            var response = await client.SendRequest(
-                new CodeLensParams {
-                    TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-                }, CancellationToken
-            );
-
-            response.Should().HaveCount(3);
-            response.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
-        }
-
-        [Fact]
-        public async Task Should_Behave_Like_An_Observable_With_WorkDone()
-        {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServerWithClassCodeLens);
-
-            var items = new List<CodeLens>();
-            var work = new List<WorkDoneProgress>();
-            client.TextDocument
-                  .ObserveWorkDone(
-                       new CodeLensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") },
-                       (client, request) => client.RequestCodeLens(request, CancellationToken),
-                       Observer.Create<WorkDoneProgress>(z => work.Add(z))
-                   ).Subscribe(x => items.AddRange(x));
-
-            await Task.Delay(1000);
-
-            var workResults = work.Select(z => z.Message);
-
-            items.Should().HaveCount(4);
-            items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3", "CodeLens 4");
-
-            workResults.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
-        }
-
-        private void ConfigureClient(LanguageClientOptions options)
-        {
-        }
-
-        private void ConfigureServerWithDelegateCodeLens(LanguageServerOptions options) =>
-            options.OnCodeLens(
-                (@params, observer, capability, cancellationToken) => {
-                    observer.OnNext(
-                        new[] {
-                            new CodeLens {
-                                Command = new Command {
-                                    Name = "CodeLens 1"
+            public class DelegateServer : IConfigureLanguageServerOptions
+            {
+                public void Configure(LanguageServerOptions options) =>
+                    options.OnCodeLens(
+                        (@params, observer, capability, cancellationToken) => {
+                            observer.OnNext(
+                                new[] {
+                                    new CodeLens {
+                                        Command = new Command {
+                                            Name = "CodeLens 1"
+                                        }
+                                    },
                                 }
-                            },
-                        }
-                    );
-                    observer.OnNext(
-                        new[] {
-                            new CodeLens {
-                                Command = new Command {
-                                    Name = "CodeLens 2"
+                            );
+                            observer.OnNext(
+                                new[] {
+                                    new CodeLens {
+                                        Command = new Command {
+                                            Name = "CodeLens 2"
+                                        }
+                                    },
                                 }
-                            },
-                        }
-                    );
-                    observer.OnNext(
-                        new[] {
-                            new CodeLens {
-                                Command = new Command {
-                                    Name = "CodeLens 3"
+                            );
+                            observer.OnNext(
+                                new[] {
+                                    new CodeLens {
+                                        Command = new Command {
+                                            Name = "CodeLens 3"
+                                        }
+                                    },
                                 }
-                            },
-                        }
+                            );
+                            observer.OnCompleted();
+                        }, new CodeLensRegistrationOptions()
                     );
-                    observer.OnCompleted();
-                }, new CodeLensRegistrationOptions()
-            );
+            }
+        }
+        public class Handlers : LanguageProtocolFixtureTest<DefaultOptions, DefaultClient, Handlers.HandlersServer>
+        {
+            public Handlers(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, DefaultClient, HandlersServer> fixture) : base(testOutputHelper, fixture)
+            {
+            }
 
-        private void ConfigureServerWithClassCodeLens(LanguageServerOptions options) => options.AddHandler<InnerCodeLensHandler>();
+            [Fact]
+            public async Task Should_Behave_Like_An_Observable_With_WorkDone()
+            {
+                var items = new List<CodeLens>();
+                var work = new List<WorkDoneProgress>();
+                Client.TextDocument
+                      .ObserveWorkDone(
+                           new CodeLensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") },
+                           (client, request) => client.RequestCodeLens(request, CancellationToken),
+                           Observer.Create<WorkDoneProgress>(z => work.Add(z))
+                       ).Subscribe(x => items.AddRange(x));
+
+                await Task.Delay(1000);
+
+                var workResults = work.Select(z => z.Message);
+
+                items.Should().HaveCount(4);
+                items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3", "CodeLens 4");
+
+                workResults.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
+            }
+
+
+            public class HandlersServer : IConfigureLanguageServerOptions
+            {
+                public void Configure(LanguageServerOptions options) => options.AddHandler<InnerCodeLensHandler>();
+            }
+        }
 
         private class InnerCodeLensHandler : CodeLensHandler
         {

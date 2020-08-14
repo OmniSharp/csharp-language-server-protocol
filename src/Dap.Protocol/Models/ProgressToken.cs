@@ -69,7 +69,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
             String == other.String;
 
         public bool Equals(long other) => IsLong && Long == other;
-
         public bool Equals(string other) => IsString && String == other;
 
         private string DebuggerDisplay => IsString ? String : IsLong ? Long.ToString() : "";

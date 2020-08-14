@@ -130,8 +130,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await ServerEvents.Settle();
-            await ClientEvents.Settle();
+            await SettleNext();
 
             await Task.Delay(1000);
 
