@@ -71,9 +71,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         public bool Equals(long other) => IsLong && Long == other;
         public bool Equals(string other) => IsString && String == other;
 
-        public static bool operator ==(ProgressToken progressToken, ProgressToken progressToken2) => progressToken.Equals(progressToken2);
-        public static bool operator !=(ProgressToken progressToken, ProgressToken progressToken2) => !progressToken.Equals(progressToken2);
-
         private string DebuggerDisplay => IsString ? String : IsLong ? Long.ToString() : "";
 
         /// <inheritdoc />

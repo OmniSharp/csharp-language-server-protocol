@@ -2,14 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
-using Dap.Tests.Integration.Fixtures;
 using FluentAssertions;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
@@ -18,34 +15,29 @@ using Xunit.Abstractions;
 
 namespace Dap.Tests.Integration
 {
-    public class ProgressTests : DebugAdapterProtocolFixtureTest<DefaultOptions, DefaultClient, DefaultServer>
+    public class ProgressTests : DebugAdapterProtocolTestBase
     {
-
-        public ProgressTests(ITestOutputHelper testOutputHelper, DebugAdapterProtocolFixture<DefaultOptions, DefaultClient, DefaultServer> fixture) : base(testOutputHelper, fixture)
+        public ProgressTests(ITestOutputHelper outputHelper) : base(
+            new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)
+        )
         {
+        }
+
+        private class Data
+        {
+            public string Value { get; set; } = "Value";
         }
 
         [Fact(Skip = "This api needs to be updated on the client implementation")]
         public async Task Should_Support_Progress_From_Sever_To_Client()
         {
-            var id = new ProgressToken(Guid.NewGuid().ToString());
-            var obs = Client.ProgressManager.Progress
-                            .Where(z => z.ProgressToken == id)
-                            .Take(1).Merge()
-                            .Select(
-                                 z => z switch {
-                                     ProgressStartEvent begin  => begin.Message,
-                                     ProgressUpdateEvent begin => begin.Message,
-                                     ProgressEndEvent begin    => begin.Message,
-                                 }
-                             )
-                            .ToArray()
-                            .Replay();
-            using var sub = obs.Connect();
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
-            using var workDoneObserver = Server.ProgressManager.Create(
+            var data = new List<ProgressEvent>();
+            client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
+
+            using var workDoneObserver = server.ProgressManager.Create(
                 new ProgressStartEvent {
-                    ProgressId = id,
                     Cancellable = true,
                     Message = "Begin",
                     Percentage = 0,
@@ -85,31 +77,29 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            var results = await obs.ToTask(CancellationToken);
+            await SettleNext();
+
+            var results = data.Select(
+                z => z switch {
+                    ProgressStartEvent begin  => begin.Message,
+                    ProgressUpdateEvent begin => begin.Message,
+                    ProgressEndEvent begin    => begin.Message,
+                }
+            );
+
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
         [Fact(Skip = "This api needs to be updated on the client implementation")]
         public async Task Should_Support_Cancelling_Progress_From_Server_To_Client_Request()
         {
-            var id = new ProgressToken(Guid.NewGuid().ToString());
-            var obs = Client.ProgressManager.Progress
-                            .Where(z => z.ProgressToken == id)
-                            .Take(1).Merge()
-                            .Select(
-                                 z => z switch {
-                                     ProgressStartEvent begin  => begin.Message,
-                                     ProgressUpdateEvent begin => begin.Message,
-                                     ProgressEndEvent begin    => begin.Message,
-                                 }
-                             )
-                            .ToArray()
-                            .Replay();
-            using var sub = obs.Connect();
+            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
 
-            using var workDoneObserver = Server.ProgressManager.Create(
+            var data = new List<ProgressEvent>();
+            var sub = client.ProgressManager.Progress.Take(1).Switch().Subscribe(x => data.Add(x));
+
+            using var workDoneObserver = server.ProgressManager.Create(
                 new ProgressStartEvent {
-                    ProgressId = id,
                     Cancellable = true,
                     Message = "Begin",
                     Percentage = 0,
@@ -153,8 +143,26 @@ namespace Dap.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            var results = await obs.ToTask(CancellationToken);
+            await SettleNext();
+
+            var results = data.Select(
+                z => z switch {
+                    ProgressStartEvent begin  => begin.Message,
+                    ProgressUpdateEvent begin => begin.Message,
+                    ProgressEndEvent begin    => begin.Message,
+                }
+            );
+
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2");
+        }
+
+        private void ConfigureClient(DebugAdapterClientOptions options)
+        {
+        }
+
+        private void ConfigureServer(DebugAdapterServerOptions options)
+        {
+            // options.OnCodeLens()
         }
     }
 }
