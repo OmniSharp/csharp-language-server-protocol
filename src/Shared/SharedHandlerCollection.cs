@@ -215,7 +215,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(method);
+            var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(handlerType);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
             var registrationType = typeDescriptor?.RegistrationType ??
                                    HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);

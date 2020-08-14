@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
-    public class ExecuteCommandParams : IRequest, IWorkDoneProgressParams
+    public class ExecuteCommandParams : IRequest, IWorkDoneProgressParams, IExecuteCommandParams
     {
         /// <summary>
         /// The identifier of the actual command handler.

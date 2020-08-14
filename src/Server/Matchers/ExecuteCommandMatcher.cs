@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
         /// <returns></returns>
         public IEnumerable<ILspHandlerDescriptor> FindHandler(object parameters, IEnumerable<ILspHandlerDescriptor> descriptors)
         {
-            if (parameters is ExecuteCommandParams executeCommandParams)
+            if (parameters is IExecuteCommandParams executeCommandParams)
             {
                 _logger.LogTrace("Registration options {OptionsName}", executeCommandParams.GetType().FullName);
                 foreach (var descriptor in descriptors)

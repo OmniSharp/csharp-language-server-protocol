@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
@@ -12,7 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private static readonly ConcurrentDictionary<Type, string> MethodNames =
             new ConcurrentDictionary<Type, string>();
 
-        internal static readonly ImmutableSortedDictionary<string, IHandlerTypeDescriptor> KnownHandlers;
+        internal static readonly ILookup<string, IHandlerTypeDescriptor> KnownHandlers;
 
         static HandlerTypeDescriptorHelper()
         {
@@ -31,14 +32,14 @@ namespace OmniSharp.Extensions.JsonRpc
                                                   }
                                               }
                                           )
-                                         .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
+                                         .Where(z => (z.IsInterface || (z.IsClass && !z.IsAbstract)) && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                          .Where(z => MethodAttribute.From(z) != null)
                                          .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
                                          .Select(GetMethodType)
                                          .Distinct()
                                          .ToLookup(x => MethodAttribute.From(x).Method)
-                                         .Select(x => new HandlerTypeDescriptor(x.First()) as IHandlerTypeDescriptor)
-                                         .ToImmutableSortedDictionary(x => x.Method, x => x, StringComparer.Ordinal);
+                                         .SelectMany(x => x.Select(z => new HandlerTypeDescriptor(z) as IHandlerTypeDescriptor))
+                                         .ToLookup(x => x.Method, StringComparer.Ordinal);
             }
             catch (Exception e)
             {
@@ -46,28 +47,23 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        public static IHandlerTypeDescriptor GetHandlerTypeDescriptor(string method) => KnownHandlers.TryGetValue(method, out var descriptor) ? descriptor : null;
-
-        public static IHandlerTypeDescriptor GetHandlerTypeDescriptor<T>() =>
-            KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == typeof(T)) ??
-            GetHandlerTypeDescriptor(GetMethodName(typeof(T)));
+        public static IHandlerTypeDescriptor GetHandlerTypeDescriptor<T>() => GetHandlerTypeDescriptor(typeof(T));
 
         public static IHandlerTypeDescriptor GetHandlerTypeDescriptor(Type type)
         {
-            var @default = KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == type);
+            var @default = KnownHandlers
+                          .SelectMany(g => g)
+                          .FirstOrDefault(x => x.InterfaceType == type || x.HandlerType == type || x.ParamsType == type);
             if (@default != null)
             {
                 return @default;
             }
 
             var methodName = GetMethodName(type);
-            if (string.IsNullOrWhiteSpace(methodName)) return null;
-            return GetHandlerTypeDescriptor(methodName);
+            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
 
-        public static string GetMethodName<T>()
-            where T : IJsonRpcHandler =>
-            GetMethodName(typeof(T));
+        public static string GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
 
         public static bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z).Equals(name));
 
@@ -78,15 +74,12 @@ namespace OmniSharp.Extensions.JsonRpc
             // Custom method
             var attribute = MethodAttribute.From(type);
 
-            var handler = KnownHandlers.Values.FirstOrDefault(
-                z =>
-                    z.InterfaceType == type || z.HandlerType == type || z.ParamsType == type
-            );
+            var handler = KnownHandlers.SelectMany(z => z)
+                                       .FirstOrDefault(z => z.InterfaceType == type || z.HandlerType == type || z.ParamsType == type);
             if (handler != null)
             {
                 return handler.Method;
             }
-
 
             // TODO: Log unknown method name
             if (attribute is null)
