@@ -75,9 +75,7 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            workDoneObserver.OnCompleted();
-
-            await Settle().Take(6);
+            await Task.Delay(1000);
 
             var results = data.Select(
                 z => z switch {

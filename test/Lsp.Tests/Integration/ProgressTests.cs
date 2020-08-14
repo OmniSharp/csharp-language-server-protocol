@@ -66,9 +66,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            observer.OnCompleted();
-
-            await SettleNext();
+            await Task.Delay(1000);
 
             workDoneObservable.Dispose();
 
@@ -113,9 +111,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            observer.OnCompleted();
-
-            await SettleNext();
+            await Task.Delay(1000);
 
             workDoneObservable.Dispose();
 
