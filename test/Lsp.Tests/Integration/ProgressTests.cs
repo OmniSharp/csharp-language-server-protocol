@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
@@ -167,9 +168,9 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
             workDoneObserver.OnCompleted();
-            await SettleNext();
+
+            await Settle().Take(6);
 
             var results = data.Select(
                 z => z switch {
@@ -230,9 +231,9 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
             workDoneObserver.OnCompleted();
-            await SettleNext();
+
+            await Settle().Take(6);
 
             var results = data.Select(
                 z => z switch {
@@ -279,7 +280,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
+            await Settle().Take(3);
             workDoneObservable.Dispose();
 
             workDoneObserver.OnNext(
@@ -296,8 +297,8 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await SettleNext();
             workDoneObserver.OnCompleted();
+
             await SettleNext();
 
             var results = data.Select(
