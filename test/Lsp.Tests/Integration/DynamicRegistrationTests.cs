@@ -30,11 +30,9 @@ namespace Lsp.Tests.Integration
         public class DynamicRegistrationTests : LanguageProtocolFixtureTest<DefaultOptions, ConfigureClient, ConfigureServer>
         {
             [Fact]
-            public async Task Should_Register_Dynamically_After_Initialization()
+            public void Should_Register_Dynamically_After_Initialization()
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
-
-                await SettleNext();
 
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
@@ -47,8 +45,6 @@ namespace Lsp.Tests.Integration
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                await SettleNext();
-
                 using var _ = Server.Register(
                     x => x
                        .OnCompletion(
@@ -59,8 +55,7 @@ namespace Lsp.Tests.Integration
                         )
                 );
 
-                await SettleNext();
-
+                await WaitForRegistrationUpdate();
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
@@ -72,8 +67,6 @@ namespace Lsp.Tests.Integration
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                await SettleNext();
-
                 using var _ = Server.Register(
                     x => x
                        .OnCompletion(
@@ -84,8 +77,7 @@ namespace Lsp.Tests.Integration
                         )
                 );
 
-                await SettleNext();
-
+                await WaitForRegistrationUpdate();
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
@@ -97,7 +89,7 @@ namespace Lsp.Tests.Integration
             {
                 using var _ = Server.Register(r => r.AddHandlerLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull));
 
-                await Events.SettleNext();
+                await WaitForRegistrationUpdate();
 
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
                 Client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
@@ -109,8 +101,6 @@ namespace Lsp.Tests.Integration
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
-
-                await SettleNext();
 
                 var disposable = Server.Register(
                     x => x.OnCompletion(
@@ -124,7 +114,7 @@ namespace Lsp.Tests.Integration
                 var registrations = await Observable.Create<IEnumerable<Registration>>(
                     observer => {
                         disposable.Dispose();
-                        return Client.RegistrationManager.Registrations.Throttle(TestOptions.Timeout).Take(1).Subscribe(observer);
+                        return Client.RegistrationManager.Registrations.Throttle(TestOptions.WaitTime).Take(1).Subscribe(observer);
                     }
                 ).ToTask(CancellationToken);
 
@@ -143,6 +133,14 @@ namespace Lsp.Tests.Integration
                 if (options is DocumentSelector selector)
                     return selector.Any(documentFilter);
                 return false;
+            }
+
+            private Task WaitForRegistrationUpdate()
+            {
+                return Client.RegistrationManager.Registrations
+                             .Throttle(TestOptions.WaitTime)
+                             .Take(1)
+                             .ToTask(CancellationToken);
             }
 
             public DynamicRegistrationTests(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, ConfigureClient, ConfigureServer> fixture) : base(
@@ -259,63 +257,63 @@ namespace Lsp.Tests.Integration
         }
 
 
-            public class ConfigureClient : IConfigureLanguageClientOptions
+        public class ConfigureClient : IConfigureLanguageClientOptions
+        {
+            public void Configure(LanguageClientOptions options)
             {
-                public void Configure(LanguageClientOptions options)
-                {
-                    options.WithCapability(
-                        new CompletionCapability {
-                            CompletionItem = new CompletionItemCapability {
-                                DeprecatedSupport = true,
-                                DocumentationFormat = new[] { MarkupKind.Markdown },
-                                PreselectSupport = true,
-                                SnippetSupport = true,
-                                TagSupport = new CompletionItemTagSupportCapability {
-                                    ValueSet = new[] {
-                                        CompletionItemTag.Deprecated
-                                    }
-                                },
-                                CommitCharactersSupport = true
+                options.WithCapability(
+                    new CompletionCapability {
+                        CompletionItem = new CompletionItemCapability {
+                            DeprecatedSupport = true,
+                            DocumentationFormat = new[] { MarkupKind.Markdown },
+                            PreselectSupport = true,
+                            SnippetSupport = true,
+                            TagSupport = new CompletionItemTagSupportCapability {
+                                ValueSet = new[] {
+                                    CompletionItemTag.Deprecated
+                                }
                             },
-                            ContextSupport = true,
-                            CompletionItemKind = new CompletionItemKindCapability {
-                                ValueSet = new Container<CompletionItemKind>(
-                                    Enum.GetValues(typeof(CompletionItemKind))
-                                        .Cast<CompletionItemKind>()
-                                )
-                            }
+                            CommitCharactersSupport = true
+                        },
+                        ContextSupport = true,
+                        CompletionItemKind = new CompletionItemKindCapability {
+                            ValueSet = new Container<CompletionItemKind>(
+                                Enum.GetValues(typeof(CompletionItemKind))
+                                    .Cast<CompletionItemKind>()
+                            )
                         }
-                    );
+                    }
+                );
 
-                    options.WithCapability(
-                        new SemanticTokensCapability {
-                            TokenModifiers = SemanticTokenModifier.Defaults.ToArray(),
-                            TokenTypes = SemanticTokenType.Defaults.ToArray()
-                        }
-                    );
-                }
+                options.WithCapability(
+                    new SemanticTokensCapability {
+                        TokenModifiers = SemanticTokenModifier.Defaults.ToArray(),
+                        TokenTypes = SemanticTokenType.Defaults.ToArray()
+                    }
+                );
             }
+        }
 
-            public class ConfigureServer : IConfigureLanguageServerOptions
+        public class ConfigureServer : IConfigureLanguageServerOptions
+        {
+            public void Configure(LanguageServerOptions options)
             {
-                public void Configure(LanguageServerOptions options)
-                {
-                    options.OnCompletion(
-                        (@params, token) => Task.FromResult(new CompletionList()),
-                        new CompletionRegistrationOptions {
-                            DocumentSelector = DocumentSelector.ForLanguage("csharp"),
-                            ResolveProvider = false,
-                            TriggerCharacters = new Container<string>("a", "b"),
-                            AllCommitCharacters = new Container<string>("1", "2"),
-                        }
-                    );
+                options.OnCompletion(
+                    (@params, token) => Task.FromResult(new CompletionList()),
+                    new CompletionRegistrationOptions {
+                        DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+                        ResolveProvider = false,
+                        TriggerCharacters = new Container<string>("a", "b"),
+                        AllCommitCharacters = new Container<string>("1", "2"),
+                    }
+                );
 
-                    options.OnSemanticTokens(
-                        (builder, @params, ct) => { return Task.CompletedTask; },
-                        (@params, token) => { return Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())); },
-                        new SemanticTokensRegistrationOptions()
-                    );
-                }
+                options.OnSemanticTokens(
+                    (builder, @params, ct) => { return Task.CompletedTask; },
+                    (@params, token) => { return Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())); },
+                    new SemanticTokensRegistrationOptions()
+                );
             }
         }
     }
+}

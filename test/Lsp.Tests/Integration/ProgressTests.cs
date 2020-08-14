@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
@@ -34,10 +35,10 @@ namespace Lsp.Tests.Integration
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
-            var data = new List<string>();
-
-            var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
-            Server.ProgressManager.Monitor(token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            using var observer = Client.ProgressManager.For<Data>(token, CancellationToken);
+            var workDoneObservable = Server.ProgressManager.Monitor(token, x => x.ToObject<Data>(Server.Services.GetRequiredService<ISerializer>().JsonSerializer));
+            var observable = workDoneObservable.Replay();
+            using var _ = observable.Connect();
 
             observer.OnNext(
                 new Data {
@@ -65,10 +66,15 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
             observer.OnCompleted();
 
-            data.Should().ContainInOrder("1", "3", "2", "4", "5");
+            await SettleNext();
+
+            workDoneObservable.Dispose();
+
+            var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
+
+            data.Should().ContainInOrder(new [] {"1", "3", "2", "4", "5" });
         }
 
         [Fact]
@@ -76,10 +82,10 @@ namespace Lsp.Tests.Integration
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
-            var data = new List<string>();
-
             using var observer = Server.ProgressManager.For<Data>(token, CancellationToken);
-            Client.ProgressManager.Monitor(token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer)).Subscribe(x => data.Add(x.Value));
+            var workDoneObservable = Client.ProgressManager.Monitor(token, x => x.ToObject<Data>(Client.Services.GetRequiredService<ISerializer>().JsonSerializer));
+            var observable = workDoneObservable.Replay();
+            using var _ = observable.Connect();
 
             observer.OnNext(
                 new Data {
@@ -107,14 +113,19 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
             observer.OnCompleted();
 
-            data.Should().ContainInOrder("1", "3", "2", "4", "5");
+            await SettleNext();
+
+            workDoneObservable.Dispose();
+
+            var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
+
+            data.Should().ContainInOrder(new [] {"1", "3", "2", "4", "5" });
         }
 
         [Fact]
-        public async Task WorkDone_Should_Be_Supported()
+        public void WorkDone_Should_Be_Supported()
         {
             Server.WorkDoneManager.IsSupported.Should().BeTrue();
             Client.WorkDoneManager.IsSupported.Should().BeTrue();
@@ -125,9 +136,9 @@ namespace Lsp.Tests.Integration
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
-            var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
-            workDoneObservable.Subscribe(x => data.Add(x));
+            var workDoneObservable = Client.WorkDoneManager.Monitor(token);
+            var observable = workDoneObservable.Replay();
+            using var _ = observable.Connect();
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
@@ -170,15 +181,13 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await Settle().Take(6);
-
-            var results = data.Select(
+            var results = await observable.Select(
                 z => z switch {
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
                 }
-            );
+            ).ToArray().ToTask(CancellationToken);
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
@@ -188,9 +197,9 @@ namespace Lsp.Tests.Integration
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
-            var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
-            workDoneObservable.Subscribe(x => data.Add(x));
+            var workDoneObservable = Client.WorkDoneManager.Monitor(token);
+            var observable = workDoneObservable.Replay();
+            using var _ = observable.Connect();
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
@@ -233,15 +242,13 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await Settle().Take(6);
-
-            var results = data.Select(
+            var results = await observable.Select(
                 z => z switch {
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
                 }
-            );
+            ).ToArray().ToTask(CancellationToken);
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
@@ -251,9 +258,9 @@ namespace Lsp.Tests.Integration
         {
             var token = new ProgressToken(Guid.NewGuid().ToString());
 
-            var data = new List<WorkDoneProgress>();
-            using var workDoneObservable = Client.WorkDoneManager.Monitor(token);
-            workDoneObservable.Subscribe(x => data.Add(x));
+            var workDoneObservable = Client.WorkDoneManager.Monitor(token);
+            var observable = workDoneObservable.Replay();
+            using var _ = observable.Connect();
 
             using var workDoneObserver = await Server.WorkDoneManager.Create(
                 token, new WorkDoneProgressBegin {
@@ -280,7 +287,8 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Settle().Take(3);
+            await observable.Take(3).ToTask(CancellationToken);
+
             workDoneObservable.Dispose();
 
             workDoneObserver.OnNext(
@@ -299,15 +307,13 @@ namespace Lsp.Tests.Integration
 
             workDoneObserver.OnCompleted();
 
-            await SettleNext();
-
-            var results = data.Select(
+            var results = await observable.Select(
                 z => z switch {
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
                 }
-            );
+            ).ToArray().ToTask(CancellationToken);
 
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2");
         }
