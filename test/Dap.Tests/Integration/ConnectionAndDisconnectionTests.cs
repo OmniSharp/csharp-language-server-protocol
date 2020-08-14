@@ -15,9 +15,7 @@ namespace Dap.Tests.Integration
     public class ConnectionAndDisconnectionTests : DebugAdapterProtocolTestBase
     {
         public ConnectionAndDisconnectionTests(ITestOutputHelper outputHelper) : base(
-            new JsonRpcTestOptions()
-               .ConfigureForXUnit(outputHelper)
-               .WithTestTimeout(TimeSpan.FromSeconds(20))
+            new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)
         )
         {
         }

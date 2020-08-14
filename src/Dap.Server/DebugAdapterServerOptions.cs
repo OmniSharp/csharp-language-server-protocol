@@ -37,6 +37,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.AddHandler(string method, Type type, JsonRpcHandlerOptions options) =>
             AddHandler(method, type, options);
 
+        IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.AddHandlerLink(string sourceMethod, string destinationMethod) =>
+            AddHandlerLink(sourceMethod, destinationMethod);
+
         IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.OnJsonRequest(
             string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options
         ) => OnJsonRequest(method, handler, options);

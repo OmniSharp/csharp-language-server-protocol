@@ -112,6 +112,7 @@ namespace OmniSharp.Extensions.JsonRpc
         public abstract T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null) where THandler : IJsonRpcHandler;
         public abstract T AddHandler(Type type, JsonRpcHandlerOptions options = null);
         public abstract T AddHandler(string method, Type type, JsonRpcHandlerOptions options = null);
+        public abstract T AddHandlerLink(string sourceMethod, string destinationMethod);
 
         #endregion
     }
