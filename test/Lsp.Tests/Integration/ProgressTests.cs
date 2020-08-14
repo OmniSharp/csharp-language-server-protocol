@@ -167,9 +167,9 @@ namespace Lsp.Tests.Integration
                 }
             );
 
+            await SettleNext();
             workDoneObserver.OnCompleted();
-
-            await Task.Delay(1000);
+            await SettleNext();
 
             var results = data.Select(
                 z => z switch {
@@ -230,9 +230,9 @@ namespace Lsp.Tests.Integration
                 }
             );
 
+            await SettleNext();
             workDoneObserver.OnCompleted();
-            await Task.Delay(1000);
-
+            await SettleNext();
 
             var results = data.Select(
                 z => z switch {
@@ -296,9 +296,9 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
-
+            await SettleNext();
             workDoneObserver.OnCompleted();
+            await SettleNext();
 
             var results = data.Select(
                 z => z switch {

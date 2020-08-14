@@ -28,7 +28,7 @@ namespace Dap.Tests.Integration
             public string Value { get; set; } = "Value";
         }
 
-        [Fact(Skip = "This api needs to be updated on the client implementation")]
+        [Fact]
         public async Task Should_Support_Progress_From_Sever_To_Client()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -75,8 +75,8 @@ namespace Dap.Tests.Integration
                 }
             );
 
+            await SettleNext();
             workDoneObserver.OnCompleted();
-
             await SettleNext();
 
             var results = data.Select(
@@ -90,7 +90,7 @@ namespace Dap.Tests.Integration
             results.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
         }
 
-        [Fact(Skip = "This api needs to be updated on the client implementation")]
+        [Fact]
         public async Task Should_Support_Cancelling_Progress_From_Server_To_Client_Request()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -124,8 +124,8 @@ namespace Dap.Tests.Integration
             );
 
             await SettleNext();
-
             sub.Dispose();
+            await SettleNext();
 
             workDoneObserver.OnNext(
                 new ProgressUpdateEvent {
@@ -141,8 +141,8 @@ namespace Dap.Tests.Integration
                 }
             );
 
+            await SettleNext();
             workDoneObserver.OnCompleted();
-
             await SettleNext();
 
             var results = data.Select(
