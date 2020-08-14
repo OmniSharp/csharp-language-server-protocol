@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         public abstract Task<AttachResponse> Handle(T request, CancellationToken cancellationToken);
     }
 
-    public abstract class AttachHandler : AttachHandlerBase<AttachRequestArguments>
+    public abstract class AttachHandler : AttachHandlerBase<AttachRequestArguments>, IAttachHandler
     {
     }
 }

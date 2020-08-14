@@ -122,7 +122,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         private HandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var typeDescriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(method);
+            var typeDescriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(handlerType);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
 
             return GetDescriptor(method, handlerType, handler, options, typeDescriptor, @interface);

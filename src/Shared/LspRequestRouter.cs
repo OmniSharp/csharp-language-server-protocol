@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             // execute command is a special case
             // if no command was found to execute this must error
             // this is not great coupling but other options require api changes
-            if (paramsValue is ExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>();
+            if (paramsValue is IExecuteCommandParams) return new RequestDescriptor<ILspHandlerDescriptor>();
             if (lspHandlerDescriptors.Count > 0) return new RequestDescriptor<ILspHandlerDescriptor>(lspHandlerDescriptors);
             return new RequestDescriptor<ILspHandlerDescriptor>();
         }

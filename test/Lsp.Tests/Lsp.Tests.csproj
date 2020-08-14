@@ -15,7 +15,4 @@
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
     </ItemGroup>
-    <ItemGroup>
-        <Folder Include="obj\Release\netcoreapp3.1\" />
-    </ItemGroup>
 </Project>

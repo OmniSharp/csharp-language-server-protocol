@@ -12,15 +12,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         private static readonly ConcurrentDictionary<Type, string> MethodNames =
             new ConcurrentDictionary<Type, string>();
 
-        private static readonly ImmutableSortedDictionary<string, ILspHandlerTypeDescriptor> KnownHandlers;
+        private static readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
 
         static LspHandlerTypeDescriptorHelper()
         {
             try
             {
-                KnownHandlers = HandlerTypeDescriptorHelper.KnownHandlers.Values
+                KnownHandlers = HandlerTypeDescriptorHelper.KnownHandlers.SelectMany(x => x)
                                                            .Select(x => new LspHandlerTypeDescriptor(x.HandlerType) as ILspHandlerTypeDescriptor)
-                                                           .ToImmutableSortedDictionary(x => x.Method, x => x, StringComparer.Ordinal);
+                                                           .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
             }
             catch (Exception e)
             {
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             }
         }
 
-        public static ILspHandlerTypeDescriptor GetHandlerTypeForRegistrationOptions(object registrationOptions)
+        public static string GetMethodForRegistrationOptions(object registrationOptions)
         {
             var registrationType = registrationOptions.GetType();
             var interfaces = new HashSet<Type>(
@@ -37,30 +37,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             );
             return interfaces.SelectMany(
                                   x =>
-                                      KnownHandlers.Values
+                                      KnownHandlers.SelectMany(z => z)
                                                    .Where(z => z.HasRegistration)
                                                    .Where(z => x.IsAssignableFrom(z.RegistrationType))
                               )
-                             .FirstOrDefault();
+                             .FirstOrDefault()?.Method;
         }
 
-        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(string method) => KnownHandlers.TryGetValue(method, out var descriptor) ? descriptor : null;
-
-        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor<T>() =>
-            KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == typeof(T)) ??
-            GetHandlerTypeDescriptor(HandlerTypeDescriptorHelper.GetMethodName(typeof(T)));
+        public static Type GetRegistrationType(string method) => KnownHandlers[method]
+                                                                .Where(z => z.HasRegistration)
+                                                                .Select(z => z.RegistrationType)
+                                                                .FirstOrDefault();
+        public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor<T>() => GetHandlerTypeDescriptor(typeof(T));
 
         public static ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(Type type)
         {
-            var @default = KnownHandlers.Values.FirstOrDefault(x => x.InterfaceType == type);
+            var @default = KnownHandlers
+                          .SelectMany(g => g)
+                          .FirstOrDefault(x => x.InterfaceType == type || x.HandlerType == type || x.ParamsType == type)
+                ?? KnownHandlers
+                  .SelectMany(g => g)
+                  .FirstOrDefault(x => x.InterfaceType.IsAssignableFrom(type) || x.HandlerType.IsAssignableFrom(type));
             if (@default != null)
             {
                 return @default;
             }
 
             var methodName = HandlerTypeDescriptorHelper.GetMethodName(type);
-            if (string.IsNullOrWhiteSpace(methodName)) return null;
-            return GetHandlerTypeDescriptor(methodName);
+            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
     }
 }

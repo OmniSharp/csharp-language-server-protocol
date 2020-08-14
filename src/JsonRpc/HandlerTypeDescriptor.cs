@@ -6,17 +6,22 @@ using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    [DebuggerDisplay("{" + nameof(Method) + "}")]
-    internal class HandlerTypeDescriptor : IHandlerTypeDescriptor
+    [DebuggerDisplay("{ToString()}")]
+    internal class HandlerTypeDescriptor : IHandlerTypeDescriptor, IEquatable<HandlerTypeDescriptor>
     {
         public HandlerTypeDescriptor(Type handlerType)
         {
             var method = MethodAttribute.From(handlerType);
             Method = method.Method;
             Direction = method.Direction;
-            if (handlerType.IsGenericTypeDefinition)
+            if (handlerType.IsGenericTypeDefinition && handlerType.IsPublic)
             {
-                handlerType = handlerType.MakeGenericType(handlerType.GetTypeInfo().GenericTypeParameters[0].GetGenericParameterConstraints()[0]);
+                var parameter = handlerType.GetTypeInfo().GenericTypeParameters[0];
+                var constraints = parameter.GetGenericParameterConstraints();
+                if (constraints.Length == 1)
+                {
+                    handlerType = handlerType.MakeGenericType(handlerType.GetTypeInfo().GenericTypeParameters[0].GetGenericParameterConstraints()[0]);
+                }
             }
 
             HandlerType = handlerType;
@@ -74,6 +79,36 @@ namespace OmniSharp.Extensions.JsonRpc
         public Type ParamsType { get; }
         public bool HasResponseType { get; }
         public Type ResponseType { get; }
-        public override string ToString() => $"{Method}";
+        public override string ToString() => $"{Method}:{HandlerType.FullName}";
+
+        public bool Equals(HandlerTypeDescriptor other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Method == other.Method && HandlerType.Equals(other.HandlerType) && InterfaceType.Equals(other.InterfaceType);
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != this.GetType()) return false;
+            return Equals((HandlerTypeDescriptor) obj);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                var hashCode = Method.GetHashCode();
+                hashCode = ( hashCode * 397 ) ^ HandlerType.GetHashCode();
+                hashCode = ( hashCode * 397 ) ^ InterfaceType.GetHashCode();
+                return hashCode;
+            }
+        }
+
+        public static bool operator ==(HandlerTypeDescriptor left, HandlerTypeDescriptor right) => Equals(left, right);
+
+        public static bool operator !=(HandlerTypeDescriptor left, HandlerTypeDescriptor right) => !Equals(left, right);
     }
 }
