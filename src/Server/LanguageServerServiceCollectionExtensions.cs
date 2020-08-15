@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterInitializer<ILanguageServerConfiguration>(
                 (provider, context) => {
                     var configurationItems = context.ResolveMany<ConfigurationItem>();
-                    provider.AddConfigurationItem(configurationItems);
+                    provider.AddConfigurationItems(configurationItems);
                 }
             );
 

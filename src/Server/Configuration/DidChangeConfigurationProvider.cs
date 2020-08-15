@@ -183,7 +183,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             set => _configuration[key] = value;
         }
 
-        public ILanguageServerConfiguration AddConfigurationItem(IEnumerable<ConfigurationItem> configurationItems)
+        public ILanguageServerConfiguration AddConfigurationItems(IEnumerable<ConfigurationItem> configurationItems)
         {
             foreach (var item in configurationItems)
                 _configurationItemData.Add(new ConfigurationItemData(item));
@@ -193,7 +193,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return this;
         }
 
-        public ILanguageServerConfiguration RemoveConfigurationItem(IEnumerable<ConfigurationItem> configurationItems)
+        public ILanguageServerConfiguration RemoveConfigurationItems(IEnumerable<ConfigurationItem> configurationItems)
         {
             foreach (var item in configurationItems)
                 _configurationItemData.RemoveWhere(z => z.ConfigurationItem == item);
