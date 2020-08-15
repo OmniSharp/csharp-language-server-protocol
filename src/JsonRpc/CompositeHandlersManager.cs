@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options)
         {
-            var result = _parent.Add(factory, options);
+            var result = _parent.Add(method, factory, options);
             _compositeDisposable.Add(result);
             return result;
         }
