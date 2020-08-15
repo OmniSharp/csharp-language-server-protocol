@@ -103,55 +103,15 @@ namespace Generation.Tests
             var diagnostics = compilation.GetDiagnostics();
             Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
-            // TODO: fix this junk
-            var optionsProvider = Substitute.For<AnalyzerConfigOptionsProvider>();
+            ISourceGenerator generator = new T();
 
-            var generator = new T();
-            var receiver = new GenerateHandlerMethodsGenerator.SyntaxReceiver();
-            var visitor = new NotSureWhatToCallYou(receiver);
+            var driver = new CSharpGeneratorDriver(compilation.SyntaxTrees[0].Options, ImmutableArray.Create(generator), default, ImmutableArray<AdditionalText>.Empty);
 
-            foreach (var compilationSyntaxTree in compilation.SyntaxTrees)
-            {
-                visitor.Visit(compilationSyntaxTree.GetRoot());
-            }
+            driver.RunFullGeneration(compilation, out var outputCompilation, out diagnostics);
+            // Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
-            //, ISyntaxReceiver? syntaxReceiver, DiagnosticBag diagnostics, CancellationToken cancellationToken = default
-            var context = (SourceGeneratorContext) Activator.CreateInstance(
-                typeof(SourceGeneratorContext),
-                BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.CreateInstance,
-                null,
-                new object[] {
-                    compilation,
-                    ImmutableArray<AdditionalText>.Empty,
-                    optionsProvider,
-                    // This needs to be generic somehow...
-                    receiver,
-                    // TODO: dynamic proxy... sigh
-                    Activator.CreateInstance(
-                        typeof(SourceGeneratorContext).Assembly.GetType("Microsoft.CodeAnalysis.DiagnosticBag")!,
-                        Array.Empty<object>()
-                    ),
-                    CancellationToken.None
-                },
-                CultureInfo.InvariantCulture
-            );
-
-            generator.Execute(context);
-
-            // WARNING JANK AHEAD
-            var additionalSourcesProperty = context.GetType().GetProperty("AdditionalSources", BindingFlags.NonPublic | BindingFlags.Instance);
-            var additionalSources = additionalSourcesProperty.GetValue(context);
-            var toImmutableAndFreeMethod = additionalSources.GetType().GetMethod("ToImmutableAndFree", BindingFlags.NonPublic | BindingFlags.Instance);
-            var generatedSourceTextArray = toImmutableAndFreeMethod.Invoke(additionalSources, Array.Empty<object>()) as IEnumerable;
-            var generatedSourceTextType = typeof(SourceGeneratorContext).Assembly.GetType("Microsoft.CodeAnalysis.GeneratedSourceText");
-            var generatedSourceTextProperty = generatedSourceTextType.GetProperty("Text");
-            var sourceTexts = generatedSourceTextArray
-                             .OfType<object>()
-                             .Select(z => generatedSourceTextProperty.GetValue(z) as SourceText)
-                             .ToArray();
-
-            var resultText = sourceTexts.Single();
-            return CSharpSyntaxTree.ParseText(resultText);
+            // the syntax tree added by the generator will be the last one in the compilation
+            return outputCompilation.SyntaxTrees.Last();
         }
 
         public static Project CreateProject(params string[] sources)
