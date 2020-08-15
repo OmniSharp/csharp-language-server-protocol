@@ -53,6 +53,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
             );
+            container.RegisterMany<ConfigurationConverter>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterInitializer<ILanguageServerConfiguration>(
+                (provider, context) => {
+                    var configurationItems = context.ResolveMany<ConfigurationItem>();
+                    provider.AddConfigurationItem(configurationItems);
+                }
+            );
+
 
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(

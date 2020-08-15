@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 options => {
                     clientOptionsAction?.Invoke(options);
                     options.WithCapability(new DidChangeConfigurationCapability());
-                    options.AddHandler<TestConfigurationProvider>();
+                    options.Services.AddSingleton<TestConfigurationProvider>();
                 }
             );
 

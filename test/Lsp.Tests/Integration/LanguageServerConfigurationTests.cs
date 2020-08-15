@@ -3,10 +3,12 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
+using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
@@ -27,6 +29,7 @@ namespace Lsp.Tests.Integration
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration.AsEnumerable().Should().BeEmpty();
@@ -39,9 +42,46 @@ namespace Lsp.Tests.Integration
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
+            server.Configuration["othersection:value"].Should().Be("key");
+        }
+
+        [Fact]
+        public async Task Should_Update_Configuration_On_Server_After_Starting()
+        {
+            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {});
+            server.Configuration.AsEnumerable().Should().BeEmpty();
+            server.Configuration.AddSection("mysection", "othersection");
+
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
+            await server.Configuration.WaitForChange(CancellationToken);
+
+            server.Configuration["mysection:key"].Should().Be("value");
+            server.Configuration["othersection:value"].Should().Be("key");
+        }
+
+        [Fact]
+        public async Task Should_Update_Configuration_Should_Stop_Watching_Sections()
+        {
+            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            server.Configuration.AsEnumerable().Should().BeEmpty();
+
+            configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
+            await server.Configuration.WaitForChange(CancellationToken);
+
+            server.Configuration["mysection:key"].Should().Be("value");
+            server.Configuration["othersection:value"].Should().Be("key");
+
+            server.Configuration.RemoveSection("othersection");
+            await server.Configuration.WaitForChange(CancellationToken);
+
+            server.Configuration["mysection:key"].Should().Be("value");
+            server.Configuration["othersection:value"].Should().BeNull();
         }
 
         [Fact]
@@ -51,12 +91,16 @@ namespace Lsp.Tests.Integration
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
+            configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["value"] = "scopedkey" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
             scopedConfiguration["mysection:key"].Should().Be("scopedvalue");
+            server.Configuration["othersection:value"].Should().Be("key");
+            scopedConfiguration["othersection:value"].Should().Be("scopedkey");
         }
 
         [Fact]
@@ -66,19 +110,25 @@ namespace Lsp.Tests.Integration
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
+            configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
+            configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["value"] = "scopedkey" });
             await server.Configuration.WaitForChange(CancellationToken);
 
             server.Configuration["mysection:key"].Should().Be("value");
             scopedConfiguration["mysection:key"].Should().Be("scopedvalue");
+            server.Configuration["othersection:value"].Should().Be("key");
+            scopedConfiguration["othersection:value"].Should().Be("scopedkey");
 
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
+            configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             await scopedConfiguration.WaitForChange(CancellationToken);
 
             await Task.Delay(1000);
 
             scopedConfiguration["mysection:key"].Should().Be("value");
+            scopedConfiguration["othersection:value"].Should().Be("key");
         }
 
         [Fact]
@@ -100,6 +150,6 @@ namespace Lsp.Tests.Integration
         {
         }
 
-        private void ConfigureServer(LanguageServerOptions options) => options.WithConfigurationSection("mysection");
+        private void ConfigureServer(LanguageServerOptions options) => options.WithConfigurationSection("mysection").WithConfigurationSection("othersection");
     }
 }

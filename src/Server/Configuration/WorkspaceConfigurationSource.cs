@@ -8,7 +8,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
     {
         private readonly WorkspaceConfigurationProvider _provider;
 
-        public WorkspaceConfigurationSource(IEnumerable<(string key, JToken settings)> configuration) => _provider = new WorkspaceConfigurationProvider(configuration);
+        public WorkspaceConfigurationSource(ConfigurationConverter configurationConverter, IEnumerable<(string key, JToken settings)> configuration)
+        {
+            _provider = new WorkspaceConfigurationProvider(configurationConverter, configuration);
+        }
 
         public IConfigurationProvider Build(IConfigurationBuilder builder) => _provider;
 
