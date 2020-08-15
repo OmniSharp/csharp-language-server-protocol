@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
     internal class DidChangeConfigurationProvider : ConfigurationProvider, IDidChangeConfigurationHandler, IOnLanguageServerStarted, ILanguageServerConfiguration, IDisposable
     {
-        private readonly HashSet<ConfigurationItemData> _configurationItemData = new HashSet<ConfigurationItemData>();
+        private readonly HashSet<ConfigurationItem> _configurationItems = new HashSet<ConfigurationItem>();
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
         private readonly IWorkspaceLanguageServer _workspaceLanguageServer;
         private readonly ConfigurationConverter _configurationConverter;
@@ -88,7 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         private IObservable<System.Reactive.Unit> GetWorkspaceConfiguration()
         {
-            if (_capability == null || _configurationItemData.Count == 0)
+            if (_capability == null || _configurationItems.Count == 0)
             {
                 _logger.LogWarning("No ConfigurationItems have been defined, configuration won't surface any configuration from the client!");
                 OnReload();
@@ -114,7 +114,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 Create<System.Reactive.Unit>(
                     observer => {
                         var newData = new Dictionary<string, string>();
-                        return GetConfigurationFromClient(_workspaceLanguageServer, _configurationItemData.Select(z => z.ConfigurationItem))
+                        return GetConfigurationFromClient(_workspaceLanguageServer, _configurationItems)
                               .Select(
                                    x => {
                                        var (dataItem, settings) = x;
@@ -140,7 +140,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 ),
                 Create<System.Reactive.Unit>(
                     observer => {
-                        var scopedConfigurationItems = _configurationItemData
+                        var scopedConfigurationItems = _configurationItems
                                                       .Where(z => z.ScopeUri == null)
                                                       .SelectMany(
                                                            scope =>
@@ -186,7 +186,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public ILanguageServerConfiguration AddConfigurationItems(IEnumerable<ConfigurationItem> configurationItems)
         {
             foreach (var item in configurationItems)
-                _configurationItemData.Add(new ConfigurationItemData(item));
+                _configurationItems.Add(item);
 
             _triggerChange.OnNext(System.Reactive.Unit.Default);
 
@@ -196,7 +196,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public ILanguageServerConfiguration RemoveConfigurationItems(IEnumerable<ConfigurationItem> configurationItems)
         {
             foreach (var item in configurationItems)
-                _configurationItemData.RemoveWhere(z => z.ConfigurationItem == item);
+                _configurationItems.Remove(item);
 
             _triggerChange.OnNext(System.Reactive.Unit.Default);
 
@@ -231,7 +231,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri)
         {
-            var scopes = _configurationItemData.Select(z => z.ConfigurationItem).ToArray();
+            var scopes = _configurationItems.ToArray();
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
