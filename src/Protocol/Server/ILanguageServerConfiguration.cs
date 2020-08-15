@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -37,8 +38,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
         /// This will watch for changes of the scoped documents and update the configuration.
         /// </summary>
         /// <param name="scopeUri"></param>
+        /// <param name="cancellationToken"></param>
         /// <returns></returns>
-        Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri);
+        Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri, CancellationToken cancellationToken);
 
         /// <summary>
         /// Attempt to get an existing scoped configuration so that it can be disposed

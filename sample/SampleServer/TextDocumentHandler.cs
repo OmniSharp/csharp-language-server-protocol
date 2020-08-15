@@ -63,7 +63,7 @@ namespace SampleServer
         {
             await Task.Yield();
             _logger.LogInformation("Hello world!");
-            await _configuration.GetScopedConfiguration(notification.TextDocument.Uri);
+            await _configuration.GetScopedConfiguration(notification.TextDocument.Uri, token);
             return Unit.Value;
         }
 

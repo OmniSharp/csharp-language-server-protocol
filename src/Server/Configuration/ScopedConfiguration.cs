@@ -7,16 +7,25 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
-    internal class DisposableConfiguration : IScopedConfiguration
+    internal class ScopedConfiguration : IScopedConfiguration
     {
-        private readonly ConfigurationRoot _configuration;
+        private ConfigurationRoot _configuration;
+        private readonly IConfiguration _rootConfiguration;
         private readonly WorkspaceConfigurationSource _configurationSource;
         private readonly IDisposable _disposable;
 
-        public DisposableConfiguration(IConfigurationBuilder configurationBuilder, WorkspaceConfigurationSource configurationSource, IDisposable disposable)
+        public ScopedConfiguration(
+            IConfiguration rootConfiguration,
+            ConfigurationConverter configurationConverter,
+            IEnumerable<(string key, JToken settings)> configuration,
+            IDisposable disposable)
         {
-            _configuration = configurationBuilder.Add(configurationSource).Build() as ConfigurationRoot;
-            _configurationSource = configurationSource;
+            _configurationSource = new WorkspaceConfigurationSource(configurationConverter, configuration);
+            _configuration = new ConfigurationBuilder()
+                            .AddConfiguration(rootConfiguration)
+                            .Add(_configurationSource)
+                            .Build() as ConfigurationRoot;
+            _rootConfiguration = rootConfiguration;
             _disposable = disposable;
         }
 
@@ -26,7 +35,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public IChangeToken GetReloadToken() => _configuration.GetReloadToken();
 
-        internal void Update(IEnumerable<(string key, JToken settings)> data) => _configurationSource.Update(data);
+        internal void Update(IEnumerable<(string key, JToken settings)> data)
+        {
+            _configurationSource.Update(data);
+        }
 
         public string this[string key]
         {

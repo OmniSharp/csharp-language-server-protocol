@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Update_Scoped_Configuration()
         {
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
-            var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
+            var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"), CancellationToken);
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
@@ -107,7 +107,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Fallback_To_Original_Configuration()
         {
             var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
-            var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"));
+            var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"), CancellationToken);
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
@@ -124,8 +124,6 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             await scopedConfiguration.WaitForChange(CancellationToken);
-
-            await Task.Delay(1000);
 
             scopedConfiguration["mysection:key"].Should().Be("value");
             scopedConfiguration["othersection:value"].Should().Be("key");

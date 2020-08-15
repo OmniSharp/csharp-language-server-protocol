@@ -33,8 +33,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private readonly ConfigurationRoot _configuration;
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
 
-        private readonly ConcurrentDictionary<DocumentUri, DisposableConfiguration> _openScopes =
-            new ConcurrentDictionary<DocumentUri, DisposableConfiguration>();
+        private readonly ConcurrentDictionary<DocumentUri, ScopedConfiguration> _openScopes =
+            new ConcurrentDictionary<DocumentUri, ScopedConfiguration>();
 
         private readonly IObserver<System.Reactive.Unit> _triggerChange;
 
@@ -95,26 +95,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return Empty<System.Reactive.Unit>();
             }
 
-            static IObservable<(ConfigurationItem scope, JToken settings)> GetConfigurationFromClient(
-                IWorkspaceLanguageServer workspaceLanguageServer,
-                IEnumerable<ConfigurationItem> configurationItems
-            )
-            {
-                return FromAsync(
-                        ct => workspaceLanguageServer.RequestConfiguration(
-                            new ConfigurationParams {
-                                Items = configurationItems.ToArray()
-                            }, cancellationToken: ct
-                        )
-                    ).SelectMany(a => a.ToArray())
-                     .Zip(configurationItems, (settings, scope) => ( scope, settings ));
-            }
-
             return Concat(
                 Create<System.Reactive.Unit>(
                     observer => {
                         var newData = new Dictionary<string, string>();
-                        return GetConfigurationFromClient(_workspaceLanguageServer, _configurationItems)
+                        return GetConfigurationFromClient(_configurationItems)
                               .Select(
                                    x => {
                                        var (dataItem, settings) = x;
@@ -132,7 +117,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                               .Do(
                                    _ => { }, () => {
                                        Data = newData;
-                                       OnReload();
                                    }
                                )
                               .Subscribe(observer);
@@ -148,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                                                                    scopeUri => new ConfigurationItem { ScopeUri = scopeUri, Section = scope.Section }
                                                                )
                                                        ).ToArray();
-                        return GetConfigurationFromClient(_workspaceLanguageServer, scopedConfigurationItems)
+                        return GetConfigurationFromClient(scopedConfigurationItems)
                               .GroupBy(z => z.scope.ScopeUri, z => ( z.scope.Section, z.settings ))
                               .Select(z => z.ToArray().Select(items => ( key: z.Key, items )))
                               .Concat()
@@ -159,15 +143,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                                    }
                                )
                               .Select(x => System.Reactive.Unit.Default)
-                              .Catch<System.Reactive.Unit, Exception>(
-                                   e => {
-                                       _logger.LogError(e, "Unable to get configuration from client!");
-                                       return Empty<System.Reactive.Unit>();
-                                   }
-                               )
                               .Subscribe(observer);
                     }
-                )
+                ),
+                // Ensure we don't trigger reload until scoped configurations are loaded
+                Create<System.Reactive.Unit>(
+                    o => {
+                        OnReload();
+                        o.OnCompleted();
+                        return Disposable.Empty;
+                    })
             );
         }
 
@@ -229,27 +214,21 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                   .Build();
         }
 
-        public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri)
+        public async Task<IScopedConfiguration> GetScopedConfiguration(DocumentUri scopeUri, CancellationToken cancellationToken)
         {
             var scopes = _configurationItems.ToArray();
             if (scopes.Length == 0)
                 return EmptyDisposableConfiguration.Instance;
 
-            var configurations = await _workspaceLanguageServer.RequestConfiguration(
-                new ConfigurationParams {
-                    Items = scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }).ToArray()
-                }
-            );
+            var data = await GetConfigurationFromClient(scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }))
+                            .Select(z => (z.scope.Section, z.settings))
+                            .ToArray()
+                            .ToTask(cancellationToken);
 
-            var data = scopes.Zip(
-                configurations,
-                (scope, settings) => ( scope.Section, settings )
-            );
-
-            var config = new DisposableConfiguration(
-                new ConfigurationBuilder()
-                   .AddConfiguration(_configuration),
-                new WorkspaceConfigurationSource(_configurationConverter, data),
+            var config = new ScopedConfiguration(
+                _configuration,
+                _configurationConverter,
+                data,
                 Disposable.Create(
                     () => _openScopes.TryRemove(scopeUri, out _)
                 )
@@ -275,6 +254,26 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public void Dispose()
         {
             _compositeDisposable?.Dispose();
+        }
+
+        private IObservable<(ConfigurationItem scope, JToken settings)> GetConfigurationFromClient(
+            IEnumerable<ConfigurationItem> configurationItems
+        )
+        {
+            return FromAsync(
+                    ct => _workspaceLanguageServer.RequestConfiguration(
+                        new ConfigurationParams {
+                            Items = configurationItems.ToArray()
+                        }, cancellationToken: ct
+                    )
+                ).SelectMany(a => a.ToArray())
+                 .Zip(configurationItems, (settings, scope) => ( scope, settings ))
+                 .Catch<(ConfigurationItem scope, JToken settings), Exception>(
+                      e => {
+                          _logger.LogError(e, "Unable to get configuration from client!");
+                          return Empty<(ConfigurationItem scope, JToken settings)>();
+                      }
+                  );
         }
     }
 }
