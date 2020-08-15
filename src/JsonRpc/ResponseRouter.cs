@@ -12,14 +12,16 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         internal readonly IOutputHandler OutputHandler;
         internal readonly ISerializer Serializer;
+        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
 
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer)
+        public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
         {
             OutputHandler = outputHandler;
             Serializer = serializer;
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
         public void SendNotification(string method) =>
@@ -53,7 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         private string GetMethodName(Type type) =>
-            HandlerTypeDescriptorHelper.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
+            _handlerTypeDescriptorProvider.GetMethodName(type) ?? throw new NotSupportedException($"Unable to infer method name for type {type.FullName}");
 
         private class ResponseRouterReturnsImpl : IResponseRouterReturns
         {

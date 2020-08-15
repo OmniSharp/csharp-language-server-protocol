@@ -12,9 +12,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Server;
+using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;
 using Xunit.Abstractions;
@@ -458,6 +460,15 @@ namespace Dap.Tests
         {
             public TypeHandlerData()
             {
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
+
+                    typeof(HandlerTypeDescriptorProvider).Assembly,
+                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                    typeof(DebugAdapterClient).Assembly,
+                    typeof(DebugAdapterServer).Assembly,
+                    typeof(DapReceiver).Assembly,
+                    typeof(DebugAdapterProtocolTestBase).Assembly
+                });
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(
                     z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)
                 ))
@@ -465,7 +476,7 @@ namespace Dap.Tests
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
 
-                    Add(HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
+                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type));
                 }
             }
         }
@@ -474,12 +485,20 @@ namespace Dap.Tests
         {
             public TypeHandlerExtensionData()
             {
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
+                    typeof(HandlerTypeDescriptorProvider).Assembly,
+                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                    typeof(DebugAdapterClient).Assembly,
+                    typeof(DebugAdapterServer).Assembly,
+                    typeof(DapReceiver).Assembly,
+                    typeof(DebugAdapterProtocolTestBase).Assembly
+                });
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes
                                                                  .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)))
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
-                    var descriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type);
+                    var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
 
                     Add(
                         descriptor,

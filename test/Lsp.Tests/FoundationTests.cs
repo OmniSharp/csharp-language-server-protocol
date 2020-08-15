@@ -15,6 +15,7 @@ using NSubstitute;
 using NSubstitute.Core;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
@@ -633,13 +634,22 @@ namespace Lsp.Tests
         {
             public TypeHandlerData()
             {
+                var handlerTypeDescriptorProvider =
+                    new LspHandlerTypeDescriptorProvider(new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(LspHandlerTypeDescriptorProvider).Assembly,
+                        typeof(LanguageServer).Assembly,
+                        typeof(LanguageClient).Assembly,
+                        typeof(ISupports).Assembly,
+                        typeof(HandlerResolverTests).Assembly
+                    });
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
                                                              .Except(new[] { typeof(ITextDocumentSyncHandler) })
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
-                    Add(LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type));
+                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type));
                 }
             }
         }
@@ -654,6 +664,15 @@ namespace Lsp.Tests
 
             public TypeHandlerExtensionData()
             {
+                var handlerTypeDescriptorProvider =
+                    new LspHandlerTypeDescriptorProvider(new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(LspHandlerTypeDescriptorProvider).Assembly,
+                        typeof(LanguageServer).Assembly,
+                        typeof(LanguageClient).Assembly,
+                        typeof(ISupports).Assembly,
+                        typeof(HandlerResolverTests).Assembly
+                    });
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
                                                              .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
@@ -664,7 +683,7 @@ namespace Lsp.Tests
                     if (type.Name.EndsWith("Manager")) continue;
                     if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)) continue;
                     if (type == typeof(ISemanticTokensHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
-                    var descriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(type);
+                    var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
 
                     if (descriptor == null)
                     {

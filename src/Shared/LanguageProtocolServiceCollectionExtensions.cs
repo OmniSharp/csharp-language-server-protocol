@@ -1,11 +1,14 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
@@ -23,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             }
 
             container = container.AddJsonRpcServerCore(options);
+            container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);

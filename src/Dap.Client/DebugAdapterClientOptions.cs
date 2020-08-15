@@ -5,12 +5,17 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
     public class DebugAdapterClientOptions : DebugAdapterRpcOptionsBase<DebugAdapterClientOptions>, IDebugAdapterClientRegistry, IInitializeRequestArguments
     {
+        public DebugAdapterClientOptions()
+        {
+            WithAssemblies(typeof(DebugAdapterClientOptions).Assembly, typeof(DebugAdapterRequestRouter).Assembly);
+        }
         public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
         public string ClientId { get; set; }
         public string ClientName { get; set; }

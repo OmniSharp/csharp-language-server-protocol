@@ -16,10 +16,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
     {
         private ImmutableHashSet<HandlerDescriptor> _descriptors = ImmutableHashSet<HandlerDescriptor>.Empty;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
+        {
+            _serviceProvider = serviceProvider;
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+        }
 
         public IEnumerator<IHandlerDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
 
@@ -107,7 +112,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             var cd = new CompositeDisposable();
             foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
                                                                   .ImplementedInterfaces
-                                                                  .Select(x => ( method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x ))
+                                                                  .Select(x => ( method: _handlerTypeDescriptorProvider.GetMethodName(x), implementedInterface: x ))
                                                                   .Distinct(new EqualityComparer())
                                                                   .Where(x => !string.IsNullOrWhiteSpace(x.method))
             )
@@ -122,7 +127,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         private HandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var typeDescriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(handlerType);
+            var typeDescriptor = _handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(handlerType);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
 
             return GetDescriptor(method, handlerType, handler, options, typeDescriptor, @interface);

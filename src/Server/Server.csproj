@@ -13,8 +13,4 @@
         <ProjectReference Include="..\Shared\Shared.csproj" />
         <PackageReference Include="Microsoft.Extensions.Configuration" />
     </ItemGroup>
-
-    <ItemGroup>
-        <Folder Include="Protocol\" />
-    </ItemGroup>
 </Project>

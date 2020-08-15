@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -116,6 +118,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             container = container.AddJsonRpcServerCore(options);
+            container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
             container.RegisterInstance(options.Serializer ?? new JsonRpcSerializer());
             container.RegisterInstance(options.Receiver);
