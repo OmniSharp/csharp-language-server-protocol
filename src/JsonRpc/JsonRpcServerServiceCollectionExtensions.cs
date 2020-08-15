@@ -6,7 +6,6 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.Pipelines;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -78,7 +77,6 @@ namespace OmniSharp.Extensions.JsonRpc
         internal static IContainer AddJsonRpcMediatR(this IContainer container)
         {
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
-            container.RegisterMany(new[] { typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>) }, Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(Reuse.Scoped);
             container.RegisterDelegate<ServiceFactory>(context => context.Resolve, Reuse.ScopedOrSingleton);
 
