@@ -107,7 +107,9 @@ namespace Generation.Tests
 
             var driver = new CSharpGeneratorDriver(compilation.SyntaxTrees[0].Options, ImmutableArray.Create(generator), default, ImmutableArray<AdditionalText>.Empty);
 
-            driver.RunFullGeneration(compilation, out var outputCompilation, out _);
+            driver.RunFullGeneration(compilation, out var outputCompilation, out diagnostics);
+            // Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
+
             // the syntax tree added by the generator will be the last one in the compilation
             return outputCompilation.SyntaxTrees.Last();
         }
