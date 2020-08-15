@@ -33,7 +33,7 @@ namespace Dap.Tests.Integration
             action.Should().Throw<OperationCanceledException>();
         }
 
-        [Fact]
+        [Fact(Skip = "Needs Work")]
         public void Should_Cancel_Requests_After_Timeout()
         {
             Func<Task<CompletionsResponse>> action = async () => {

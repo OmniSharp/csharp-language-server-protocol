@@ -125,6 +125,8 @@ namespace Lsp.Tests.Integration
             configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             await scopedConfiguration.WaitForChange(CancellationToken);
 
+            await Task.Delay(2000);
+
             scopedConfiguration["mysection:key"].Should().Be("value");
             scopedConfiguration["othersection:value"].Should().Be("key");
         }
