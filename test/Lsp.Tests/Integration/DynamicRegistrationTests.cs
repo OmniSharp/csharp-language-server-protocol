@@ -43,6 +43,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Register_Dynamically_While_Server_Is_Running()
             {
+                await WaitForRegistrationUpdate();
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
                 using var _ = Server.Register(
@@ -65,6 +66,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Register_Links_Dynamically_While_Server_Is_Running()
             {
+                await WaitForRegistrationUpdate();
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
                 using var _ = Server.Register(
@@ -97,28 +99,28 @@ namespace Lsp.Tests.Integration
                 Client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.SemanticTokensFull);
             }
 
-            [Fact(Skip = "Test is dumb on CI")]
+            [Fact]
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
+                await WaitForRegistrationUpdate();
+
                 Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                var disposable = Server.Register(
+                using (var disposable = Server.Register(
                     x => x.OnCompletion(
                         (@params, token) => Task.FromResult(new CompletionList()),
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     )
-                );
+                ))
+                {
+                    await WaitForRegistrationUpdate();
+                    disposable.Dispose();
+                    await WaitForRegistrationUpdate();
+                }
 
-                var registrations = await Observable.Create<IEnumerable<Registration>>(
-                    observer => {
-                        disposable.Dispose();
-                        return Client.RegistrationManager.Registrations.Throttle(TestOptions.WaitTime).Take(1).Subscribe(observer);
-                    }
-                ).ToTask(CancellationToken);
-
-                registrations.Should().NotContain(
+                Client.RegistrationManager.CurrentRegistrations.Should().NotContain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
                 );
