@@ -33,6 +33,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                        .WithInput(reader)
                        .WithOutput(writer)
                        .WithLoggerFactory(TestOptions.ClientLoggerFactory)
+                       .WithAssemblies(TestOptions.Assemblies)
+                       .WithAssemblies(typeof(LanguageProtocolTestBase).Assembly, GetType().Assembly)
                        .ConfigureLogging(x => x.SetMinimumLevel(LogLevel.Trace))
                        .Services
                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))

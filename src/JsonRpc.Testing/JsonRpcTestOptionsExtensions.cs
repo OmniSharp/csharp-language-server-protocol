@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO.Pipelines;
+using System.Linq;
+using System.Reflection;
 using Microsoft.Extensions.Logging;
 
 namespace OmniSharp.Extensions.JsonRpc.Testing
@@ -39,6 +42,18 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public static JsonRpcTestOptions WithDefaultPipeOptions(this JsonRpcTestOptions options, PipeOptions pipeOptions)
         {
             options.DefaultPipeOptions = pipeOptions;
+            return options;
+        }
+
+        public static JsonRpcTestOptions WithAssemblies(this JsonRpcTestOptions options, IEnumerable<Assembly> assemblies)
+        {
+            options.Assemblies = options.Assemblies.Concat(assemblies).ToArray();
+            return options;
+        }
+
+        public static JsonRpcTestOptions WithAssemblies(this JsonRpcTestOptions options, params Assembly[] assemblies)
+        {
+            options.Assemblies = options.Assemblies.Concat(assemblies).ToArray();
             return options;
         }
     }

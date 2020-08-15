@@ -5,13 +5,20 @@ using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class LspServerReceiver : Receiver, ILspServerReceiver
     {
+        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private bool _initialized;
+
+        public LspServerReceiver(ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
+        {
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+        }
 
         public override (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
@@ -23,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var (results, hasResponse) = base.GetRequests(container);
             foreach (var item in results)
             {
-                if (item.IsRequest && HandlerTypeDescriptorHelper.IsMethodName(item.Request.Method, typeof(ILanguageProtocolInitializeHandler)))
+                if (item.IsRequest && _handlerTypeDescriptorProvider.IsMethodName(item.Request.Method, typeof(ILanguageProtocolInitializeHandler)))
                 {
                     newResults.Add(item);
                 }

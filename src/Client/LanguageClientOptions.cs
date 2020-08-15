@@ -8,11 +8,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public class LanguageClientOptions : LanguageProtocolRpcOptionsBase<LanguageClientOptions>, ILanguageClientRegistry
     {
+        public LanguageClientOptions()
+        {
+            WithAssemblies(typeof(LanguageClientOptions).Assembly, typeof(LspRequestRouter).Assembly);
+        }
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities {
             Experimental = new Dictionary<string, JToken>(),
             Window = new WindowClientCapabilities(),
@@ -35,8 +40,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public InitializeTrace Trace { get; set; }
 
         public object InitializationOptions { get; set; }
-
-        public ILspClientReceiver Receiver { get; set; } = new LspClientReceiver();
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) =>
             AddHandler(method, handler, options);

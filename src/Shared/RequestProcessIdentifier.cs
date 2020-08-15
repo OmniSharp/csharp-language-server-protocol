@@ -24,23 +24,16 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             if (_cache.TryGetValue(descriptor.HandlerType, out var type)) return type;
 
             type = _defaultRequestProcessType;
-            var typeDescriptor = HandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(descriptor.HandlerType);
-            if (typeDescriptor?.RequestProcessType.HasValue == true)
+            var processAttribute = descriptor.ImplementationType
+                                             .GetCustomAttributes(true)
+                                             .Concat(descriptor.HandlerType.GetCustomAttributes(true))
+                                             .OfType<ProcessAttribute>()
+                                             .FirstOrDefault();
+            if (processAttribute != null)
             {
-                type = typeDescriptor.RequestProcessType.Value;
+                type = processAttribute.Type;
             }
-            else
-            {
-                var processAttribute = descriptor.ImplementationType
-                                                 .GetCustomAttributes(true)
-                                                 .Concat(descriptor.HandlerType.GetCustomAttributes(true))
-                                                 .OfType<ProcessAttribute>()
-                                                 .FirstOrDefault();
-                if (processAttribute != null)
-                {
-                    type = processAttribute.Type;
-                }
-            }
+
 
             _cache.TryAdd(descriptor.HandlerType, type);
 

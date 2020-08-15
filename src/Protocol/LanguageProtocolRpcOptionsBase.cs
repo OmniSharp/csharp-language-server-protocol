@@ -12,7 +12,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public abstract class LanguageProtocolRpcOptionsBase<T> : JsonRpcServerOptionsBase<T> where T : IJsonRpcHandlerRegistry<T>
     {
-        public LanguageProtocolRpcOptionsBase() => Services.AddLogging(builder => LoggingBuilderAction?.Invoke(builder));
+        public LanguageProtocolRpcOptionsBase()
+        {
+            Services.AddLogging(builder => LoggingBuilderAction?.Invoke(builder));
+            WithAssemblies(typeof(LanguageProtocolRpcOptionsBase<>).Assembly);
+        }
 
         public T AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers)
         {

@@ -25,12 +25,18 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private ImmutableHashSet<LspHandlerDescriptor> _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
         private readonly IServiceProvider _serviceProvider;
+        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
 
-        public SharedHandlerCollection(ISupportedCapabilities supportedCapabilities, TextDocumentIdentifiers textDocumentIdentifiers, IServiceProvider serviceProvider)
+        public SharedHandlerCollection(
+            ISupportedCapabilities supportedCapabilities,
+            TextDocumentIdentifiers textDocumentIdentifiers,
+            IServiceProvider serviceProvider,
+            ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
         {
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
             _serviceProvider = serviceProvider;
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
@@ -188,7 +194,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var (method, implementedInterface) in handler.GetType().GetTypeInfo()
                                                                   .ImplementedInterfaces
-                                                                  .Select(x => ( method: HandlerTypeDescriptorHelper.GetMethodName(x), implementedInterface: x ))
+                                                                  .Select(x => ( method: _handlerTypeDescriptorProvider.GetMethodName(x), implementedInterface: x ))
                                                                   .Distinct(new EqualityComparer())
                                                                   .Where(x => !string.IsNullOrWhiteSpace(x.method))
             )
@@ -215,7 +221,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
-            var typeDescriptor = LspHandlerTypeDescriptorHelper.GetHandlerTypeDescriptor(handlerType);
+            var typeDescriptor = _handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(handlerType);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
             var registrationType = typeDescriptor?.RegistrationType ??
                                    HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);

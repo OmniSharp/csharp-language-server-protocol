@@ -23,6 +23,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
+        public static LanguageServerOptions WithReceiver(
+            this LanguageServerOptions options,
+            ILspServerReceiver serverReceiver
+        )
+        {
+            options.Services.AddSingleton(serverReceiver);
+            return options;
+        }
+
         public static LanguageServerOptions WithServerInfo(this LanguageServerOptions options, ServerInfo serverInfo)
         {
             options.ServerInfo = serverInfo;

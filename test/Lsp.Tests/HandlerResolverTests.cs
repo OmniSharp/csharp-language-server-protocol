@@ -6,11 +6,13 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
 
@@ -25,7 +27,8 @@ namespace Lsp.Tests
         [InlineData(typeof(IExitHandler), "exit", 1)]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0]);
 
             handler.Add(sub);
@@ -36,7 +39,8 @@ namespace Lsp.Tests
         [Fact]
         public void Should_Contain_AllConcreteDefinedMethods()
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
 
             handler.Add(
                 Substitute.For<IExitHandler>(),
@@ -57,7 +61,8 @@ namespace Lsp.Tests
         [InlineData(TextDocumentNames.DidSave, 4)]
         public void Should_Contain_AllDefinedTextDocumentSyncMethods(string key, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.something"), "csharp");
 
             handler.Add(sub);
@@ -72,7 +77,8 @@ namespace Lsp.Tests
         [InlineData(GeneralNames.Initialize, 4)]
         public void Should_Contain_AllDefinedLanguageServerMethods(string key, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Add(
                 Substitute.For<ILanguageProtocolInitializeHandler>(),
                 Substitute.For<ILanguageProtocolInitializedHandler>(),
@@ -90,7 +96,8 @@ namespace Lsp.Tests
         [InlineData(GeneralNames.Initialize, 4)]
         public void Should_Contain_AllDefinedLanguageServerMethods_GivenDuplicates(string key, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Add(
                 Substitute.For<ILanguageProtocolInitializeHandler>(),
                 Substitute.For<ILanguageProtocolInitializedHandler>(),
@@ -116,7 +123,8 @@ namespace Lsp.Tests
         [InlineData(TextDocumentNames.DidSave, 8)]
         public void Should_Contain_AllDefinedMethods_ForDifferentKeys(string key, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var sub2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
@@ -131,7 +139,8 @@ namespace Lsp.Tests
         [InlineData(typeof(ILanguageProtocolInitializeHandler), typeof(ILanguageProtocolInitializedHandler), "initialize", "initialized", 2)]
         public void Should_Contain_AllDefinedMethods_OnLanguageServer(Type requestHandler, Type type2, string key, string key2, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
@@ -150,7 +159,8 @@ namespace Lsp.Tests
         [InlineData(typeof(ILanguageProtocolInitializeHandler), typeof(ILanguageProtocolInitializedHandler), "initialize", "initialized", 2)]
         public void Should_Contain_AllDefinedMethods_OnLanguageServer_WithDifferentKeys(Type requestHandler, Type type2, string key, string key2, int count)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
@@ -178,7 +188,8 @@ namespace Lsp.Tests
         [InlineData("somemethod", typeof(IJsonRpcRequestHandler<IRequest<object>, object>))]
         public void Should_AllowSpecificHandlers_ToBeAdded(string method, Type handlerType)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { handlerType }, new object[0]);
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { handlerType }, new object[0]);
             handler.Add(method, sub, null);
@@ -192,7 +203,8 @@ namespace Lsp.Tests
         [MemberData(nameof(Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data))]
         public void Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations(string method, IJsonRpcHandler sub)
         {
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Add(sub);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().First(x => x.Method == method);
@@ -210,7 +222,8 @@ namespace Lsp.Tests
                                                        }
                                                    );
 
-            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider());
+            var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             handler.Add(codeLensHandler as IJsonRpcHandler);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().Select(x => x.Key);
