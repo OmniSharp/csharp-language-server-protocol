@@ -106,7 +106,20 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                 }
             )
-           .Where(z => ( z.IsInterface || ( z.IsClass && !z.IsAbstract ) ) && typeof(IJsonRpcHandler).IsAssignableFrom(z))
+           .Where(z => ( z.IsInterface || ( z.IsClass && !z.IsAbstract ) ))
+            // running on mono this call can cause issues when scanning of the entire assembly.
+           .Where(
+                z => {
+                    try
+                    {
+                        return typeof(IJsonRpcHandler).IsAssignableFrom(z);
+                    }
+                    catch
+                    {
+                        return false;
+                    }
+                }
+            )
            .Where(z => MethodAttribute.From(z) != null)
            .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
            .Select(HandlerTypeDescriptorHelper.GetMethodType)
