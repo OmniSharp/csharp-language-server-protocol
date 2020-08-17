@@ -1,52 +1,51 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-
 <Project>
-    <ItemGroup>
-        <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="Rocket.Surgery.MSBuild.CI" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="Rocket.Surgery.MSBuild.Metadata" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.0.0" PrivateAssets="All" />
-        <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Update="GitVersion.Tool" Version="5.3.7" />
-        <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.0" />
-        <PackageReference Update="ReportGenerator" Version="4.6.4" />
-        <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.9" />
-    </ItemGroup>
-    <ItemGroup>
-        <PackageReference Update="Microsoft.Extensions.Logging" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.Configuration" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
-        <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
-        <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
-        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.0" />
-        <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
-        <PackageReference Update="xunit" Version="2.4.1" />
-        <PackageReference Update="FluentAssertions" Version="5.10.3" />
-        <PackageReference Update="NSubstitute" Version="4.2.2" />
-        <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2" />
-        <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4" />
-        <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
-        <PackageReference Update="coverlet.collector" Version="1.3.0" />
-        <PackageReference Update="coverlet.msbuild" Version="2.9.0" />
-        <PackageReference Update="System.Reactive" Version="4.4.1" />
-        <PackageReference Update="System.Collections.Immutable" Version="1.7.1" />
-        <PackageReference Update="Microsoft.Reactive.Testing" Version="4.4.1" />
-        <PackageReference Update="MediatR" Version="8.1.0" />
-        <PackageReference Update="Bogus" Version="30.0.3" />
-        <PackageReference Update="Snapper" Version="2.2.4" />
-        <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
-        <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
-        <PackageReference Update="Nerdbank.Streams" Version="2.5.76" />
-        <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
-        <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
-        <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />
-        <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
-        <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
-        <PackageReference Update="DryIoc.Internal" Version="4.3.1" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.CI" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.Metadata" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="GitVersion.Tool" Version="5.3.7" />
+    <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.0" />
+    <PackageReference Update="ReportGenerator" Version="4.6.4" />
+    <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.9" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Update="Microsoft.Extensions.Logging" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Configuration" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
+    <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
+    <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.0" />
+    <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
+    <PackageReference Update="xunit" Version="2.4.1" />
+    <PackageReference Update="FluentAssertions" Version="5.10.3" />
+    <PackageReference Update="NSubstitute" Version="4.2.2" />
+    <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2" />
+    <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4" />
+    <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
+    <PackageReference Update="coverlet.collector" Version="1.3.0" />
+    <PackageReference Update="coverlet.msbuild" Version="2.9.0" />
+    <PackageReference Update="System.Reactive" Version="4.4.1" />
+    <PackageReference Update="System.Collections.Immutable" Version="1.7.1" />
+    <PackageReference Update="Microsoft.Reactive.Testing" Version="4.4.1" />
+    <PackageReference Update="MediatR" Version="8.1.0" />
+    <PackageReference Update="Bogus" Version="30.0.4" />
+    <PackageReference Update="Snapper" Version="2.2.4" />
+    <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
+    <PackageReference Update="System.IO.Pipelines" Version="4.7.2" />
+    <PackageReference Update="Nerdbank.Streams" Version="2.5.76" />
+    <PackageReference Update="CodeGeneration.Roslyn.Attributes" Version="0.7.63" PrivateAssets="all" />
+    <PackageReference Update="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
+    <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
+    <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
+    <PackageReference Update="DryIoc.Internal" Version="4.3.2" />
+  </ItemGroup>
 </Project>
