@@ -1,12 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Reflection;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.Pipelines;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -78,7 +79,6 @@ namespace OmniSharp.Extensions.JsonRpc
         internal static IContainer AddJsonRpcMediatR(this IContainer container)
         {
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
-            container.RegisterMany(new[] { typeof(RequestMustNotBeNullProcessor<>), typeof(ResponseMustNotBeNullProcessor<,>) }, Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(Reuse.Scoped);
             container.RegisterDelegate<ServiceFactory>(context => context.Resolve, Reuse.ScopedOrSingleton);
 
@@ -118,6 +118,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             container = container.AddJsonRpcServerCore(options);
+            container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
             container.RegisterInstance(options.Serializer ?? new JsonRpcSerializer());
             container.RegisterInstance(options.Receiver);

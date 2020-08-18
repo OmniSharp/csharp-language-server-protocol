@@ -4,13 +4,20 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public class LspClientReceiver : Receiver, ILspClientReceiver
     {
+        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private bool _initialized;
+
+        public LspClientReceiver(ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
+        {
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+        }
 
         public override (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
@@ -23,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             foreach (var item in results)
             {
                 if (item.IsRequest &&
-                    HandlerTypeDescriptorHelper.IsMethodName(item.Request.Method, typeof(IShowMessageRequestHandler)))
+                    _handlerTypeDescriptorProvider.IsMethodName(item.Request.Method, typeof(IShowMessageRequestHandler)))
                 {
                     newResults.Add(item);
                 }
@@ -32,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     newResults.Add(item);
                 }
                 else if (item.IsNotification &&
-                         HandlerTypeDescriptorHelper.IsMethodName(
+                         _handlerTypeDescriptorProvider.IsMethodName(
                              item.Notification.Method,
                              typeof(IShowMessageHandler),
                              typeof(ILogMessageHandler),

@@ -5,12 +5,17 @@ using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Models;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
     public class DebugAdapterServerOptions : DebugAdapterRpcOptionsBase<DebugAdapterServerOptions>, IDebugAdapterServerRegistry
     {
+        public DebugAdapterServerOptions()
+        {
+            WithAssemblies(typeof(DebugAdapterServerOptions).Assembly, typeof(DebugAdapterRequestRouter).Assembly);
+        }
         public Capabilities Capabilities { get; set; } = new Capabilities();
 
         IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) =>
@@ -36,6 +41,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
         IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.AddHandler(string method, Type type, JsonRpcHandlerOptions options) =>
             AddHandler(method, type, options);
+
+        IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.AddHandlerLink(string sourceMethod, string destinationMethod) =>
+            AddHandlerLink(sourceMethod, destinationMethod);
 
         IDebugAdapterServerRegistry IJsonRpcHandlerRegistry<IDebugAdapterServerRegistry>.OnJsonRequest(
             string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options

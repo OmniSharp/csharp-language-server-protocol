@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ILspClientReceiver serverReceiver
         )
         {
-            options.Receiver = serverReceiver;
+            options.Services.AddSingleton(serverReceiver);
             return options;
         }
 

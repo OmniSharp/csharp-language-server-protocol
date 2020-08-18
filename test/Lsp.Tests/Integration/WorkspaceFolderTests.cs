@@ -23,8 +23,8 @@ namespace Lsp.Tests.Integration
         public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(
             new JsonRpcTestOptions()
                .ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
-               .WithSettleTimeSpan(TimeSpan.FromSeconds(1))
-               .WithSettleTimeout(TimeSpan.FromSeconds(2))
+               .WithWaitTime(TimeSpan.FromSeconds(1))
+               .WithTimeout(TimeSpan.FromSeconds(2))
         )
         {
         }
@@ -50,7 +50,7 @@ namespace Lsp.Tests.Integration
             server.WorkspaceFolderManager.IsSupported.Should().Be(true);
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Add_A_Workspace_Folder()
         {
             var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
@@ -60,8 +60,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Add("/abcd/", nameof(Should_Add_A_Workspace_Folder));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);
@@ -77,7 +76,7 @@ namespace Lsp.Tests.Integration
             folder.Name.Should().Be(nameof(Should_Have_Workspace_Folder_At_Startup));
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Remove_Workspace_Folder_by_name()
         {
             var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_name)); }, ConfigureServer);
@@ -90,15 +89,14 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(nameof(Should_Remove_Workspace_Folder_by_name));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_name));
         }
 
-        [Fact(Skip = "Test fails periodically on CI but not locally")]
+        [Fact]
         public async Task Should_Remove_Workspace_Folder_by_uri()
         {
             var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Remove_Workspace_Folder_by_uri)); }, ConfigureServer);
@@ -111,8 +109,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(DocumentUri.From("/abcd/"));
 
-            await ClientEvents.SettleNext();
-            await ServerEvents.SettleNext();
+            SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);

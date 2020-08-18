@@ -6,19 +6,17 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public class LanguageServerOptions : LanguageProtocolRpcOptionsBase<LanguageServerOptions>, ILanguageServerRegistry
     {
-        public ServerInfo ServerInfo { get; set; }
-        public ILspServerReceiver Receiver { get; set; } = new LspServerReceiver();
-
-        public LanguageServerOptions WithReceiver(ILspServerReceiver receiver)
+        public LanguageServerOptions()
         {
-            Receiver = receiver;
-            return this;
+            WithAssemblies(typeof(LanguageServerOptions).Assembly, typeof(LspRequestRouter).Assembly);
         }
+        public ServerInfo ServerInfo { get; set; }
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) =>
             AddHandler(method, handler, options);
@@ -42,6 +40,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, Type type, JsonRpcHandlerOptions options) =>
             AddHandler(method, type, options);
+
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandlerLink(string sourceMethod, string destinationMethod) =>
+            AddHandlerLink(sourceMethod, destinationMethod);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options) =>
             OnJsonRequest(method, handler, options);

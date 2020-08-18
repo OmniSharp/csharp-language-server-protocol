@@ -27,15 +27,40 @@ namespace OmniSharp.Extensions.JsonRpc
             return result;
         }
 
-        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => _parent.Add(factory, options);
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options)
+        {
+            var result = _parent.Add(factory, options);
+            _compositeDisposable.Add(result);
+            return result;
+        }
 
-        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => _parent.Add(method, factory, options);
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options)
+        {
+            var result = _parent.Add(method, factory, options);
+            _compositeDisposable.Add(result);
+            return result;
+        }
 
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => _parent.Add(handlerType, options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options)
+        {
+            var result = _parent.Add(handlerType, options);
+            _compositeDisposable.Add(result);
+            return result;
+        }
 
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => _parent.Add(method, handlerType, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
+        {
+            var result = _parent.Add(method, handlerType, options);
+            _compositeDisposable.Add(result);
+            return result;
+        }
 
-        public IDisposable AddLink(string sourceMethod, string destinationMethod) => _parent.AddLink(sourceMethod, destinationMethod);
+        public IDisposable AddLink(string sourceMethod, string destinationMethod)
+        {
+            var result = _parent.AddLink(sourceMethod,destinationMethod);
+            _compositeDisposable.Add(result);
+            return result;
+        }
 
         public CompositeDisposable GetDisposable() => _compositeDisposable;
     }

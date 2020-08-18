@@ -14,6 +14,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public abstract class JsonRpcServerOptionsBase<T> : JsonRpcOptionsRegistryBase<T>, IJsonRpcServerOptions where T : IJsonRpcHandlerRegistry<T>
     {
+        protected JsonRpcServerOptionsBase()
+        {
+            WithAssemblies(typeof(JsonRpcServer).Assembly);
+        }
         public PipeReader Input { get; set; }
         public PipeWriter Output { get; set; }
 
@@ -37,13 +41,13 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithAssemblies(IEnumerable<Assembly> assemblies)
         {
-            Assemblies = Assemblies.Concat(assemblies);
+            Assemblies = Assemblies.Concat(assemblies ?? Enumerable.Empty<Assembly>()).ToArray();
             return (T) (object) this;
         }
 
         public T WithAssemblies(params Assembly[] assemblies)
         {
-            Assemblies = Assemblies.Concat(assemblies);
+            Assemblies = Assemblies.Concat(assemblies).ToArray();
             return (T) (object) this;
         }
 

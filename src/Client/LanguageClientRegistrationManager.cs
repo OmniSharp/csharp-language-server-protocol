@@ -22,13 +22,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     internal class LanguageClientRegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
     {
         private readonly ISerializer _serializer;
+        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private readonly ILogger<LanguageClientRegistrationManager> _logger;
         private readonly ConcurrentDictionary<string, Registration> _registrations;
         private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject;
 
-        public LanguageClientRegistrationManager(ISerializer serializer, ILogger<LanguageClientRegistrationManager> logger)
+        public LanguageClientRegistrationManager(
+            ISerializer serializer,
+            ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider,
+            ILogger<LanguageClientRegistrationManager> logger)
         {
             _serializer = serializer;
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
             _logger = logger;
             _registrations = new ConcurrentDictionary<string, Registration>(StringComparer.OrdinalIgnoreCase);
             _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1);
@@ -65,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 serverCapabilities
             ))
             {
-                var method = LspHandlerTypeDescriptorHelper.GetMethodForRegistrationOptions(registrationOptions);
+                var method = _handlerTypeDescriptorProvider.GetMethodForRegistrationOptions(registrationOptions);
                 if (method == null)
                 {
                     _logger.LogWarning("Unable to find method for given {@RegistrationOptions}", registrationOptions);
@@ -91,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                    .Workspace
             ))
             {
-                var method = LspHandlerTypeDescriptorHelper.GetMethodForRegistrationOptions(registrationOptions);
+                var method = _handlerTypeDescriptorProvider.GetMethodForRegistrationOptions(registrationOptions);
                 if (method == null)
                 {
                     // TODO: Log this
@@ -117,7 +122,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         private void Register(Registration registration)
         {
-            var registrationType = LspHandlerTypeDescriptorHelper.GetRegistrationType(registration.Method);
+            var registrationType = _handlerTypeDescriptorProvider.GetRegistrationType(registration.Method);
             if (registrationType == null)
             {
                 _registrations.AddOrUpdate(registration.Id, x => registration, (a, b) => registration);

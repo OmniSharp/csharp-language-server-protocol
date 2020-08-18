@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using DryIoc;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.JsonRpc;
@@ -15,6 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             }
 
             container = container.AddJsonRpcServerCore(options);
+            container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
             container.RegisterInstanceMany(options.Serializer);
             container.RegisterInstance(options.RequestProcessIdentifier);

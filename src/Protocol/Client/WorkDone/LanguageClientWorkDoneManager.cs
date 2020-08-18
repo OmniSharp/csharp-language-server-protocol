@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -96,6 +97,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
             _progressObservable.Dispose();
         }
 
-        public IDisposable Subscribe(IObserver<WorkDoneProgress> observer) => _progressObservable.Subscribe(observer);
+        public IDisposable Subscribe(IObserver<WorkDoneProgress> observer)
+        {
+            return _progressObservable.Subscribe(
+                _ => {
+                    observer.OnNext(_);
+                    if (_ is WorkDoneProgressEnd)
+                    {
+                        observer.OnCompleted();
+                    }
+                },
+                observer.OnError,
+                observer.OnCompleted
+            );
+        }
     }
 }

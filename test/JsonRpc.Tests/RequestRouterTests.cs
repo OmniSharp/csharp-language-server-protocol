@@ -18,7 +18,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -38,7 +38,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -58,7 +58,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -77,7 +77,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider());
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

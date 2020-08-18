@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public AggregateSettler(params ISettler[] settlers) => _settlers = settlers;
 
-        public Task SettleNext() => Settle().Take(1).IgnoreElements().LastOrDefaultAsync().ToTask();
+        public Task SettleNext() => Task.WhenAll(_settlers.Select(z => z.SettleNext()));
 
         public IObservable<Unit> Settle() =>
             _settlers

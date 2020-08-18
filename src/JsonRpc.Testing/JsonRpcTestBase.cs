@@ -19,22 +19,22 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             _cancellationTokenSource = new CancellationTokenSource();
             if (!Debugger.IsAttached)
             {
-                _cancellationTokenSource.CancelAfter(testOptions.TestTimeout);
+                _cancellationTokenSource.CancelAfter(testOptions.CancellationTimeout);
             }
 
-            ClientEvents = new Settler(TestOptions.SettleTimeSpan, TestOptions.SettleTimeout, CancellationToken);
-            ServerEvents = new Settler(TestOptions.SettleTimeSpan, TestOptions.SettleTimeout, CancellationToken);
+            ClientEvents = new Settler(TestOptions, CancellationToken);
+            ServerEvents = new Settler(TestOptions, CancellationToken);
             Events = new AggregateSettler(ClientEvents, ServerEvents);
         }
 
         protected CompositeDisposable Disposable { get; }
-        protected ISettler ClientEvents { get; }
-        protected ISettler ServerEvents { get; }
-        protected ISettler Events { get; }
-        protected JsonRpcTestOptions TestOptions { get; }
-        protected internal CancellationToken CancellationToken => _cancellationTokenSource.Token;
-        protected Task SettleNext() => Events.SettleNext();
-        protected IObservable<Unit> Settle() => Events.Settle();
+        public ISettler ClientEvents { get; }
+        public  ISettler ServerEvents { get; }
+        public  ISettler Events { get; }
+        public  JsonRpcTestOptions TestOptions { get; }
+        public  CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        public  Task SettleNext() => Events.SettleNext();
+        public  IObservable<Unit> Settle() => Events.Settle();
 
         public void Dispose()
         {

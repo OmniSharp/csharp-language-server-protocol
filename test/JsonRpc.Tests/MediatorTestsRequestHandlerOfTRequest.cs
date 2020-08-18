@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
             var executeCommandHandler = Substitute.For<IExecuteCommandHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider()) { executeCommandHandler };
+            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { executeCommandHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

@@ -18,15 +18,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     {
         internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider outerServiceProvider)
         {
-            if (options.Receiver == null)
-            {
-                throw new ArgumentException("Receiver is missing!", nameof(options));
-            }
-
             container = container.AddLanguageProtocolInternals(options);
 
             container.RegisterInstance(options.ClientCapabilities);
-            container.RegisterInstanceMany(options.Receiver);
+            container.RegisterMany<LspClientReceiver>(
+                reuse: Reuse.Singleton,
+                nonPublicServiceTypes: true,
+                ifAlreadyRegistered: IfAlreadyRegistered.Keep
+            );
             if (options.OnUnhandledException != null)
             {
                 container.RegisterInstance(options.OnUnhandledException);

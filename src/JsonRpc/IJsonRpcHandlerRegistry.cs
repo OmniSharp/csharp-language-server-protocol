@@ -25,6 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc
         T AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options = null) where TTHandler : IJsonRpcHandler;
         T AddHandler(Type type, JsonRpcHandlerOptions options = null);
         T AddHandler(string method, Type type, JsonRpcHandlerOptions options = null);
+        T AddHandlerLink(string sourceMethod, string destinationMethod);
 
         T OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options = null);
         T OnJsonRequest(string method, Func<JToken, CancellationToken, Task<JToken>> handler, JsonRpcHandlerOptions options = null);

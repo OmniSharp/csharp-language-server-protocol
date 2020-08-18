@@ -13,11 +13,16 @@ namespace OmniSharp.Extensions.JsonRpc
     internal class HandlerCollection : IHandlersManager, IEnumerable<IHandlerDescriptor>
     {
         private readonly IServiceProvider _serviceProvider;
+        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public HandlerCollection(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+        public HandlerCollection(IServiceProvider serviceProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
+        {
+            _serviceProvider = serviceProvider;
+            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+        }
 
         private void Remove(IJsonRpcHandler handler)
         {
@@ -36,13 +41,13 @@ namespace OmniSharp.Extensions.JsonRpc
             foreach (var handler in handlers)
             {
                 if (_descriptors.Any(z => z.Handler == handler)) continue;
-                cd.Add(Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, null));
+                cd.Add(Add(_handlerTypeDescriptorProvider.GetMethodName(handler.GetType()), handler, null));
             }
 
             return cd;
         }
 
-        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(HandlerTypeDescriptorHelper.GetMethodName(handler.GetType()), handler, options);
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(_handlerTypeDescriptorProvider.GetMethodName(handler.GetType()), handler, options);
 
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {
@@ -64,6 +69,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             var requestProcessType =
                 options?.RequestProcessType ??
+                _handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type)?.RequestProcessType ??
                 type.GetCustomAttributes(true)
                     .Concat(@interface.GetCustomAttributes(true))
                     .OfType<ProcessAttribute>()

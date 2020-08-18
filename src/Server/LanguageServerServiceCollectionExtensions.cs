@@ -22,14 +22,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider outerServiceProvider)
         {
-            if (options.Receiver == null)
-            {
-                throw new ArgumentException("Receiver is missing!", nameof(options));
-            }
-
             container = container.AddLanguageProtocolInternals(options);
+            container.RegisterMany<LspServerReceiver>(
+                reuse: Reuse.Singleton,
+                nonPublicServiceTypes: true,
+                ifAlreadyRegistered: IfAlreadyRegistered.Keep
+            );
 
-            container.RegisterInstanceMany(options.Receiver);
             if (options.OnUnhandledException != null)
             {
                 container.RegisterInstance(options.OnUnhandledException);
@@ -53,6 +52,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
             );
+            container.RegisterMany<ConfigurationConverter>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterInitializer<ILanguageServerConfiguration>(
+                (provider, context) => {
+                    var configurationItems = context.ResolveMany<ConfigurationItem>();
+                    provider.AddConfigurationItems(configurationItems);
+                }
+            );
+
 
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);
             container.RegisterDelegate<IConfiguration>(
