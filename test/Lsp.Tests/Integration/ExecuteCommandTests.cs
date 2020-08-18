@@ -356,7 +356,7 @@ namespace Lsp.Tests.Integration
                             return Task.FromResult(
                                 new CompletionList(
                                     new CompletionItem {
-                                        Command = Command.Create("execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )))
+                                        Command = Command.Create("execute-a", 1, "2", true, new Range((0, 1), (1, 1)))
                                     }
                                 )
                             );
@@ -368,7 +368,7 @@ namespace Lsp.Tests.Integration
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
+                            arg4.Should().Be(new Range((0, 1), (1, 1)));
 
                             return Task.CompletedTask;
                         }
@@ -397,7 +397,7 @@ namespace Lsp.Tests.Integration
                                 new CompletionList(
                                     new CompletionItem {
                                         Command = Command.Create(
-                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" }
+                                            "execute-a", 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" }
                                         )
                                     }
                                 )
@@ -410,7 +410,7 @@ namespace Lsp.Tests.Integration
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
+                            arg4.Should().Be(new Range((0, 1), (1, 1)));
                             arg5.Should().ContainKeys("a", "b");
 
                             return Task.CompletedTask;
@@ -440,7 +440,7 @@ namespace Lsp.Tests.Integration
                                 new CompletionList(
                                     new CompletionItem {
                                         Command = Command.Create(
-                                            "execute-a", 1, "2", true, new Range(( 0, 1 ), ( 1, 1 )), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" },
+                                            "execute-a", 1, "2", true, new Range((0, 1), (1, 1)), new Dictionary<string, string> { ["a"] = "123", ["b"] = "456" },
                                             Guid.NewGuid()
                                         )
                                     }
@@ -454,7 +454,7 @@ namespace Lsp.Tests.Integration
                             i.Should().Be(1);
                             s.Should().Be("2");
                             arg3.Should().BeTrue();
-                            arg4.Should().Be(new Range(( 0, 1 ), ( 1, 1 )));
+                            arg4.Should().Be(new Range((0, 1), (1, 1)));
                             arg5.Should().ContainKeys("a", "b");
                             arg6.Should().NotBeEmpty();
 
