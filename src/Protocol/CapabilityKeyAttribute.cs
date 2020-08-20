@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     [AttributeUsage(AttributeTargets.Class | AttributeTargets.Interface)]
     public sealed class CapabilityKeyAttribute : Attribute
