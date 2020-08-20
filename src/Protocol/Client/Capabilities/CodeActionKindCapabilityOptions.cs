@@ -2,7 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class CodeActionKindCapability
+    public class CodeActionKindCapabilityOptions
     {
         /// <summary>
         /// The code action kind values the client supports. When this

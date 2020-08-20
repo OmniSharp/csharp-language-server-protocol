@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
-    internal class SupportedCapabilities : ISupportedCapabilities
+    internal class SupportedCapabilities : ISupportedCapabilities, ICapabilitiesProvider
     {
         private static readonly MethodInfo SetCapabilityInnerMethod = typeof(SupportedCapabilities)
                                                                      .GetTypeInfo()
@@ -24,6 +24,26 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                     _supports.Remove(item.ValueType);
                 _supports.Add(item.ValueType, item.Value);
             }
+        }
+
+        public void Add(ICapability capability)
+        {
+            var valueType = capability.GetType();
+            if (_supports.TryGetValue(valueType, out _))
+                _supports.Remove(valueType);
+            _supports.Add(valueType, capability);
+        }
+
+        public T GetCapability<T>() where T : ICapability
+        {
+            if (_supports.TryGetValue(typeof(T), out var value) && value is T c) return c;
+            return default;
+        }
+
+        public ICapability GetCapability(Type type)
+        {
+            if (_supports.TryGetValue(type, out var value) && value is ICapability c) return c;
+            return default;
         }
 
         public bool AllowsDynamicRegistration(Type capabilityType)

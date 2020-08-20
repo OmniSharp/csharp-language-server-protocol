@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace Lsp.Tests
@@ -24,6 +25,10 @@ namespace Lsp.Tests
             public void Add(IEnumerable<ISupports> supports)
             {
             }
+
+            public void Add(ICapability capability) {}
+            public T GetCapability<T>() where T : ICapability => throw new NotImplementedException();
+            public ICapability GetCapability(Type type) => throw new NotImplementedException();
         }
 
         private class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
@@ -39,6 +44,10 @@ namespace Lsp.Tests
             public void Add(IEnumerable<ISupports> supports)
             {
             }
+
+            public void Add(ICapability capability) {}
+            public T GetCapability<T>() where T : ICapability => throw new NotImplementedException();
+            public ICapability GetCapability(Type type) => throw new NotImplementedException();
         }
     }
 }

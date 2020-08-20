@@ -3,6 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.Synchronization))]
     public class SynchronizationCapability : DynamicCapability,
                                              ConnectedCapability<IDidChangeTextDocumentHandler>,
                                              ConnectedCapability<IDidCloseTextDocumentHandler>,

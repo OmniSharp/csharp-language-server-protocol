@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -57,6 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly LanguageProtocolSettingsBag _settingsBag;
         private bool _started;
         private readonly int? _concurrency;
+        private readonly ILookup<string, Type> _capabilityTypes;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -175,6 +177,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializedHandlers = initializedHandlers;
             _concurrency = options.Value.Concurrency;
 
+            _capabilityTypes = options
+                              .Value.Assemblies
+                              .SelectMany(z => z.ExportedTypes)
+                              .Where(z => z.IsClass && !z.IsAbstract)
+                              .Where(z => typeof(ICapability).IsAssignableFrom(z))
+                              .Where(z => z.GetCustomAttributes<CapabilityKeyAttribute>().Any())
+                              .ToLookup(z => string.Join(".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys));
+
             _disposable.Add(_collection.Add(this));
         }
 
@@ -247,11 +257,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(
-            InitializeParams request, CancellationToken token
+        async Task<InitializeResult> IRequestHandler<InternalInitializeParams, InitializeResult>.Handle(
+            InternalInitializeParams request, CancellationToken token
         )
         {
-            ClientSettings = request;
+            var clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+
+            foreach (var group in _capabilityTypes)
+            {
+                foreach (var capabilityType in group)
+                {
+                    if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
+                    {
+                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
+                        _supportedCapabilities.Add(capability);
+                    }
+                }
+            }
 
             if (request.Trace == InitializeTrace.Verbose)
             {
@@ -273,26 +295,28 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
             }
 
-            _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
+            _clientVersion = clientCapabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
+            _serializer.SetClientCapabilities(_clientVersion.Value, clientCapabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                if (request.Capabilities.TextDocument != null)
+                if (clientCapabilities?.TextDocument != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.TextDocument)
                     );
                 }
 
-                if (request.Capabilities.Workspace != null)
+                if (clientCapabilities?.Workspace != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.Workspace)
                     );
                 }
             }
+
+            ClientSettings = new InitializeParams(request, clientCapabilities);
 
             _supportedCapabilities.Add(supportedCapabilities);
 
@@ -309,14 +333,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
-                (handler, ct) => handler(this, request, ct),
+                (handler, ct) => handler(this, ClientSettings, ct),
                 _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
-                (handler, ct) => handler.OnInitialize(this, request, ct),
+                (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
                 _concurrency,
                 token
             );
 
-            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
+            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
 
             var serverCapabilities = new ServerCapabilities {
                 CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction)
@@ -441,9 +465,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
-                (handler, ct) => handler(this, request, result, ct),
+                (handler, ct) => handler(this, ClientSettings, result, ct),
                 _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
-                (handler, ct) => handler.OnInitialized(this, request, result, ct),
+                (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
                 _concurrency,
                 token
             );

@@ -3,6 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeAction))]
     public class CodeActionCapability : DynamicCapability, ConnectedCapability<ICodeActionHandler>
     {
         /// <summary>
@@ -12,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Since 3.8.0
         /// </summary>
         [Optional]
-        public CodeActionLiteralSupportCapability CodeActionLiteralSupport { get; set; }
+        public CodeActionLiteralSupport CodeActionLiteralSupport { get; set; }
 
         /// <summary>
         /// Whether code action supports the `isPreferred` property.

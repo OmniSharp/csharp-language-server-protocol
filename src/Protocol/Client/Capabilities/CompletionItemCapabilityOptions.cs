@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class CompletionItemCapability
+    public class CompletionItemCapabilityOptions
     {
         /// <summary>
         /// Client supports snippets as insert text.
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Supports<CompletionItemTagSupportCapability> TagSupport { get; set; }
+        public Supports<CompletionItemTagSupportCapabilityOptions> TagSupport { get; set; }
 
         /// <summary>
         /// Client support insert replace edit to control different behavior if a

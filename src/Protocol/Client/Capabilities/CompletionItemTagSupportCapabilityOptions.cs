@@ -2,7 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class CompletionItemTagSupportCapability
+    public class CompletionItemTagSupportCapabilityOptions
     {
         /// <summary>
         /// The tags supported by the client.

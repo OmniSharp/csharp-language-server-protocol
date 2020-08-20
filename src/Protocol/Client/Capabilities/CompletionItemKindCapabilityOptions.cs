@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class CompletionItemKindCapability
+    public class CompletionItemKindCapabilityOptions
     {
         /// <summary>
         /// The completion item kind values the client supports. When this

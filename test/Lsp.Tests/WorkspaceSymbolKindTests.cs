@@ -49,7 +49,7 @@ namespace Lsp.Tests
                         Symbol = new Supports<WorkspaceSymbolCapability>(
                             true, new WorkspaceSymbolCapability {
                                 DynamicRegistration = true,
-                                SymbolKind = new SymbolKindCapability {
+                                SymbolKind = new SymbolKindOptions {
                                     ValueSet = new Container<SymbolKind>(SymbolKind.Class)
                                 }
                             }
@@ -77,7 +77,7 @@ namespace Lsp.Tests
                         Symbol = new Supports<WorkspaceSymbolCapability>(
                             true, new WorkspaceSymbolCapability {
                                 DynamicRegistration = true,
-                                TagSupport = new TagSupportCapability {
+                                TagSupport = new TagSupportOptions {
                                     ValueSet = new Container<SymbolTag>()
                                 }
                             }

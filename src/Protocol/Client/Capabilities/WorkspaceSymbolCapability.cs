@@ -4,13 +4,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.Symbol))]
     public class WorkspaceSymbolCapability : DynamicCapability, ConnectedCapability<IWorkspaceSymbolsHandler>
     {
         /// <summary>
         /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
         /// </summary>
         [Optional]
-        public SymbolKindCapability SymbolKind { get; set; }
+        public SymbolKindOptions SymbolKind { get; set; }
 
         /// <summary>
         /// The client supports tags on `SymbolInformation`.Tags are supported on
@@ -21,6 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [Optional]
-        public Supports<TagSupportCapability> TagSupport { get; set; }
+        public Supports<TagSupportOptions> TagSupport { get; set; }
     }
 }

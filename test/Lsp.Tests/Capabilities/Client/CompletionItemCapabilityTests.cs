@@ -13,24 +13,24 @@ namespace Lsp.Tests.Capabilities.Client
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionItemCapability {
+            var model = new CompletionItemCapabilityOptions {
                 SnippetSupport = true
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
         public void TagSupportTrue()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>("{\"tagSupport\":true}");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":true}");
             deresult.Should().BeEquivalentTo(
-                new CompletionItemCapability {
-                    TagSupport = new Supports<CompletionItemTagSupportCapability>(true)
+                new CompletionItemCapabilityOptions {
+                    TagSupport = new Supports<CompletionItemTagSupportCapabilityOptions>(true)
                 }
             );
         }
@@ -38,7 +38,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Fact]
         public void TagSupportObject()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapability>("{\"tagSupport\":{\"valueSet\": [1]}}");
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":{\"valueSet\": [1]}}");
             deresult.TagSupport.IsSupported.Should().Be(true);
             deresult.TagSupport.Value.ValueSet.Should().Contain(CompletionItemTag.Deprecated);
         }

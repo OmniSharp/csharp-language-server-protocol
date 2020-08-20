@@ -2,7 +2,7 @@ using System;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class TextDocumentClientCapabilities
+    public class TextDocumentClientCapabilities : CapabilitiesBase
     {
         public Supports<SynchronizationCapability> Synchronization { get; set; }
 

@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class SignatureInformationCapability
+    public class SignatureInformationCapabilityOptions
     {
         /// <summary>
         /// Client supports the follow content formats for the content property. The order describes the preferred format of the client.
@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         [Optional]
         public Container<MarkupKind> DocumentationFormat { get; set; }
 
-        [Optional] public SignatureParameterInformationCapability ParameterInformation { get; set; }
+        [Optional] public SignatureParameterInformationCapabilityOptions ParameterInformation { get; set; }
 
         /// <summary>
         /// The client support the `activeParameter` property on `SignatureInformation`

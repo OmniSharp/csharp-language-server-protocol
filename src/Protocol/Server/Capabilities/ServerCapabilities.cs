@@ -1,13 +1,14 @@
 using System;
 using System.Collections.Generic;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class ServerCapabilities
+    public class ServerCapabilities : CapabilitiesBase
     {
         // TODO NEXT:
         // Create ability for server capabilities to be pulled from registered handlers

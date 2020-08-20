@@ -33,8 +33,8 @@ namespace Lsp.Tests
                         CodeAction = new Supports<CodeActionCapability>(
                             true, new CodeActionCapability {
                                 DynamicRegistration = true,
-                                CodeActionLiteralSupport = new CodeActionLiteralSupportCapability {
-                                    CodeActionKind = new CodeActionKindCapability {
+                                CodeActionLiteralSupport = new CodeActionLiteralSupport {
+                                    CodeActionKind = new CodeActionKindCapabilityOptions {
                                         ValueSet = new Container<CodeActionKind>(CodeActionKind.RefactorInline)
                                     }
                                 }

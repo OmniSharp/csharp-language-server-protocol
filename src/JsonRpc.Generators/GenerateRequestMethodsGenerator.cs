@@ -95,6 +95,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            .Except(existingUsings)
                            .Select(z => UsingDirective(IdentifierName(z)))
                 ;
+            var isInternal = handlerInterface.Modifiers.Any(z => z.IsKind(SyntaxKind.InternalKeyword));
             return Task.FromResult(
                 new RichGenerationResult {
                     Usings = List(newUsings),
@@ -108,9 +109,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                .WithAttributeLists(attributes)
                                                .WithModifiers(
                                                     TokenList(
-                                                        Token(SyntaxKind.PublicKeyword),
-                                                        Token(SyntaxKind.StaticKeyword),
-                                                        Token(SyntaxKind.PartialKeyword)
+                                                        new[] { isInternal ? Token(SyntaxKind.InternalKeyword) : Token(SyntaxKind.PublicKeyword) }.Concat(
+                                                            new[] {
+                                                                Token(SyntaxKind.StaticKeyword),
+                                                                Token(SyntaxKind.PartialKeyword)
+                                                            }
+                                                        )
                                                     )
                                                 )
                                                .WithMembers(List(methods))

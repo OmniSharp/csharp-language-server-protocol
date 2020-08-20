@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    public class TagSupportCapability
+    public class TagSupportOptions
     {
         /// <summary>
         /// The tags supported by the client.

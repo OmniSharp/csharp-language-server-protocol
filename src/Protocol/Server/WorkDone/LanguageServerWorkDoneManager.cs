@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         }
 
         public void Initialized(WindowClientCapabilities windowClientCapabilities) =>
-            IsSupported = windowClientCapabilities.WorkDoneProgress.IsSupported &&
-                          windowClientCapabilities.WorkDoneProgress.Value;
+            IsSupported = windowClientCapabilities.WorkDoneProgress.IsSupported;
 
         public bool IsSupported { get; private set; }
 

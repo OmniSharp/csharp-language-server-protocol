@@ -209,12 +209,12 @@ namespace Lsp.Tests.Integration
                 );
                 server.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -222,7 +222,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -232,12 +232,12 @@ namespace Lsp.Tests.Integration
                 );
                 client.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -245,7 +245,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -265,12 +265,12 @@ namespace Lsp.Tests.Integration
             {
                 options.WithCapability(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -278,7 +278,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
