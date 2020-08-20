@@ -4,6 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -255,6 +256,24 @@ namespace JsonRpc.Tests
             a.Should().Throw<NotSupportedException>();
         }
 
+        [Fact]
+        public async Task Should_Register_Private_Classes_With_Dry_Ioc()
+        {
+            var server = await JsonRpcServer.From(
+                options => {
+
+                    var pipe = new Pipe();
+                    options
+                       .WithInput(pipe.Reader)
+                       .WithOutput(pipe.Writer);
+
+                    options.Services.AddSingleton<TestClass, InternalTestClass>();
+                }
+            );
+            server.GetService<InternalTestClass>().Should().NotBeNull();
+            server.GetService<TestClass>().Should().NotBeNull().And.BeOfType<InternalTestClass>();
+        }
+
         [Method("outside")]
         private class Request : IRequest<Response>
         {
@@ -296,6 +315,15 @@ namespace JsonRpc.Tests
             public OutsideService(string value) => Value = value;
 
             public string Value { get; }
+        }
+
+        internal class TestClass
+        {
+
+        }
+
+        internal class InternalTestClass : TestClass
+        {
         }
     }
 }
