@@ -1,6 +1,6 @@
 ﻿namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class CodeActionLiteralSupport
+    public class CodeActionLiteralSupportOptions
     {
         /// <summary>
         /// The code action kind is support with the following value

@@ -40,7 +40,7 @@ namespace Lsp.Tests
                .ComparingByMembers<Supports<ExecuteCommandCapability>>()
                .ComparingByMembers<Supports<FoldingRangeCapability>>()
                .ComparingByMembers<Supports<SelectionRangeCapability>>()
-               .ComparingByMembers<Supports<TagSupportOptions>>()
+               .ComparingByMembers<Supports<TagSupportCapabilityOptions>>()
                .ComparingByMembers<Supports<CompletionItemTagSupportCapabilityOptions>>();
     }
 }

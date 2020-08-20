@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// An optional token that a server can use to report work done progress.
         /// </summary>
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        ProgressToken WorkDoneToken { get; set; }
     }
 }

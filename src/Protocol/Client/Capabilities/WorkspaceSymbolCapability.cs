@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Specific capabilities for the `SymbolKind` in the `workspace/symbol` request.
         /// </summary>
         [Optional]
-        public SymbolKindOptions SymbolKind { get; set; }
+        public SymbolKindCapabilityOptions SymbolKind { get; set; }
 
         /// <summary>
         /// The client supports tags on `SymbolInformation`.Tags are supported on
@@ -22,6 +22,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [Optional]
-        public Supports<TagSupportOptions> TagSupport { get; set; }
+        public Supports<TagSupportCapabilityOptions> TagSupport { get; set; }
     }
 }

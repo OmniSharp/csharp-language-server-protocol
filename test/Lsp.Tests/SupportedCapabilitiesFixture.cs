@@ -27,8 +27,6 @@ namespace Lsp.Tests
             }
 
             public void Add(ICapability capability) {}
-            public T GetCapability<T>() where T : ICapability => throw new NotImplementedException();
-            public ICapability GetCapability(Type type) => throw new NotImplementedException();
         }
 
         private class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
@@ -46,8 +44,6 @@ namespace Lsp.Tests
             }
 
             public void Add(ICapability capability) {}
-            public T GetCapability<T>() where T : ICapability => throw new NotImplementedException();
-            public ICapability GetCapability(Type type) => throw new NotImplementedException();
         }
     }
 }

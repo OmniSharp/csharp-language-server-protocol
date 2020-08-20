@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Since 3.8.0
         /// </summary>
         [Optional]
-        public CodeActionLiteralSupport CodeActionLiteralSupport { get; set; }
+        public CodeActionLiteralSupportOptions CodeActionLiteralSupport { get; set; }
 
         /// <summary>
         /// Whether code action supports the `isPreferred` property.

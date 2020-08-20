@@ -470,13 +470,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     client.WithCapability(
                         new DocumentSymbolCapability {
                             DynamicRegistration = true,
-                            SymbolKind = new SymbolKindOptions {
+                            SymbolKind = new SymbolKindCapabilityOptions {
                                 ValueSet = new Container<SymbolKind>(
                                     Enum.GetValues(typeof(SymbolKind)).Cast<SymbolKind>()
                                         .ToArray()
                                 )
                             },
-                            TagSupport = new TagSupportOptions {
+                            TagSupport = new TagSupportCapabilityOptions {
                                 ValueSet = new[] { SymbolTag.Deprecated }
                             },
                             HierarchicalDocumentSymbolSupport = true

@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Specific capabilities for the `SymbolKind`.
     /// </summary>
-    public class SymbolKindOptions
+    public class SymbolKindCapabilityOptions
     {
         /// <summary>
         /// The symbol kind values the client supports. When this
