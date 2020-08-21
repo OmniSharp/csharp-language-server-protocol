@@ -176,6 +176,16 @@ namespace Lsp.Tests
             lhs.Direction.Should().Be(rhs.Direction, $"{type.FullName} direction does not match {paramsType.FullName}");
         }
 
+        [Theory(DisplayName = "Registration Options and Static Options should have the same properties")]
+        [ClassData(typeof(RegistrationConverters))]
+        public void Registration_Converters_Should_Have_THe_Same_Properties(Type type)
+        {
+            var types = type.BaseType.GetGenericArguments();
+            var source = types[0].GetProperties().Select(z => z.Name);
+            var destination = types[1].GetProperties().Select(z => z.Name).Except(new [] { "Id" });
+            source.Should().Contain(destination);
+        }
+
         [Theory(DisplayName = "Handler interfaces should have a abstract class")]
         [ClassData(typeof(TypeHandlerData))]
         public void HandlersShouldAbstractClass(ILspHandlerTypeDescriptor descriptor)
@@ -625,6 +635,21 @@ namespace Lsp.Tests
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
+                    Add(type);
+                }
+            }
+        }
+
+        public class RegistrationConverters : TheoryData<Type>
+        {
+            public RegistrationConverters()
+            {
+                foreach (var type in typeof(CompletionParams)
+                                    .Assembly.DefinedTypes
+                                    .Where(z => z.IsClass && !z.IsAbstract && typeof(IRegistrationOptionsConverter).IsAssignableFrom(z))
+                                    .Where(z => z.BaseType?.IsGenericType == true && z.BaseType.GetGenericArguments().Length == 2)
+                )
+                {
                     Add(type);
                 }
             }

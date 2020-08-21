@@ -223,10 +223,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         {
             var typeDescriptor = _handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(handlerType);
             var @interface = HandlerTypeDescriptorHelper.GetHandlerInterface(handlerType);
-            var registrationType = typeDescriptor?.RegistrationType ??
-                                   HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);
-            var capabilityType = typeDescriptor?.CapabilityType ??
-                                 HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType);
+            var registrationType = typeDescriptor?.RegistrationType;
+            var capabilityType = typeDescriptor?.CapabilityType;
 
             return GetDescriptor(method, handlerType, handler, options, typeDescriptor, @interface, registrationType, capabilityType);
         }

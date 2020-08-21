@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     {
         private readonly ConcurrentDictionary<Type, string> MethodNames = new ConcurrentDictionary<Type, string>();
 
-        private readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
+        internal readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
 
         internal LspHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
         {

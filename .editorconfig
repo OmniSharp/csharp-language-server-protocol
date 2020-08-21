@@ -19,19 +19,20 @@ indent_style=space
 indent_size=4
 insert_final_newline=true
 
-[*.{json,xml,yml,yaml}]
+[*.{xml,yml,yaml}]
 indent_style=space
 indent_size=2
+insert_final_newline=true
+
+[*.json]
+indent_style=space
+indent_size=4
 insert_final_newline=true
 
 [*.{xml,csproj,props,targets}]
 indent_style=space
 
-[{*.har,*.inputactions,*.jsb2,*.jsb3,*.json,.babelrc,.eslintrc,.prettierrc,.stylelintrc,bowerrc,jest.config}]
-indent_style=space
-indent_size=2
-
-[{*.yaml,*.yml}]
+[{*.har,*.inputactions,*.jsb2,*.jsb3,.babelrc,.eslintrc,.prettierrc,.stylelintrc,bowerrc,jest.config}]
 indent_style=space
 indent_size=2
 

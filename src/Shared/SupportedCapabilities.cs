@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public bool AllowsDynamicRegistration(Type capabilityType)
         {
-            if (_supports.TryGetValue(capabilityType, out var capability))
+            if (capabilityType != null && _supports.TryGetValue(capabilityType, out var capability))
             {
                 if (capability is IDynamicCapability dc)
                     return dc.DynamicRegistration;

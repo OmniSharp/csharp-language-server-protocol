@@ -46,6 +46,14 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterMany<ResponseRouter>(Reuse.Singleton);
             container.RegisterMany<ProgressManager>(Reuse.Singleton);
 
+            container.RegisterMany(
+                options.Assemblies
+                       .SelectMany(z => z.GetTypes())
+                       .Where(z => z.IsClass && !z.IsAbstract)
+                       .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
+                reuse: Reuse.Singleton
+            );
+
             return container;
         }
     }
