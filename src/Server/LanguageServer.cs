@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -48,6 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IEnumerable<IOnLanguageServerInitialize> _initializeHandlers;
         private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<IOnLanguageServerInitialized> _initializedHandlers;
+        private readonly IEnumerable<IRegistrationOptionsConverter> _registrationOptionsConverters;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -57,6 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly LanguageProtocolSettingsBag _settingsBag;
         private bool _started;
         private readonly int? _concurrency;
+        private readonly ILookup<string, Type> _capabilityTypes;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -143,7 +146,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             SharedHandlerCollection handlerCollection,
             IProgressManager progressManager,
             ILanguageServerWorkspaceFolderManager workspaceFolderManager, IEnumerable<IOnLanguageServerInitialize> initializeHandlers,
-            IEnumerable<IOnLanguageServerInitialized> initializedHandlers
+            IEnumerable<IOnLanguageServerInitialized> initializedHandlers,
+            IEnumerable<IRegistrationOptionsConverter> registrationOptionsConverters
         ) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
@@ -173,7 +177,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             WorkspaceFolderManager = workspaceFolderManager;
             _initializeHandlers = initializeHandlers;
             _initializedHandlers = initializedHandlers;
+            _registrationOptionsConverters = registrationOptionsConverters;
             _concurrency = options.Value.Concurrency;
+
+            _capabilityTypes = options
+                              .Value.Assemblies
+                              .SelectMany(z => z.ExportedTypes)
+                              .Where(z => z.IsClass && !z.IsAbstract)
+                              .Where(z => typeof(ICapability).IsAssignableFrom(z))
+                              .Where(z => z.GetCustomAttributes<CapabilityKeyAttribute>().Any())
+                              .ToLookup(z => string.Join(".", z.GetCustomAttribute<CapabilityKeyAttribute>().Keys));
 
             _disposable.Add(_collection.Add(this));
         }
@@ -247,11 +260,23 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
         }
 
-        async Task<InitializeResult> IRequestHandler<InitializeParams, InitializeResult>.Handle(
-            InitializeParams request, CancellationToken token
+        async Task<InitializeResult> IRequestHandler<InternalInitializeParams, InitializeResult>.Handle(
+            InternalInitializeParams request, CancellationToken token
         )
         {
-            ClientSettings = request;
+            var clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+
+            foreach (var group in _capabilityTypes)
+            {
+                foreach (var capabilityType in group)
+                {
+                    if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
+                    {
+                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
+                        _supportedCapabilities.Add(capability);
+                    }
+                }
+            }
 
             if (request.Trace == InitializeTrace.Verbose)
             {
@@ -273,26 +298,28 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 }
             }
 
-            _clientVersion = request.Capabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
-            _serializer.SetClientCapabilities(_clientVersion.Value, request.Capabilities);
+            _clientVersion = clientCapabilities?.GetClientVersion() ?? ClientVersion.Lsp2;
+            _serializer.SetClientCapabilities(_clientVersion.Value, clientCapabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
             {
-                if (request.Capabilities.TextDocument != null)
+                if (clientCapabilities?.TextDocument != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.TextDocument)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.TextDocument)
                     );
                 }
 
-                if (request.Capabilities.Workspace != null)
+                if (clientCapabilities?.Workspace != null)
                 {
                     supportedCapabilities.AddRange(
-                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(request.Capabilities.Workspace)
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.Workspace)
                     );
                 }
             }
+
+            ClientSettings = new InitializeParams(request, clientCapabilities);
 
             _supportedCapabilities.Add(supportedCapabilities);
 
@@ -309,74 +336,55 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
-                (handler, ct) => handler(this, request, ct),
+                (handler, ct) => handler(this, ClientSettings, ct),
                 _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
-                (handler, ct) => handler.OnInitialize(this, request, ct),
+                (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
                 _concurrency,
                 token
             );
 
-            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress);
+            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
 
-            var serverCapabilities = new ServerCapabilities {
-                CodeActionProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeAction)
-                                        .Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of),
-                CodeLensProvider = ccp.GetStaticOptions(textDocumentCapabilities.CodeLens)
-                                      .Get<ICodeLensOptions, CodeLensOptions>(CodeLensOptions.Of),
-                CompletionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Completion)
-                                        .Get<ICompletionOptions, CompletionOptions>(CompletionOptions.Of),
-                DefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.Definition)
-                                        .Get<IDefinitionOptions, DefinitionOptions>(DefinitionOptions.Of),
-                DocumentFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.Formatting)
-                                                .Get<IDocumentFormattingOptions, DocumentFormattingOptions>(DocumentFormattingOptions.Of),
-                DocumentHighlightProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentHighlight)
-                                               .Get<IDocumentHighlightOptions, DocumentHighlightOptions>(DocumentHighlightOptions.Of),
-                DocumentLinkProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentLink)
-                                          .Get<IDocumentLinkOptions, DocumentLinkOptions>(DocumentLinkOptions.Of),
-                DocumentOnTypeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.OnTypeFormatting)
-                                                      .Get<IDocumentOnTypeFormattingOptions, DocumentOnTypeFormattingOptions>(
-                                                           DocumentOnTypeFormattingOptions.Of
-                                                       ),
-                DocumentRangeFormattingProvider = ccp.GetStaticOptions(textDocumentCapabilities.RangeFormatting)
-                                                     .Get<IDocumentRangeFormattingOptions, DocumentRangeFormattingOptions>(
-                                                          DocumentRangeFormattingOptions
-                                                             .Of
-                                                      ),
-                DocumentSymbolProvider = ccp.GetStaticOptions(textDocumentCapabilities.DocumentSymbol)
-                                            .Get<IDocumentSymbolOptions, DocumentSymbolOptions>(DocumentSymbolOptions.Of),
-                ExecuteCommandProvider = ccp.GetStaticOptions(workspaceCapabilities.ExecuteCommand)
-                                            .Reduce<IExecuteCommandOptions, ExecuteCommandOptions>(ExecuteCommandOptions.Of),
-                TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization)
-                                      .Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of),
-                HoverProvider = ccp.GetStaticOptions(textDocumentCapabilities.Hover)
-                                   .Get<IHoverOptions, HoverOptions>(HoverOptions.Of),
-                ReferencesProvider = ccp.GetStaticOptions(textDocumentCapabilities.References)
-                                        .Get<IReferencesOptions, ReferencesOptions>(ReferencesOptions.Of),
-                RenameProvider = ccp.GetStaticOptions(textDocumentCapabilities.Rename)
-                                    .Get<IRenameOptions, RenameOptions>(RenameOptions.Of),
-                SignatureHelpProvider = ccp.GetStaticOptions(textDocumentCapabilities.SignatureHelp)
-                                           .Get<ISignatureHelpOptions, SignatureHelpOptions>(SignatureHelpOptions.Of),
-                WorkspaceSymbolProvider = ccp.GetStaticOptions(workspaceCapabilities.Symbol)
-                                             .Get<IWorkspaceSymbolOptions, WorkspaceSymbolOptions>(WorkspaceSymbolOptions.Of),
-                ImplementationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Implementation)
-                                            .Get<IImplementationOptions, ImplementationOptions>(ImplementationOptions.Of),
-                TypeDefinitionProvider = ccp.GetStaticOptions(textDocumentCapabilities.TypeDefinition)
-                                            .Get<ITypeDefinitionOptions, TypeDefinitionOptions>(TypeDefinitionOptions.Of),
-                ColorProvider = ccp.GetStaticOptions(textDocumentCapabilities.ColorProvider)
-                                   .Get<IDocumentColorOptions, DocumentColorOptions>(DocumentColorOptions.Of),
-                FoldingRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange)
-                                          .Get<IFoldingRangeOptions, FoldingRangeOptions>(FoldingRangeOptions.Of),
-                SelectionRangeProvider = ccp.GetStaticOptions(textDocumentCapabilities.FoldingRange)
-                                            .Get<ISelectionRangeOptions, SelectionRangeOptions>(SelectionRangeOptions.Of),
-                DeclarationProvider = ccp.GetStaticOptions(textDocumentCapabilities.Declaration)
-                                         .Get<IDeclarationOptions, DeclarationOptions>(DeclarationOptions.Of),
-#pragma warning disable 618
-                CallHierarchyProvider = ccp.GetStaticOptions(textDocumentCapabilities.CallHierarchy)
-                                           .Get<ICallHierarchyOptions, CallHierarchyOptions>(CallHierarchyOptions.Of),
-                SemanticTokensProvider = ccp.GetStaticOptions(textDocumentCapabilities.SemanticTokens)
-                                            .Get<ISemanticTokensOptions, SemanticTokensOptions>(SemanticTokensOptions.Of),
-#pragma warning restore 618
-            };
+            var serverCapabilities = new ServerCapabilities();
+
+            var serverCapabilitiesObject = new JObject();
+            foreach (var converter in _registrationOptionsConverters)
+            {
+                var keys = converter.Key.Split('.').Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
+                var value = serverCapabilitiesObject;
+                foreach (var key in keys.Take(keys.Length - 1))
+                {
+                    if (value.TryGetValue(key, out var t) && t is JObject to)
+                    {
+                        value = to;
+                    }
+                    else
+                    {
+                        value[key] = value = new JObject();
+                    }
+                }
+
+                var lastKey = keys[keys.Length - 1];
+
+                var descriptor = _collection
+                                .Where(z => z.HasRegistration)
+                                .FirstOrDefault(z => converter.SourceType == z.RegistrationType);
+
+                if (descriptor == null || descriptor.CapabilityType == null || _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType)) continue;
+                var registrationOptions = descriptor?.RegistrationOptions;
+
+                value[lastKey] = registrationOptions == null
+                    ? JValue.CreateNull()
+                    : JToken.FromObject(converter.Convert(registrationOptions), _serializer.JsonSerializer);
+            }
+
+            using (var reader = serverCapabilitiesObject.CreateReader())
+            {
+                _serializer.JsonSerializer.Populate(reader, serverCapabilities);
+            }
+
+            serverCapabilities.TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization)
+                                                     .Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of);
 
             if (_collection.ContainsHandler(typeof(IDidChangeWorkspaceFoldersHandler)))
             {
@@ -441,9 +449,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
-                (handler, ct) => handler(this, request, result, ct),
+                (handler, ct) => handler(this, ClientSettings, result, ct),
                 _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
-                (handler, ct) => handler.OnInitialized(this, request, result, ct),
+                (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
                 _concurrency,
                 token
             );

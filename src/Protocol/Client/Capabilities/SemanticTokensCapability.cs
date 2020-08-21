@@ -11,6 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.SemanticTokens))]
     public class SemanticTokensCapability : DynamicCapability, ConnectedCapability<ISemanticTokensHandler>,
                                             ConnectedCapability<ISemanticTokensDeltaHandler>, ConnectedCapability<ISemanticTokensRangeHandler>
     {

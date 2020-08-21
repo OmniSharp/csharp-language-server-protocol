@@ -5,6 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Capabilities specific to `textDocument/publishDiagnostics`.
     /// </summary>
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.PublishDiagnostics))]
     public class PublishDiagnosticsCapability : ICapability
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Supports<PublishDiagnosticsTagSupportCapability> TagSupport { get; set; }
+        public Supports<PublishDiagnosticsTagSupportCapabilityOptions> TagSupport { get; set; }
 
         /// <summary>
         /// Whether the client interprets the version property of the

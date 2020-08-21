@@ -32,7 +32,7 @@ namespace Lsp.Tests
                     TextDocument = new TextDocumentClientCapabilities {
                         PublishDiagnostics = new Supports<PublishDiagnosticsCapability>(
                             true, new PublishDiagnosticsCapability {
-                                TagSupport = new PublishDiagnosticsTagSupportCapability {
+                                TagSupport = new PublishDiagnosticsTagSupportCapabilityOptions {
                                     ValueSet = new Container<DiagnosticTag>()
                                 }
                             }

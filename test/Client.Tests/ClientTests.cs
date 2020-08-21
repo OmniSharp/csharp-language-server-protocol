@@ -132,12 +132,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 client => {
                     client.WithCapability(
                         new CompletionCapability {
-                            CompletionItem = new CompletionItemCapability {
+                            CompletionItem = new CompletionItemCapabilityOptions {
                                 DeprecatedSupport = true,
                                 DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown, MarkupKind.PlainText),
                                 PreselectSupport = true,
                                 SnippetSupport = true,
-                                TagSupport = new CompletionItemTagSupportCapability {
+                                TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                     ValueSet = new[] { CompletionItemTag.Deprecated }
                                 },
                                 CommitCharactersSupport = true
@@ -243,9 +243,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     client.WithCapability(
                         new SignatureHelpCapability {
                             ContextSupport = true,
-                            SignatureInformation = new SignatureInformationCapability {
+                            SignatureInformation = new SignatureInformationCapabilityOptions {
                                 DocumentationFormat = new Container<MarkupKind>(MarkupKind.Markdown),
-                                ParameterInformation = new SignatureParameterInformationCapability {
+                                ParameterInformation = new SignatureParameterInformationCapabilityOptions {
                                     LabelOffsetSupport = true
                                 }
                             }
@@ -470,13 +470,13 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     client.WithCapability(
                         new DocumentSymbolCapability {
                             DynamicRegistration = true,
-                            SymbolKind = new SymbolKindCapability {
+                            SymbolKind = new SymbolKindCapabilityOptions {
                                 ValueSet = new Container<SymbolKind>(
                                     Enum.GetValues(typeof(SymbolKind)).Cast<SymbolKind>()
                                         .ToArray()
                                 )
                             },
-                            TagSupport = new TagSupportCapability {
+                            TagSupport = new TagSupportCapabilityOptions {
                                 ValueSet = new[] { SymbolTag.Deprecated }
                             },
                             HierarchicalDocumentSymbolSupport = true

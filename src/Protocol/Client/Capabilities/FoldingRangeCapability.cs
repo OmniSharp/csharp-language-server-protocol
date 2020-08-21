@@ -3,6 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.FoldingRange))]
     public class FoldingRangeCapability : DynamicCapability, ConnectedCapability<IFoldingRangeHandler>
     {
         /// <summary>

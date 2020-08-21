@@ -31,5 +31,8 @@
       <Compile Update="Client\OnLanguageClientInitializedDelegate.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
+      <Compile Update="CapabilityKeyAttribute.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

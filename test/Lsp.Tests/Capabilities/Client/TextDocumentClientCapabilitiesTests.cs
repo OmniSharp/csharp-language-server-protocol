@@ -33,7 +33,7 @@ namespace Lsp.Tests.Capabilities.Client
                 SignatureHelp = new SignatureHelpCapability { DynamicRegistration = true },
                 Completion = new CompletionCapability {
                     DynamicRegistration = true,
-                    CompletionItem = new CompletionItemCapability {
+                    CompletionItem = new CompletionItemCapabilityOptions {
                         SnippetSupport = true
                     }
                 },

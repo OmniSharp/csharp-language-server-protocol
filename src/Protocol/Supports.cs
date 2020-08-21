@@ -33,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public static implicit operator T(Supports<T> value) => value.Value;
 
         public static implicit operator Supports<T>(T value) => new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default), value);
+
     }
 
     public static class Supports

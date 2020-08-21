@@ -11,7 +11,7 @@ namespace Lsp.Tests.Capabilities.Client
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new CompletionCapability { DynamicRegistration = false, CompletionItem = new CompletionItemCapability { SnippetSupport = false } };
+            var model = new CompletionCapability { DynamicRegistration = false, CompletionItem = new CompletionItemCapabilityOptions { SnippetSupport = false } };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

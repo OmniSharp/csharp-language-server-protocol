@@ -1,4 +1,4 @@
-using MediatR;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Method(GeneralNames.Initialize, Direction.ClientToServer)]
-    public class InitializeParams : IWorkDoneProgressParams, IRequest<InitializeResult>
+    public class InitializeParams : IInitializeParams<ClientCapabilities>
     {
         /// <summary>
         /// The process Id of the parent process that started
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// This property is only available if the client supports workspace folders.
         /// It can be `null` if the client supports workspace folders but none are
         /// configured.
-        /// 
+        ///
         /// Since 3.6.0
         /// <summary />
         public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
@@ -72,5 +72,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <inheritdoc />
         [Optional]
         public ProgressToken WorkDoneToken { get; set; }
+
+        public InitializeParams()
+        {
+
+        }
+
+        internal InitializeParams(IInitializeParams<JObject> @params, ClientCapabilities clientCapabilities)
+        {
+            ProcessId = @params.ProcessId;
+            Trace = @params.Trace;
+            Capabilities = clientCapabilities;
+            ClientInfo = @params.ClientInfo;
+            InitializationOptions = @params.InitializationOptions;
+            RootUri = @params.RootUri;
+            WorkspaceFolders = @params.WorkspaceFolders;
+            WorkDoneToken = @params.WorkDoneToken;
+        }
     }
 }

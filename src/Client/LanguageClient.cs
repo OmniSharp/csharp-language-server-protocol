@@ -5,6 +5,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -42,6 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly IEnumerable<IOnLanguageClientInitialize> _initializeHandlers;
         private readonly IEnumerable<OnLanguageClientInitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<IOnLanguageClientInitialized> _initializedHandlers;
+        private readonly ISerializer _serializer;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
@@ -140,7 +142,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IRegistrationManager registrationManager,
             ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager, IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
             IEnumerable<IOnLanguageClientInitialize> initializeHandlers, IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
-            IEnumerable<IOnLanguageClientInitialized> initializedHandlers
+            IEnumerable<IOnLanguageClientInitialized> initializedHandlers,
+            ISerializer serializer
         ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
@@ -167,6 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _initializeHandlers = initializeHandlers;
             _initializedDelegates = initializedDelegates;
             _initializedHandlers = initializedHandlers;
+            _serializer = serializer;
             _concurrency = options.Value.Concurrency;
 
             // We need to at least create Window here in case any handler does loggin in their constructor
@@ -205,15 +209,43 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             var @params = new InitializeParams {
                 Trace = _trace,
-                Capabilities = _clientCapabilities,
                 ClientInfo = _clientInfo,
+                Capabilities = _clientCapabilities,
                 RootUri = _rootUri,
                 RootPath = _rootUri?.GetFileSystemPath(),
                 WorkspaceFolders = new Container<WorkspaceFolder>(WorkspaceFoldersManager.CurrentWorkspaceFolders),
                 InitializationOptions = _initializationOptions
             };
 
-            RegisterCapabilities(@params.Capabilities);
+            var capabilitiesObject = new JObject();
+            foreach (var capability in _capabilities)
+            {
+                var keys = capability.GetType().GetCustomAttribute<CapabilityKeyAttribute>()?.Keys.Select(key => char.ToLower(key[0]) + key.Substring(1)).ToArray();
+                if (keys != null)
+                {
+                    var value = capabilitiesObject;
+                    foreach (var key in keys.Take(keys.Length - 1))
+                    {
+                        if (value.TryGetValue(key, out var t) && t is JObject to)
+                        {
+                            value = to;
+                        }
+                        else
+                        {
+                            value[key] = value = new JObject();
+                        }
+                    }
+                    var lastKey = keys[keys.Length - 1];
+                    value[lastKey] = JToken.FromObject(capability, _serializer.JsonSerializer);
+                }
+            }
+
+            using (var reader = capabilitiesObject.CreateReader())
+            {
+                _serializer.JsonSerializer.Populate(reader, _clientCapabilities);
+            }
+
+            RegisterCapabilities(_clientCapabilities);
 
             WorkDoneManager.Initialize(@params.Capabilities.Window);
 
@@ -229,7 +261,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             );
 
             _connection.Open();
-            var serverParams = await this.RequestLanguageProtocolInitialize(ClientSettings, token);
+            var serverParams = await SendRequest(ClientSettings, token);
             _receiver.Initialized();
 
             ServerSettings = serverParams;
@@ -334,17 +366,17 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _connection.Dispose();
         }
 
-        private T UseOrTryAndFindCapability<T>(Supports<T> supports)
+        private Supports<T> UseOrTryAndFindCapability<T>(Supports<T> supports) where T : class
         {
             var value = supports.IsSupported
                 ? supports.Value
-                : _capabilities.OfType<T>().FirstOrDefault() ?? Activator.CreateInstance<T>();
+                : _capabilities.OfType<T>().FirstOrDefault();
             if (value is IDynamicCapability dynamicCapability)
             {
                 dynamicCapability.DynamicRegistration = _collection.ContainsHandler(typeof(IRegisterCapabilityHandler));
             }
 
-            return value;
+            return Supports.OfValue(value);
         }
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();

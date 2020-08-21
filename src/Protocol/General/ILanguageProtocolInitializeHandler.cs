@@ -8,19 +8,16 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.General
 {
-    /// <summary>
-    /// InitializeError
-    /// </summary>
     [Serial]
     [Method(GeneralNames.Initialize, Direction.ClientToServer)]
     [GenerateHandlerMethods(typeof(ILanguageServerRegistry), MethodName = "OnLanguageProtocolInitialize")]
     [GenerateRequestMethods(typeof(ILanguageClient), MethodName = "RequestLanguageProtocolInitialize")]
-    public interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult>
+    internal interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InternalInitializeParams, InitializeResult>
     {
     }
 
-    public abstract class LanguageProtocolInitializeHandler : ILanguageProtocolInitializeHandler
+    internal abstract class LanguageProtocolInitializeHandler : ILanguageProtocolInitializeHandler
     {
-        public abstract Task<InitializeResult> Handle(InitializeParams request, CancellationToken cancellationToken);
+        public abstract Task<InitializeResult> Handle(InternalInitializeParams request, CancellationToken cancellationToken);
     }
 }

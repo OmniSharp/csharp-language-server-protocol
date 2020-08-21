@@ -15,7 +15,7 @@ namespace Lsp.Tests.Capabilities.Client
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<PublishDiagnosticsCapability>("{\"tagSupport\":true}");
             deresult.Should().BeEquivalentTo(
                 new PublishDiagnosticsCapability {
-                    TagSupport = new Supports<PublishDiagnosticsTagSupportCapability>(true)
+                    TagSupport = new Supports<PublishDiagnosticsTagSupportCapabilityOptions>(true)
                 }
             );
         }

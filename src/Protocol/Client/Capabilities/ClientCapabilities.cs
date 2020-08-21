@@ -3,7 +3,7 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class ClientCapabilities
+    public class ClientCapabilities : CapabilitiesBase
     {
         /// <summary>
         /// Workspace specific client capabilities.

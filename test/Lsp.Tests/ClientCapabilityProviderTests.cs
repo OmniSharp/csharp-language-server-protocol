@@ -86,35 +86,6 @@ namespace Lsp.Tests
                 }
             );
 
-        [Fact]
-        public void Should_Invoke_Get_Delegate()
-        {
-            // Given
-            var stub = Substitute
-               .For<Func<IExecuteCommandOptions, IEnumerable<IHandlerDescriptor>, ExecuteCommandOptions>>();
-            var provider = new ClientCapabilityProviderFixture().GetStaticOptions();
-
-            // When
-            provider.Get(stub);
-
-            // Then
-            stub.Received().Invoke(Arg.Any<IExecuteCommandOptions>(), Arg.Any<IEnumerable<IHandlerDescriptor>>());
-        }
-
-        [Fact]
-        public void Should_Invoke_Reduce_Delegate()
-        {
-            // Given
-            var stub = Substitute.For<Func<IEnumerable<IExecuteCommandOptions>, IEnumerable<IHandlerDescriptor>, ExecuteCommandOptions>>();
-            var provider = new ClientCapabilityProviderFixture().GetStaticOptions();
-
-            // When
-            provider.Reduce(stub);
-
-            // Then
-            stub.Received().Invoke(Arg.Any<IEnumerable<IExecuteCommandOptions>>(), Arg.Any<IEnumerable<IHandlerDescriptor>>());
-        }
-
         [Theory]
         [MemberData(nameof(AllowNullSupportsCapabilities))]
         public void Should_AllowNullSupportedCapabilities(IJsonRpcHandler handler, object instance)
@@ -199,8 +170,8 @@ namespace Lsp.Tests
                 }
             };
 
-            provider.GetStaticOptions(capabilities.TextDocument.CodeAction)
-                    .Get<ICodeActionOptions, CodeActionOptions>(CodeActionOptions.Of).Should().NotBeNull();
+//            provider.GetStaticOptions(capabilities.TextDocument.CodeAction)
+//                    .Get<ICodeActionOptions, CodeActionRegistrationOptions.StaticOptions>(CodeActionRegistrationOptions.StaticOptions.Of).Should().NotBeNull();
             provider.HasStaticHandler(capabilities.TextDocument.Definition).Should().BeTrue();
             provider.HasStaticHandler(capabilities.TextDocument.TypeDefinition).Should().BeFalse();
         }

@@ -125,7 +125,11 @@ namespace OmniSharp.Extensions.JsonRpc
            .Select(HandlerTypeDescriptorHelper.GetMethodType)
            .Distinct()
            .ToLookup(x => MethodAttribute.From(x).Method)
-           .SelectMany(x => x.Select(z => new HandlerTypeDescriptor(z) as IHandlerTypeDescriptor));
+           .SelectMany(
+                x => x
+                    .Distinct()
+                    .Select(z => new HandlerTypeDescriptor(z) as IHandlerTypeDescriptor)
+            );
 
         public IHandlerTypeDescriptor GetHandlerTypeDescriptor<A>() => GetHandlerTypeDescriptor(typeof(A));
 

@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class WorkspaceClientCapabilities
+    public class WorkspaceClientCapabilities : CapabilitiesBase
     {
         /// <summary>
         /// The client supports applying batch edits

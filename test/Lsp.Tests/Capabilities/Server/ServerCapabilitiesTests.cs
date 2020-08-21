@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
@@ -16,26 +17,26 @@ namespace Lsp.Tests.Capabilities.Server
         {
             var model = new ServerCapabilities {
                 CodeActionProvider = true,
-                CodeLensProvider = new CodeLensOptions {
+                CodeLensProvider = new CodeLensRegistrationOptions.StaticOptions {
                     ResolveProvider = true,
                 },
-                CompletionProvider = new CompletionOptions {
+                CompletionProvider = new CompletionRegistrationOptions.StaticOptions {
                     ResolveProvider = true,
                     TriggerCharacters = new[] { "a", "b", "c" }
                 },
                 DefinitionProvider = true,
                 DocumentFormattingProvider = true,
                 DocumentHighlightProvider = true,
-                DocumentLinkProvider = new DocumentLinkOptions {
+                DocumentLinkProvider = new DocumentLinkRegistrationOptions.StaticOptions {
                     ResolveProvider = true
                 },
-                DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions {
+                DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingRegistrationOptions.StaticOptions {
                     FirstTriggerCharacter = ".",
                     MoreTriggerCharacter = new[] { ";", " " }
                 },
                 DocumentRangeFormattingProvider = true,
                 DocumentSymbolProvider = true,
-                ExecuteCommandProvider = new ExecuteCommandOptions {
+                ExecuteCommandProvider = new ExecuteCommandRegistrationOptions.StaticOptions {
                     Commands = new[] { "command1", "command2" }
                 },
                 Experimental = new Dictionary<string, JToken> {
@@ -44,7 +45,7 @@ namespace Lsp.Tests.Capabilities.Server
                 HoverProvider = true,
                 ReferencesProvider = true,
                 RenameProvider = true,
-                SignatureHelpProvider = new SignatureHelpOptions {
+                SignatureHelpProvider = new SignatureHelpRegistrationOptions.StaticOptions {
                     TriggerCharacters = new[] { ";", " " }
                 },
                 TextDocumentSync = new TextDocumentSync(
@@ -77,7 +78,7 @@ namespace Lsp.Tests.Capabilities.Server
         public void Optional(string expected)
         {
             var model = new ServerCapabilities {
-                ColorProvider = (DocumentColorOptions) null
+                ColorProvider = (DocumentColorRegistrationOptions.StaticOptions) null
             };
 
             var result = Fixture.SerializeObject(model);

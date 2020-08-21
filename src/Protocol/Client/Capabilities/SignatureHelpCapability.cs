@@ -10,13 +10,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// specific properties.
         /// </summary>
         [Optional]
-        public SignatureInformationCapability SignatureInformation { get; set; }
+        public SignatureInformationCapabilityOptions SignatureInformation { get; set; }
 
         /// <summary>
         /// The client supports to send additional context information for a
         /// `textDocument/signatureHelp` request. A client that opts into
         /// contextSupport will also support the `retriggerCharacters` on
-        /// `SignatureHelpOptions`.
+        /// `StaticOptions`.
         ///
         /// @since 3.15.0
         /// </summary>
