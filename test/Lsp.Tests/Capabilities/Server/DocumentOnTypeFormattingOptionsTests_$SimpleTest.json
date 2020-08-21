@@ -1,5 +1,8 @@
 ﻿{
     "firstTriggerCharacter": ".",
-    "moreTriggerCharacter": [";", "`"],
+    "moreTriggerCharacter": [
+        ";",
+        "`"
+    ],
     "workDoneProgress": false
 }

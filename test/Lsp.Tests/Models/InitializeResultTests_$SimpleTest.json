@@ -12,11 +12,18 @@
         "hoverProvider": true,
         "completionProvider": {
             "resolveProvider": true,
-            "triggerCharacters": ["a", "b", "c"],
+            "triggerCharacters": [
+                "a",
+                "b",
+                "c"
+            ],
             "workDoneProgress": false
         },
         "signatureHelpProvider": {
-            "triggerCharacters": [";", " "],
+            "triggerCharacters": [
+                ";",
+                " "
+            ],
             "workDoneProgress": false
         },
         "definitionProvider": true,
@@ -33,7 +40,10 @@
         "documentRangeFormattingProvider": true,
         "documentOnTypeFormattingProvider": {
             "firstTriggerCharacter": ".",
-            "moreTriggerCharacter": [";", " "],
+            "moreTriggerCharacter": [
+                ";",
+                " "
+            ],
             "workDoneProgress": false
         },
         "renameProvider": true,
@@ -42,7 +52,10 @@
             "workDoneProgress": false
         },
         "executeCommandProvider": {
-            "commands": ["command1", "command2"],
+            "commands": [
+                "command1",
+                "command2"
+            ],
             "workDoneProgress": false
         },
         "experimental": {
