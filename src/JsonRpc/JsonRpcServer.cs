@@ -7,9 +7,10 @@ using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer
+    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer, IServiceProvider
     {
         private readonly Connection _connection;
+        private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable;
 
         internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
@@ -61,6 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
         ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
+            _serviceProvider = serviceProvider;
             _disposable = options.Value.CompositeDisposable;
             _disposable.Add(_connection);
             if (serviceProvider is IDisposable disposable)
@@ -83,5 +85,7 @@ namespace OmniSharp.Extensions.JsonRpc
             registryAction(new JsonRpcServerRegistry(manager));
             return manager.GetDisposable();
         }
+
+        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
     }
 }

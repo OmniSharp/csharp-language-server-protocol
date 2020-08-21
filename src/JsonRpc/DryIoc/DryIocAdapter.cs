@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
@@ -150,7 +151,9 @@ namespace DryIoc
                 container.RegisterMany(
                     new [] {descriptor.ImplementationType},
                     reuse: reuse,
-                    serviceTypeCondition: type => type == descriptor.ImplementationType || type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type) || typeof(IJsonRpcHandler).IsAssignableFrom(type));
+                    serviceTypeCondition: type => type == descriptor.ImplementationType || type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type) || typeof(IJsonRpcHandler).IsAssignableFrom(type),
+                    nonPublicServiceTypes: true
+                );
             }
             else if (descriptor.ImplementationFactory != null)
             {
@@ -160,7 +163,8 @@ namespace DryIoc
 
                 container.RegisterDelegate(true, descriptor.ServiceType,
                     descriptor.ImplementationFactory,
-                    reuse);
+                    reuse
+                );
             }
             else
             {
@@ -168,7 +172,10 @@ namespace DryIoc
                 if (!(descriptor.ImplementationInstance is IEnumerable<object>) && (descriptor.ImplementationInstance is IEventingHandler || descriptor.ImplementationInstance is IJsonRpcHandler))
                 {
 
-                    container.RegisterInstanceMany(descriptor.ImplementationInstance);
+                    container.RegisterInstanceMany(
+                        descriptor.ImplementationInstance,
+                        nonPublicServiceTypes: true
+                    );
                 }
                 else
                 {

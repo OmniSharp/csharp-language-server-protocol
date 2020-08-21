@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Parallel]
     [Method(TextDocumentNames.SemanticTokensFullDelta, Direction.ClientToServer)]
     public interface ISemanticTokensDeltaHandler :
-        IJsonRpcRequestHandler<SemanticTokensDeltaParams, SemanticTokensFullOrDelta>,
+        IJsonRpcRequestHandler<SemanticTokensDeltaParams, SemanticTokensFullOrDelta?>,
         IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             return builder.Commit().GetSemanticTokens();
         }
 
-        public virtual async Task<SemanticTokensFullOrDelta> Handle(SemanticTokensDeltaParams request, CancellationToken cancellationToken)
+        public virtual async Task<SemanticTokensFullOrDelta?> Handle(SemanticTokensDeltaParams request, CancellationToken cancellationToken)
         {
             var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Edit(request);
@@ -206,7 +206,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 }, cancellationToken
             );
 
-        public static IRequestProgressObservable<SemanticTokensFullOrDeltaPartialResult, SemanticTokensFullOrDelta> RequestSemanticTokensDelta(
+        public static IRequestProgressObservable<SemanticTokensFullOrDeltaPartialResult, SemanticTokensFullOrDelta?> RequestSemanticTokensDelta(
             this ITextDocumentLanguageClient mediator, SemanticTokensDeltaParams @params, CancellationToken cancellationToken = default
         ) =>
             mediator.ProgressManager.MonitorUntil(
@@ -216,7 +216,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         return new SemanticTokensFullOrDelta(
                             new SemanticTokensDelta {
                                 Edits = partial.Delta.Edits,
-                                ResultId = result.Delta?.ResultId ?? result.Full?.ResultId
+                                ResultId = result?.Delta?.ResultId ?? result?.Full?.ResultId
                             }
                         );
                     }
@@ -226,7 +226,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         return new SemanticTokensFullOrDelta(
                             new SemanticTokens {
                                 Data = partial.Full.Data,
-                                ResultId = result.Full?.ResultId ?? result.Delta?.ResultId
+                                ResultId = result?.Full?.ResultId ?? result?.Delta?.ResultId
                             }
                         );
                     }
