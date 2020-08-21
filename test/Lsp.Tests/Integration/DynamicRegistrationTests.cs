@@ -96,6 +96,7 @@ namespace Lsp.Tests.Integration
                 using var _ = server.Register(r => r.AddHandlerLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull));
 
                 await WaitForRegistrationUpdate(client);
+                await WaitForRegistrationUpdate(client);
 
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
@@ -142,12 +143,16 @@ namespace Lsp.Tests.Integration
                 return false;
             }
 
-            private Task WaitForRegistrationUpdate(ILanguageClient client)
+            private async Task WaitForRegistrationUpdate(ILanguageClient client)
             {
-                return client.RegistrationManager.Registrations
-                             .Throttle(TestOptions.WaitTime)
-                             .Take(1)
-                             .ToTask(CancellationToken);
+                await client.RegistrationManager.Registrations
+                            .Throttle(TestOptions.WaitTime)
+                            .Take(1)
+                            .ToTask(CancellationToken);
+                await client.RegistrationManager.Registrations
+                            .Throttle(TestOptions.WaitTime)
+                            .Take(1)
+                            .ToTask(CancellationToken);
             }
 
             public DynamicRegistrationTests(ITestOutputHelper testOutputHelper) : base(
