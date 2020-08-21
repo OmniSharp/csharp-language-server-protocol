@@ -118,6 +118,7 @@ namespace Lsp.Tests.Integration
                     await WaitForRegistrationUpdate();
                     disposable.Dispose();
                     await WaitForRegistrationUpdate();
+                    await Task.Delay(1000);
                 }
 
                 Client.RegistrationManager.CurrentRegistrations.Should().NotContain(
