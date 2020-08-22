@@ -51,6 +51,7 @@ jobs:
   - template: jobs/publish-release.yml@rsg
     parameters:
       GitHubPackages: false
+      MyGetPackages: true
       PublishNuGetPackagesFromArtifact: 'NuGet - Windows'
 
   - job: Build
