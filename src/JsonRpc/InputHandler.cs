@@ -562,8 +562,6 @@ namespace OmniSharp.Extensions.JsonRpc
             (contentModifiedToken, scheduler) =>
                 // ITS A RACE!
                 Observable.Amb(
-                    contentModifiedToken
-                       .Do(_ => { _logger.LogTrace("Notification was abandoned due to content be modified"); }),
                     Observable.Timer(_requestTimeout, scheduler)
                               .Select(z => Unit.Default)
                               .Do(
