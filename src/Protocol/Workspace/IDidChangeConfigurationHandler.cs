@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Serial]
+    [Parallel]
     [Method(WorkspaceNames.DidChangeConfiguration, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]

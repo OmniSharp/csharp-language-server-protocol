@@ -46,6 +46,12 @@ namespace Lsp.Tests
         [InlineData(typeof(IHoverHandler))]
         [InlineData(typeof(IReferencesHandler))]
         [InlineData(typeof(ISignatureHelpHandler))]
+        [InlineData(typeof(IDocumentFormattingHandler))]
+        [InlineData(typeof(IDocumentOnTypeFormattingHandler))]
+        [InlineData(typeof(IDocumentRangeFormattingHandler))]
+        [InlineData(typeof(IWillSaveWaitUntilTextDocumentHandler))]
+        [InlineData(typeof(IDidChangeConfigurationHandler))]
+        [InlineData(typeof(IDidChangeWatchedFilesHandler))]
         public void ShouldIdentifyAs_Parallel(Type type)
         {
             var identifier = new RequestProcessIdentifier();
@@ -61,16 +67,10 @@ namespace Lsp.Tests
         [InlineData(typeof(IDidChangeTextDocumentHandler))]
         [InlineData(typeof(IDidOpenTextDocumentHandler))]
         [InlineData(typeof(IDidSaveTextDocumentHandler))]
-        [InlineData(typeof(IDocumentFormattingHandler))]
-        [InlineData(typeof(IDocumentOnTypeFormattingHandler))]
-        [InlineData(typeof(IDocumentRangeFormattingHandler))]
-        [InlineData(typeof(IWillSaveWaitUntilTextDocumentHandler))]
         [InlineData(typeof(IExitHandler))]
         [InlineData(typeof(IShutdownHandler))]
         [InlineData(typeof(ILanguageProtocolInitializeHandler))]
         [InlineData(typeof(ILanguageProtocolInitializedHandler))]
-        [InlineData(typeof(IDidChangeConfigurationHandler))]
-        [InlineData(typeof(IDidChangeWatchedFilesHandler))]
         [InlineData(typeof(IExecuteCommandHandler))]
         public void ShouldIdentifyAs_Serial(Type type)
         {
