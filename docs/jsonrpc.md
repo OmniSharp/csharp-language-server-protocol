@@ -7,7 +7,7 @@ One of the benefits of the [JSON-RPC protocol](https://www.jsonrpc.org/specifica
 ## Standalone
 
 > `JsonRpcServer.Create(options => {})`
-This will create a server where you provide options, handlers and more.
+This will create a server where you provide options, handlers and more.  An optional `IServiceProvider` can be provided that will be used as a fallback container when `IJsonRcpHandlers` are being resolved.
 
 ## Microsoft.Extensions.DependencyInjection
 
@@ -15,6 +15,8 @@ This will create a server where you provide options, handlers and more.
 This will add `JsonRpcServer` to your service collection, or any number of named `JsonRpcServer`s.
 
 * In the event that you add multiple named servers, they must be resolved using `JsonRpcServerResolver`.
+
+When created through Microsoft DI the server will use the `IServiceProvider` as a fallback when resolving `IJsonRpcHandlers`.
 
 ## Options
 
