@@ -129,9 +129,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public T WithLink(string source, string destination)
+        public T WithLink(string fromMethod, string toMethod)
         {
-            Handlers.Add(JsonRpcHandlerDescription.Link(source, destination));
+            Handlers.Add(JsonRpcHandlerDescription.Link(fromMethod, toMethod));
             return (T) (object) this;
         }
     }

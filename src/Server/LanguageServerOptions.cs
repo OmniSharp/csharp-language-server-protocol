@@ -41,8 +41,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, Type type, JsonRpcHandlerOptions options) =>
             AddHandler(method, type, options);
 
-        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandlerLink(string sourceMethod, string destinationMethod) =>
-            AddHandlerLink(sourceMethod, destinationMethod);
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandlerLink(string fromMethod, string toMethod) =>
+            AddHandlerLink(fromMethod, toMethod);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.OnJsonRequest(string method, Func<JToken, Task<JToken>> handler, JsonRpcHandlerOptions options) =>
             OnJsonRequest(method, handler, options);
