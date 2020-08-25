@@ -43,28 +43,48 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 <!-- badges -->
 
 <!-- history badges -->
-| Azure Pipelines | GitHub Actions |
-| --------------- | -------------- |
-| [![azurepipelines-badge]][azurepipelines] | [![github-badge]][github] |
+| Azure Pipelines                                           | GitHub Actions                    |
+| --------------------------------------------------------- | --------------------------------- |
+| [![azurepipelines-badge]][azurepipelines]                 | [![github-badge]][github]         |
 | [![azurepipelines-history-badge]][azurepipelines-history] | [![github-history-badge]][github] |
 <!-- history badges -->
 
 <!-- nuget packages -->
-| Package | NuGet |
-| ------- | ----- |
-| OmniSharp.Extensions.DebugAdapter | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
-| OmniSharp.Extensions.DebugAdapter.Client | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
-| OmniSharp.Extensions.DebugAdapter.Server | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
-| OmniSharp.Extensions.DebugAdapter.Shared | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
-| OmniSharp.Extensions.DebugAdapter.Testing | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
-| OmniSharp.Extensions.JsonRpc | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
-| OmniSharp.Extensions.JsonRpc.Testing | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
-| OmniSharp.Extensions.LanguageClient | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
-| OmniSharp.Extensions.LanguageProtocol | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
+| Package                                       | NuGet                                                                                          |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| OmniSharp.Extensions.DebugAdapter             | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
+| OmniSharp.Extensions.DebugAdapter.Client      | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
+| OmniSharp.Extensions.DebugAdapter.Server      | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
+| OmniSharp.Extensions.DebugAdapter.Shared      | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
+| OmniSharp.Extensions.DebugAdapter.Testing     | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
+| OmniSharp.Extensions.JsonRpc                  | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
+| OmniSharp.Extensions.JsonRpc.Testing          | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
+| OmniSharp.Extensions.LanguageClient           | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
+| OmniSharp.Extensions.LanguageProtocol         | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
 | OmniSharp.Extensions.LanguageProtocol.Testing | [![nuget-version-md8c3c/bo/8g-badge]![nuget-downloads-md8c3c/bo/8g-badge]][nuget-md8c3c/bo/8g] |
-| OmniSharp.Extensions.LanguageServer | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
-| OmniSharp.Extensions.LanguageServer.Shared | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
+| OmniSharp.Extensions.LanguageServer           | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
+| OmniSharp.Extensions.LanguageServer.Shared    | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
 <!-- nuget packages -->
+
+## License
+
+Copyright © .NET Foundation, and contributors.
+
+OmniSharp is provided as-is under the MIT license. For more information see [LICENSE](https://github.com/OmniSharp/omnisharp-roslyn/blob/master/license.md).
+
+## Code of Conduct
+
+This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/)
+to clarify expected behavior in our community.
+For more information see the [.NET Foundation Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct).
+
+## Contribution License Agreement
+
+By signing the [CLA](https://cla.dotnetfoundation.org/OmniSharp/omnisharp-roslyn), the community is free to use your contribution to .NET Foundation projects.
+
+## .NET Foundation
+
+This project is supported by the [.NET Foundation](http://www.dotnetfoundation.org).
 
 <!-- generated references -->
 [github-release]: https://github.com/OmniSharp/csharp-language-server-protocol/releases/latest
@@ -117,26 +137,6 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 [nuget-version-4htmykprzq1a-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.LanguageServer.Shared.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-4htmykprzq1a-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageServer.Shared.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
 <!-- generated references -->
-
-## License
-
-Copyright © .NET Foundation, and contributors.
-
-OmniSharp is provided as-is under the MIT license. For more information see [LICENSE](https://github.com/OmniSharp/omnisharp-roslyn/blob/master/license.md).
-
-## Code of Conduct
-
-This project has adopted the code of conduct defined by the [Contributor Covenant](http://contributor-covenant.org/)
-to clarify expected behavior in our community.
-For more information see the [.NET Foundation Code of Conduct](http://www.dotnetfoundation.org/code-of-conduct).
-
-## Contribution License Agreement
-
-By signing the [CLA](https://cla.dotnetfoundation.org/OmniSharp/omnisharp-roslyn), the community is free to use your contribution to .NET Foundation projects.
-
-## .NET Foundation
-
-This project is supported by the [.NET Foundation](http://www.dotnetfoundation.org).
 
 <!-- nuke-data
 github:
