@@ -2,11 +2,42 @@
 [![nuget-client](https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageClient?label=OmniSharp.Extensions.LanguageClient&logo=nuget)](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageClient/)
 [![codecov](https://img.shields.io/codecov/c/gh/OmniSharp/csharp-language-server-protocol?label=codecov&logo=codecov)](https://codecov.io/gh/OmniSharp/csharp-language-server-protocol)
 
-## C# Language Server Protocol
+# C# Language Server Protocol
 
 This is an implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) written entirely in C# for .NET.
 
-This is currently under heavy development and the API's are subject to change.
+# Getting Started
+1. git clone
+2. run `build.ps1` / `build.sh`
+3. ...
+4. Profit
+
+# Concepts
+
+## JSON-RPC
+We have an implementation of JSON-RPC designed to implement the [JSON-RPC](https://www.jsonrpc.org/specification) as correctly as possible.
+
+For more information about using the `JsonRpcServer` on it's own [here](./docs/jsonrpc.md).
+
+## MediatR
+Internally this library revolves around the request and response model.  To make things easier we use [MediatR](https://github.com/jbogard/MediatR) as core piece that manages how requests and responses are handled.
+
+## Microsoft.Extensions.*
+We re-use some of the common packages used by .NET Core.
+* `Microsoft.Extensions.Configuration` for common configuration
+* `Microsoft.Extensions.DependencyInjection` for common Dependency Injection abstractions
+* `Microsoft.Extensions.Logging` for logging.
+
+## Language Server Protocol
+We strive to ensure that we implement all the types, request and notifications that are defined by the [Language Server Protocol](https://microsoft.github.io/language-server-protocol/).  Sometimes this is difficult due to the nature of LSP TypeScript upbringing, but the goal is 100% conformance with the protocol itself.
+
+For more information about using the `LanguageClient` / `LanguageServer` on it's own [here](./docs/lsp.md).
+
+## Debug Adapter Protocol
+We strive to ensure that we implement all the types, events and requests that are defined by the [Debug Adapter Protocol](https://microsoft.github.io/debug-adapter-protocol/).
+
+For more information about using the `DebugAdapterClient` / `DebugAdapterServer` on it's own [here](./docs/dap.md).
+
 
 # Status
 <!-- badges -->
@@ -16,27 +47,27 @@ This is currently under heavy development and the API's are subject to change.
 <!-- badges -->
 
 <!-- history badges -->
-| Azure Pipelines | GitHub Actions |
-| --------------- | -------------- |
-| [![azurepipelines-badge]][azurepipelines] | [![github-badge]][github] |
+| Azure Pipelines                                           | GitHub Actions                    |
+| --------------------------------------------------------- | --------------------------------- |
+| [![azurepipelines-badge]][azurepipelines]                 | [![github-badge]][github]         |
 | [![azurepipelines-history-badge]][azurepipelines-history] | [![github-history-badge]][github] |
 <!-- history badges -->
 
 <!-- nuget packages -->
-| Package | NuGet |
-| ------- | ----- |
-| OmniSharp.Extensions.DebugAdapter | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
-| OmniSharp.Extensions.DebugAdapter.Client | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
-| OmniSharp.Extensions.DebugAdapter.Server | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
-| OmniSharp.Extensions.DebugAdapter.Shared | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
-| OmniSharp.Extensions.DebugAdapter.Testing | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
-| OmniSharp.Extensions.JsonRpc | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
-| OmniSharp.Extensions.JsonRpc.Testing | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
-| OmniSharp.Extensions.LanguageClient | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
-| OmniSharp.Extensions.LanguageProtocol | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
+| Package                                       | NuGet                                                                                          |
+| --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| OmniSharp.Extensions.DebugAdapter             | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
+| OmniSharp.Extensions.DebugAdapter.Client      | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
+| OmniSharp.Extensions.DebugAdapter.Server      | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
+| OmniSharp.Extensions.DebugAdapter.Shared      | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
+| OmniSharp.Extensions.DebugAdapter.Testing     | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
+| OmniSharp.Extensions.JsonRpc                  | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
+| OmniSharp.Extensions.JsonRpc.Testing          | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
+| OmniSharp.Extensions.LanguageClient           | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
+| OmniSharp.Extensions.LanguageProtocol         | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
 | OmniSharp.Extensions.LanguageProtocol.Testing | [![nuget-version-md8c3c/bo/8g-badge]![nuget-downloads-md8c3c/bo/8g-badge]][nuget-md8c3c/bo/8g] |
-| OmniSharp.Extensions.LanguageServer | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
-| OmniSharp.Extensions.LanguageServer.Shared | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
+| OmniSharp.Extensions.LanguageServer           | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
+| OmniSharp.Extensions.LanguageServer.Shared    | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
 <!-- nuget packages -->
 
 <!-- generated references -->
@@ -117,6 +148,6 @@ github:
   repository: csharp-language-server-protocol
 azurepipelines:
   account: omnisharp
-  teamproject: Build
+  teamproject: Builds
   builddefinition: 1
 -->
