@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.DocumentHighlight, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDocumentHighlightHandler : IJsonRpcRequestHandler<DocumentHighlightParams, DocumentHighlightContainer>, IRegistration<DocumentHighlightRegistrationOptions>,
+    public interface IDocumentHighlightHandler : IJsonRpcRequestHandler<DocumentHighlightParams, DocumentHighlightContainer?>, IRegistration<DocumentHighlightRegistrationOptions>,
                                                  ICapability<DocumentHighlightCapability>
     {
     }
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public DocumentHighlightHandler(DocumentHighlightRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public DocumentHighlightRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<DocumentHighlightContainer> Handle(DocumentHighlightParams request, CancellationToken cancellationToken);
+        public abstract Task<DocumentHighlightContainer?> Handle(DocumentHighlightParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DocumentHighlightCapability capability) => Capability = capability;
-        protected DocumentHighlightCapability Capability { get; private set; }
+        protected DocumentHighlightCapability Capability { get; private set; } = null!;
     }
 }

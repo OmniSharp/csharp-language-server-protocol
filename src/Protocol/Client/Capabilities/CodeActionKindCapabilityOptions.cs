@@ -10,6 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// handle values outside its set gracefully and falls back
         /// to a default value when unknown.
         /// </summary>
-        public Container<CodeActionKind> ValueSet { get; set; }
+        public Container<CodeActionKind> ValueSet { get; set; } = null!;
     }
 }

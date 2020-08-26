@@ -6,7 +6,6 @@
         /// The code action kind is support with the following value
         /// set.
         /// </summary>
-
-        public CodeActionKindCapabilityOptions CodeActionKind { get; set; }
+        public CodeActionKindCapabilityOptions CodeActionKind { get; set; } = null!;
     }
 }

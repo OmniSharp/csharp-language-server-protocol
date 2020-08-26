@@ -34,7 +34,7 @@ namespace Minimatch
     public class Minimatcher
     {
         ///<summary>Creates a filter function that tests input against a pattern.</summary>
-        public static Func<string, bool> CreateFilter(string pattern, Options options = null)
+        public static Func<string, bool> CreateFilter(string pattern, Options? options = null)
         {
             if (pattern == null) throw new ArgumentNullException("pattern");
             // "" only matches ""
@@ -46,7 +46,7 @@ namespace Minimatch
 
         ///<summary>Tests a single input against a pattern.</summary>
         ///<remarks>This function reparses this input on each invocation.  For performance, avoid this function and reuse a Minimatcher instance instead.</remarks>
-        public static bool Check(string input, string pattern, Options options = null)
+        public static bool Check(string input, string pattern, Options? options = null)
         {
             if (input == null) throw new ArgumentNullException("input");
             if (pattern == null) throw new ArgumentNullException("pattern");
@@ -65,7 +65,7 @@ namespace Minimatch
 
         ///<summary>Filters a list of inputs against a single pattern.</summary>
         ///<remarks>This function reparses this input on each invocation.  For performance, avoid this function and reuse a Minimatcher instance instead.</remarks>
-        public static IEnumerable<string> Filter(IEnumerable<string> list, string pattern, Options options = null)
+        public static IEnumerable<string> Filter(IEnumerable<string> list, string pattern, Options? options = null)
         {
             var mm = new Minimatcher(pattern, options);
             list = list.Where(mm.IsMatch);
@@ -75,24 +75,23 @@ namespace Minimatch
         }
 
         ///<summary>Compiles a pattern into a single regular expression.</summary>
-        public static Regex CreateRegex(string pattern, Options options = null) => new Minimatcher(pattern, options).MakeRegex();
+        public static Regex? CreateRegex(string pattern, Options? options = null) => new Minimatcher(pattern, options).MakeRegex();
 
+        private readonly Options _options;
 
-        private readonly Options options;
-
-        private string pattern;
-        private bool negate;
-        private bool comment;
-        private bool empty;
+        private string _pattern;
+        private bool _negate;
+        private bool _comment;
+        private bool _empty;
 
         ///<summary>Creates a new Minimatcher instance, parsing the pattern into a regex.</summary>
-        public Minimatcher(string pattern, Options options = null)
+        public Minimatcher(string pattern, Options? options = null)
         {
             if (pattern == null) throw new ArgumentNullException("pattern");
-            this.options = options ?? new Options();
-            this.pattern = pattern.Trim();
-            if (this.options.AllowWindowsPaths)
-                this.pattern = this.pattern.Replace('\\', '/');
+            _options = options ?? new Options();
+            _pattern = pattern.Trim();
+            if (_options.AllowWindowsPaths)
+                _pattern = _pattern.Replace('\\', '/');
 
             Make();
         }
@@ -104,55 +103,54 @@ namespace Minimatch
         public IEnumerable<string> Filter(IEnumerable<string> list)
         {
             list = list.Where(IsMatch);
-            if (options.NoNull)
-                list = list.DefaultIfEmpty(pattern);
+            if (_options.NoNull)
+                list = list.DefaultIfEmpty(_pattern);
             return list;
         }
 
 
-        private Regex regexp;
-        private bool isError;
+        private Regex? _regexp;
+        private bool _isError;
 
-        private IEnumerable<string> globSet;
-        private IEnumerable<IEnumerable<ParseItem>> set;
-        private IEnumerable<IEnumerable<string>> globParts;
-
+        private IEnumerable<string>? _globSet = Enumerable.Empty<string>();
+        private IEnumerable<IEnumerable<ParseItem>> _set = Enumerable.Empty<IEnumerable<ParseItem>>();
+        private IEnumerable<IEnumerable<string>>? _globParts = Enumerable.Empty<IEnumerable<string>>();
 
         // any single thing other than /
         // don't need to escape / when using new RegExp()
-        private const string qmark = "[^/]"
+        private const string Qmark = "[^/]"
 
                              // * => any number of characters
                             ,
-                             star = qmark + "*?"
+                             Star = Qmark + "*?"
 
                              // ** when dots are allowed.  Anything goes, except .. and .
                              // not (^ or / followed by one or two dots followed by $ or /),
                              // followed by anything, any number of times.
                             ,
-                             twoStarDot = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?"
+                             TwoStarDot = "(?:(?!(?:\\/|^)(?:\\.{1,2})($|\\/)).)*?"
 
                              // not a ^ or / followed by a dot,
                              // followed by anything, any number of times.
                             ,
-                             twoStarNoDot = "(?:(?!(?:\\/|^)\\.).)*?";
+                             TwoStarNoDot = "(?:(?!(?:\\/|^)\\.).)*?";
 
         // characters that need to be escaped in RegExp.
-        private static readonly HashSet<char> reSpecials = new HashSet<char>("().*{}+?[]^$\\!".ToCharArray());
-        private static readonly Regex slashSplit = new Regex("/+");
+        private static readonly HashSet<char> ReSpecials = new HashSet<char>("().*{}+?[]^$\\!".ToCharArray());
+        private static readonly Regex SlashSplit = new Regex("/+");
 
         private void Make()
         {
             // empty patterns and comments match nothing.
-            if (!options.NoComment && !string.IsNullOrEmpty(pattern) && pattern[0] == '#')
+            if (!_options.NoComment && !string.IsNullOrEmpty(_pattern) && _pattern[0] == '#')
             {
-                comment = true;
+                _comment = true;
                 return;
             }
 
-            if (string.IsNullOrEmpty(pattern))
+            if (string.IsNullOrEmpty(_pattern))
             {
-                empty = true;
+                _empty = true;
                 return;
             }
 
@@ -160,19 +158,19 @@ namespace Minimatch
             ParseNegate();
 
             // step 2: expand braces
-            globSet = BraceExpand(pattern, options);
+            _globSet = BraceExpand(_pattern, _options);
 
             // step 3: now we have a set, so turn each one into a series of path-portion
             // matching patterns.
             // These will be regexps, except in the case of "**", which is
             // set to the GLOBSTAR object for globstar behavior,
             // and will not contain any / characters
-            globParts = globSet.Select(s => slashSplit.Split(s)).ToList();
+            _globParts = _globSet.Select(s => SlashSplit.Split(s)).ToList();
 
             // glob --> regexps
-            set = globParts.Select(g => g.Select(t => Parse(t, false)))
+            _set = _globParts.Select(g => g.Select(t => Parse(t, false)))
                            .Where(g => !g.Contains(null))
-                           .Select(g => g.Select(t => t.Item1))
+                           .Select(g => g.Select(t => t!.Item1))
                            .ToList();
         }
 
@@ -180,20 +178,20 @@ namespace Minimatch
         {
             var negateOffset = 0;
 
-            if (options.NoNegate) return;
+            if (_options.NoNegate) return;
 
-            for (var i = 0; i < pattern.Length && pattern[i] == '!'; i++)
+            for (var i = 0; i < _pattern.Length && _pattern[i] == '!'; i++)
             {
-                negate = !negate;
+                _negate = !_negate;
                 negateOffset++;
             }
 
-            if (negateOffset > 0) pattern = pattern.Substring(negateOffset);
+            if (negateOffset > 0) _pattern = _pattern.Substring(negateOffset);
         }
 
-        private static readonly Regex hasBraces = new Regex(@"\{.*\}");
+        private static readonly Regex HasBraces = new Regex(@"\{.*\}");
 
-        private static readonly Regex numericSet = new Regex(@"^\{(-?[0-9]+)\.\.(-?[0-9]+)\}");
+        private static readonly Regex NumericSet = new Regex(@"^\{(-?[0-9]+)\.\.(-?[0-9]+)\}");
 
         // Brace expansion:
         // a{b,c}d -> abd acd
@@ -208,7 +206,7 @@ namespace Minimatch
         ///<summary>Expands all brace ranges in a pattern, returning a sequence containing every possible combination.</summary>
         public static IEnumerable<string> BraceExpand(string pattern, Options options)
         {
-            if (options.NoBrace || !hasBraces.IsMatch(pattern))
+            if (options.NoBrace || !HasBraces.IsMatch(pattern))
             {
                 // shortcut. no need to expand.
                 return new[] { pattern };
@@ -236,7 +234,7 @@ namespace Minimatch
             if (pattern[0] != '{')
             {
                 // console.error(pattern)
-                string prefix = null;
+                string? prefix = null;
                 for (i = 0; i < pattern.Length; i++)
                 {
                     var c = pattern[i];
@@ -269,7 +267,7 @@ namespace Minimatch
             // If the set only has a single member, then'll put the {} back
 
             // first, handle numeric sets, since they're easier
-            var numset = numericSet.Match(pattern);
+            var numset = NumericSet.Match(pattern);
             if (numset.Success)
             {
                 // console.error("numset", numset[1], numset[2])
@@ -393,7 +391,7 @@ namespace Minimatch
 
         abstract class ParseItem
         {
-            public string Source { get; protected set; }
+            public string Source { get; protected set; } = null!;
 
             public static readonly ParseItem Empty = new LiteralItem("");
             public static ParseItem Literal(string source) => new LiteralItem(source);
@@ -415,14 +413,14 @@ namespace Minimatch
             public MagicItem(string source, Options options)
             {
                 Source = source;
-                regex = new Lazy<Regex>(() => new Regex("^" + source + "$", options.RegexOptions));
+                _regex = new Lazy<Regex>(() => new Regex("^" + source + "$", options.RegexOptions));
             }
 
-            private readonly Lazy<Regex> regex;
+            private readonly Lazy<Regex> _regex;
 
             public override string RegexSource(Options options) => Source;
 
-            public override bool Match(string input, Options options) => regex.Value.IsMatch(input);
+            public override bool Match(string input, Options options) => _regex.Value.IsMatch(input);
         }
 
         private class GlobStar : ParseItem
@@ -434,14 +432,14 @@ namespace Minimatch
             public static readonly ParseItem Instance = new GlobStar();
 
             public override string RegexSource(Options options) =>
-                options.NoGlobStar ? star
-                : options.Dot ? twoStarDot
-                : twoStarNoDot;
+                options.NoGlobStar ? Star
+                : options.Dot ? TwoStarDot
+                : TwoStarNoDot;
 
             public override bool Match(string input, Options options) => throw new NotSupportedException();
         }
 
-        private static readonly Regex escapeCheck = new Regex(@"((?:\\{2})*)(\\?)\|");
+        private static readonly Regex EscapeCheck = new Regex(@"((?:\\{2})*)(\\?)\|");
 
         // parse a component of the expanded set.
         // At this point, no pattern may contain "/" in it
@@ -454,14 +452,14 @@ namespace Minimatch
         // when it is the *only* thing in a path portion.  Otherwise, any series
         // of * is equivalent to a single *.  Globstar behavior is enabled by
         // default, and can be disabled by setting options.noglobstar.
-        private Tuple<ParseItem, bool> Parse(string pattern, bool isSub)
+        private Tuple<ParseItem, bool>? Parse(string pattern, bool isSub)
         {
             // shortcuts
-            if (!options.NoGlobStar && pattern == "**") return Tuple.Create(GlobStar.Instance, false);
+            if (!_options.NoGlobStar && pattern == "**") return Tuple.Create(GlobStar.Instance, false);
             if (pattern == "") return Tuple.Create(ParseItem.Empty, false);
 
             var re = "";
-            bool hasMagic = options.NoCase, escaping = false, inClass = false;
+            bool hasMagic = _options.NoCase, escaping = false, inClass = false;
             // ? => one single character
             var patternListStack = new Stack<PatternListEntry>();
             char plType;
@@ -472,7 +470,7 @@ namespace Minimatch
             // even when options.dot is set.
             var patternStart = pattern[0] == '.' ? "" // anything
                     // not (start or / followed by . or .. followed by / or end)
-                : options.Dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))"
+                : _options.Dot ? "(?!(?:^|\\/)\\.{1,2}(?:$|\\/))"
                 : "(?!\\.)";
 
             Action clearStatechar = () => {
@@ -483,11 +481,11 @@ namespace Minimatch
                     switch (statechar)
                     {
                         case '*':
-                            re += star;
+                            re += Star;
                             hasMagic = true;
                             break;
                         case '?':
-                            re += qmark;
+                            re += Qmark;
                             hasMagic = true;
                             break;
                         default:
@@ -507,7 +505,7 @@ namespace Minimatch
                 //}
 
                 // skip over any that are escaped.
-                if (escaping && reSpecials.Contains(c))
+                if (escaping && ReSpecials.Contains(c))
                 {
                     re += "\\" + c;
                     escaping = false;
@@ -554,7 +552,7 @@ namespace Minimatch
                         // if extglob is disabled, then +(asdf|foo) isn't a thing.
                         // just clear the statechar *now*, rather than even diving into
                         // the patternList stuff.
-                        if (options.NoExt) clearStatechar();
+                        if (_options.NoExt) clearStatechar();
                         continue;
 
                     case '(':
@@ -659,7 +657,7 @@ namespace Minimatch
                             // no need
                             escaping = false;
                         }
-                        else if (reSpecials.Contains(c) && !( c == '^' && inClass ))
+                        else if (ReSpecials.Contains(c) && !( c == '^' && inClass ))
                         {
                             re += "\\";
                         }
@@ -680,8 +678,8 @@ namespace Minimatch
                 // any characters that were passed through as-is
                 var cs = pattern.Substring(classStart + 1);
                 var sp = Parse(cs, true);
-                re = re.Substring(0, reClassStart) + "\\[" + sp.Item1.Source;
-                hasMagic = hasMagic || sp.Item2;
+                re = re.Substring(0, reClassStart) + "\\[" + sp?.Item1.Source;
+                hasMagic = hasMagic || sp?.Item2 == true;
             }
 
             // handle the case where we had a +( thing at the *end*
@@ -695,7 +693,7 @@ namespace Minimatch
                 var pl = patternListStack.Pop();
                 var tail = re.Substring(pl.ReStart + 3);
                 // maybe some even number of \, then maybe 1 \, followed by a |
-                tail = escapeCheck.Replace(
+                tail = EscapeCheck.Replace(
                     tail, m => {
                         var escape = m.Groups[2].Value;
                         // the | isn't already escaped, so escape it.
@@ -712,8 +710,8 @@ namespace Minimatch
                 );
 
                 // console.error("tail=%j\n   %s", tail, tail)
-                var t = pl.Type == '*' ? star
-                    : pl.Type == '?' ? qmark
+                var t = pl.Type == '*' ? Star
+                    : pl.Type == '?' ? Qmark
                     : "\\" + pl.Type;
 
                 hasMagic = true;
@@ -763,13 +761,13 @@ namespace Minimatch
                 return Tuple.Create(ParseItem.Literal(GlobUnescape(pattern)), false);
             }
 
-            return new Tuple<ParseItem, bool>(new MagicItem(re, options), false);
+            return new Tuple<ParseItem, bool>(new MagicItem(re, _options), false);
         }
 
 
-        private Regex MakeRegex()
+        private Regex? MakeRegex()
         {
-            if (regexp != null || isError) return regexp;
+            if (_regexp != null || _isError) return _regexp;
 
             // at this point, this.set is a 2d array of partial
             // pattern strings, or "**".
@@ -777,17 +775,17 @@ namespace Minimatch
             // It's better to use .match().  This function shouldn't
             // be used, really, but it's pretty convenient sometimes,
             // when you just want to work with a regex.
-            if (comment || empty || !set.Any())
+            if (_comment || _empty || !_set.Any())
             {
-                isError = true;
+                _isError = true;
                 return null;
             }
 
             var re = string.Join(
-                "|", set.Select(
+                "|", _set.Select(
                     pattern =>
                         string.Join(
-                            "\\/", pattern.Select(p => p.RegexSource(options))
+                            "\\/", pattern.Select(p => p.RegexSource(_options))
                         )
                 )
             );
@@ -797,15 +795,15 @@ namespace Minimatch
             re = "^(?:" + re + ")$";
 
             // can match anything, as long as it's not this.
-            if (negate) re = "^(?!" + re + ").*$";
+            if (_negate) re = "^(?!" + re + ").*$";
 
             try
             {
-                return regexp = new Regex(re, options.RegexOptions);
+                return _regexp = new Regex(re, _options.RegexOptions);
             }
             catch
             {
-                isError = true;
+                _isError = true;
                 return null;
             }
         }
@@ -816,19 +814,19 @@ namespace Minimatch
             // console.error("match", f, this.pattern)
             // short-circuit in the case of busted things.
             // comments, etc.
-            if (comment) return false;
-            if (empty) return input == "";
+            if (_comment) return false;
+            if (_empty) return input == "";
 
             if (input == "/" && partial) return true;
 
             // windows: need to use /, not \
             // On other platforms, \ is a valid (albeit bad) filename char.
 
-            if (options.AllowWindowsPaths)
+            if (_options.AllowWindowsPaths)
                 input = input.Replace("\\", "/");
 
             // treat the test path as a set of pathparts.
-            var f = slashSplit.Split(input);
+            var f = SlashSplit.Split(input);
             //if (options.debug) {
             //  console.error(this.pattern, "split", f)
             //}
@@ -838,20 +836,20 @@ namespace Minimatch
             // match means that we have failed.
             // Either way, return on the first hit.
 
-            foreach (var pattern in set)
+            foreach (var pattern in _set)
             {
                 var hit = MatchOne(f, pattern.ToList(), partial);
                 if (hit)
                 {
-                    if (options.FlipNegate) return true;
-                    return !negate;
+                    if (_options.FlipNegate) return true;
+                    return !_negate;
                 }
             }
 
             // didn't get any hits.  this is success if it's a negative
             // pattern, failure otherwise.
-            if (options.FlipNegate) return false;
-            return negate;
+            if (_options.FlipNegate) return false;
+            return _negate;
         }
 
         // set partial to true to test if, for example,
@@ -868,7 +866,7 @@ namespace Minimatch
             //                , pattern: pattern })
             //}
 
-            if (options.MatchBase && pattern.Count == 1)
+            if (_options.MatchBase && pattern.Count == 1)
             {
                 file = new[] { file.Last(s => !string.IsNullOrEmpty(s)) };
             }
@@ -934,7 +932,7 @@ namespace Minimatch
                         for (; fi < file.Count; fi++)
                         {
                             if (file[fi] == "." || file[fi] == ".." ||
-                                !options.Dot && !string.IsNullOrEmpty(file[fi]) && file[fi][0] == '.') return false;
+                                !_options.Dot && !string.IsNullOrEmpty(file[fi]) && file[fi][0] == '.') return false;
                         }
 
                         return true;
@@ -962,7 +960,7 @@ namespace Minimatch
                         // can't swallow "." or ".." ever.
                         // can only swallow ".foo" when explicitly asked.
                         if (swallowee == "." || swallowee == ".." ||
-                            !options.Dot && swallowee[0] == '.')
+                            !_options.Dot && swallowee[0] == '.')
                         {
                             //if (options.debug)
                             //  console.error("dot detected!", file, fr, pattern, pr)
@@ -991,7 +989,7 @@ namespace Minimatch
                 // something other than **
                 // non-magic patterns just have to match exactly
                 // patterns with magic have been turned into regexps.
-                if (!p.Match(f, options))
+                if (!p.Match(f, _options))
                     return false;
             }
 
@@ -1038,7 +1036,7 @@ namespace Minimatch
 
 
         // replace stuff like \* with *
-        private static readonly Regex globUnescaper = new Regex(@"\\(.)");
-        private static string GlobUnescape(string s) => globUnescaper.Replace(s, "$1");
+        private static readonly Regex GlobUnescaper = new Regex(@"\\(.)");
+        private static string GlobUnescape(string s) => GlobUnescaper.Replace(s, "$1");
     }
 }

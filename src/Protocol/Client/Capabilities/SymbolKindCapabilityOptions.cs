@@ -19,6 +19,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// the initial version of the protocol.
         /// </summary>
         [Optional]
-        public Container<SymbolKind> ValueSet { get; set; }
+        public Container<SymbolKind>? ValueSet { get; set; }
     }
 }

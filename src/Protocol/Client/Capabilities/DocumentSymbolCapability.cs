@@ -11,13 +11,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Specific capabilities for the `SymbolKind` in the `textDocument/symbol` request.
         /// </summary>
         [Optional]
-        public SymbolKindCapabilityOptions SymbolKind { get; set; }
+        public SymbolKindCapabilityOptions? SymbolKind { get; set; }
 
         /// <summary>
         /// Whether document symbol supports hierarchical `DocumentSymbol`s.
         /// </summary>
         [Optional]
-        public bool? HierarchicalDocumentSymbolSupport { get; set; }
+        public bool HierarchicalDocumentSymbolSupport { get; set; }
 
         /// <summary>
         /// The client supports tags on `SymbolInformation`.Tags are supported on
@@ -28,6 +28,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Obsolete(Constants.Proposal)]
         [Optional]
-        public Supports<TagSupportCapabilityOptions> TagSupport { get; set; }
+        public TagSupportCapabilityOptions? TagSupport { get; set; }
     }
 }

@@ -26,6 +26,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public TextDocumentSaveRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidSaveTextDocumentParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
-        protected SynchronizationCapability Capability { get; private set; }
+        protected SynchronizationCapability Capability { get; private set; } = null!;
     }
 }

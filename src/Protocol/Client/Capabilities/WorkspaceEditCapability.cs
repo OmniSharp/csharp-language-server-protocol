@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// support 'create', 'rename' and 'delete' files and folders.
         /// </summary>
         [Optional]
-        public ResourceOperationKind[] ResourceOperations { get; set; }
+        public Container<ResourceOperationKind>? ResourceOperations { get; set; }
 
         /// <summary>
         /// The failure handling strategy of a client if applying the workspace edit
