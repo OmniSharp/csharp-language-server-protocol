@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
         /// <param name="message"></param>
-        public InternalErrorException(object requestId, string message)
+        public InternalErrorException(object? requestId, string? message)
             : base(ErrorCodes.InternalError, requestId, "Internal error. " + message)
         {
         }

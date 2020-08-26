@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ISerializer _serializer;
         private readonly ILogger<OutputHandler> _logger;
         private readonly Subject<object> _queue;
-        private readonly TaskCompletionSource<object> _outputIsFinished;
+        private readonly TaskCompletionSource<object?> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
 
         public OutputHandler(
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _serializer = serializer;
             _logger = logger;
             _queue = new Subject<object>();
-            _outputIsFinished = new TaskCompletionSource<object>();
+            _outputIsFinished = new TaskCompletionSource<object?>();
 
             _disposable = new CompositeDisposable {
                 _queue
@@ -62,9 +62,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
         }
 
-        public void Send(object value)
+        public void Send(object? value)
         {
-            if (_queue.IsDisposed) return;
+            if (_queue.IsDisposed || value == null) return;
             _queue.OnNext(value);
         }
 

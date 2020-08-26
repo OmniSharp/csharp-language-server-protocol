@@ -90,7 +90,7 @@ namespace Generation.Tests
                 throw new InvalidOperationException("Could not get the syntax tree of the sources");
             }
 
-            var compilation = (CSharpCompilation?) await document.Project.GetCompilationAsync();
+            var compilation = (CSharpCompilation) await document.Project.GetCompilationAsync();
             if (compilation is null)
             {
                 throw new InvalidOperationException("Could not compile the sources");

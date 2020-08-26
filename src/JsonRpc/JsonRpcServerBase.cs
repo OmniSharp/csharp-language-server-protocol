@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IResponseRouterReturns SendRequest(string method) => ResponseRouter.SendRequest(method);
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
-            => ResponseRouter.TryGetRequest(id, out method, out pendingTask);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) =>
+            ResponseRouter.TryGetRequest(id, out method, out pendingTask);
     }
 }

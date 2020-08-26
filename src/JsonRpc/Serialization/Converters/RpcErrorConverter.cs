@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
         {
             var obj = JObject.Load(reader);
 
-            object requestId = null;
+            object? requestId = null;
             if (obj.TryGetValue("id", out var id))
             {
                 var idString = id.Type == JTokenType.String ? (string) id : null;
@@ -38,10 +38,9 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization.Converters
                 requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
             }
 
-            ErrorMessage data = null;
+            ErrorMessage? data = null;
             if (obj.TryGetValue("error", out var dataToken))
             {
-                var errorMessageType = typeof(ErrorMessage);
                 data = dataToken.ToObject<ErrorMessage>(serializer);
             }
 

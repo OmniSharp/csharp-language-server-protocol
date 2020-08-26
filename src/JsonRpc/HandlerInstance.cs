@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly Action _disposeAction;
 
         public HandlerInstance(
-            string method, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response, RequestProcessType? requestProcessType, Action disposeAction
+            string method, IJsonRpcHandler handler, Type handlerInterface, Type? @params, Type? response, RequestProcessType? requestProcessType, Action disposeAction
         )
         {
             _disposeAction = disposeAction;
@@ -47,8 +47,8 @@ namespace OmniSharp.Extensions.JsonRpc
         public Type HandlerType { get; }
         public Type ImplementationType { get; }
         public string Method { get; }
-        public Type Params { get; }
-        public Type Response { get; }
+        public Type? Params { get; }
+        public Type? Response { get; }
         public bool HasReturnType { get; }
         public bool IsDelegatingHandler { get; }
         public RequestProcessType? RequestProcessType { get; }

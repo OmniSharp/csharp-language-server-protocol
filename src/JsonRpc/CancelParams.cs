@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.JsonRpc
         /// <summary>
         /// The request id to cancel.
         /// </summary>
-        public object Id { get; set; }
+        public object Id { get; set; } = null!;
     }
 }

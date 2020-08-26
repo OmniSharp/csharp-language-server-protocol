@@ -38,10 +38,10 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly IOutputHandler _outputHandler;
         private readonly IReceiver _receiver;
         private readonly IRequestProcessIdentifier _requestProcessIdentifier;
-        private readonly IRequestRouter<IHandlerDescriptor> _requestRouter;
+        private readonly IRequestRouter<IHandlerDescriptor?> _requestRouter;
         private readonly IResponseRouter _responseRouter;
         private readonly OnUnhandledExceptionHandler _unhandledInputProcessException;
-        private readonly CreateResponseExceptionHandler _getException;
+        private readonly CreateResponseExceptionHandler? _getException;
         private readonly TimeSpan _requestTimeout;
         private readonly ILogger<InputHandler> _logger;
         private readonly ProcessScheduler _scheduler;
@@ -53,8 +53,8 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly CompositeDisposable _disposable;
         private readonly AsyncSubject<Unit> _inputActive;
 
-        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)> _requests =
-            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor> descriptor)>();
+        private readonly ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor?> descriptor)> _requests =
+            new ConcurrentDictionary<object, (CancellationTokenSource cancellationTokenSource, IRequestDescriptor<IHandlerDescriptor?> descriptor)>();
 
         private readonly Subject<IObservable<Unit>> _inputQueue;
 
@@ -63,11 +63,11 @@ namespace OmniSharp.Extensions.JsonRpc
             IOutputHandler outputHandler,
             IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter<IHandlerDescriptor> requestRouter,
+            IRequestRouter<IHandlerDescriptor?> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
             OnUnhandledExceptionHandler unhandledInputProcessException,
-            CreateResponseExceptionHandler getException,
+            CreateResponseExceptionHandler? getException,
             TimeSpan requestTimeout,
             bool supportContentModified,
             int? concurrency
@@ -87,7 +87,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 loggerFactory,
                 supportContentModified,
                 concurrency,
-                requestTimeout,
                 TaskPoolScheduler.Default
                 // new EventLoopScheduler(_ => new Thread(_) {IsBackground = true, Name = "InputHandler"})
             );
@@ -130,9 +129,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            _disposable?.Dispose();
-            _pipeReader?.Complete();
-            _outputHandler?.Dispose();
+            _disposable.Dispose();
+            _pipeReader.Complete();
+            _outputHandler.Dispose();
         }
 
         public Task InputCompleted => _inputActive.ToTask();
@@ -221,7 +220,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     return false;
                 }
 
-                var slice = buffer.Slice(0, colon.Value);
+                var slice = buffer.Slice(0, colon!.Value);
                 slice.CopyTo(_contentLengthBuffer.Span);
 
                 if (IsEqual(_contentLengthBuffer.Span, ContentLength))
@@ -251,7 +250,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var whitespacePosition = lengthSlice.PositionOf((byte) ' ');
                     if (whitespacePosition.HasValue)
                     {
-                        lengthSlice = lengthSlice.Slice(0, whitespacePosition.Value);
+                        lengthSlice = lengthSlice.Slice(0, whitespacePosition!.Value);
                     }
 
                     lengthSlice.CopyTo(_contentLengthValueMemory.Span);
@@ -287,7 +286,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var result = await _pipeReader.ReadAsync(cancellationToken);
                     buffer = result.Buffer;
 
-                    var dataParsed = true;
+                    bool dataParsed;
                     do
                     {
                         dataParsed = false;
@@ -368,7 +367,7 @@ namespace OmniSharp.Extensions.JsonRpc
             var (requests, hasResponse) = _receiver.GetRequests(payload);
             if (hasResponse)
             {
-                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response))
+                foreach (var response in requests.Where(x => x.IsResponse).Select(x => x.Response!))
                 {
                     // _logger.LogDebug("Handling Response for request {ResponseId}", response.Id);
                     var id = response.Id is string s ? long.Parse(s) : response.Id is long l ? l : -1;
@@ -410,7 +409,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             foreach (var item in requests)
             {
-                if (item.IsRequest)
+                if (item.IsRequest && item.Request != null)
                 {
                     // _logger.LogDebug("Handling Request {Method} {ResponseId}", item.Request.Method, item.Request.Id);
                     var descriptor = _requestRouter.GetDescriptors(item.Request);
@@ -425,7 +424,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     _scheduler.Add(type, $"{item.Request.Method}:{item.Request.Id}", RouteRequest(descriptor, item.Request));
                 }
 
-                if (item.IsNotification)
+                if (item.IsNotification && item.Notification != null)
                 {
                     // We need to special case cancellation so that we can cancel any request that is currently in flight.
                     if (item.Notification.Method == JsonRpcNames.CancelRequest)
@@ -468,7 +467,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request)
+        private SchedulerDelegate RouteRequest(IRequestDescriptor<IHandlerDescriptor?> descriptors, Request request)
         {
             // start request, create cts, etc
             var cts = new CancellationTokenSource();
@@ -557,7 +556,7 @@ namespace OmniSharp.Extensions.JsonRpc
                            );
         }
 
-        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification) =>
+        private SchedulerDelegate RouteNotification(IRequestDescriptor<IHandlerDescriptor?> descriptors, Notification notification) =>
             (contentModifiedToken, scheduler) =>
                 // ITS A RACE!
                 Observable.Amb(
@@ -585,8 +584,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     )
                 );
 
-        private static Exception DefaultErrorParser(string method, ServerError error, CreateResponseExceptionHandler customHandler) =>
-            error.Error?.Code switch {
+        private static Exception DefaultErrorParser(string? method, ServerError error, CreateResponseExceptionHandler? customHandler) =>
+            error.Error.Code switch {
                 ErrorCodes.ServerNotInitialized => new ServerNotInitializedException(error.Id),
                 ErrorCodes.MethodNotSupported   => new MethodNotSupportedException(error.Id, method ?? "UNKNOWN"),
                 ErrorCodes.InvalidRequest       => new InvalidRequestException(error.Id),
@@ -596,11 +595,11 @@ namespace OmniSharp.Extensions.JsonRpc
                 ErrorCodes.RequestCancelled     => new RequestCancelledException(error.Id),
                 ErrorCodes.ContentModified      => new ContentModifiedException(error.Id),
                 ErrorCodes.UnknownErrorCode     => new UnknownErrorException(error.Id),
-                ErrorCodes.Exception            => new JsonRpcException(ErrorCodes.Exception, error.Id, error.Error.Message ?? string.Empty, error.Error.Data.ToString()),
-                _ => customHandler?.Invoke(error, method) ??
+                ErrorCodes.Exception            => new JsonRpcException(ErrorCodes.Exception, error.Id, error.Error.Message, error.Error.Data?.ToString()),
+                _ => customHandler?.Invoke(error, method ?? "UNKNOWN") ??
                      new JsonRpcException(
-                         error.Error?.Code ?? ErrorCodes.UnknownErrorCode, error.Id, error.Error?.Message ?? string.Empty,
-                         error.Error?.Data.ToString() ?? string.Empty
+                         error.Error.Code, error.Id, error.Error.Message,
+                         error.Error.Data?.ToString() ?? string.Empty
                      )
             };
     }

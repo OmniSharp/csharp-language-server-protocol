@@ -6,17 +6,17 @@ namespace OmniSharp.Extensions.JsonRpc.Server
     public class ServerErrorResult
     {
         [JsonConstructor]
-        public ServerErrorResult(int code, string message, JToken data)
+        public ServerErrorResult(int code, string? message, JToken data)
         {
             Code = code;
-            Message = message;
+            Message = message ?? string.Empty;
             Data = data;
         }
 
-        public ServerErrorResult(int code, string message)
+        public ServerErrorResult(int code, string? message)
         {
             Code = code;
-            Message = message;
+            Message = message ?? string.Empty;
             Data = new JObject();
         }
 
@@ -24,6 +24,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         public string Message { get; set; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public JToken Data { get; set; }
+        public JToken? Data { get; set; }
     }
 }

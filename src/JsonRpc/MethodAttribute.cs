@@ -25,24 +25,26 @@ namespace OmniSharp.Extensions.JsonRpc
             Direction = direction;
         }
 
-        public static MethodAttribute From(Type type) => AllFrom(type).FirstOrDefault();
+        public static MethodAttribute? From(Type? type) => AllFrom(type).FirstOrDefault();
 
-        public static IEnumerable<MethodAttribute> AllFrom(Type type) =>
+        public static IEnumerable<MethodAttribute> AllFrom(Type? type) =>
             CollectMethodAttributes(type)
                .Concat(
                     type
-                       .GetInterfaces()
+                      ?.GetInterfaces()
                        .SelectMany(CollectMethodAttributes)
+                 ?? Enumerable.Empty<MethodAttribute>()
                 );
 
-        private static IEnumerable<MethodAttribute> CollectMethodAttributes(Type t)
+        private static IEnumerable<MethodAttribute> CollectMethodAttributes(Type? type)
         {
-            if (t.IsGenericType && typeof(IRequestHandler<,>) == t.GetGenericTypeDefinition())
+            if (type == null) return Enumerable.Empty<MethodAttribute>();
+            if (type.IsGenericType && typeof(IRequestHandler<,>) == type.GetGenericTypeDefinition())
             {
-                return t.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true).Concat(AllFrom(t.GetGenericArguments()[0]));
+                return type.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true).Concat(AllFrom(type.GetGenericArguments()[0]));
             }
 
-            return t.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true);
+            return type.GetTypeInfo().GetCustomAttributes<MethodAttribute>(true);
         }
     }
 }

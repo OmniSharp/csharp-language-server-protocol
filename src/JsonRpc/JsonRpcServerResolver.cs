@@ -8,10 +8,10 @@ namespace OmniSharp.Extensions.JsonRpc
     public class JsonRpcServerResolver : IDisposable
     {
         private readonly IOptionsMonitor<JsonRpcServerOptions> _monitor;
-        private readonly IServiceProvider _outerServiceProvider;
+        private readonly IServiceProvider? _outerServiceProvider;
         private readonly ConcurrentDictionary<string, JsonRpcServer> _servers = new ConcurrentDictionary<string, JsonRpcServer>();
 
-        public JsonRpcServerResolver(IOptionsMonitor<JsonRpcServerOptions> monitor, IServiceProvider outerServiceProvider)
+        public JsonRpcServerResolver(IOptionsMonitor<JsonRpcServerOptions> monitor, IServiceProvider? outerServiceProvider)
         {
             _monitor = monitor;
             _outerServiceProvider = outerServiceProvider;

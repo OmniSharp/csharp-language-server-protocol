@@ -39,16 +39,16 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         }
 
         public bool IsNotification => Notification != null;
-        public Notification Notification { get; }
+        public Notification? Notification { get; }
 
         public bool IsRequest => Request != null;
-        public Request Request { get; }
+        public Request? Request { get; }
 
         public bool IsError => Error != null;
-        public RpcError Error { get; }
+        public RpcError? Error { get; }
 
         public bool IsResponse => Response != null;
-        public ResponseBase Response { get; }
+        public ResponseBase? Response { get; }
 
         public static implicit operator Renor(Notification notification) => new Renor(notification);
 

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         public HandlerTypeDescriptor(Type handlerType)
         {
-            var method = MethodAttribute.From(handlerType);
+            var method = MethodAttribute.From(handlerType)!;
             Method = method.Method;
             Direction = method.Direction;
             if (handlerType.IsGenericTypeDefinition && handlerType.IsPublic)
@@ -37,7 +37,9 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             HasParamsType = ParamsType != null;
-            IsNotification = handlerType.GetInterfaces().Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
+            IsNotification = handlerType
+                            .GetInterfaces()
+                            .Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
 
             var requestInterface = ParamsType?
@@ -66,23 +68,23 @@ namespace OmniSharp.Extensions.JsonRpc
         public Type InterfaceType { get; }
         public bool IsNotification { get; }
         public bool HasParamsType { get; }
-        public Type ParamsType { get; }
+        public Type? ParamsType { get; }
         public bool HasResponseType { get; }
-        public Type ResponseType { get; }
+        public Type? ResponseType { get; }
         public override string ToString() => $"{Method}:{HandlerType.FullName}";
 
-        public bool Equals(HandlerTypeDescriptor other)
+        public bool Equals(HandlerTypeDescriptor? other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Method == other.Method && HandlerType.Equals(other.HandlerType) && InterfaceType.Equals(other.InterfaceType);
+            return Method == other.Method && HandlerType == other.HandlerType && InterfaceType == other.InterfaceType;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != this.GetType()) return false;
+            if (obj.GetType() != GetType()) return false;
             return Equals((HandlerTypeDescriptor) obj);
         }
 

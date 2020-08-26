@@ -23,10 +23,10 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
         public int Code { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        public object Data { get; }
+        public object? Data { get; }
 
         public string Message { get; }
 
-        object IErrorMessage.Data => Data;
+        object? IErrorMessage.Data => Data;
     }
 }

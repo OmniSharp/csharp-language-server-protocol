@@ -1,5 +1,4 @@
 ﻿using System;
-using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 
@@ -34,13 +33,13 @@ namespace DryIoc
     /// </summary>
     internal class DryIocServiceProviderFactory : IServiceProviderFactory<IContainer>
     {
-        private readonly IContainer _container;
-        private readonly Func<IRegistrator, ServiceDescriptor, bool> _registerDescriptor;
+        private readonly IContainer? _container;
+        private readonly Func<IRegistrator, ServiceDescriptor, bool>? _registerDescriptor;
 
         /// Some options to push to `.WithDependencyInjectionAdapter(...)`
         public DryIocServiceProviderFactory(
-            IContainer container = null,
-            Func<IRegistrator, ServiceDescriptor, bool> registerDescriptor = null)
+            IContainer? container = null,
+            Func<IRegistrator, ServiceDescriptor, bool>? registerDescriptor = null)
         {
             _container = container; // we won't initialize the container here because it is logically expected to be done in `CreateBuilder`
             _registerDescriptor = registerDescriptor;

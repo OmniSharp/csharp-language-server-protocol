@@ -1,5 +1,4 @@
 ﻿using System;
-using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 

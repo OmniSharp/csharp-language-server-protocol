@@ -1,14 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reflection;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -87,7 +84,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     request => {
                         if (request.ServiceType.IsGenericType && typeof(IRequestHandler<,>).IsAssignableFrom(request.ServiceType.GetGenericTypeDefinition()))
                         {
-                            var context = request.Container.Resolve<IRequestContext>();
+                            var context = request.Container.Resolve<IRequestContext?>();
                             if (context != null)
                             {
                                 return new RegisteredInstanceFactory(context.Descriptor.Handler);
@@ -120,7 +117,7 @@ namespace OmniSharp.Extensions.JsonRpc
             container = container.AddJsonRpcServerCore(options);
             container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
-            container.RegisterInstance(options.Serializer ?? new JsonRpcSerializer());
+            container.RegisterInstance(options.Serializer);
             container.RegisterInstance(options.Receiver);
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterInstance(options.OnUnhandledException ?? ( e => { } ));
@@ -144,10 +141,10 @@ namespace OmniSharp.Extensions.JsonRpc
             return container;
         }
 
-        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, Action<JsonRpcServerOptions> configureOptions = null) =>
+        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, Action<JsonRpcServerOptions>? configureOptions = null) =>
             AddJsonRpcServer(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, string name, Action<JsonRpcServerOptions> configureOptions = null)
+        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, string name, Action<JsonRpcServerOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.
