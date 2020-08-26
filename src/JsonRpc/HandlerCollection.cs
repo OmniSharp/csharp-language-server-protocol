@@ -91,10 +91,24 @@ namespace OmniSharp.Extensions.JsonRpc
             method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options
         );
 
-        public IDisposable AddLink(string sourceMethod, string destinationMethod)
+        public IDisposable AddLink(string fromMethod, string toMethod)
         {
-            var source = _descriptors.FirstOrDefault(z => z.Method == sourceMethod);
-            var descriptor = new LinkedHandler(destinationMethod, source, () => _descriptors.RemoveAll(z => z.Method == destinationMethod));
+            var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
+            if (source == null)
+            {
+                if (_descriptors.Any(z => z.Method == toMethod))
+                {
+                    throw new ArgumentException(
+                        $"Could not find descriptor for '{fromMethod}', but I did find one for '{toMethod}'.  Did you mean to link '{toMethod}' to '{fromMethod}' instead?", fromMethod
+                    );
+                }
+
+                throw new ArgumentException(
+                    $"Could not find descriptor for '{fromMethod}', has it been registered yet?  Descriptors must be registered before links can be created!", nameof(fromMethod)
+                );
+            }
+
+            var descriptor = new LinkedHandler(toMethod, source, () => _descriptors.RemoveAll(z => z.Method == toMethod));
             ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
             return descriptor;
         }

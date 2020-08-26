@@ -55,9 +55,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return result;
         }
 
-        public IDisposable AddLink(string sourceMethod, string destinationMethod)
+        public IDisposable AddLink(string fromMethod, string toMethod)
         {
-            var result = _parent.AddLink(sourceMethod,destinationMethod);
+            var result = _parent.AddLink(fromMethod,toMethod);
             _compositeDisposable.Add(result);
             return result;
         }
