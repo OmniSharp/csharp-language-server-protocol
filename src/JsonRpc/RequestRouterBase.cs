@@ -63,14 +63,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 context.Descriptor = descriptor;
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                if (descriptor.Params is null)
-                {
-                    await HandleNotification(mediator, descriptor, EmptyRequest.Instance, token);
-                }
-                else
-                {
-                    await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
-                }
+                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
             }
         }
 
@@ -183,7 +176,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public static Task HandleNotification(IMediator mediator, IHandlerDescriptor handler, object @params, CancellationToken token) =>
             (Task) SendRequestUnit
-                  .MakeGenericMethod(handler.Params ?? typeof(EmptyRequest))
+                  .MakeGenericMethod(handler.Params)
                   .Invoke(null, new[] { mediator, @params, token });
 
         public static Task HandleRequest(IMediator mediator, IHandlerDescriptor descriptor, object @params, CancellationToken token)

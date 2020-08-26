@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -48,10 +49,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
 
-        public (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id)
+        public bool TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
         {
-            Requests.TryGetValue(id, out var source);
-            return source;
+            var result = Requests.TryGetValue(id, out var source);
+            method = source.method;
+            pendingTask = source.pendingTask;
+            return result;
         }
 
         private string GetMethodName(Type type) =>

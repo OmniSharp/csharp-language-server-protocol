@@ -167,7 +167,6 @@ namespace Lsp.Tests
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
         public void HandlersShouldMatchParamsMethodAttribute(Type type)
         {
-            if (typeof(IJsonRpcNotificationHandler).IsAssignableFrom(type)) return;
             var paramsType = HandlerTypeDescriptorHelper.GetHandlerInterface(type).GetGenericArguments()[0];
 
             var lhs = MethodAttribute.From(type);

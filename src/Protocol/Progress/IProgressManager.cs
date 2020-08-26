@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         )
             where TResponse : IEnumerable<TItem>;
 
-        IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<TItem> request, CancellationToken cancellationToken);
+        IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<Container<TItem>, TItem> request, CancellationToken cancellationToken);
 
         IProgressObserver<T> For<T>(ProgressToken token, CancellationToken cancellationToken);
         IProgressObserver<TItem> For<TResponse, TItem>(IPartialItemRequest<TResponse, TItem> request, CancellationToken cancellationToken);

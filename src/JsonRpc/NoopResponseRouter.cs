@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -34,7 +35,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => Task.FromResult<TResponse>(default);
 
-        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id) => ( "UNKNOWN", new TaskCompletionSource<JToken>() );
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
+        {
+            method = default;
+            pendingTask = default;
+            return false;
+        }
 
         private class Impl : IResponseRouterReturns
         {

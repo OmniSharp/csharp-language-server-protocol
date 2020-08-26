@@ -378,8 +378,7 @@ namespace OmniSharp.Extensions.JsonRpc
                         continue;
                     }
 
-                    var (method, tcs) = _responseRouter.GetRequest(id);
-                    if (tcs is null)
+                    if (!_responseRouter.TryGetRequest(id, out var method, out var tcs))
                     {
                         // _logger.LogDebug("Request {ResponseId} was not found in the response router, unable to complete", response.Id);
                         continue;
