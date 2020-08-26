@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public ClientInfo ClientInfo { get; set; }
+        public ClientInfo? ClientInfo { get; set; }
 
         /// <summary>
         /// The rootPath of the workspace. Is null
@@ -27,10 +27,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @deprecated in favour of rootUri.
         /// </summary>
         [Optional]
-        public string RootPath
+        public string? RootPath
         {
-            get => RootUri?.GetFileSystemPath();
-            set => RootUri = value == null ? null : DocumentUri.FromFileSystemPath(value);
+            get => RootUri.GetFileSystemPath();
+            set => RootUri = (value == null ? null : DocumentUri.FromFileSystemPath(value))!;
         }
 
         /// <summary>
@@ -38,17 +38,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// folder is open. If both `rootPath` and `rootUri` are set
         /// `rootUri` wins.
         /// </summary>
-        public DocumentUri RootUri { get; set; }
+        public DocumentUri RootUri { get; set; } = null!;
 
         /// <summary>
         /// User provided initialization options.
         /// </summary>
-        public object InitializationOptions { get; set; }
+        public object? InitializationOptions { get; set; }
 
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        public JObject Capabilities { get; set; }
+        public JObject Capabilities { get; set; } = null!;
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
@@ -61,13 +61,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// This property is only available if the client supports workspace folders.
         /// It can be `null` if the client supports workspace folders but none are
         /// configured.
-        /// 
+        ///
         /// Since 3.6.0
-        /// <summary />
-        public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
+        /// </summary>
+        public Container<WorkspaceFolder>? WorkspaceFolders { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }

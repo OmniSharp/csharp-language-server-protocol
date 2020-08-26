@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range at which the message applies.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The diagnostic's severity. Can be omitted. If omitted it is up to the
@@ -30,12 +30,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// diagnostic, e.g. 'typescript' or 'super lint'.
         /// </summary>
         [Optional]
-        public string Source { get; set; }
+        public string? Source { get; set; }
 
         /// <summary>
         /// The diagnostic's message.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
 
         /// <summary>
         /// Additional metadata about the diagnostic.
@@ -43,14 +43,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Container<DiagnosticTag> Tags { get; set; }
+        public Container<DiagnosticTag>? Tags { get; set; }
 
         /// <summary>
         /// An array of related diagnostic information, e.g. when symbol-names within
         /// a scope collide all definitions can be marked via this property.
         /// </summary>
         [Optional]
-        public Container<DiagnosticRelatedInformation> RelatedInformation { get; set; }
+        public Container<DiagnosticRelatedInformation>? RelatedInformation { get; set; }
 
         private string DebuggerDisplay =>
             $"{( Code.HasValue ? $"[{Code.Value.ToString()}]" : "" )}" +

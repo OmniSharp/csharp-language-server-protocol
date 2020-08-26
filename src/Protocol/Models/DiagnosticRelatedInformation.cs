@@ -10,11 +10,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The location of this related diagnostic information.
         /// </summary>
-        public Location Location { get; set; }
+        public Location Location { get; set; } = null!;
 
         /// <summary>
         /// The message of this related diagnostic information.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
     }
 }

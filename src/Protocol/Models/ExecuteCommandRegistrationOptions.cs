@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
@@ -14,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The commands to be executed on the server
         /// </summary>
-        public Container<string> Commands { get; set; }
+        public Container<string> Commands { get; set; } = null!;
 
         /// <summary>
         /// Execute command options.
@@ -24,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// <summary>
             /// The commands to be executed on the server
             /// </summary>
-            public Container<string> Commands { get; set; }
+            public Container<string> Commands { get; set; } = null!;
         }
 
         class ExecuteCommandRegistrationOptionsConverter : RegistrationOptionsConverterBase<ExecuteCommandRegistrationOptions, StaticOptions>
@@ -47,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
                     Commands = allRegistrationOptions
                               .SelectMany(z => z.Commands)
                               .ToArray(),
-                    WorkDoneProgress = allRegistrationOptions.Any(x => x.WorkDoneProgress == true)
+                    WorkDoneProgress = allRegistrationOptions.Any(x => x.WorkDoneProgress)
                 };
             }
         }

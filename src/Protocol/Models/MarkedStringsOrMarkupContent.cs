@@ -16,13 +16,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public MarkedStringsOrMarkupContent(MarkupContent markupContent) => MarkupContent = markupContent;
 
-        public Container<MarkedString> MarkedStrings { get; }
-        public bool HasMarkedStrings => MarkupContent == null;
-        public MarkupContent MarkupContent { get; }
-        public bool HasMarkupContent => MarkedStrings == null;
+        public Container<MarkedString>? MarkedStrings { get; }
+        public bool HasMarkedStrings => MarkupContent is null;
+        public MarkupContent? MarkupContent { get; }
+        public bool HasMarkupContent => MarkedStrings is null;
 
         private string DebuggerDisplay =>
-            $"{( HasMarkedStrings ? string.Join(" ", MarkedStrings.Select(z => z.ToString())) : HasMarkupContent ? MarkupContent.ToString() : string.Empty )}";
+            $"{( HasMarkedStrings ? string.Join(" ", MarkedStrings!.Select(z => z.ToString())) : HasMarkupContent ? MarkupContent!.ToString() : string.Empty )}";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

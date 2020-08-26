@@ -7,6 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         [JsonProperty(Constants.PrivateHandlerId, DefaultValueHandling = DefaultValueHandling.Ignore)]
         [EditorBrowsable(EditorBrowsableState.Never)]
-        public string __identity { get; set; }
+        // ReSharper disable once InconsistentNaming
+        public string __identity { get; set; } = null!;
     }
 }

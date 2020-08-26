@@ -20,6 +20,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
         [Optional]
-        public string TriggerCharacter { get; set; }
+        public string? TriggerCharacter { get; set; }
     }
 }

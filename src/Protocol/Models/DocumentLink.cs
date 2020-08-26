@@ -17,20 +17,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range this link applies to.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
         [Optional]
-        public DocumentUri Target { get; set; }
+        public DocumentUri? Target { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a document link between a
         /// DocumentLinkRequest and a DocumentLinkResolveRequest.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JToken? Data { get; set; }
 
         /// <summary>
         /// The tooltip text when you hover over this link.
@@ -42,9 +42,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public string Tooltip { get; set; }
+        public string? Tooltip { get; set; }
 
-        private string DebuggerDisplay => $"{Range}{( Target != null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
+        private string DebuggerDisplay => $"{Range}{( Target is not null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
@@ -60,13 +60,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range this link applies to.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The uri this link points to. If missing a resolve request is sent later.
         /// </summary>
         [Optional]
-        public DocumentUri Target { get; set; }
+        public DocumentUri? Target { get; set; }
 
         /// <summary>
         /// The tooltip text when you hover over this link.
@@ -78,7 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public string Tooltip { get; set; }
+        public string? Tooltip { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
@@ -87,11 +87,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public T Data
         {
-            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
-            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>()!;
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value);
         }
 
-        JToken ICanBeResolved.Data { get; set; }
+        JToken? ICanBeResolved.Data { get; set; }
 
         public static implicit operator DocumentLink(DocumentLink<T> value) => new DocumentLink {
             Data = ( (ICanBeResolved) value ).Data,

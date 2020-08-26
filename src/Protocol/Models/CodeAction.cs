@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A short, human-readable, title for this code action.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         /// <summary>
         /// The kind of the code action.
@@ -35,13 +35,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The diagnostics that this code action resolves.
         /// </summary>
         [Optional]
-        public Container<Diagnostic> Diagnostics { get; set; }
+        public Container<Diagnostic>? Diagnostics { get; set; }
 
         /// <summary>
         /// The workspace edit this code action performs.
         /// </summary>
         [Optional]
-        public WorkspaceEdit Edit { get; set; }
+        public WorkspaceEdit? Edit { get; set; }
 
         /// <summary>
         /// A command this code action executes. If a code action
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// executed and then the command.
         /// </summary>
         [Optional]
-        public Command Command { get; set; }
+        public Command? Command { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Title}";
 

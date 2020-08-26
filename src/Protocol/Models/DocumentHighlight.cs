@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range this highlight applies to.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The highlight kind, default is DocumentHighlightKind.Text.

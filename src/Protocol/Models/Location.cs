@@ -10,17 +10,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The uri of the document
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
         /// <summary>
         /// The range in side the document given by the uri
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
-        public override bool Equals(object obj) => Equals(obj as Location);
+        public override bool Equals(object? obj) => Equals(obj as Location);
 
-        public bool Equals(Location other) =>
-            other != null &&
+        public bool Equals(Location? other) =>
+            other is not null &&
             DocumentUri.Comparer.Equals(Uri, other.Uri) &&
             EqualityComparer<Range>.Default.Equals(Range, other.Range);
 
