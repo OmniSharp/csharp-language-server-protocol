@@ -14,13 +14,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the client as defined by the client.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// The client's version as defined by the client.
         /// </summary>
         [Optional]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
 

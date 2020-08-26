@@ -5,6 +5,7 @@ using Minimatch;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+// ReSharper disable NonReadonlyMemberInGetHashCode
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -21,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A language id, like `typescript`.
         /// </summary>
         [Optional]
-        public string Language { get; set; }
+        public string? Language { get; set; }
 
         /// <summary>
         /// does the document filter contains a language
@@ -33,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A Uri [scheme](#Uri.scheme), like `file` or `untitled`.
         /// </summary>
         [Optional]
-        public string Scheme { get; set; }
+        public string? Scheme { get; set; }
 
         /// <summary>
         /// does the document filter contains a scheme
@@ -45,12 +46,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// A glob pattern, like `*.{ts,js}`.
         /// </summary>
         [Optional]
-        public string Pattern
+        public string? Pattern
         {
             get => _pattern;
             set {
                 _pattern = value;
-                _minimatcher = new Minimatcher(value, new Options { MatchBase = true });
+                _minimatcher = new Minimatcher(value!, new Options { MatchBase = true });
             }
         }
 
@@ -60,25 +61,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool HasPattern => Pattern != null;
 
-        private string _pattern;
-        private Minimatcher _minimatcher;
+        private string? _pattern;
+        private Minimatcher? _minimatcher;
 
         public static explicit operator string(DocumentFilter documentFilter)
         {
             var items = new List<string>();
             if (documentFilter.HasLanguage)
             {
-                items.Add(documentFilter.Language);
+                items.Add(documentFilter.Language!);
             }
 
             if (documentFilter.HasScheme)
             {
-                items.Add(documentFilter.Scheme);
+                items.Add(documentFilter.Scheme!);
             }
 
             if (documentFilter.HasPattern)
             {
-                items.Add(documentFilter.Pattern);
+                items.Add(documentFilter.Pattern!);
             }
 
             return $"[{string.Join(", ", items)}]";
@@ -88,12 +89,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             if (HasLanguage && HasPattern && HasScheme)
             {
-                return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
+                return Language == attributes.LanguageId && Scheme == attributes.Scheme && _minimatcher?.IsMatch(attributes.Uri.ToString()) == true;
             }
 
             if (HasLanguage && HasPattern)
             {
-                return Language == attributes.LanguageId && _minimatcher.IsMatch(attributes.Uri.ToString());
+                return Language == attributes.LanguageId && _minimatcher?.IsMatch(attributes.Uri.ToString()) == true;
             }
 
             if (HasLanguage && HasScheme)
@@ -103,7 +104,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
             if (HasPattern && HasScheme)
             {
-                return Scheme == attributes.Scheme && _minimatcher.IsMatch(attributes.Uri.ToString());
+                return Scheme == attributes.Scheme && _minimatcher?.IsMatch(attributes.Uri.ToString()) == true;
             }
 
             if (HasLanguage)
@@ -118,20 +119,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
             if (HasPattern)
             {
-                return _minimatcher.IsMatch(attributes.Uri.ToString());
+                return _minimatcher?.IsMatch(attributes.Uri.ToString()) == true;
             }
 
             return false;
         }
 
-        public bool Equals(DocumentFilter other)
+        public bool Equals(DocumentFilter? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return _pattern == other._pattern && Language == other.Language && Scheme == other.Scheme;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;

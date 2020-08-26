@@ -18,11 +18,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             LocationLink = locationLink;
         }
 
-        public bool IsLocation => Location != null;
-        public Location Location { get; }
+        public bool IsLocation => Location is not null;
+        public Location? Location { get; }
 
         public bool IsLocationLink => LocationLink != null;
-        public LocationLink LocationLink { get; }
+        public LocationLink? LocationLink { get; }
 
         public static implicit operator LocationOrLocationLink(Location location) => new LocationOrLocationLink(location);
 

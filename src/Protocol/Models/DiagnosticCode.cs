@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public bool IsLong => String == null;
         public long Long { get; set; }
         public bool IsString => String != null;
-        public string String { get; set; }
+        public string? String { get; set; }
 
         public static implicit operator DiagnosticCode(long value) => new DiagnosticCode(value);
 
@@ -29,6 +29,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator long(DiagnosticCode value) => value.IsLong ? value.Long : 0;
 
-        public static implicit operator string(DiagnosticCode value) => value.IsString ? value.String : null;
+        public static implicit operator string?(DiagnosticCode value) => value.IsString ? value.String : null;
     }
 }

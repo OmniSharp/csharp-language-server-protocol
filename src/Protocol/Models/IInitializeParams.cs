@@ -1,4 +1,5 @@
-﻿using MediatR;
+﻿using System.Diagnostics.CodeAnalysis;
+using MediatR;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        ClientInfo ClientInfo { get; set; }
+        [DisallowNull] ClientInfo? ClientInfo { get; set; }
 
         /// <summary>
         /// The rootPath of the workspace. Is null
@@ -24,24 +25,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @deprecated in favour of rootUri.
         /// </summary>
-        string RootPath { get; set; }
+        [DisallowNull] string? RootPath { get; set; }
 
         /// <summary>
         /// The rootUri of the workspace. Is null if no
         /// folder is open. If both `rootPath` and `rootUri` are set
         /// `rootUri` wins.
         /// </summary>
-        DocumentUri RootUri { get; set; }
+        [DisallowNull] DocumentUri? RootUri { get; set; }
 
         /// <summary>
         /// User provided initialization options.
         /// </summary>
-        object InitializationOptions { get; set; }
+        [DisallowNull] object? InitializationOptions { get; set; }
 
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        TClientCapabilities Capabilities { get; set; }
+        [MaybeNull] TClientCapabilities Capabilities { get; set; }
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
@@ -53,12 +54,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// This property is only available if the client supports workspace folders.
         /// It can be `null` if the client supports workspace folders but none are
         /// configured.
-        /// 
+        ///
         /// Since 3.6.0
-        /// <summary />
-        Container<WorkspaceFolder> WorkspaceFolders { get; set; }
-
-        /// <inheritdoc />
-        ProgressToken WorkDoneToken { get; set; }
+        /// </summary>
+        [DisallowNull] Container<WorkspaceFolder>? WorkspaceFolders { get; set; }
     }
 }

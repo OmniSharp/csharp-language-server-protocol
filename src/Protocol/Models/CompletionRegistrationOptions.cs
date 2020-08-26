@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
@@ -27,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
         /// </summary>
         [Optional]
-        public Container<string> TriggerCharacters { get; set; }
+        public Container<string>? TriggerCharacters { get; set; }
 
         /// <summary>
         /// The list of all possible characters that commit a completion. This field can be used
@@ -37,8 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.2.0
         /// </summary>
         [Optional]
-        public Container<string> AllCommitCharacters { get; set; }
-
+        public Container<string>? AllCommitCharacters { get; set; }
 
         /// <summary>
         /// Completion options.
@@ -63,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
             /// </summary>
             [Optional]
-            public Container<string> TriggerCharacters { get; set; }
+            public Container<string>? TriggerCharacters { get; set; }
 
             /// <summary>
             /// The list of all possible characters that commit a completion. This field can be used
@@ -73,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// @since 3.2.0
             /// </summary>
             [Optional]
-            public Container<string> AllCommitCharacters { get; set; }
+            public Container<string>? AllCommitCharacters { get; set; }
         }
 
         class CompletionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CompletionRegistrationOptions, StaticOptions>

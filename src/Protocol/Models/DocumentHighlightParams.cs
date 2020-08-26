@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         /// <inheritdoc />
         [Optional]
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
     }
 }

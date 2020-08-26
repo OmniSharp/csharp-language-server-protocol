@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// that these accurately reflect the error state of the resource. The primary parameter
         /// to compute code actions is the provided range.
         /// </summary>
-        public Container<Diagnostic> Diagnostics { get; set; }
+        public Container<Diagnostic> Diagnostics { get; set; } = null!;
 
         /// <summary>
         /// Requested kind of actions to return.
@@ -24,6 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// can omit computing them.
         /// </summary>
         [Optional]
-        public Container<CodeActionKind> Only { get; set; }
+        public Container<CodeActionKind>? Only { get; set; }
     }
 }

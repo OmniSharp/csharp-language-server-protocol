@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// picker header. By default this is also the text that is inserted when selecting
         /// this color presentation.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// An [edit](#TextEdit) which is applied to a document when selecting
@@ -17,13 +17,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// is used.
         /// </summary>
         [Optional]
-        public TextEdit TextEdit { get; set; }
+        public TextEdit? TextEdit { get; set; }
 
         /// <summary>
         /// An optional array of additional [text edits](#TextEdit) that are applied when
         /// selecting this color presentation. Edits must not overlap with the main [edit](#ColorPresentation.textEdit) nor with themselves.
         /// </summary>
         [Optional]
-        public TextEditContainer AdditionalTextEdits { get; set; }
+        public TextEditContainer? AdditionalTextEdits { get; set; }
     }
 }

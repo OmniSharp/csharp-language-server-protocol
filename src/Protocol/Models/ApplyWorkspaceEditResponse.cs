@@ -16,6 +16,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// triggered the edit.
         /// </summary>
         [Optional]
-        public string FailureReason { get; set; }
+        public string? FailureReason { get; set; }
     }
 }

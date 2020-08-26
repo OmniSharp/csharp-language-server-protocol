@@ -13,11 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// stack to undo the workspace edit.
         /// </summary>
         [Optional]
-        public string Label { get; set; }
+        public string? Label { get; set; }
 
         /// <summary>
         /// The edits to apply.
         /// </summary>
-        public WorkspaceEdit Edit { get; set; }
+        public WorkspaceEdit Edit { get; set; } = null!;
     }
 }

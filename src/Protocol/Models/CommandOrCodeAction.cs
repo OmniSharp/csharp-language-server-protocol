@@ -8,8 +8,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public struct CommandOrCodeAction
     {
-        private CodeAction _codeAction;
-        private Command _command;
+        private CodeAction? _codeAction;
+        private Command? _command;
 
         public CommandOrCodeAction(CodeAction value)
         {
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool IsCommand => _command != null;
 
-        public Command Command
+        public Command? Command
         {
             get => _command;
             set {
@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool IsCodeAction => _codeAction != null;
 
-        public CodeAction CodeAction
+        public CodeAction? CodeAction
         {
             get => _codeAction;
             set {
@@ -45,11 +45,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
         }
 
-        public object RawValue
+        public object? RawValue
         {
             get {
-                if (IsCommand) return Command;
-                if (IsCodeAction) return CodeAction;
+                if (IsCommand) return Command!;
+                if (IsCodeAction) return CodeAction!;
                 return default;
             }
         }

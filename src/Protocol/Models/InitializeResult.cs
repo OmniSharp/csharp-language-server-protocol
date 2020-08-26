@@ -8,14 +8,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The capabilities the language server provides.
         /// </summary>
-        public ServerCapabilities Capabilities { get; set; }
+        public ServerCapabilities Capabilities { get; set; } = null!;
 
         /// <summary>
         /// Information about the server.
-        /// 
+        ///
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public ServerInfo ServerInfo { get; set; }
+        public ServerInfo? ServerInfo { get; set; }
     }
 }

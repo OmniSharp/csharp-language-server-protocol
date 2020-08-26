@@ -6,6 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class DeclarationParams : WorkDoneTextDocumentPositionParams, IPartialItemsRequest<LocationOrLocationLinks, LocationOrLocationLink>
     {
         /// <inheritdoc />
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
     }
 }

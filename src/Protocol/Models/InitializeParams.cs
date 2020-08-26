@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -21,7 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public ClientInfo ClientInfo { get; set; }
+        [DisallowNull]
+        public ClientInfo? ClientInfo { get; set; }
 
         /// <summary>
         /// The rootPath of the workspace. Is null
@@ -30,10 +32,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @deprecated in favour of rootUri.
         /// </summary>
         [Optional]
-        public string RootPath
+        [DisallowNull]
+        public string? RootPath
         {
             get => RootUri?.GetFileSystemPath();
-            set => RootUri = value == null ? null : DocumentUri.FromFileSystemPath(value);
+            set {
+                if (!string.IsNullOrEmpty(value))
+                {
+                    RootUri = DocumentUri.FromFileSystemPath(value!);
+                }
+            }
         }
 
         /// <summary>
@@ -41,17 +49,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// folder is open. If both `rootPath` and `rootUri` are set
         /// `rootUri` wins.
         /// </summary>
-        public DocumentUri RootUri { get; set; }
+        [DisallowNull]
+        public DocumentUri? RootUri { get; set; }
 
         /// <summary>
         /// User provided initialization options.
         /// </summary>
-        public object InitializationOptions { get; set; }
+        [DisallowNull]
+        public object? InitializationOptions { get; set; }
 
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        public ClientCapabilities Capabilities { get; set; }
+        [MaybeNull] public ClientCapabilities Capabilities { get; set; } = null!;
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
@@ -66,12 +76,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// configured.
         ///
         /// Since 3.6.0
-        /// <summary />
-        public Container<WorkspaceFolder> WorkspaceFolders { get; set; }
+        /// </summary>
+        [MaybeNull]
+        public Container<WorkspaceFolder>? WorkspaceFolders { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        [MaybeNull]
+        public ProgressToken? WorkDoneToken { get; set; }
 
         public InitializeParams()
         {
@@ -83,11 +95,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ProcessId = @params.ProcessId;
             Trace = @params.Trace;
             Capabilities = clientCapabilities;
-            ClientInfo = @params.ClientInfo;
-            InitializationOptions = @params.InitializationOptions;
-            RootUri = @params.RootUri;
-            WorkspaceFolders = @params.WorkspaceFolders;
-            WorkDoneToken = @params.WorkDoneToken;
+            ClientInfo = @params.ClientInfo!;
+            InitializationOptions = @params.InitializationOptions!;
+            RootUri = @params.RootUri!;
+            WorkspaceFolders = @params.WorkspaceFolders!;
+            WorkDoneToken = @params.WorkDoneToken!;
         }
     }
 }

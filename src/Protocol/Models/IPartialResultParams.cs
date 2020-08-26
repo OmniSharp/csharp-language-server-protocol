@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// the client.
         /// </summary>
         [Optional]
-        ProgressToken PartialResultToken { get; set; }
+        ProgressToken? PartialResultToken { get; set; }
     }
 }
