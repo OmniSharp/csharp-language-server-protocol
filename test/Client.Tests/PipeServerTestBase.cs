@@ -90,6 +90,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         public virtual Task InitializeAsync() => Task.CompletedTask;
-        public Task DisposeAsync() => _client.Shutdown();
+        public Task DisposeAsync() => _client?.Shutdown();
     }
 }

@@ -32,9 +32,9 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             }
         }
 
-        Task<Container<WorkspaceFolder>> IRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>>.
+        Task<Container<WorkspaceFolder>?> IRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>?>.
             Handle(WorkspaceFolderParams request, CancellationToken cancellationToken) =>
-            Task.FromResult(new Container<WorkspaceFolder>(_workspaceFolders.Values));
+            Task.FromResult< Container<WorkspaceFolder>?>(new Container<WorkspaceFolder>(_workspaceFolders.Values));
 
         public void Add(DocumentUri uri, string name) => Add(new WorkspaceFolder { Name = name, Uri = uri });
 
@@ -96,6 +96,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
-        public void Dispose() => _workspaceFoldersSubject?.Dispose();
+        public void Dispose() => _workspaceFoldersSubject.Dispose();
     }
 }

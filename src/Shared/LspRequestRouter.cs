@@ -14,7 +14,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
-    internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>, IRequestRouter<IHandlerDescriptor>
+    internal class LspRequestRouter : RequestRouterBase<ILspHandlerDescriptor>, IRequestRouter<IHandlerDescriptor?>
     {
         private readonly IHandlerCollection _collection;
         private readonly HashSet<IHandlerMatcher> _handlerMatchers;
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(IMethodWithParams instance) => FindDescriptor(instance.Method, instance.Params);
 
-        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(string method, JToken @params)
+        private IRequestDescriptor<ILspHandlerDescriptor> FindDescriptor(string method, JToken? @params)
         {
             _logger.LogDebug("Finding descriptors for {Method}", method);
             var descriptor = _collection.FirstOrDefault(x => x.Method == method);
@@ -46,22 +46,22 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 _logger.LogDebug(
                     "Unable to find {Method}, methods found include {Methods}", method,
-                    string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler?.GetType()?.FullName))
+                    string.Join(", ", _collection.Select(x => x.Method + ":" + x.Handler.GetType().FullName))
                 );
                 return new RequestDescriptor<ILspHandlerDescriptor>();
             }
 
             if (@params == null || descriptor.Params == null) return new RequestDescriptor<ILspHandlerDescriptor>(descriptor);
 
-            object paramsValue = null;
+            object? paramsValue = null;
             if (descriptor.IsDelegatingHandler)
             {
-                var o = @params?.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
+                var o = @params.ToObject(descriptor.Params.GetGenericArguments()[0], _serializer.JsonSerializer);
                 paramsValue = Activator.CreateInstance(descriptor.Params, o);
             }
             else
             {
-                paramsValue = @params?.ToObject(descriptor.Params, _serializer.JsonSerializer);
+                paramsValue = @params.ToObject(descriptor.Params, _serializer.JsonSerializer);
             }
 
             var lspHandlerDescriptors = _collection.Where(handler => handler.Method == method).ToList();
@@ -76,10 +76,10 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             return new RequestDescriptor<ILspHandlerDescriptor>();
         }
 
-        IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Notification notification) => GetDescriptors(notification);
-        IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor>.GetDescriptors(Request request) => GetDescriptors(request);
+        IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor?>.GetDescriptors(Notification notification) => GetDescriptors(notification);
+        IRequestDescriptor<IHandlerDescriptor> IRequestRouter<IHandlerDescriptor?>.GetDescriptors(Request request) => GetDescriptors(request);
 
-        Task IRequestRouter<IHandlerDescriptor>.RouteNotification(IRequestDescriptor<IHandlerDescriptor> descriptors, Notification notification, CancellationToken token) =>
+        Task IRequestRouter<IHandlerDescriptor?>.RouteNotification(IRequestDescriptor<IHandlerDescriptor?> descriptors, Notification notification, CancellationToken token) =>
             RouteNotification(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d
                     ? d
@@ -88,7 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 token
             );
 
-        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor>.RouteRequest(IRequestDescriptor<IHandlerDescriptor> descriptors, Request request, CancellationToken token) =>
+        Task<ErrorResponse> IRequestRouter<IHandlerDescriptor?>.RouteRequest(IRequestDescriptor<IHandlerDescriptor?> descriptors, Request request, CancellationToken token) =>
             RouteRequest(
                 descriptors is IRequestDescriptor<ILspHandlerDescriptor> d
                     ? d

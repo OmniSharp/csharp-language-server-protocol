@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -7,8 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Logging
 {
     internal class LanguageServerLoggerFilterOptions : IOptionsMonitor<LoggerFilterOptions>, IDisposable
     {
-        private readonly List<IDisposable> _registrations = new List<IDisposable>();
-        private event Action<LoggerFilterOptions, string> _onChange;
+        private event Action<LoggerFilterOptions, string>? _onChange;
 
         public LanguageServerLoggerFilterOptions(IOptions<LoggerFilterOptions> options) => CurrentValue = options.Value;
 
@@ -25,12 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Logging
 
         public void Dispose()
         {
-            foreach (var registration in _registrations)
-            {
-                registration.Dispose();
-            }
-
-            _registrations.Clear();
         }
 
         internal void Set(LoggerFilterOptions options)

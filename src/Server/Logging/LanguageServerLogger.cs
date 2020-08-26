@@ -28,8 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public bool IsEnabled(LogLevel logLevel) => logLevel >= _logLevelGetter();
 
         public void Log<TState>(
-            LogLevel logLevel, EventId eventId, TState state, Exception exception,
-            Func<TState, Exception, string> formatter
+            LogLevel logLevel, EventId eventId, TState state, Exception? exception,
+            Func<TState, Exception?, string> formatter
         )
         {
             if (logLevel < _logLevelGetter())

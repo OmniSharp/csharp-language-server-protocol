@@ -77,12 +77,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
-                var reg = new Registration {
-                    Id = registrationOptions.Id,
-                    Method = method,
-                    RegisterOptions = registrationOptions
-                };
-                _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                if (registrationOptions.Id != null)
+                {
+                    var reg = new Registration {
+                        Id = registrationOptions.Id,
+                        Method = method,
+                        RegisterOptions = registrationOptions
+                    };
+                    _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                }
             }
 
             if (serverCapabilities.Workspace == null)
@@ -103,12 +106,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
-                var reg = new Registration {
-                    Id = registrationOptions.Id,
-                    Method = method,
-                    RegisterOptions = registrationOptions
-                };
-                _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                if (registrationOptions.Id != null)
+                {
+                    var reg = new Registration {
+                        Id = registrationOptions.Id,
+                        Method = method,
+                        RegisterOptions = registrationOptions
+                    };
+                    _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                }
             }
         }
 
@@ -158,7 +164,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                                                                                                 z.HasScheme ? z.Scheme :
                                                                                                 z.HasPattern ? z.Pattern : string.Empty, (a, b) => a
                                                                                         )
-                                                                                       .Any(x => x.HasLanguage || x.HasPattern || x.HasScheme)
+                                                                                       .Any(y => y.HasLanguage || y.HasPattern || y.HasScheme)
                 );
 
         public void Dispose() => _registrationSubject.Dispose();

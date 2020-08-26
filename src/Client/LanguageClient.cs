@@ -24,6 +24,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
+// ReSharper disable SuspiciousTypeConversion.Global
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
@@ -51,29 +52,29 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         // private readonly ILanguageClientConfiguration _configuration;
         private readonly IEnumerable<ICapability> _capabilities;
-        private readonly object _initializationOptions;
-        private readonly DocumentUri _rootUri;
+        private readonly object? _initializationOptions;
+        private readonly DocumentUri? _rootUri;
         private readonly InitializeTrace _trace;
         private readonly ClientCapabilities _clientCapabilities;
         private readonly LanguageProtocolSettingsBag _settingsBag;
         private bool _started;
         private readonly int? _concurrency;
 
-        internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
+        internal static IContainer CreateContainer(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
                                   .AddLanguageClientInternals(options, outerServiceProvider);
 
         public static LanguageClient Create(LanguageClientOptions options) => Create(options, null);
         public static LanguageClient Create(Action<LanguageClientOptions> optionsAction) => Create(optionsAction, null);
 
-        public static LanguageClient Create(Action<LanguageClientOptions> optionsAction, IServiceProvider outerServiceProvider)
+        public static LanguageClient Create(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
             var options = new LanguageClientOptions();
             optionsAction(options);
             return Create(options, outerServiceProvider);
         }
 
-        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
+        public static LanguageClient Create(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
             CreateContainer(options, outerServiceProvider).Resolve<LanguageClient>();
 
         public static Task<LanguageClient> From(LanguageClientOptions options) => From(options, null, CancellationToken.None);
@@ -81,20 +82,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static Task<LanguageClient> From(LanguageClientOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
         public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
 
-        public static Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider outerServiceProvider) =>
+        public static Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider? outerServiceProvider) =>
             From(options, outerServiceProvider, CancellationToken.None);
 
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
             From(optionsAction, outerServiceProvider, CancellationToken.None);
 
-        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<LanguageClient> From(Action<LanguageClientOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new LanguageClientOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken);
@@ -212,10 +213,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 Trace = _trace,
                 ClientInfo = _clientInfo,
                 Capabilities = _clientCapabilities,
-                RootUri = _rootUri,
-                RootPath = _rootUri?.GetFileSystemPath(),
+                RootUri = _rootUri!,
+                RootPath = _rootUri?.GetFileSystemPath() ?? string.Empty,
                 WorkspaceFolders = new Container<WorkspaceFolder>(WorkspaceFoldersManager.CurrentWorkspaceFolders),
-                InitializationOptions = _initializationOptions
+                InitializationOptions = _initializationOptions!
             };
 
             var capabilitiesObject = new JObject();
@@ -367,11 +368,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _connection.Dispose();
         }
 
-        private Supports<T> UseOrTryAndFindCapability<T>(Supports<T> supports) where T : class
+        private Supports<T> UseOrTryAndFindCapability<T>(Supports<T> supports) where T : class?
         {
             var value = supports.IsSupported
                 ? supports.Value
-                : _capabilities.OfType<T>().FirstOrDefault();
+                : _capabilities.OfType<T>().FirstOrDefault()!;
             if (value is IDynamicCapability dynamicCapability)
             {
                 dynamicCapability.DynamicRegistration = _collection.ContainsHandler(typeof(IRegisterCapabilityHandler));
@@ -382,17 +383,16 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) => _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)]out TaskCompletionSource<JToken> pendingTask) =>
+            _responseRouter.TryGetRequest(id, out method, out pendingTask);
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
 
         public void Dispose()
         {
-            _connection?.Dispose();
-            _disposable?.Dispose();
+            _connection.Dispose();
+            _disposable.Dispose();
         }
-
-        public IDictionary<string, JToken> Experimental { get; } = new Dictionary<string, JToken>();
 
         public IDisposable Register(Action<ILanguageClientRegistry> registryAction)
         {

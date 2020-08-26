@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DryIoc;
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public static class LanguageClientServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddLanguageProtocolInternals(options);
 
@@ -26,13 +27,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
-            if (options.OnUnhandledException != null)
+            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(  options.OnUnhandledException, default))
             {
                 container.RegisterInstance(options.OnUnhandledException);
             }
             else
             {
+#pragma warning disable 4014
                 container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => _.GetRequiredService<LanguageClient>().Shutdown()), Reuse.Singleton);
+#pragma warning restore 4014
             }
 
             container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton);
@@ -47,10 +50,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterInstance(
                 options.ClientInfo ?? new ClientInfo {
-                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Name = Assembly.GetEntryAssembly()?.GetName().ToString() ?? string.Empty,
                     Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                      ?.InformationalVersion ??
                               Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+                           ?? string.Empty
                 }
             );
 
@@ -88,10 +92,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return container;
         }
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions> configureOptions = null) =>
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions>? configureOptions = null) =>
             AddLanguageClient(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions> configureOptions = null)
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.
