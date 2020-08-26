@@ -12,25 +12,25 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The source location of the breakpoints; either 'source.path' or 'source.reference' must be specified.
         /// </summary>
-        public Source Source { get; set; }
+        public Source Source { get; set; } = null!;
 
         /// <summary>
         /// The code locations of the breakpoints.
         /// </summary>
         [Optional]
-        public Container<SourceBreakpoint> Breakpoints { get; set; }
+        public Container<SourceBreakpoint>? Breakpoints { get; set; }
 
         /// <summary>
         /// Deprecated: The code locations of the breakpoints.
         /// </summary>
         [Obsolete("Deprecated")]
         [Optional]
-        public Container<long> Lines { get; set; }
+        public Container<long>? Lines { get; set; }
 
         /// <summary>
         /// A value of true indicates that the underlying source has been modified which results in new breakpoint locations.
         /// </summary>
         [Optional]
-        public bool? SourceModified { get; set; }
+        public bool SourceModified { get; set; }
     }
 }

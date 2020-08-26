@@ -17,6 +17,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Optional granularity to step. If no granularity is specified, a granularity of 'statement' is assumed.
         /// </summary>
         [Optional]
-        public SteppingGranularity Granularity { get; set; }
+        public SteppingGranularity? Granularity { get; set; }
     }
 }

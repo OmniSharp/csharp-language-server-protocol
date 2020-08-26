@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The possible completions for .
         /// </summary>
-        public Container<CompletionItem> Targets { get; set; }
+        public Container<CompletionItem> Targets { get; set; } = null!;
     }
 }

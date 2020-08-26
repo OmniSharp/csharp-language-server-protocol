@@ -8,19 +8,19 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The new value of the expression.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
 
         /// <summary>
         /// The optional type of the value.
         /// </summary>
         [Optional]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         /// <summary>
         /// Properties of a value that can be used to determine how to render the result in the UI.
         /// </summary>
         [Optional]
-        public VariablePresentationHint PresentationHint { get; set; }
+        public VariablePresentationHint? PresentationHint { get; set; }
 
         /// <summary>
         /// If variablesReference is > 0, the value is structured and its children can be retrieved by passing variablesReference to the VariablesRequest.

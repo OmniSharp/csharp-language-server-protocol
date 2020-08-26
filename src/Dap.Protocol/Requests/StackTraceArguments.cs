@@ -29,6 +29,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Specifies details on how to format the stack frames.
         /// </summary>
         [Optional]
-        public StackFrameFormat Format { get; set; }
+        public StackFrameFormat? Format { get; set; }
     }
 }

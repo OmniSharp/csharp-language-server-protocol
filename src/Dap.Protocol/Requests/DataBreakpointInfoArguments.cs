@@ -16,6 +16,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The name of the Variable's child to obtain data breakpoint information for. If variableReference isn’t provided, this can be an expression.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

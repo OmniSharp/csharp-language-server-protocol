@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The source location of the breakpoints; either 'source.path' or 'source.reference' must be specified.
         /// </summary>
-        public Source Source { get; set; }
+        public Source Source { get; set; } = null!;
 
         /// <summary>
         /// Start line of range to search possible breakpoint locations in. If only the line is specified, the request returns all possible locations in that line.

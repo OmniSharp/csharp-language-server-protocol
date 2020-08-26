@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// </summary>
         [Optional]
         [JsonProperty(PropertyName = "__restart")]
-        public JToken Restart { get; set; }
+        public JToken? Restart { get; set; }
 
         [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
     }
