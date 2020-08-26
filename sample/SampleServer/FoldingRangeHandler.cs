@@ -8,8 +8,6 @@ namespace SampleServer
 {
     internal class FoldingRangeHandler : IFoldingRangeHandler
     {
-        private FoldingRangeCapability _capability;
-
         public FoldingRangeRegistrationOptions GetRegistrationOptions() =>
             new FoldingRangeRegistrationOptions {
                 DocumentSelector = DocumentSelector.ForLanguage("csharp")
@@ -31,6 +29,8 @@ namespace SampleServer
                 )
             );
 
-        public void SetCapability(FoldingRangeCapability capability) => _capability = capability;
+        public void SetCapability(FoldingRangeCapability capability)
+        {
+        }
     }
 }
