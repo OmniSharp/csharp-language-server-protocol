@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         public void OnNext(string message, double? percentage, bool? cancellable) =>
             OnNext(
                 new WorkDoneProgressReport {
-                    Cancellable = cancellable,
+                    Cancellable = cancellable ?? false,
                     Message = message,
                     Percentage = percentage
                 }

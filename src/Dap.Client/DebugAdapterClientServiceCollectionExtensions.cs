@@ -37,13 +37,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                     ClientId = options.ClientId,
                     ClientName = options.ClientName,
                     PathFormat = options.PathFormat,
-                    ColumnsStartAt1 = options.ColumnsStartAt1 ?? false,
-                    LinesStartAt1 = options.LinesStartAt1 ?? false,
-                    SupportsMemoryReferences = options.SupportsMemoryReferences ?? false,
-                    SupportsProgressReporting = options.SupportsProgressReporting ?? false,
-                    SupportsVariablePaging = options.SupportsVariablePaging ?? false,
-                    SupportsVariableType = options.SupportsVariableType ?? false,
-                    SupportsRunInTerminalRequest = options.SupportsRunInTerminalRequest ?? false,
+                    ColumnsStartAt1 = options.ColumnsStartAt1,
+                    LinesStartAt1 = options.LinesStartAt1,
+                    SupportsMemoryReferences = options.SupportsMemoryReferences,
+                    SupportsProgressReporting = options.SupportsProgressReporting,
+                    SupportsVariablePaging = options.SupportsVariablePaging,
+                    SupportsVariableType = options.SupportsVariableType,
+                    SupportsRunInTerminalRequest = options.SupportsRunInTerminalRequest,
                 }
             );
             container.RegisterInstance(options.RequestProcessIdentifier);
