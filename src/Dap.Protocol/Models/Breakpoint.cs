@@ -22,13 +22,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// An optional message about the state of the breakpoint. This is shown to the user and can be used to explain why a breakpoint could not be verified.
         /// </summary>
         [Optional]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         /// <summary>
         /// The source where the breakpoint is located.
         /// </summary>
         [Optional]
-        public Source Source { get; set; }
+        public Source? Source { get; set; }
 
         /// <summary>
         /// The start line of the actual range covered by the breakpoint.
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// An optional memory reference to where the breakpoint is set.
         /// </summary>
         [Optional]
-        public string InstructionReference { get; set; }
+        public string? InstructionReference { get; set; }
 
         /// <summary>
         /// An optional offset from the instruction reference.

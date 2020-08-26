@@ -23,18 +23,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// An optional expression for conditional breakpoints.
         /// </summary>
         [Optional]
-        public string Condition { get; set; }
+        public string? Condition { get; set; }
 
         /// <summary>
         /// An optional expression that controls how many hits of the breakpoint are ignored. The backend is expected to interpret the expression as needed.
         /// </summary>
         [Optional]
-        public string HitCondition { get; set; }
+        public string? HitCondition { get; set; }
 
         /// <summary>
         /// If this attribute exists and is non-empty, the backend must not 'break' (stop) but log the message instead. Expressions within {} are interpolated.
         /// </summary>
         [Optional]
-        public string LogMessage { get; set; }
+        public string? LogMessage { get; set; }
     }
 }

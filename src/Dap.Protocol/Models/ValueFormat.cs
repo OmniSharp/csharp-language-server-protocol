@@ -11,6 +11,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Display the value in hex.
         /// </summary>
         [Optional]
-        public bool? Hex { get; set; }
+        public bool Hex { get; set; }
     }
 }

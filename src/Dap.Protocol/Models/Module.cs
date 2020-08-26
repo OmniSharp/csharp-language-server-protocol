@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// A name of the module.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// optional but recommended attributes.
@@ -31,49 +31,49 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Logical full path to the module. The exact definition is implementation defined, but usually this would be a full path to the on-disk file for the module.
         /// </summary>
         [Optional]
-        public string Path { get; set; }
+        public string? Path { get; set; }
 
         /// <summary>
         /// True if the module is optimized.
         /// </summary>
         [Optional]
-        public bool? IsOptimized { get; set; }
+        public bool IsOptimized { get; set; }
 
         /// <summary>
         /// True if the module is considered 'user code' by a debugger that supports 'Just My Code'.
         /// </summary>
         [Optional]
-        public bool? IsUserCode { get; set; }
+        public bool IsUserCode { get; set; }
 
         /// <summary>
         /// Version of Module.
         /// </summary>
         [Optional]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         /// <summary>
         /// User understandable description of if symbols were found for the module (ex: 'Symbols Loaded', 'Symbols not found', etc.
         /// </summary>
         [Optional]
-        public string SymbolStatus { get; set; }
+        public string? SymbolStatus { get; set; }
 
         /// <summary>
         /// Logical full path to the symbol file. The exact definition is implementation defined.
         /// </summary>
         [Optional]
-        public string SymbolFilePath { get; set; }
+        public string? SymbolFilePath { get; set; }
 
         /// <summary>
         /// Module created or modified.
         /// </summary>
         [Optional]
-        public string DateTimeStamp { get; set; }
+        public string? DateTimeStamp { get; set; }
 
         /// <summary>
         /// Address range covered by this module.
         /// </summary>
         [Optional]
-        public string AddressRange { get; set; }
+        public string? AddressRange { get; set; }
 
         /// <summary>
         /// Allows additional data to be displayed

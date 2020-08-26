@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// used to group exceptions in the UI.
         /// </summary>
         [Optional]
-        public Container<ExceptionPathSegment> Path { get; set; }
+        public Container<ExceptionPathSegment>? Path { get; set; }
 
         /// <summary>
         /// Condition when a thrown exception should result in a break.

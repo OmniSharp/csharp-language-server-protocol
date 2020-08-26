@@ -16,6 +16,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Value of the checksum.
         /// </summary>
         [JsonProperty("checksum")]
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
     }
 }

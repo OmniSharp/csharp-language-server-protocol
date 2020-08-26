@@ -14,6 +14,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// Optional, more detailed progress message. If omitted, the previous message (if any) is used.
         /// </summary>
         [Optional]
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 }
