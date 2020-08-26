@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public static EmptyDisposableConfiguration Instance { get; } = new EmptyDisposableConfiguration();
         private readonly ConfigurationRoot _configuration;
 
-        private EmptyDisposableConfiguration() => _configuration = new ConfigurationBuilder().Build() as ConfigurationRoot;
+        private EmptyDisposableConfiguration() => _configuration = (new ConfigurationBuilder().Build() as ConfigurationRoot)!;
 
         void IDisposable.Dispose()
         {

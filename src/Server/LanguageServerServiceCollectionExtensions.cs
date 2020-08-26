@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddLanguageProtocolInternals(options);
             container.RegisterMany<LspServerReceiver>(
@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
             container.RegisterInstance(
                 options.ServerInfo ?? new ServerInfo {
-                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Name = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty,
                     Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                      ?.InformationalVersion ??
                               Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
@@ -112,10 +112,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return container;
         }
 
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions> configureOptions = null) =>
+        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions>? configureOptions = null) =>
             AddLanguageServer(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions> configureOptions = null)
+        public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

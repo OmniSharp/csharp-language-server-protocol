@@ -78,7 +78,7 @@ namespace Lsp.Tests.Capabilities.Server
         public void Optional(string expected)
         {
             var model = new ServerCapabilities {
-                ColorProvider = (DocumentColorRegistrationOptions.StaticOptions) null
+                ColorProvider = null
             };
 
             var result = Fixture.SerializeObject(model);

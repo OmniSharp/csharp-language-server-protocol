@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -11,7 +10,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Primitives;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -29,12 +27,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         private readonly ILogger<DidChangeConfigurationProvider> _logger;
         private readonly IWorkspaceLanguageServer _workspaceLanguageServer;
         private readonly ConfigurationConverter _configurationConverter;
-        private DidChangeConfigurationCapability _capability;
+        private DidChangeConfigurationCapability? _capability;
         private readonly ConfigurationRoot _configuration;
         private readonly CompositeDisposable _compositeDisposable = new CompositeDisposable();
 
-        private readonly ConcurrentDictionary<DocumentUri, ScopedConfiguration> _openScopes =
-            new ConcurrentDictionary<DocumentUri, ScopedConfiguration>();
+        private readonly ConcurrentDictionary<DocumentUri?, ScopedConfiguration> _openScopes = new ConcurrentDictionary<DocumentUri?, ScopedConfiguration>();
 
         private readonly IObserver<System.Reactive.Unit> _triggerChange;
 
@@ -51,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var builder = new ConfigurationBuilder()
                .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
-            _configuration = builder.Build() as ConfigurationRoot;
+            _configuration = (builder.Build() as ConfigurationRoot)!;
 
             var triggerChange = new Subject<System.Reactive.Unit>();
             _compositeDisposable.Add(triggerChange);
@@ -103,7 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                               .Select(
                                    x => {
                                        var (dataItem, settings) = x;
-                                       var key = dataItem.ScopeUri != null ? $"{dataItem.ScopeUri}:{dataItem.Section}" : dataItem.Section;
+                                       var key = dataItem.ScopeUri is not null ? $"{dataItem.ScopeUri}:{dataItem.Section}" : dataItem.Section;
                                        _configurationConverter.ParseClientConfiguration(newData, settings, key);
                                        return System.Reactive.Unit.Default;
                                    }
@@ -125,7 +122,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 Create<System.Reactive.Unit>(
                     observer => {
                         var scopedConfigurationItems = _configurationItems
-                                                      .Where(z => z.ScopeUri == null)
+                                                      .Where(z => z.ScopeUri is null)
                                                       .SelectMany(
                                                            scope =>
                                                                _openScopes.Keys.Select(
@@ -133,7 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                                                                )
                                                        ).ToArray();
                         return GetConfigurationFromClient(scopedConfigurationItems)
-                              .GroupBy(z => z.scope.ScopeUri, z => ( z.scope.Section, z.settings ))
+                              .GroupBy(z => z.scope.ScopeUri, z => ( z.scope.Section ?? string.Empty, z.settings ))
                               .Select(z => z.ToArray().Select(items => ( key: z.Key, items )))
                               .Concat()
                               .Do(
@@ -159,8 +156,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         public IConfigurationSection GetSection(string key) => _configuration.GetSection(key);
 
         public IEnumerable<IConfigurationSection> GetChildren() => _configuration.GetChildren();
-
-        public IChangeToken GetReloadToken() => _configuration.GetReloadToken();
 
         public string this[string key]
         {
@@ -202,7 +197,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             ).ConfigureAwait(false);
             var data = items.Zip(
                 configurations,
-                (scope, settings) => ( scope.Section, settings )
+                (scope, settings) => ( scope.Section ?? string.Empty, settings )
             );
             return new ConfigurationBuilder()
                    // this avoids chaining the configurations
@@ -221,7 +216,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return EmptyDisposableConfiguration.Instance;
 
             var data = await GetConfigurationFromClient(scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }))
-                            .Select(z => (z.scope.Section, z.settings))
+                            .Select(z => (z.scope.Section ?? string.Empty, z.settings))
                             .ToArray()
                             .ToTask(cancellationToken)
                             .ConfigureAwait(false);
@@ -254,7 +249,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void Dispose()
         {
-            _compositeDisposable?.Dispose();
+            _compositeDisposable.Dispose();
         }
 
         private IObservable<(ConfigurationItem scope, JToken settings)> GetConfigurationFromClient(
