@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
@@ -12,7 +13,12 @@ namespace JsonRpc.Tests
     public class MediatorTestsNotificationHandler : AutoTestBase
     {
         [Method("exit")]
-        public interface IExitHandler : IJsonRpcNotificationHandler
+        public class ExitParams : IRequest
+        {
+        }
+
+        [Method("exit")]
+        public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
         {
         }
 
@@ -31,7 +37,7 @@ namespace JsonRpc.Tests
 
             await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
 
-            await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
+            await exitHandler.Received(1).Handle(Arg.Any<ExitParams>(), Arg.Any<CancellationToken>());
         }
     }
 }

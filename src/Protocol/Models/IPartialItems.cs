@@ -18,8 +18,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         where TResponse : IEnumerable<T>
     {
     }
-
-    public interface IPartialItemsRequest<T> : IPartialItemsRequest<Container<T>, T>
-    {
-    }
 }
