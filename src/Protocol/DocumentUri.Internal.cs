@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        private static string SchemeFix(string scheme, bool? strict)
+        private static string? SchemeFix(string? scheme, bool? strict)
         {
             if (string.IsNullOrWhiteSpace(scheme) && strict != true)
             {
@@ -89,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static readonly Regex Regexp =
             new Regex(@"^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?");
 
-        private static string ReferenceResolution(string scheme, string path)
+        private static string ReferenceResolution(string? scheme, string path)
         {
             // the slash-character is our "default base' as we don"t
             // support constructing URIs relative to other URIs. This
@@ -137,7 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         private static string EncodeUriComponentFast(string uriComponent, bool allowSlash)
         {
-            StringBuilder res = null;
+            StringBuilder? res = null;
             var nativeEncodePos = -1;
 
             for (var pos = 0; pos < uriComponent.Length; pos++)
@@ -217,7 +217,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         private static string EncodeUriComponentMinimal(string path)
         {
-            StringBuilder res = null;
+            StringBuilder? res = null;
             for (var pos = 0; pos < path.Length; pos++)
             {
                 var code = path[pos];
@@ -308,13 +308,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             if (!string.IsNullOrWhiteSpace(authority))
             {
-                var idx = authority.IndexOf("@");
+                var idx = authority.IndexOf("@", StringComparison.Ordinal);
                 if (idx != -1)
                 {
                     // <user>@<auth>
                     var userinfo = authority.Substring(0, idx);
                     authority = authority.Substring(idx + 1);
-                    idx = userinfo.IndexOf(":");
+                    idx = userinfo.IndexOf(":", StringComparison.Ordinal);
                     if (idx == -1)
                     {
                         res.Append(Encoder(userinfo, false));
@@ -358,7 +358,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         res.Append(Convert.ToChar(code + 32));
                         res.Append(":");
                         res.Append(Encoder(path.Substring(3), true));
-//                         path = $"/{Convert.ToChar(code + 32)}:{path.Substring(3)}"; // "/c:".length == 3
+                        //                         path = $"/{Convert.ToChar(code + 32)}:{path.Substring(3)}"; // "/c:".length == 3
                     }
                 }
                 else if (path.Length >= 2 && path[1] == CharCode.Colon)
@@ -370,7 +370,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         res.Append(Convert.ToChar(code + 32));
                         res.Append(":");
                         res.Append(Encoder(path.Substring(2), true));
-//                         path = $"{Convert.ToChar(code + 32)}:{path.Substring(2)}"; // "/c:".length == 3
+                        //                         path = $"{Convert.ToChar(code + 32)}:{path.Substring(2)}"; // "/c:".length == 3
                     }
                 }
 

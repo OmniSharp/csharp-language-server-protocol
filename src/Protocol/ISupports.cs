@@ -6,6 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         bool IsSupported { get; }
         Type ValueType { get; }
-        object Value { get; }
+        object? Value { get; }
     }
 }

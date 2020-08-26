@@ -22,25 +22,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public Supports(bool? isSupported)
         {
             _isSupported = isSupported;
-            Value = default;
+            Value = default!;
         }
 
         public T Value { get; set; }
         public bool IsSupported => _isSupported ?? false;
         public Type ValueType => typeof(T);
-        object ISupports.Value => Value;
+        object? ISupports.Value => Value;
 
         public static implicit operator T(Supports<T> value) => value.Value;
 
-        public static implicit operator Supports<T>(T value) => new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default), value);
+        public static implicit operator Supports<T>(T value) => new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default!), value);
 
     }
 
     public static class Supports
     {
-        public static Supports<T> OfValue<T>(T value)
-            where T : class =>
-            new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default), value);
+        public static Supports<T> OfValue<T>(T value) where T : class? => new Supports<T>(!EqualityComparer<T>.Default.Equals(value, default!), value);
 
         public static Supports<T> OfBoolean<T>(bool? isSupported) => new Supports<T>(isSupported);
     }

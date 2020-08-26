@@ -7,13 +7,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     {
         Guid Id { get; }
         bool HasRegistration { get; }
-        Type RegistrationType { get; }
-        object RegistrationOptions { get; }
+        Type? RegistrationType { get; }
+        object? RegistrationOptions { get; }
         bool AllowsDynamicRegistration { get; }
 
         bool HasCapability { get; }
-        Type CapabilityType { get; }
+        Type? CapabilityType { get; }
         bool IsDynamicCapability { get; }
-        Type CanBeResolvedHandlerType { get; }
+        Type? CanBeResolvedHandlerType { get; }
     }
 }

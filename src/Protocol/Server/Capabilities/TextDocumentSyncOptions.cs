@@ -37,25 +37,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Save notifications are sent to the server.
         /// </summary>
         [Optional]
-        public BooleanOr<SaveOptions> Save { get; set; }
+        public BooleanOr<SaveOptions> Save { get; set; } = new BooleanOr<SaveOptions>(false);
 
         public static TextDocumentSyncOptions Of(IEnumerable<ITextDocumentSyncOptions> options, IEnumerable<IHandlerDescriptor> descriptors)
         {
             var change = TextDocumentSyncKind.None;
-            if (options.Any(x => x.Change != TextDocumentSyncKind.None))
+            var textDocumentSyncOptions = options as ITextDocumentSyncOptions[] ?? options.ToArray();
+            if (textDocumentSyncOptions.Any(x => x.Change != TextDocumentSyncKind.None))
             {
-                change = options
+                change = textDocumentSyncOptions
                         .Where(x => x.Change != TextDocumentSyncKind.None)
                         .Min(z => z.Change);
             }
 
             return new TextDocumentSyncOptions {
-                OpenClose = options.Any(z => z.OpenClose),
+                OpenClose = textDocumentSyncOptions.Any(z => z.OpenClose),
                 Change = change,
-                WillSave = options.Any(z => z.WillSave),
-                WillSaveWaitUntil = options.Any(z => z.WillSaveWaitUntil),
+                WillSave = textDocumentSyncOptions.Any(z => z.WillSave),
+                WillSaveWaitUntil = textDocumentSyncOptions.Any(z => z.WillSaveWaitUntil),
                 Save = new SaveOptions {
-                    IncludeText = options.Any(z => z.Save.IsValue && z.Save.Value.IncludeText)
+                    IncludeText = textDocumentSyncOptions.Any(z => z.Save.IsValue && z.Save.Value.IncludeText)
                 }
             };
         }

@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
         /// </summary>
         Task<IWorkDoneObserver> Create(
-            ProgressToken progressToken, WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null,
+            ProgressToken progressToken, WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd>? onError = null, Func<WorkDoneProgressEnd>? onComplete = null,
             CancellationToken cancellationToken = default
         );
 
@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// The other side can cancel this, so the <see cref="CancellationToken" /> should be respected.
         /// </summary>
         Task<IWorkDoneObserver> Create(
-            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null,
+            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd>? onError = null, Func<WorkDoneProgressEnd>? onComplete = null,
             CancellationToken cancellationToken = default
         );
 
@@ -35,8 +35,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// Creates a <see cref="IWorkDoneObserver" /> for a request where the client is already listening to work done.
         /// </summary>
         IWorkDoneObserver For(
-            IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null,
-            Func<WorkDoneProgressEnd> onComplete = null
+            IWorkDoneProgressParams request, WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd>? onError = null,
+            Func<WorkDoneProgressEnd>? onComplete = null
         );
     }
 }

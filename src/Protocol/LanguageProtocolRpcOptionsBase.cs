@@ -24,13 +24,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Services.AddSingleton(typeof(ITextDocumentIdentifier), item);
             }
 
-            return (T) (object) this;
+            return (T)(object)this;
         }
 
         public T AddTextDocumentIdentifier<TI>() where TI : ITextDocumentIdentifier
         {
             Services.AddSingleton(typeof(ITextDocumentIdentifier), typeof(TI));
-            return (T) (object) this;
+            return (T)(object)this;
         }
 
         public ISerializer Serializer { get; set; } = new Serializer(ClientVersion.Lsp3);

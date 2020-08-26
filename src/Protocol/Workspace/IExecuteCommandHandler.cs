@@ -30,7 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ExecuteCommandCapability capability) => Capability = capability;
-        protected ExecuteCommandCapability Capability { get; private set; }
+        protected ExecuteCommandCapability Capability { get; private set; } = null!;
     }
 
     public abstract class ExecuteCommandHandlerBase<T> : ExecuteCommandHandler
@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             var args = request.Arguments ?? new JArray();
             T arg1 = default;
             if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
-            return Handle(arg1, cancellationToken);
+            return Handle(arg1!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, CancellationToken cancellationToken);
@@ -65,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             if (args.Count > 0) arg1 = args[0].ToObject<T>(_serializer.JsonSerializer);
             T2 arg2 = default;
             if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
-            return Handle(arg1, arg2, cancellationToken);
+            return Handle(arg1!, arg2!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken);
@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             if (args.Count > 1) arg2 = args[1].ToObject<T2>(_serializer.JsonSerializer);
             T3 arg3 = default;
             if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
-            return Handle(arg1, arg2, arg3, cancellationToken);
+            return Handle(arg1!, arg2!, arg3!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken);
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             if (args.Count > 2) arg3 = args[2].ToObject<T3>(_serializer.JsonSerializer);
             T4 arg4 = default;
             if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
-            return Handle(arg1, arg2, arg3, arg4, cancellationToken);
+            return Handle(arg1!, arg2!, arg3!, arg4!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken);
@@ -137,7 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             if (args.Count > 3) arg4 = args[3].ToObject<T4>(_serializer.JsonSerializer);
             T5 arg5 = default;
             if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
-            return Handle(arg1, arg2, arg3, arg4, arg5, cancellationToken);
+            return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken);
@@ -165,7 +165,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
             if (args.Count > 4) arg5 = args[4].ToObject<T5>(_serializer.JsonSerializer);
             T6 arg6 = default;
             if (args.Count > 5) arg6 = args[5].ToObject<T6>(_serializer.JsonSerializer);
-            return Handle(arg1, arg2, arg3, arg4, arg5, arg6, cancellationToken);
+            return Handle(arg1!, arg2!, arg3!, arg4!, arg5!, arg6!, cancellationToken);
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken);
