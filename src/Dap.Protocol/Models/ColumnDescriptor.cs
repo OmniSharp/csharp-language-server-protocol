@@ -11,18 +11,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Name of the attribute rendered in this column.
         /// </summary>
-        public string AttributeName { get; set; }
+        public string AttributeName { get; set; } = null!;
 
         /// <summary>
         /// Header UI label of column.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// Format to use for the rendered values in this column. TBD how the format strings looks like.
         /// </summary>
         [Optional]
-        public string Format { get; set; }
+        public string? Format { get; set; }
 
         /// <summary>
         /// Datatype of values in this column.  Defaults to 'string' if not specified.

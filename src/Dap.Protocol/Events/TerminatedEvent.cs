@@ -15,6 +15,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// </summary>
         [Optional]
         [JsonProperty(PropertyName = "__restart")]
-        public JToken Restart { get; set; }
+        public JToken? Restart { get; set; }
     }
 }

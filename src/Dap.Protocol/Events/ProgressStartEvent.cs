@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// Mandatory (short) title of the progress reporting. Shown in the UI to describe the long running operation.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         /// <summary>
         /// The request ID that this progress report is related to. If specified a debug adapter is expected to emit
@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// If the request ID is omitted, the progress report is assumed to be related to some general activity of the debug adapter.
         /// </summary>
         [Optional]
-        public int RequestId { get; set; }
+        public int? RequestId { get; set; }
 
         /// <summary>
         /// If true, the request that reports progress may be canceled with a 'cancel' request.
@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// Clients that don't support cancellation are allowed to ignore the setting.
         /// </summary>
         [Optional]
-        public bool? Cancellable { get; set; }
+        public bool Cancellable { get; set; }
 
         /// <summary>
         /// Optional progress percentage to display (value range: 0 to 100). If omitted no percentage will be shown.

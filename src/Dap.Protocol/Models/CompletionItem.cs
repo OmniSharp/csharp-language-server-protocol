@@ -10,13 +10,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The label of this completion item. By default this is also the text that is inserted when selecting this completion.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// If text is not falsy then it is inserted instead of the label.
         /// </summary>
         [Optional]
-        public string Text { get; set; }
+        public string? Text { get; set; } = null!;
 
         /// <summary>
         /// The item's type. Typically the client uses this information to render the item in the UI with an icon.

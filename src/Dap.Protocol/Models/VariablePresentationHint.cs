@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public string Kind { get; set; }
+        public string? Kind { get; set; }
 
         /// <summary>
         /// Set of attributes represented as an array of strings. Before introducing additional values, try to use the listed values.
@@ -40,13 +40,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public Container<string> Attributes { get; set; }
+        public Container<string>? Attributes { get; set; }
 
         /// <summary>
         /// Visibility of variable. Before introducing additional values, try to use the listed values.
         /// Values: 'public', 'private', 'protected', 'internal', 'final', etc.
         /// </summary>
         [Optional]
-        public string Visibility { get; set; }
+        public string? Visibility { get; set; }
     }
 }

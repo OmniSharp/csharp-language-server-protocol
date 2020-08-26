@@ -16,13 +16,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The name of the stack frame, typically a method name.
         /// </summary>
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         /// The optional source of the frame.
         /// </summary>
         [Optional]
-        public Source Source { get; set; }
+        public Source? Source { get; set; }
 
         /// <summary>
         /// The line within the file of the frame. If source is null or doesn't exist, line is 0 and must be ignored.
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Optional memory reference for the current instruction pointer in this frame.
         /// </summary>
         [Optional]
-        public string InstructionPointerReference { get; set; }
+        public string? InstructionPointerReference { get; set; }
 
         /// <summary>
         /// The module associated with this frame, if any.

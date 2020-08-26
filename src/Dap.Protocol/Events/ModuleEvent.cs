@@ -15,6 +15,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The new, changed, or removed module. In case of 'removed' only the module id is used.
         /// </summary>
-        public Module Module { get; set; }
+        public Module Module { get; set; } = null!;
     }
 }

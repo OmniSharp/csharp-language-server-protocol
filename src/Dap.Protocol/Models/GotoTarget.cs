@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The name of the goto target (shown in the UI).
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// The line of the goto target.
@@ -45,6 +45,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Optional memory reference for the instruction pointer value represented by this target.
         /// </summary>
         [Optional]
-        public string InstructionPointerReference { get; set; }
+        public string? InstructionPointerReference { get; set; }
     }
 }
