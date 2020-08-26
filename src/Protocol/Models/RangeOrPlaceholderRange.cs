@@ -6,8 +6,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
     public class RangeOrPlaceholderRange
     {
-        private Range _range;
-        private PlaceholderRange _placeholderRange;
+        private Range? _range;
+        private PlaceholderRange? _placeholderRange;
 
         public RangeOrPlaceholderRange(Range value)
         {
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool IsPlaceholderRange => _placeholderRange != null;
 
-        public PlaceholderRange PlaceholderRange
+        public PlaceholderRange? PlaceholderRange
         {
             get => _placeholderRange;
             set {
@@ -32,9 +32,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
         }
 
-        public bool IsRange => _range != null;
+        public bool IsRange => _range is not null;
 
-        public Range Range
+        public Range? Range
         {
             get => _range;
             set {
@@ -43,7 +43,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             }
         }
 
-        public object RawValue
+        public object? RawValue
         {
             get {
                 if (IsPlaceholderRange) return PlaceholderRange;

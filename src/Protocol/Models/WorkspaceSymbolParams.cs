@@ -7,19 +7,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// The parameters of a Workspace Symbol Request.
     /// </summary>
     [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
-    public class WorkspaceSymbolParams : IPartialItemsRequest<Container<SymbolInformation>, SymbolInformation>, IWorkDoneProgressParams
+    public class WorkspaceSymbolParams : IPartialItemsRequest<Container<SymbolInformation>?, SymbolInformation>, IWorkDoneProgressParams
     {
         /// <summary>
         /// A non-empty query string
         /// </summary>
-        public string Query { get; set; }
+        public string Query { get; set; } = null!;
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }

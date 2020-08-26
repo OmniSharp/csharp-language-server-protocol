@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The URI for which diagnostic information is reported.
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
         /// <summary>
         /// Optional the version number of the document the diagnostics are published for.
@@ -23,6 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// An array of diagnostic information items.
         /// </summary>
-        public Container<Diagnostic> Diagnostics { get; set; }
+        public Container<Diagnostic> Diagnostics { get; set; } = null!;
     }
 }

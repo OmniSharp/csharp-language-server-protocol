@@ -11,8 +11,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     [Obsolete(Constants.Proposal)]
     public class SemanticTokensLegend
     {
-        private ImmutableDictionary<SemanticTokenModifier, int> _tokenModifiersData;
-        private ImmutableDictionary<SemanticTokenType, int> _tokenTypesData;
+        private ImmutableDictionary<SemanticTokenModifier, int>? _tokenModifiersData;
+        private ImmutableDictionary<SemanticTokenType, int>? _tokenTypesData;
 
         private Container<string> _tokenTypes = new Container<string>(
             SemanticTokenType
@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         {
             EnsureTokenTypes();
             if (string.IsNullOrWhiteSpace(tokenType)) return 0;
-            return _tokenTypesData.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            return _tokenTypesData != null && _tokenTypesData.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
         }
 
         public int GetTokenTypeIdentity(SemanticTokenType? tokenType)
@@ -64,10 +64,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             EnsureTokenTypes();
             if (!tokenType.HasValue) return 0;
             if (string.IsNullOrWhiteSpace(tokenType.Value)) return 0;
-            return _tokenTypesData.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            return _tokenTypesData != null && _tokenTypesData.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
         }
 
-        public int GetTokenModifiersIdentity(params string[] tokenModifiers)
+        public int GetTokenModifiersIdentity(params string[]? tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
@@ -75,13 +75,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                   .Where(z => !string.IsNullOrWhiteSpace(z))
                   .Aggregate(
                        0,
-                       (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                       (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                            ? acc + tokenModifer
                            : acc
                    );
         }
 
-        public int GetTokenModifiersIdentity(IEnumerable<string> tokenModifiers)
+        public int GetTokenModifiersIdentity(IEnumerable<string>? tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
@@ -89,13 +89,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                   .Where(z => !string.IsNullOrWhiteSpace(z))
                   .Aggregate(
                        0,
-                       (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                       (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                            ? acc + tokenModifer
                            : acc
                    );
         }
 
-        public int GetTokenModifiersIdentity(params SemanticTokenModifier[] tokenModifiers)
+        public int GetTokenModifiersIdentity(params SemanticTokenModifier[]? tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
@@ -103,13 +103,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                   .Where(z => !string.IsNullOrWhiteSpace(z))
                   .Aggregate(
                        0,
-                       (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                       (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                            ? acc + tokenModifer
                            : acc
                    );
         }
 
-        public int GetTokenModifiersIdentity(IEnumerable<SemanticTokenModifier> tokenModifiers)
+        public int GetTokenModifiersIdentity(IEnumerable<SemanticTokenModifier>? tokenModifiers)
         {
             EnsureTokenModifiers();
             if (tokenModifiers == null) return 0;
@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                   .Where(z => !string.IsNullOrWhiteSpace(z))
                   .Aggregate(
                        0,
-                       (acc, value) => _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                       (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
                            ? acc + tokenModifer
                            : acc
                    );

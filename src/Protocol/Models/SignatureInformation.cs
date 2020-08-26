@@ -15,20 +15,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The label of this signature. Will be shown in
         /// the UI.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// The human-readable doc-comment of this signature. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
         [Optional]
-        public StringOrMarkupContent Documentation { get; set; }
+        public StringOrMarkupContent? Documentation { get; set; }
 
         /// <summary>
         /// The parameters of this signature.
         /// </summary>
         [Optional]
-        public Container<ParameterInformation> Parameters { get; set; }
+        public Container<ParameterInformation>? Parameters { get; set; }
 
         /// <summary>
         /// The index of the active parameter.

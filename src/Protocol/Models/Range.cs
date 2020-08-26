@@ -20,17 +20,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range's start position.
         /// </summary>
-        public Position Start { get; set; }
+        public Position Start { get; set; } = null!;
 
         /// <summary>
         /// The range's end position.
         /// </summary>
-        public Position End { get; set; }
+        public Position End { get; set; } = null!;
 
-        public override bool Equals(object obj) => Equals(obj as Range);
+        public override bool Equals(object? obj) => Equals(obj as Range);
 
-        public bool Equals(Range other) =>
-            other != null &&
+        public bool Equals(Range? other) =>
+            other is not null &&
             EqualityComparer<Position>.Default.Equals(Start, other.Start) &&
             EqualityComparer<Position>.Default.Equals(End, other.End);
 

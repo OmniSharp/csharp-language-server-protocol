@@ -7,8 +7,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// </summary>
     public class StaticWorkDoneTextDocumentRegistrationOptions : StaticTextDocumentRegistrationOptions, IWorkDoneProgressOptions
     {
-        [Optional]
         /// <inheritdoc />
+        [Optional]
         public bool WorkDoneProgress { get; set; }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -15,20 +14,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// <summary>
         /// The legend used by the server
         /// </summary>
-        public SemanticTokensLegend Legend { get; set; }
+        public SemanticTokensLegend Legend { get; set; } = null!;
 
         /// <summary>
         /// Server supports providing semantic tokens for a specific range
         /// of a document.
         /// </summary>
         [Optional]
-        public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
+        public BooleanOr<SemanticTokensCapabilityRequestRange>? Range { get; set; }
 
         /// <summary>
         /// Server supports providing semantic tokens for a full document.
         /// </summary>
         [Optional]
-        public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }
+        public BooleanOr<SemanticTokensCapabilityRequestFull>? Full { get; set; }
 
         /// <summary>
         /// Call hierarchy options used during static registration.
@@ -41,22 +40,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             /// <summary>
             /// The legend used by the server
             /// </summary>
-            public SemanticTokensLegend Legend { get; set; }
+            public SemanticTokensLegend Legend { get; set; } = null!;
 
             /// <summary>
             /// Server supports providing semantic tokens for a specific range
             /// of a document.
             /// </summary>
             [Optional]
-            public BooleanOr<SemanticTokensCapabilityRequestRange> Range { get; set; }
+            public BooleanOr<SemanticTokensCapabilityRequestRange>? Range { get; set; }
 
             /// <summary>
             /// Server supports providing semantic tokens for a full document.
             /// </summary>
             [Optional]
-            public BooleanOr<SemanticTokensCapabilityRequestFull> Full { get; set; }
+            public BooleanOr<SemanticTokensCapabilityRequestFull>? Full { get; set; }
 
-            public string Id { get; set; }
+            public string? Id { get; set; }
         }
 
         class SemanticTokensRegistrationOptionsConverter : RegistrationOptionsConverterBase<SemanticTokensRegistrationOptions, StaticOptions>
@@ -71,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             {
                 var result = new StaticOptions {
                     WorkDoneProgress = source.WorkDoneProgress,
-                    Legend = source.Legend ?? new SemanticTokensLegend(),
+                    Legend = source.Legend,
                     Full = source.Full,
                     Range = source.Range
                 };

@@ -9,13 +9,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The range of the text document to be manipulated. To insert
         /// text into a document create a range where start === end.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The string to be inserted. For delete operations use an
         /// empty string.
         /// </summary>
-        public string NewText { get; set; }
+        public string NewText { get; set; } = null!;
 
         private string DebuggerDisplay => $"{Range} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 

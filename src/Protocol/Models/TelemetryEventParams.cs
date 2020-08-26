@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [Method(WindowNames.TelemetryEvent, Direction.ServerToClient)]
     public class TelemetryEventParams : IRequest
     {
-        [JsonExtensionData] private IDictionary<string, JToken> Data { get; set; }
+        [JsonExtensionData] private IDictionary<string, JToken> Data { get; set; } = new Dictionary<string, JToken>();
     }
 }
