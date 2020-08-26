@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The possible stepIn targets of the specified source location.
         /// </summary>
-        public Container<StepInTarget> Targets { get; set; }
+        public Container<StepInTarget>? Targets { get; set; }
     }
 }

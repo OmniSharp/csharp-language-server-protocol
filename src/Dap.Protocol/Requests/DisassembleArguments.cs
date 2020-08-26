@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Memory reference to the base location containing the instructions to disassemble.
         /// </summary>
-        public string MemoryReference { get; set; }
+        public string MemoryReference { get; set; } = null!;
 
         /// <summary>
         /// Optional offset(in bytes) to be applied to the reference location before disassembling.Can be negative.
@@ -35,6 +35,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// If true, the adapter should attempt to resolve memory addresses and other values to symbolic names.
         /// </summary>
         [Optional]
-        public bool? ResolveSymbols { get; set; }
+        public bool ResolveSymbols { get; set; }
     }
 }

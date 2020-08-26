@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The possible goto targets of the specified location.
         /// </summary>
-        public Container<GotoTarget> Targets { get; set; }
+        public Container<GotoTarget> Targets { get; set; } = null!;
     }
 }

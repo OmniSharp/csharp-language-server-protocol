@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// All modules or range of modules.
         /// </summary>
-        public Container<Module> Modules { get; set; }
+        public Container<Module> Modules { get; set; } = null!;
 
         /// <summary>
         /// The total number of modules available.

@@ -10,6 +10,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The function names of the breakpoints.
         /// </summary>
-        public Container<FunctionBreakpoint> Breakpoints { get; set; }
+        public Container<FunctionBreakpoint> Breakpoints { get; set; } = null!;
     }
 }

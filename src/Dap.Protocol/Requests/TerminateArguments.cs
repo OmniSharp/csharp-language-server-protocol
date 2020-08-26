@@ -11,6 +11,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// A value of true indicates that this 'terminate' request is part of a restart sequence.
         /// </summary>
         [Optional]
-        public bool? Restart { get; set; }
+        public bool Restart { get; set; }
     }
 }
