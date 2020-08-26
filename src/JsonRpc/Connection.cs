@@ -15,14 +15,14 @@ namespace OmniSharp.Extensions.JsonRpc
             IOutputHandler outputHandler,
             IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter<IHandlerDescriptor> requestRouter,
+            IRequestRouter<IHandlerDescriptor?> requestRouter,
             IResponseRouter responseRouter,
             ILoggerFactory loggerFactory,
             OnUnhandledExceptionHandler onUnhandledException,
             TimeSpan requestTimeout,
             bool supportContentModified,
             int concurrency,
-            CreateResponseExceptionHandler getException = null
+            CreateResponseExceptionHandler? getException = null
         ) =>
             _inputHandler = new InputHandler(
                 input,
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Dispose()
         {
-            _inputHandler?.Dispose();
+            _inputHandler.Dispose();
             IsOpen = false;
         }
     }

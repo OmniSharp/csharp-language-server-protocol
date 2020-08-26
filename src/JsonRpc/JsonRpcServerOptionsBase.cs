@@ -19,20 +19,20 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             WithAssemblies(typeof(JsonRpcServer).Assembly);
         }
-        public PipeReader Input { get; set; }
-        public PipeWriter Output { get; set; }
+        public PipeReader? Input { get; set; }
+        public PipeWriter? Output { get; set; }
 
         public ILoggerFactory LoggerFactory
         {
-            get => Services.FirstOrDefault(z => z.ServiceType == typeof(ILoggerFactory))?.ImplementationInstance as ILoggerFactory;
+            get => Services.FirstOrDefault(z => z.ServiceType == typeof(ILoggerFactory))?.ImplementationInstance as ILoggerFactory ?? NullLoggerFactory.Instance;
             set => WithLoggerFactory(value);
         }
 
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
-        public abstract IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
+        public IRequestProcessIdentifier? RequestProcessIdentifier { get; set; }
         public int? Concurrency { get; set; }
-        public CreateResponseExceptionHandler CreateResponseException { get; set; }
-        public OnUnhandledExceptionHandler OnUnhandledException { get; set; }
+        public CreateResponseExceptionHandler? CreateResponseException { get; set; }
+        public OnUnhandledExceptionHandler? OnUnhandledException { get; set; }
         public bool SupportsContentModified { get; set; } = true;
         public TimeSpan MaximumRequestTimeout { get; set; } = TimeSpan.FromMinutes(5);
         internal CompositeDisposable CompositeDisposable { get; } = new CompositeDisposable();
@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void RegisterForDisposal(IDisposable disposable) => CompositeDisposable.Add(disposable);
 
-        public T WithAssemblies(IEnumerable<Assembly> assemblies)
+        public T WithAssemblies(IEnumerable<Assembly>? assemblies)
         {
             Assemblies = Assemblies.Concat(assemblies ?? Enumerable.Empty<Assembly>()).ToArray();
             return (T) (object) this;
@@ -99,13 +99,13 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public T WithHandler<THandler>(JsonRpcHandlerOptions options = null)
+        public T WithHandler<THandler>(JsonRpcHandlerOptions? options = null)
             where THandler : class, IJsonRpcHandler =>
             AddHandler<THandler>(options);
 
-        public T WithHandlersFrom(Type type, JsonRpcHandlerOptions options = null) => AddHandler(type, options);
+        public T WithHandlersFrom(Type type, JsonRpcHandlerOptions? options = null) => AddHandler(type, options);
 
-        public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions options = null) => AddHandler(typeInfo.AsType(), options);
+        public T WithHandlersFrom(TypeInfo typeInfo, JsonRpcHandlerOptions? options = null) => AddHandler(typeInfo.AsType(), options);
 
         public T WithResponseExceptionFactory(CreateResponseExceptionHandler handler)
         {

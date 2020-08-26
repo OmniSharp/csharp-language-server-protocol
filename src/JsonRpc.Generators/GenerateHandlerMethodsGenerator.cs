@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 else if (IsRequest(symbol))
                 {
                     var requestType = GetRequestType(symbol);
-                    var responseType = GetResponseType(symbol);
+                    var responseType = GetResponseType(handlerInterface);
                     methods.AddRange(HandleRequest(handlerInterface, symbol, requestType, responseType, registry, additionalUsings));
                 }
             }
@@ -62,6 +62,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            .Select(z => UsingDirective(IdentifierName(z)))
                 ;
 
+
+            var obsoleteAttribute = handlerInterface.AttributeLists
+                                                    .SelectMany(z => z.Attributes)
+                                                    .Where(z => z.Name.ToFullString() == nameof(ObsoleteAttribute) || z.Name.ToFullString() == "Obsolete")
+                                                    .ToArray();
             var attributes = List(
                 new[] {
                     AttributeList(
@@ -69,7 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             new[] {
                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                                 Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
-                            }
+                            }.Union(obsoleteAttribute)
                         )
                     )
                 }
@@ -99,6 +104,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                     )
                                                 )
                                                .WithMembers(List(methods))
+                                               .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                                               .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
                                                .NormalizeWhitespace()
                                         }
                                     )
@@ -182,7 +189,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             .WithBody(GetNotificationRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, registrationOptions));
 
                 var registrationParameter = Parameter(Identifier("registrationOptions"))
-                   .WithType(IdentifierName(registrationOptions.Name));
+                   .WithType(NullableType(IdentifierName(registrationOptions.Name)));
 
                 MemberDeclarationSyntax MakeAction(TypeSyntax syntax)
                 {
@@ -218,7 +225,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             InterfaceDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
-            INamedTypeSymbol responseType,
+            TypeSyntax responseType,
             NameSyntax registryType,
             HashSet<string> additionalUsings
         )
@@ -363,13 +370,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  )
                              )
                             .WithBody(GetRequestRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, registrationOptions));
-                if (responseType.Name == "Unit")
+                if (responseType.ToFullString().EndsWith("Unit"))
                 {
                     method = method.WithBody(GetVoidRequestRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, registrationOptions));
                 }
 
                 var registrationParameter = Parameter(Identifier("registrationOptions"))
-                   .WithType(IdentifierName(registrationOptions.Name));
+                       .WithType(NullableType(IdentifierName(registrationOptions.Name)))
+                    ;
 
                 MemberDeclarationSyntax MakeAction(TypeSyntax syntax)
                 {
@@ -468,7 +476,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     method = method.WithBody(
                         GetRequestRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, registrationOptions, capability)
                     );
-                    if (responseType.Name == "Unit")
+                    if (responseType.ToFullString().EndsWith("Unit"))
                     {
                         method = method.WithBody(GetVoidRequestRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, registrationOptions, capability));
                     }
@@ -502,7 +510,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     return Enumerable.Empty<NameSyntax>();
                 }
 
-                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value!;
 
                 /*
                 Unspecified = 0b0000,
@@ -544,7 +552,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     return Enumerable.Empty<NameSyntax>();
                 }
 
-                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value!;
 
                 /*
                 Unspecified = 0b0000,

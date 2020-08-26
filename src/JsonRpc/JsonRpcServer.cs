@@ -14,40 +14,40 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly InstanceHasStarted _instanceHasStarted;
         private readonly CompositeDisposable _disposable;
 
-        internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
+        internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider? outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
                                   .AddJsonRpcServerInternals(options);
 
         public static JsonRpcServer Create(JsonRpcServerOptions options) => Create(options, null);
         public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction) => Create(optionsAction, null);
 
-        public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider)
+        public static JsonRpcServer Create(Action<JsonRpcServerOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
             var options = new JsonRpcServerOptions();
             optionsAction(options);
             return Create(options, outerServiceProvider);
         }
 
-        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
+        public static JsonRpcServer Create(JsonRpcServerOptions options, IServiceProvider? outerServiceProvider) =>
             CreateContainer(options, outerServiceProvider).Resolve<JsonRpcServer>();
 
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options) => From(options, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction) => From(optionsAction, null, CancellationToken.None);
         public static Task<JsonRpcServer> From(JsonRpcServerOptions options, CancellationToken cancellationToken) => From(options, null, cancellationToken);
         public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, CancellationToken cancellationToken) => From(optionsAction, null, cancellationToken);
-        public static Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) => From(options, outerServiceProvider, CancellationToken.None);
+        public static Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider? outerServiceProvider) => From(options, outerServiceProvider, CancellationToken.None);
 
-        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
             From(optionsAction, outerServiceProvider, CancellationToken.None);
 
-        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<JsonRpcServer> From(Action<JsonRpcServerOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new JsonRpcServerOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<JsonRpcServer> From(JsonRpcServerOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken).ConfigureAwait(false);

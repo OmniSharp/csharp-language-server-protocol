@@ -7,12 +7,12 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public interface IJsonRpcServerOptions
     {
-        PipeReader Input { get; set; }
-        PipeWriter Output { get; set; }
-        IRequestProcessIdentifier RequestProcessIdentifier { get; set; }
+        PipeReader? Input { get; set; }
+        PipeWriter? Output { get; set; }
+        IRequestProcessIdentifier? RequestProcessIdentifier { get; set; }
         int? Concurrency { get; set; }
-        OnUnhandledExceptionHandler OnUnhandledException { get; set; }
-        CreateResponseExceptionHandler CreateResponseException { get; set; }
+        OnUnhandledExceptionHandler? OnUnhandledException { get; set; }
+        CreateResponseExceptionHandler? CreateResponseException { get; set; }
         bool SupportsContentModified { get; set; }
         TimeSpan MaximumRequestTimeout { get; set; }
         void RegisterForDisposal(IDisposable disposable);

@@ -19,9 +19,9 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="method">
         /// The name of the target method.
         /// </param>
-        public MethodNotSupportedException(object requestId, string method)
+        public MethodNotSupportedException(object? requestId, string? method)
             : base(ErrorCodes.MethodNotSupported, requestId, $"Method not found: '{method}'.") =>
-            Method = !string.IsNullOrWhiteSpace(method) ? method : "(unknown)";
+            Method = !string.IsNullOrWhiteSpace(method) ? method! : "(unknown)";
 
         /// <summary>
         /// Serialisation constructor.

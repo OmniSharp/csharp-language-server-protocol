@@ -18,7 +18,6 @@ namespace OmniSharp.Extensions.JsonRpc
             ILoggerFactory loggerFactory,
             bool supportContentModified,
             int? concurrency,
-            TimeSpan requestTimeout,
             IScheduler scheduler
         )
         {
@@ -34,9 +33,8 @@ namespace OmniSharp.Extensions.JsonRpc
                     var cd = new CompositeDisposable();
 
                     var observableQueue =
-                        new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer, Subject<Unit> contentModifiedSource)>(
-                            (
-                                RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue), supportContentModified ? new Subject<Unit>() : null )
+                        new BehaviorSubject<(RequestProcessType type, ReplaySubject<IObservable<Unit>> observer, Subject<Unit>? contentModifiedSource)>(
+                            ( RequestProcessType.Serial, new ReplaySubject<IObservable<Unit>>(int.MaxValue), supportContentModified ? new Subject<Unit>() : null )
                         );
 
                     cd.Add(
@@ -48,8 +46,8 @@ namespace OmniSharp.Extensions.JsonRpc
                                     if (supportContentModified && observableQueue.Value.type == RequestProcessType.Parallel)
                                     {
                                         logger.LogDebug("Cancelling any outstanding requests (switch from parallel to serial)");
-                                        observableQueue.Value.contentModifiedSource.OnNext(Unit.Default);
-                                        observableQueue.Value.contentModifiedSource.OnCompleted();
+                                        observableQueue.Value.contentModifiedSource?.OnNext(Unit.Default);
+                                        observableQueue.Value.contentModifiedSource?.OnCompleted();
                                     }
 
                                     logger.LogDebug("Completing existing request process type {Type}", observableQueue.Value.type);

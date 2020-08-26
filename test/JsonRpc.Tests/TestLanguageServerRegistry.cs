@@ -13,24 +13,24 @@ namespace JsonRpc.Tests
         private List<(string name, JsonRpcHandlerFactory handlerFunc)> NamedServiceHandlers { get; } =
             new List<(string name, JsonRpcHandlerFactory handlerFunc)>();
 
-        public override IJsonRpcServerRegistry AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
+        public override IJsonRpcServerRegistry AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options = null)
         {
             NamedHandlers.Add(( method, handler ));
             return this;
         }
 
-        public override IJsonRpcServerRegistry AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler(Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(Type type, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler(string method, Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(string method, Type type, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
         public override IJsonRpcServerRegistry AddHandlerLink(string fromMethod, string toMethod) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
+        public override IJsonRpcServerRegistry AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options = null)
         {
             NamedServiceHandlers.Add(( method, handlerFunc ));
             return this;
@@ -42,9 +42,9 @@ namespace JsonRpc.Tests
             return this;
         }
 
-        public override IJsonRpcServerRegistry AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
-        internal void Populate(HandlerCollection collection, IServiceProvider serviceProvider, JsonRpcHandlerOptions options = null)
+        internal void Populate(HandlerCollection collection, IServiceProvider serviceProvider, JsonRpcHandlerOptions? options = null)
         {
             collection.Add(Handlers.ToArray());
             foreach (var (name, handler) in NamedHandlers)

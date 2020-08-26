@@ -13,42 +13,42 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _parent.Descriptors;
 
-        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(handler, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
+        public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(method, handler, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options)
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(factory, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options)
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(method, factory, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options)
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(handlerType, options);
             _compositeDisposable.Add(result);
             return result;
         }
 
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options)
         {
             var result = _parent.Add(method, handlerType, options);
             _compositeDisposable.Add(result);

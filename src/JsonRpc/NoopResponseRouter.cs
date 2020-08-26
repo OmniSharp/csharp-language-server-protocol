@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         private class Impl : IResponseRouterReturns
         {
-            public Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken) => Task.FromResult<TResponse>(default);
+            public Task<TResponse> Returning<TResponse>(CancellationToken cancellationToken) => Task.FromResult<TResponse>(default!);
 
             public Task ReturningVoid(CancellationToken cancellationToken) => Task.CompletedTask;
         }

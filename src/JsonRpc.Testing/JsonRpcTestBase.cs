@@ -29,17 +29,17 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         protected CompositeDisposable Disposable { get; }
         public ISettler ClientEvents { get; }
-        public  ISettler ServerEvents { get; }
-        public  ISettler Events { get; }
-        public  JsonRpcTestOptions TestOptions { get; }
-        public  CancellationToken CancellationToken => _cancellationTokenSource.Token;
-        public  Task SettleNext() => Events.SettleNext();
-        public  IObservable<Unit> Settle() => Events.Settle();
+        public ISettler ServerEvents { get; }
+        public ISettler Events { get; }
+        public JsonRpcTestOptions TestOptions { get; }
+        public CancellationToken CancellationToken => _cancellationTokenSource.Token;
+        public Task SettleNext() => Events.SettleNext();
+        public IObservable<Unit> Settle() => Events.Settle();
 
         public void Dispose()
         {
-            _cancellationTokenSource?.Dispose();
-            Disposable?.Dispose();
+            _cancellationTokenSource.Dispose();
+            Disposable.Dispose();
         }
     }
 }

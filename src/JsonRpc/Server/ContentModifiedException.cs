@@ -17,8 +17,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public ContentModifiedException(object requestId)
-            : this(ErrorCodes.ContentModified, requestId.ToString(), "Content not modified.", null)
+        public ContentModifiedException(object? requestId)
+            : this(ErrorCodes.ContentModified, requestId?.ToString() ?? "(unknown)", "Content not modified.", null!)
         {
         }
 
@@ -31,8 +31,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="inner">
         /// The exception that caused this exception to be raised.
         /// </param>
-        public ContentModifiedException(object requestId, Exception inner)
-            : this(ErrorCodes.ContentModified, requestId.ToString(), "Content not modified.", inner)
+        public ContentModifiedException(object? requestId, Exception inner)
+            : this(ErrorCodes.ContentModified, requestId?.ToString() ?? "(unknown)", "Content not modified.", inner)
         {
         }
 

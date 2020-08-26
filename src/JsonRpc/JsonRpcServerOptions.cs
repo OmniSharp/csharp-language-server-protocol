@@ -4,6 +4,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class JsonRpcServerOptions : JsonRpcServerOptionsBase<JsonRpcServerOptions>
     {
+        public JsonRpcServerOptions()
+        {
+            RequestProcessIdentifier = new ParallelRequestProcessIdentifier();
+        }
         public ISerializer Serializer { get; set; } = new JsonRpcSerializer();
         public IReceiver Receiver { get; set; } = new Receiver();
 
@@ -12,7 +16,5 @@ namespace OmniSharp.Extensions.JsonRpc
             Receiver = receiver;
             return this;
         }
-
-        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
     }
 }

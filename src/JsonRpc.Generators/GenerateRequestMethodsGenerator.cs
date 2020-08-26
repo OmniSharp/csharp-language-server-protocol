@@ -57,19 +57,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 if (IsNotification(symbol))
                 {
-                    var requestType = GetRequestType(symbol);
+                    var requestType = GetRequestType(handlerInterface);
                     methods.AddRange(HandleNotifications(handlerInterface, symbol, requestType, registry, additionalUsings));
                 }
 
                 if (IsRequest(symbol))
                 {
-                    var requestType = GetRequestType(symbol);
-                    var responseType = GetResponseType(symbol);
+                    var requestType = GetRequestType(handlerInterface);
+                    var responseType = GetResponseType(handlerInterface);
                     methods.AddRange(HandleRequests(handlerInterface, symbol, requestType, responseType, registry, additionalUsings));
                 }
             }
 
 
+            var obsoleteAttribute = handlerInterface.AttributeLists
+                                                    .SelectMany(z => z.Attributes)
+                                                    .Where(z => z.Name.ToFullString() == nameof(ObsoleteAttribute) || z.Name.ToFullString() == "Obsolete")
+                                                    .ToArray();
             var attributes = List(
                 new[] {
                     AttributeList(
@@ -77,7 +81,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             new[] {
                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                                 Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
-                            }
+                            }.Union(obsoleteAttribute)
                         )
                     )
                 }
@@ -118,6 +122,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                     )
                                                 )
                                                .WithMembers(List(methods))
+                                               .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                                               .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
                                                .NormalizeWhitespace()
                                         }
                                     )
@@ -152,7 +158,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     return Enumerable.Empty<NameSyntax>();
                 }
 
-                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value!;
 
                 /*
                 Unspecified = 0b0000,
@@ -191,7 +197,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     return Enumerable.Empty<NameSyntax>();
                 }
 
-                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value;
+                var direction = (int) interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute").ConstructorArguments[1].Value!;
 
                 /*
                 Unspecified = 0b0000,
@@ -236,7 +242,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private IEnumerable<MemberDeclarationSyntax> HandleNotifications(
             InterfaceDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
-            INamedTypeSymbol requestType,
+            TypeSyntax requestType,
             NameSyntax registryType,
             HashSet<string> additionalUsings
         )
@@ -261,7 +267,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                             .WithType(registryType)
                                             .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
                                          Parameter(Identifier("@params"))
-                                            .WithType(IdentifierName(requestType.Name))
+                                            .WithType(requestType)
                                      }
                                  )
                              )
@@ -272,8 +278,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         private IEnumerable<MemberDeclarationSyntax> HandleRequests(
             InterfaceDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
-            INamedTypeSymbol requestType,
-            INamedTypeSymbol responseType,
+            TypeSyntax requestType,
+            TypeSyntax responseType,
             NameSyntax registryType,
             HashSet<string> additionalUsings
         )
@@ -286,7 +292,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            .WithType(registryType)
                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
                         Parameter(Identifier("@params"))
-                           .WithType(IdentifierName(requestType.Name)),
+                           .WithType(requestType),
                         Parameter(Identifier("cancellationToken"))
                            .WithType(IdentifierName("CancellationToken"))
                            .WithDefault(
@@ -297,7 +303,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
                 )
             );
-            var partialItem = GetPartialItem(requestType);
+            var partialItem = GetPartialItem(GetRequestType(interfaceType));
             if (partialItem != null)
             {
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
@@ -311,7 +317,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                              SeparatedList(
                                                  new TypeSyntax[] {
                                                      partialTypeSyntax,
-                                                     ResolveTypeName(responseType)
+                                                     responseType
                                                  }
                                              )
                                          )
@@ -325,13 +331,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithExpressionBody(GetPartialInvokeExpression(responseType))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             .NormalizeWhitespace();
                 yield break;
             }
 
-            var partialItems = GetPartialItems(requestType);
+            var partialItems = GetPartialItems(GetRequestType(interfaceType));
             if (partialItems != null)
             {
                 additionalUsings.Add("OmniSharp.Extensions.LanguageServer.Protocol.Progress");
@@ -346,7 +352,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                              SeparatedList(
                                                  new TypeSyntax[] {
                                                      partialItemsSyntax,
-                                                     ResolveTypeName(responseType)
+                                                     responseType
                                                  }
                                              )
                                          )
@@ -360,17 +366,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithExpressionBody(GetPartialInvokeExpression(responseType))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             .NormalizeWhitespace();
-                ;
+
                 yield break;
             }
 
 
-            var responseSyntax = responseType.Name == "Unit"
+            var responseSyntax = responseType.ToFullString().EndsWith("Unit")
                 ? IdentifierName("Task") as NameSyntax
-                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { ResolveTypeName(responseType) })));
+                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { responseType })));
             yield return MethodDeclaration(responseSyntax, methodName)
                         .WithModifiers(
                              TokenList(

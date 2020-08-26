@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal static class JsonRpcServerContainer
     {
-        public static IContainer Create(IServiceProvider outerServiceProvider)
+        public static IContainer Create(IServiceProvider? outerServiceProvider)
         {
             var container = new Container()
                            .WithDependencyInjectionAdapter()

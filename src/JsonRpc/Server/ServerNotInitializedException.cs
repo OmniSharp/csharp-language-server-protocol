@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public ServerNotInitializedException(object requestId)
+        public ServerNotInitializedException(object? requestId)
             : base(ErrorCodes.ServerNotInitialized, requestId, "Server not initialized.")
         {
         }

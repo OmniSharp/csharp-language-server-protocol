@@ -13,12 +13,12 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         internal readonly Lazy<IOutputHandler> OutputHandler;
         internal readonly ISerializer Serializer;
-        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
+        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> _handlerTypeDescriptorProvider;
 
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        public ResponseRouter(Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
+        public ResponseRouter(Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
         {
             OutputHandler = outputHandler;
             Serializer = serializer;
@@ -64,9 +64,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             private readonly ResponseRouter _router;
             private readonly string _method;
-            private readonly object _params;
+            private readonly object? _params;
 
-            public ResponseRouterReturnsImpl(ResponseRouter router, string method, object @params)
+            public ResponseRouterReturnsImpl(ResponseRouter router, string method, object? @params)
             {
                 _router = router;
                 _method = method;
@@ -77,7 +77,7 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 var nextId = _router.Serializer.GetNextId();
                 var tcs = new TaskCompletionSource<JToken>();
-                _router.Requests.TryAdd(nextId, ( _method, tcs ));
+                _router.Requests.TryAdd(nextId, (_method, tcs));
 
                 cancellationToken.ThrowIfCancellationRequested();
 
@@ -100,7 +100,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
-                        return (TResponse) (object) Unit.Value;
+                        return (TResponse)(object)Unit.Value;
                     }
 
                     return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);

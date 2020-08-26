@@ -21,9 +21,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public Type ImplementationType => _descriptor.ImplementationType;
 
-        public Type Params => _descriptor.Params;
+        public Type? Params => _descriptor.Params;
 
-        public Type Response => _descriptor.Response;
+        public Type? Response => _descriptor.Response;
 
         public bool HasReturnType => _descriptor.HasReturnType;
 

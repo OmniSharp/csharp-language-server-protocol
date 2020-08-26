@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public UnknownErrorException(object requestId)
+        public UnknownErrorException(object? requestId)
             : base(ErrorCodes.ContentModified, requestId, "Content not modified.")
         {
         }
