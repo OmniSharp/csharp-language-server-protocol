@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly TRegistrationOptions _registrationOptions;
-            protected TCapability Capability { get; private set; }
+            protected TCapability Capability { get; private set; } = default!;
 
             protected Request(TRegistrationOptions registrationOptions) => _registrationOptions = registrationOptions;
 
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly TRegistrationOptions _registrationOptions;
             private readonly IProgressManager _progressManager;
             private readonly Func<TItem, TResponse> _factory;
-            protected TCapability Capability { get; private set; }
+            protected TCapability Capability { get; private set; } = default!;
 
             protected PartialResult(
                 TRegistrationOptions registrationOptions,
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             )
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer == ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 // in the event nothing is emitted...
-                subject.OnNext(default);
+                subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
                 return _factory(await subject);
             }
@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly TRegistrationOptions _registrationOptions;
             private readonly IProgressManager _progressManager;
             private readonly Func<IEnumerable<TItem>, TResponse> _factory;
-            protected TCapability Capability { get; private set; }
+            protected TCapability Capability { get; private set; } = default!;
 
             protected PartialResults(
                 TRegistrationOptions registrationOptions,
@@ -116,7 +116,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             )
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer != null)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
@@ -152,12 +152,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly TRegistrationOptions _registrationOptions;
-            protected TCapability Capability { get; private set; }
+            protected TCapability Capability { get; private set; } = default!;
 
-            protected Notification(
-                TRegistrationOptions registrationOptions
-            ) =>
-                _registrationOptions = registrationOptions;
+            protected Notification(TRegistrationOptions registrationOptions) => _registrationOptions = registrationOptions;
 
             public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
             {

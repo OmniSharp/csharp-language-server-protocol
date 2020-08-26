@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// This class is a simple parser which creates the basic component parts
     /// (http://tools.ietf.org/html/rfc3986#section-3) with minimal validation
     /// and encoding.
-    /// 
+    ///
     /// ```txt
     /// foo://example.com:8042/over/there?name=ferret#nose
     /// \_/   \______________/\_________/ \_________/ \__/
@@ -28,13 +28,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// </summary>
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
     [JsonConverter(typeof(DocumentUriConverter))]
-    public partial class DocumentUri : IEquatable<DocumentUri>
+    public partial class DocumentUri : IEquatable<DocumentUri?>
     {
         /// <summary>
         /// scheme is the "http' part of 'http://www.msft.com/some/path?query#fragment".
         /// The part before the first colon.
         /// </summary>
-        public string Scheme { get; }
+        public string? Scheme { get; }
 
         /// <summary>
         /// authority is the "www.msft.com' part of 'http://www.msft.com/some/path?query#fragment".
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <remarks>This will produce a uri where asian and cyrillic characters will be encoded</remarks>
         public Uri ToUri()
         {
-            if (Authority.IndexOf(":") > -1)
+            if (Authority.IndexOf(":", StringComparison.Ordinal) > -1)
             {
                 var parts = Authority.Split(':');
                 var host = parts[0];
@@ -113,9 +113,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public string GetFileSystemPath() => UriToFsPath(this, false);
 
         /// <inheritdoc />
-        public bool Equals(DocumentUri other)
+        public bool Equals(DocumentUri? other)
         {
-            if (ReferenceEquals(null, other)) return false;
+            if (other is null) return false;
             if (ReferenceEquals(this, other)) return true;
             // It's possible mac can have case insensitive file systems... we can always come back and change this.
             var comparison = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
@@ -129,9 +129,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <inheritdoc />
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (ReferenceEquals(null, obj)) return false;
+            if (obj is null) return false;
             if (ReferenceEquals(this, obj)) return true;
             return obj.GetType() == GetType() && Equals((DocumentUri) obj);
         }
@@ -164,7 +164,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <param name="fragment"></param>
         /// <returns></returns>
         public void Deconstruct(
-            out string scheme, out string authority, out string path, out string query,
+            out string? scheme, out string authority, out string path, out string query,
             out string fragment
         )
         {
@@ -267,7 +267,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
-        public static string GetFileSystemPath(ITextDocumentIdentifierParams textDocumentIdentifierParams) =>
+        public static string? GetFileSystemPath(ITextDocumentIdentifierParams textDocumentIdentifierParams) =>
             GetFileSystemPath(textDocumentIdentifierParams.TextDocument.Uri);
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
-        public static string GetFileSystemPath(TextDocumentIdentifier textDocumentIdentifier) =>
+        public static string? GetFileSystemPath(TextDocumentIdentifier textDocumentIdentifier) =>
             GetFileSystemPath(textDocumentIdentifier.Uri);
 
         /// <summary>
@@ -291,10 +291,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <returns>
         /// The file-system path, or <c>null</c> if the URI does not represent a file-system path.
         /// </returns>
-        public static string GetFileSystemPath(DocumentUri documentUri)
+        public static string? GetFileSystemPath(DocumentUri documentUri)
         {
-            if (documentUri == null)
-                throw new ArgumentNullException(nameof(documentUri));
+            if (documentUri == null!) throw new ArgumentNullException(nameof(documentUri));
 
             if (documentUri.Scheme != Uri.UriSchemeFile)
                 return null;
@@ -315,11 +314,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         private sealed class DocumentUriEqualityComparer : IEqualityComparer<DocumentUri>
         {
-            public bool Equals(DocumentUri x, DocumentUri y)
+            public bool Equals(DocumentUri? x, DocumentUri? y)
             {
                 if (ReferenceEquals(x, y)) return true;
-                if (ReferenceEquals(x, null)) return false;
-                if (ReferenceEquals(y, null)) return false;
+                if (x is null) return false;
+                if (y is null) return false;
                 return x.GetType() == y.GetType() && x.Equals(y);
             }
 
@@ -346,10 +345,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <summary>
         /// @internal
         /// </summary>
-        public DocumentUri(
-            string scheme, string authority, string path, string query, string fragment,
-            bool? strict = null
-        )
+        public DocumentUri(string? scheme, string? authority, string? path, string? query, string? fragment, bool? strict = null)
         {
             Scheme = SchemeFix(scheme, strict);
             Authority = authority ?? Empty;

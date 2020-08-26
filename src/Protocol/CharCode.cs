@@ -1,4 +1,5 @@
-﻿namespace OmniSharp.Extensions.LanguageServer.Protocol
+﻿// ReSharper disable InconsistentNaming
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     internal static class CharCode
     {
@@ -118,14 +119,14 @@
         public const int Semicolon = 59;
 
         /// <summary>
-        /// The `<` character.
+        /// The `&lt;` character.
         /// </summary>
         public const int LessThan = 60;
 
         /// <summary>
         /// The `=` character.
         /// </summary>
-        public const int Equals = 61;
+        public new const int Equals = 61;
 
         /// <summary>
         /// The `>` character.

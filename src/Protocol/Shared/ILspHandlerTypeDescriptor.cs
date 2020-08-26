@@ -6,12 +6,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     public interface ILspHandlerTypeDescriptor : IHandlerTypeDescriptor
     {
         bool HasRegistration { get; }
-        Type RegistrationType { get; }
+        Type? RegistrationType { get; }
         bool HasCapability { get; }
-        Type CapabilityType { get; }
+        Type? CapabilityType { get; }
         bool IsDynamicCapability { get; }
-        Type PartialItemsType { get; }
-        Type PartialItemType { get; }
+        Type? PartialItemsType { get; }
+        Type? PartialItemType { get; }
         bool HasPartialItems { get; }
         bool HasPartialItem { get; }
     }

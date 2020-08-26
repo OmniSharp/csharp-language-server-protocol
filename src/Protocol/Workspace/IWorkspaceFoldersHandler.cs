@@ -11,12 +11,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [Method(WorkspaceNames.WorkspaceFolders, Direction.ServerToClient)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-    public interface IWorkspaceFoldersHandler : IJsonRpcRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>>
+    public interface IWorkspaceFoldersHandler : IJsonRpcRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>?>
     {
     }
 
     public abstract class WorkspaceFoldersHandler : IWorkspaceFoldersHandler
     {
-        public abstract Task<Container<WorkspaceFolder>> Handle(WorkspaceFolderParams request, CancellationToken cancellationToken);
+        public abstract Task<Container<WorkspaceFolder>?> Handle(WorkspaceFolderParams request, CancellationToken cancellationToken);
     }
 }

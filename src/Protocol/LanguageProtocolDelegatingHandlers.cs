@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task<TResult>> _handler;
             private readonly TRegistrationOptions _registrationOptions;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             private readonly Func<TItem, TCapability, CancellationToken, Task<TItem>> _resolveHandler;
             private readonly TRegistrationOptions _registrationOptions;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -131,7 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;
             private readonly TRegistrationOptions _registrationOptions;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -259,7 +259,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task<TResult>> _handler;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -299,7 +299,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -347,7 +347,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Action<TItem, IObserver<TItem>, TCapability, CancellationToken> _handler;
             private readonly TRegistrationOptions _registrationOptions;
             private readonly IProgressManager _progressManager;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -486,7 +486,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Action<TItem, TCapability, IObserver<TItem>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
             private readonly Func<TItem, TResponse> _factory;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -594,7 +594,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             IRegistration<TRegistrationOptions>, ICapability<TCapability>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>, new()
+            where TResponse : IEnumerable<TItem>?, new()
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
@@ -602,7 +602,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly TRegistrationOptions _registrationOptions;
             private readonly IProgressManager _progressManager;
             private readonly Func<IEnumerable<TItem>, TResponse> _factory;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -674,7 +674,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             IRegistration<TRegistrationOptions>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>, new()
+            where TResponse : IEnumerable<TItem>?, new()
             where TRegistrationOptions : class, new()
         {
             private readonly Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
@@ -756,7 +756,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
             private readonly Func<IEnumerable<TItem>, TResponse> _factory;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -895,7 +895,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;
             private readonly TRegistrationOptions _registrationOptions;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
@@ -1061,7 +1061,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TCapability : ICapability
         {
             private readonly Func<TParams, TCapability, CancellationToken, Task> _handler;
-            private TCapability _capability;
+            private TCapability _capability = default!;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 

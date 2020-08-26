@@ -7,10 +7,10 @@ using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    internal class DocumentUriConverter : JsonConverter<DocumentUri>
+    internal class DocumentUriConverter : JsonConverter<DocumentUri?>
     {
-        public override DocumentUri ReadJson(
-            JsonReader reader, Type objectType, DocumentUri existingValue,
+        public override DocumentUri? ReadJson(
+            JsonReader reader, Type objectType, DocumentUri? existingValue,
             bool hasExistingValue, JsonSerializer serializer
         )
         {
@@ -34,9 +34,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             throw new JsonSerializationException("The JSON value must be a string.");
         }
 
-        public override void WriteJson(JsonWriter writer, DocumentUri value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DocumentUri? value, JsonSerializer serializer)
         {
-            if (value == null)
+            if (value is null)
             {
                 writer.WriteNull();
                 return;

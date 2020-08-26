@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 foreach (var property in contract.Properties)
                 {
                     var isSupportedGetter = property.PropertyType.GetTypeInfo()
-                                                    .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
+                                                    .GetProperty(nameof(Supports<object?>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
                     property.NullValueHandling = NullValueHandling.Ignore;
                     property.GetIsSpecified = o => {
                         var propertyValue = property.ValueProvider.GetValue(o);
@@ -154,7 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             public void SetValue(object target, object value) => _valueProvider.SetValue(target, value);
 
-            public object GetValue(object target) =>
+            public object? GetValue(object target) =>
                 _valueProvider.GetValue(target) switch {
                     ISupports supports when supports.IsSupported => supports,
                     _                                            => null
@@ -203,7 +203,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             public void SetValue(object target, object value) => _valueProvider.SetValue(target, value);
 
-            public object GetValue(object target)
+            public object? GetValue(object target)
             {
                 var value = _valueProvider.GetValue(target);
                 if (value is IEnumerable<T> values)

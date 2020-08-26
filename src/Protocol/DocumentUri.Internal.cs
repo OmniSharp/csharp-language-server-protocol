@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        private static string SchemeFix(string scheme, bool? strict)
+        private static string? SchemeFix(string? scheme, bool? strict)
         {
             if (string.IsNullOrWhiteSpace(scheme) && strict != true)
             {
@@ -88,7 +88,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static readonly Regex Regexp =
             new Regex(@"^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?");
 
-        private static string ReferenceResolution(string scheme, string path)
+        private static string ReferenceResolution(string? scheme, string path)
         {
             // the slash-character is our "default base' as we don"t
             // support constructing URIs relative to other URIs. This
@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         private static string EncodeUriComponentFast(string uriComponent, bool allowSlash)
         {
-            string res = null;
+            string? res = null;
             var nativeEncodePos = -1;
 
             for (var pos = 0; pos < uriComponent.Length; pos++)
@@ -207,12 +207,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos));
             }
 
-            return !string.IsNullOrWhiteSpace(res) ? res : uriComponent;
+            return !string.IsNullOrWhiteSpace(res) ? res! : uriComponent;
         }
 
         private static string EncodeUriComponentMinimal(string path)
         {
-            string res = null;
+            string? res = null;
             for (var pos = 0; pos < path.Length; pos++)
             {
                 var code = path[pos];
@@ -306,13 +306,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             if (!string.IsNullOrWhiteSpace(authority))
             {
-                var idx = authority.IndexOf("@");
+                var idx = authority.IndexOf("@", StringComparison.Ordinal);
                 if (idx != -1)
                 {
                     // <user>@<auth>
                     var userinfo = authority.Substring(0, idx);
                     authority = authority.Substring(idx + 1);
-                    idx = userinfo.IndexOf(":");
+                    idx = userinfo.IndexOf(":", StringComparison.Ordinal);
                     if (idx == -1)
                     {
                         res += Encoder(userinfo, false);

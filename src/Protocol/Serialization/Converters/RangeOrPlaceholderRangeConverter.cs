@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
         public override RangeOrPlaceholderRange ReadJson(
             JsonReader reader, Type objectType, RangeOrPlaceholderRange existingValue, bool hasExistingValue, JsonSerializer serializer
-        ) => new RangeOrPlaceholderRange((Range) null);
+        ) => new RangeOrPlaceholderRange((Range) null!);
 
         public override bool CanRead => false;
     }

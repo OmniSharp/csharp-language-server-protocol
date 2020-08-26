@@ -1,5 +1,4 @@
 ﻿using System;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
@@ -8,12 +7,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         Type SourceType { get; }
         Type DestinationType { get; }
         string Key { get; }
-        object Convert(object source);
+        object? Convert(object source);
     }
 
     public interface IRegistrationOptionsConverter<in TSource, out TDestination> : IRegistrationOptionsConverter
         where TSource : IRegistrationOptions
-        where TDestination : class
+        where TDestination : class?
     {
         TDestination Convert(TSource source);
     }
@@ -30,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public Type SourceType { get; } = typeof(TSource);
         public Type DestinationType { get; }= typeof(TDestination);
         public string Key { get; }
-        public object Convert(object source) => source is TSource value ? Convert(value) : null;
+        public object? Convert(object source) => source is TSource value ? Convert(value) : null;
         public abstract TDestination Convert(TSource source);
     }
 }

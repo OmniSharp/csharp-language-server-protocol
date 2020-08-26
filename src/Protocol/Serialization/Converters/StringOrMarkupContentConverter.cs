@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new StringOrMarkupContent(
                     new MarkupContent {
                         Kind = Enum.TryParse<MarkupKind>(result["kind"]?.Value<string>(), true, out var kind) ? kind : MarkupKind.PlainText,
-                        Value = result["value"]?.Value<string>()
+                        Value = result["value"].Value<string>()
                     }
                 );
             }
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new StringOrMarkupContent(reader.Value as string);
+                return new StringOrMarkupContent((reader.Value as string)!);
             }
 
             return "";
