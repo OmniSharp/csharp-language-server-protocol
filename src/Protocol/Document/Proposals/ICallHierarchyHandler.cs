@@ -19,8 +19,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Method(TextDocumentNames.PrepareCallHierarchy, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ICallHierarchyHandler :
-        IJsonRpcRequestHandler<CallHierarchyPrepareParams, Container<CallHierarchyItem>>,
+    public interface ICallHierarchyPrepareHandler :
+        IJsonRpcRequestHandler<CallHierarchyPrepareParams, Container<CallHierarchyItem>?>,
         IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
     {
     }
@@ -30,8 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Method(TextDocumentNames.CallHierarchyIncoming, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ICallHierarchyIncomingHandler : IJsonRpcRequestHandler<CallHierarchyIncomingCallsParams,
-                                                         Container<CallHierarchyIncomingCall>>,
+    public interface ICallHierarchyIncomingHandler : IJsonRpcRequestHandler<CallHierarchyIncomingCallsParams, Container<CallHierarchyIncomingCall>?>,
                                                      IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
     {
     }
@@ -41,39 +40,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ICallHierarchyOutgoingHandler : IJsonRpcRequestHandler<CallHierarchyOutgoingCallsParams,
-                                                         Container<CallHierarchyOutgoingCall>>,
+    public interface ICallHierarchyOutgoingHandler : IJsonRpcRequestHandler<CallHierarchyOutgoingCallsParams, Container<CallHierarchyOutgoingCall>?>,
                                                      IRegistration<CallHierarchyRegistrationOptions>, ICapability<CallHierarchyCapability>
     {
     }
 
     [Obsolete(Constants.Proposal)]
-    public abstract class CallHierarchyHandler : ICallHierarchyHandler, ICallHierarchyIncomingHandler,
+    public abstract class CallHierarchyHandler : ICallHierarchyPrepareHandler, ICallHierarchyIncomingHandler,
                                                  ICallHierarchyOutgoingHandler
     {
         private readonly CallHierarchyRegistrationOptions _options;
-
         public CallHierarchyHandler(CallHierarchyRegistrationOptions registrationOptions) => _options = registrationOptions;
-
         public CallHierarchyRegistrationOptions GetRegistrationOptions() => _options;
-
-        public abstract Task<Container<CallHierarchyItem>> Handle(
-            CallHierarchyPrepareParams request,
-            CancellationToken cancellationToken
-        );
-
-        public abstract Task<Container<CallHierarchyIncomingCall>> Handle(
-            CallHierarchyIncomingCallsParams request,
-            CancellationToken cancellationToken
-        );
-
-        public abstract Task<Container<CallHierarchyOutgoingCall>> Handle(
-            CallHierarchyOutgoingCallsParams request,
-            CancellationToken cancellationToken
-        );
-
+        public abstract Task<Container<CallHierarchyItem>?> Handle(CallHierarchyPrepareParams request, CancellationToken cancellationToken);
+        public abstract Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken);
+        public abstract Task<Container<CallHierarchyOutgoingCall>?> Handle(CallHierarchyOutgoingCallsParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(CallHierarchyCapability capability) => Capability = capability;
-        protected CallHierarchyCapability Capability { get; private set; }
+        protected CallHierarchyCapability Capability { get; private set; } = null!;
     }
 
     [Obsolete(Constants.Proposal)]
@@ -81,31 +64,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     {
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
-            Func<CallHierarchyIncomingCallsParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
-            Func<CallHierarchyOutgoingCallsParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem>?>> handler,
+            Func<CallHierarchyIncomingCallsParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>> incomingHandler,
+            Func<CallHierarchyOutgoingCallsParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>> outgoingHandler,
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
             return registry.AddHandler(
                                 TextDocumentNames.PrepareCallHierarchy,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyPrepareParams,
-                                    Container<CallHierarchyItem>,
+                                    Container<CallHierarchyItem>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(handler, registrationOptions)
                             )
                            .AddHandler(
                                 TextDocumentNames.CallHierarchyIncoming,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyIncomingCallsParams,
-                                    Container<CallHierarchyIncomingCall>,
+                                    Container<CallHierarchyIncomingCall>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(incomingHandler, registrationOptions)
                             )
                            .AddHandler(
                                 TextDocumentNames.CallHierarchyOutgoing,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyOutgoingCallsParams,
-                                    Container<CallHierarchyOutgoingCall>,
+                                    Container<CallHierarchyOutgoingCall>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(outgoingHandler, registrationOptions)
                             )
@@ -114,31 +97,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>>> handler,
-            Func<CallHierarchyIncomingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
-            Func<CallHierarchyOutgoingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>?>> handler,
+            Func<CallHierarchyIncomingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyIncomingCall>?>> incomingHandler,
+            Func<CallHierarchyOutgoingCallsParams, CallHierarchyCapability, Task<Container<CallHierarchyOutgoingCall>?>> outgoingHandler,
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
             return registry.AddHandler(
                                 TextDocumentNames.PrepareCallHierarchy,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyPrepareParams,
-                                    Container<CallHierarchyItem>,
+                                    Container<CallHierarchyItem>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(handler, registrationOptions)
                             )
                            .AddHandler(
                                 TextDocumentNames.CallHierarchyIncoming,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyIncomingCallsParams,
-                                    Container<CallHierarchyIncomingCall>,
+                                    Container<CallHierarchyIncomingCall>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(incomingHandler, registrationOptions)
                             )
                            .AddHandler(
                                 TextDocumentNames.CallHierarchyOutgoing,
                                 new LanguageProtocolDelegatingHandlers.Request<CallHierarchyOutgoingCallsParams,
-                                    Container<CallHierarchyOutgoingCall>,
+                                    Container<CallHierarchyOutgoingCall>?,
                                     CallHierarchyCapability,
                                     CallHierarchyRegistrationOptions>(outgoingHandler, registrationOptions)
                             )
@@ -147,10 +130,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
-            Func<CallHierarchyIncomingCallsParams, CancellationToken, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
-            Func<CallHierarchyOutgoingCallsParams, CancellationToken, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>?>> handler,
+            Func<CallHierarchyIncomingCallsParams, CancellationToken, Task<Container<CallHierarchyIncomingCall>?>> incomingHandler,
+            Func<CallHierarchyOutgoingCallsParams, CancellationToken, Task<Container<CallHierarchyOutgoingCall>?>> outgoingHandler,
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -158,19 +141,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>,
+                                 Container<CallHierarchyIncomingCall>?,
                                  CallHierarchyRegistrationOptions>(incomingHandler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>,
+                                 Container<CallHierarchyOutgoingCall>?,
                                  CallHierarchyRegistrationOptions>(outgoingHandler, registrationOptions)
                          )
                 ;
@@ -178,10 +161,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>>> handler,
-            Func<CallHierarchyIncomingCallsParams, Task<Container<CallHierarchyIncomingCall>>> incomingHandler,
-            Func<CallHierarchyOutgoingCallsParams, Task<Container<CallHierarchyOutgoingCall>>> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>?>> handler,
+            Func<CallHierarchyIncomingCallsParams, Task<Container<CallHierarchyIncomingCall>?>> incomingHandler,
+            Func<CallHierarchyOutgoingCallsParams, Task<Container<CallHierarchyOutgoingCall>?>> outgoingHandler,
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -189,19 +172,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>,
+                                 Container<CallHierarchyIncomingCall>?,
                                  CallHierarchyRegistrationOptions>(incomingHandler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>,
+                                 Container<CallHierarchyOutgoingCall>?,
                                  CallHierarchyRegistrationOptions>(outgoingHandler, registrationOptions)
                          )
                 ;
@@ -209,10 +192,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
+            Func<CallHierarchyPrepareParams, CallHierarchyCapability, CancellationToken, Task<Container<CallHierarchyItem>?>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability, CancellationToken> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability, CancellationToken> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -220,14 +203,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.Request<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>, CallHierarchyIncomingCall,
+                                 Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(
                                  incomingHandler, registrationOptions,
@@ -237,7 +220,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>, CallHierarchyOutgoingCall,
+                                 Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(
                                  outgoingHandler, registrationOptions,
@@ -249,10 +232,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>>> handler,
+            Func<CallHierarchyPrepareParams, CallHierarchyCapability, Task<Container<CallHierarchyItem>?>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CallHierarchyCapability> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CallHierarchyCapability> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -260,14 +243,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.Request<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>, CallHierarchyIncomingCall,
+                                 Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(
                                  incomingHandler, registrationOptions,
@@ -277,7 +260,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>, CallHierarchyOutgoingCall,
+                                 Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall,
                                  CallHierarchyCapability,
                                  CallHierarchyRegistrationOptions>(
                                  outgoingHandler, registrationOptions,
@@ -289,10 +272,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>>> handler,
+            Func<CallHierarchyPrepareParams, CancellationToken, Task<Container<CallHierarchyItem>?>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>, CancellationToken> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>, CancellationToken> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -300,13 +283,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>, CallHierarchyIncomingCall,
+                                 Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall,
                                  CallHierarchyRegistrationOptions>(
                                  incomingHandler, registrationOptions,
                                  _.GetRequiredService<IProgressManager>(), x => new Container<CallHierarchyIncomingCall>(x)
@@ -315,7 +298,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>, CallHierarchyOutgoingCall,
+                                 Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall,
                                  CallHierarchyRegistrationOptions>(
                                  outgoingHandler, registrationOptions,
                                  _.GetRequiredService<IProgressManager>(), x => new Container<CallHierarchyOutgoingCall>(x)
@@ -326,10 +309,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public static ILanguageServerRegistry OnCallHierarchy(
             this ILanguageServerRegistry registry,
-            Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>>> handler,
+            Func<CallHierarchyPrepareParams, Task<Container<CallHierarchyItem>?>> handler,
             Action<CallHierarchyIncomingCallsParams, IObserver<IEnumerable<CallHierarchyIncomingCall>>> incomingHandler,
             Action<CallHierarchyOutgoingCallsParams, IObserver<IEnumerable<CallHierarchyOutgoingCall>>> outgoingHandler,
-            CallHierarchyRegistrationOptions registrationOptions
+            CallHierarchyRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new CallHierarchyRegistrationOptions();
@@ -337,13 +320,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 registry.AddHandler(
                              TextDocumentNames.PrepareCallHierarchy,
                              new LanguageProtocolDelegatingHandlers.RequestRegistration<CallHierarchyPrepareParams,
-                                 Container<CallHierarchyItem>,
+                                 Container<CallHierarchyItem>?,
                                  CallHierarchyRegistrationOptions>(handler, registrationOptions)
                          )
                         .AddHandler(
                              TextDocumentNames.CallHierarchyIncoming,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyIncomingCallsParams,
-                                 Container<CallHierarchyIncomingCall>, CallHierarchyIncomingCall,
+                                 Container<CallHierarchyIncomingCall>?, CallHierarchyIncomingCall,
                                  CallHierarchyRegistrationOptions>(
                                  incomingHandler, registrationOptions,
                                  _.GetRequiredService<IProgressManager>(), x => new Container<CallHierarchyIncomingCall>(x)
@@ -352,7 +335,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         .AddHandler(
                              TextDocumentNames.CallHierarchyOutgoing,
                              _ => new LanguageProtocolDelegatingHandlers.PartialResults<CallHierarchyOutgoingCallsParams,
-                                 Container<CallHierarchyOutgoingCall>, CallHierarchyOutgoingCall,
+                                 Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall,
                                  CallHierarchyRegistrationOptions>(
                                  outgoingHandler, registrationOptions,
                                  _.GetRequiredService<IProgressManager>(), x => new Container<CallHierarchyOutgoingCall>(x)

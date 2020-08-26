@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// property. The order describes the preferred format of the client.
         /// </summary>
         [Optional]
-        public Container<MarkupKind> DocumentationFormat { get; set; }
+        public Container<MarkupKind>? DocumentationFormat { get; set; }
 
         /// <summary>
         /// Client supports the deprecated property on a completion item.
@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Supports<CompletionItemTagSupportCapabilityOptions> TagSupport { get; set; }
+        public Supports<CompletionItemTagSupportCapabilityOptions?> TagSupport { get; set; }
 
         /// <summary>
         /// Client support insert replace edit to control different behavior if a

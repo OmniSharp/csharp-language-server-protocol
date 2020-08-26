@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// specific properties.
         /// </summary>
         [Optional]
-        public SignatureInformationCapabilityOptions SignatureInformation { get; set; }
+        public SignatureInformationCapabilityOptions? SignatureInformation { get; set; }
 
         /// <summary>
         /// The client supports to send additional context information for a

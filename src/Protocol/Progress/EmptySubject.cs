@@ -26,7 +26,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         {
             observer.OnCompleted();
             return Disposable.Empty;
-            ;
         }
 
         public override bool HasObservers => false;

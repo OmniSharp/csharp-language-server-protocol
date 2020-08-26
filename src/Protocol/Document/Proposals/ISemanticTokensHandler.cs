@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Obsolete(Constants.Proposal)]
     [Parallel]
     [Method(TextDocumentNames.SemanticTokensFull, Direction.ClientToServer)]
-    public interface ISemanticTokensHandler : IJsonRpcRequestHandler<SemanticTokensParams, SemanticTokens>,
+    public interface ISemanticTokensHandler : IJsonRpcRequestHandler<SemanticTokensParams, SemanticTokens?>,
                                               IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
     {
     }
@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Obsolete(Constants.Proposal)]
     [Parallel]
     [Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
-    public interface ISemanticTokensRangeHandler : IJsonRpcRequestHandler<SemanticTokensRangeParams, SemanticTokens>,
+    public interface ISemanticTokensRangeHandler : IJsonRpcRequestHandler<SemanticTokensRangeParams, SemanticTokens?>,
                                                    IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
     {
     }
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public SemanticTokensRegistrationOptions GetRegistrationOptions() => _options;
 
-        public virtual async Task<SemanticTokens> Handle(SemanticTokensParams request, CancellationToken cancellationToken)
+        public virtual async Task<SemanticTokens?> Handle(SemanticTokensParams request, CancellationToken cancellationToken)
         {
             var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Create();
@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             return builder.Commit().GetSemanticTokensEdits();
         }
 
-        public virtual async Task<SemanticTokens> Handle(SemanticTokensRangeParams request, CancellationToken cancellationToken)
+        public virtual async Task<SemanticTokens?> Handle(SemanticTokensRangeParams request, CancellationToken cancellationToken)
         {
             var document = await GetSemanticTokensDocument(request, cancellationToken);
             var builder = document.Create();
@@ -71,10 +71,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         }
 
         public virtual void SetCapability(SemanticTokensCapability capability) => Capability = capability;
-        protected SemanticTokensCapability Capability { get; private set; }
-
+        protected SemanticTokensCapability Capability { get; private set; } = null!;
         protected abstract Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken);
-
         protected abstract Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken);
     }
 
@@ -85,14 +83,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> tokenize,
             Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
-            SemanticTokensRegistrationOptions registrationOptions
+            SemanticTokensRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new SemanticTokensRegistrationOptions {
                 Full = new SemanticTokensCapabilityRequestFull()
             };
             registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
-            if (registrationOptions?.Full?.IsValue == true)
+            if (registrationOptions.Full?.IsValue == true)
             {
                 registrationOptions.Full.Value.Delta = true;
             }
@@ -106,14 +104,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, CancellationToken, Task> tokenize,
             Func<ITextDocumentIdentifierParams, CancellationToken, Task<SemanticTokensDocument>> getSemanticTokensDocument,
-            SemanticTokensRegistrationOptions registrationOptions
+            SemanticTokensRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new SemanticTokensRegistrationOptions {
                 Full = new SemanticTokensCapabilityRequestFull()
             };
             registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
-            if (registrationOptions?.Full?.IsValue == true)
+            if (registrationOptions.Full?.IsValue == true)
             {
                 registrationOptions.Full.Value.Delta = true;
             }
@@ -131,14 +129,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             this ILanguageServerRegistry registry,
             Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, Task> tokenize,
             Func<ITextDocumentIdentifierParams, Task<SemanticTokensDocument>> getSemanticTokensDocument,
-            SemanticTokensRegistrationOptions registrationOptions
+            SemanticTokensRegistrationOptions? registrationOptions
         )
         {
             registrationOptions ??= new SemanticTokensRegistrationOptions {
                 Full = new SemanticTokensCapabilityRequestFull()
             };
             registrationOptions.Range ??= new SemanticTokensCapabilityRequestRange();
-            if (registrationOptions?.Full?.IsValue == true)
+            if (registrationOptions.Full?.IsValue == true)
             {
                 registrationOptions.Full.Value.Delta = true;
             }
@@ -157,7 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             private readonly Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> _tokenize;
             private readonly Func<ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task<SemanticTokensDocument>> _getSemanticTokensDocument;
 
-            private SemanticTokensCapability _capability;
+            private SemanticTokensCapability _capability = null!;
 
             public DelegatingHandlerBase(
                 Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, CancellationToken, Task> tokenize,
@@ -181,28 +179,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             {
             }
 
-            protected override Task Tokenize(
-                SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier,
-                CancellationToken cancellationToken
-            ) =>
-                _tokenize(builder, identifier, _capability, cancellationToken);
+            protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)
+                => _tokenize(builder, identifier, _capability, cancellationToken);
 
-            protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(
-                ITextDocumentIdentifierParams @params, CancellationToken cancellationToken
-            ) =>
-                _getSemanticTokensDocument(@params, _capability, cancellationToken);
+            protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
+                => _getSemanticTokensDocument(@params, _capability, cancellationToken);
 
             public override void SetCapability(SemanticTokensCapability capability) => _capability = capability;
         }
 
-        public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens> RequestSemanticTokens(
+        public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens?> RequestSemanticTokens(
             this ITextDocumentLanguageClient mediator,
             SemanticTokensParams @params, CancellationToken cancellationToken = default
         ) =>
             mediator.ProgressManager.MonitorUntil(
                 @params, (partial, result) => new SemanticTokens {
                     Data = partial.Data,
-                    ResultId = result.ResultId
+                    ResultId = result?.ResultId
                 }, cancellationToken
             );
 
@@ -215,7 +208,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                     {
                         return new SemanticTokensFullOrDelta(
                             new SemanticTokensDelta {
-                                Edits = partial.Delta.Edits,
+                                Edits = partial.Delta!.Edits,
                                 ResultId = result?.Delta?.ResultId ?? result?.Full?.ResultId
                             }
                         );
@@ -225,7 +218,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                     {
                         return new SemanticTokensFullOrDelta(
                             new SemanticTokens {
-                                Data = partial.Full.Data,
+                                Data = partial.Full!.Data,
                                 ResultId = result?.Full?.ResultId ?? result?.Delta?.ResultId
                             }
                         );
@@ -235,14 +228,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 }, cancellationToken
             );
 
-        public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens> RequestSemanticTokensRange(
+        public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens?> RequestSemanticTokensRange(
             this ITextDocumentLanguageClient mediator,
             SemanticTokensRangeParams @params, CancellationToken cancellationToken = default
         ) =>
             mediator.ProgressManager.MonitorUntil(
                 @params, (partial, result) => new SemanticTokens {
                     Data = partial.Data,
-                    ResultId = result.ResultId
+                    ResultId = result?.ResultId
                 }, cancellationToken
             );
     }

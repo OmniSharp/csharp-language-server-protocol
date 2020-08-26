@@ -7,7 +7,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// <summary>
         /// The tags supported by the client.
         /// </summary>
-
-        public Container<DiagnosticTag> ValueSet { get; set; }
+        public Container<DiagnosticTag> ValueSet { get; set; } = null!;
     }
 }
