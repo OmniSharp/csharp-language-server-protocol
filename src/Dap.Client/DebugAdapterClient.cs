@@ -174,8 +174,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         private void RegisterCapabilities(InitializeRequestArguments capabilities)
         {
-            capabilities.SupportsRunInTerminalRequest ??= _collection.ContainsHandler(typeof(IRunInTerminalHandler));
-            capabilities.SupportsProgressReporting ??= _collection.ContainsHandler(typeof(IProgressStartHandler)) &&
+            capabilities.SupportsRunInTerminalRequest = capabilities.SupportsRunInTerminalRequest || _collection.ContainsHandler(typeof(IRunInTerminalHandler));
+            capabilities.SupportsProgressReporting = capabilities.SupportsProgressReporting || _collection.ContainsHandler(typeof(IProgressStartHandler)) &&
                                                        _collection.ContainsHandler(typeof(IProgressUpdateHandler)) &&
                                                        _collection.ContainsHandler(typeof(IProgressEndHandler));
         }
