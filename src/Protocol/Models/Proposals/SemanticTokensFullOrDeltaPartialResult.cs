@@ -25,10 +25,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         }
 
         public bool IsDelta => Delta != null;
-        public SemanticTokensDeltaPartialResult Delta { get; }
+        public SemanticTokensDeltaPartialResult? Delta { get; }
 
         public bool IsFull => Full != null;
-        public SemanticTokensPartialResult Full { get; }
+        public SemanticTokensPartialResult? Full { get; }
 
         public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensPartialResult semanticTokensPartialResult) =>
             new SemanticTokensFullOrDeltaPartialResult(semanticTokensPartialResult);

@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     /// <summary>
     /// Information about the server.
-    /// 
+    ///
     /// @since 3.15.0
     /// </summary>
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
@@ -14,13 +14,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The name of the server as defined by the server.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// The servers's version as defined by the server.
         /// </summary>
         [Optional]
-        public string Version { get; set; }
+        public string? Version { get; set; }
 
         private string DebuggerDisplay => string.IsNullOrWhiteSpace(Version) ? Name : $"{Name} ({Version})";
 

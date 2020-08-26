@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// send a delta.
         /// </summary>
         [Optional]
-        public string ResultId { get; set; }
+        public string? ResultId { get; set; }
 
         /// <summary>
         /// The actual tokens. For a detailed description about how the data is

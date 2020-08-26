@@ -17,11 +17,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The progress token provided by the client or server.
         /// </summary>
-        public ProgressToken Token { get; set; }
+        public ProgressToken Token { get; set; } = null!;
 
         /// <summary>
         /// The progress data.
         /// </summary>
-        public JToken Value { get; set; }
+        public JToken Value { get; set; } = null!;
     }
 }

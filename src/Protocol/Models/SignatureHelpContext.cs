@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// This is undefined when `triggerKind !== SignatureHelpTriggerKind.TriggerCharacter`
         /// </summary>
         [Optional]
-        public string TriggerCharacter { get; set; }
+        public string? TriggerCharacter { get; set; }
 
         /// <summary>
         /// `true` if signature help was already showing when it was triggered.
@@ -37,6 +37,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// the user navigating through available signatures.
         /// </summary>
         [Optional]
-        public SignatureHelp ActiveSignatureHelp { get; set; }
+        public SignatureHelp? ActiveSignatureHelp { get; set; }
     }
 }

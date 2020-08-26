@@ -6,6 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
     public class RegistrationParams : IRequest
     {
-        public RegistrationContainer Registrations { get; set; }
+        public RegistrationContainer Registrations { get; set; } = null!;
     }
 }

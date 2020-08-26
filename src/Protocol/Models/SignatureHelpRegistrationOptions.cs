@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+﻿using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
@@ -12,7 +10,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// automatically.
         /// </summary>
         [Optional]
-        public Container<string> TriggerCharacters { get; set; }
+        public Container<string>? TriggerCharacters { get; set; }
 
         /// <summary>
         /// List of characters that re-trigger signature help.
@@ -23,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Container<string> RetriggerCharacters { get; set; }
+        public Container<string>? RetriggerCharacters { get; set; }
 
         /// <summary>
         /// Signature help options.
@@ -35,7 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// automatically.
             /// </summary>
             [Optional]
-            public Container<string> TriggerCharacters { get; set; }
+            public Container<string>? TriggerCharacters { get; set; }
 
             /// <summary>
             /// List of characters that re-trigger signature help.
@@ -46,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// @since 3.15.0
             /// </summary>
             [Optional]
-            public Container<string> RetriggerCharacters { get; set; }
+            public Container<string>? RetriggerCharacters { get; set; }
         }
 
         class SignatureHelpRegistrationOptionsConverter : RegistrationOptionsConverterBase<SignatureHelpRegistrationOptions, StaticOptions>

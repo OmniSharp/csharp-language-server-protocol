@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The document that will be saved.
         /// </summary>
-        public TextDocumentIdentifier TextDocument { get; set; }
+        public TextDocumentIdentifier TextDocument { get; set; } = null!;
 
         /// <summary>
         /// The 'TextDocumentSaveReason'.
