@@ -97,13 +97,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
             if (messageType == "response")
             {
-                if (!request.TryGetValue("request_seq", out var request_seq))
+                if (!request.TryGetValue("request_seq", out var requestSeq))
                 {
                     yield return new InvalidRequest(null, "No request_seq given");
                     yield break;
                 }
 
-                if (!request.TryGetValue("command", out var command))
+                if (!request.TryGetValue("command", out _))
                 {
                     yield return new InvalidRequest(null, "No command given");
                     yield break;
@@ -115,9 +115,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
                     yield break;
                 }
 
-                var bodyValue = request.TryGetValue("body", out var body) ? body : null;
+                var bodyValue = request.TryGetValue("body", out var body) ? body : new JObject();
 
-                var requestSequence = request_seq.Value<long>();
+                var requestSequence = requestSeq.Value<long>();
                 var successValue = success.Value<bool>();
 
                 if (successValue)

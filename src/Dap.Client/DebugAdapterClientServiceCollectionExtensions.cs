@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 {
     public static class DebugAdapterClientServiceCollectionExtensions
     {
-        internal static IContainer AddDebugAdapterClientInternals(this IContainer container, DebugAdapterClientOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddDebugAdapterClientInternals(this IContainer container, DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddDebugAdapterProtocolInternals(options);
 
@@ -33,17 +33,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             container.RegisterInstance(
                 new InitializeRequestArguments {
                     Locale = options.Locale,
-                    AdapterId = options.AdapterId,
+                    AdapterId = options.AdapterId!,
                     ClientId = options.ClientId,
                     ClientName = options.ClientName,
                     PathFormat = options.PathFormat,
-                    ColumnsStartAt1 = options.ColumnsStartAt1,
-                    LinesStartAt1 = options.LinesStartAt1,
-                    SupportsMemoryReferences = options.SupportsMemoryReferences,
-                    SupportsProgressReporting = options.SupportsProgressReporting,
-                    SupportsVariablePaging = options.SupportsVariablePaging,
-                    SupportsVariableType = options.SupportsVariableType,
-                    SupportsRunInTerminalRequest = options.SupportsRunInTerminalRequest,
+                    ColumnsStartAt1 = options.ColumnsStartAt1 ?? false,
+                    LinesStartAt1 = options.LinesStartAt1 ?? false,
+                    SupportsMemoryReferences = options.SupportsMemoryReferences ?? false,
+                    SupportsProgressReporting = options.SupportsProgressReporting ?? false,
+                    SupportsVariablePaging = options.SupportsVariablePaging ?? false,
+                    SupportsVariableType = options.SupportsVariableType ?? false,
+                    SupportsRunInTerminalRequest = options.SupportsRunInTerminalRequest ?? false,
                 }
             );
             container.RegisterInstance(options.RequestProcessIdentifier);
@@ -86,10 +86,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return container;
         }
 
-        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, Action<DebugAdapterClientOptions> configureOptions = null) =>
+        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, Action<DebugAdapterClientOptions>? configureOptions = null) =>
             AddDebugAdapterClient(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, string name, Action<DebugAdapterClientOptions> configureOptions = null)
+        public static IServiceCollection AddDebugAdapterClient(this IServiceCollection services, string name, Action<DebugAdapterClientOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

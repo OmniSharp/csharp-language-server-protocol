@@ -35,7 +35,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
             writer.WritePropertyName("command");
             writer.WriteValue(error.Method);
             writer.WritePropertyName("message");
-            writer.WriteValue(error.Error.Message);
+            writer.WriteValue(error.Error?.Message);
             writer.WritePropertyName("body");
             serializer.Serialize(writer, error.Error);
             writer.WriteEndObject();
@@ -45,18 +45,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
         {
             var obj = JObject.Load(reader);
 
-            object requestId = null;
+            object? requestId = null;
             if (obj.TryGetValue("id", out var id))
             {
                 var idString = id.Type == JTokenType.String ? (string) id : null;
                 var idLong = id.Type == JTokenType.Integer ? (long?) id : null;
-                requestId = idString ?? ( idLong.HasValue ? (object) idLong.Value : null );
+                requestId = idString ?? ( idLong.HasValue ? (object?) idLong.Value : null );
             }
 
-            ErrorMessage data = null;
+            ErrorMessage? data = null;
             if (obj.TryGetValue("message", out var dataToken))
             {
-                var errorMessageType = typeof(ErrorMessage);
                 data = dataToken.ToObject<ErrorMessage>(serializer);
             }
 

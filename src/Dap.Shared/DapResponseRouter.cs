@@ -81,9 +81,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         {
             private readonly DapResponseRouter _router;
             private readonly string _method;
-            private readonly object _params;
+            private readonly object? _params;
 
-            public ResponseRouterReturnsImpl(DapResponseRouter router, string method, object @params)
+            public ResponseRouterReturnsImpl(DapResponseRouter router, string method, object? @params)
             {
                 _router = router;
                 _method = method;

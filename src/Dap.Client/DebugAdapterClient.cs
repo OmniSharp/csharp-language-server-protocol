@@ -15,6 +15,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
+// ReSharper disable SuspiciousTypeConversion.Global
 
 namespace OmniSharp.Extensions.DebugAdapter.Client
 {
@@ -36,21 +37,21 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         private readonly ISubject<InitializedEvent> _initializedComplete = new AsyncSubject<InitializedEvent>();
         private readonly int? _concurrency;
 
-        internal static IContainer CreateContainer(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) =>
+        internal static IContainer CreateContainer(DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
                                   .AddDebugAdapterClientInternals(options, outerServiceProvider);
 
         public static DebugAdapterClient Create(DebugAdapterClientOptions options) => Create(options, null);
         public static DebugAdapterClient Create(Action<DebugAdapterClientOptions> optionsAction) => Create(optionsAction, null);
 
-        public static DebugAdapterClient Create(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider)
+        public static DebugAdapterClient Create(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
             var options = new DebugAdapterClientOptions();
             optionsAction(options);
             return Create(options, outerServiceProvider);
         }
 
-        public static DebugAdapterClient Create(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) =>
+        public static DebugAdapterClient Create(DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider) =>
             CreateContainer(options, outerServiceProvider).Resolve<DebugAdapterClient>();
 
         public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options) => From(options, null, CancellationToken.None);
@@ -60,20 +61,20 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, CancellationToken cancellationToken) =>
             From(optionsAction, null, cancellationToken);
 
-        public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) =>
+        public static Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider) =>
             From(options, outerServiceProvider, CancellationToken.None);
 
-        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
             From(optionsAction, outerServiceProvider, CancellationToken.None);
 
-        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<DebugAdapterClient> From(Action<DebugAdapterClientOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new DebugAdapterClientOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
             await server.Initialize(cancellationToken).ConfigureAwait(false);
@@ -169,10 +170,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         private void RegisterCapabilities(InitializeRequestArguments capabilities)
         {
-            capabilities.SupportsRunInTerminalRequest ??= _collection.ContainsHandler(typeof(IRunInTerminalHandler));
-            capabilities.SupportsProgressReporting ??= _collection.ContainsHandler(typeof(IProgressStartHandler)) &&
-                                                       _collection.ContainsHandler(typeof(IProgressUpdateHandler)) &&
-                                                       _collection.ContainsHandler(typeof(IProgressEndHandler));
+            capabilities.SupportsRunInTerminalRequest = capabilities.SupportsRunInTerminalRequest || _collection.ContainsHandler(typeof(IRunInTerminalHandler));
+            capabilities.SupportsProgressReporting = capabilities.SupportsProgressReporting ||
+                _collection.ContainsHandler(typeof(IProgressStartHandler)) &&
+                _collection.ContainsHandler(typeof(IProgressUpdateHandler)) &&
+                _collection.ContainsHandler(typeof(IProgressEndHandler))
+            ;
         }
 
         public InitializeRequestArguments ClientSettings
@@ -191,8 +194,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public void Dispose()
         {
-            _disposable?.Dispose();
-            _connection?.Dispose();
+            _disposable.Dispose();
+            _connection.Dispose();
         }
 
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);

@@ -431,7 +431,10 @@ namespace Dap.Tests
         }
 
 
-        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler<>), typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>), };
+        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler<>),
+            typeof(IJsonRpcRequestHandler<>),
+            typeof(IJsonRpcRequestHandler<,>),
+        };
 
         private static bool IsValidInterface(Type type)
         {
