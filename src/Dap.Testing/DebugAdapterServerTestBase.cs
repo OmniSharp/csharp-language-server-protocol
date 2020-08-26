@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
     /// </summary>
     public abstract class DebugAdapterServerTestBase : JsonRpcIntegrationServerTestBase
     {
-        private IDebugAdapterClient _client;
+        private IDebugAdapterClient _client = null!;
 
         public DebugAdapterServerTestBase(JsonRpcTestOptions jsonRpcTestOptions) : base(jsonRpcTestOptions)
         {
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
         protected abstract (Stream clientOutput, Stream serverInput) SetupServer();
 
-        protected virtual async Task<IDebugAdapterClient> InitializeClient(Action<DebugAdapterClientOptions> clientOptionsAction = null)
+        protected virtual async Task<IDebugAdapterClient> InitializeClient(Action<DebugAdapterClientOptions>? clientOptionsAction = null)
         {
             _client = DebugAdapterClient.Create(
                 options => {

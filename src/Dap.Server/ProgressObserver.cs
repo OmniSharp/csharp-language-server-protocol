@@ -12,15 +12,15 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
     internal class ProgressObserver : IProgressObserver
     {
         private readonly IResponseRouter _router;
-        private readonly Func<Exception, ProgressEndEvent> _onError;
-        private readonly Func<ProgressEndEvent> _onComplete;
+        private readonly Func<Exception, ProgressEndEvent>? _onError;
+        private readonly Func<ProgressEndEvent>? _onComplete;
         private readonly CompositeDisposable _disposable;
 
         public ProgressObserver(
             IResponseRouter router,
             ProgressStartEvent begin,
-            Func<Exception, ProgressEndEvent> onError,
-            Func<ProgressEndEvent> onComplete,
+            Func<Exception, ProgressEndEvent>? onError,
+            Func<ProgressEndEvent>? onComplete,
             CancellationToken cancellationToken
         )
         {
@@ -79,6 +79,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 }
             );
 
-        public void Dispose() => _disposable?.Dispose();
+        public void Dispose() => _disposable.Dispose();
     }
 }

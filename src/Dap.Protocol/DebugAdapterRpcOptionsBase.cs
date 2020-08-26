@@ -10,12 +10,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
     {
         protected DebugAdapterRpcOptionsBase()
         {
-            Services.AddLogging(builder => LoggingBuilderAction?.Invoke(builder));
+            Services.AddLogging(builder => LoggingBuilderAction.Invoke(builder));
             WithAssemblies(typeof(DebugAdapterRpcOptionsBase<T>).Assembly);
+            RequestProcessIdentifier = new ParallelRequestProcessIdentifier();
         }
 
         public ISerializer Serializer { get; set; } = new DapSerializer();
-        public override IRequestProcessIdentifier RequestProcessIdentifier { get; set; } = new ParallelRequestProcessIdentifier();
         internal bool AddDefaultLoggingProvider { get; set; }
         internal Action<ILoggingBuilder> LoggingBuilderAction { get; set; } = _ => { };
         internal Action<IConfigurationBuilder> ConfigurationBuilderAction { get; set; } = _ => { };

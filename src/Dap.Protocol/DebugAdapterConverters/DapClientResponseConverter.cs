@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.DebugAdapterConverters
             writer.WritePropertyName("success");
             writer.WriteValue(true);
             writer.WritePropertyName("command");
-            writer.WriteValue(value.Request?.Method);
+            writer.WriteValue(value.Request.Method);
             if (value.Result != null)
             {
                 writer.WritePropertyName("body");

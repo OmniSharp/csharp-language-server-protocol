@@ -19,8 +19,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
     /// </summary>
     public abstract class DebugAdapterProtocolTestBase : JsonRpcTestBase
     {
-        private IDebugAdapterClient _client;
-        private IDebugAdapterServer _server;
+        private IDebugAdapterClient _client = null!;
+        private IDebugAdapterServer _server = null!;
 
         public DebugAdapterProtocolTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {
