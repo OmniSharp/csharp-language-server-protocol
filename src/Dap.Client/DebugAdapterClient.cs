@@ -28,12 +28,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         private readonly IEnumerable<IOnDebugAdapterClientInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterClientStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterClientStarted> _startedHandlers;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
         private readonly DapReceiver _receiver;
         private readonly IServiceProvider _serviceProvider;
         private readonly ISubject<InitializedEvent> _initializedComplete = new AsyncSubject<InitializedEvent>();
-        private bool _started;
         private readonly int? _concurrency;
 
         internal static IContainer CreateContainer(DebugAdapterClientOptions options, IServiceProvider outerServiceProvider) =>
@@ -95,7 +95,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             IEnumerable<IOnDebugAdapterClientInitialize> initializeHandlers,
             IEnumerable<OnDebugAdapterClientInitializedDelegate> initializedDelegates,
             IEnumerable<IOnDebugAdapterClientInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterClientStarted> startedHandlers
+            IEnumerable<IOnDebugAdapterClientStarted> startedHandlers,
+            InstanceHasStarted instanceHasStarted
         ) : base(collection, responseRouter)
         {
             _settingsBag = settingsBag;
@@ -111,6 +112,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _initializedDelegates = initializedDelegates;
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -154,7 +156,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 _concurrency,
                 token
             );
-            _started = true;
+
+            _instanceHasStarted.Started = true;
         }
 
         async Task<Unit> IRequestHandler<InitializedEvent, Unit>.Handle(InitializedEvent request, CancellationToken cancellationToken)

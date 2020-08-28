@@ -28,6 +28,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly IEnumerable<IOnDebugAdapterServerInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterServerStarted> _startedHandlers;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
@@ -35,7 +36,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private Task _initializingTask;
         private readonly ISubject<InitializeResponse> _initializeComplete = new AsyncSubject<InitializeResponse>();
         private readonly Capabilities _capabilities;
-        private bool _started;
         private readonly int? _concurrency;
 
         internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
@@ -96,7 +96,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             IDebugAdapterServerProgressManager progressManager,
             IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
             IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers
+            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers,
+            InstanceHasStarted instanceHasStarted
         ) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
@@ -111,6 +112,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _initializeHandlers = initializeHandlers;
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -146,7 +148,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                     _concurrency,
                     token
                 );
-                _started = true;
+                _instanceHasStarted.Started = true;
 
                 this.SendDebugAdapterInitialized(new InitializedEvent());
             }

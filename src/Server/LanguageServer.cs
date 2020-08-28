@@ -16,7 +16,6 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
@@ -50,6 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<IOnLanguageServerInitialized> _initializedHandlers;
         private readonly IEnumerable<IRegistrationOptionsConverter> _registrationOptionsConverters;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly IEnumerable<OnLanguageServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnLanguageServerStarted> _startedHandlers;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -57,9 +57,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ISupportedCapabilities _supportedCapabilities;
         private Task _initializingTask;
         private readonly LanguageProtocolSettingsBag _settingsBag;
-        private bool _started;
         private readonly int? _concurrency;
         private readonly ILookup<string, Type> _capabilityTypes;
+        private readonly IResolverContext _resolverContext;
 
         internal static IContainer CreateContainer(LanguageServerOptions options, IServiceProvider outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
@@ -129,7 +129,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ServerInfo serverInfo,
             ILspServerReceiver receiver,
             ISerializer serializer,
-            IServiceProvider serviceProvider,
+            IResolverContext resolverContext,
             ISupportedCapabilities supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
             IEnumerable<OnLanguageServerInitializeDelegate> initializeDelegates,
@@ -147,7 +147,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IProgressManager progressManager,
             ILanguageServerWorkspaceFolderManager workspaceFolderManager, IEnumerable<IOnLanguageServerInitialize> initializeHandlers,
             IEnumerable<IOnLanguageServerInitialized> initializedHandlers,
-            IEnumerable<IRegistrationOptionsConverter> registrationOptionsConverters
+            IEnumerable<IRegistrationOptionsConverter> registrationOptionsConverters,
+            InstanceHasStarted instanceHasStarted
         ) : base(handlerCollection, responseRouter)
         {
             Configuration = configuration;
@@ -164,7 +165,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _startedHandlers = startedHandlers;
             WorkDoneManager = serverWorkDoneManager;
             _settingsBag = languageProtocolSettingsBag;
-            Services = serviceProvider;
+            Services = _resolverContext = resolverContext;
             _collection = handlerCollection;
 
             // We need to at least create Window here in case any handler does logging in their constructor
@@ -178,6 +179,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _initializeHandlers = initializeHandlers;
             _initializedHandlers = initializedHandlers;
             _registrationOptionsConverters = registrationOptionsConverters;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _capabilityTypes = options
@@ -246,7 +248,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     token
                 );
 
-                _started = true;
+                _instanceHasStarted.Started = true;
             }
             catch (TaskCanceledException e)
             {
@@ -331,7 +333,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             WorkDoneManager.Initialized(windowCapabilities);
 
             {
-                RegisterHandlers(_collection);
+                LanguageServerHelpers.RegisterHandlers(
+                    _initializingTask,
+                    Client,
+                    WorkDoneManager,
+                    _supportedCapabilities,
+                    _collection
+                );
             }
 
             await LanguageProtocolEventingHelper.Run(
@@ -477,18 +485,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return Unit.Value;
         }
 
-        private async Task DynamicallyRegisterHandlers(Registration[] registrations)
-        {
-            if (registrations.Length == 0)
-                return; // No dynamic registrations supported by client.
-
-            var @params = new RegistrationParams { Registrations = registrations };
-
-            await _initializeComplete;
-
-            await Client.RegisterCapability(@params);
-        }
-
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();
@@ -504,98 +500,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public IDisposable Register(Action<ILanguageServerRegistry> registryAction)
         {
             var manager = new CompositeHandlersManager(_collection);
-            registryAction(new LangaugeServerRegistry(Services, manager, _textDocumentIdentifiers));
+            registryAction(new LangaugeServerRegistry(_resolverContext, manager, _textDocumentIdentifiers));
 
             var result = manager.GetDisposable();
-            if (_started)
+            if (_instanceHasStarted.Started)
             {
-                static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
-                {
-                    return disposable.OfType<ILspHandlerDescriptor>()
-                                     .Select(z => z.Handler)
-                                     .OfType<T>()
-                                     .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
-                                     .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
-                                     .Distinct();
-                }
-
-                static IEnumerable<T> GetLspHandlers<T>(LspHandlerDescriptorDisposable disposable)
-                {
-                    return disposable.Descriptors
-                                     .Select(z => z.Handler)
-                                     .OfType<T>()
-                                     .Distinct();
-                }
-
-                Observable.Concat(
-                    GetUniqueHandlers<IOnLanguageServerInitialize>(result)
-                       .Select(handler => Observable.FromAsync(ct => handler.OnInitialize(this, ClientSettings, ct)))
-                       .Merge(),
-                    GetUniqueHandlers<IOnLanguageServerInitialized>(result)
-                       .Select(handler => Observable.FromAsync(ct => handler.OnInitialized(this, ClientSettings, ServerSettings, ct)))
-                       .Merge(),
-                    GetUniqueHandlers<IOnLanguageServerStarted>(result)
-                       .Select(handler => Observable.FromAsync(ct => handler.OnStarted(this, ct)))
-                       .Merge()
-                ).Subscribe();
+                LanguageServerHelpers.InitHandlers(this, result);
             }
 
-            return RegisterHandlers(result);
-        }
-
-        private IDisposable RegisterHandlers(IEnumerable<ILspHandlerDescriptor> collection)
-        {
-            var registrations = new List<Registration>();
-            foreach (var descriptor in collection)
-            {
-                if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
-                    lspHandlerDescriptor.TypeDescriptor?.HandlerType != null &&
-                    typeof(IDoesNotParticipateInRegistration).IsAssignableFrom(lspHandlerDescriptor.TypeDescriptor.HandlerType))
-                {
-                    continue;
-                }
-
-                if (descriptor.HasCapability && _supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
-                {
-                    if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
-                    {
-                        wdpo.WorkDoneProgress = WorkDoneManager.IsSupported;
-                    }
-
-                    registrations.Add(
-                        new Registration {
-                            Id = descriptor.Id.ToString(),
-                            Method = descriptor.Method,
-                            RegisterOptions = descriptor.RegistrationOptions
-                        }
-                    );
-                }
-            }
-
-            // Fire and forget
-            DynamicallyRegisterHandlers(registrations.ToArray()).ToObservable().Subscribe();
-
-            return Disposable.Create(
-                () => {
-                    Client.UnregisterCapability(
-                        new UnregistrationParams {
-                            Unregisterations = registrations.ToArray()
-                        }
-                    ).ToObservable().Subscribe();
-                }
-            );
-        }
-
-        private IDisposable RegisterHandlers(IDisposable handlerDisposable)
-        {
-            if (handlerDisposable is LspHandlerDescriptorDisposable lsp)
-            {
-                return new CompositeDisposable(lsp, RegisterHandlers(lsp.Descriptors));
-            }
-
-            if (!( handlerDisposable is CompositeDisposable cd )) return Disposable.Empty;
-            cd.Add(RegisterHandlers(cd.OfType<LspHandlerDescriptorDisposable>().SelectMany(z => z.Descriptors)));
-            return cd;
+            return LanguageServerHelpers.RegisterHandlers(_initializingTask, Client, WorkDoneManager, _supportedCapabilities, result);
         }
 
         object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);

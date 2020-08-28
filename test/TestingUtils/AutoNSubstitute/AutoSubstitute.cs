@@ -26,7 +26,7 @@ namespace NSubstitute.Internals
             Container = Container
                .With(
                     rules => rules
-                            .WithTestLoggerResolver((request, loggerType) => ActivatorUtilities.CreateInstance(request.Container, loggerType))
+                            .WithTestLoggerResolver((request, loggerType) => request.Container.Resolve(loggerType))
                             .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
                             .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
                 );
