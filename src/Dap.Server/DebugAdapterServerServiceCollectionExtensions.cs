@@ -33,7 +33,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
             container.RegisterMany<DebugAdapterServerProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterServer>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer), reuse: Reuse.Singleton
+                serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
+            container.RegisterMany<DefaultDebugAdapterServerFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterServerFacade).GetInterfaces().Except(typeof(DefaultDebugAdapterServerFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
             );
 
             // container.

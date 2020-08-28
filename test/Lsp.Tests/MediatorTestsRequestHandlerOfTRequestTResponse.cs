@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using FluentAssertions;
 using JsonRpc.Tests;
 using MediatR;
@@ -10,7 +11,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -23,7 +23,9 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
 using Xunit.Abstractions;
 using Xunit.Sdk;
+using Arg = NSubstitute.Arg;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace Lsp.Tests
 {
@@ -49,7 +51,7 @@ namespace Lsp.Tests
                     }
                 );
 
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new Container(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);

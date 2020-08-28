@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
+using Arg = NSubstitute.Arg;
 
 namespace Lsp.Tests.Integration
 {
