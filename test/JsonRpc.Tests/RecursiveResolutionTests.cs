@@ -20,7 +20,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public void Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
+        public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
             Func<Task> a = async () => {
                 var (client, server) = await Initialize(
@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
                         .AddHandler<ClassHandler<JsonRpcServer>>()
                 );
             };
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]
@@ -76,36 +76,36 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public void Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Registration()
+        public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
                 options => { },
                 options => options
                           .AddHandler<ClassHandler<IJsonRpcServerFacade>>()
             );
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]
-        public void Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Description()
+        public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
                 options => { },
                 options => options.Services
                                   .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(ClassHandler<IJsonRpcServerFacade>)))
             );
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Fact]
-        public void Server_Facade_Can_Injected_Into_Handler_During_Creation_Using_Injection()
+        public async Task Server_Facade_Can_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
                 options => { },
                 options => options.Services
                                   .AddSingleton<ClassHandler<IJsonRpcServerFacade>>()
             );
-            a.Should().NotThrow();
+            await a.Should().NotThrowAsync();
         }
 
         [Method(nameof(ClassRequest))]
