@@ -11,6 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly Connection _connection;
         private readonly IServiceProvider _serviceProvider;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly CompositeDisposable _disposable;
 
         internal static IContainer CreateContainer(JsonRpcServerOptions options, IServiceProvider outerServiceProvider) =>
@@ -58,11 +59,13 @@ namespace OmniSharp.Extensions.JsonRpc
             Connection connection,
             IHandlersManager handlerCollection,
             IResponseRouter responseRouter,
-            IServiceProvider serviceProvider
+            IServiceProvider serviceProvider,
+            InstanceHasStarted instanceHasStarted
         ) : base(handlerCollection, responseRouter)
         {
             _connection = connection;
             _serviceProvider = serviceProvider;
+            _instanceHasStarted = instanceHasStarted;
             _disposable = options.Value.CompositeDisposable;
             _disposable.Add(_connection);
             if (serviceProvider is IDisposable disposable)
@@ -75,6 +78,7 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             await Task.Yield();
             _connection.Open();
+            _instanceHasStarted.Started = true;
         }
 
         public void Dispose() => _disposable.Dispose();

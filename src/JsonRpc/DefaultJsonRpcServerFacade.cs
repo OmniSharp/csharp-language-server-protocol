@@ -2,29 +2,22 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
-using DryIoc;
 using MediatR;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
-using OmniSharp.Extensions.JsonRpc;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol
+namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IDebugAdapterProtocolProxy : IResponseRouter, IDebugAdapterProtocolSettings, IServiceProvider
-    {
-    }
-
-    abstract class DebugAdapterProtocolProxy : IDebugAdapterProtocolProxy
+    internal class DefaultJsonRpcServerFacade : IJsonRpcServerFacade
     {
         private readonly IResponseRouter _responseRouter;
-        protected readonly IResolverContext ResolverContext;
-        private readonly IDebugAdapterProtocolSettings _debugAdapterProtocolSettings;
+        private readonly IServiceProvider _serviceProvider;
+        private readonly Lazy<IHandlersManager> _handlersManager;
 
-        public DebugAdapterProtocolProxy(IResponseRouter requestRouter, IResolverContext resolverContext, IDebugAdapterProtocolSettings debugAdapterProtocolSettings)
+        public DefaultJsonRpcServerFacade(IResponseRouter requestRouter, IServiceProvider serviceProvider, Lazy<IHandlersManager> handlersManager)
         {
             _responseRouter = requestRouter;
-            ResolverContext = resolverContext;
-            _debugAdapterProtocolSettings = debugAdapterProtocolSettings;
+            _serviceProvider = serviceProvider;
+            _handlersManager = handlersManager;
         }
 
         public void SendNotification(string method) => _responseRouter.SendNotification(method);
@@ -40,9 +33,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
 
         bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) => _responseRouter.TryGetRequest(id, out method, out pendingTask);
-        object IServiceProvider.GetService(Type serviceType) => ResolverContext.GetService(serviceType);
+        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
 
-        public InitializeRequestArguments ClientSettings => _debugAdapterProtocolSettings.ClientSettings;
-        public InitializeResponse ServerSettings => _debugAdapterProtocolSettings.ServerSettings;
+        public IDisposable Register(Action<IJsonRpcServerRegistry> registryAction)
+        {
+            var manager = new CompositeHandlersManager(_handlersManager.Value);
+            registryAction(new JsonRpcServerRegistry(manager));
+            return manager.GetDisposable();
+        }
     }
 }

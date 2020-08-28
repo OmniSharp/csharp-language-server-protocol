@@ -1,3 +1,4 @@
+using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -24,7 +25,7 @@ namespace Lsp.Tests
             var handlerCollection = new SharedHandlerCollection(
                 SupportedCapabilitiesFixture.AlwaysTrue,
                 new TextDocumentIdentifiers(),
-                new ServiceCollection().BuildServiceProvider(),
+                new Container(),
                 new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly })
             ) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection, true);

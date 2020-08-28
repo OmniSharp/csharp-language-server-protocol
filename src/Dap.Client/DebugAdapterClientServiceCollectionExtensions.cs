@@ -29,10 +29,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
             container.RegisterInstance<IOptionsFactory<DebugAdapterClientOptions>>(new ValueOptionsFactory<DebugAdapterClientOptions>(options));
 
-            container.RegisterMany<DebugAdapterClient>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton
-            );
-
             container.RegisterInstance(
                 new InitializeRequestArguments {
                     Locale = options.Locale,
@@ -53,7 +49,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
             container.RegisterMany<DebugAdapterClientProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterClient>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton
+                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
+            container.RegisterMany<DefaultDebugAdapterClientFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterClientFacade).GetInterfaces().Except(typeof(DefaultDebugAdapterClientFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
             );
 
             // container.
