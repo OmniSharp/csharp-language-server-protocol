@@ -24,9 +24,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly Lazy<IServerWorkDoneManager> _workDoneManager;
         private readonly Lazy<ISupportedCapabilities> _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
-        private readonly IInsanceHasStarted _insanceHasStarted;
-        private ILanguageServer _languageServer;
-        private TaskCompletionSource<Unit> _hasStarted;
+        private readonly IInsanceHasStarted _instancesHasStarted;
+        private readonly TaskCompletionSource<Unit> _hasStarted;
 
         public DefaultLanguageServerFacade(
             IResponseRouter requestRouter,
@@ -42,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             Lazy<IServerWorkDoneManager> workDoneManager,
             Lazy<ISupportedCapabilities> supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
-            IInsanceHasStarted insanceHasStarted
+            IInsanceHasStarted instancesHasStarted
         ) : base(requestRouter, resolverContext, progressManager, languageProtocolSettings)
         {
             _textDocument = textDocument;
@@ -54,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _workDoneManager = workDoneManager;
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
-            _insanceHasStarted = insanceHasStarted;
+            _instancesHasStarted = instancesHasStarted;
             _hasStarted = new TaskCompletionSource<Unit>();
         }
 
@@ -70,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             registryAction(new LangaugeServerRegistry(ResolverContext, manager, _textDocumentIdentifiers));
 
             var result = manager.GetDisposable();
-            if (_insanceHasStarted.Started)
+            if (_instancesHasStarted.Started)
             {
                 LanguageServerHelpers.InitHandlers(ResolverContext.Resolve<ILanguageServer>(), result);
             }
@@ -80,8 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         Task IOnLanguageServerStarted.OnStarted(ILanguageServer client, CancellationToken cancellationToken)
         {
-            _languageServer = client;
-            _hasStarted.SetResult(Unit.Value);
+            _hasStarted.TrySetResult(Unit.Value);
             return Task.CompletedTask;
         }
     }
