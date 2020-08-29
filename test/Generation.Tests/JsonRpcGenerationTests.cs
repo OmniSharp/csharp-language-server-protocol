@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using TestingUtils;
 using Xunit;
 using static Generation.Tests.GenerationHelpers;
 
@@ -6,7 +7,7 @@ namespace Generation.Tests
 {
     public class JsonRpcGenerationTests
     {
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_ExitHandler()
         {
             var source = @"
@@ -64,7 +65,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_CapabilitiesHandler()
         {
             var source = @"
@@ -117,7 +118,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
         }
 
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Notifications_ExitHandler()
         {
             var source = @"
@@ -175,7 +176,7 @@ namespace Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_DidChangeTextHandler()
         {
             var source = @"
@@ -267,7 +268,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Notifications_And_Infers_Direction_FoldingRangeHandler()
         {
             var source = @"
@@ -363,7 +364,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Requests_And_Infers_Direction()
         {
             var source = @"
@@ -455,7 +456,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
 
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Requests()
         {
             var source = @"
@@ -546,7 +547,7 @@ namespace Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Custom_Method_Names()
         {
             var source = @"
@@ -599,7 +600,7 @@ namespace Test
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Allow_Derived_Requests()
         {
             var source = @"
@@ -654,7 +655,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
             await AssertGeneratedAsExpected(source, expected);
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Allow_Generic_Types()
         {
             var source = @"
