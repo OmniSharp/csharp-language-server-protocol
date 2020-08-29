@@ -628,7 +628,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             actualDocumentUri = request.Uri;
                             actualDiagnostics = request.Diagnostics.ToList();
 
-                            receivedDiagnosticsNotification.SetResult(null);
+                            receivedDiagnosticsNotification.TrySetResult(null);
                             return Unit.Task;
                         }
                     );
@@ -643,7 +643,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 }
             );
 
-            CancellationToken.Register(() => receivedDiagnosticsNotification.SetCanceled());
+            CancellationToken.Register(() => receivedDiagnosticsNotification.TrySetCanceled());
 
             // Timeout.
             var winner = await Task.WhenAny(

@@ -25,7 +25,7 @@ namespace JsonRpc.Tests
                .Do(
                     call => {
                         router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id, out var method, out var tcs);
-                        tcs.SetResult(new JObject());
+                        tcs.TrySetResult(new JObject());
                     }
                 );
 
