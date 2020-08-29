@@ -125,7 +125,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await Task.Delay(1000);
+            await Task.Delay(1001);
 
             _logs.Should().HaveCount(4);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
