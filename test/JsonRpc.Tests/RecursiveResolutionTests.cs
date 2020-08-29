@@ -21,8 +21,8 @@ namespace JsonRpc.Tests
         {
         }
 
-        [Fact]
-        public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
+        public void Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
             Func<Task> a = async () => {
                 var (client, server) = await Initialize(
@@ -35,7 +35,7 @@ namespace JsonRpc.Tests
                         .AddHandler<ClassHandler<JsonRpcServer>>()
                 );
             };
-            await a.Should().NotThrowAsync();
+            a.Should().NotThrow();
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
