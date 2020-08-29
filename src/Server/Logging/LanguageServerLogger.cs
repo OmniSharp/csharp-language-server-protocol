@@ -12,11 +12,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     internal class LanguageServerLogger : ILogger
     {
-        private readonly ILanguageServer _responseRouter;
+        private readonly ILanguageServerFacade _responseRouter;
         private readonly string _categoryName;
         private readonly Func<LogLevel> _logLevelGetter;
 
-        public LanguageServerLogger(ILanguageServer responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
+        public LanguageServerLogger(ILanguageServerFacade responseRouter, string categoryName, Func<LogLevel> logLevelGetter)
         {
             _logLevelGetter = logLevelGetter;
             _responseRouter = responseRouter;
@@ -68,7 +68,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     return true;
                 case LogLevel.Debug:
                 case LogLevel.Trace:
-                    messageType = MessageType.Info;
+                    // TODO: Integrate with set trace?
+                    messageType = MessageType.Log;
                     return true;
             }
 

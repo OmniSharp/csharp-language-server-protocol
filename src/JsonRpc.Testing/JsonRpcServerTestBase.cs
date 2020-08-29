@@ -36,6 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             var clientTask = JsonRpcServer.From(
                 options => {
                     options
+                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .WithServices(
                             services => services
                                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
@@ -43,7 +44,6 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                        .AddLogging(
                                             x => {
                                                 x.SetMinimumLevel(LogLevel.Trace);
-                                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                                             }
                                         )
                         );

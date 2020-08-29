@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using Nerdbank.Streams;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -86,6 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithLoggerFactory(ILoggerFactory loggerFactory)
         {
+            if (loggerFactory == NullLoggerFactory.Instance) return (T) (object) this;
             Services.RemoveAll(typeof(ILoggerFactory));
             Services.AddSingleton(loggerFactory);
             return (T) (object) this;
