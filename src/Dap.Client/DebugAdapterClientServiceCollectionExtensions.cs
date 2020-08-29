@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.DebugAdapter.Client.Configuration;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Shared;
@@ -68,13 +69,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                         var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
                         if (outerConfiguration != null)
                         {
-                            builder.AddConfiguration(outerConfiguration, false);
+                            builder.CustomAddConfiguration(outerConfiguration, false);
                         }
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
                     return builder.Build();

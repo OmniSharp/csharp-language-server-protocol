@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var triggerChange = new Subject<System.Reactive.Unit>();
             _compositeDisposable.Add(triggerChange);
             _triggerChange = triggerChange;
-            _compositeDisposable.Add(_configuration!);
+            if (_configuration is IDisposable disposableConfiguration) _compositeDisposable.Add(disposableConfiguration);
             _compositeDisposable.Add(triggerChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(_ => GetWorkspaceConfiguration()).Switch().Subscribe());
         }
 

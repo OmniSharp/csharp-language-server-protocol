@@ -18,11 +18,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             IConfiguration rootConfiguration,
             ConfigurationConverter configurationConverter,
             IEnumerable<(string key, JToken settings)> configuration,
-            IDisposable disposable)
+            IDisposable disposable
+        )
         {
             _configurationSource = new WorkspaceConfigurationSource(configurationConverter, configuration);
             _configuration = new ConfigurationBuilder()
-                            .AddConfiguration(rootConfiguration)
+                            .CustomAddConfiguration(rootConfiguration)
                             .Add(_configurationSource)
                             .Build() as ConfigurationRoot;
             _rootConfiguration = rootConfiguration;
@@ -48,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void Dispose()
         {
-            _configuration.Dispose();
+            if (_configuration is IDisposable disposable) disposable.Dispose();
             _disposable.Dispose();
         }
     }

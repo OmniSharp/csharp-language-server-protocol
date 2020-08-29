@@ -78,15 +78,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {
-                        builder.AddConfiguration(outerConfiguration, false);
+                        builder.CustomAddConfiguration(outerConfiguration, false);
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
-                    return builder.AddConfiguration(didChangeConfigurationProvider).Build();
+                    return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();
                 },
                 Reuse.Singleton
             );
