@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -36,7 +38,7 @@ namespace JsonRpc.Tests
             await a.Should().NotThrowAsync();
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
@@ -49,7 +51,7 @@ namespace JsonRpc.Tests
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
@@ -62,7 +64,7 @@ namespace JsonRpc.Tests
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
