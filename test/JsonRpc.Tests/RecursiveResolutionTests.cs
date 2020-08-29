@@ -37,7 +37,7 @@ namespace JsonRpc.Tests
         }
 
         [Fact]
-        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
+        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -45,12 +45,12 @@ namespace JsonRpc.Tests
                           .AddHandler<InterfaceHandler<IJsonRpcServer>>()
                           .AddHandler<ClassHandler<JsonRpcServer>>()
             );
-            var result = await a.Should().ThrowAsync<ContainerException>();
+            var result = a.Should().Throw<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
         [Fact]
-        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
+        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -58,12 +58,12 @@ namespace JsonRpc.Tests
                                   .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(InterfaceHandler<IJsonRpcServer>)))
                                   .AddSingleton(JsonRpcHandlerDescription.Infer(typeof(ClassHandler<JsonRpcServer>)))
             );
-            var result = await a.Should().ThrowAsync<ContainerException>();
+            var result = a.Should().Throw<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
         [Fact]
-        public async Task Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
+        public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
                 options => { },
@@ -71,7 +71,7 @@ namespace JsonRpc.Tests
                                   .AddSingleton<InterfaceHandler<IJsonRpcServer>>()
                                   .AddSingleton<ClassHandler<JsonRpcServer>>()
             );
-            var result = await a.Should().ThrowAsync<ContainerException>();
+            var result = a.Should().Throw<ContainerException>();
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
