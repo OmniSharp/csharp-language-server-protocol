@@ -35,7 +35,7 @@ namespace JsonRpc.Tests
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
             var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection(new Container(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { cancelRequestHandler };
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { cancelRequestHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 

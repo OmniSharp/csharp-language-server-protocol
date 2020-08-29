@@ -25,7 +25,7 @@ namespace Lsp.Tests
             var handlerCollection = new SharedHandlerCollection(
                 SupportedCapabilitiesFixture.AlwaysTrue,
                 new TextDocumentIdentifiers(),
-                new Container(),
+                Substitute.For<IResolverContext>(),
                 new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly })
             ) { handler };
             var capabilityProvider = new ClientCapabilityProvider(handlerCollection, true);
