@@ -25,7 +25,7 @@ namespace TestingUtils
 
         public override string Skip
         {
-            get => !UnitTestDetector.InUnitTestRunner() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
+            get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
                 ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
                 : null;
             set => _skip = value;
@@ -44,7 +44,7 @@ namespace TestingUtils
 
         public override string Skip
         {
-            get => !UnitTestDetector.InUnitTestRunner() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
+            get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
                 ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
                 : null;
             set => _skip = value;
@@ -82,6 +82,8 @@ namespace TestingUtils
 
             return _inUnitTestRunner.Value;
         }
+
+        public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
 
         public static bool PlatformToSkipPredicate(SkipOnPlatform platform) =>
             RuntimeInformation.IsOSPlatform(
