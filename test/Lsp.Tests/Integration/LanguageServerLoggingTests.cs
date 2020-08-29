@@ -53,7 +53,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             _logs.Should().HaveCount(6);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
@@ -89,7 +89,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             _logs.Should().HaveCount(3);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
@@ -125,7 +125,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await SettleNext();
+            await Task.Delay(1000);
 
             _logs.Should().HaveCount(4);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
