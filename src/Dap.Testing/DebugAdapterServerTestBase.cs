@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                     options
                        .WithInput(reader)
                        .WithOutput(writer)
+                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                             }
                         )
                        .Services

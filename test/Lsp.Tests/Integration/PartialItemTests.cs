@@ -128,6 +128,7 @@ namespace Lsp.Tests.Integration
                        ).Subscribe(x => items.AddRange(x));
 
                 await Task.Delay(1000);
+                await SettleNext();
 
                 var workResults = work.Select(z => z.Message);
 

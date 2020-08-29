@@ -47,7 +47,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                             }
                         )
                        .Services
@@ -65,7 +64,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
                             }
                         )
                        .Services

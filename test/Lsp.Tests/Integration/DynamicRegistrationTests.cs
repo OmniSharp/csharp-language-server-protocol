@@ -83,6 +83,7 @@ namespace Lsp.Tests.Integration
                 );
 
                 await WaitForRegistrationUpdate(client);
+                await WaitForRegistrationUpdate(client);
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
