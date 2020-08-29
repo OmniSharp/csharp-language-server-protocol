@@ -21,7 +21,7 @@ namespace JsonRpc.Tests
         {
         }
 
-        [Fact(Skip = "Fails windows CI")]
+        [Fact]
         public async Task Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
             Func<Task> a = async () => {
@@ -38,7 +38,7 @@ namespace JsonRpc.Tests
             await a.Should().NotThrowAsync();
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
@@ -51,7 +51,7 @@ namespace JsonRpc.Tests
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
@@ -64,7 +64,7 @@ namespace JsonRpc.Tests
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public void Server_Cannot_Be_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
@@ -77,7 +77,7 @@ namespace JsonRpc.Tests
             result.And.ErrorName.Should().Be("UnableToResolveFromRegisteredServices");
         }
 
-        [Fact(Skip = "Fails windows CI")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Registration()
         {
             Func<Task> a = () => Initialize(
@@ -88,7 +88,7 @@ namespace JsonRpc.Tests
             await a.Should().NotThrowAsync();
         }
 
-        [Fact(Skip = "Fails windows CI")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public async Task Server_Facade_Can_Be_Injected_Into_Handler_During_Creation_Using_Description()
         {
             Func<Task> a = () => Initialize(
@@ -99,7 +99,7 @@ namespace JsonRpc.Tests
             await a.Should().NotThrowAsync();
         }
 
-        [Fact(Skip = "Fails windows CI")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, Skip = "appears to cause a deadlock")]
         public async Task Server_Facade_Can_Injected_Into_Handler_During_Creation_Using_Injection()
         {
             Func<Task> a = () => Initialize(
