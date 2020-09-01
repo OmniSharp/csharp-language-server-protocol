@@ -77,6 +77,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
+                if (string.IsNullOrWhiteSpace(registrationOptions.Id))
+                {
+                    registrationOptions.Id = Guid.NewGuid().ToString();
+                }
+
                 var reg = new Registration {
                     Id = registrationOptions.Id,
                     Method = method,
