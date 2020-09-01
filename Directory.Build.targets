@@ -14,13 +14,10 @@
     <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.9" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="Microsoft.Extensions.Logging" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.Logging.Abstractions" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.Configuration" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
-    <PackageReference Update="Microsoft.Extensions.DependencyInjection.Abstractions" Version="3.1.0" />
+    <PackageReference Update="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Update="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+    <PackageReference Update="Microsoft.Extensions.Configuration" Version="2.0.0" />
+    <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
     <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.1" />
     <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />

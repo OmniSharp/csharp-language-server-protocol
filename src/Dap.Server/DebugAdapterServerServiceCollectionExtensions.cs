@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.DebugAdapter.Server.Configuration;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -52,13 +53,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                         var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
                         if (outerConfiguration != null)
                         {
-                            builder.AddConfiguration(outerConfiguration, false);
+                            builder.CustomAddConfiguration(outerConfiguration, false);
                         }
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
                     return builder.Build();
