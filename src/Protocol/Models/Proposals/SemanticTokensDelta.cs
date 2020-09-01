@@ -7,8 +7,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// @since 3.16.0
     /// </summary>
     [Obsolete(Constants.Proposal)]
-    public class SemanticTokensDelta
+    public class SemanticTokensDelta : ISemanticTokenResult
     {
+        public SemanticTokensDelta()
+        {
+
+        }
+
+        public SemanticTokensDelta(SemanticTokensDeltaPartialResult partialResult)
+        {
+            Edits = partialResult.Edits;
+        }
+
         /// <summary>
         /// An optional result id. If provided and clients support delta updating
         /// the client will include the result id in the next semantic token request.

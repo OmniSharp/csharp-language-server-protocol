@@ -20,12 +20,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new ProgressToken((long) reader.Value);
             }
 
-            if (reader.TokenType == JsonToken.String)
+            if (reader.TokenType == JsonToken.String && reader.Value is string str && !string.IsNullOrWhiteSpace(str))
             {
-                return new ProgressToken((string) reader.Value);
+                return new ProgressToken(str);
             }
 
-            return new ProgressToken(string.Empty);
+            return null;
         }
 
         public override bool CanRead => true;
