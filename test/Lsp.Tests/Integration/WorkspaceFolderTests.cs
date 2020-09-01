@@ -25,10 +25,7 @@ namespace Lsp.Tests.Integration
     public class WorkspaceFolderTests : LanguageProtocolTestBase
     {
         public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(
-            new JsonRpcTestOptions()
-               .ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
-               .WithWaitTime(TimeSpan.FromSeconds(1))
-               .WithTimeout(TimeSpan.FromSeconds(2))
+            new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
         )
         {
         }
