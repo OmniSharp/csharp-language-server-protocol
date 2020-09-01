@@ -33,10 +33,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             void ICapability<TCapability>.SetCapability(TCapability capability) => Capability = capability;
         }
 
-        public abstract class PartialResult<TItem, TResponse, TCapability, TRegistrationOptions> :
-            IJsonRpcRequestHandler<TItem, TResponse>,
+        public abstract class PartialResult<TParams, TResponse, TItem, TCapability, TRegistrationOptions> :
+            IJsonRpcRequestHandler<TParams, TResponse>,
             IRegistration<TRegistrationOptions>, ICapability<TCapability>
-            where TItem : IPartialItemRequest<TResponse, TItem>
+            where TParams : IPartialItemRequest<TResponse, TItem>
             where TResponse : class, new()
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
@@ -57,8 +57,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TItem, TResponse>.Handle(
-                TItem request,
+            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
+                TParams request,
                 CancellationToken cancellationToken
             )
             {
@@ -78,7 +78,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             protected abstract void Handle(
-                TItem request, IObserver<TItem> results,
+                TParams request, IObserver<TItem> results,
                 CancellationToken cancellationToken
             );
 

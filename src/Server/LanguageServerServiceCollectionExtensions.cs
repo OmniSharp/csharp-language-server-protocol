@@ -105,6 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<ExecuteCommandMatcher>(Reuse.Singleton);
             container.RegisterMany<ResolveCommandMatcher>(Reuse.Singleton);
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
+            container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
             container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
 
