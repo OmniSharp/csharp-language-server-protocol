@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using NSubstitute;
@@ -11,6 +12,9 @@ using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
@@ -60,7 +64,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Add("/abcd/", nameof(Should_Add_A_Workspace_Folder));
 
-            SettleNext();
+            await SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Add);
@@ -89,7 +93,7 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(nameof(Should_Remove_Workspace_Folder_by_name));
 
-            SettleNext();
+            await SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);
@@ -109,11 +113,56 @@ namespace Lsp.Tests.Integration
 
             client.WorkspaceFoldersManager.Remove(DocumentUri.From("/abcd/"));
 
-            SettleNext();
+            await SettleNext();
 
             folders.Should().HaveCount(1);
             folders[0].Event.Should().Be(WorkspaceFolderEvent.Remove);
             folders[0].Folder.Name.Should().Be(nameof(Should_Remove_Workspace_Folder_by_uri));
+        }
+
+        [Fact]
+        public async Task Should_Handle_Null_Workspace_Folders()
+        {
+            var workspaceLanguageServer = Substitute.For<IWorkspaceLanguageServer>();
+            var languageServer = Substitute.For<ILanguageServer>();
+            languageServer.ClientSettings.Returns(
+                new InitializeParams() {
+                    Capabilities = new ClientCapabilities() {
+                        Workspace = new WorkspaceClientCapabilities() {
+                            WorkspaceFolders = true
+                        }
+                    },
+                    WorkspaceFolders = null
+                }
+            );
+            var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
+            var started = (IOnLanguageServerStarted) workspaceFolders;
+            await started.OnStarted(languageServer, CancellationToken);
+        }
+
+        [Fact]
+        public async Task Should_Handle_Null_Workspace_Folders_On_Refresh()
+        {
+            var workspaceLanguageServer = Substitute.For<IWorkspaceLanguageServer>();
+            var languageServer = Substitute.For<ILanguageServer>();
+            languageServer.ClientSettings.Returns(
+                new InitializeParams() {
+                    Capabilities = new ClientCapabilities() {
+                        Workspace = new WorkspaceClientCapabilities() {
+                            WorkspaceFolders = true
+                        }
+                    },
+                    WorkspaceFolders = null
+                }
+            );
+            languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder> ) null);
+            var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
+            var started = (IOnLanguageServerStarted) workspaceFolders;
+            await started.OnStarted(languageServer, CancellationToken);
+
+            var result = await workspaceFolders.Refresh().ToArray();
+
+            result.Should().BeEmpty();
         }
 
         private void ConfigureClient(LanguageClientOptions options) =>
