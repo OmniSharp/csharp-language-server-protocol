@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -25,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly Lazy<ISupportedCapabilities> _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IInsanceHasStarted _instancesHasStarted;
-        private readonly TaskCompletionSource<Unit> _hasStarted;
+        private readonly AsyncSubject<System.Reactive.Unit> _hasStarted;
 
         public DefaultLanguageServerFacade(
             IResponseRouter requestRouter,
@@ -54,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
             _instancesHasStarted = instancesHasStarted;
-            _hasStarted = new TaskCompletionSource<Unit>();
+            _hasStarted = new AsyncSubject<System.Reactive.Unit>();
         }
 
         public ITextDocumentLanguageServer TextDocument => _textDocument.Value;
@@ -74,12 +75,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 LanguageServerHelpers.InitHandlers(ResolverContext.Resolve<ILanguageServer>(), result);
             }
 
-            return LanguageServerHelpers.RegisterHandlers(_hasStarted.Task, Client, _workDoneManager.Value, _supportedCapabilities.Value, result);
+            return LanguageServerHelpers.RegisterHandlers(_hasStarted, Client, _workDoneManager.Value, _supportedCapabilities.Value, result);
         }
 
         Task IOnLanguageServerStarted.OnStarted(ILanguageServer client, CancellationToken cancellationToken)
         {
-            _hasStarted.TrySetResult(Unit.Value);
+            _hasStarted.OnNext(System.Reactive.Unit.Default);
+            _hasStarted.OnCompleted();
             return Task.CompletedTask;
         }
     }

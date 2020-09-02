@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
@@ -51,14 +52,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         internal static IDisposable RegisterHandlers(
-            Task initializeComplete,
+            IObservable<Unit> initializeComplete,
             IClientLanguageServer client,
             IServerWorkDoneManager serverWorkDoneManager,
             ISupportedCapabilities supportedCapabilities,
             IEnumerable<ILspHandlerDescriptor> collection
         )
         {
-            var registrations = new List<Registration>();
+            var descriptors = new List<ILspHandlerDescriptor>();
             foreach (var descriptor in collection)
             {
                 if (descriptor is LspHandlerDescriptor lspHandlerDescriptor &&
@@ -68,51 +69,77 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     continue;
                 }
 
-                if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
-                {
-                    if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
-                    {
-                        wdpo.WorkDoneProgress = serverWorkDoneManager.IsSupported;
-                    }
-
-                    registrations.Add(
-                        new Registration {
-                            Id = descriptor.Id.ToString(),
-                            Method = descriptor.Method,
-                            RegisterOptions = descriptor.RegistrationOptions
-                        }
-                    );
-                }
+                descriptors.Add(descriptor);
             }
 
-            // Fire and forget
-            DynamicallyRegisterHandlers(client, initializeComplete, registrations.ToArray()).ToObservable().Subscribe();
-
-            return Disposable.Create(
-                () => {
-                    client.UnregisterCapability(
-                        new UnregistrationParams {
-                            Unregisterations = registrations.ToArray()
-                        }
-                    ).ToObservable().Subscribe();
-                }
-            );
+            return DynamicallyRegisterHandlers(client, initializeComplete, serverWorkDoneManager, supportedCapabilities, descriptors);
         }
 
-        internal static async Task DynamicallyRegisterHandlers(IClientLanguageServer client, Task initializeComplete, Registration[] registrations)
+        internal static IDisposable DynamicallyRegisterHandlers(
+            IClientLanguageServer client,
+            IObservable<Unit> initializeComplete,
+            IServerWorkDoneManager serverWorkDoneManager,
+            ISupportedCapabilities supportedCapabilities,
+            IReadOnlyList<ILspHandlerDescriptor> descriptors
+        )
         {
-            if (registrations.Length == 0)
-                return; // No dynamic registrations supported by client.
+            if (descriptors.Count == 0)
+                return Disposable.Empty; // No dynamic registrations supported by client.
 
-            var @params = new RegistrationParams { Registrations = registrations };
+            var disposable = new CompositeDisposable();
 
-            await initializeComplete;
+            var result = initializeComplete
+                        .LastOrDefaultAsync()
+                        .Select(
+                             _ => {
+                                 var registrations = new List<Registration>();
+                                 foreach (var descriptor in descriptors)
+                                 {
+                                     if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
+                                     {
+                                         if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
+                                         {
+                                             wdpo.WorkDoneProgress = serverWorkDoneManager.IsSupported;
+                                         }
 
-            await client.RegisterCapability(@params);
+                                         registrations.Add(
+                                             new Registration {
+                                                 Id = descriptor.Id.ToString(),
+                                                 Method = descriptor.Method,
+                                                 RegisterOptions = descriptor.RegistrationOptions
+                                             }
+                                         );
+                                     }
+                                 }
+
+                                 return registrations;
+                             }
+                         )
+                        .SelectMany(
+                             registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations }, ct)), (a, b) => a
+                         )
+                        .Aggregate((z, b) => z)
+                        .Subscribe(
+                             registrations => {
+                                 disposable.Add(
+                                     Disposable.Create(
+                                         () => {
+                                             client.UnregisterCapability(
+                                                 new UnregistrationParams {
+                                                     Unregisterations = registrations
+                                                 }
+                                             ).ToObservable().Subscribe();
+                                         }
+                                     )
+                                 );
+                             }
+                         );
+            disposable.Add(result);
+            return disposable;
         }
 
         internal static IDisposable RegisterHandlers(
-            Task initializeComplete,
+            IObservable<Unit> initializeComplete,
             IClientLanguageServer client,
             IServerWorkDoneManager serverWorkDoneManager,
             ISupportedCapabilities supportedCapabilities,

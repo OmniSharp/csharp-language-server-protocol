@@ -26,6 +26,8 @@ namespace Lsp.Tests.Integration
     {
         public WorkspaceFolderTests(ITestOutputHelper outputHelper) : base(
             new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose)
+                                    .WithTimeout(TimeSpan.FromMilliseconds(1200))
+                                    .WithWaitTime(TimeSpan.FromMilliseconds(600))
         )
         {
         }
