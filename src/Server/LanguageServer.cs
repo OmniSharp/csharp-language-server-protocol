@@ -332,15 +332,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
             WorkDoneManager.Initialized(windowCapabilities);
 
-            {
+            _disposable.Add(
                 LanguageServerHelpers.RegisterHandlers(
-                    _initializingTask,
+                    _initializeComplete.Select(z => System.Reactive.Unit.Default),
                     Client,
                     WorkDoneManager,
                     _supportedCapabilities,
                     _collection
-                );
-            }
+                )
+            );
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
@@ -508,7 +508,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 LanguageServerHelpers.InitHandlers(this, result);
             }
 
-            return LanguageServerHelpers.RegisterHandlers(_initializingTask, Client, WorkDoneManager, _supportedCapabilities, result);
+            return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(z => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
+//            return LanguageServerHelpers.RegisterHandlers(_initializingTask ?? _initializeComplete.ToTask(), Client, WorkDoneManager, _supportedCapabilities, result);
         }
 
         object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);
