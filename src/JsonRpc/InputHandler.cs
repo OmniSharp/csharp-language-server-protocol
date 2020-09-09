@@ -284,7 +284,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 long length = 0;
                 do
                 {
-                    var result = await _pipeReader.ReadAsync(cancellationToken);
+                    var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     buffer = result.Buffer;
 
                     var dataParsed = true;
