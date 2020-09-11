@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -124,7 +125,9 @@ namespace Lsp.Tests.Integration
                     await WaitForRegistrationUpdate(client);
                     disposable.Dispose();
                     await WaitForRegistrationUpdate(client);
-                    await Task.Delay(1000);
+                    await TestHelper.DelayUntil(
+                        () => client.RegistrationManager.CurrentRegistrations, z => !SelectorMatches(z, x => x.HasLanguage && x.Language == "vb"), CancellationToken
+                    );
                 }
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(

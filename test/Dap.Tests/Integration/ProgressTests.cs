@@ -10,6 +10,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -75,7 +76,7 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
+            await data.DelayUntilCount(6, CancellationToken);
 
             var results = data.Select(
                 z => z switch {

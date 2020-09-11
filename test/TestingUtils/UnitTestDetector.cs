@@ -2,55 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Xunit;
 
 namespace TestingUtils
 {
-    public enum SkipOnPlatform
-    {
-        Linux,
-        Mac,
-        Windows,
-    }
-
-    public class FactWithSkipOnAttribute : FactAttribute
-    {
-        private readonly SkipOnPlatform[] _platformsToSkip;
-        private string _skip;
-
-        public FactWithSkipOnAttribute(params SkipOnPlatform[] platformsToSkip)
-        {
-            _platformsToSkip = platformsToSkip;
-        }
-
-        public override string Skip
-        {
-            get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
-                ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
-                : null;
-            set => _skip = value;
-        }
-    }
-
-    public class TheoryWithSkipOnAttribute : TheoryAttribute
-    {
-        private readonly SkipOnPlatform[] _platformsToSkip;
-        private string _skip;
-
-        public TheoryWithSkipOnAttribute(params SkipOnPlatform[] platformsToSkip)
-        {
-            _platformsToSkip = platformsToSkip;
-        }
-
-        public override string Skip
-        {
-            get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
-                ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
-                : null;
-            set => _skip = value;
-        }
-    }
-
     class UnitTestDetector
     {
         private static bool? _inUnitTestRunner;

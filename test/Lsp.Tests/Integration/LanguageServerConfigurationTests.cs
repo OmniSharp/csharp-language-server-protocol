@@ -11,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -137,7 +138,7 @@ namespace Lsp.Tests.Integration
             await scopedConfiguration.WaitForChange(CancellationToken);
             await SettleNext();
 
-            await Task.Delay(2000);
+            await TestHelper.DelayUntil(() => scopedConfiguration["mysection:key"] == "value", CancellationToken);
 
             scopedConfiguration["mysection:key"].Should().Be("value");
             scopedConfiguration["othersection:value"].Should().Be("key");
