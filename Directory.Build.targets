@@ -10,7 +10,7 @@
   <ItemGroup>
     <PackageReference Update="GitVersion.Tool" Version="5.3.7" />
     <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.1" />
-    <PackageReference Update="ReportGenerator" Version="4.6.5" />
+    <PackageReference Update="ReportGenerator" Version="4.6.7" />
     <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.10" />
   </ItemGroup>
   <ItemGroup>
@@ -43,6 +43,6 @@
     <PackageReference Update="CodeGeneration.Roslyn.Tool" Version="0.7.63" PrivateAssets="all" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp" Version="3.4.0" />
     <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.4.0" />
-    <PackageReference Update="DryIoc.Internal" Version="4.3.3" />
+    <PackageReference Update="DryIoc.Internal" Version="4.4.1" />
   </ItemGroup>
 </Project>
