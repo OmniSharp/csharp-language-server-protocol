@@ -125,7 +125,9 @@ namespace Lsp.Tests.Integration
                     await WaitForRegistrationUpdate(client);
                     disposable.Dispose();
                     await WaitForRegistrationUpdate(client);
-                    await client.RegistrationManager.CurrentRegistrations.DelayUntil(z => !SelectorMatches(z, x => x.HasLanguage && x.Language == "vb"), CancellationToken);
+                    await TestHelper.DelayUntil(
+                        () => client.RegistrationManager.CurrentRegistrations, z => !SelectorMatches(z, x => x.HasLanguage && x.Language == "vb"), CancellationToken
+                    );
                 }
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(
