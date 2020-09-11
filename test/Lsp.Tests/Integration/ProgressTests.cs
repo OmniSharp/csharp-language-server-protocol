@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
@@ -14,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -66,13 +69,16 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
-
-            workDoneObservable.Dispose();
+            await Observable.Create<Unit>(
+                observer => new CompositeDisposable() {
+                    observable.Select(z => z.Value).Take(5).Subscribe(_ => observer.OnNext(Unit.Default), observer.OnCompleted),
+                    workDoneObservable
+                }
+            ).ToTask(CancellationToken);
 
             var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
 
-            data.Should().ContainInOrder(new [] {"1", "3", "2", "4", "5" });
+            data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
         [Fact]
@@ -111,13 +117,16 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
-
-            workDoneObservable.Dispose();
+            await Observable.Create<Unit>(
+                observer => new CompositeDisposable() {
+                    observable.Select(z => z.Value).Take(5).Subscribe(_ => observer.OnNext(Unit.Default), observer.OnCompleted),
+                    workDoneObservable
+                }
+            ).ToTask(CancellationToken);
 
             var data = await observable.Select(z => z.Value).ToArray().ToTask(CancellationToken);
 
-            data.Should().ContainInOrder(new [] {"1", "3", "2", "4", "5" });
+            data.Should().ContainInOrder(new[] { "1", "3", "2", "4", "5" });
         }
 
         [Fact]
