@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -123,7 +124,8 @@ namespace Lsp.Tests.Integration
                            Observer.Create<WorkDoneProgress>(z => work.Add(z))
                        ).Subscribe(x => items.AddRange(x));
 
-                await Task.Delay(1000);
+
+                await work.DelayUntilCount(6, CancellationToken);
                 await SettleNext();
 
                 var workResults = work.Select(z => z.Message);

@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -53,7 +54,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await Task.Delay(1000);
+            await _logs.DelayUntilCount(6, CancellationToken);
 
             _logs.Should().HaveCount(6);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
@@ -89,7 +90,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await Task.Delay(1000);
+            await _logs.DelayUntilCount(3, CancellationToken);
 
             _logs.Should().HaveCount(3);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
@@ -125,7 +126,7 @@ namespace Lsp.Tests.Integration
             logger.LogTrace("Just gotta let you trace!");
             logger.LogDebug("Just gotta let you debug!");
 
-            await Task.Delay(1001);
+            await _logs.DelayUntilCount(4, CancellationToken);
 
             _logs.Should().HaveCount(4);
             _logs.Where(z => z.Type == MessageType.Error).Should().HaveCount(2);
