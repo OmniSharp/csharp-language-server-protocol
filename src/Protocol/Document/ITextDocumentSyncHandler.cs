@@ -277,7 +277,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 CancellationToken cancellationToken
             )
             {
-                await _onOpenHandler.Invoke(request, _capability, cancellationToken);
+                await _onOpenHandler.Invoke(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -286,7 +286,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 CancellationToken cancellationToken
             )
             {
-                await _onChangeHandler.Invoke(request, _capability, cancellationToken);
+                await _onChangeHandler.Invoke(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -295,7 +295,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 CancellationToken cancellationToken
             )
             {
-                await _onSaveHandler.Invoke(request, _capability, cancellationToken);
+                await _onSaveHandler.Invoke(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -304,7 +304,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 CancellationToken cancellationToken
             )
             {
-                await _onCloseHandler.Invoke(request, _capability, cancellationToken);
+                await _onCloseHandler.Invoke(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 

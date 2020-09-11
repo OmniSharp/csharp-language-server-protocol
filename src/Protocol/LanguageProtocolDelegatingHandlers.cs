@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, _capability, cancellationToken);
+                await _handler(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -244,7 +244,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<Unit> IRequestHandler<TParams, Unit>.
                 Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, cancellationToken);
+                await _handler(request, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -327,7 +327,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             async Task<Unit> IRequestHandler<TParams, Unit>.
                 Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, _capability, cancellationToken);
+                await _handler(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -401,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 _handler(request, subject, _capability, cancellationToken);
-                return await subject.Select(_factory);
+                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
 
             TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions() => _registrationOptions;
@@ -469,7 +469,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory);
+                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
 
             TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions() => _registrationOptions;
@@ -529,7 +529,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 _handler(request, _capability, subject, cancellationToken);
-                return await subject.Select(_factory);
+                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
 
             void ICapability<TCapability>.SetCapability(TCapability capability) => _capability = capability;
@@ -585,7 +585,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 _handler(request, subject, cancellationToken);
-                return await subject.Select(_factory);
+                return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
         }
 
@@ -661,7 +661,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                    )
                                   .ToTask(cancellationToken);
                 _handler(request, subject, _capability, cancellationToken);
-                var result = _factory(await task);
+                var result = _factory(await task.ConfigureAwait(false));
                 return result;
             }
 
@@ -739,7 +739,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                    )
                                   .ToTask(cancellationToken);
                 _handler(request, subject, cancellationToken);
-                var result = _factory(await task);
+                var result = _factory(await task.ConfigureAwait(false));
                 return result;
             }
 
@@ -812,7 +812,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                    )
                                   .ToTask(cancellationToken);
                 _handler(request, _capability, subject, cancellationToken);
-                var result = _factory(await task);
+                var result = _factory(await task.ConfigureAwait(false));
                 return result;
             }
 
@@ -880,7 +880,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                    )
                                   .ToTask(cancellationToken);
                 _handler(request, subject, cancellationToken);
-                var result = _factory(await task);
+                var result = _factory(await task.ConfigureAwait(false));
                 return result;
             }
         }
@@ -963,7 +963,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, _capability, cancellationToken);
+                await _handler(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -1047,7 +1047,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, cancellationToken);
+                await _handler(request, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 
@@ -1108,7 +1108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, _capability, cancellationToken);
+                await _handler(request, _capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
 

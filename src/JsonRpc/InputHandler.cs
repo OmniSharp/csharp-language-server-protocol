@@ -124,8 +124,8 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task StopAsync()
         {
-            await _outputHandler.StopAsync();
-            await _pipeReader.CompleteAsync();
+            await _outputHandler.StopAsync().ConfigureAwait(false);
+            await _pipeReader.CompleteAsync().ConfigureAwait(false);
         }
 
         public void Dispose()
@@ -284,7 +284,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 long length = 0;
                 do
                 {
-                    var result = await _pipeReader.ReadAsync(cancellationToken);
+                    var result = await _pipeReader.ReadAsync(cancellationToken).ConfigureAwait(false);
                     buffer = result.Buffer;
 
                     var dataParsed = true;
@@ -337,8 +337,8 @@ namespace OmniSharp.Extensions.JsonRpc
             }
             finally
             {
-                await _outputHandler.StopAsync();
-                await _pipeReader.CompleteAsync();
+                await _outputHandler.StopAsync().ConfigureAwait(false);
+                await _pipeReader.CompleteAsync().ConfigureAwait(false);
             }
         }
 
@@ -504,7 +504,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                                                     {
                                                                         return await _requestRouter.RouteRequest(
                                                                             descriptors, request, cts.Token
-                                                                        );
+                                                                        ).ConfigureAwait(false);
                                                                     }
                                                                     catch (OperationCanceledException)
                                                                     {
@@ -571,7 +571,7 @@ namespace OmniSharp.Extensions.JsonRpc
                             using var timer = _logger.TimeDebug("Processing notification {Method}", notification.Method);
                             try
                             {
-                                await _requestRouter.RouteNotification(descriptors, notification, ct);
+                                await _requestRouter.RouteNotification(descriptors, notification, ct).ConfigureAwait(false);
                             }
                             catch (OperationCanceledException)
                             {

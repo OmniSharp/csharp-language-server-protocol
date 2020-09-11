@@ -72,13 +72,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<CompletionList> Handle(CompletionParams request, CancellationToken cancellationToken)
         {
-            var response = await HandleParams(request, cancellationToken);
+            var response = await HandleParams(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
         public sealed override async Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
@@ -107,7 +107,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<CompletionItem> Handle(CompletionItem request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 

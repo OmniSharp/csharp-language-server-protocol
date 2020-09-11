@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
                 try
                 {
-                    var result = await tcs.Task;
+                    var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
                         return (TResponse) (object) Unit.Value;
@@ -131,7 +131,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken);
+            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
         }
     }
 }

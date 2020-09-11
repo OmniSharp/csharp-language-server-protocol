@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.JsonRpc
             async Task<Unit> IRequestHandler<TParams, Unit>.
                 Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, cancellationToken);
+                await _handler(request, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
-                await _handler(request, cancellationToken);
+                await _handler(request, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }

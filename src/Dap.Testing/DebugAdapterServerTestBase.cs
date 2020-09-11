@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
             Disposable.Add(_client);
 
-            await _client.Initialize(CancellationToken);
+            await _client.Initialize(CancellationToken).ConfigureAwait(false);
 
             return _client;
         }

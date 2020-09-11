@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public static async Task<LanguageClient> From(LanguageClientOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
-            await server.Initialize(cancellationToken);
+            await server.Initialize(cancellationToken).ConfigureAwait(false);
             return server;
         }
 
@@ -261,10 +261,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 (handler, ct) => handler.OnInitialize(this, @params, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             _connection.Open();
-            var serverParams = await SendRequest(ClientSettings, token);
+            var serverParams = await SendRequest(ClientSettings, token).ConfigureAwait(false);
             _receiver.Initialized();
 
             ServerSettings = serverParams;
@@ -276,7 +276,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 (handler, ct) => handler.OnInitialized(this, @params, serverParams, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             // post init
 
@@ -290,7 +290,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 (handler, ct) => handler.OnStarted(this, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             _instanceHasStarted.Started = true;
 
@@ -361,11 +361,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             if (_connection.IsOpen)
             {
-                await this.RequestShutdown();
+                await this.RequestShutdown().ConfigureAwait(false);
                 this.SendExit();
             }
 
-            await _connection.StopAsync();
+            await _connection.StopAsync().ConfigureAwait(false);
             _connection.Dispose();
         }
 
