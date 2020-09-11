@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public static async Task<LanguageServer> From(LanguageServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
-            await server.Initialize(cancellationToken);
+            await server.Initialize(cancellationToken).ConfigureAwait(false);
             return server;
         }
 
@@ -224,7 +224,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             {
                 try
                 {
-                    await _initializingTask;
+                    await _initializingTask.ConfigureAwait(false);
                 }
                 catch
                 {
@@ -238,7 +238,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             try
             {
                 _initializingTask = _initializeComplete.ToTask(token);
-                await _initializingTask;
+                await _initializingTask.ConfigureAwait(false);
                 await LanguageProtocolEventingHelper.Run(
                     _startedDelegates,
                     (handler, ct) => handler(this, ct),
@@ -246,7 +246,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     (handler, ct) => handler.OnStarted(this, ct),
                     _concurrency,
                     token
-                );
+                ).ConfigureAwait(false);
 
                 _instanceHasStarted.Started = true;
             }
@@ -349,7 +349,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
 
@@ -462,7 +462,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)

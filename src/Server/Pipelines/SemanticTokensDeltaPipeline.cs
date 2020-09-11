@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
         {
             if (request is SemanticTokensParams semanticTokensParams)
             {
-                var response = await next();
+                var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensParams, response, out var result) && string.IsNullOrEmpty(result.ResultId))
                 {
                     result.ResultId = Guid.NewGuid().ToString();
@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
             if (request is SemanticTokensDeltaParams semanticTokensDeltaParams)
             {
-                var response = await next();
+                var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensDeltaParams, response, out var result))
                 {
                     if (result?.IsFull == true && string.IsNullOrEmpty(result.Value.Full.ResultId))
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 return response;
             }
 
-            return await next();
+            return await next().ConfigureAwait(false);
         }
 
         private bool GetResponse<TR>(IRequest<TR> request, object response, out TR result)

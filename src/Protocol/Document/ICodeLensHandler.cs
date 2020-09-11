@@ -71,13 +71,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken)
         {
-            var response = await HandleParams(request, cancellationToken);
+            var response = await HandleParams(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
         public sealed override async Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
@@ -106,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 

@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
         {
             _client = CreateClient(clientOptionsAction);
-            await _client.Initialize(CancellationToken);
+            await _client.Initialize(CancellationToken).ConfigureAwait(false);
 
             return _client;
         }
@@ -68,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 }
             );
 
-            await client.Initialize(CancellationToken);
+            await client.Initialize(CancellationToken).ConfigureAwait(false);
 
             return ( client, client.GetRequiredService<TestConfigurationProvider>() );
         }

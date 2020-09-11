@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             _settler.OnStartRequest();
             try
             {
-                return await next();
+                return await next().ConfigureAwait(false);
             }
             finally
             {

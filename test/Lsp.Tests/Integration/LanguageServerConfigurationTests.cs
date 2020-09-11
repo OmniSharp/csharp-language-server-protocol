@@ -31,6 +31,7 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration.AsEnumerable().Should().BeEmpty();
         }
@@ -44,6 +45,7 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["othersection:value"].Should().Be("key");
@@ -59,6 +61,7 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["othersection:value"].Should().Be("key");
@@ -73,12 +76,14 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["othersection:value"].Should().Be("key");
 
             server.Configuration.RemoveSection("othersection");
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["othersection:value"].Should().BeNull();
@@ -93,9 +98,12 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
+
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
             configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["value"] = "scopedkey" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             scopedConfiguration["mysection:key"].Should().Be("scopedvalue");
@@ -112,9 +120,12 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             configuration.Update("othersection", new Dictionary<string, string> { ["value"] = "key" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
+
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["key"] = "scopedvalue" });
             configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string> { ["value"] = "scopedkey" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             scopedConfiguration["mysection:key"].Should().Be("scopedvalue");
@@ -124,6 +135,7 @@ namespace Lsp.Tests.Integration
             configuration.Update("mysection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             configuration.Update("othersection", DocumentUri.From("/my/file.cs"), new Dictionary<string, string>());
             await scopedConfiguration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             await Task.Delay(2000);
 
@@ -139,8 +151,11 @@ namespace Lsp.Tests.Integration
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
+
             configuration.Update("notmysection", new Dictionary<string, string> { ["key"] = "value" });
             await server.Configuration.WaitForChange(CancellationToken);
+            await SettleNext();
 
             server.Configuration["mysection:key"].Should().Be("value");
             server.Configuration["notmysection:key"].Should().BeNull();

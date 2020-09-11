@@ -132,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                    )
                                   .ToTask(cancellationToken);
                 Handle(request, subject, cancellationToken);
-                return _factory(await task);
+                return _factory(await task.ConfigureAwait(false));
             }
 
             protected abstract void Handle(

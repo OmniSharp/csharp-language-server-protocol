@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                 }, CancellationToken
             );
 
-            await Task.WhenAll(clientTask, serverTask);
+            await Task.WhenAll(clientTask, serverTask).ConfigureAwait(false);
             _client = clientTask.Result;
             _server = serverTask.Result;
 

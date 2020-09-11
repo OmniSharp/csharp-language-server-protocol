@@ -54,25 +54,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         public virtual async Task<SemanticTokens> Handle(SemanticTokensParams request, CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request, cancellationToken);
+            var document = await GetSemanticTokensDocument(request, cancellationToken).ConfigureAwait(false);
             var builder = document.Create();
-            await Tokenize(builder, request, cancellationToken);
+            await Tokenize(builder, request, cancellationToken).ConfigureAwait(false);
             return builder.Commit().GetSemanticTokens();
         }
 
         public virtual async Task<SemanticTokensFullOrDelta?> Handle(SemanticTokensDeltaParams request, CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request, cancellationToken);
+            var document = await GetSemanticTokensDocument(request, cancellationToken).ConfigureAwait(false);
             var builder = document.Edit(request);
-            await Tokenize(builder, request, cancellationToken);
+            await Tokenize(builder, request, cancellationToken).ConfigureAwait(false);
             return builder.Commit().GetSemanticTokensEdits();
         }
 
         public virtual async Task<SemanticTokens> Handle(SemanticTokensRangeParams request, CancellationToken cancellationToken)
         {
-            var document = await GetSemanticTokensDocument(request, cancellationToken);
+            var document = await GetSemanticTokensDocument(request, cancellationToken).ConfigureAwait(false);
             var builder = document.Create();
-            await Tokenize(builder, request, cancellationToken);
+            await Tokenize(builder, request, cancellationToken).ConfigureAwait(false);
             return builder.Commit().GetSemanticTokens(request.Range);
         }
 
