@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
             {
             }
 
-            [Fact]
+            [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_A_Task()
             {
                 var result = await Client.TextDocument.RequestCodeLens(
