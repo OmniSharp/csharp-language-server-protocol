@@ -7,53 +7,27 @@ namespace TestingUtils
 {
     class UnitTestDetector
     {
-        private static bool? _inUnitTestRunner;
+        public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))
+                                  && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
 
-        public static bool InUnitTestRunner()
+        public static bool PlatformToSkipPredicate(SkipOnPlatform platform)
         {
-            if (_inUnitTestRunner.HasValue) return _inUnitTestRunner.Value;
-
-            var testAssemblies = new[] {
-                "CSUNIT",
-                "NUNIT",
-                "XUNIT",
-                "MBUNIT",
-                "NBEHAVE",
-                "VISUALSTUDIO.QUALITYTOOLS",
-                "VISUALSTUDIO.TESTPLATFORM",
-                "FIXIE",
-                "NCRUNCH",
-            };
-
-            try
-            {
-                _inUnitTestRunner = SearchForAssembly(testAssemblies);
-            }
-            catch (Exception e)
-            {
-                _inUnitTestRunner = false;
-            }
-
-            return _inUnitTestRunner.Value;
-        }
-
-        public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
-
-        public static bool PlatformToSkipPredicate(SkipOnPlatform platform) =>
-            RuntimeInformation.IsOSPlatform(
-                platform switch {
-                    SkipOnPlatform.Linux   => OSPlatform.Linux,
-                    SkipOnPlatform.Mac     => OSPlatform.OSX,
-                    SkipOnPlatform.Windows => OSPlatform.Windows,
-                    _                      => OSPlatform.Create("Unknown")
-                }
-            );
-
-        private static bool SearchForAssembly(IEnumerable<string> assemblyList)
-        {
-            return AppDomain.CurrentDomain.GetAssemblies()
-                            .Select(x => x.FullName.ToUpperInvariant())
-                            .Any(x => assemblyList.Any(name => x.IndexOf(name, StringComparison.InvariantCultureIgnoreCase) != -1));
+            if (platform == SkipOnPlatform.All) return true;
+            if (platform == SkipOnPlatform.None) return false;
+            return Enum.GetValues(typeof(SkipOnPlatform))
+                                .OfType<SkipOnPlatform>()
+                                .Where(z => z != SkipOnPlatform.All && z != SkipOnPlatform.None)
+                                .Where(z => ( platform & z ) == z)
+                                .Any(
+                                     z => RuntimeInformation.IsOSPlatform(
+                                         platform switch {
+                                             SkipOnPlatform.Linux   => OSPlatform.Linux,
+                                             SkipOnPlatform.Mac     => OSPlatform.OSX,
+                                             SkipOnPlatform.Windows => OSPlatform.Windows,
+                                             _                      => OSPlatform.Create("Unknown")
+                                         }
+                                     )
+                                 );
         }
     }
 }

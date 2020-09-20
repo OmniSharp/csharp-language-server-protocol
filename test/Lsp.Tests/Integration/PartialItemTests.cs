@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -28,7 +29,7 @@ namespace Lsp.Tests.Integration
             {
             }
 
-            [Fact]
+            [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_A_Task()
             {
                 var result = await Client.TextDocument.RequestSemanticTokens(
@@ -38,7 +39,7 @@ namespace Lsp.Tests.Integration
                 result.Data.Should().HaveCount(3);
             }
 
-            [Fact]
+            [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_An_Observable()
             {
                 var items = new List<SemanticTokensPartialResult>();

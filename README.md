@@ -46,9 +46,9 @@ This is currently under heavy development and the API's are subject to change.
 [github-license-badge]: https://img.shields.io/github/license/OmniSharp/csharp-language-server-protocol.svg?style=flat "License"
 [codecov]: https://codecov.io/gh/OmniSharp/csharp-language-server-protocol
 [codecov-badge]: https://img.shields.io/codecov/c/github/OmniSharp/csharp-language-server-protocol.svg?color=E03997&label=codecov&logo=codecov&logoColor=E03997&style=flat "Code Coverage"
-[azurepipelines]: https://omnisharp.visualstudio.com/Build/_build/latest?definitionId=1&branchName=master
+[azurepipelines]: https://dev.azure.com/omnisharp/Build/_build/latest?definitionId=1&branchName=master
 [azurepipelines-badge]: https://img.shields.io/azure-devops/build/omnisharp/Build/1.svg?color=98C6FF&label=azure%20pipelines&logo=azuredevops&logoColor=98C6FF&style=flat "Azure Pipelines Status"
-[azurepipelines-history]: https://omnisharp.visualstudio.com/Build/_build?definitionId=1&branchName=master
+[azurepipelines-history]: https://dev.azure.com/omnisharp/Build/_build?definitionId=1&branchName=master
 [azurepipelines-history-badge]: https://buildstats.info/azurepipelines/chart/omnisharp/Build/1?includeBuildsFromPullRequest=false "Azure Pipelines History"
 [github]: https://github.com/OmniSharp/csharp-language-server-protocol/actions?query=workflow%3Aci
 [github-badge]: https://img.shields.io/github/workflow/status/OmniSharp/csharp-language-server-protocol/ci.svg?label=github&logo=github&color=b845fc&logoColor=b845fc&style=flat "GitHub Actions Status"

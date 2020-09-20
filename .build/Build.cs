@@ -12,7 +12,6 @@ using Rocket.Surgery.Nuke.DotNetCore;
 [CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
 [PackageIcon("http://www.omnisharp.net/images/logo.png")]
-[EnsureGitHooks(GitHook.PreCommit)]
 [EnsureReadmeIsUpdated]
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
