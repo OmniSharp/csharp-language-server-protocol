@@ -37,15 +37,16 @@ namespace TestingUtils
             return _inUnitTestRunner.Value;
         }
 
-        public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI")) && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
+        public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))
+                                  && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
 
         public static bool PlatformToSkipPredicate(SkipOnPlatform platform) =>
             RuntimeInformation.IsOSPlatform(
                 platform switch {
-                    SkipOnPlatform.Linux   => OSPlatform.Linux,
-                    SkipOnPlatform.Mac     => OSPlatform.OSX,
-                    SkipOnPlatform.Windows => OSPlatform.Windows,
-                    _                      => OSPlatform.Create("Unknown")
+                    {} v when v.HasFlag(SkipOnPlatform.Linux)   => OSPlatform.Linux,
+                    {} v when v.HasFlag(SkipOnPlatform.Mac)     => OSPlatform.OSX,
+                    {} v when v.HasFlag(SkipOnPlatform.Windows) => OSPlatform.Windows,
+                    _                                                        => OSPlatform.Create("Unknown")
                 }
             );
 
