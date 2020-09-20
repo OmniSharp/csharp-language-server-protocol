@@ -39,7 +39,7 @@ namespace Lsp.Tests.Integration
                 result.Data.Should().HaveCount(3);
             }
 
-            [FactWithSkipOn(SkipOnPlatform.Mac, SkipOnPlatform.Linux)]
+            [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_An_Observable()
             {
                 var items = new List<SemanticTokensPartialResult>();
