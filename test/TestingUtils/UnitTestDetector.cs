@@ -43,10 +43,10 @@ namespace TestingUtils
         public static bool PlatformToSkipPredicate(SkipOnPlatform platform) =>
             RuntimeInformation.IsOSPlatform(
                 platform switch {
-                    {} v when v.HasFlag(SkipOnPlatform.Linux)   => OSPlatform.Linux,
-                    {} v when v.HasFlag(SkipOnPlatform.Mac)     => OSPlatform.OSX,
-                    {} v when v.HasFlag(SkipOnPlatform.Windows) => OSPlatform.Windows,
-                    _                                                        => OSPlatform.Create("Unknown")
+                    {} v when (v | SkipOnPlatform.Linux) == SkipOnPlatform.Linux     => OSPlatform.Linux,
+                    {} v when (v | SkipOnPlatform.Mac) == SkipOnPlatform.Mac         => OSPlatform.OSX,
+                    {} v when (v | SkipOnPlatform.Windows) == SkipOnPlatform.Windows => OSPlatform.Windows,
+                    _                                                                => OSPlatform.Create("Unknown")
                 }
             );
 
