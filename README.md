@@ -2,7 +2,7 @@
 [![nuget-client](https://img.shields.io/nuget/dt/OmniSharp.Extensions.LanguageClient?label=OmniSharp.Extensions.LanguageClient&logo=nuget)](https://www.nuget.org/packages/OmniSharp.Extensions.LanguageClient/)
 [![codecov](https://img.shields.io/codecov/c/gh/OmniSharp/csharp-language-server-protocol?label=codecov&logo=codecov)](https://codecov.io/gh/OmniSharp/csharp-language-server-protocol)
 
-## C# Language Server Protocol
+## C# Language Server Protocol (LSP)
 
 This is an implementation of the [Language Server Protocol](https://github.com/Microsoft/language-server-protocol) written entirely in C# for .NET.
 
@@ -105,7 +105,7 @@ For more information see the [.NET Foundation Code of Conduct](http://www.dotnet
 
 ## Contribution License Agreement
 
-By signing the [CLA](https://cla.dotnetfoundation.org/OmniSharp/omnisharp-roslyn), the community is free to use your contribution to .NET Foundation projects.
+By sign-in the [CLA](https://cla.dotnetfoundation.org/OmniSharp/omnisharp-roslyn), the community is free to use your contribution to .NET Foundation projects.
 
 ## .NET Foundation
 
