@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DryIoc;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -60,7 +61,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -90,7 +91,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cshtml"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -120,7 +121,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -148,7 +149,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -176,7 +177,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -204,7 +205,7 @@ namespace Lsp.Tests.Matchers
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
@@ -263,7 +264,7 @@ namespace Lsp.Tests.Matchers
             );
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
             AutoSubstitute.Provide(textDocumentIdentifiers);
-            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+            var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                                                          new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler, handler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -31,11 +32,12 @@ namespace NSubstitute
             );
         }
 
-        ILogger ILoggerFactory.CreateLogger(string categoryName) => _loggerProvider.CreateLogger(categoryName);
-
-        void ILoggerFactory.AddProvider(ILoggerProvider provider)
+        ILogger ILoggerFactory.CreateLogger(string categoryName)
         {
+            return _loggerProvider.CreateLogger(categoryName);
         }
+
+        void ILoggerFactory.AddProvider(ILoggerProvider provider) { }
 
         void IDisposable.Dispose()
         {

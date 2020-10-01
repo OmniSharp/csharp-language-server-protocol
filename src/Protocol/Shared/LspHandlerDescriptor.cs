@@ -62,13 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
 
-            IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
-                                                                                                 .GetInterfaces().Any(
-                                                                                                      z =>
-                                                                                                          z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(
-                                                                                                              z.GetGenericTypeDefinition()
-                                                                                                          )
-                                                                                                  );
+            IsNotification = handlerType.GetInterfaces().Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
             TypeDescriptor = typeDescriptor;

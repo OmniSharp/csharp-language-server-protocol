@@ -5,6 +5,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
+using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,15 +13,15 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal class HandlerCollection : IHandlersManager, IEnumerable<IHandlerDescriptor>
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IResolverContext _resolverContext;
         private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
         private ImmutableArray<IHandlerDescriptor> _descriptors = ImmutableArray<IHandlerDescriptor>.Empty;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public HandlerCollection(IServiceProvider serviceProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
+        public HandlerCollection(IResolverContext resolverContext, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
         {
-            _serviceProvider = serviceProvider;
+            _resolverContext = resolverContext;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
@@ -80,21 +81,32 @@ namespace OmniSharp.Extensions.JsonRpc
             return descriptor;
         }
 
-        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(factory(_serviceProvider), options);
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(factory(_resolverContext), options);
 
-        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(method, factory(_serviceProvider), options);
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options) => Add(method, factory(_resolverContext), options);
 
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) =>
-            Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions options) => Add(_resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
 
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => Add(
-            method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options
-        );
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options) => Add(method, _resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
 
-        public IDisposable AddLink(string sourceMethod, string destinationMethod)
+        public IDisposable AddLink(string fromMethod, string toMethod)
         {
-            var source = _descriptors.FirstOrDefault(z => z.Method == sourceMethod);
-            var descriptor = new LinkedHandler(destinationMethod, source, () => _descriptors.RemoveAll(z => z.Method == destinationMethod));
+            var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
+            if (source == null)
+            {
+                if (_descriptors.Any(z => z.Method == toMethod))
+                {
+                    throw new ArgumentException(
+                        $"Could not find descriptor for '{fromMethod}', but I did find one for '{toMethod}'.  Did you mean to link '{toMethod}' to '{fromMethod}' instead?", fromMethod
+                    );
+                }
+
+                throw new ArgumentException(
+                    $"Could not find descriptor for '{fromMethod}', has it been registered yet?  Descriptors must be registered before links can be created!", nameof(fromMethod)
+                );
+            }
+
+            var descriptor = new LinkedHandler(toMethod, source, () => _descriptors.RemoveAll(z => z.Method == toMethod));
             ImmutableInterlocked.InterlockedExchange(ref _descriptors, _descriptors.Add(descriptor));
             return descriptor;
         }

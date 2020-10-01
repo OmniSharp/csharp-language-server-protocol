@@ -132,7 +132,6 @@ namespace Dap.Tests
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
         public void HandlersShouldMatchParamsMethodAttribute(Type type)
         {
-            if (typeof(IJsonRpcNotificationHandler).IsAssignableFrom(type)) return;
             var paramsType = HandlerTypeDescriptorHelper.GetHandlerInterface(type).GetGenericArguments()[0];
 
             var lhs = MethodAttribute.From(type);
@@ -432,10 +431,7 @@ namespace Dap.Tests
         }
 
 
-        private static readonly Type[] HandlerTypes = {
-            typeof(IJsonRpcNotificationHandler), typeof(IJsonRpcNotificationHandler<>),
-            typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>),
-        };
+        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler<>), typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>), };
 
         private static bool IsValidInterface(Type type)
         {
@@ -460,15 +456,16 @@ namespace Dap.Tests
         {
             public TypeHandlerData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
-
-                    typeof(HandlerTypeDescriptorProvider).Assembly,
-                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
-                    typeof(DebugAdapterClient).Assembly,
-                    typeof(DebugAdapterServer).Assembly,
-                    typeof(DapReceiver).Assembly,
-                    typeof(DebugAdapterProtocolTestBase).Assembly
-                });
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                    new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                        typeof(DebugAdapterClient).Assembly,
+                        typeof(DebugAdapterServer).Assembly,
+                        typeof(DapReceiver).Assembly,
+                        typeof(DebugAdapterProtocolTestBase).Assembly
+                    }
+                );
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(
                     z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)
                 ))
@@ -485,14 +482,16 @@ namespace Dap.Tests
         {
             public TypeHandlerExtensionData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
-                    typeof(HandlerTypeDescriptorProvider).Assembly,
-                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
-                    typeof(DebugAdapterClient).Assembly,
-                    typeof(DebugAdapterServer).Assembly,
-                    typeof(DapReceiver).Assembly,
-                    typeof(DebugAdapterProtocolTestBase).Assembly
-                });
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                    new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                        typeof(DebugAdapterClient).Assembly,
+                        typeof(DebugAdapterServer).Assembly,
+                        typeof(DapReceiver).Assembly,
+                        typeof(DebugAdapterProtocolTestBase).Assembly
+                    }
+                );
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes
                                                                  .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)))
                 {

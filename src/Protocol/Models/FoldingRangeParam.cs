@@ -4,7 +4,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Method(TextDocumentNames.FoldingRange, Direction.ClientToServer)]
-    public class FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<FoldingRange>, IWorkDoneProgressParams
+    public class FoldingRangeRequestParam : ITextDocumentIdentifierParams, IPartialItemsRequest<Container<FoldingRange>, FoldingRange>, IWorkDoneProgressParams
     {
         /// <summary>
         /// The text document.

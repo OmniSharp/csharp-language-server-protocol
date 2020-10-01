@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
+using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -24,18 +25,18 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private readonly ISupportedCapabilities _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private ImmutableHashSet<LspHandlerDescriptor> _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IResolverContext _resolverContext;
         private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
 
         public SharedHandlerCollection(
             ISupportedCapabilities supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
-            IServiceProvider serviceProvider,
+            IResolverContext resolverContext,
             ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
         {
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
-            _serviceProvider = serviceProvider;
+            _resolverContext = resolverContext;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
@@ -49,23 +50,34 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         IDisposable IHandlersManager.Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options) => Add(method, handler, options);
 
-        IDisposable IHandlersManager.Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) => Add(handlerFactory(_serviceProvider), options);
+        IDisposable IHandlersManager.Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) => Add(handlerFactory(_resolverContext), options);
 
-        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) =>
-            Add(method, handlerFactory(_serviceProvider), options);
+        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options) => Add(method, handlerFactory(_resolverContext), options);
 
-        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions options) =>
-            Add(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions options) => Add(_resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
 
-        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions options) =>
-            Add(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions options) => Add(method, _resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
 
-        IDisposable IHandlersManager.AddLink(string sourceMethod, string destinationMethod)
+        IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
-            var source = _descriptors.First(z => z.Method == sourceMethod);
+            var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
+            if (source == null)
+            {
+                if (_descriptors.Any(z => z.Method == toMethod))
+                {
+                    throw new ArgumentException(
+                        $"Could not find descriptor for '{fromMethod}', but I did find one for '{toMethod}'.  Did you mean to link '{toMethod}' to '{fromMethod}' instead?", fromMethod
+                    );
+                }
+
+                throw new ArgumentException(
+                    $"Could not find descriptor for '{fromMethod}', has it been registered yet?  Descriptors must be registered before links can be created!", nameof(fromMethod)
+                );
+            }
+
             LspHandlerDescriptor descriptor = null;
             descriptor = GetDescriptor(
-                destinationMethod,
+                toMethod,
                 source.HandlerType,
                 source.Handler,
                 source.RequestProcessType.HasValue ? new JsonRpcHandlerOptions { RequestProcessType = source.RequestProcessType.Value } : null,
@@ -117,7 +129,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerFactory in handlerFactories)
             {
-                var (innerDescriptors, innerCompositeDisposable) = AddHandler(handlerFactory(_serviceProvider), null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(handlerFactory(_resolverContext), null);
                 innerDescriptors.UnionWith(descriptors);
                 cd.Add(innerCompositeDisposable);
             }
@@ -127,13 +139,13 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public LspHandlerDescriptorDisposable Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options)
         {
-            var (descriptors, compositeDisposable) = AddHandler(handlerFactory(_serviceProvider), null);
+            var (descriptors, compositeDisposable) = AddHandler(handlerFactory(_resolverContext), null);
             return new LspHandlerDescriptorDisposable(descriptors, compositeDisposable);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(method, handlerFactory(_serviceProvider), options);
+            var (descriptors, cd) = AddHandler(method, handlerFactory(_resolverContext), options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
@@ -143,7 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerType in handlerTypes)
             {
-                var (innerDescriptors, innerCompositeDisposable) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler, null);
                 innerDescriptors.UnionWith(descriptors);
                 cd.Add(innerCompositeDisposable);
             }
@@ -153,13 +165,13 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public LspHandlerDescriptorDisposable Add(Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+            var (descriptors, cd) = AddHandler(_resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(method, ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler, options);
+            var (descriptors, cd) = AddHandler(method, _resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
@@ -210,14 +222,6 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
             return ( descriptors, cd );
         }
-
-        private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IServiceProvider serviceProvider, JsonRpcHandlerOptions options) =>
-            GetDescriptor(
-                method,
-                handlerType,
-                ActivatorUtilities.CreateInstance(serviceProvider, handlerType) as IJsonRpcHandler,
-                options
-            );
 
         private LspHandlerDescriptor GetDescriptor(string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions options)
         {

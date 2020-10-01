@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Client.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -66,7 +67,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             )
             {
                 return new ConfigurationBuilder()
-                      .AddConfiguration(configuration, false)
+                      .CustomAddConfiguration(configuration, false)
                       .Build();
             }
 

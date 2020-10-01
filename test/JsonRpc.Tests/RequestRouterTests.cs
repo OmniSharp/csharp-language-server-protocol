@@ -2,12 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
+using Arg = NSubstitute.Arg;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace JsonRpc.Tests
 {
@@ -18,7 +21,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequestResponse()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -38,7 +41,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomRequest()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -58,7 +61,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);
@@ -77,7 +80,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task ShouldRoute_CustomEmptyNotification()
         {
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
             var registry = new TestLanguageServerRegistry();
             AutoSubstitute.Provide<IHandlersManager>(collection);
             AutoSubstitute.Provide<IEnumerable<IHandlerDescriptor>>(collection);

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -42,11 +44,34 @@ namespace Lsp.Tests.Integration
             server.Services.GetService<ILanguageServerFacade>().Should().NotBeNull();
             // This ensures that the facade made it.
             var response = await client.RequestCodeLens(new CodeLensParams(), CancellationToken);
+            response.Should().NotBeNull();
+        }
+
+        [Fact]
+        public async Task Should_Be_Able_To_Register_Before_Initialize()
+        {
+            var (client, server) = Create(options => options.EnableDynamicRegistration().EnableAllCapabilities(), options => {});
+
+            server.Register(
+                r => {
+                    r.AddHandler<CodeLensHandlerA>();
+                }
+            );
+
+            await Observable.FromAsync(client.Initialize)
+                            .ForkJoin(Observable.FromAsync(server.Initialize), (a, b) => ( client, server ))
+                            .ToTask(CancellationToken);
+
+            client.Services.GetService<ILanguageClientFacade>().Should().NotBeNull();
+            server.Services.GetService<ILanguageServerFacade>().Should().NotBeNull();
+            // This ensures that the facade made it.
+            var response = await client.RequestCodeLens(new CodeLensParams(), CancellationToken);
+            response.Should().NotBeNull();
         }
 
         class CodeLensHandlerA : CodeLensHandler
         {
-            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade) : base(new CodeLensRegistrationOptions())
+            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade) : base(new CodeLensRegistrationOptions() {  })
             {
                 languageServerFacade.Should().NotBeNull();
             }

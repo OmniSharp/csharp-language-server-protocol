@@ -33,7 +33,6 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         private static readonly Type[] HandlerTypes = {
-            typeof(IJsonRpcNotificationHandler),
             typeof(IJsonRpcNotificationHandler<>),
             typeof(IJsonRpcRequestHandler<>),
             typeof(IJsonRpcRequestHandler<,>),

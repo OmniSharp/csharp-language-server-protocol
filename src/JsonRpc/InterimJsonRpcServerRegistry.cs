@@ -58,9 +58,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandlerLink(string sourceMethod, string destinationMethod)
+        public sealed override T AddHandlerLink(string fromMethod, string toMethod)
         {
-            _handlersManager.AddLink(sourceMethod, destinationMethod);
+            _handlersManager.AddLink(fromMethod, toMethod);
             return (T) (object) this;
         }
     }

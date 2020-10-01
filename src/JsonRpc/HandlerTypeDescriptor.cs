@@ -35,19 +35,9 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 ParamsType = InterfaceType.GetGenericArguments()[0];
             }
-            else
-            {
-                ParamsType = typeof(EmptyRequest);
-            }
 
-            HasParamsType = ParamsType != null && ParamsType != typeof(EmptyRequest);
-            IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
-                                                                                                 .GetInterfaces().Any(
-                                                                                                      z =>
-                                                                                                          z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(
-                                                                                                              z.GetGenericTypeDefinition()
-                                                                                                          )
-                                                                                                  );
+            HasParamsType = ParamsType != null;
+            IsNotification = handlerType.GetInterfaces().Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
 
             var requestInterface = ParamsType?

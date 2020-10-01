@@ -56,7 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var triggerChange = new Subject<System.Reactive.Unit>();
             _compositeDisposable.Add(triggerChange);
             _triggerChange = triggerChange;
-            _compositeDisposable.Add(_configuration!);
+            if (_configuration is IDisposable disposableConfiguration) _compositeDisposable.Add(disposableConfiguration);
             _compositeDisposable.Add(triggerChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(_ => GetWorkspaceConfiguration()).Switch().Subscribe());
         }
 
@@ -199,7 +199,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 new ConfigurationParams {
                     Items = items
                 }
-            );
+            ).ConfigureAwait(false);
             var data = items.Zip(
                 configurations,
                 (scope, settings) => ( scope.Section, settings )
@@ -223,7 +223,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var data = await GetConfigurationFromClient(scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }))
                             .Select(z => (z.scope.Section, z.settings))
                             .ToArray()
-                            .ToTask(cancellationToken);
+                            .ToTask(cancellationToken)
+                            .ConfigureAwait(false);
 
             var config = new ScopedConfiguration(
                 _configuration,

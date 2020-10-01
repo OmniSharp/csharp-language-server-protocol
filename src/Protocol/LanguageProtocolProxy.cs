@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
@@ -12,16 +14,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     internal abstract class LanguageProtocolProxy : ILanguageProtocolProxy
     {
         private readonly IResponseRouter _responseRouter;
-        private readonly IServiceProvider _serviceProvider;
+        protected readonly IResolverContext ResolverContext;
         private readonly ILanguageProtocolSettings _languageProtocolSettings;
 
         public LanguageProtocolProxy(
-            IResponseRouter requestRouter, IServiceProvider serviceProvider, IProgressManager progressManager, ILanguageProtocolSettings languageProtocolSettings
+            IResponseRouter requestRouter, IResolverContext resolverContext, IProgressManager progressManager, ILanguageProtocolSettings languageProtocolSettings
         )
         {
             ProgressManager = progressManager;
             _responseRouter = requestRouter;
-            _serviceProvider = serviceProvider;
+            ResolverContext = resolverContext;
             _languageProtocolSettings = languageProtocolSettings;
         }
 
@@ -42,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
 
-        (string method, TaskCompletionSource<JToken> pendingTask) IResponseRouter.GetRequest(long id) => _responseRouter.GetRequest(id);
-        object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) => _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        object IServiceProvider.GetService(Type serviceType) => ResolverContext.GetService(serviceType);
     }
 }

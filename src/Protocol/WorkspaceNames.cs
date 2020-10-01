@@ -1,3 +1,5 @@
+using System;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public static class WorkspaceNames
@@ -10,5 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string ExecuteCommand = "workspace/executeCommand";
         public const string WorkspaceSymbol = "workspace/symbol";
         public const string WorkspaceFolders = "workspace/workspaceFolders";
+        [Obsolete(Constants.Proposal)]
+        public const string SemanticTokensRefresh = "workspace/semanticTokens/refresh";
     }
 }

@@ -73,13 +73,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<DocumentLinkContainer> Handle(DocumentLinkParams request, CancellationToken cancellationToken)
         {
-            var response = await HandleParams(request, cancellationToken);
+            var response = await HandleParams(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
         public sealed override async Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 
@@ -108,7 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public sealed override async Task<DocumentLink> Handle(DocumentLink request, CancellationToken cancellationToken)
         {
-            var response = await HandleResolve(request, cancellationToken);
+            var response = await HandleResolve(request, cancellationToken).ConfigureAwait(false);
             return response;
         }
 

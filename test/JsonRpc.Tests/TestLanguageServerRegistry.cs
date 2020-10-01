@@ -28,7 +28,7 @@ namespace JsonRpc.Tests
         public override IJsonRpcServerRegistry AddHandler(Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler(string method, Type type, JsonRpcHandlerOptions options = null) => throw new NotImplementedException();
-        public override IJsonRpcServerRegistry AddHandlerLink(string sourceMethod, string destinationMethod) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandlerLink(string fromMethod, string toMethod) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
         {

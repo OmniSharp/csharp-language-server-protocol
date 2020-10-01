@@ -135,7 +135,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             return observable;
         }
 
-        public IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<TItem> request, CancellationToken cancellationToken)
+        public IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<Container<TItem>, TItem> request, CancellationToken cancellationToken)
         {
             request.PartialResultToken ??= new ProgressToken(Guid.NewGuid().ToString());
             if (_activeObservables.TryGetValue(request.PartialResultToken, out var o) && o is IRequestProgressObservable<TItem> observable)
@@ -201,7 +201,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 async (observer, ct) => {
                     try
                     {
-                        observer.OnNext(await _router.SendRequest(request, ct));
+                        observer.OnNext(await _router.SendRequest(request, ct).ConfigureAwait(false));
                         observer.OnCompleted();
                     }
                     catch (OperationCanceledException e)

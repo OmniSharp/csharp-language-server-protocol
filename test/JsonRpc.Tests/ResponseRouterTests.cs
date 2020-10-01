@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -18,14 +19,14 @@ namespace JsonRpc.Tests
         public async Task WorksWithResultType()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(outputHandler, new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                .Do(
                     call => {
-                        var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
-                        tcs.SetResult(new JObject());
+                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id, out var method, out var tcs);
+                        tcs.TrySetResult(new JObject());
                     }
                 );
 
@@ -42,13 +43,13 @@ namespace JsonRpc.Tests
         public async Task WorksWithUnitType()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(outputHandler, new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
                .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
                .Do(
                     call => {
-                        var (method, tcs) = router.GetRequest((long) call.Arg<OutgoingRequest>().Id);
+                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id, out var method, out var tcs);
                         tcs.SetResult(new JObject());
                     }
                 );
@@ -63,7 +64,7 @@ namespace JsonRpc.Tests
         public async Task WorksWithNotification()
         {
             var outputHandler = Substitute.For<IOutputHandler>();
-            var router = new ResponseRouter(outputHandler, new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
+            var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             router.SendNotification(new NotificationParams());
 

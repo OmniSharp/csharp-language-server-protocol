@@ -47,7 +47,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                             }
                         )
                        .Services
@@ -65,7 +64,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ServerLoggerFactory);
                             }
                         )
                        .Services
@@ -82,7 +80,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
             return await Observable.FromAsync(_client.Initialize).ForkJoin(
                 Observable.FromAsync(_server.Initialize),
                 (a, b) => ( _client, _server )
-            ).ToTask(CancellationToken);
+            ).ToTask(CancellationToken).ConfigureAwait(false);
         }
     }
 }

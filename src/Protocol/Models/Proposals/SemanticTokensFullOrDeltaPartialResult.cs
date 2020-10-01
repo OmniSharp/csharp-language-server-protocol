@@ -35,5 +35,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensDeltaPartialResult semanticTokensDeltaPartialResult) =>
             new SemanticTokensFullOrDeltaPartialResult(semanticTokensDeltaPartialResult);
+
+        public static implicit operator SemanticTokensFullOrDelta(SemanticTokensFullOrDeltaPartialResult semanticTokensDeltaPartialResult) =>
+            new SemanticTokensFullOrDelta(semanticTokensDeltaPartialResult);
     }
 }

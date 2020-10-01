@@ -88,7 +88,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return await Observable.FromAsync(_client.Initialize).ForkJoin(
                 Observable.FromAsync(_server.Initialize),
                 (a, b) => ( _client, _server )
-            ).ToTask(CancellationToken);
+            ).ToTask(CancellationToken).ConfigureAwait(false);
         }
 
         protected virtual async Task<(ILanguageClient client, ILanguageServer server, TestConfigurationProvider configurationProvider)> InitializeWithConfiguration(
@@ -107,7 +107,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return await Observable.FromAsync(client.Initialize).ForkJoin(
                 Observable.FromAsync(server.Initialize),
                 (a, b) => ( client, server, client.GetRequiredService<TestConfigurationProvider>() )
-            ).ToTask(CancellationToken);
+            ).ToTask(CancellationToken).ConfigureAwait(false);
         }
     }
 }

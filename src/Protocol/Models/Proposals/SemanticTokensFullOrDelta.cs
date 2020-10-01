@@ -20,6 +20,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             Full = full;
         }
 
+        public SemanticTokensFullOrDelta(SemanticTokensFullOrDeltaPartialResult partialResult)
+        {
+            Full = null;
+            Delta = null;
+
+            if (partialResult.IsDelta)
+            {
+                Delta = new SemanticTokensDelta(partialResult.Delta) {
+                    Edits = partialResult.Delta.Edits
+                };
+            }
+
+            if (partialResult.IsFull)
+            {
+                Full = new SemanticTokens(partialResult.Full);
+            }
+        }
+
         public bool IsFull => Full != null;
         public SemanticTokens Full { get; }
 

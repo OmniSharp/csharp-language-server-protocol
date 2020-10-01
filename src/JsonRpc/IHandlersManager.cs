@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.JsonRpc
         IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions options);
         IDisposable Add(Type handlerType, JsonRpcHandlerOptions options);
         IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options);
-        IDisposable AddLink(string sourceMethod, string destinationMethod);
+        IDisposable AddLink(string fromMethod, string toMethod);
         IEnumerable<IHandlerDescriptor> Descriptors { get; }
     }
 }

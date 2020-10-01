@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using DryIoc;
 using FluentAssertions;
 using FluentAssertions.Common;
 using MediatR;
@@ -39,19 +40,13 @@ namespace JsonRpc.Tests
         {
         }
 
-        [Method("notification")]
-        public interface IInlineJsonRpcNotificationHandler : IJsonRpcNotificationHandler
-        {
-        }
-
         [Theory]
         [InlineData(typeof(IJsonRpcRequestHandler), "request")]
         [InlineData(typeof(IJsonRpcRequestResponseHandler), "requestresponse")]
         [InlineData(typeof(IJsonRpcNotificationDataHandler), "notificationdata")]
-        [InlineData(typeof(IInlineJsonRpcNotificationHandler), "notification")]
         public void Should_Contain_AllDefinedMethods(Type requestHandler, string key)
         {
-            var handler = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
+            var handler = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
                 (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0])
             };
             handler.Should().Contain(x => x.Method == key);
@@ -61,10 +56,9 @@ namespace JsonRpc.Tests
         [InlineData(typeof(IJsonRpcRequestHandler), "request", null)]
         [InlineData(typeof(IJsonRpcRequestResponseHandler), "requestresponse", typeof(Request))]
         [InlineData(typeof(IJsonRpcNotificationDataHandler), "notificationdata", null)]
-        [InlineData(typeof(IInlineJsonRpcNotificationHandler), "notification", null)]
         public void Should_Have_CorrectParams(Type requestHandler, string key, Type expected)
         {
-            var handler = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
+            var handler = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) {
                 (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0])
             };
             handler.First(x => x.Method == key).Params.Should().IsSameOrEqualTo(expected);

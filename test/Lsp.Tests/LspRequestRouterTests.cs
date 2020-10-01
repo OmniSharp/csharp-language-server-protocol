@@ -93,7 +93,7 @@ namespace Lsp.Tests
 
             var collection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
@@ -137,7 +137,7 @@ namespace Lsp.Tests
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var collection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
@@ -184,7 +184,7 @@ namespace Lsp.Tests
 
             var collection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
@@ -244,7 +244,7 @@ namespace Lsp.Tests
             AutoSubstitute.Provide(textDocumentIdentifiers);
             var handlerCollection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, textDocumentIdentifiers, Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
@@ -302,7 +302,7 @@ namespace Lsp.Tests
             var tdi = new TextDocumentIdentifiers();
             var collection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, tdi, new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, tdi, Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,
@@ -342,7 +342,7 @@ namespace Lsp.Tests
 
             var collection =
                 new SharedHandlerCollection(
-                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), new ServiceCollection().BuildServiceProvider(),
+                        SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                         new LspHandlerTypeDescriptorProvider(
                             new[] {
                                 typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly,

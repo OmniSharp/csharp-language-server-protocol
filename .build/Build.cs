@@ -12,7 +12,6 @@ using Rocket.Surgery.Nuke.DotNetCore;
 [CheckBuildProjectConfigurations]
 [UnsetVisualStudioEnvironmentVariables]
 [PackageIcon("http://www.omnisharp.net/images/logo.png")]
-[EnsureGitHooks(GitHook.PreCommit)]
 [EnsureReadmeIsUpdated]
 [DotNetVerbosityMapping]
 [MSBuildVerbosityMapping]
@@ -57,6 +56,7 @@ public partial class Solution : NukeBuild,
 
     public Target Clean => _ => _.Inherit<ICanClean>(x => x.Clean);
     public Target Restore => _ => _.Inherit<ICanRestoreWithDotNetCore>(x => x.CoreRestore);
+
     public Target Test => _ => _.Inherit<ICanTestWithDotNetCore>(x => x.CoreTest);
 
     public Target BuildVersion => _ => _.Inherit<IHaveBuildVersion>(x => x.BuildVersion)

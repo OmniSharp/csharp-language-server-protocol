@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -83,6 +84,7 @@ namespace Lsp.Tests.Integration
                 );
 
                 await WaitForRegistrationUpdate(client);
+                await WaitForRegistrationUpdate(client);
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
@@ -104,7 +106,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.SemanticTokensFull);
             }
 
-            [Fact]
+            [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
@@ -123,7 +125,9 @@ namespace Lsp.Tests.Integration
                     await WaitForRegistrationUpdate(client);
                     disposable.Dispose();
                     await WaitForRegistrationUpdate(client);
-                    await Task.Delay(1000);
+                    await TestHelper.DelayUntil(
+                        () => client.RegistrationManager.CurrentRegistrations, z => !SelectorMatches(z, x => x.HasLanguage && x.Language == "vb"), CancellationToken
+                    );
                 }
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(
