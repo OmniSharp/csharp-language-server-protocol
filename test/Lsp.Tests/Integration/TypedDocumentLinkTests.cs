@@ -11,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -177,7 +178,7 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Mac)]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var (client, server) = await Initialize(
