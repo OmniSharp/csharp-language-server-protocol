@@ -27,7 +27,7 @@ namespace NSubstitute
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()
                    .MinimumLevel.Is(logEventLevel)
-                   .WriteTo.TestOutput(_testOutputHelper)
+                   .WriteTo.TestOutput(_testOutputHelper, outputTemplate: outputTemplate)
                    .CreateLogger()
             );
         }

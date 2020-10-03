@@ -6,15 +6,15 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    internal class RangeOrPlaceholderRangeConverter : JsonConverter<RangeOrPlaceholderRange>
+    internal class RangeOrPlaceholderRangeConverter : JsonConverter<RangeOrPlaceholderRange?>
     {
-        public override void WriteJson(JsonWriter writer, RangeOrPlaceholderRange value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, RangeOrPlaceholderRange? value, JsonSerializer serializer)
         {
-            if (value.IsRange)
+            if (value?.IsRange == true)
             {
                 serializer.Serialize(writer, value.Range);
             }
-            else if (value.IsPlaceholderRange)
+            else if (value?.IsPlaceholderRange == true)
             {
                 serializer.Serialize(writer, value.PlaceholderRange);
             }
@@ -24,13 +24,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override RangeOrPlaceholderRange ReadJson(
-            JsonReader reader, Type objectType, RangeOrPlaceholderRange existingValue, bool hasExistingValue, JsonSerializer serializer
+        public override RangeOrPlaceholderRange? ReadJson(
+            JsonReader reader, Type objectType, RangeOrPlaceholderRange? existingValue, bool hasExistingValue, JsonSerializer serializer
         )
         {
             if (reader.TokenType is JsonToken.StartObject)
             {
-                var obj = JToken.ReadFrom(reader) as JObject;
+                var obj = (JToken.ReadFrom(reader) as JObject)!;
                 return obj.ContainsKey("placeholder")
                     ? new RangeOrPlaceholderRange(obj.ToObject<PlaceholderRange>())
                     : new RangeOrPlaceholderRange(obj.ToObject<Range>());

@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 context.Descriptor = descriptor;
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token).ConfigureAwait(false);
+                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token).ConfigureAwait(false);
             }
         }
 

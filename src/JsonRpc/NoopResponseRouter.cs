@@ -33,12 +33,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IResponseRouterReturns SendRequest(string method) => new Impl();
 
-        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => Task.FromResult<TResponse>(default);
+        public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => Task.FromResult<TResponse>(default!);
 
         bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
         {
-            method = default;
-            pendingTask = default;
+            method = default!;
+            pendingTask = default!;
             return false;
         }
 

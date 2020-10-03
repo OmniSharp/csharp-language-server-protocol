@@ -5,13 +5,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    internal class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
+    internal class TextDocumentSyncConverter : JsonConverter<TextDocumentSync?>
     {
-        public override void WriteJson(JsonWriter writer, TextDocumentSync value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, TextDocumentSync? value, JsonSerializer serializer)
         {
             if (value == null)
             {
-                writer.WriteNull();
+                writer.WriteValue(TextDocumentSyncKind.None);
                 return;
             }
             if (value.HasOptions)
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
             switch (reader.TokenType)
             {

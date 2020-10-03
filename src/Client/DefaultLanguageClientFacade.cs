@@ -19,8 +19,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly Lazy<IWorkspaceLanguageClient> _workspace;
         private readonly Lazy<IHandlersManager> _handlersManager;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
-        private readonly IInsanceHasStarted _insanceHasStarted;
-        private ILanguageClient _languageClient;
+        private readonly IInsanceHasStarted _instanceHasStarted;
+        private ILanguageClient? _languageClient;
 
         public DefaultLanguageClientFacade(
             IResponseRouter requestRouter,
@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             Lazy<IWorkspaceLanguageClient> workspace,
             Lazy<IHandlersManager> handlersManager,
             TextDocumentIdentifiers textDocumentIdentifiers,
-            IInsanceHasStarted insanceHasStarted
+            IInsanceHasStarted instanceHasStarted
         ) : base(requestRouter, resolverContext, progressManager, languageProtocolSettings)
         {
             _textDocument = textDocument;
@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _workspace = workspace;
             _handlersManager = handlersManager;
             _textDocumentIdentifiers = textDocumentIdentifiers;
-            _insanceHasStarted = insanceHasStarted;
+            _instanceHasStarted = instanceHasStarted;
         }
 
         public ITextDocumentLanguageClient TextDocument => _textDocument.Value;
@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var manager = new CompositeHandlersManager(_handlersManager.Value);
             registryAction(new LangaugeClientRegistry(ResolverContext, manager, _textDocumentIdentifiers));
             var result = manager.GetDisposable();
-            if (_insanceHasStarted.Started)
+            if (_instanceHasStarted.Started)
             {
                 if (_languageClient == null) throw new NotSupportedException("Language client has not yet started... you shouldn't be here.");
                 LanguageClientHelpers.InitHandlers(_languageClient, result);

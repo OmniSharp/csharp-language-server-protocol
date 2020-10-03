@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
                     }
 
                     return builder.Build();

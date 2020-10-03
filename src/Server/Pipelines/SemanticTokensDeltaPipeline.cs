@@ -1,12 +1,16 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
+    [Obsolete(Constants.Proposal)]
     class SemanticTokensDeltaPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : notnull
     {
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
@@ -25,12 +29,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensDeltaParams, response, out var result))
                 {
-                    if (result?.IsFull == true && string.IsNullOrEmpty(result.Value.Full.ResultId))
+                    if (result.Value.IsFull && string.IsNullOrEmpty(result.Value.Full!.ResultId))
                     {
                         result.Value.Full.ResultId = semanticTokensDeltaParams.PreviousResultId;
                     }
 
-                    if (result?.IsDelta == true && string.IsNullOrEmpty(result.Value.Delta.ResultId))
+                    if (result.Value.IsDelta && string.IsNullOrEmpty(result.Value.Delta!.ResultId))
                     {
                         result.Value.Delta.ResultId = semanticTokensDeltaParams.PreviousResultId;
                     }
@@ -41,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
             return await next().ConfigureAwait(false);
         }
 
-        private bool GetResponse<TR>(IRequest<TR> request, object response, out TR result)
+        private bool GetResponse<TR>(IRequest<TR> request, object? response, [NotNullWhen(true)] out TR result)
         {
             if (response is TR r)
             {
@@ -49,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 return true;
             }
 
-            result = default;
+            result = default!;
             return false;
         }
     }

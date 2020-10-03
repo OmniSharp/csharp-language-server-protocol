@@ -78,17 +78,16 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return ( _client, _server );
         }
 
-        protected internal virtual async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
+        protected internal virtual Task<(ILanguageClient client, ILanguageServer server)> Initialize(
             Action<LanguageClientOptions> clientOptionsAction,
             Action<LanguageServerOptions> serverOptionsAction
         )
         {
             ( _client, _server ) = Create(clientOptionsAction, serverOptionsAction);
 
-            return await Observable.FromAsync(_client.Initialize).ForkJoin(
-                Observable.FromAsync(_server.Initialize),
-                (a, b) => ( _client, _server )
-            ).ToTask(CancellationToken).ConfigureAwait(false);
+            return Observable.FromAsync(_client.Initialize)
+                             .ForkJoin(Observable.FromAsync(_server.Initialize), (a, b) => ( client: _client!, server: _server! ))
+                             .ToTask(CancellationToken);
         }
 
         protected virtual async Task<(ILanguageClient client, ILanguageServer server, TestConfigurationProvider configurationProvider)> InitializeWithConfiguration(

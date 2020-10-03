@@ -72,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         /// <returns>The child keys.</returns>
         public IEnumerable<string> GetChildKeys(
             IEnumerable<string> earlierKeys,
-            string parentPath)
+            string? parentPath)
         {
             IConfiguration section = parentPath == null ? _config : _config.GetSection(parentPath);
             var children = section.GetChildren();

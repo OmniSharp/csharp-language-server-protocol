@@ -401,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 // in the event nothing is emitted...
-                subject.OnNext(default);
+                subject.OnNext(default!);
                 _handler(request, subject, _capability, cancellationToken);
                 return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
@@ -471,7 +471,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 // in the event nothing is emitted...
-                subject.OnNext(default);
+                subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
                 return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
@@ -533,7 +533,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 // in the event nothing is emitted...
-                subject.OnNext(default);
+                subject.OnNext(default!);
                 _handler(request, _capability, subject, cancellationToken);
                 return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
@@ -591,7 +591,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
                 var subject = new AsyncSubject<TItem>();
                 // in the event nothing is emitted...
-                subject.OnNext(default);
+                subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
                 return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }

@@ -20,9 +20,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals
     [Obsolete(Constants.Proposal)]
     public abstract class SemanticTokensRefreshHandlerBase : ISemanticTokensRefreshHandler
     {
-        private SemanticTokensCapability _capability;
+        protected SemanticTokensCapability? Capability { get; private set; }
 
         public abstract Task<Unit> Handle(SemanticTokensRefreshParams request, CancellationToken cancellationToken);
-        public void SetCapability(SemanticTokensCapability capability) => _capability = capability;
+        public void SetCapability(SemanticTokensCapability capability) => Capability = capability;
     }
 }

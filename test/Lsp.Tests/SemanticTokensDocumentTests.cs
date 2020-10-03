@@ -22,15 +22,14 @@ namespace Lsp.Tests
     public class SemanticTokensDocumentTests
     {
         private readonly ITestOutputHelper _testOutputHelper;
-        private readonly TestLoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly SemanticTokensLegend _legend;
 
         public SemanticTokensDocumentTests(ITestOutputHelper testOutputHelper)
         {
             _testOutputHelper = testOutputHelper;
-            _loggerFactory = new TestLoggerFactory(testOutputHelper);
-            _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
+            var loggerFactory = new TestLoggerFactory(testOutputHelper);
+            _logger = loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
             _legend = new SemanticTokensLegend {
                 // specify a specific set so that additions to the default list do not cause breaks in the tests.
                 TokenModifiers = new[] {

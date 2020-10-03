@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator TextDocumentIdentifier(string uri) => new TextDocumentIdentifier { Uri = uri };
 
-        private string DebuggerDisplay => Uri?.ToString()!;
+        private string DebuggerDisplay => Uri.ToString()!;
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

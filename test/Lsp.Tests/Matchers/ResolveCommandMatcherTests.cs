@@ -104,7 +104,7 @@ namespace Lsp.Tests.Matchers
                                                 new LspHandlerDescriptor(
                                                     TextDocumentNames.CodeLensResolve,
                                                     "Key",
-                                                    resolveHandler,
+                                                    resolveHandler!,
                                                     resolveHandler.GetType(),
                                                     typeof(CodeLens),
                                                     null,
@@ -118,7 +118,7 @@ namespace Lsp.Tests.Matchers
                                                 new LspHandlerDescriptor(
                                                     TextDocumentNames.CodeLensResolve,
                                                     "Key2",
-                                                    resolveHandler2,
+                                                    resolveHandler2!,
                                                     typeof(ICodeLensResolveHandler),
                                                     typeof(CodeLens),
                                                     null,
@@ -190,7 +190,7 @@ namespace Lsp.Tests.Matchers
                                                 new LspHandlerDescriptor(
                                                     TextDocumentNames.CompletionResolve,
                                                     "Key",
-                                                    resolveHandler,
+                                                    resolveHandler!,
                                                     resolveHandler.GetType(),
                                                     typeof(CompletionItem),
                                                     null,
@@ -204,7 +204,7 @@ namespace Lsp.Tests.Matchers
                                                 new LspHandlerDescriptor(
                                                     TextDocumentNames.CompletionResolve,
                                                     "Key2",
-                                                    resolveHandler2,
+                                                    resolveHandler2!,
                                                     typeof(ICompletionResolveHandler),
                                                     typeof(CompletionItem),
                                                     null,
@@ -239,7 +239,7 @@ namespace Lsp.Tests.Matchers
             var descriptor = new LspHandlerDescriptor(
                 TextDocumentNames.Completion,
                 "Key",
-                resolveHandler as IJsonRpcHandler,
+                (resolveHandler as IJsonRpcHandler)!,
                 resolveHandler.GetType(),
                 typeof(CompletionParams),
                 null,
@@ -288,7 +288,7 @@ namespace Lsp.Tests.Matchers
             var descriptor = new LspHandlerDescriptor(
                 TextDocumentNames.CodeLens,
                 "Key",
-                resolveHandler as IJsonRpcHandler,
+                resolveHandler as IJsonRpcHandler ?? ,
                 resolveHandler.GetType(),
                 typeof(CodeLensParams),
                 null,
