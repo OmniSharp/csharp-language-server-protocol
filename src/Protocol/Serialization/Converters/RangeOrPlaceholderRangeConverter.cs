@@ -1,5 +1,6 @@
 using System;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -13,16 +14,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 serializer.Serialize(writer, value.Range);
             }
-            else
+            else if (value.IsPlaceholderRange)
             {
                 serializer.Serialize(writer, value.PlaceholderRange);
+            }
+            else
+            {
+                writer.WriteNull();
             }
         }
 
         public override RangeOrPlaceholderRange ReadJson(
             JsonReader reader, Type objectType, RangeOrPlaceholderRange existingValue, bool hasExistingValue, JsonSerializer serializer
-        ) => new RangeOrPlaceholderRange((Range) null);
+        )
+        {
+            if (reader.TokenType is JsonToken.StartObject)
+            {
+                var obj = JToken.ReadFrom(reader) as JObject;
+                return obj.ContainsKey("placeholder")
+                    ? new RangeOrPlaceholderRange(obj.ToObject<PlaceholderRange>())
+                    : new RangeOrPlaceholderRange(obj.ToObject<Range>());
+            }
 
-        public override bool CanRead => false;
+            return null;
+        }
     }
 }
