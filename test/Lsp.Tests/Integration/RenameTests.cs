@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -26,6 +27,55 @@ namespace Lsp.Tests.Integration
         {
             _prepareRename = Substitute.For<Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange>>>();
             _rename = Substitute.For<Func<RenameParams, CancellationToken, Task<WorkspaceEdit>>>();
+        }
+
+        [Fact]
+        public async Task Should_Handle_Rename_With_No_Value()
+        {
+            _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<CancellationToken>())
+                          .Returns(
+                               call => {
+                                   var pos = call.Arg<PrepareRenameParams>().Position;
+                                   return new RangeOrPlaceholderRange(
+                                       new Range(
+                                           pos,
+                                           ( pos.Line, pos.Character + 2 )
+                                       )
+                                   );
+                               }
+                           );
+
+            _rename.Invoke(Arg.Any<RenameParams>(), Arg.Any<CancellationToken>())
+                   .Returns(
+                        new WorkspaceEdit() {
+                            DocumentChanges = new Container<WorkspaceEditDocumentChange>(new WorkspaceEditDocumentChange(new CreateFile() {
+                                Uri = DocumentUri.FromFileSystemPath("/abcd/create.cs")
+                            }))
+                        }
+                    );
+
+            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+
+            var result = await client.PrepareRename(
+                new PrepareRenameParams() {
+                    Position = ( 1, 1 ),
+                    TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
+                },
+                CancellationToken
+            );
+
+            result.Should().NotBeNull();
+
+            var renameResponse = await client.RequestRename(
+                new RenameParams() {
+                    Position = result.Range.Start,
+                    NewName = "newname",
+                    TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
+                }
+            );
+
+            renameResponse.DocumentChanges.Should().HaveCount(1);
+            renameResponse.DocumentChanges.Should().Match(z => z.Any(x => x.IsCreateFile));
         }
 
         [Fact]
