@@ -8,31 +8,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     {
         private static readonly MethodInfo OfValueMethod = typeof(Supports)
                                                           .GetTypeInfo()
-                                                          .GetMethod(nameof(Supports.OfValue), BindingFlags.Static | BindingFlags.Public);
+                                                          .GetMethod(nameof(Supports.OfValue), BindingFlags.Static | BindingFlags.Public)!;
 
         private static readonly MethodInfo OfBooleanMethod = typeof(Supports)
                                                             .GetTypeInfo()
-                                                            .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public);
-
-        private static readonly PropertyInfo ValueProperty = typeof(Supports<>)
-                                                            .GetTypeInfo()
-                                                            .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance);
-
-        private static readonly PropertyInfo IsSupportedProperty = typeof(Supports<>)
-                                                                  .GetTypeInfo()
-                                                                  .GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance);
+                                                            .GetMethod(nameof(Supports.OfBoolean), BindingFlags.Static | BindingFlags.Public)!;
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var isSupported = value?.GetType().GetTypeInfo()
-                                   ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
-                                   ?.GetValue(value) as bool?;
+            var isSupported = value.GetType().GetTypeInfo()
+                                  ?.GetProperty(nameof(Supports<object>.IsSupported), BindingFlags.Public | BindingFlags.Instance)
+                                  ?.GetValue(value) as bool?;
             if (isSupported == true)
             {
                 serializer.Serialize(
                     writer, value.GetType().GetTypeInfo()
-                                 .GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
-                                 .GetValue(value)
+                                 ?.GetProperty(nameof(Supports<object>.Value), BindingFlags.Public | BindingFlags.Instance)
+                                 ?.GetValue(value)
                 );
             }
             else

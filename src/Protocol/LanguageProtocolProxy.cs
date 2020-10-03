@@ -44,7 +44,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public Task<TResponse> SendRequest<TResponse>(IRequest<TResponse> request, CancellationToken cancellationToken) => _responseRouter.SendRequest(request, cancellationToken);
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) => _responseRouter.TryGetRequest(id, out method, out pendingTask);
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)]out TaskCompletionSource<JToken> pendingTask) =>
+            _responseRouter.TryGetRequest(id, out method, out pendingTask);
         object IServiceProvider.GetService(Type serviceType) => ResolverContext.GetService(serviceType);
     }
 }

@@ -1,5 +1,4 @@
-﻿using DryIoc;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 // ReSharper disable once CheckNamespace
 
 namespace DryIoc

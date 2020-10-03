@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// An id representing the data. This id is returned from the dataBreakpointInfo request.
         /// </summary>
-        public string DataId { get; set; }
+        public string DataId { get; set; } = null!;
 
         /// <summary>
         /// The access type of the data.
@@ -22,12 +22,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// An optional expression for conditional breakpoints.
         /// </summary>
         [Optional]
-        public string Condition { get; set; }
+        public string? Condition { get; set; }
 
         /// <summary>
         /// An optional expression that controls how many hits of the breakpoint are ignored. The backend is expected to interpret the expression as needed.
         /// </summary>
         [Optional]
-        public string HitCondition { get; set; }
+        public string? HitCondition { get; set; }
     }
 }

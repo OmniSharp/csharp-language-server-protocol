@@ -9,13 +9,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// the server provides a corresponding handler.
         /// </summary>
         [Optional]
-        public Supports<SemanticTokensCapabilityRequestRange> Range { get; set; }
+        public Supports<SemanticTokensCapabilityRequestRange?> Range { get; set; }
 
         /// <summary>
         /// The client will send the `textDocument/semanticTokens/full` request if
         /// the server provides a corresponding handler.
         /// </summary>
         [Optional]
-        public Supports<SemanticTokensCapabilityRequestFull> Full { get; set; }
+        public Supports<SemanticTokensCapabilityRequestFull?> Full { get; set; }
     }
 }

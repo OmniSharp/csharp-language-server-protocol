@@ -22,7 +22,42 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                  .SelectMany(z => z.Attributes)
                                                  .First(z => z.Name.ToString() == "MethodAttribute" || z.Name.ToString() == "Method");
 
-            return methodAttribute.ArgumentList.Arguments[0].Expression;
+            return methodAttribute.ArgumentList!.Arguments[0].Expression;
+        }
+
+        public static TypeSyntax GetRequestType(InterfaceDeclarationSyntax syntax)
+        {
+            if (syntax.ConstraintClauses.Any())
+            {
+                return syntax.ConstraintClauses.First()
+                             .Constraints
+                             .OfType<TypeConstraintSyntax>()
+                             .FirstOrDefault()?.Type
+                    ?? throw new ArgumentException("Generic type does not have a constraint", nameof(syntax));
+            }
+
+            var interfaceType = syntax.BaseList?.Types
+                                      .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
+                                      .Where(z => z != null)
+                                      .First(z => z!.Identifier.Text == "IJsonRpcRequestHandler" || z.Identifier.Text == "ICanBeResolvedHandler" || z.Identifier.Text == "IJsonRpcNotificationHandler")!;
+
+            return interfaceType.TypeArgumentList.Arguments[0];
+        }
+
+        public static TypeSyntax? GetResponseType(TypeDeclarationSyntax syntax)
+        {
+            return syntax.BaseList?.Types
+                                      .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
+                                      .Where(z => z != null)
+                                      .Where(z => z!.Identifier.Text == "IJsonRpcRequestHandler")
+                                      .Select(z => z!.Arity == 1 ? IdentifierName("MediatR.Unit") : z.TypeArgumentList.Arguments[1])
+                                      .FirstOrDefault()
+                ?? syntax.BaseList?.Types
+                         .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
+                         .Where(z => z != null)
+                         .Where(z => z!.Identifier.Text == "ICanBeResolvedHandler")
+                         .Select(z => z!.TypeArgumentList.Arguments[0])
+                         .FirstOrDefault();
         }
 
         public static INamedTypeSymbol GetRequestType(INamedTypeSymbol symbol)
@@ -31,7 +66,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var arg = handlerInterface.TypeArguments[0];
             if (arg is ITypeParameterSymbol typeParameterSymbol)
             {
-                return typeParameterSymbol.ConstraintTypes.OfType<INamedTypeSymbol>().FirstOrDefault();
+                return typeParameterSymbol.ConstraintTypes.OfType<INamedTypeSymbol>().FirstOrDefault() ?? throw new ArgumentException("Generic type does not have a constraint", nameof(symbol));
             }
 
             if (arg is INamedTypeSymbol namedTypeSymbol)
@@ -39,13 +74,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 return namedTypeSymbol;
             }
 
-            throw new NotSupportedException("Request Type is not supported!");
+            throw new NotSupportedException($"Request Type {symbol.ToDisplayString()} is not supported!");
         }
 
         public static INamedTypeSymbol GetResponseType(INamedTypeSymbol symbol)
         {
             var handlerInterface = symbol.AllInterfaces.First(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            return handlerInterface.TypeArguments[1] as INamedTypeSymbol;
+            return handlerInterface.TypeArguments[1] is INamedTypeSymbol ns ? ns : throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
         }
 
         public static INamedTypeSymbol? GetCapability(INamedTypeSymbol symbol)
@@ -111,9 +146,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static GenericNameSyntax CreateAsyncAction(bool withCancellationToken, params ITypeSymbol[] types) => CreateAsyncFunc(null, withCancellationToken, types);
 
-        public static GenericNameSyntax CreateAsyncFunc(ITypeSymbol? responseType, params ITypeSymbol[] types) => CreateAsyncFunc(responseType, true, types);
+        public static GenericNameSyntax CreateAsyncFunc(TypeSyntax? responseType, params ITypeSymbol[] types) => CreateAsyncFunc(responseType, true, types);
 
-        public static GenericNameSyntax CreateAsyncFunc(ITypeSymbol? responseType, bool withCancellationToken, params ITypeSymbol[] types)
+        public static GenericNameSyntax CreateAsyncFunc(TypeSyntax? responseType, bool withCancellationToken, params ITypeSymbol[] types)
         {
             var typeArguments = types.Select(ResolveTypeName).ToList();
             if (withCancellationToken)
@@ -121,7 +156,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 typeArguments.Add(IdentifierName("CancellationToken"));
             }
 
-            if (responseType == null || responseType.Name == "Unit")
+            if (responseType == null || responseType.ToFullString().EndsWith("Unit"))
             {
                 typeArguments.Add(IdentifierName("Task"));
             }
@@ -131,8 +166,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     GenericName(
                         Identifier("Task"), TypeArgumentList(
                             SeparatedList(
-                                new TypeSyntax[] {
-                                    ResolveTypeName(responseType)
+                                new[] {
+                                    responseType
                                 }
                             )
                         )
@@ -144,7 +179,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                .WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(typeArguments)));
         }
 
-        public static GenericNameSyntax CreateDerivedAsyncFunc(ITypeSymbol? responseType, bool withCancellationToken)
+        public static GenericNameSyntax CreateDerivedAsyncFunc(TypeSyntax? responseType, bool withCancellationToken)
         {
             var typeArguments = new List<TypeSyntax> {
                 IdentifierName("T")
@@ -154,7 +189,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 typeArguments.Add(IdentifierName("CancellationToken"));
             }
 
-            if (responseType == null || responseType.Name == "Unit")
+            if (responseType == null || responseType.ToFullString().EndsWith("Unit"))
             {
                 typeArguments.Add(IdentifierName("Task"));
             }
@@ -164,8 +199,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     GenericName(
                         Identifier("Task"), TypeArgumentList(
                             SeparatedList(
-                                new TypeSyntax[] {
-                                    ResolveTypeName(responseType)
+                                new[] {
+                                    responseType
                                 }
                             )
                         )
@@ -201,7 +236,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 AssignmentExpression(
                     SyntaxKind.CoalesceAssignmentExpression,
                     registrationOptionsName,
-                    ObjectCreationExpression(registrationOptionsType)
+                    ObjectCreationExpression(registrationOptionsType is NullableTypeSyntax nts ? nts.ElementType : registrationOptionsType)
                        .WithArgumentList(ArgumentList())
                 )
             );
@@ -234,7 +269,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialResultArgumentList(NameSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialResultArgumentList(TypeSyntax responseName) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
@@ -252,7 +287,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         Argument(
                             SimpleLambdaExpression(
                                 Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName)
+                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
                                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
                             )
                         )
@@ -260,7 +295,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialResultRegistrationArgumentList(NameSyntax registrationOptionsName, NameSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialResultRegistrationArgumentList(TypeSyntax registrationOptionsName, TypeSyntax responseName) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
@@ -279,7 +314,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         Argument(
                             SimpleLambdaExpression(
                                 Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName)
+                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
                                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
                             )
                         )
@@ -287,7 +322,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialItemsArgumentList(NameSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialItemsArgumentList(TypeSyntax responseName) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
@@ -313,7 +348,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialItemsRegistrationArgumentList(NameSyntax registrationOptionsName, NameSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialItemsRegistrationArgumentList(TypeSyntax registrationOptionsName, TypeSyntax responseName) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
@@ -332,7 +367,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         Argument(
                             SimpleLambdaExpression(
                                 Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName)
+                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
                                    .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
                             )
                         )
@@ -420,12 +455,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetRequestCapabilityHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var capabilityName = ResolveTypeName(capability);
             return ArrowExpressionClause(
                 AddHandler(
@@ -435,7 +469,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "RequestCapability",
                                 requestName,
-                                responseName,
+                                responseType,
                                 capabilityName
                             )
                            .WithArgumentList(GetHandlerArgumentList())
@@ -468,12 +502,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetRequestRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             ITypeSymbol registrationOptions
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             return Block(
                 EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptions"), registrationOptionsName),
@@ -485,7 +518,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "RequestRegistration",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     registrationOptionsName
                                 )
                                .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptions")))
@@ -519,13 +552,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetRequestRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             ITypeSymbol registrationOptions,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             var capabilityName = ResolveTypeName(capability);
             return Block(
@@ -538,7 +570,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "Request",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     capabilityName,
                                     registrationOptionsName
                                 )
@@ -616,13 +648,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetPartialResultCapabilityHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var capabilityName = ResolveTypeName(capability);
             return ArrowExpressionClause(
                 AddHandler(
@@ -636,11 +666,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResultCapability",
                                 requestName,
-                                responseName,
-                                itemName,
+                                responseType,
+                                itemType,
                                 capabilityName
                             )
-                           .WithArgumentList(GetPartialResultArgumentList(responseName))
+                           .WithArgumentList(GetPartialResultArgumentList(responseType))
                         )
                     )
                 )
@@ -648,13 +678,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             return Block(
                 EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptions"), registrationOptionsName),
@@ -670,11 +698,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
-                                    responseName,
-                                    itemName,
+                                    responseType,
+                                    itemType,
                                     registrationOptionsName
                                 )
-                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                                 )
                         )
                     )
@@ -683,14 +711,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             var capabilityName = ResolveTypeName(capability);
             return Block(
@@ -707,12 +733,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
-                                    responseName,
-                                    itemName,
+                                    responseType,
+                                    itemType,
                                     capabilityName,
                                     registrationOptionsName
                                 )
-                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                             )
                         )
                     )
@@ -720,11 +746,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
-        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol partialItem, ITypeSymbol responseType)
+        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax partialItem, TypeSyntax responseType)
         {
             var requestName = ResolveTypeName(requestType);
-            var itemName = ResolveTypeName(partialItem);
-            var responseName = ResolveTypeName(responseType);
             return ArrowExpressionClause(
                 AddHandler(
                     Argument(nameExpression),
@@ -737,10 +761,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResult",
                                 requestName,
-                                responseName,
-                                itemName
+                                responseType,
+                                partialItem
                             )
-                           .WithArgumentList(GetPartialResultArgumentList(responseName))
+                           .WithArgumentList(GetPartialResultArgumentList(responseType))
                         )
                     )
                 )
@@ -748,12 +772,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetPartialResultsCapabilityHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             NameSyntax itemName, ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var capabilityName = ResolveTypeName(capability);
             return ArrowExpressionClause(
                 AddHandler(
@@ -767,11 +790,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResultsCapability",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     itemName,
                                     capabilityName
                                 )
-                               .WithArgumentList(GetPartialItemsArgumentList(responseName))
+                               .WithArgumentList(GetPartialItemsArgumentList(responseType))
                         )
                     )
                 )
@@ -779,12 +802,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultsRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             NameSyntax itemName, ITypeSymbol registrationOptions
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             return Block(
                 EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptions"), registrationOptionsName),
@@ -800,11 +822,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                         IdentifierName("LanguageProtocolDelegatingHandlers"),
                                         "PartialResults",
                                         requestName,
-                                        responseName,
+                                        responseType,
                                         itemName,
                                         registrationOptionsName
                                     )
-                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                             )
                         )
                     )
@@ -813,13 +835,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultsRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             NameSyntax itemName, ITypeSymbol registrationOptions,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             var capabilityName = ResolveTypeName(capability);
             return Block(
@@ -836,12 +857,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                         IdentifierName("LanguageProtocolDelegatingHandlers"),
                                         "PartialResults",
                                         requestName,
-                                        responseName,
+                                        responseType,
                                         itemName,
                                         capabilityName,
                                         registrationOptionsName
                                     )
-                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                             )
                         )
                     )
@@ -851,11 +872,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static ArrowExpressionClauseSyntax GetPartialResultsHandlerExpression(
             ExpressionSyntax nameExpression, ITypeSymbol requestType, NameSyntax itemName,
-            ITypeSymbol responseType
+            TypeSyntax responseType
         )
         {
             var requestName = ResolveTypeName(requestType);
-            var responseName = ResolveTypeName(responseType);
             return ArrowExpressionClause(
                 AddHandler(
                     Argument(nameExpression),
@@ -868,10 +888,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResults",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     itemName
                                 )
-                               .WithArgumentList(GetPartialItemsArgumentList(responseName))
+                               .WithArgumentList(GetPartialItemsArgumentList(responseType))
                         )
                     )
                 )
@@ -981,7 +1001,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
-        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(NameSyntax responseType) =>
+        public static ArrowExpressionClauseSyntax GetPartialInvokeExpression(TypeSyntax responseType) =>
             ArrowExpressionClause(
                 InvocationExpression(
                         MemberAccessExpression(
@@ -1004,7 +1024,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     Argument(
                                         SimpleLambdaExpression(
                                             Parameter(Identifier("value")),
-                                            ObjectCreationExpression(responseType)
+                                            ObjectCreationExpression(responseType is NullableTypeSyntax nts ? nts.ElementType : responseType)
                                                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("value")))))
                                         )
                                     ),
@@ -1025,7 +1045,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             return new Regex(@"(\w+(?:\<\w\>)?)$")
                    .Replace(
-                        symbol.ToDisplayString() ?? string.Empty,
+                        symbol.ToDisplayString(),
                         symbol.Name.Substring(1, symbol.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
                     )
                 ;
@@ -1081,18 +1101,5 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             return IsNotification(symbol) ? "Send" + name : "Request" + name;
         }
-
-        private static string HandlerName(INamedTypeSymbol symbol)
-        {
-            var name = HandlerFullName(symbol);
-            return name.Substring(name.LastIndexOf('.') + 1);
-        }
-
-        private static string HandlerFullName(INamedTypeSymbol symbol) =>
-            new Regex(@"(\w+)$")
-               .Replace(
-                    symbol.ToDisplayString() ?? string.Empty,
-                    symbol.Name.Substring(1, symbol.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
-                );
     }
 }

@@ -15,7 +15,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
     public class DebugAdapterServerProgressManager : ICancelHandler, IDebugAdapterServerProgressManager
     {
         private readonly IResponseRouter _router;
-        private readonly ISerializer _serializer;
 
         private readonly ConcurrentDictionary<ProgressToken, CancellationTokenSource> _activeObserverTokens
             = new ConcurrentDictionary<ProgressToken, CancellationTokenSource>(EqualityComparer<ProgressToken>.Default);
@@ -23,13 +22,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly ConcurrentDictionary<ProgressToken, IProgressObserver> _activeObservers =
             new ConcurrentDictionary<ProgressToken, IProgressObserver>(EqualityComparer<ProgressToken>.Default);
 
-        public DebugAdapterServerProgressManager(IResponseRouter router, ISerializer serializer)
+        public DebugAdapterServerProgressManager(IResponseRouter router)
         {
             _router = router;
-            _serializer = serializer;
         }
 
-        public IProgressObserver Create(ProgressStartEvent begin, Func<Exception, ProgressEndEvent> onError = null, Func<ProgressEndEvent> onComplete = null)
+        public IProgressObserver Create(ProgressStartEvent begin, Func<Exception, ProgressEndEvent>? onError = null, Func<ProgressEndEvent>? onComplete = null)
         {
             if (EqualityComparer<ProgressToken>.Default.Equals(begin.ProgressId, default))
             {

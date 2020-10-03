@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
@@ -10,13 +8,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A character on which formatting should be triggered, like `}`.
         /// </summary>
-        public string FirstTriggerCharacter { get; set; }
+        public string FirstTriggerCharacter { get; set; } = null!;
 
         /// <summary>
         /// More trigger characters.
         /// </summary>
         [Optional]
-        public Container<string> MoreTriggerCharacter { get; set; }
+        public Container<string>? MoreTriggerCharacter { get; set; }
 
         /// <summary>
         /// Format document on type options
@@ -26,13 +24,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             /// <summary>
             /// A character on which formatting should be triggered, like `}`.
             /// </summary>
-            public string FirstTriggerCharacter { get; set; }
+            public string FirstTriggerCharacter { get; set; } = null!;
 
             /// <summary>
             /// More trigger characters.
             /// </summary>
             [Optional]
-            public Container<string> MoreTriggerCharacter { get; set; }
+        public Container<string>? MoreTriggerCharacter { get; set; }
         }
 
         class DocumentOnTypeFormattingRegistrationOptionsConverter : RegistrationOptionsConverterBase<DocumentOnTypeFormattingRegistrationOptions, StaticOptions>

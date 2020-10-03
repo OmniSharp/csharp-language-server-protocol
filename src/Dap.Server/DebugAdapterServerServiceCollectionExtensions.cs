@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 {
     public static class DebugAdapterServerServiceCollectionExtensions
     {
-        internal static IContainer AddDebugAdapterServerInternals(this IContainer container, DebugAdapterServerOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddDebugAdapterServerInternals(this IContainer container, DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddDebugAdapterProtocolInternals(options);
 
@@ -70,10 +70,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             return container;
         }
 
-        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, Action<DebugAdapterServerOptions> configureOptions = null) =>
+        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, Action<DebugAdapterServerOptions>? configureOptions = null) =>
             AddDebugAdapterServer(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, string name, Action<DebugAdapterServerOptions> configureOptions = null)
+        public static IServiceCollection AddDebugAdapterServer(this IServiceCollection services, string name, Action<DebugAdapterServerOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

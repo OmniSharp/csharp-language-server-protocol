@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="message">
         /// The exception message.
         /// </param>
-        public RequestException(int errorCode, object requestId, string message) : base(message)
+        public RequestException(int errorCode, object? requestId, string? message) : base(message)
         {
             RequestId = requestId ?? UnknownRequestId;
             ErrorCode = errorCode;
@@ -47,9 +47,9 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="inner">
         /// The exception that caused this exception to be raised.
         /// </param>
-        public RequestException(int errorCode, string message, string requestId, Exception inner) : base(message, inner)
+        public RequestException(int errorCode, string? message, string? requestId, Exception inner) : base(message, inner)
         {
-            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId : UnknownRequestId;
+            RequestId = !string.IsNullOrWhiteSpace(requestId) ? requestId! : UnknownRequestId;
             ErrorCode = errorCode;
         }
 

@@ -37,11 +37,11 @@ namespace OmniSharp.Extensions.JsonRpc.Serialization
             converters.Add(item);
         }
 
-        private JsonSerializer _jsonSerializer;
+        private JsonSerializer? _jsonSerializer;
         public JsonSerializer JsonSerializer => _jsonSerializer ?? CreateSerializer();
 
 
-        private JsonSerializerSettings _settings;
+        private JsonSerializerSettings? _settings;
         public JsonSerializerSettings Settings => _settings ?? CreateSerializerSettings();
 
         public string SerializeObject(object value) => JsonConvert.SerializeObject(value, Settings);

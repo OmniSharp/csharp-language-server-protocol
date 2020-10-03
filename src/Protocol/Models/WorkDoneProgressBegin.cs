@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// Examples: "Indexing" or "Linking dependencies".
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         /// <summary>
         /// Controls if a cancel button should show to allow the user to cancel the
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// to ignore the setting.
         /// </summary>
         [Optional]
-        public bool? Cancellable { get; set; }
+        public bool Cancellable { get; set; }
 
         /// <summary>
         /// Optional progress percentage to display (value 100 is considered 100%).

@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// </summary>
         public async Task<IWorkDoneObserver> Create(
             ProgressToken progressToken, WorkDoneProgressBegin begin,
-            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default
+            Func<Exception, WorkDoneProgressEnd>? onError = null, Func<WorkDoneProgressEnd>? onComplete = null, CancellationToken cancellationToken = default
         )
         {
             if (!IsSupported)
@@ -82,7 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// </summary>
         public Task<IWorkDoneObserver> Create(
             WorkDoneProgressBegin begin,
-            Func<Exception, WorkDoneProgressEnd> onError = null, Func<WorkDoneProgressEnd> onComplete = null, CancellationToken cancellationToken = default
+            Func<Exception, WorkDoneProgressEnd>? onError = null, Func<WorkDoneProgressEnd>? onComplete = null, CancellationToken cancellationToken = default
         ) =>
             Create(new ProgressToken(Guid.NewGuid().ToString()), begin, onError, onComplete, cancellationToken);
 
@@ -91,8 +91,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         /// </summary>
         public IWorkDoneObserver For(
             IWorkDoneProgressParams request,
-            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd> onError = null,
-            Func<WorkDoneProgressEnd> onComplete = null
+            WorkDoneProgressBegin begin, Func<Exception, WorkDoneProgressEnd>? onError = null,
+            Func<WorkDoneProgressEnd>? onComplete = null
         )
         {
             if (!IsSupported || request.WorkDoneToken == null)
@@ -130,12 +130,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             WorkDoneProgressCancelParams request, CancellationToken cancellationToken
         )
         {
+            if (request.Token == null) return Unit.Task;
+
             if (_activeObserverTokens.TryRemove(request.Token, out var cts))
             {
                 cts.Cancel();
             }
 
-            _activeObservers.TryRemove(request.Token, out var observer);
+            _activeObservers.TryRemove(request.Token, out _);
 
             return Unit.Task;
         }

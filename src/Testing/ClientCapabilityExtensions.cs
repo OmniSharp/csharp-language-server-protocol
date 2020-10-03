@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                                                   .Where(z => z.IsClass && !z.IsAbstract);
             foreach (var item in capabilities)
             {
-                options.WithCapability(Activator.CreateInstance(item, Array.Empty<object>()) as ICapability);
+                options.WithCapability((Activator.CreateInstance(item, Array.Empty<object>()) as ICapability)!);
             }
 
             return options;

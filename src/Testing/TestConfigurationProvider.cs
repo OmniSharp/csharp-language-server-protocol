@@ -19,30 +19,30 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     {
         private readonly IWorkspaceLanguageClient _workspaceLanguageClient;
 
-        private readonly ConcurrentDictionary<(string section, DocumentUri scope), IConfiguration> _scopedConfigurations =
-            new ConcurrentDictionary<(string section, DocumentUri scope), IConfiguration>();
+        private readonly ConcurrentDictionary<(string section, DocumentUri? scope), IConfiguration> _scopedConfigurations =
+            new ConcurrentDictionary<(string section, DocumentUri? scope), IConfiguration>();
 
         public TestConfigurationProvider(IWorkspaceLanguageClient workspaceLanguageClient) => _workspaceLanguageClient = workspaceLanguageClient;
 
-        public void Update(string section, IDictionary<string, string> configuration)
+        public void Update(string section, IDictionary<string, string>? configuration)
         {
             if (configuration == null) return;
             Update(section, new ConfigurationBuilder().AddInMemoryCollection(configuration).Build());
         }
 
-        public void Update(string section, IConfiguration configuration)
+        public void Update(string section, IConfiguration? configuration)
         {
             if (configuration == null) return;
             Update(section, null, configuration);
         }
 
-        public void Update(string section, DocumentUri documentUri, IDictionary<string, string> configuration)
+        public void Update(string section, DocumentUri documentUri, IDictionary<string, string>? configuration)
         {
             if (configuration == null) return;
             Update(section, documentUri, new ConfigurationBuilder().AddInMemoryCollection(configuration).Build());
         }
 
-        public void Update(string section, DocumentUri documentUri, IConfiguration configuration)
+        public void Update(string section, DocumentUri? documentUri, IConfiguration? configuration)
         {
             if (configuration == null) return;
             _scopedConfigurations.AddOrUpdate(( section, documentUri ), configuration, (a, _) => configuration);
@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         public void Reset(string section) => Reset(section, null);
 
-        public void Reset(string section, DocumentUri documentUri)
+        public void Reset(string section, DocumentUri? documentUri)
         {
             _scopedConfigurations.TryRemove(( section, documentUri ), out _);
             _workspaceLanguageClient.DidChangeConfiguration(new DidChangeConfigurationParams());
@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         private IConfiguration Get(ConfigurationItem configurationItem)
         {
             if (_scopedConfigurations.TryGetValue(
-                    ( configurationItem.Section, configurationItem.ScopeUri ),
+                    ( configurationItem.Section!, configurationItem.ScopeUri ),
                     out var configuration
                 )
             )
@@ -108,7 +108,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
                 foreach (var (key, next) in zippedKeys)
                 {
-                    if (int.TryParse(next, out var value))
+                    if (int.TryParse(next, out _))
                     {
                         root = SetValueToToken(root, key, new JArray());
                     }
@@ -160,10 +160,10 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 return (T) arr2[i];
             }
 
-            return root[key] as T;
+            return (root[key] as T)!;
         }
 
-        private static JToken GetValueFromToken(JToken root, string key)
+        private static JToken? GetValueFromToken(JToken root, string key)
         {
             if (root is JArray arr)
             {

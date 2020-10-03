@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public InvalidRequestException(object requestId)
+        public InvalidRequestException(object? requestId)
             : base(ErrorCodes.InvalidRequest, requestId, "Invalid request.")
         {
         }

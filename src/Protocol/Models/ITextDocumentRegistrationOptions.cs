@@ -2,6 +2,6 @@
 {
     public interface ITextDocumentRegistrationOptions : IRegistrationOptions
     {
-        DocumentSelector DocumentSelector { get; set; }
+        DocumentSelector? DocumentSelector { get; set; }
     }
 }

@@ -15,30 +15,30 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The variable's name.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// The variable's value. This can be a multi-line text, e.g. for a function the body of a function.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
 
         /// <summary>
         /// The type of the variable's value. Typically shown in the UI when hovering over the value.
         /// </summary>
         [Optional]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         /// <summary>
         /// Properties of a variable that can be used to determine how to render the variable in the UI.
         /// </summary>
         [Optional]
-        public VariablePresentationHint PresentationHint { get; set; }
+        public VariablePresentationHint? PresentationHint { get; set; }
 
         /// <summary>
         /// Optional evaluatable name of this variable which can be passed to the 'EvaluateRequest' to fetch the variable's value.
         /// </summary>
         [Optional]
-        public string EvaluateName { get; set; }
+        public string? EvaluateName { get; set; }
 
         /// <summary>
         /// If variablesReference is > 0, the variable is structured and its children can be retrieved by passing variablesReference to the VariablesRequest.
@@ -63,6 +63,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Optional memory reference for the variable if the variable represents executable code, such as a function pointer.
         /// </summary>
         [Optional]
-        public string MemoryReference { get; set; }
+        public string? MemoryReference { get; set; }
     }
 }

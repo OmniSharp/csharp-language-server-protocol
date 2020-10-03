@@ -11,12 +11,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// IDs of checked exception options.The set of IDs is returned via the 'exceptionBreakpointFilters' capability.
         /// </summary>
-        public Container<string> Filters { get; set; }
+        public Container<string> Filters { get; set; } = null!;
 
         /// <summary>
         /// Configuration options for selected exceptions.
         /// </summary>
         [Optional]
-        public Container<ExceptionOptions> ExceptionOptions { get; set; }
+        public Container<ExceptionOptions>? ExceptionOptions { get; set; }
     }
 }

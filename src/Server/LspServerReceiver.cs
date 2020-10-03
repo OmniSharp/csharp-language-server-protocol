@@ -30,13 +30,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var (results, hasResponse) = base.GetRequests(container);
             foreach (var item in results)
             {
-                if (item.IsRequest && _handlerTypeDescriptorProvider.IsMethodName(item.Request.Method, typeof(ILanguageProtocolInitializeHandler)))
+                if (item.IsRequest && _handlerTypeDescriptorProvider.IsMethodName(item.Request!.Method, typeof(ILanguageProtocolInitializeHandler)))
                 {
                     newResults.Add(item);
                 }
                 else if (item.IsRequest)
                 {
-                    newResults.Add(new ServerNotInitialized(item.Request.Method));
+                    newResults.Add(new ServerNotInitialized(item.Request!.Method));
                 }
                 else if (item.IsResponse)
                 {

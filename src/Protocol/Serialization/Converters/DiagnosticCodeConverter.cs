@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new DiagnosticCode((long) reader.Value);
             }
 
-            return null;
+            return null!;
         }
 
         public override bool CanRead => true;

@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The file's URI.
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
         /// <summary>
         /// The change type.

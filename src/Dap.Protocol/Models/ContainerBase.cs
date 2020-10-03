@@ -10,10 +10,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 
         public ContainerBase(IEnumerable<T> items) => _items = items;
 
-        public override bool Equals(object obj) => Equals(obj as ContainerBase<T>);
+        public override bool Equals(object? obj) => Equals(obj as ContainerBase<T>);
 
-        public bool Equals(ContainerBase<T> other) =>
-            other != null &&
+        public bool Equals(ContainerBase<T>? other) =>
+            other is not null &&
             EqualityComparer<IEnumerable<T>>.Default.Equals(_items, other._items);
 
         public IEnumerator<T> GetEnumerator() => _items.GetEnumerator();

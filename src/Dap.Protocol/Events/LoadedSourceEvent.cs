@@ -15,6 +15,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The new, changed, or removed source.
         /// </summary>
-        public Source Source { get; set; }
+        public Source Source { get; set; } = null!;
     }
 }

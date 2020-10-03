@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         public bool HasKind => Options == null;
         public TextDocumentSyncKind Kind { get; set; }
         public bool HasOptions => Options != null;
-        public TextDocumentSyncOptions Options { get; set; }
+        public TextDocumentSyncOptions? Options { get; set; }
         public object Value => Options ?? (object) Kind;
 
         public static implicit operator TextDocumentSync(TextDocumentSyncKind value) => new TextDocumentSync(value);

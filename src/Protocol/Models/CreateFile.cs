@@ -15,12 +15,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The resource to create.
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
         /// <summary>
         /// Additional Options
         /// </summary>
         [Optional]
-        public CreateFileOptions Options { get; set; }
+        public CreateFileOptions? Options { get; set; }
     }
 }

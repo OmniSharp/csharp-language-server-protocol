@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     [Serial]
     [Method(GeneralNames.Exit, Direction.ClientToServer)]
     [GenerateHandlerMethods]
-    [GenerateRequestMethods]
+    [GenerateRequestMethods(typeof(ILanguageClient))]
     public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
     {
     }

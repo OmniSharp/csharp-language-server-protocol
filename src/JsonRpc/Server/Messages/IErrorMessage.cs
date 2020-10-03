@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
         string Message { get; }
 
         [JsonProperty(NullValueHandling = NullValueHandling.Ignore)]
-        object Data { get; }
+        object? Data { get; }
     }
 }

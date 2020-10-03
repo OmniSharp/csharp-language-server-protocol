@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The id used to register the request. The id can be used to deregister the request again. See also Registration#id.
         /// </summary>
         [Optional]
-        public string Id { get; set; }
+        public string? Id { get; set; }
     }
 }

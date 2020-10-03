@@ -12,24 +12,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The document in which the command was invoked.
         /// </summary>
-        public TextDocumentIdentifier TextDocument { get; set; }
+        public TextDocumentIdentifier TextDocument { get; set; } = null!;
 
         /// <summary>
         /// The range for which the command was invoked.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// Context carrying additional information.
         /// </summary>
-        public CodeActionContext Context { get; set; }
+        public CodeActionContext Context { get; set; } = null!;
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }

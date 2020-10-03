@@ -4,10 +4,10 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal class ExternalServiceProvider : IExternalServiceProvider
     {
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IServiceProvider? _serviceProvider;
 
-        public ExternalServiceProvider(IServiceProvider serviceProvider) => _serviceProvider = serviceProvider;
+        public ExternalServiceProvider(IServiceProvider? serviceProvider) => _serviceProvider = serviceProvider;
 
-        public object GetService(Type serviceType) => _serviceProvider?.GetService(serviceType);
+        public object? GetService(Type serviceType) => _serviceProvider?.GetService(serviceType);
     }
 }

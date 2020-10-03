@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Sorted set of possible breakpoint locations.
         /// </summary>
-        public Container<BreakpointLocation> Breakpoints { get; set; }
+        public Container<BreakpointLocation> Breakpoints { get; set; } = null!;
     }
 }

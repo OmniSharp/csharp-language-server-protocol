@@ -27,10 +27,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public int Character { get; set; }
 
-        public override bool Equals(object obj) => Equals(obj as Position);
+        public override bool Equals(object? obj) => Equals(obj as Position);
 
-        public bool Equals(Position other) =>
-            other != null &&
+        public bool Equals(Position? other) =>
+            other is not null &&
             Line == other.Line &&
             Character == other.Character;
 

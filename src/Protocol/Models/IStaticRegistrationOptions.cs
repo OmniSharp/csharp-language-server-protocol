@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// the request again. See also Registration#id.
         /// </summary>
         [Optional]
-        string Id { get; set; }
+        string? Id { get; set; }
     }
 }

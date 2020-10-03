@@ -10,7 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
     internal class ScopedConfiguration : IScopedConfiguration
     {
         private ConfigurationRoot _configuration;
-        private readonly IConfiguration _rootConfiguration;
         private readonly WorkspaceConfigurationSource _configurationSource;
         private readonly IDisposable _disposable;
 
@@ -22,11 +21,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
         )
         {
             _configurationSource = new WorkspaceConfigurationSource(configurationConverter, configuration);
-            _configuration = new ConfigurationBuilder()
-                            .CustomAddConfiguration(rootConfiguration)
-                            .Add(_configurationSource)
-                            .Build() as ConfigurationRoot;
-            _rootConfiguration = rootConfiguration;
+            _configuration = (new ConfigurationBuilder()
+                             .CustomAddConfiguration(rootConfiguration)
+                             .Add(_configurationSource)
+                             .Build() as ConfigurationRoot)!;
             _disposable = disposable;
         }
 

@@ -11,16 +11,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
-        public string Command { get; set; }
+        public string Command { get; set; } = null!;
 
         /// <summary>
         /// Arguments that the command should be invoked with.
         /// </summary>
         [Optional]
-        public JArray Arguments { get; set; }
+        public JArray? Arguments { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }

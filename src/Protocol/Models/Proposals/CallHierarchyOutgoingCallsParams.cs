@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
@@ -10,10 +10,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// </summary>
     [Obsolete(Constants.Proposal)]
     [Method(TextDocumentNames.CallHierarchyOutgoing, Direction.ClientToServer)]
-    public class CallHierarchyOutgoingCallsParams : IWorkDoneProgressParams, IPartialItemsRequest<Container<CallHierarchyOutgoingCall>, CallHierarchyOutgoingCall>
+    public class CallHierarchyOutgoingCallsParams : IWorkDoneProgressParams, IPartialItemsRequest<Container<CallHierarchyOutgoingCall>?, CallHierarchyOutgoingCall>
     {
-        public CallHierarchyItem Item { get; set; }
-        public ProgressToken WorkDoneToken { get; set; }
-        public ProgressToken PartialResultToken { get; set; }
+        public CallHierarchyItem Item { get; set; } = null!;
+        public ProgressToken? WorkDoneToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
     }
 }

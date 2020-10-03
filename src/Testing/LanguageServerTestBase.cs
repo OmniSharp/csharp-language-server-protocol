@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     /// </summary>
     public abstract class LanguageServerTestBase : JsonRpcIntegrationServerTestBase
     {
-        private ILanguageClient _client;
+        private ILanguageClient? _client;
 
         public LanguageServerTestBase(JsonRpcTestOptions jsonRpcTestOptions) : base(jsonRpcTestOptions)
         {
@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 
         protected abstract (Stream clientOutput, Stream serverInput) SetupServer();
 
-        protected virtual ILanguageClient CreateClient(Action<LanguageClientOptions> clientOptionsAction = null)
+        protected virtual ILanguageClient CreateClient(Action<LanguageClientOptions>? clientOptionsAction = null)
         {
             _client = LanguageClient.PreInit(
                 options => {
@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return _client;
         }
 
-        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions> clientOptionsAction = null)
+        protected virtual async Task<ILanguageClient> InitializeClient(Action<LanguageClientOptions>? clientOptionsAction = null)
         {
             _client = CreateClient(clientOptionsAction);
             await _client.Initialize(CancellationToken).ConfigureAwait(false);
@@ -57,7 +57,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         }
 
         protected virtual async Task<(ILanguageClient client, TestConfigurationProvider configurationProvider)> InitializeClientWithConfiguration(
-            Action<LanguageClientOptions> clientOptionsAction = null
+            Action<LanguageClientOptions>? clientOptionsAction = null
         )
         {
             var client = CreateClient(

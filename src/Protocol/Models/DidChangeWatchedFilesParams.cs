@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual file events.
         /// </summary>
-        public Container<FileEvent> Changes { get; set; }
+        public Container<FileEvent> Changes { get; set; } = null!;
     }
 }

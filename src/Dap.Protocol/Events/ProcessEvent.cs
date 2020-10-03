@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// <summary>
         /// The logical name of the process. This is usually the full path to process's executable file. Example: /home/example/myproj/program.js.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// The system process id of the debugged process. This property will be missing for non-system processes.
@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// If true, the process is running on the same computer as the debug adapter.
         /// </summary>
         [Optional]
-        public bool? IsLocalProcess { get; set; }
+        public bool IsLocalProcess { get; set; }
 
         /// <summary>
         /// Describes how the debug engine started debugging this process.

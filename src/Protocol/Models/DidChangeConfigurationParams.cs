@@ -10,6 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual changed settings
         /// </summary>
-        public JToken Settings { get; set; }
+        public JToken? Settings { get; set; }
     }
 }

@@ -35,8 +35,8 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         public void Dispose()
         {
-            _cancellationTokenSource?.Dispose();
-            Disposable?.Dispose();
+            _cancellationTokenSource.Dispose();
+            Disposable.Dispose();
         }
     }
 }

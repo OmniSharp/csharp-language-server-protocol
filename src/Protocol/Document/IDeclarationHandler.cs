@@ -25,6 +25,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public DeclarationRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationOrLocationLinks> Handle(DeclarationParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DeclarationCapability capability) => Capability = capability;
-        protected DeclarationCapability Capability { get; private set; }
+        protected DeclarationCapability Capability { get; private set; } = null!;
     }
 }

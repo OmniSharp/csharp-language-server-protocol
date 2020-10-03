@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         public Request(
             object id,
             string method,
-            JToken @params
+            JToken? @params
         )
         {
             Id = id;
@@ -19,6 +19,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JToken Params { get; }
+        public JToken? Params { get; }
     }
 }

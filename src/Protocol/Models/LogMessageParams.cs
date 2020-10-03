@@ -14,6 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual message
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
     }
 }

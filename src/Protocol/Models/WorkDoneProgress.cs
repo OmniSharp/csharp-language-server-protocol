@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// of the operation.
         /// </summary>
         [Optional]
-        public string Message { get; set; }
+        public string? Message { get; set; }
     }
 
     [JsonConverter(typeof(EnumLikeStringConverter))]
@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public override bool Equals(object obj) => obj is WorkDoneProgressKind other && Equals(other);
 
-        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
+        public override int GetHashCode() => _value.GetHashCode();
 
         public static bool operator ==(WorkDoneProgressKind left, WorkDoneProgressKind right) => left.Equals(right);
 

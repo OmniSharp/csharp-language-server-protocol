@@ -21,8 +21,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     /// </summary>
     public abstract class LanguageProtocolTestBase : JsonRpcTestBase
     {
-        private ILanguageClient _client;
-        private ILanguageServer _server;
+        private ILanguageClient? _client;
+        private ILanguageServer? _server;
 
         public LanguageProtocolTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {
@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         {
             var (client, server) = Create(
                 options => {
-                    clientOptionsAction?.Invoke(options);
+                    clientOptionsAction.Invoke(options);
                     options.WithCapability(new DidChangeConfigurationCapability());
                     options.Services.AddSingleton<TestConfigurationProvider>();
                 }, serverOptionsAction

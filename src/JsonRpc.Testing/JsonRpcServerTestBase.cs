@@ -12,8 +12,8 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
     /// </summary>
     public abstract class JsonRpcServerTestBase : JsonRpcTestBase
     {
-        private JsonRpcServer _client;
-        private JsonRpcServer _server;
+        private JsonRpcServer _client= null!;
+        private JsonRpcServer _server = null!;
 
         public JsonRpcServerTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {

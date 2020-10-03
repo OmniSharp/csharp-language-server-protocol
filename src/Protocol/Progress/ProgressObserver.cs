@@ -12,8 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
     internal class ProgressObserver<T> : IProgressObserver<T>
     {
-        private readonly IResponseRouter _responseRouter;
-        private readonly ISerializer _serializer;
+        private readonly IResponseRouter? _responseRouter;
+        private readonly ISerializer? _serializer;
         private readonly Action _disposal;
         private readonly TaskCompletionSource<Unit> _completionSource;
         private bool _isComplete;
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public ProgressObserver(
             ProgressToken token,
-            IResponseRouter responseRouter,
-            ISerializer serializer,
+            IResponseRouter? responseRouter,
+            ISerializer? serializer,
             CancellationToken cancellationToken,
             Action disposal
         )
@@ -58,11 +58,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public void OnNext(T value)
         {
-            if (_isComplete) return;
+            if (_isComplete || _responseRouter == null) return;
             _responseRouter.SendNotification(
                 new ProgressParams {
                     Token = ProgressToken,
-                    Value = JToken.FromObject(value, _serializer.JsonSerializer)
+                    Value = JToken.FromObject(value, _serializer?.JsonSerializer)
                 }
             );
         }

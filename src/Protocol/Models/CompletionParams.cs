@@ -11,10 +11,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// this using `Capability.textDocument.completion.contextSupport === true`
         /// </summary>
         [Optional]
-        public CompletionContext Context { get; set; }
+        public CompletionContext? Context { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
     }
 }

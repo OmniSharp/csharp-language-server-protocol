@@ -21,10 +21,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsDocumentSymbolInformation => SymbolInformation != null;
-        public SymbolInformation SymbolInformation { get; }
+        public SymbolInformation? SymbolInformation { get; }
 
         public bool IsDocumentSymbol => DocumentSymbol != null;
-        public DocumentSymbol DocumentSymbol { get; }
+        public DocumentSymbol? DocumentSymbol { get; }
 
         public static SymbolInformationOrDocumentSymbol Create(SymbolInformation value) => value;
 
@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator SymbolInformationOrDocumentSymbol(DocumentSymbol value) => new SymbolInformationOrDocumentSymbol(value);
 
-        private string DebuggerDisplay => IsDocumentSymbol ? DocumentSymbol.ToString() : IsDocumentSymbolInformation ? SymbolInformation.ToString() : string.Empty;
+        private string DebuggerDisplay => IsDocumentSymbol ? DocumentSymbol!.ToString() : IsDocumentSymbolInformation ? SymbolInformation!.ToString() : string.Empty;
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

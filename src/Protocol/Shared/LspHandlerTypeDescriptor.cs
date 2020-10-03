@@ -13,10 +13,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     {
         public LspHandlerTypeDescriptor(Type handlerType) : base(handlerType)
         {
-            PartialItemsType = ParamsType.GetInterfaces().FirstOrDefault(z => z.IsGenericType && typeof(IPartialItems<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+            PartialItemsType = ParamsType.GetInterfaces()
+                                         .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItems<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
                                         ?.GetGenericArguments()[0];
             HasPartialItems = PartialItemsType != null;
-            PartialItemType = ParamsType.GetInterfaces().FirstOrDefault(z => z.IsGenericType && typeof(IPartialItem<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+            PartialItemType = ParamsType.GetInterfaces()
+                                        .FirstOrDefault(z => z.IsGenericType && typeof(IPartialItem<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
                                        ?.GetGenericArguments()[0];
             HasPartialItem = PartialItemType != null;
             RegistrationType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);
@@ -29,14 +31,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                 IsDynamicCapability = typeof(IDynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
         }
 
-        public Type PartialItemsType { get; }
-        public Type PartialItemType { get; }
+        public Type? PartialItemsType { get; }
+        public Type? PartialItemType { get; }
         public bool HasPartialItems { get; }
         public bool HasPartialItem { get; }
         public bool HasRegistration { get; }
-        public Type RegistrationType { get; }
+        public Type? RegistrationType { get; }
         public bool HasCapability { get; }
-        public Type CapabilityType { get; }
+        public Type? CapabilityType { get; }
         public bool IsDynamicCapability { get; }
         public override string ToString() => $"{Method}";
     }

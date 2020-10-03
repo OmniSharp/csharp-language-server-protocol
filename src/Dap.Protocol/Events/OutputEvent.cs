@@ -14,12 +14,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// Values: 'console', 'stdout', 'stderr', 'telemetry', etc.
         /// </summary>
         [Optional]
-        public string Category { get; set; }
+        public string? Category { get; set; }
 
         /// <summary>
         /// The output to report.
         /// </summary>
-        public string Output { get; set; }
+        public string Output { get; set; } = null!;
 
         /// <summary>
         /// If an attribute 'variablesReference' exists and its value is > 0, the output contains objects which can be retrieved by passing 'variablesReference' to the 'variables' request.
@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// An optional source location where the output was produced.
         /// </summary>
         [Optional]
-        public Source Source { get; set; }
+        public Source? Source { get; set; }
 
         /// <summary>
         /// An optional source location line where the output was produced.
@@ -49,6 +49,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events
         /// Optional data to report. For the 'telemetry' category the data will be sent to telemetry, for the other categories the data is shown in JSON format.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JToken? Data { get; set; }
     }
 }

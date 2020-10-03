@@ -13,12 +13,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// <summary>
         /// The item that makes the call.
         /// </summary>
-        public CallHierarchyItem From { get; set; }
+        public CallHierarchyItem From { get; set; } = null!;
 
         /// <summary>
         /// The range at which at which the calls appears. This is relative to the caller
         /// denoted by [`this.from`](#CallHierarchyIncomingCall.from).
         /// </summary>
-        public Container<Range> FromRanges { get; set; }
+        public Container<Range> FromRanges { get; set; } = null!;
     }
 }

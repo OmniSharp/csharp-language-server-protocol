@@ -14,14 +14,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The label of this parameter. Will be shown in
         /// the UI.
         /// </summary>
-        public ParameterInformationLabel Label { get; set; }
+        public ParameterInformationLabel Label { get; set; } = null!;
 
         /// <summary>
         /// The human-readable doc-comment of this parameter. Will be shown
         /// in the UI but can be omitted.
         /// </summary>
         [Optional]
-        public StringOrMarkupContent Documentation { get; set; }
+        public StringOrMarkupContent? Documentation { get; set; }
 
         private string DebuggerDisplay => $"{Label}{( Documentation != null ? $" {Documentation}" : string.Empty )}";
 

@@ -29,8 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var (results, hasResponse) = base.GetRequests(container);
             foreach (var item in results)
             {
-                if (item.IsRequest &&
-                    _handlerTypeDescriptorProvider.IsMethodName(item.Request.Method, typeof(IShowMessageRequestHandler)))
+                if (item.IsRequest && _handlerTypeDescriptorProvider.IsMethodName(item.Request!.Method, typeof(IShowMessageRequestHandler)))
                 {
                     newResults.Add(item);
                 }
@@ -40,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 }
                 else if (item.IsNotification &&
                          _handlerTypeDescriptorProvider.IsMethodName(
-                             item.Notification.Method,
+                             item.Notification!.Method,
                              typeof(IShowMessageHandler),
                              typeof(ILogMessageHandler),
                              typeof(ITelemetryEventHandler)

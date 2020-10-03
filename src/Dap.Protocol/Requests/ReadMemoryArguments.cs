@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Memory reference to the base location from which data should be read.
         /// </summary>
-        public string MemoryReference { get; set; }
+        public string MemoryReference { get; set; } = null!;
 
         /// <summary>
         /// Optional offset(in bytes) to be applied to the reference location before reading data.Can be negative.

@@ -19,6 +19,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
         {
         }
 
-        public string MethodName { get; set; }
+        public string? MethodName { get; set; }
     }
 }

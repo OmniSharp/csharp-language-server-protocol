@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document's language identifier.
         /// </summary>
-        public string LanguageId { get; set; }
+        public string LanguageId { get; set; } = null!;
 
         /// <summary>
         /// The version number of this document (it will strictly increase after each
@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The content of the opened text document.
         /// </summary>
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
 
         private string DebuggerDisplay => $"({LanguageId}@{Version}) {Uri}";
 

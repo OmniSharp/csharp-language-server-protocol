@@ -3,17 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Xml.Linq;
-using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using OmniSharp.Extensions.LanguageServer.Protocol;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
     class ConfigurationConverter
     {
-        public void ParseClientConfiguration(IDictionary<string, string> data, JToken settings, string prefix = null)
-            {
+        public void ParseClientConfiguration(IDictionary<string, string> data, JToken? settings, string? prefix = null)
+        {
             if (settings == null || settings.Type == JTokenType.Null || settings.Type == JTokenType.None) return;
             // The null request (appears) to always come second
             // this handler is set to use the SerialAttribute
@@ -54,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             }
         }
 
-        private static string GetKey(JToken token, string prefix)
+        private static string GetKey(JToken token, string? prefix)
         {
             var items = new Stack<string>();
 
@@ -75,13 +73,13 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
             if (!string.IsNullOrWhiteSpace(prefix))
             {
-                items.Push(prefix);
+                items.Push(prefix!);
             }
 
             return string.Join(":", items);
         }
 
-        private static string GetKey(XElement token, string prefix)
+        private static string GetKey(XElement token, string? prefix)
         {
             var items = new Stack<string>();
 
@@ -99,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
             if (!string.IsNullOrWhiteSpace(prefix))
             {
-                items.Push(prefix);
+                items.Push(prefix!);
             }
 
             return string.Join(":", items);

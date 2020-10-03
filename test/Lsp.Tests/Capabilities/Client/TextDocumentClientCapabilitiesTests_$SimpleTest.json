@@ -31,6 +31,7 @@
         "dynamicRegistration": true
     },
     "documentSymbol": {
+        "hierarchicalDocumentSymbolSupport": false,
         "dynamicRegistration": true
     },
     "formatting": {

@@ -55,8 +55,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new InvalidRequest(null, "Unexpected protocol");
             }
 
-            object requestId = null;
+            object? requestId = null;
             bool hasRequestId;
+            // ReSharper disable once AssignmentInConditionalExpression
             if (hasRequestId = request.TryGetValue("id", out var id))
             {
                 var idString = id.Type == JTokenType.String ? (string) id : null;
@@ -66,7 +67,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             if (hasRequestId && request.TryGetValue("result", out var response))
             {
-                return new ServerResponse(requestId, response);
+                return new ServerResponse(requestId!, response);
             }
 
             if (request.TryGetValue("error", out var errorResponse))
@@ -76,7 +77,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             var method = request["method"]?.Value<string>();
-            if (string.IsNullOrWhiteSpace(method))
+            if (string.IsNullOrEmpty(method))
             {
                 return new InvalidRequest(requestId, string.Empty, "Method not set");
             }
@@ -98,10 +99,10 @@ namespace OmniSharp.Extensions.JsonRpc
             // !id == notification
             if (!hasRequestId)
             {
-                return new Notification(method, @params);
+                return new Notification(method!, @params);
             }
 
-            return new Request(requestId, method, @params);
+            return new Request(requestId!, method!, @params);
         }
     }
 }

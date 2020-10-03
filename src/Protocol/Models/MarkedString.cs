@@ -22,11 +22,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class MarkedString
     {
-        public MarkedString(string value) => Value = value;
+        public MarkedString(string value)
+        {
+            Value = value;
+            Language = null!;
+        }
 
-        public MarkedString(string language, string value) : this(value) => Language = language;
+        public MarkedString(string? language, string value) : this(value) => Language = language;
 
-        [Optional] public string Language { get; }
+        [Optional] public string? Language { get; }
 
         public string Value { get; }
 

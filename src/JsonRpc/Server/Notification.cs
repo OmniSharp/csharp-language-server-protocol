@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
     {
         public Notification(
             string method,
-            JToken @params
+            JToken? @params
         )
         {
             Method = method;
@@ -15,6 +15,6 @@ namespace OmniSharp.Extensions.JsonRpc.Server
 
         public string Method { get; }
 
-        public JToken Params { get; }
+        public JToken? Params { get; }
     }
 }

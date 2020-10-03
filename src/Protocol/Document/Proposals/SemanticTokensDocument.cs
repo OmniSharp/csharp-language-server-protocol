@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Immutable;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -114,13 +113,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         var length = _data[i + 2];
                         if (currentCharOffset + charOffset >= range.End.Character)
                         {
-                            capturing = false;
                             break;
                         }
 
                         if (currentCharOffset + charOffset + length >= range.End.Character)
                         {
-                            capturing = false;
                             var overlap = currentCharOffset + charOffset + length - range.End.Character;
                             data.AddRange(lineOffset, charOffset, length - overlap, _data[i + 3], _data[i + 4]);
                             break;

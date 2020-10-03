@@ -24,6 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public ReferenceRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationContainer> Handle(ReferenceParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ReferenceCapability capability) => Capability = capability;
-        protected ReferenceCapability Capability { get; private set; }
+        protected ReferenceCapability Capability { get; private set; } = null!;
     }
 }

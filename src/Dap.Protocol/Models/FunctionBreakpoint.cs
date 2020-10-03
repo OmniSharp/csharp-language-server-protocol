@@ -11,18 +11,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// The name of the function.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// An optional expression for conditional breakpoints.
         /// </summary>
         [Optional]
-        public string Condition { get; set; }
+        public string? Condition { get; set; }
 
         /// <summary>
         /// An optional expression that controls how many hits of the breakpoint are ignored. The backend is expected to interpret the expression as needed.
         /// </summary>
         [Optional]
-        public string HitCondition { get; set; }
+        public string? HitCondition { get; set; }
     }
 }

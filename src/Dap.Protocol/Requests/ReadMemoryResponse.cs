@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The address of the first byte of data returned.Treated as a hex value if prefixed with '0x', or as a decimal value otherwise.
         /// </summary>
-        public string Address { get; set; }
+        public string Address { get; set; } = null!;
 
         /// <summary>
         /// The number of unreadable bytes encountered after the last successfully read byte. This can be used to determine the number of bytes that must be skipped before a subsequent
@@ -20,6 +20,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// The bytes read from memory, encoded using base64.
         /// </summary>
         [Optional]
-        public string Data { get; set; }
+        public string? Data { get; set; }
     }
 }

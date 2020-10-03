@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// <summary>
         /// The name of this item.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// The kind of this item.
@@ -26,28 +26,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// Tags for this item.
         /// </summary>
         [Optional]
-        public Container<SymbolTag> Tags { get; set; }
+        public Container<SymbolTag>? Tags { get; set; }
 
         /// <summary>
         /// More detail for this item, e.g. the signature of a function.
         /// </summary>
         [Optional]
-        public string Detail { get; set; }
+        public string? Detail { get; set; }
 
         /// <summary>
         /// The resource identifier of this item.
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
         /// <summary>
         /// The range enclosing this symbol not including leading/trailing whitespace but everything else, e.g. comments and code.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The range that should be selected and revealed when this symbol is being picked, e.g. the name of a function.
         /// Must be contained by the [`range`](#CallHierarchyItem.range).
         /// </summary>
-        public Range SelectionRange { get; set; }
+        public Range SelectionRange { get; set; } = null!;
     }
 }

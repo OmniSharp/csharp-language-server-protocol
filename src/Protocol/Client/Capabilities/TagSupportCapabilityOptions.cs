@@ -17,6 +17,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The tags supported by the client.
         /// </summary>
         [Obsolete(Constants.Proposal)]
-        public Container<SymbolTag> ValueSet { get; set; }
+        public Container<SymbolTag> ValueSet { get; set; } = null!;
     }
 }
