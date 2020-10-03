@@ -69,6 +69,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                 }
             );
+            container.RegisterMany<InstanceHasStarted>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
             return container.AddJsonRpcMediatR();
         }
@@ -135,8 +136,13 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             );
 
+            container.Register<IJsonRpcServerFacade, DefaultJsonRpcServerFacade>(reuse: Reuse.Singleton);
             container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
-            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer), reuse: Reuse.Singleton);
+            container.RegisterMany<JsonRpcServer>(
+                serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
 
             return container;
         }
@@ -153,12 +159,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 services.RemoveAll<JsonRpcServer>();
                 services.RemoveAll<IJsonRpcServer>();
                 services.AddSingleton<IJsonRpcServer>(
-                    _ =>
-                        throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
+                    _ => throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
                 );
                 services.AddSingleton<JsonRpcServer>(
-                    _ =>
-                        throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
+                    _ => throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
                 );
             }
 

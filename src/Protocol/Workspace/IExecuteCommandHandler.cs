@@ -210,7 +210,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, CancellationToken cancellationToken)
             {
-                await _handler(arg1, Capability, cancellationToken);
+                await _handler(arg1, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -246,7 +246,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken)
             {
-                await _handler(arg1, arg2, Capability, cancellationToken);
+                await _handler(arg1, arg2, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -284,7 +284,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken)
             {
-                await _handler(arg1, arg2, arg3, Capability, cancellationToken);
+                await _handler(arg1, arg2, arg3, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -322,7 +322,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken)
             {
-                await _handler(arg1, arg2, arg3, arg4, Capability, cancellationToken);
+                await _handler(arg1, arg2, arg3, arg4, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -360,7 +360,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken)
             {
-                await _handler(arg1, arg2, arg3, arg4, arg5, Capability, cancellationToken);
+                await _handler(arg1, arg2, arg3, arg4, arg5, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }
@@ -401,7 +401,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 
             public override async Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken)
             {
-                await _handler(arg1, arg2, arg3, arg4, arg5, arg6, Capability, cancellationToken);
+                await _handler(arg1, arg2, arg3, arg4, arg5, arg6, Capability, cancellationToken).ConfigureAwait(false);
                 return Unit.Value;
             }
         }

@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
+using OmniSharp.Extensions.DebugAdapter.Client.Configuration;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Shared;
@@ -29,10 +30,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
             container.RegisterInstance<IOptionsFactory<DebugAdapterClientOptions>>(new ValueOptionsFactory<DebugAdapterClientOptions>(options));
 
-            container.RegisterMany<DebugAdapterClient>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton
-            );
-
             container.RegisterInstance(
                 new InitializeRequestArguments {
                     Locale = options.Locale,
@@ -53,7 +50,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
             container.RegisterMany<DebugAdapterClientProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterClient>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient), reuse: Reuse.Singleton
+                serviceTypeCondition: type => type == typeof(IDebugAdapterClient) || type == typeof(DebugAdapterClient),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
+            container.RegisterMany<DefaultDebugAdapterClientFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterClientFacade).GetInterfaces().Except(typeof(DefaultDebugAdapterClientFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
             );
 
             // container.
@@ -66,13 +69,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                         var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
                         if (outerConfiguration != null)
                         {
-                            builder.AddConfiguration(outerConfiguration, false);
+                            builder.CustomAddConfiguration(outerConfiguration, false);
                         }
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
                     return builder.Build();

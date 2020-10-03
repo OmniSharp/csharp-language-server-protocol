@@ -55,7 +55,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             IsSupported = server.ClientSettings.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
             if (IsSupported)
             {
-                await Refresh().LastOrDefaultAsync().ToTask(cancellationToken);
+                foreach (var folder in server.ClientSettings?.WorkspaceFolders ?? Enumerable.Empty<WorkspaceFolder>())
+                {
+                    _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
+                    _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Add, folder));
+                }
             }
         }
 
@@ -65,6 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 return Observable.FromAsync(ct => _server.RequestWorkspaceFolders(new WorkspaceFolderParams(), ct))
                                  .Do(
                                       workspaceFolders => {
+                                          workspaceFolders ??= new Container<WorkspaceFolder>();
                                           var existingFolders = new HashSet<WorkspaceFolder>(_workspaceFolders.Values.Join(workspaceFolders, z => z.Uri, z => z.Uri, (a, b) => b));
                                           var additions = new HashSet<WorkspaceFolder>();
                                           var removals = new HashSet<WorkspaceFolder>();

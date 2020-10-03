@@ -9,16 +9,16 @@ using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class ResponseRouter : IResponseRouter
+    internal class ResponseRouter : IResponseRouter
     {
-        internal readonly IOutputHandler OutputHandler;
+        internal readonly Lazy<IOutputHandler> OutputHandler;
         internal readonly ISerializer Serializer;
         private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> _handlerTypeDescriptorProvider;
 
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
+        public ResponseRouter(Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
         {
             OutputHandler = outputHandler;
             Serializer = serializer;
@@ -26,14 +26,14 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public void SendNotification(string method) =>
-            OutputHandler.Send(
+            OutputHandler.Value.Send(
                 new OutgoingNotification {
                     Method = method
                 }
             );
 
         public void SendNotification<T>(string method, T @params) =>
-            OutputHandler.Send(
+            OutputHandler.Value.Send(
                 new OutgoingNotification {
                     Method = method,
                     Params = @params
@@ -81,7 +81,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                _router.OutputHandler.Send(
+                _router.OutputHandler.Value.Send(
                     new OutgoingRequest {
                         Method = _method,
                         Params = _params,
@@ -97,7 +97,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 try
                 {
-                    var result = await tcs.Task;
+                    var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
                         return (TResponse) (object) Unit.Value;
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken);
+            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
         }
     }
 }

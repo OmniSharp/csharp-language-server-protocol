@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var result = _shutdownRequested ? 0 : 1;
             _exitSubject.OnNext(result);
             _exitSubject.OnCompleted();
-            await _connection.StopAsync();
+            await _connection.StopAsync().ConfigureAwait(false);
             return Unit.Value;
         }
 

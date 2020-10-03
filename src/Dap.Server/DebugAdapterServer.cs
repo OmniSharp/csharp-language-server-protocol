@@ -29,6 +29,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly IEnumerable<IOnDebugAdapterServerInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterServerStarted> _startedHandlers;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
@@ -79,7 +80,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         public static async Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
-            await server.Initialize(cancellationToken);
+            await server.Initialize(cancellationToken).ConfigureAwait(false);
             return server;
         }
 
@@ -98,7 +99,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             IDebugAdapterServerProgressManager progressManager,
             IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
             IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers
+            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers,
+            InstanceHasStarted instanceHasStarted
         ) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
@@ -114,6 +116,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _initializeHandlers = initializeHandlers;
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -126,7 +129,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             {
                 try
                 {
-                    await _initializingTask;
+                    await _initializingTask.ConfigureAwait(false);
                 }
                 catch
                 {
@@ -140,7 +143,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             try
             {
                 _initializingTask = _initializeComplete.ToTask(token);
-                await _initializingTask;
+                await _initializingTask.ConfigureAwait(false);
                 await DebugAdapterEventingHelper.Run(
                     _startedDelegates,
                     (handler, ct) => handler(this, ct),
@@ -148,7 +151,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                     (handler, ct) => handler.OnStarted(this, ct),
                     _concurrency,
                     token
-                );
+                ).ConfigureAwait(false);
+                _instanceHasStarted.Started = true;
 
                 this.SendDebugAdapterInitialized(new InitializedEvent());
             }
@@ -178,7 +182,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 (handler, ct) => handler.OnInitialize(this, request, ct),
                 _concurrency,
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
 
             _receiver.Initialized();
 
@@ -230,7 +234,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 (handler, ct) => handler.OnInitialized(this, request, response, ct),
                 _concurrency,
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
 
             _initializeComplete.OnNext(response);
             _initializeComplete.OnCompleted();

@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token)));
+            await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, descriptor, @params, token))).ConfigureAwait(false);
 
             static async Task InnerRoute(IServiceScopeFactory serviceScopeFactory, TDescriptor descriptor, object? @params, CancellationToken token)
             {
@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 context.Descriptor = descriptor;
                 var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token);
+                await HandleNotification(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params), token).ConfigureAwait(false);
             }
         }
 
@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.JsonRpc
             // TODO: Do we want to support more handlers as "aggregate"?
             if (typeof(IEnumerable<object>).IsAssignableFrom(descriptors.Default!.Response) && !typeof(JToken).IsAssignableFrom(descriptors.Default!.Response))
             {
-                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger)));
+                var responses = await Task.WhenAll(descriptors.Select(descriptor => InnerRoute(_serviceScopeFactory, request, descriptor, @params, token, _logger))).ConfigureAwait(false);
                 var errorResponse = responses.FirstOrDefault(x => x.IsError);
                 if (errorResponse.IsError) return errorResponse;
                 if (responses.Length == 1)
@@ -125,7 +125,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 return new OutgoingResponse(request.Id, response, request);
             }
 
-            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default!, @params, token, _logger);
+            return await InnerRoute(_serviceScopeFactory, request, descriptors.Default!, @params, token, _logger).ConfigureAwait(false);
 
             static async Task<ErrorResponse> InnerRoute(
                 IServiceScopeFactory serviceScopeFactory, Request request, TDescriptor descriptor, object? @params, CancellationToken token,
@@ -140,7 +140,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 token.ThrowIfCancellationRequested();
 
                 var result = HandleRequest(mediator, descriptor, @params ?? Activator.CreateInstance(descriptor.Params!), token);
-                await result;
+                await result.ConfigureAwait(false);
 
                 token.ThrowIfCancellationRequested();
 

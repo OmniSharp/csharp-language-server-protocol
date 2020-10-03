@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task<Unit> Handle(DelegatingNotification<T> request, CancellationToken cancellationToken)
         {
-            await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken);
+            await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken).ConfigureAwait(false);
             return Unit.Value;
         }
     }

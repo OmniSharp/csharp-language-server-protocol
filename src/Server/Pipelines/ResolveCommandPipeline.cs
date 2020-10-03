@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var response = await next();
+            var response = await next().ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.

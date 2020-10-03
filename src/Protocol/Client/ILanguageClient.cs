@@ -6,7 +6,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
 {
-    public interface ILanguageClient : ILanguageClientFacade, IJsonRpcHandlerInstance<ILanguageClientRegistry>, IDisposable
+    public interface ILanguageClient : ILanguageClientFacade, IDisposable
     {
         IServiceProvider Services { get; }
         IClientWorkDoneManager WorkDoneManager { get; }

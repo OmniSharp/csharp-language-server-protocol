@@ -31,10 +31,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
                     options
                        .WithInput(reader)
                        .WithOutput(writer)
+                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .ConfigureLogging(
                             x => {
                                 x.SetMinimumLevel(LogLevel.Trace);
-                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                             }
                         )
                        .Services
@@ -46,7 +46,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Testing
 
             Disposable.Add(_client);
 
-            await _client.Initialize(CancellationToken);
+            await _client.Initialize(CancellationToken).ConfigureAwait(false);
 
             return _client;
         }

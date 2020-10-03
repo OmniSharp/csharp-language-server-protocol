@@ -52,7 +52,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
                 return item;
             }
 
-            await _router.SendRequest(new WorkDoneProgressCreateParams { Token = progressToken }, cancellationToken);
+            await _router.SendRequest(new WorkDoneProgressCreateParams { Token = progressToken }, cancellationToken).ConfigureAwait(false);
 
             onError ??= error => new WorkDoneProgressEnd {
                 Message = error.ToString()

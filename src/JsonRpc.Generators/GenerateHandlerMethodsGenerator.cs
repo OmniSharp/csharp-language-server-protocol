@@ -337,13 +337,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     var partialTypeSyntax = ResolveTypeName(partialItem);
 
-                    method = method.WithExpressionBody(GetPartialResultHandlerExpression(GetMethodName(handlerInterface), requestType, responseType));
+                    method = method.WithExpressionBody(GetPartialResultHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType));
 
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, true));
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, false));
                     if (capability != null)
                     {
-                        method = method.WithExpressionBody(GetPartialResultCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, capability));
+                        method = method.WithExpressionBody(GetPartialResultCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, capability));
                         yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, capability));
                     }
                 }
@@ -353,6 +353,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     method = method.WithExpressionBody(
                         GetRequestCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, capability)
                     );
+                    if (responseType.ToFullString().EndsWith("Unit"))
+                    {
+                        method = method.WithExpressionBody(GetVoidRequestCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, capability));
+                    }
                     yield return MakeAction(CreateAsyncFunc(responseType, requestType, capability));
                 }
             }
@@ -451,7 +455,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     var partialTypeSyntax = ResolveTypeName(partialItem);
 
-                    method = method.WithBody(GetPartialResultRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, registrationOptions));
+                    method = method.WithBody(GetPartialResultRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, registrationOptions));
 
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, true));
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, false));
@@ -459,7 +463,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     {
                         method = method.WithBody(
                             GetPartialResultRegistrationHandlerExpression(
-                                GetMethodName(handlerInterface), requestType, responseType, registrationOptions,
+                                GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, registrationOptions,
                                 capability
                             )
                         );

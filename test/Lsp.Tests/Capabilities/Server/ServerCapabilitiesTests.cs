@@ -88,5 +88,17 @@ namespace Lsp.Tests.Capabilities.Server
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
+
+        [Theory]
+        [JsonFixture]
+        public void Null_Text_Document_Sync(string expected)
+        {
+            var model = new ServerCapabilities {
+                TextDocumentSync = new TextDocumentSync(new TextDocumentSyncOptions())
+            };
+
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ServerCapabilities>(expected);
+            deresult.Should().BeEquivalentTo(model);
+        }
     }
 }

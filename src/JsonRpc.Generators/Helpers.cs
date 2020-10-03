@@ -478,6 +478,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
+        public static ArrowExpressionClauseSyntax GetVoidRequestCapabilityHandlerExpression(
+            ExpressionSyntax nameExpression, ITypeSymbol requestType,
+            ITypeSymbol capability
+        )
+        {
+            var requestName = ResolveTypeName(requestType);
+            var capabilityName = ResolveTypeName(capability);
+            return ArrowExpressionClause(
+                AddHandler(
+                    Argument(nameExpression),
+                    Argument(
+                        CreateHandlerArgument(
+                                IdentifierName("LanguageProtocolDelegatingHandlers"),
+                                "RequestCapability",
+                                requestName,
+                                capabilityName
+                            )
+                           .WithArgumentList(GetHandlerArgumentList())
+                    )
+                )
+            );
+        }
+
         public static BlockSyntax GetRequestRegistrationHandlerExpression(
             ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
             ITypeSymbol registrationOptions
@@ -625,7 +648,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetPartialResultCapabilityHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol capability
         )
         {
@@ -635,21 +658,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 AddHandler(
                     Argument(nameExpression),
                     Argument(
+                        SimpleLambdaExpression(
+                            Parameter(
+                                Identifier("_")
+                            ),
                         CreateHandlerArgument(
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResultCapability",
                                 requestName,
                                 responseType,
+                                itemType,
                                 capabilityName
                             )
                            .WithArgumentList(GetPartialResultArgumentList(responseType))
+                        )
                     )
                 )
             );
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions
         )
         {
@@ -661,14 +690,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     AddHandler(
                         Argument(nameExpression),
                         Argument(
+                            SimpleLambdaExpression(
+                                Parameter(
+                                    Identifier("_")
+                                ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
                                     responseType,
+                                    itemType,
                                     registrationOptionsName
                                 )
                                .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
+                                )
                         )
                     )
                 )
@@ -676,7 +711,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions,
             ITypeSymbol capability
         )
@@ -690,35 +725,47 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     AddHandler(
                         Argument(nameExpression),
                         Argument(
+                            SimpleLambdaExpression(
+                                Parameter(
+                                    Identifier("_")
+                                ),
                             CreateHandlerArgument(
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
                                     responseType,
+                                    itemType,
                                     capabilityName,
                                     registrationOptionsName
                                 )
                                .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
+                            )
                         )
                     )
                 )
             );
         }
 
-        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax responseType)
+        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, TypeSyntax partialItem, TypeSyntax responseType)
         {
             var requestName = ResolveTypeName(requestType);
             return ArrowExpressionClause(
                 AddHandler(
                     Argument(nameExpression),
                     Argument(
+                        SimpleLambdaExpression(
+                            Parameter(
+                                Identifier("_")
+                            ),
                         CreateHandlerArgument(
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResult",
                                 requestName,
-                                responseType
+                                responseType,
+                                partialItem
                             )
                            .WithArgumentList(GetPartialResultArgumentList(responseType))
+                        )
                     )
                 )
             );

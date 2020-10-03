@@ -5,10 +5,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     internal class LanguageServerLoggerProvider : ILoggerProvider
     {
-        private readonly ILanguageServer _languageServer;
+        private readonly ILanguageServerFacade _languageServer;
         private readonly LanguageServerLoggerSettings _settings;
 
-        public LanguageServerLoggerProvider(ILanguageServer languageServer, LanguageServerLoggerSettings settings)
+        public LanguageServerLoggerProvider(ILanguageServerFacade languageServer, LanguageServerLoggerSettings settings)
         {
             _languageServer = languageServer;
             _settings = settings;

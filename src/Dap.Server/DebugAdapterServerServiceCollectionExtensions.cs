@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.DebugAdapter.Server.Configuration;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -33,7 +34,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
 
             container.RegisterMany<DebugAdapterServerProgressManager>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterServer>(
-                serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer), reuse: Reuse.Singleton
+                serviceTypeCondition: type => type == typeof(IDebugAdapterServer) || type == typeof(DebugAdapterServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
+            container.RegisterMany<DefaultDebugAdapterServerFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultDebugAdapterServerFacade).GetInterfaces().Except(typeof(DefaultDebugAdapterServerFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
             );
 
             // container.
@@ -46,13 +53,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                         var outerConfiguration = outerServiceProvider.GetService<IConfiguration>();
                         if (outerConfiguration != null)
                         {
-                            builder.AddConfiguration(outerConfiguration, false);
+                            builder.CustomAddConfiguration(outerConfiguration, false);
                         }
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
                     return builder.Build();

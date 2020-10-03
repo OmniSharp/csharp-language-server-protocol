@@ -23,6 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 throw new ArgumentException("Serializer is missing!", nameof(options));
             }
 
+            options.Services.AddLogging(builder => options.LoggingBuilderAction?.Invoke(builder));
+
             container = container.AddJsonRpcServerCore(options);
             container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 

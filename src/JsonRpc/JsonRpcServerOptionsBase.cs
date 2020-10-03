@@ -87,6 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public T WithLoggerFactory(ILoggerFactory loggerFactory)
         {
+            if (loggerFactory == NullLoggerFactory.Instance) return (T) (object) this;
             Services.RemoveAll(typeof(ILoggerFactory));
             Services.AddSingleton(loggerFactory);
             return (T) (object) this;

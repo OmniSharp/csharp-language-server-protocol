@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
+using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
@@ -15,14 +16,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
     internal class DebugAdapterHandlerCollection : IEnumerable<IHandlerDescriptor>, IHandlersManager
     {
         private ImmutableHashSet<HandlerDescriptor> _descriptors = ImmutableHashSet<HandlerDescriptor>.Empty;
-        private readonly IServiceProvider _serviceProvider;
+        private readonly IResolverContext _resolverContext;
         private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> _handlerTypeDescriptorProvider;
 
         public IEnumerable<IHandlerDescriptor> Descriptors => _descriptors;
 
-        public DebugAdapterHandlerCollection(IServiceProvider serviceProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
+        public DebugAdapterHandlerCollection(IResolverContext resolverContext, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
         {
-            _serviceProvider = serviceProvider;
+            _resolverContext = resolverContext;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
 
@@ -32,16 +33,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         public IDisposable Add(IJsonRpcHandler handler, JsonRpcHandlerOptions? options) => AddHandler(handler, options);
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) => AddHandler(method, handler, options);
-        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(factory(_serviceProvider), options);
-        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(method, factory(_serviceProvider), options);
-
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(
-            (ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)!, options
-        );
-
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(
-            method, (ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)!, options
-        );
+        public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(factory(_resolverContext), options);
+        public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(method, factory(_resolverContext), options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => AddHandler((_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(method, (_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
 
         IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
@@ -89,7 +84,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerFactory in handlerFactories)
             {
-                cd.Add(AddHandler(handlerFactory(_serviceProvider), null));
+                cd.Add(AddHandler(handlerFactory(_resolverContext), null));
             }
 
             return cd;
@@ -100,7 +95,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerType in handlerTypes)
             {
-                cd.Add(AddHandler((ActivatorUtilities.CreateInstance(_serviceProvider, handlerType) as IJsonRpcHandler)!, null));
+                cd.Add(AddHandler((ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler)!, null));
             }
 
             return cd;

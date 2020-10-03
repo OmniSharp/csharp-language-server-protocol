@@ -7,6 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -37,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Hover information.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request hover info")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request hover info")]
         public async Task Hover_Success()
         {
             const int line = 5;
@@ -110,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Completions.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request completions")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request completions")]
         public async Task Completions_Success()
         {
             const int line = 5;
@@ -213,7 +214,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request SignatureHelp.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request signature help")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request signature help")]
         public async Task SignatureHelp_Success()
         {
             const int line = 5;
@@ -306,7 +307,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request Definition.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request definition")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request definition")]
         public async Task Definition_Success()
         {
             const int line = 5;
@@ -382,7 +383,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request document highlights")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document highlights")]
         public async Task DocumentHighlights_Success()
         {
             const int line = 5;
@@ -447,7 +448,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request DocumentHighlight.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request document symbols")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document symbols")]
         public async Task DocumentSymbols_DocumentSymbol_Success()
         {
             const int line = 5;
@@ -532,7 +533,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully request FoldingRanges.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully request document folding ranges")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully request document folding ranges")]
         public async Task FoldingRanges_Success()
         {
             var expectedDocumentPath = AbsoluteDocumentPath;
@@ -592,7 +593,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// Ensure that the language client can successfully receive Diagnostics from the server.
         /// </summary>
-        [Fact(DisplayName = "Language client can successfully receive diagnostics")]
+        [FactWithSkipOn(SkipOnPlatform.Windows, DisplayName = "Language client can successfully receive diagnostics")]
         public async Task Diagnostics_Success()
         {
             var documentPath = AbsoluteDocumentPath;
@@ -628,7 +629,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             actualDocumentUri = request.Uri;
                             actualDiagnostics = request.Diagnostics.ToList();
 
-                            receivedDiagnosticsNotification.SetResult(null);
+                            receivedDiagnosticsNotification.TrySetResult(null);
                             return Unit.Task;
                         }
                     );
@@ -643,7 +644,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 }
             );
 
-            CancellationToken.Register(() => receivedDiagnosticsNotification.SetCanceled());
+            CancellationToken.Register(() => receivedDiagnosticsNotification.TrySetCanceled());
 
             // Timeout.
             var winner = await Task.WhenAny(

@@ -29,6 +29,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         private readonly IEnumerable<IOnDebugAdapterClientInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterClientStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterClientStarted> _startedHandlers;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
         private readonly DapReceiver _receiver;
@@ -76,7 +77,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
         public static async Task<DebugAdapterClient> From(DebugAdapterClientOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
-            await server.Initialize(cancellationToken);
+            await server.Initialize(cancellationToken).ConfigureAwait(false);
             return server;
         }
 
@@ -95,7 +96,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             IEnumerable<IOnDebugAdapterClientInitialize> initializeHandlers,
             IEnumerable<OnDebugAdapterClientInitializedDelegate> initializedDelegates,
             IEnumerable<IOnDebugAdapterClientInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterClientStarted> startedHandlers
+            IEnumerable<IOnDebugAdapterClientStarted> startedHandlers,
+            InstanceHasStarted instanceHasStarted
         ) : base(collection, responseRouter)
         {
             _settingsBag = settingsBag;
@@ -111,6 +113,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _initializedDelegates = initializedDelegates;
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -125,12 +128,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             RegisterCapabilities(ClientSettings);
 
             _connection.Open();
-            var serverParams = await this.RequestDebugAdapterInitialize(ClientSettings, token);
+            var serverParams = await this.RequestDebugAdapterInitialize(ClientSettings, token).ConfigureAwait(false);
 
             ServerSettings = serverParams;
             _receiver.Initialized();
@@ -142,7 +145,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 (handler, ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
 
             await _initializedComplete.ToTask(token);
 
@@ -153,20 +156,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
                 (handler, ct) => handler.OnStarted(this, ct),
                 _concurrency,
                 token
-            );
+            ).ConfigureAwait(false);
+
+            _instanceHasStarted.Started = true;
         }
 
         async Task<Unit> IRequestHandler<InitializedEvent, Unit>.Handle(InitializedEvent request, CancellationToken cancellationToken)
         {
-            await DebugAdapterEventingHelper.Run(
-                _initializedDelegates,
-                (handler, ct) => handler(this, ClientSettings, ServerSettings, ct),
-                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnDebugAdapterClientInitialized>()),
-                (handler, ct) => handler.OnInitialized(this, ClientSettings, ServerSettings, ct),
-                _concurrency,
-                cancellationToken
-            );
-
             _initializedComplete.OnNext(request);
             _initializedComplete.OnCompleted();
             return Unit.Value;

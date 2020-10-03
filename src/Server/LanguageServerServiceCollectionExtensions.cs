@@ -43,10 +43,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<WorkspaceLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageServer)), reuse: Reuse.Singleton);
-            container.RegisterMany<DefaultLanguageServerFacade>(serviceTypeCondition: type => type.Name.Contains("LanguageServerFacade"), reuse: Reuse.Singleton);
+            container.RegisterMany<DefaultLanguageServerFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultLanguageServerFacade).GetInterfaces()
+                   .Except(typeof(DefaultLanguageServerFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
+            );
             container.RegisterInstance<IOptionsFactory<LanguageServerOptions>>(new ValueOptionsFactory<LanguageServerOptions>(options));
 
-            container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer), reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageServer>(
+                serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
 
             container.RegisterMany<DidChangeConfigurationProvider>(
                 made: Parameters.Of
@@ -70,15 +78,15 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {
-                        builder.AddConfiguration(outerConfiguration, false);
+                        builder.CustomAddConfiguration(outerConfiguration, false);
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
                     }
 
-                    return builder.AddConfiguration(didChangeConfigurationProvider).Build();
+                    return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();
                 },
                 Reuse.Singleton
             );
@@ -97,6 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<ExecuteCommandMatcher>(Reuse.Singleton);
             container.RegisterMany<ResolveCommandMatcher>(Reuse.Singleton);
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
+            container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
             container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
 

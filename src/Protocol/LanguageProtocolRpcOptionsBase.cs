@@ -14,7 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         public LanguageProtocolRpcOptionsBase()
         {
-            Services.AddLogging(builder => LoggingBuilderAction.Invoke(builder));
             WithAssemblies(typeof(LanguageProtocolRpcOptionsBase<>).Assembly);
         }
 
