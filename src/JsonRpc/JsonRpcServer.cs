@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer, IServiceProvider
+    public class JsonRpcServer : JsonRpcServerBase, IJsonRpcServer
     {
         private readonly Connection _connection;
         private readonly IServiceProvider _serviceProvider;

@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -9,14 +7,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
-using OmniSharp.Extensions.JsonRpc.Testing;
-using OmniSharp.Extensions.LanguageProtocol.Testing;
-using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Server;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 

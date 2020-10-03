@@ -1,7 +1,9 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
+    [MeansImplicitUse]
     public interface IRegistrationOptionsConverter
     {
         Type SourceType { get; }

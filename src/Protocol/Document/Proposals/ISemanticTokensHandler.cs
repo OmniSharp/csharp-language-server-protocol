@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -82,7 +80,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         protected abstract Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken);
     }
 
-    [Obsolete(Constants.Proposal)]
     public static partial class SemanticTokensExtensions
     {
         public static ILanguageServerRegistry OnSemanticTokens(

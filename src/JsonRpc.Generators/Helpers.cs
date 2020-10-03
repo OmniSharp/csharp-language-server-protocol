@@ -648,13 +648,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static ArrowExpressionClauseSyntax GetPartialResultCapabilityHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, TypeSyntax responseType,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
             var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var capabilityName = ResolveTypeName(capability);
             return ArrowExpressionClause(
                 AddHandler(
@@ -668,11 +667,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResultCapability",
                                 requestName,
-                                responseName,
+                                responseType,
                                 itemName,
                                 capabilityName
                             )
-                           .WithArgumentList(GetPartialResultArgumentList(responseName))
+                           .WithArgumentList(GetPartialResultArgumentList(responseType))
                         )
                     )
                 )
@@ -680,13 +679,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions
         )
         {
             var requestName = ResolveTypeName(requestType);
             var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             return Block(
                 EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptions"), registrationOptionsName),
@@ -702,11 +700,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     itemName,
                                     registrationOptionsName
                                 )
-                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                                 )
                         )
                     )
@@ -715,14 +713,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         }
 
         public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, ITypeSymbol responseType,
+            ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol itemType, TypeSyntax responseType,
             ITypeSymbol registrationOptions,
             ITypeSymbol capability
         )
         {
             var requestName = ResolveTypeName(requestType);
             var itemName = ResolveTypeName(itemType);
-            var responseName = ResolveTypeName(responseType);
             var registrationOptionsName = ResolveTypeName(registrationOptions);
             var capabilityName = ResolveTypeName(capability);
             return Block(
@@ -739,12 +736,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     IdentifierName("LanguageProtocolDelegatingHandlers"),
                                     "PartialResult",
                                     requestName,
-                                    responseName,
+                                    responseType,
                                     itemName,
                                     capabilityName,
                                     registrationOptionsName
                                 )
-                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseName))
+                               .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptions"), responseType))
                             )
                         )
                     )
@@ -752,11 +749,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
-        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol partialItem, ITypeSymbol responseType)
+        public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(ExpressionSyntax nameExpression, ITypeSymbol requestType, ITypeSymbol partialItem, TypeSyntax responseType)
         {
             var requestName = ResolveTypeName(requestType);
             var itemName = ResolveTypeName(partialItem);
-            var responseName = ResolveTypeName(responseType);
             return ArrowExpressionClause(
                 AddHandler(
                     Argument(nameExpression),
@@ -769,10 +765,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 IdentifierName("LanguageProtocolDelegatingHandlers"),
                                 "PartialResult",
                                 requestName,
-                                responseName,
+                                responseType,
                                 itemName
                             )
-                           .WithArgumentList(GetPartialResultArgumentList(responseName))
+                           .WithArgumentList(GetPartialResultArgumentList(responseType))
                         )
                     )
                 )

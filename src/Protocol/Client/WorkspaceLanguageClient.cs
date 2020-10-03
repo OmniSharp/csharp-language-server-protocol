@@ -1,4 +1,3 @@
-using System;
 using DryIoc;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;

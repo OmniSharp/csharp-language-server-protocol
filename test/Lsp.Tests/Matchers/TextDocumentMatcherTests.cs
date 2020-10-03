@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using DryIoc;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;

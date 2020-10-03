@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Configuration
         /// <summary>
         /// The chained configuration.
         /// </summary>
-        public IConfiguration Configuration { get; set; }
+        public IConfiguration Configuration { get; set; } = null!;
 
         /// <summary>
         /// Whether the chained configuration should be disposed when the

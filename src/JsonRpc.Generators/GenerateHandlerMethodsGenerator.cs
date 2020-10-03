@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     var requestType = GetRequestType(symbol);
                     var responseType = GetResponseType(handlerInterface);
-                    methods.AddRange(HandleRequest(handlerInterface, symbol, requestType, responseType, registry, additionalUsings));
+                    methods.AddRange(HandleRequest(handlerInterface, symbol, requestType, responseType!, registry, additionalUsings));
                 }
             }
 
@@ -353,7 +353,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     method = method.WithExpressionBody(
                         GetRequestCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, responseType, capability)
                     );
-                    if (responseType.Name == "Unit")
+                    if (responseType.ToFullString().EndsWith("Unit"))
                     {
                         method = method.WithExpressionBody(GetVoidRequestCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, capability));
                     }

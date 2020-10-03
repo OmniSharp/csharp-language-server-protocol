@@ -6,7 +6,6 @@ using DryIoc;
 using FluentAssertions;
 using JsonRpc.Tests;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;

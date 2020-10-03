@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;

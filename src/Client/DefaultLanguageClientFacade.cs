@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly Lazy<IHandlersManager> _handlersManager;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IInsanceHasStarted _insanceHasStarted;
-        private ILanguageClient _languageClient;
+        private ILanguageClient? _languageClient;
 
         public DefaultLanguageClientFacade(
             IResponseRouter requestRouter,

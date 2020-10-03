@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Threading;
 using Newtonsoft.Json.Linq;
@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         IProgressObserver<T> For<T>(ProgressToken token, CancellationToken cancellationToken);
         IProgressObserver<TItem> For<TResponse, TItem>(IPartialItemRequest<TResponse, TItem> request, CancellationToken cancellationToken);
 
-        IProgressObserver<IEnumerable<TItem>> For<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, CancellationToken cancellationToken)
-            where TResponse : IEnumerable<TItem>;
+        IProgressObserver<IEnumerable<TItem>?> For<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, CancellationToken cancellationToken)
+            where TResponse : IEnumerable<TItem>?;
     }
 }

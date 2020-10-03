@@ -4,7 +4,6 @@ using System.Linq;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;

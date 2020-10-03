@@ -1,6 +1,5 @@
 using System;
 using DryIoc;
-using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 

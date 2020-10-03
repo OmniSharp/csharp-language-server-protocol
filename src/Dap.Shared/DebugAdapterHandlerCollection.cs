@@ -35,8 +35,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public IDisposable Add(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) => AddHandler(method, handler, options);
         public IDisposable Add(JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(factory(_resolverContext), options);
         public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => AddHandler(method, factory(_resolverContext), options);
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(_resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(method, _resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => AddHandler((_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => AddHandler(method, (_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
 
         IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
@@ -95,7 +95,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerType in handlerTypes)
             {
-                cd.Add(AddHandler(ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler, null));
+                cd.Add(AddHandler((ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler)!, null));
             }
 
             return cd;

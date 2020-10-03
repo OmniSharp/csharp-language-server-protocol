@@ -30,7 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public LanguageClientRegistrationManager(
             ISerializer serializer,
             ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider,
-            ILogger<LanguageClientRegistrationManager> logger)
+            ILogger<LanguageClientRegistrationManager> logger
+        )
         {
             _serializer = serializer;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
@@ -77,37 +78,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     continue;
                 }
 
-                if (string.IsNullOrWhiteSpace(registrationOptions.Id))
-                {
-                    registrationOptions.Id = Guid.NewGuid().ToString();
-                }
-
-                var reg = new Registration {
-                    Id = registrationOptions.Id,
-                    Method = method,
-                    RegisterOptions = registrationOptions
-                };
-                _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
-            }
-
-            if (serverCapabilities.Workspace == null)
-            {
-                _registrationSubject.OnNext(_registrations.Values);
-                return;
-            }
-
-            foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(
-                serverCapabilities
-                   .Workspace
-            ))
-            {
-                var method = _handlerTypeDescriptorProvider.GetMethodForRegistrationOptions(registrationOptions);
-                if (method == null)
-                {
-                    // TODO: Log this
-                    continue;
-                }
-
                 if (registrationOptions.Id != null)
                 {
                     var reg = new Registration {
@@ -118,6 +88,31 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
                 }
             }
+
+            if (serverCapabilities.Workspace != null)
+            {
+                foreach (var registrationOptions in LspHandlerDescriptorHelpers.GetStaticRegistrationOptions(serverCapabilities.Workspace))
+                {
+                    var method = _handlerTypeDescriptorProvider.GetMethodForRegistrationOptions(registrationOptions);
+                    if (method == null)
+                    {
+                        _logger.LogWarning("Unable to find method for given {@RegistrationOptions}", registrationOptions);
+                        continue;
+                    }
+
+                    if (registrationOptions.Id != null)
+                    {
+                        var reg = new Registration {
+                            Id = registrationOptions.Id,
+                            Method = method,
+                            RegisterOptions = registrationOptions
+                        };
+                        _registrations.AddOrUpdate(registrationOptions.Id, x => reg, (a, b) => reg);
+                    }
+                }
+            }
+
+            _registrationSubject.OnNext(_registrations.Values);
         }
 
         private void Register(params Registration[] registrations)

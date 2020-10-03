@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -10,7 +9,6 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests

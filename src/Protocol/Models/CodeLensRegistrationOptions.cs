@@ -3,6 +3,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using JetBrains.Annotations;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {

@@ -7,7 +7,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Primitives;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -80,7 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
                     }
 
                     //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();

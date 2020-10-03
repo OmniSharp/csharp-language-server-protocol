@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace JsonRpc.Tests

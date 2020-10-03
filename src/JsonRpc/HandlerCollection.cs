@@ -7,7 +7,6 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -85,9 +84,9 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IDisposable Add(string method, JsonRpcHandlerFactory factory, JsonRpcHandlerOptions? options) => Add(method, factory(_resolverContext), options);
 
-        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => Add(_resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(Type handlerType, JsonRpcHandlerOptions? options) => Add((_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
 
-        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => Add(method, _resolverContext.Resolve(handlerType) as IJsonRpcHandler, options);
+        public IDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => Add(method, (_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
 
         public IDisposable AddLink(string fromMethod, string toMethod)
         {

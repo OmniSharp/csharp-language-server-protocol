@@ -172,7 +172,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     // check if we write into a new string (by default we try to return the param)
                     if (res != null)
                     {
-                        res ??= new StringBuilder();
                         res.Append(uriComponent[pos]);
                     }
                 }
