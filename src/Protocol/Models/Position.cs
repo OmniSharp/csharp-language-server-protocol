@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             Line == other.Line &&
             Character == other.Character;
 
-        public int CompareTo(Position other)
+        public int CompareTo(Position? other)
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return lineComparison != 0 ? lineComparison : Character.CompareTo(other.Character);
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             if (ReferenceEquals(null, obj)) return 1;
             if (ReferenceEquals(this, obj)) return 0;

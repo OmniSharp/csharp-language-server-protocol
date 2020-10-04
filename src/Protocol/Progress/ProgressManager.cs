@@ -179,7 +179,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         }
 
         public IProgressObserver<IEnumerable<TItem>> For<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, CancellationToken cancellationToken)
-            where TResponse : IEnumerable<TItem>
+            where TResponse : IEnumerable<TItem>?
         {
             if (request.PartialResultToken == null) return ProgressObserver<IEnumerable<TItem>>.Noop;
             if (_activeObservers.TryGetValue(request.PartialResultToken, out var o) && o is IProgressObserver<IEnumerable<TItem>> observer)

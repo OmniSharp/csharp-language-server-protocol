@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
             var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
-            if (source == null)
+            if (source is null)
             {
                 if (_descriptors.Any(z => z.Method == toMethod))
                 {

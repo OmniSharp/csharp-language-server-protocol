@@ -32,7 +32,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return Equals((TextDocumentIdentifier) obj);
         }
 
-        public override int GetHashCode() => Uri.GetHashCode();
+        public override int GetHashCode() => Uri?.GetHashCode() ?? 0;
 
         public static bool operator ==(TextDocumentIdentifier left, TextDocumentIdentifier right) => Equals(left, right);
 
@@ -42,7 +42,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator TextDocumentIdentifier(string uri) => new TextDocumentIdentifier { Uri = uri };
 
-        private string DebuggerDisplay => Uri?.ToString()!;
+        private string DebuggerDisplay => Uri?.ToString() ?? string.Empty;
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

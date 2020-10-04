@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             // scheme, https://tools.ietf.org/html/rfc3986#section-3.1
             // ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-            if (!string.IsNullOrWhiteSpace(ret.Scheme) && !SchemePattern.IsMatch(ret.Scheme))
+            if (!string.IsNullOrWhiteSpace(ret.Scheme) && !SchemePattern.IsMatch(ret.Scheme!))
             {
                 throw new UriFormatException("Scheme contains illegal characters.");
             }
@@ -170,11 +170,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     }
 
                     // check if we write into a new string (by default we try to return the param)
-                    if (res != null)
-                    {
-                        res ??= new StringBuilder();
-                        res.Append(uriComponent[pos]);
-                    }
+                    res?.Append(uriComponent[pos]);
                 }
                 else
                 {

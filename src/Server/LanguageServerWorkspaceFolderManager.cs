@@ -50,17 +50,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return Unit.Task;
         }
 
-        async Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
+        Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
         {
             IsSupported = server.ClientSettings.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
             if (IsSupported)
             {
-                foreach (var folder in server.ClientSettings?.WorkspaceFolders ?? Enumerable.Empty<WorkspaceFolder>())
+                foreach (var folder in server.ClientSettings.WorkspaceFolders ?? Enumerable.Empty<WorkspaceFolder>())
                 {
                     _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
                     _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Add, folder));
                 }
             }
+            return Task.CompletedTask;
         }
 
         public IObservable<WorkspaceFolder> Refresh() => Observable.Create<WorkspaceFolder>(

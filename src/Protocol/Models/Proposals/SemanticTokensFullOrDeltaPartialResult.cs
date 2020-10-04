@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 

@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
                     }
 
                     return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();

@@ -27,14 +27,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
             if (partialResult.IsDelta)
             {
-                Delta = new SemanticTokensDelta(partialResult.Delta) {
-                    Edits = partialResult.Delta.Edits
+                Delta = new SemanticTokensDelta(partialResult.Delta!) {
+                    Edits = partialResult.Delta!.Edits
                 };
             }
 
             if (partialResult.IsFull)
             {
-                Full = new SemanticTokens(partialResult.Full);
+                Full = new SemanticTokens(partialResult.Full!);
             }
         }
 
