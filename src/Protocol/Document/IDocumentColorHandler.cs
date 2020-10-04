@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.DocumentColor, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorPresentation>>, IRegistration<DocumentColorRegistrationOptions>,
+    public interface IDocumentColorHandler : IJsonRpcRequestHandler<DocumentColorParams, Container<ColorInformation>>, IRegistration<DocumentColorRegistrationOptions>,
                                              ICapability<ColorProviderCapability>
     {
     }
@@ -23,7 +23,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public DocumentColorHandler(DocumentColorRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public DocumentColorRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Container<ColorPresentation>> Handle(DocumentColorParams request, CancellationToken cancellationToken);
+        public abstract Task<Container<ColorInformation>> Handle(DocumentColorParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(ColorProviderCapability capability) => Capability = capability;
         protected ColorProviderCapability Capability { get; private set; } = null!;
     }
