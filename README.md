@@ -43,27 +43,27 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 <!-- badges -->
 
 <!-- history badges -->
-| Azure Pipelines                                           | GitHub Actions                    |
-| --------------------------------------------------------- | --------------------------------- |
-| [![azurepipelines-badge]][azurepipelines]                 | [![github-badge]][github]         |
+| Azure Pipelines | GitHub Actions |
+| --------------- | -------------- |
+| [![azurepipelines-badge]][azurepipelines] | [![github-badge]][github] |
 | [![azurepipelines-history-badge]][azurepipelines-history] | [![github-history-badge]][github] |
 <!-- history badges -->
 
 <!-- nuget packages -->
-| Package                                       | NuGet                                                                                          |
-| --------------------------------------------- | ---------------------------------------------------------------------------------------------- |
-| OmniSharp.Extensions.DebugAdapter             | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
-| OmniSharp.Extensions.DebugAdapter.Client      | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
-| OmniSharp.Extensions.DebugAdapter.Server      | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
-| OmniSharp.Extensions.DebugAdapter.Shared      | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
-| OmniSharp.Extensions.DebugAdapter.Testing     | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
-| OmniSharp.Extensions.JsonRpc                  | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
-| OmniSharp.Extensions.JsonRpc.Testing          | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
-| OmniSharp.Extensions.LanguageClient           | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
-| OmniSharp.Extensions.LanguageProtocol         | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
+| Package | NuGet |
+| ------- | ----- |
+| OmniSharp.Extensions.DebugAdapter | [![nuget-version-hefb6om79mfg-badge]![nuget-downloads-hefb6om79mfg-badge]][nuget-hefb6om79mfg] |
+| OmniSharp.Extensions.DebugAdapter.Client | [![nuget-version-94qjnkon/cda-badge]![nuget-downloads-94qjnkon/cda-badge]][nuget-94qjnkon/cda] |
+| OmniSharp.Extensions.DebugAdapter.Server | [![nuget-version-f/4jrt4grmdg-badge]![nuget-downloads-f/4jrt4grmdg-badge]][nuget-f/4jrt4grmdg] |
+| OmniSharp.Extensions.DebugAdapter.Shared | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
+| OmniSharp.Extensions.DebugAdapter.Testing | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
+| OmniSharp.Extensions.JsonRpc | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
+| OmniSharp.Extensions.JsonRpc.Testing | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
+| OmniSharp.Extensions.LanguageClient | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
+| OmniSharp.Extensions.LanguageProtocol | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
 | OmniSharp.Extensions.LanguageProtocol.Testing | [![nuget-version-md8c3c/bo/8g-badge]![nuget-downloads-md8c3c/bo/8g-badge]][nuget-md8c3c/bo/8g] |
-| OmniSharp.Extensions.LanguageServer           | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
-| OmniSharp.Extensions.LanguageServer.Shared    | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
+| OmniSharp.Extensions.LanguageServer | [![nuget-version-fkxlzvrmzpbw-badge]![nuget-downloads-fkxlzvrmzpbw-badge]][nuget-fkxlzvrmzpbw] |
+| OmniSharp.Extensions.LanguageServer.Shared | [![nuget-version-4htmykprzq1a-badge]![nuget-downloads-4htmykprzq1a-badge]][nuget-4htmykprzq1a] |
 <!-- nuget packages -->
 
 ## License
@@ -93,10 +93,10 @@ This project is supported by the [.NET Foundation](http://www.dotnetfoundation.o
 [github-license-badge]: https://img.shields.io/github/license/OmniSharp/csharp-language-server-protocol.svg?style=flat "License"
 [codecov]: https://codecov.io/gh/OmniSharp/csharp-language-server-protocol
 [codecov-badge]: https://img.shields.io/codecov/c/github/OmniSharp/csharp-language-server-protocol.svg?color=E03997&label=codecov&logo=codecov&logoColor=E03997&style=flat "Code Coverage"
-[azurepipelines]: https://dev.azure.com/omnisharp/Build/_build/latest?definitionId=1&branchName=master
-[azurepipelines-badge]: https://img.shields.io/azure-devops/build/omnisharp/Build/1.svg?color=98C6FF&label=azure%20pipelines&logo=azuredevops&logoColor=98C6FF&style=flat "Azure Pipelines Status"
-[azurepipelines-history]: https://dev.azure.com/omnisharp/Build/_build?definitionId=1&branchName=master
-[azurepipelines-history-badge]: https://buildstats.info/azurepipelines/chart/omnisharp/Build/1?includeBuildsFromPullRequest=false "Azure Pipelines History"
+[azurepipelines]: https://dev.azure.com/omnisharp/Builds/_build/latest?definitionId=1&branchName=master
+[azurepipelines-badge]: https://img.shields.io/azure-devops/build/omnisharp/Builds/1.svg?color=98C6FF&label=azure%20pipelines&logo=azuredevops&logoColor=98C6FF&style=flat "Azure Pipelines Status"
+[azurepipelines-history]: https://dev.azure.com/omnisharp/Builds/_build?definitionId=1&branchName=master
+[azurepipelines-history-badge]: https://buildstats.info/azurepipelines/chart/omnisharp/Builds/1?includeBuildsFromPullRequest=false "Azure Pipelines History"
 [github]: https://github.com/OmniSharp/csharp-language-server-protocol/actions?query=workflow%3Aci
 [github-badge]: https://img.shields.io/github/workflow/status/OmniSharp/csharp-language-server-protocol/ci.svg?label=github&logo=github&color=b845fc&logoColor=b845fc&style=flat "GitHub Actions Status"
 [github-history-badge]: https://buildstats.info/github/chart/OmniSharp/csharp-language-server-protocol?includeBuildsFromPullRequest=false "GitHub Actions History"

@@ -288,7 +288,7 @@ namespace Lsp.Tests.Matchers
             var descriptor = new LspHandlerDescriptor(
                 TextDocumentNames.CodeLens,
                 "Key",
-                resolveHandler as IJsonRpcHandler ?? ,
+                (resolveHandler as IJsonRpcHandler)!,
                 resolveHandler.GetType(),
                 typeof(CodeLensParams),
                 null,
