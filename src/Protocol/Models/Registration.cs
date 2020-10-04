@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public object? RegisterOptions { get; set; }
 
-        private string DebuggerDisplay => $"[{Id}] {Method}";
+        private string DebuggerDisplay => $"[{Id}] {( RegisterOptions is ITextDocumentRegistrationOptions td ? $"{td.DocumentSelector}" : string.Empty )} {Method}";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

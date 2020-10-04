@@ -684,6 +684,7 @@ namespace Lsp.Tests
                 typeof(ISemanticTokensHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
+                typeof(ICodeActionHandler),
             };
 
             public TypeHandlerExtensionData()
@@ -705,7 +706,7 @@ namespace Lsp.Tests
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type.Name.EndsWith("Manager")) continue;
-                    if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)) continue;
+                    if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler) || type == typeof(ICodeActionResolveHandler)) continue;
                     if (type == typeof(ISemanticTokensHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
                     var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
 

@@ -136,5 +136,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Obsolete(Constants.Proposal)]
         public Supports<SemanticTokensCapability?> SemanticTokens { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the `textDocument/moniker`
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        public Supports<MonikerCapability?> Moniker { get; set; }
     }
 }

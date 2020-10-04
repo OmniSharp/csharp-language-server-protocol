@@ -54,8 +54,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// A document link is a range in a text document that links to an internal or external resource, like another
     /// text document or a web site.
     /// </summary>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class DocumentLink<T> : ICanBeResolved
-        where T : HandlerIdentity, new()
+        where T : HandlerIdentity?, new()
     {
         /// <summary>
         /// The range this link applies to.
@@ -110,5 +111,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
+
+        private string DebuggerDisplay => $"{Range}{( Target is not null ? $" {Target}" : "" )}{( string.IsNullOrWhiteSpace(Tooltip) ? $" {Tooltip}" : "" )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

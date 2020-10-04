@@ -111,10 +111,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
             ReplaceConverter(converters, new DocumentUriConverter());
-            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
-            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
-            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
-            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+//            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+//            ReplaceConverter(converters, new AggregateConverter<CommandOrCodeActionContainer>());
             ReplaceConverter(converters, new AggregateCompletionListConverter());
             base.AddOrReplaceConverters(converters);
         }

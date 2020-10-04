@@ -25,11 +25,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Parallel]
     [Method(TextDocumentNames.CodeLensResolve, Direction.ClientToServer)]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ICodeLensResolveHandler : ICanBeResolvedHandler<CodeLens>
+    public interface ICodeLensResolveHandler : ICanBeResolvedHandler<CodeLens>, ICanBeIdentifiedHandler
     {
     }
 
-    public abstract class CodeLensHandler : ICodeLensHandler, ICodeLensResolveHandler, ICanBeIdentifiedHandler
+    public abstract class CodeLensHandler : ICodeLensHandler, ICodeLensResolveHandler
     {
         private readonly CodeLensRegistrationOptions _options;
 
@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public virtual Guid Id { get; } = Guid.NewGuid();
     }
 
-    public abstract class CodeLensHandlerBase<T> : CodeLensHandler where T : HandlerIdentity, new()
+    public abstract class CodeLensHandlerBase<T> : CodeLensHandler where T : HandlerIdentity?, new()
     {
         public CodeLensHandlerBase(CodeLensRegistrationOptions registrationOptions) : base(registrationOptions)
         {
@@ -84,7 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         protected abstract Task<CodeLens<T>> HandleResolve(CodeLens<T> request, CancellationToken cancellationToken);
     }
 
-    public abstract class PartialCodeLensHandlerBase<T> : PartialCodeLensHandlerBase where T : HandlerIdentity, new()
+    public abstract class PartialCodeLensHandlerBase<T> : PartialCodeLensHandlerBase where T : HandlerIdentity?, new()
     {
         protected PartialCodeLensHandlerBase(CodeLensRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
             registrationOptions,
@@ -158,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CodeLensParams, CodeLensCapability, CancellationToken, Task<CodeLensContainer<T>>> handler,
             Func<CodeLens<T>, CodeLensCapability, CancellationToken, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -217,7 +217,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CodeLensParams, CancellationToken, Task<CodeLensContainer<T>>> handler,
             Func<CodeLens<T>, CancellationToken, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -276,7 +276,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CodeLensParams, Task<CodeLensContainer<T>>> handler,
             Func<CodeLens<T>, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -338,7 +338,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CodeLensParams, IObserver<IEnumerable<CodeLens<T>>>, CodeLensCapability, CancellationToken> handler,
             Func<CodeLens<T>, CodeLensCapability, CancellationToken, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -400,7 +400,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CodeLensParams, IObserver<IEnumerable<CodeLens<T>>>, CancellationToken> handler,
             Func<CodeLens<T>, CancellationToken, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -462,7 +462,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CodeLensParams, IObserver<IEnumerable<CodeLens<T>>>> handler,
             Func<CodeLens<T>, Task<CodeLens<T>>>? resolveHandler,
             CodeLensRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CodeLensRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -478,7 +478,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             );
         }
 
-        private class DelegatingCodeLensHandler<T> : CodeLensHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingCodeLensHandler<T> : CodeLensHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Func<CodeLensParams, CodeLensCapability, CancellationToken, Task<CodeLensContainer<T>>> _handleParams;
             private readonly Func<CodeLens<T>, CodeLensCapability, CancellationToken, Task<CodeLens<T>>> _handleResolve;
@@ -499,7 +499,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             protected override Task<CodeLens<T>> HandleResolve(CodeLens<T> request, CancellationToken cancellationToken) => _handleResolve(request, Capability, cancellationToken);
         }
 
-        private class DelegatingPartialCodeLensHandler<T> : PartialCodeLensHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingPartialCodeLensHandler<T> : PartialCodeLensHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Action<CodeLensParams, IObserver<IEnumerable<CodeLens<T>>>, CodeLensCapability, CancellationToken> _handleParams;
             private readonly Func<CodeLens<T>, CodeLensCapability, CancellationToken, Task<CodeLens<T>>> _handleResolve;

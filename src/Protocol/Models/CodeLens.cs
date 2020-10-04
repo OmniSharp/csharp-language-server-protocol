@@ -52,8 +52,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Typed code lens used for the typed handlers
     /// </remarks>
     /// <typeparam name="T"></typeparam>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CodeLens<T> : ICanBeResolved
-        where T : HandlerIdentity, new()
+        where T : HandlerIdentity?, new()
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
@@ -93,5 +94,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
+
+        private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

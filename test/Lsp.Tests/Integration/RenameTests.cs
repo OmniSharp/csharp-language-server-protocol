@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
@@ -156,6 +157,34 @@ namespace Lsp.Tests.Integration
             );
 
             result.IsPlaceholderRange.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_Handle_Prepare_Rename_With_DefaultBehavior()
+        {
+            _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<CancellationToken>())
+                          .Returns(
+                               call => {
+                                   var pos = call.Arg<PrepareRenameParams>().Position;
+                                   return new RangeOrPlaceholderRange(
+                                       new RenameDefaultBehavior() {
+                                           DefaultBehavior = true
+                                       }
+                                   );
+                               }
+                           );
+
+            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+
+            var result = await client.PrepareRename(
+                new PrepareRenameParams() {
+                    Position = ( 1, 1 ),
+                    TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
+                },
+                CancellationToken
+            );
+
+            result.IsDefaultBehavior.Should().BeTrue();
         }
 
         private void ServerOptionsAction(LanguageServerOptions obj)

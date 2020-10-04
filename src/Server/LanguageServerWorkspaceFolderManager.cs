@@ -37,16 +37,22 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             foreach (var folder in request.Event.Added)
             {
                 _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
+                if (_workspaceFoldersChangedSubject.IsDisposed) continue;
                 _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Add, folder));
             }
 
             foreach (var folder in request.Event.Removed)
             {
                 _workspaceFolders.TryRemove(folder.Uri, out _);
+                if (_workspaceFoldersChangedSubject.IsDisposed) continue;
                 _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Remove, folder));
             }
 
-            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            if (_workspaceFoldersSubject.IsDisposed)
+            {
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
+
             return Unit.Task;
         }
 
@@ -87,6 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                               _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Remove, oldFolder));
                                           }
 
+                                          if (_workspaceFoldersSubject.IsDisposed) return;
                                           _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
                                       }
                                   )
@@ -96,7 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         );
 
         public IObservable<WorkspaceFolderChange> Changed => _workspaceFoldersChangedSubject.AsObservable();
-        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.AsObservable();
+        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.IsDisposed ? Observable.Empty<IEnumerable<WorkspaceFolder>>() : _workspaceFoldersSubject.AsObservable();
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
         public bool IsSupported { get; private set; }
@@ -105,8 +112,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public void Dispose()
         {
-            _workspaceFoldersSubject.Dispose();
-            _workspaceFoldersChangedSubject.Dispose();
+            if (!_workspaceFoldersSubject.IsDisposed) _workspaceFoldersSubject.Dispose();
+            if (!_workspaceFoldersChangedSubject.IsDisposed) _workspaceFoldersChangedSubject.Dispose();
         }
     }
 }

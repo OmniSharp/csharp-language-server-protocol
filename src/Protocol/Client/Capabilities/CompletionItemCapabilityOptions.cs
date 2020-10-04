@@ -69,5 +69,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool ResolveAdditionalTextEditsSupport { get; set; }
+
+        /// <summary>
+        /// Indicates which properties a client can resolve lazily on a completion
+        /// item. Before version 3.16.0 only the predefined properties `documentation`
+        /// and `details` could be resolved lazily.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public CompletionItemCapabilityResolveSupportOptions? ResolveSupport { get; set; }
     }
 }

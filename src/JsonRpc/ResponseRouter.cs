@@ -81,22 +81,22 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                _router.OutputHandler.Value.Send(
-                    new OutgoingRequest {
-                        Method = _method,
-                        Params = _params,
-                        Id = nextId
-                    }
-                );
-                cancellationToken.Register(
-                    () => {
-                        if (tcs.Task.IsCompleted) return;
-                        _router.CancelRequest(new CancelParams { Id = nextId });
-                    }
-                );
-
                 try
                 {
+                    _router.OutputHandler.Value.Send(
+                        new OutgoingRequest {
+                            Method = _method,
+                            Params = _params,
+                            Id = nextId
+                        }
+                    );
+                    cancellationToken.Register(
+                        () => {
+                            if (tcs.Task.IsCompleted) return;
+                            _router.CancelRequest(new CancelParams { Id = nextId });
+                        }
+                    );
+
                     var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
@@ -104,6 +104,10 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
 
                     return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
+                }
+                catch (ObjectDisposedException)
+                {
+                    throw;
                 }
                 finally
                 {

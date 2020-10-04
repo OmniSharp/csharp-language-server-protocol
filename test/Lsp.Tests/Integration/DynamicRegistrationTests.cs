@@ -35,19 +35,29 @@ namespace Lsp.Tests.Integration
             public async Task Should_Register_Dynamically_After_Initialization()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                await WaitForRegistrationUpdate(client);
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(
-                    x =>
-                        x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations
+                       .Any(x => x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")),
+                    CancellationToken
                 );
+
+                client.RegistrationManager.CurrentRegistrations.Should()
+                      .Contain(
+                           x =>
+                               x.Method == TextDocumentNames.Completion &&
+                               SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
+                       );
             }
 
             [Fact]
             public async Task Should_Register_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
                 using var _ = server.Register(
@@ -60,31 +70,15 @@ namespace Lsp.Tests.Integration
                         )
                 );
 
-                await WaitForRegistrationUpdate(client);
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(
-                    x =>
-                        x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
-                );
-            }
-
-            [Fact]
-            public async Task Should_Register_Links_Dynamically_While_Server_Is_Running()
-            {
-                var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
-                client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
-
-                using var _ = server.Register(
-                    x => x
-                       .OnCompletion(
-                            (@params, token) => Task.FromResult(new CompletionList()),
-                            new CompletionRegistrationOptions {
-                                DocumentSelector = DocumentSelector.ForLanguage("vb")
-                            }
-                        )
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations
+                       .Any(
+                            registration => SelectorMatches(registration, z => z.HasLanguage && z.Language == "vb")
+                        ),
+                    CancellationToken
                 );
 
-                await WaitForRegistrationUpdate(client);
-                await WaitForRegistrationUpdate(client);
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
@@ -95,10 +89,14 @@ namespace Lsp.Tests.Integration
             public async Task Should_Gather_Linked_Registrations()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
                 using var _ = server.Register(r => r.AddHandlerLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull));
 
-                await WaitForRegistrationUpdate(client);
-                await WaitForRegistrationUpdate(client);
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => registration.Method.StartsWith("@/")),
+                    CancellationToken
+                );
 
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
@@ -110,25 +108,31 @@ namespace Lsp.Tests.Integration
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
 
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                using (var disposable = server.Register(
+                var disposable = server.Register(
                     x => x.OnCompletion(
                         (@params, token) => Task.FromResult(new CompletionList()),
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     )
-                ))
-                {
-                    await WaitForRegistrationUpdate(client);
-                    disposable.Dispose();
-                    await WaitForRegistrationUpdate(client);
-                    await TestHelper.DelayUntil(
-                        () => client.RegistrationManager.CurrentRegistrations, z => !SelectorMatches(z, x => x.HasLanguage && x.Language == "vb"), CancellationToken
-                    );
-                }
+                );
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
+                    CancellationToken
+                );
+                disposable.Dispose();
+
+
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => !registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
+                    CancellationToken
+                );
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(
                     x =>
@@ -140,23 +144,13 @@ namespace Lsp.Tests.Integration
 
             private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
             {
+                if (options is Registration registration)
+                    return SelectorMatches(registration.RegisterOptions, documentFilter);
                 if (options is ITextDocumentRegistrationOptions tdro)
-                    return tdro.DocumentSelector.Any(documentFilter);
+                    return tdro.DocumentSelector?.Any(documentFilter) == true;
                 if (options is DocumentSelector selector)
                     return selector.Any(documentFilter);
                 return false;
-            }
-
-            private async Task WaitForRegistrationUpdate(ILanguageClient client)
-            {
-                await client.RegistrationManager.Registrations
-                            .Throttle(TestOptions.WaitTime)
-                            .Take(1)
-                            .ToTask(CancellationToken);
-                await client.RegistrationManager.Registrations
-                            .Throttle(TestOptions.WaitTime)
-                            .Take(1)
-                            .ToTask(CancellationToken);
             }
 
             public DynamicRegistrationTests(ITestOutputHelper testOutputHelper) : base(
@@ -198,7 +192,12 @@ namespace Lsp.Tests.Integration
                     }
                 );
 
-                await WaitForRegistrationUpdate(client);
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(r => r.Method == TextDocumentNames.SemanticTokensFull),
+                    CancellationToken
+                );
+
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
             }
 
@@ -267,14 +266,6 @@ namespace Lsp.Tests.Integration
                 );
 
                 client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFull);
-            }
-
-            private Task WaitForRegistrationUpdate(ILanguageClient client)
-            {
-                return client.RegistrationManager.Registrations
-                             .Throttle(TestOptions.WaitTime)
-                             .Take(1)
-                             .ToTask(CancellationToken);
             }
         }
 

@@ -62,7 +62,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public virtual Guid Id { get; } = Guid.NewGuid();
     }
 
-    public abstract class CompletionHandlerBase<T> : CompletionHandler where T : HandlerIdentity, new()
+    public abstract class CompletionHandlerBase<T> : CompletionHandler where T : HandlerIdentity?, new()
     {
         public CompletionHandlerBase(CompletionRegistrationOptions registrationOptions) : base(registrationOptions)
         {
@@ -84,7 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         protected abstract Task<CompletionItem<T>> HandleResolve(CompletionItem<T> request, CancellationToken cancellationToken);
     }
 
-    public abstract class PartialCompletionHandlerBase<T> : PartialCompletionHandlerBase where T : HandlerIdentity, new()
+    public abstract class PartialCompletionHandlerBase<T> : PartialCompletionHandlerBase where T : HandlerIdentity?, new()
     {
         protected PartialCompletionHandlerBase(CompletionRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
             registrationOptions,
@@ -158,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CompletionParams, CompletionCapability, CancellationToken, Task<CompletionList<T>>> handler,
             Func<CompletionItem<T>, CompletionCapability, CancellationToken, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -217,7 +217,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CompletionParams, CancellationToken, Task<CompletionList<T>>> handler,
             Func<CompletionItem<T>, CancellationToken, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -276,7 +276,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<CompletionParams, Task<CompletionList<T>>> handler,
             Func<CompletionItem<T>, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -338,7 +338,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CompletionParams, IObserver<IEnumerable<CompletionItem<T>>>, CompletionCapability, CancellationToken> handler,
             Func<CompletionItem<T>, CompletionCapability, CancellationToken, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -400,7 +400,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CompletionParams, IObserver<IEnumerable<CompletionItem<T>>>, CancellationToken> handler,
             Func<CompletionItem<T>, CancellationToken, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -462,7 +462,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<CompletionParams, IObserver<IEnumerable<CompletionItem<T>>>> handler,
             Func<CompletionItem<T>, Task<CompletionItem<T>>>? resolveHandler,
             CompletionRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new CompletionRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -478,7 +478,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             );
         }
 
-        private class DelegatingCompletionHandler<T> : CompletionHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingCompletionHandler<T> : CompletionHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Func<CompletionParams, CompletionCapability, CancellationToken, Task<CompletionList<T>>> _handleParams;
             private readonly Func<CompletionItem<T>, CompletionCapability, CancellationToken, Task<CompletionItem<T>>> _handleResolve;
@@ -500,7 +500,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleResolve(request, Capability, cancellationToken);
         }
 
-        private class DelegatingPartialCompletionHandler<T> : PartialCompletionHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingPartialCompletionHandler<T> : PartialCompletionHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Action<CompletionParams, IObserver<IEnumerable<CompletionItem<T>>>, CompletionCapability, CancellationToken> _handleParams;
             private readonly Func<CompletionItem<T>, CompletionCapability, CancellationToken, Task<CompletionItem<T>>> _handleResolve;

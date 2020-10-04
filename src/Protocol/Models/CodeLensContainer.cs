@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <remarks>
     /// Typed code lens used for the typed handlers
     /// </remarks>
-    public class CodeLensContainer<T> : Container<CodeLens<T>> where T : HandlerIdentity, new()
+    public class CodeLensContainer<T> : Container<CodeLens<T>> where T : HandlerIdentity?, new()
     {
         public CodeLensContainer() : this(Enumerable.Empty<CodeLens<T>>())
         {

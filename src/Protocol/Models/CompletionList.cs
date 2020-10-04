@@ -55,7 +55,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Represents a collection of [completion items](#CompletionItem) to be presented
     /// in the editor.
     /// </summary>
-    public class CompletionList<T> : Container<CompletionItem<T>> where T : HandlerIdentity, new()
+    public class CompletionList<T> : Container<CompletionItem<T>> where T : HandlerIdentity?, new()
     {
         public CompletionList() : base(Enumerable.Empty<CompletionItem<T>>())
         {

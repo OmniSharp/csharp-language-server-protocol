@@ -155,6 +155,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         [Obsolete(Constants.Proposal)]
         public SemanticTokensRegistrationOptions.StaticOptions? SemanticTokensProvider { get; set; }
+        /// <summary>
+        /// The server provides Call Hierarchy support.
+        /// </summary>
+        [Optional]
+        [Obsolete(Constants.Proposal)]
+        public MonikerRegistrationOptions.StaticOptions? MonikerProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.

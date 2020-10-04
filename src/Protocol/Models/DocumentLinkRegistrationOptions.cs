@@ -33,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             {
                 _handlersManager = handlersManager;
             }
+
             public override StaticOptions Convert(DocumentLinkRegistrationOptions source) => new StaticOptions {
                 ResolveProvider = source.ResolveProvider || _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IDocumentLinkResolveHandler)),
                 WorkDoneProgress = source.WorkDoneProgress,

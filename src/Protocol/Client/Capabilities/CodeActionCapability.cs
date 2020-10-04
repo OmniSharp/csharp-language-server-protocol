@@ -21,5 +21,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool IsPreferredSupport { get; set; }
+
+        /// <summary>
+        ///  Whether code action supports the `disabled` property.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool DisabledSupport { get; set; }
+
+        /// <summary>
+        /// Whether code action supports the `data` property which is
+        /// preserved between a `textDocument/codeAction` and a `codeAction/resolve` request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool DataSupport { get; set; }
+
+        /// <summary>
+        /// Whether the client supports resolving additional code action
+        /// properties via a separate `codeAction/resolve` request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public CodeActionCapabilityResolveSupportOptions? ResolveSupport { get; set; }
     }
 }

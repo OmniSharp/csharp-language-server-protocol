@@ -99,8 +99,4 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static bool operator !=(CodeActionKind left, CodeActionKind right) => !left.Equals(right);
     }
-
-    public interface IEnumLikeString
-    {
-    }
 }

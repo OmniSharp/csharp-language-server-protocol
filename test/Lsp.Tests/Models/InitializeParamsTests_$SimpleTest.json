@@ -70,6 +70,8 @@
             },
             "codeAction": {
                 "isPreferredSupport": false,
+                "disabledSupport": false,
+                "dataSupport": false,
                 "dynamicRegistration": true
             },
             "codeLens": {
@@ -81,6 +83,7 @@
             },
             "rename": {
                 "prepareSupport": false,
+                "prepareSupportDefaultBehavior": false,
                 "dynamicRegistration": true
             },
             "foldingRange": {
