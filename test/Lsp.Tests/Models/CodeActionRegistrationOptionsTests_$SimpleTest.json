@@ -8,6 +8,7 @@
         "source",
         "source.organizeImports"
     ],
+    "resolveProvider": false,
     "workDoneProgress": false,
     "documentSelector": [
         {

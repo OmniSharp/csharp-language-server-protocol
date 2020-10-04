@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
@@ -42,9 +43,17 @@ namespace Lsp.Tests.Integration
             [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_An_Observable()
             {
-                var items = new List<SemanticTokensPartialResult>();
-                await Client.TextDocument.RequestSemanticTokens(new SemanticTokensParams() { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken)
-                            .ForEachAsync(x => items.Add(x));
+                var items = await Client.TextDocument
+                                        .RequestSemanticTokens(
+                                             new SemanticTokensParams() { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
+                                         )
+                                        .Aggregate(
+                                             new List<SemanticTokensPartialResult>(), (acc, v) => {
+                                                 acc.Add(v);
+                                                 return acc;
+                                             }
+                                         )
+                                        .ToTask(CancellationToken);
 
                 items.Should().HaveCount(3);
                 items.Select(z => z.Data.Length).Should().ContainInOrder(1, 2, 3);

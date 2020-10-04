@@ -18,6 +18,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 serializer.Serialize(writer, value.PlaceholderRange);
             }
+            else if (value.IsDefaultBehavior)
+            {
+                serializer.Serialize(writer, value.DefaultBehavior);
+            }
             else
             {
                 writer.WriteNull();
@@ -33,7 +37,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 var obj = (JToken.ReadFrom(reader) as JObject)!;
                 return obj.ContainsKey("placeholder")
                     ? new RangeOrPlaceholderRange(obj.ToObject<PlaceholderRange>())
-                    : new RangeOrPlaceholderRange(obj.ToObject<Range>());
+                    : obj.ContainsKey("defaultBehavior")
+                        ? new RangeOrPlaceholderRange(
+                            obj.ToObject<RenameDefaultBehavior>()
+                        )
+                        : new RangeOrPlaceholderRange(
+                            obj.ToObject<Range>()
+                        );
             }
 
             return null;

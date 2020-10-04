@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -44,12 +45,19 @@ namespace Lsp.Tests.Integration
             [FactWithSkipOn(SkipOnPlatform.All)]
             public async Task Should_Behave_Like_An_Observable()
             {
-                var items = new List<CodeLens>();
-                await Client.TextDocument.RequestCodeLens(
-                    new CodeLensParams {
-                        TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
-                    }, CancellationToken
-                ).ForEachAsync(x => items.AddRange(x));
+                var items = await Client.TextDocument
+                                        .RequestCodeLens(
+                                             new CodeLensParams {
+                                                 TextDocument = new TextDocumentIdentifier(@"c:\test.cs")
+                                             }, CancellationToken
+                                         )
+                                        .Aggregate(
+                                             new List<CodeLens>(), (acc, v) => {
+                                                 acc.AddRange(v);
+                                                 return acc;
+                                             }
+                                         )
+                                        .ToTask(CancellationToken);
 
                 items.Should().HaveCount(3);
                 items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");

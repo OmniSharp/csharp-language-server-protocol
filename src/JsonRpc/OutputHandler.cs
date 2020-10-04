@@ -64,7 +64,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public void Send(object? value)
         {
-            if (_queue.IsDisposed || value == null) return;
+            if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
             _queue.OnNext(value);
         }
 

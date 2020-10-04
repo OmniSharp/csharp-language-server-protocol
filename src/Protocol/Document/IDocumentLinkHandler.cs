@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public virtual Guid Id { get; } = Guid.NewGuid();
     }
 
-    public abstract class DocumentLinkHandlerBase<T> : DocumentLinkHandler where T : HandlerIdentity, new()
+    public abstract class DocumentLinkHandlerBase<T> : DocumentLinkHandler where T : HandlerIdentity?, new()
     {
         public DocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions) : base(registrationOptions)
         {
@@ -86,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         protected abstract Task<DocumentLink<T>> HandleResolve(DocumentLink<T> request, CancellationToken cancellationToken);
     }
 
-    public abstract class PartialDocumentLinkHandlerBase<T> : PartialDocumentLinkHandlerBase where T : HandlerIdentity, new()
+    public abstract class PartialDocumentLinkHandlerBase<T> : PartialDocumentLinkHandlerBase where T : HandlerIdentity?, new()
     {
         protected PartialDocumentLinkHandlerBase(DocumentLinkRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
             registrationOptions,
@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -219,7 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<DocumentLinkParams, CancellationToken, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -278,7 +278,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Func<DocumentLinkParams, Task<DocumentLinkContainer<T>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -340,7 +340,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> handler,
             Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -402,7 +402,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, CancellationToken> handler,
             Func<DocumentLink<T>, CancellationToken, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -464,7 +464,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>> handler,
             Func<DocumentLink<T>, Task<DocumentLink<T>>>? resolveHandler,
             DocumentLinkRegistrationOptions? registrationOptions
-        ) where T : HandlerIdentity, new()
+        ) where T : HandlerIdentity?, new()
         {
             registrationOptions ??= new DocumentLinkRegistrationOptions();
             registrationOptions.ResolveProvider = true;
@@ -480,7 +480,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             );
         }
 
-        private class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T>, ICanBeIdentifiedHandler where T : HandlerIdentity?, new()
         {
             private readonly Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;
@@ -502,7 +502,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleResolve(request, Capability, cancellationToken);
         }
 
-        private class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : HandlerIdentity, new()
+        private class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T>, ICanBeIdentifiedHandler where T : HandlerIdentity?, new()
         {
             private readonly Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;

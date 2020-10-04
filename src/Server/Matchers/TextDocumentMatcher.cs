@@ -81,8 +81,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 if (registrationOptions?.DocumentSelector is null || registrationOptions.DocumentSelector.IsMatch(attributes))
                 {
                     _logger.LogTrace(
-                        "Handler Selected: {Handler} via {DocumentSelector} (targeting {HandlerInterface})", descriptor.ImplementationType.FullName,
-                        registrationOptions?.DocumentSelector?.ToString(), descriptor.HandlerType.FullName
+                        "Handler Selected: {Handler} {Id} via {DocumentSelector} (targeting {HandlerInterface})",
+                        descriptor.ImplementationType.FullName,
+                        descriptor.Handler is ICanBeIdentifiedHandler h ? h.Id.ToString() : string.Empty,
+                        registrationOptions?.DocumentSelector?.ToString(),
+                        descriptor.HandlerType.FullName
                     );
                     yield return descriptor;
                 }

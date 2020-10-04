@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static implicit operator DocumentLinkContainer(List<DocumentLink> items) => new DocumentLinkContainer(items);
     }
 
-    public class DocumentLinkContainer<T> : Container<DocumentLink<T>> where T : HandlerIdentity, new()
+    public class DocumentLinkContainer<T> : Container<DocumentLink<T>> where T : HandlerIdentity?, new()
     {
         public DocumentLinkContainer() : this(Enumerable.Empty<DocumentLink<T>>())
         {

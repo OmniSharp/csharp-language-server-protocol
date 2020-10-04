@@ -30,13 +30,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public Type ParamsType { get; } = typeof(T);
         public void Next(JToken value) => OnNext(value);
 
-        void IObserver<JToken>.OnCompleted() => _dataSubject.OnCompleted();
+        void IObserver<JToken>.OnCompleted()
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnCompleted();
+        }
 
-        void IObserver<JToken>.OnError(Exception error) => _dataSubject.OnError(error);
+        void IObserver<JToken>.OnError(Exception error)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnError(error);
+        }
 
-        public void OnNext(JToken value) => _dataSubject.OnNext(value);
+        public void OnNext(JToken value)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnNext(value);
+        }
 
-        public void Dispose() => _disposable.Dispose();
+        public void Dispose()
+        {
+            if (_disposable.IsDisposed) return;
+            _disposable.Dispose();
+        }
 
         public IDisposable Subscribe(IObserver<T> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Select(_factory).Subscribe(observer);
     }

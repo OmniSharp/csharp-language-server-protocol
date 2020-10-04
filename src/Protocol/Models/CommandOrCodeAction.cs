@@ -1,12 +1,13 @@
 using System.Diagnostics;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(CommandOrCodeActionConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public struct CommandOrCodeAction
+    public class CommandOrCodeAction : ICanBeResolved // This to ensure that code actions get updated as expected
     {
         private CodeAction? _codeAction;
         private Command? _command;
@@ -62,5 +63,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
+
+        JToken? ICanBeResolved.Data
+        {
+            get => _codeAction?.Data;
+            set {
+                if (_codeAction == null) return;
+                _codeAction.Data = value;
+            }
+        }
     }
 }

@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         where TResult : IEnumerable<TItem>
     {
         private readonly ISerializer _serializer;
-        private readonly ISubject<IEnumerable<TItem>> _dataSubject;
+        private readonly ReplaySubject<IEnumerable<TItem>> _dataSubject;
         private readonly CompositeDisposable _disposable;
         private readonly Task<TResult> _task;
 
@@ -55,13 +55,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public ProgressToken ProgressToken { get; }
         public Type ParamsType { get; } = typeof(TItem);
 
-        public void OnCompleted() => _dataSubject.OnCompleted();
+        public void OnCompleted()
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnCompleted();
+        }
 
-        public void OnError(Exception error) => _dataSubject.OnError(error);
+        public void OnError(Exception error)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnError(error);
+        }
 
-        public void OnNext(JToken value) => _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer));
+        public void OnNext(JToken value)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnNext(value.ToObject<TItem[]>(_serializer.JsonSerializer));
+        }
 
-        public void Dispose() => _disposable.Dispose();
+        public void Dispose()
+        {
+            if (_disposable.IsDisposed) return;
+            _disposable.Dispose();
+        }
 
         public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
 

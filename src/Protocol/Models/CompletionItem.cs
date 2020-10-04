@@ -143,8 +143,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <remarks>
     /// Typed code lens used for the typed handlers
     /// </remarks>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CompletionItem<T> : ICanBeResolved
-        where T : HandlerIdentity, new()
+        where T : HandlerIdentity?, new()
     {
         /// <summary>
         /// The label of this completion item. By default
@@ -316,5 +317,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
+
+        private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

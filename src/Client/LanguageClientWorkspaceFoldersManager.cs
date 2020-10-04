@@ -34,7 +34,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         Task<Container<WorkspaceFolder>?> IRequestHandler<WorkspaceFolderParams, Container<WorkspaceFolder>?>.
             Handle(WorkspaceFolderParams request, CancellationToken cancellationToken) =>
-            Task.FromResult< Container<WorkspaceFolder>?>(new Container<WorkspaceFolder>(_workspaceFolders.Values));
+            Task.FromResult<Container<WorkspaceFolder>?>(new Container<WorkspaceFolder>(_workspaceFolders.Values));
 
         public void Add(DocumentUri uri, string name) => Add(new WorkspaceFolder { Name = name, Uri = uri });
 
@@ -60,7 +60,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     }
                 }
             );
-            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            if (!_workspaceFoldersSubject.IsDisposed)
+            {
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
         }
 
         public void Remove(DocumentUri name) => Remove(_workspaceFolders.Values.Where(z => z.Uri == name));
@@ -89,13 +92,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     }
                 }
             );
-            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            if (!_workspaceFoldersSubject.IsDisposed)
+            {
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
         }
 
-        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.AsObservable();
+        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.IsDisposed ? Observable.Empty<IEnumerable<WorkspaceFolder>>() : _workspaceFoldersSubject.AsObservable();
 
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
-        public void Dispose() => _workspaceFoldersSubject.Dispose();
+        public void Dispose()
+        {
+            if (_workspaceFoldersSubject.IsDisposed) return;
+            _workspaceFoldersSubject.Dispose();
+        }
     }
 }

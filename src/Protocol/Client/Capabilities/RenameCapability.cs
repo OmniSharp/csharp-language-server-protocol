@@ -12,5 +12,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool PrepareSupport { get; set; }
+
+        /// <summary>
+        /// Client supports the default behavior result (`{ defaultBehavior: boolean }`).
+        ///
+        /// @since version 3.16.0
+        /// </summary>
+        [Optional]
+        public bool PrepareSupportDefaultBehavior { get; set; }
     }
 }
