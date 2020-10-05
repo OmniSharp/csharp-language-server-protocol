@@ -105,10 +105,6 @@ namespace OmniSharp.Extensions.JsonRpc
 
                     return result.ToObject<TResponse>(_router.Serializer.JsonSerializer);
                 }
-                catch (ObjectDisposedException)
-                {
-                    throw;
-                }
                 finally
                 {
                     _router.Requests.TryRemove(nextId, out _);

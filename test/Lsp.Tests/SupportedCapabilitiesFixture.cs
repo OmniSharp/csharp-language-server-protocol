@@ -14,6 +14,8 @@ namespace Lsp.Tests
 
         private class AlwaysTrueSupportedCapabilities : ISupportedCapabilities
         {
+            // ReSharper disable once UnusedParameter.Local
+            // ReSharper disable once UnusedMember.Local
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => true;
 
             public bool AllowsDynamicRegistration(Type capabilityType) => true;
@@ -31,6 +33,8 @@ namespace Lsp.Tests
 
         private class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
         {
+            // ReSharper disable once UnusedParameter.Local
+            // ReSharper disable once UnusedMember.Local
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => false;
 
             public bool AllowsDynamicRegistration(Type capabilityType) => false;

@@ -14,7 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
     internal class PartialItemsRequestProgressObservable<TItem, TResult> : IRequestProgressObservable<IEnumerable<TItem>, TResult>, IObserver<JToken>, IDisposable
-        where TResult : IEnumerable<TItem>
+        where TResult : IEnumerable<TItem>?
     {
         private readonly ISerializer _serializer;
         private readonly ReplaySubject<IEnumerable<TItem>> _dataSubject;
@@ -43,7 +43,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                     }
                 ).Select(factory)
             ).ToTask(cancellationToken);
+#pragma warning disable VSTHRD105
+#pragma warning disable VSTHRD110
             _task.ContinueWith(x => Dispose());
+#pragma warning restore VSTHRD110
+#pragma warning restore VSTHRD105
 
             ProgressToken = token;
             if (_dataSubject is IDisposable disposable)
@@ -81,15 +85,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public IDisposable Subscribe(IObserver<IEnumerable<TItem>> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
 
+#pragma warning disable VSTHRD003
         public Task<TResult> AsTask() => _task;
+#pragma warning restore VSTHRD003
         public TaskAwaiter<TResult> GetAwaiter() => _task.GetAwaiter();
     }
 
-    internal class PartialItemsRequestProgressObservable<TItem> : PartialItemsRequestProgressObservable<TItem, Container<TItem>>, IRequestProgressObservable<TItem>
+    internal class PartialItemsRequestProgressObservable<TItem> : PartialItemsRequestProgressObservable<TItem, Container<TItem>?>, IRequestProgressObservable<TItem>
     {
         public PartialItemsRequestProgressObservable(
-            ISerializer serializer, ProgressToken token, IObservable<Container<TItem>> requestResult,
-            Func<IEnumerable<TItem>, Container<TItem>> factory, CancellationToken cancellationToken, Action disposal
+            ISerializer serializer, ProgressToken token, IObservable<Container<TItem>?> requestResult,
+            Func<IEnumerable<TItem>, Container<TItem>?> factory, CancellationToken cancellationToken, Action disposal
         ) : base(
             serializer, token, requestResult, factory, cancellationToken,
             disposal

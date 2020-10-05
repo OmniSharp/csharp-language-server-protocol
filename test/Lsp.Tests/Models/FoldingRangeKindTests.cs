@@ -3,7 +3,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using Xunit;
 
-namespace Lsp.Tests
+namespace Lsp.Tests.Models
 {
     public class FoldingRangeKindTests
     {

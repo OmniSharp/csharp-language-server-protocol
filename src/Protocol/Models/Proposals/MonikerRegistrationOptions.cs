@@ -25,6 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             public override StaticOptions Convert(MonikerRegistrationOptions source)
             {
                 return new StaticOptions {
+                    WorkDoneProgress = source.WorkDoneProgress,
                 };
             }
         }

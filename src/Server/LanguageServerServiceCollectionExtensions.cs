@@ -15,6 +15,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using OmniSharp.Extensions.LanguageServer.Shared;
+#pragma warning disable CS0618
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {

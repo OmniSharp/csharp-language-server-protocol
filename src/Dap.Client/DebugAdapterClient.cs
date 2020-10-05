@@ -161,11 +161,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             _instanceHasStarted.Started = true;
         }
 
-        async Task<Unit> IRequestHandler<InitializedEvent, Unit>.Handle(InitializedEvent request, CancellationToken cancellationToken)
+        Task<Unit> IRequestHandler<InitializedEvent, Unit>.Handle(InitializedEvent request, CancellationToken cancellationToken)
         {
             _initializedComplete.OnNext(request);
             _initializedComplete.OnCompleted();
-            return Unit.Value;
+            return Unit.Task;
         }
 
         private void RegisterCapabilities(InitializeRequestArguments capabilities)

@@ -10,7 +10,7 @@ namespace NSubstitute
 {
     public abstract class AutoTestBase
     {
-        private AutoSubstitute _autoSubstitute;
+        private AutoSubstitute? _autoSubstitute;
         private readonly Action<IContainer> _action;
 
         protected AutoTestBase(ITestOutputHelper testOutputHelper)

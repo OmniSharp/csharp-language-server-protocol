@@ -142,6 +142,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0
         /// </summary>
+        [Obsolete(Constants.Proposal)]
         public Supports<MonikerCapability?> Moniker { get; set; }
     }
 }

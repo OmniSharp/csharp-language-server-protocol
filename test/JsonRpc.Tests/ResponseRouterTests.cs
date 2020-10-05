@@ -22,10 +22,10 @@ namespace JsonRpc.Tests
             var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
-               .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
+               .When(x => x.Send(Arg.Is<object>(z => z.GetType() == typeof(OutgoingRequest))))
                .Do(
                     call => {
-                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id, out var method, out var tcs);
+                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id!, out _, out var tcs);
                         tcs.TrySetResult(new JObject());
                     }
                 );
@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
             var response = await router.SendRequest(new ItemParams(), CancellationToken.None);
 
             var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingRequest;
-            request.Method.Should().Be("abcd");
+            request!.Method.Should().Be("abcd");
 
             response.Should().NotBeNull();
             response.Should().BeOfType<ItemResult>();
@@ -46,10 +46,10 @@ namespace JsonRpc.Tests
             var router = new ResponseRouter(new Lazy<IOutputHandler>(() => outputHandler), new JsonRpcSerializer(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly }));
 
             outputHandler
-               .When(x => x.Send(Arg.Is<object>(x => x.GetType() == typeof(OutgoingRequest))))
+               .When(x => x.Send(Arg.Is<object>(z => z.GetType() == typeof(OutgoingRequest))))
                .Do(
                     call => {
-                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id, out var method, out var tcs);
+                        router.TryGetRequest((long) call.Arg<OutgoingRequest>().Id!, out _, out var tcs);
                         tcs.SetResult(new JObject());
                     }
                 );
@@ -57,7 +57,7 @@ namespace JsonRpc.Tests
             await router.SendRequest(new UnitParams(), CancellationToken.None);
 
             var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingRequest;
-            request.Method.Should().Be("unit");
+            request!.Method.Should().Be("unit");
         }
 
         [Fact]
@@ -69,7 +69,7 @@ namespace JsonRpc.Tests
             router.SendNotification(new NotificationParams());
 
             var request = outputHandler.ReceivedCalls().Single().GetArguments()[0] as OutgoingNotification;
-            request.Method.Should().Be("notification");
+            request!.Method.Should().Be("notification");
         }
 
         [Method("abcd")]

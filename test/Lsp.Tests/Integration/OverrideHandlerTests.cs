@@ -26,7 +26,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Support_Custom_Execute_Command_Handlers()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => {
 
                 }, options => {
@@ -46,7 +46,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Support_Mixed_Execute_Command_Handlers()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => {
 
                 }, options => {
@@ -75,7 +75,8 @@ namespace Lsp.Tests.Integration
         [Method(WorkspaceNames.ExecuteCommand)]
         public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability>
         {
-            private ExecuteCommandCapability _capability;
+            // ReSharper disable once NotAccessedField.Local
+            private ExecuteCommandCapability? _capability;
             private readonly ExecuteCommandRegistrationOptions _executeCommandRegistrationOptions = new ExecuteCommandRegistrationOptions() {
                 WorkDoneProgress = true,
                 Commands = new Container<string>("mycommand")
@@ -96,17 +97,17 @@ namespace Lsp.Tests.Integration
             /// <summary>
             /// The identifier of the actual command handler.
             /// </summary>
-            public string Command { get; set; }
+            public string Command { get; set; } = null!;
 
             /// <summary>
             /// Arguments that the command should be invoked with.
             /// </summary>
             [Optional]
-            public JArray Arguments { get; set; }
+            public JArray? Arguments { get; set; } = null!;
 
             /// <inheritdoc />
             [Optional]
-            public ProgressToken WorkDoneToken { get; set; }
+            public ProgressToken? WorkDoneToken { get; set; } = null!;
         }
     }
 }

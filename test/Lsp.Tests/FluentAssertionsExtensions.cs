@@ -9,7 +9,7 @@ namespace Lsp.Tests
 {
     public static class FluentAssertionsExtensions
     {
-        public static EquivalencyAssertionOptions<T> ConfigureForSupports<T>(this EquivalencyAssertionOptions<T> options, ILogger logger = null) =>
+        public static EquivalencyAssertionOptions<T> ConfigureForSupports<T>(this EquivalencyAssertionOptions<T> options, ILogger? logger = null) =>
             options
                .WithTracing(new TraceWriter(logger ?? NullLogger.Instance))
                .ComparingByMembers<Supports<bool>>()

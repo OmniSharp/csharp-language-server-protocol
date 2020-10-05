@@ -18,13 +18,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// </summary>
         public static TestOutputLogScope Current
         {
-            get => _currentScope.Value;
+            get => _currentScope.Value!;
             set => _currentScope.Value = value;
         }
 
         /// <summary>
         /// The scope name.
         /// </summary>
+        // ReSharper disable once NotAccessedField.Local
         private readonly string _name;
 
         /// <summary>
@@ -50,7 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <summary>
         /// The scope's parent scope (if any).
         /// </summary>
-        public TestOutputLogScope Parent { get; private set; }
+        public TestOutputLogScope? Parent { get; private set; }
 
         /// <summary>
         /// Create a new <see cref="TestOutputLogScope" /> and make it the current <see cref="TestOutputLogScope" />.
@@ -67,9 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         public static IDisposable Push(string name, object state)
         {
             var parent = Current;
-            Current = new TestOutputLogScope(name, state) {
-                Parent = parent
-            };
+            Current = new TestOutputLogScope(name, state) { Parent = parent };
 
             return new ScopeDisposal();
         }
@@ -80,7 +79,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <returns>
         /// The scope's string representation.
         /// </returns>
-        public override string ToString() => _state?.ToString();
+        public override string ToString() => _state.ToString()!;
 
         /// <summary>
         /// Wrapper for disposal of log scope.
@@ -101,7 +100,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
                 if (_disposed)
                     return;
 
-                Current = Current?.Parent;
+                Current = Current.Parent!;
                 _disposed = true;
             }
         }

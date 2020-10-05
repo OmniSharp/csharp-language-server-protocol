@@ -13,8 +13,6 @@ namespace Lsp.Tests
 {
     public class RequestProcessIdentifierTests : AutoTestBase
     {
-        private readonly TestLoggerFactory _testLoggerFactory;
-
         public RequestProcessIdentifierTests(ITestOutputHelper testOutputHelper) : base(testOutputHelper)
         {
         }

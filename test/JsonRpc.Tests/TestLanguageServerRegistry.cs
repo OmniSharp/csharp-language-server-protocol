@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Composition;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace JsonRpc.Tests
@@ -21,7 +20,7 @@ namespace JsonRpc.Tests
 
         public override IJsonRpcServerRegistry AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
-        public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions options) => throw new NotImplementedException();
+        public override IJsonRpcServerRegistry AddHandler<T>(JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 
         public override IJsonRpcServerRegistry AddHandler<TTHandler>(string method, JsonRpcHandlerOptions? options = null) => throw new NotImplementedException();
 

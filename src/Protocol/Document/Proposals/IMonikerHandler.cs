@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
@@ -42,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
     [Obsolete(Constants.Proposal)]
     public abstract class PartialMonikerHandlerBase :
-        AbstractHandlers.PartialResults<MonikerParams, Container<Moniker>, Moniker, MonikerCapability, MonikerRegistrationOptions>, IMonikerHandler
+        AbstractHandlers.PartialResults<MonikerParams, Container<Moniker>?, Moniker, MonikerCapability, MonikerRegistrationOptions>, IMonikerHandler
     {
         protected PartialMonikerHandlerBase(MonikerRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
             registrationOptions, progressManager,

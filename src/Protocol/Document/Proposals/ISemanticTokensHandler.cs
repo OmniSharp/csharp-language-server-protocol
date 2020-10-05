@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -170,18 +168,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             {
                 _tokenize = tokenize;
                 _getSemanticTokensDocument = getSemanticTokensDocument;
-            }
-
-            public DelegatingHandlerBase(
-                Func<SemanticTokensBuilder, ITextDocumentIdentifierParams, SemanticTokensCapability, Task> tokenize,
-                Func<ITextDocumentIdentifierParams, SemanticTokensCapability, Task<SemanticTokensDocument>> getSemanticTokensDocument,
-                SemanticTokensRegistrationOptions registrationOptions
-            ) : this(
-                (s, t, c, ct) => tokenize(s, t, c),
-                (t, c, ct) => getSemanticTokensDocument(t, c),
-                registrationOptions
-            )
-            {
             }
 
             protected override Task Tokenize(SemanticTokensBuilder builder, ITextDocumentIdentifierParams identifier, CancellationToken cancellationToken)

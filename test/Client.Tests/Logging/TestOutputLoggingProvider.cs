@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <returns>
         /// The logger.
         /// </returns>
-        public ILogger CreateLogger(string name)
+        public ILogger CreateLogger(string? name)
         {
             if (name == null)
                 name = string.Empty;

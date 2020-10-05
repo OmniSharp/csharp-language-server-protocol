@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.Configuration;
 using NSubstitute;
-using NSubstitute.Extensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -26,7 +25,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Not_Support_Configuration_It_Not_Configured()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, o => { });
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, o => { });
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
@@ -40,7 +39,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Update_Configuration_On_Server()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
@@ -55,7 +54,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Update_Configuration_On_Server_After_Starting()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {});
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, options => {});
             server.Configuration.AsEnumerable().Should().BeEmpty();
             server.Configuration.AddSection("mysection", "othersection");
 
@@ -71,7 +70,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Update_Configuration_Should_Stop_Watching_Sections()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
@@ -93,7 +92,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Update_Scoped_Configuration()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"), CancellationToken);
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
@@ -115,7 +114,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Fallback_To_Original_Configuration()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             var scopedConfiguration = await server.Configuration.GetScopedConfiguration(DocumentUri.From("/my/file.cs"), CancellationToken);
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });
@@ -147,7 +146,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Only_Update_Configuration_Items_That_Are_Defined()
         {
-            var (client, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
+            var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);
             server.Configuration.AsEnumerable().Should().BeEmpty();
 
             configuration.Update("mysection", new Dictionary<string, string> { ["key"] = "value" });

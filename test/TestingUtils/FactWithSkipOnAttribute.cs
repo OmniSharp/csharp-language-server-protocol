@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -11,14 +10,14 @@ namespace TestingUtils
     public class FactWithSkipOnAttribute : FactAttribute
     {
         private readonly SkipOnPlatform[] _platformsToSkip;
-        private string _skip;
+        private string? _skip;
 
         public FactWithSkipOnAttribute(params SkipOnPlatform[] platformsToSkip)
         {
             _platformsToSkip = platformsToSkip;
         }
 
-        public override string Skip
+        public override string? Skip
         {
             get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
                 ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )

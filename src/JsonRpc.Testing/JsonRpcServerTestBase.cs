@@ -72,8 +72,10 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             );
 
             await Task.WhenAll(clientTask, serverTask).ConfigureAwait(false);
+#pragma warning disable VSTHRD103
             _client = clientTask.Result;
             _server = serverTask.Result;
+#pragma warning restore VSTHRD103
 
             Disposable.Add(_client);
             Disposable.Add(_server);

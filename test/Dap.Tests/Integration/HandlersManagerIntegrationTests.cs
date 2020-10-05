@@ -21,7 +21,7 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Should_Return_Default_Handlers()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
             handlersManager.Descriptors.Should().HaveCount(2);
@@ -31,7 +31,7 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Link_Should_Fail_If_No_Handler_Is_Defined()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
 
@@ -42,10 +42,10 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Link_Should_Fail_If_Link_Is_On_The_Wrong_Side()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
-            handlersManager.Add(Substitute.For(new Type[] { typeof(ICompletionsHandler) }, Array.Empty<object>()) as IJsonRpcHandler, new JsonRpcHandlerOptions());
+            handlersManager.Add((Substitute.For(new[] { typeof(ICompletionsHandler) }, Array.Empty<object>()) as IJsonRpcHandler)!, new JsonRpcHandlerOptions());
 
             Action a  = () => handlersManager.AddLink("my/completions", RequestNames.Completions);
             a.Should().Throw<ArgumentException>().Which.Message.Should().Contain($"Did you mean to link '{RequestNames.Completions}' to 'my/completions' instead");

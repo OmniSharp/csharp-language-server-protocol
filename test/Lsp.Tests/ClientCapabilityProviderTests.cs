@@ -4,7 +4,6 @@ using System.Linq;
 using System.Reflection;
 using DryIoc;
 using FluentAssertions;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -12,7 +11,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
@@ -47,7 +45,7 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeTrue();
         }
 
-        public static IEnumerable<object[]> AllowSupportedCapabilities() =>
+        public static IEnumerable<object?[]> AllowSupportedCapabilities() =>
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
@@ -78,7 +76,7 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeTrue();
         }
 
-        public static IEnumerable<object[]> AllowUnsupportedCapabilities() =>
+        public static IEnumerable<object?[]> AllowUnsupportedCapabilities() =>
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
@@ -103,7 +101,7 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeTrue();
         }
 
-        public static IEnumerable<object[]> AllowNullSupportsCapabilities() =>
+        public static IEnumerable<object?[]> AllowNullSupportsCapabilities() =>
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
@@ -129,7 +127,7 @@ namespace Lsp.Tests
             HasHandler(provider, instance).Should().BeFalse();
         }
 
-        public static IEnumerable<object[]> DisallowDynamicSupportsCapabilities() =>
+        public static IEnumerable<object?[]> DisallowDynamicSupportsCapabilities() =>
             GetItems(
                 Capabilities, type => {
                     var handlerTypes = GetHandlerTypes(type);
@@ -158,12 +156,12 @@ namespace Lsp.Tests
             var provider = new ClientCapabilityProvider(collection, true);
             var capabilities = new ClientCapabilities {
                 TextDocument = new TextDocumentClientCapabilities {
-                    CodeAction = new Supports<CodeActionCapability>(
+                    CodeAction = new Supports<CodeActionCapability?>(
                         true, new CodeActionCapability {
                             DynamicRegistration = false,
                         }
                     ),
-                    TypeDefinition = new Supports<TypeDefinitionCapability>(
+                    TypeDefinition = new Supports<TypeDefinitionCapability?>(
                         true, new TypeDefinitionCapability {
                             DynamicRegistration = true,
                         }
@@ -234,15 +232,15 @@ namespace Lsp.Tests
 
         private static bool HasHandler(ClientCapabilityProvider provider, object instance) =>
             (bool) typeof(ClientCapabilityProviderTests).GetTypeInfo()
-                                                        .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)
+                                                        .GetMethod(nameof(GenericHasHandler), BindingFlags.Static | BindingFlags.NonPublic)!
                                                         .MakeGenericMethod(instance.GetType().GetTypeInfo().GetGenericArguments()[0])
-                                                        .Invoke(null, new[] { provider, instance });
+                                                        .Invoke(null, new[] { provider, instance })!;
 
         private static bool GenericHasHandler<T>(ClientCapabilityProvider provider, Supports<T> supports)
             where T : DynamicCapability, ConnectedCapability<IJsonRpcHandler> =>
             provider.HasStaticHandler(supports);
 
-        private static IEnumerable<object[]> GetItems<T>(IEnumerable<T> types, Func<T, IEnumerable<object>> func) => types.Select(x => func(x).ToArray());
+        private static IEnumerable<object?[]> GetItems<T>(IEnumerable<T> types, Func<T, IEnumerable<object?>> func) => types.Select(x => func(x).ToArray());
 
         private static IEnumerable<Type> GetHandlerTypes(Type type) =>
             type.GetTypeInfo().ImplementedInterfaces

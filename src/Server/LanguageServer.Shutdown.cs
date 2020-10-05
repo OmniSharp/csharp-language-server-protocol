@@ -21,10 +21,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public Task WasShutDown => _shutdownSubject.ToTask();
         public Task WaitForExit => _exitSubject.ToTask();
 
-        public void ForcefulShutdown()
+        #pragma warning disable VSTHRD100
+        public async void ForcefulShutdown()
         {
-            ( (IShutdownHandler) this ).Handle(ShutdownParams.Instance, CancellationToken.None);
-            ( (IExitHandler) this ).Handle(ExitParams.Instance, CancellationToken.None);
+            await ( (IShutdownHandler) this ).Handle(ShutdownParams.Instance, CancellationToken.None);
+            await ( (IExitHandler) this ).Handle(ExitParams.Instance, CancellationToken.None);
         }
 
         async Task<Unit> IRequestHandler<ExitParams, Unit>.Handle(ExitParams request, CancellationToken token)

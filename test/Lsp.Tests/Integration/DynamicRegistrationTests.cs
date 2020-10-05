@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
@@ -12,14 +9,11 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using TestingUtils;
 using Xunit;
@@ -34,7 +28,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Register_Dynamically_After_Initialization()
             {
-                var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                var (client, _) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
                 await client.RegistrationManager.Registrations.Take(1);
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
@@ -140,12 +134,12 @@ namespace Lsp.Tests.Integration
                 );
             }
 
-            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions, documentFilter);
+            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions!, documentFilter);
 
             private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
             {
                 if (options is Registration registration)
-                    return SelectorMatches(registration.RegisterOptions, documentFilter);
+                    return SelectorMatches(registration.RegisterOptions!, documentFilter);
                 if (options is ITextDocumentRegistrationOptions tdro)
                     return tdro.DocumentSelector?.Any(documentFilter) == true;
                 if (options is DocumentSelector selector)
@@ -169,7 +163,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Gather_Static_Registrations()
             {
-                var (client, server) = await Initialize(
+                var (client, _) = await Initialize(
                     new ConfigureClient().Configure,
                     options => {
                         new ConfigureServer().Configure(options);
@@ -218,7 +212,7 @@ namespace Lsp.Tests.Integration
                         AllCommitCharacters = new Container<string>("1", "2"),
                     }, x => x.Excluding(z => z.WorkDoneProgress)
                 );
-                server.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                server.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
                         CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
@@ -241,7 +235,7 @@ namespace Lsp.Tests.Integration
                         }
                     }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration)
                 );
-                client.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                client.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
                         CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,

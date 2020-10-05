@@ -26,6 +26,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
             {
                 case ITextDocumentIdentifierParams textDocumentIdentifierParams:
                 {
+                    // ReSharper disable once ConstantConditionalAccessQualifier
                     if (textDocumentIdentifierParams.TextDocument?.Uri is null) break;
                     var attributes = GetTextDocumentAttributes(textDocumentIdentifierParams.TextDocument.Uri);
 
@@ -35,6 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 }
                 case DidOpenTextDocumentParams openTextDocumentParams:
                 {
+                    // ReSharper disable once ConstantConditionalAccessQualifier
                     if (openTextDocumentParams.TextDocument?.Uri is null) break;
                     var attributes = new TextDocumentAttributes(openTextDocumentParams.TextDocument.Uri, openTextDocumentParams.TextDocument.LanguageId);
 
@@ -44,6 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Matchers
                 }
                 case DidChangeTextDocumentParams didChangeDocumentParams:
                 {
+                    // ReSharper disable once ConstantConditionalAccessQualifier
                     if (didChangeDocumentParams.TextDocument?.Uri is null) break;
                     // TODO: Do something with document version here?
                     var attributes = GetTextDocumentAttributes(didChangeDocumentParams.TextDocument.Uri);

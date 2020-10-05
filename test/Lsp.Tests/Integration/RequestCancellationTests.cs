@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
@@ -30,7 +29,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Cancel_Pending_Requests()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
 
             Func<Task<CompletionList>> action = () => {
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(10));
@@ -47,7 +46,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Abandon_Pending_Requests_For_Text_Changes()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
 
             var request1 = client.TextDocument.RequestCompletion(
                 new CompletionParams {
@@ -73,7 +72,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Cancel_Requests_After_Timeout()
         {
             Func<Task> action = async () => {
-                var (client, server) = await Initialize(
+                var (client, _) = await Initialize(
                     ConfigureClient, x => {
                         ConfigureServer(x);
                         x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
@@ -93,7 +92,7 @@ namespace Lsp.Tests.Integration
         public void Should_Cancel_Requests_After_Timeout_without_Content_Modified()
         {
             Func<Task> action = async () => {
-                var (client, server) = await Initialize(
+                var (client, _) = await Initialize(
                     ConfigureClient, x => {
                         ConfigureServer(x);
                         x.WithContentModifiedSupport(false).WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(3000));
@@ -112,7 +111,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Can_Publish_Diagnostics_Delayed()
         {
-            var (client, server) = await Initialize(
+            var (_, server) = await Initialize(
                 ConfigureClient, x => {
                     ConfigureServer(x);
                     x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(10000));

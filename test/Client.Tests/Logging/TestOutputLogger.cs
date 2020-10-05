@@ -67,7 +67,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <returns>
         /// An <see cref="IDisposable" /> representing the scope.
         /// </returns>
-        public IDisposable BeginScope<TState>(TState state) => TestOutputLogScope.Push(_name, state);
+        public IDisposable BeginScope<TState>(TState state) => TestOutputLogScope.Push(_name, state!);
 
         /// <summary>
         /// Determine whether logging is enabled at the specified level.
@@ -101,7 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests.Logging
         /// <param name="formatter">
         /// A delegate that formats the log message.
         /// </param>
-        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception, Func<TState, Exception, string> formatter)
+        public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception? exception, Func<TState, Exception?, string> formatter)
         {
             if (logLevel < _minimumLevel)
                 return;

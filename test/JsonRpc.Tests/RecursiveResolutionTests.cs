@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
@@ -10,7 +9,6 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using TestingUtils;
-using Xunit;
 using Xunit.Abstractions;
 
 namespace JsonRpc.Tests
@@ -25,7 +23,7 @@ namespace JsonRpc.Tests
         public void Server_Can_Be_Injected_Into_Handler_After_Creation_Using_Registration()
         {
             Func<Task> a = async () => {
-                var (client, server) = await Initialize(
+                var (_, server) = await Initialize(
                     options => { },
                     options => { }
                 );
@@ -118,6 +116,7 @@ namespace JsonRpc.Tests
         [Method(nameof(ClassRequest))]
         class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : IJsonRpcServerFacade
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public ClassHandler(T jsonRpcServer)
@@ -136,6 +135,7 @@ namespace JsonRpc.Tests
         [Method(nameof(InterfaceRequest))]
         class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit> where T : IJsonRpcServerFacade
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public InterfaceHandler(T jsonRpcServer)

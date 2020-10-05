@@ -24,11 +24,6 @@ namespace Dap.Tests.Integration
         {
         }
 
-        private class Data
-        {
-            public string Value { get; set; } = "Value";
-        }
-
         [Fact(Skip = "Tests work locally - fail sometimes on ci :(")]
         public async Task Should_Support_Progress_From_Sever_To_Client()
         {
@@ -83,6 +78,7 @@ namespace Dap.Tests.Integration
                     ProgressStartEvent begin  => begin.Message,
                     ProgressUpdateEvent begin => begin.Message,
                     ProgressEndEvent begin    => begin.Message,
+                    _                         => throw new NotSupportedException()
                 }
             );
 
@@ -149,6 +145,7 @@ namespace Dap.Tests.Integration
                     ProgressStartEvent begin  => begin.Message,
                     ProgressUpdateEvent begin => begin.Message,
                     ProgressEndEvent begin    => begin.Message,
+                    _                         => throw new NotSupportedException()
                 }
             );
 

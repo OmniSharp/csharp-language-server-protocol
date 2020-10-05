@@ -5,7 +5,7 @@
         <Authors>David Driscoll</Authors>
         <LangVersion>preview</LangVersion>
         <Features>strict</Features>
-        <!-- <Nullable>enable</Nullable> -->
+        <Nullable>enable</Nullable>
         <SignAssembly>true</SignAssembly>
         <DelaySign>false</DelaySign>
         <PackageIcon>images/packageicon.png</PackageIcon>
@@ -24,7 +24,7 @@
     </PropertyGroup>
     <ItemGroup>
         <None Include="$(MSBuildThisFileDirectory)/.tmp/packageicon.png" Condition="Exists('$(MSBuildThisFileDirectory)/.tmp/packageicon.png')" Pack="true" PackagePath="/images/"
-              Visible="false" />
-        <None Include="$(MSBuildThisFileDirectory)/LICENSE" Pack="true" PackagePath="/" Visible="false" />
+              Visible="false"/>
+        <None Include="$(MSBuildThisFileDirectory)/LICENSE" Pack="true" PackagePath="/" Visible="false"/>
     </ItemGroup>
 </Project>

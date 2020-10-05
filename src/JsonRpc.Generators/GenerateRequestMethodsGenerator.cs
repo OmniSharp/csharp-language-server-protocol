@@ -65,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     var requestType = GetRequestType(handlerInterface);
                     var responseType = GetResponseType(handlerInterface);
-                    methods.AddRange(HandleRequests(handlerInterface, symbol, requestType, responseType, registry, additionalUsings));
+                    methods.AddRange(HandleRequests(handlerInterface, symbol, requestType, responseType!, registry, additionalUsings));
                 }
             }
 

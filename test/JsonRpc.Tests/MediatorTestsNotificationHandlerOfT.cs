@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -24,7 +23,7 @@ namespace JsonRpc.Tests
 
         public class CancelParams : IRequest
         {
-            public object Id { get; set; }
+            public object Id { get; set; } = null!;
         }
 
         public MediatorTestsNotificationHandlerOfT(ITestOutputHelper testOutputHelper) : base(testOutputHelper) => Container = JsonRpcTestContainer.Create(testOutputHelper);
@@ -33,7 +32,6 @@ namespace JsonRpc.Tests
         public async Task ExecutesHandler()
         {
             var cancelRequestHandler = Substitute.For<ICancelRequestHandler>();
-            var mediator = Substitute.For<IMediator>();
 
             var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { cancelRequestHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);

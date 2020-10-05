@@ -19,10 +19,10 @@ namespace Lsp.Tests.Integration
 {
     public class MonikerTests : LanguageProtocolTestBase
     {
-        private readonly Func<MonikerParams, CancellationToken, Task<Container<Moniker>>> _request;
+        private readonly Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>> _request;
         public MonikerTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
-            _request = Substitute.For<Func<MonikerParams, CancellationToken, Task<Container<Moniker>>>>();
+            _request = Substitute.For<Func<MonikerParams, CancellationToken, Task<Container<Moniker>?>>>();
         }
 
         [Fact]
@@ -41,7 +41,7 @@ namespace Lsp.Tests.Integration
                              ));
 
 
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.RequestMoniker(new MonikerParams(), CancellationToken);
 

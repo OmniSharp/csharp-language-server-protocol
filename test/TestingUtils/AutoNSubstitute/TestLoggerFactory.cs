@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Threading;
 using Microsoft.Extensions.Logging;
 using Serilog;
@@ -17,12 +16,11 @@ namespace NSubstitute
         private readonly InnerTestOutputHelper _testOutputHelper;
 
         public TestLoggerFactory(
-            ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}",
+            ITestOutputHelper? testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}",
             LogEventLevel logEventLevel = LogEventLevel.Debug
         )
         {
-            _testOutputHelper = new InnerTestOutputHelper();
-            _testOutputHelper.Swap(testOutputHelper);
+            _testOutputHelper = new InnerTestOutputHelper(testOutputHelper);
 
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()
@@ -50,7 +48,12 @@ namespace NSubstitute
 
         class InnerTestOutputHelper : ITestOutputHelper
         {
-            private ITestOutputHelper _testOutputHelper;
+            private ITestOutputHelper? _testOutputHelper;
+
+            public InnerTestOutputHelper(ITestOutputHelper? testOutputHelper)
+            {
+                _testOutputHelper = testOutputHelper;
+            }
             public void Swap(ITestOutputHelper testOutputHelper)
             {
                 Interlocked.Exchange(ref _testOutputHelper, testOutputHelper);

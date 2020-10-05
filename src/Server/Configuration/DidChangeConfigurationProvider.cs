@@ -53,6 +53,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var triggerChange = new Subject<System.Reactive.Unit>();
             _compositeDisposable.Add(triggerChange);
             _triggerChange = triggerChange;
+            // ReSharper disable once SuspiciousTypeConversion.Global
             if (_configuration is IDisposable disposableConfiguration) _compositeDisposable.Add(disposableConfiguration);
             _compositeDisposable.Add(triggerChange.Throttle(TimeSpan.FromMilliseconds(50)).Select(_ => GetWorkspaceConfiguration()).Switch().Subscribe());
         }
@@ -224,7 +225,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var config = new ScopedConfiguration(
                 _configuration,
                 _configurationConverter,
-                data,
+                data!,
                 Disposable.Create(
                     () => _openScopes.TryRemove(scopeUri, out _)
                 )

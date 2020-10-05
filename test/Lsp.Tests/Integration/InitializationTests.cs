@@ -29,7 +29,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Logs_should_be_allowed_during_startup()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            await Initialize(ConfigureClient, ConfigureServer);
 
             _logs.Should().HaveCount(2);
             _logs.Should().ContainInOrder("OnInitialize", "OnInitialized");
@@ -71,7 +71,7 @@ namespace Lsp.Tests.Integration
 
         class CodeLensHandlerA : CodeLensHandler
         {
-            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade) : base(new CodeLensRegistrationOptions() {  })
+            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade) : base(new CodeLensRegistrationOptions())
             {
                 languageServerFacade.Should().NotBeNull();
             }

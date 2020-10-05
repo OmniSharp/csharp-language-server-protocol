@@ -1,12 +1,9 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
-using JsonRpc.Tests;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -21,7 +18,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
@@ -29,34 +25,12 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
 using Xunit.Abstractions;
 using Arg = NSubstitute.Arg;
-using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace Lsp.Tests
 {
     public class TestLanguageServerRegistry : JsonRpcOptionsRegistryBase<ILanguageServerRegistry>, ILanguageServerRegistry
     {
-        internal List<IJsonRpcHandler> Handlers = new List<IJsonRpcHandler>();
-        public ISerializer Serializer => new Serializer();
-
-        public ILanguageServerRegistry AddTextDocumentIdentifier(params ITextDocumentIdentifier[] handlers) => this;
-
-        public ILanguageServerRegistry AddTextDocumentIdentifier<T>() where T : ITextDocumentIdentifier => this;
-
-        public ILanguageServerRegistry AddHandler<T>(Func<IServiceProvider, T> handlerFunc, JsonRpcHandlerOptions options = null) where T : IJsonRpcHandler
-        {
-            var sp = new ServiceCollection()
-                    .AddSingleton(
-                         Substitute
-                            .For<Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>>>()
-                     )
-                    .AddSingleton(Substitute.For<IServerWorkDoneManager>())
-                    .AddSingleton(Substitute.For<Action<CodeActionCapability>>())
-                    .AddSingleton(new CodeActionRegistrationOptions())
-                    .BuildServiceProvider();
-            AddHandler(handlerFunc(sp));
-            return this;
-        }
     }
 
     public class LspRequestRouterTests : AutoTestBase
@@ -237,7 +211,6 @@ namespace Lsp.Tests
                         )
                     )
                     { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler };
-            handlerCollection.Add(registry.Handlers.ToArray());
             AutoSubstitute.Provide<IHandlerCollection>(handlerCollection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(handlerCollection);
             AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));

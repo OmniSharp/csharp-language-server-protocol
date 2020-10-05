@@ -17,8 +17,8 @@ namespace NSubstitute.Internals
         /// <param name="container"></param>
         /// <param name="configureAction"></param>
         internal AutoSubstitute(
-            IContainer container = null,
-            Func<IContainer, IContainer> configureAction = null
+            IContainer? container = null,
+            Func<IContainer, IContainer>? configureAction = null
         )
         {
             Container = container ?? new Container();

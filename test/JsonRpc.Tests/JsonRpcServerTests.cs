@@ -20,7 +20,7 @@ namespace JsonRpc.Tests
         [Fact]
         public async Task Can_Connect_To_Stdio()
         {
-            var (client, server) = await Initialize(
+            await Initialize(
                 clientOptions => {
                     clientOptions
                        .WithInput(Console.OpenStandardInput().UsePipeReader())
@@ -50,7 +50,7 @@ namespace JsonRpc.Tests
                 PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
             );
 
-            var (client, server) = await Initialize(
+            await Initialize(
                 clientOptions => {
                     clientOptions
                        .WithInput(clientPipe)
@@ -119,7 +119,7 @@ namespace JsonRpc.Tests
                     PipeOptions.CurrentUserOnly | PipeOptions.Asynchronous
                 );
 
-                var (client, server) = await Initialize(
+                await Initialize(
                     clientOptions => {
                         clientOptions
                            .WithInput(clientPipe)

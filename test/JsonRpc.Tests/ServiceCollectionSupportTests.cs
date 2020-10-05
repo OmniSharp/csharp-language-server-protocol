@@ -4,7 +4,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using MediatR;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
@@ -91,8 +90,10 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                           serviceCollection =>
+                                               serviceCollection.AddJsonRpcHandler<Handler>(
+                                                   new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
+                                               )
                                        );
                                }
                            )
@@ -122,8 +123,8 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services
+                                           serviceCollection =>
+                                               serviceCollection
                                                   .AddSingleton(new OutsideService("inside"))
                                                   .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
                                                   .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
@@ -160,8 +161,8 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services
+                                           serviceCollection =>
+                                               serviceCollection
                                                   .AddSingleton(new OutsideService("inside"))
                                                   .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
                                                   .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
@@ -261,7 +262,6 @@ namespace JsonRpc.Tests
         {
             var server = await JsonRpcServer.From(
                 options => {
-
                     var pipe = new Pipe();
                     options
                        .WithInput(pipe.Reader)
@@ -319,7 +319,6 @@ namespace JsonRpc.Tests
 
         internal class TestClass
         {
-
         }
 
         internal class InternalTestClass : TestClass

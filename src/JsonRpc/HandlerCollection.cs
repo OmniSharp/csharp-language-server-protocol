@@ -7,7 +7,6 @@ using System.Reactive.Disposables;
 using System.Reflection;
 using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

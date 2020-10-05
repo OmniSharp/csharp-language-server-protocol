@@ -8,13 +8,10 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Window;
-using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 using Lsp.Tests.Integration.Fixtures;
-using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -55,12 +52,12 @@ namespace Lsp.Tests.Integration
             );
 
             {
-                var capability = client.ClientSettings.Capabilities.Workspace.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
+                var capability = client.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
                 capability.Property.Should().Be("Abcd");
             }
 
             {
-                var capability = server.ClientSettings.Capabilities.Workspace.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
+                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
                 capability.Property.Should().Be("Abcd");
             }
 
@@ -75,7 +72,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
             }
 
-            var unitTests = await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
+            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
             onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
@@ -94,7 +91,7 @@ namespace Lsp.Tests.Integration
                .Invoke(Arg.Any<UnitTest>(), Arg.Any<UnitTestCapability>(), Arg.Any<CancellationToken>())
                .Returns(Task.CompletedTask);
             var (client, server) = await Initialize(
-                options => { options.ClientCapabilities.Workspace.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
+                options => { options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
                 options => {
                     options.OnDiscoverUnitTests(onDiscoverHandler, new UnitTestRegistrationOptions());
                     options.OnRunUnitTest(onRunUnitHandler, new UnitTestRegistrationOptions());
@@ -102,7 +99,7 @@ namespace Lsp.Tests.Integration
             );
 
             {
-                var capability = server.ClientSettings.Capabilities.Workspace.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
+                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
                 capability.Property.Should().Be("Abcd");
             }
 
@@ -117,7 +114,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
             }
 
-            var unitTests = await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
+            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
             onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
@@ -129,7 +126,7 @@ namespace Lsp.Tests.Integration
         {
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
             var onRunUnitHandler = Substitute.For<Func<UnitTest, UnitTestCapability, CancellationToken, Task>>();
-            var (client, server) = await Initialize(
+            var (_, server) = await Initialize(
                 options =>
                     options.WithCapability(
                         new UnitTestCapability() {
@@ -143,7 +140,7 @@ namespace Lsp.Tests.Integration
             );
 
             {
-                var capability = server.ClientSettings.Capabilities.Workspace.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
+                var capability = server.ClientSettings.Capabilities!.Workspace!.ExtensionData["unitTests"].ToObject<UnitTestCapability>();
                 capability.Property.Should().Be("Abcd");
             }
 
@@ -162,7 +159,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Convert_Registration_Options_Into_Static_Options_As_Required()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => {
                     options.DisableDynamicRegistration();
                     options.WithCapability(
@@ -201,7 +198,7 @@ namespace Lsp.Tests.Integration
             );
 
             client.ServerSettings.Capabilities.CodeActionProvider.Should().NotBeNull();
-            client.ServerSettings.Capabilities.CodeActionProvider.IsValue.Should().Be(true);
+            client.ServerSettings.Capabilities.CodeActionProvider!.IsValue.Should().Be(true);
             client.ServerSettings.Capabilities.CodeActionProvider.Value.CodeActionKinds.Should().ContainInOrder(
                 CodeActionKind.RefactorExtract,
                 CodeActionKind.RefactorInline,

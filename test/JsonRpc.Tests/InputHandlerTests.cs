@@ -33,7 +33,7 @@ namespace JsonRpc.Tests
             IOutputHandler outputHandler,
             IReceiver receiver,
             IRequestProcessIdentifier requestProcessIdentifier,
-            IRequestRouter<IHandlerDescriptor> requestRouter,
+            IRequestRouter<IHandlerDescriptor?> requestRouter,
             ILoggerFactory loggerFactory,
             IResponseRouter responseRouter
         ) =>
@@ -62,7 +62,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes("Content-Length: 2\r\n\r\n{}"));
@@ -87,7 +88,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
             await pipe.Writer.WriteAsync(
@@ -128,7 +130,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
             await pipe.Writer.WriteAsync(Encoding.UTF8.GetBytes(data));
@@ -155,7 +158,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
 
@@ -187,7 +191,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
 
@@ -229,7 +234,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
 
@@ -261,7 +267,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
 
@@ -313,7 +320,8 @@ namespace JsonRpc.Tests
 
             using var handler = NewHandler(
                 pipe.Reader, outputHandler, receiver,
-                Substitute.For<IRequestProcessIdentifier>(), Substitute.For<IRequestRouter<IHandlerDescriptor>>(),
+                Substitute.For<IRequestProcessIdentifier>(),
+                Substitute.For<IRequestRouter<IHandlerDescriptor?>>(),
                 _loggerFactory, Substitute.For<IResponseRouter>()
             );
 
@@ -335,7 +343,7 @@ namespace JsonRpc.Tests
             call.GetMethodInfo().Name.Should().Be("IsValid");
             call.GetArguments()[0].Should().BeAssignableTo<JToken>();
             var arg = call.GetArguments()[0] as JToken;
-            arg.ToString().Should().Be(JToken.Parse(data).ToString());
+            arg!.ToString().Should().Be(JToken.Parse(data).ToString());
         }
 
         [Theory]
@@ -349,7 +357,7 @@ namespace JsonRpc.Tests
 
             var reader = createPipeReader();
             var receiver = new Receiver();
-            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor>>();
+            var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
             var outputHandler = Substitute.For<IOutputHandler>();
             var responseRouter = Substitute.For<IResponseRouter>();
 
@@ -401,37 +409,38 @@ namespace JsonRpc.Tests
                 {
                     var data = GetData(assembly, streamName);
 
-                    var msgTypes = data.Select(
-                                            z => {
-                                                if (z.MsgKind.EndsWith("response"))
-                                                {
-                                                    return ( type: "response", kind: z.MsgType );
-                                                }
+                    var msgTypes = data
+                                  .Select(
+                                       z => {
+                                           if (z.MsgKind.EndsWith("response"))
+                                           {
+                                               return ( type: "response", kind: z.MsgType );
+                                           }
 
-                                                if (z.MsgKind.EndsWith("request"))
-                                                {
-                                                    return ( type: "request", kind: z.MsgType );
-                                                }
+                                           if (z.MsgKind.EndsWith("request"))
+                                           {
+                                               return ( type: "request", kind: z.MsgType );
+                                           }
 
-                                                if (z.MsgKind.EndsWith("notification") && z.MsgType != JsonRpcNames.CancelRequest)
-                                                {
-                                                    return ( type: "notification", kind: z.MsgType );
-                                                }
+                                           if (z.MsgKind.EndsWith("notification") && z.MsgType != JsonRpcNames.CancelRequest)
+                                           {
+                                               return ( type: "notification", kind: z.MsgType );
+                                           }
 
-                                                return ( type: null, kind: null );
-                                            }
-                                        )
-                                       .Where(z => z.type != null)
-                                       .ToLookup(z => z.kind, z => z.type);
+                                           return ( type: null, kind: null );
+                                       }
+                                   )
+                                  .Where(z => z.type != null)
+                                  .ToLookup(z => z.kind!, z => z.type!);
 
-                    Add(streamName, () => CreateReader(data), msgTypes);
+                    Add(streamName, () => CreateReader(data), msgTypes!);
                 }
             }
 
             private DataItem[] GetData(Assembly assembly, string name)
             {
                 var stream = assembly.GetManifestResourceStream(name);
-                using var streamReader = new StreamReader(stream);
+                using var streamReader = new StreamReader(stream!);
                 using var jsonReader = new JsonTextReader(streamReader);
                 var serializer = new JsonSerializer();
                 return serializer.Deserialize<DataItem[]>(jsonReader);
@@ -470,13 +479,13 @@ namespace JsonRpc.Tests
 
                 var pipeIn = new Pipe();
 
-                var _serializer = new JsonRpcSerializer();
+                var serializer = new JsonRpcSerializer();
 
                 Task.Run(
                     async () => {
                         foreach (var item in outputData)
                         {
-                            var content = _serializer.SerializeObject(item);
+                            var content = serializer.SerializeObject(item);
                             var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
 
                             await pipeIn.Writer.WriteAsync(
@@ -496,12 +505,15 @@ namespace JsonRpc.Tests
 
             private class DataItem
             {
-                public string Time { get; set; }
-                public string Msg { get; set; }
-                public string MsgKind { get; set; }
-                public string MsgType { get; set; }
-                public string MsgId { get; set; }
-                public JToken Arg { get; set; }
+                // ReSharper disable once UnusedMember.Local
+                public string Time { get; set; } = null!;
+
+                // ReSharper disable once UnusedMember.Local
+                public string Msg { get; set; } = null!;
+                public string MsgKind { get; set; } = null!;
+                public string MsgType { get; set; } = null!;
+                public string MsgId { get; set; } = null!;
+                public JToken Arg { get; set; } = null!;
             }
         }
     }

@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             {
                 serializer.Serialize(writer, value.PlaceholderRange);
             }
-            else if (value.IsDefaultBehavior)
+            else if (value?.IsDefaultBehavior == true)
             {
                 serializer.Serialize(writer, value.DefaultBehavior);
             }

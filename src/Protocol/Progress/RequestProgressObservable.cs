@@ -34,7 +34,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _disposable = new CompositeDisposable { request.Connect(), Disposable.Create(disposal) };
 
             _task = _dataSubject.ForkJoin(requestResult, factory).ToTask(cancellationToken);
+#pragma warning disable VSTHRD105
+#pragma warning disable VSTHRD110
             _task.ContinueWith(x => Dispose());
+#pragma warning restore VSTHRD110
+#pragma warning restore VSTHRD105
 
             ProgressToken = token;
             if (_dataSubject is IDisposable disposable)
@@ -72,7 +76,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
         public IDisposable Subscribe(IObserver<TItem> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
 
+#pragma warning disable VSTHRD003
         public Task<TResult> AsTask() => _task;
+#pragma warning restore VSTHRD003
         public TaskAwaiter<TResult> GetAwaiter() => _task.GetAwaiter();
     }
 }

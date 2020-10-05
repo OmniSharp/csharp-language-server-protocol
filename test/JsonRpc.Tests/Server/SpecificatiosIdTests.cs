@@ -11,11 +11,11 @@ namespace JsonRpc.Tests.Server
     {
         [Theory]
         [ClassData(typeof(SimpleTestMessages))]
-        public void ShouldParse_SimpleMessages(string message, Type outputType, object expectedResult)
+        public void ShouldParse_SimpleMessages(string message, Type outputType, object? expectedResult)
         {
             var receiver = new Receiver();
             var (requests, _) = receiver.GetRequests(JToken.Parse(message));
-            var result = requests.Single().Request;
+            var result = requests.Single().Request!;
 
             result.Id.Should().Be(expectedResult);
             if (expectedResult != null)
@@ -24,7 +24,7 @@ namespace JsonRpc.Tests.Server
             }
         }
 
-        private class SimpleTestMessages : TheoryData<string, Type, object>
+        private class SimpleTestMessages : TheoryData<string, Type, object?>
         {
             public SimpleTestMessages()
             {

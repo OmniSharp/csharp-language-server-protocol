@@ -171,8 +171,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         /// </summary>
         public SemanticTokensDocument Commit()
         {
-            _document._dataLen = _dataLen;
-            _document._data = _data.ToImmutable();
+            _document.DataLen = _dataLen;
+            _document.Data = _data.ToImmutable();
             return _document;
         }
     }

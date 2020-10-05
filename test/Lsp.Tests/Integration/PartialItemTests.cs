@@ -6,15 +6,9 @@ using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
-using NSubstitute;
-using OmniSharp.Extensions.JsonRpc.Testing;
-using OmniSharp.Extensions.LanguageProtocol.Testing;
-using OmniSharp.Extensions.LanguageServer.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Server;
 using TestingUtils;
 using Xunit;
@@ -37,7 +31,7 @@ namespace Lsp.Tests.Integration
                     new SemanticTokensParams() { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken
                 );
                 result.Should().NotBeNull();
-                result.Data.Should().HaveCount(3);
+                result!.Data.Should().HaveCount(3);
             }
 
             [FactWithSkipOn(SkipOnPlatform.All)]
@@ -65,7 +59,7 @@ namespace Lsp.Tests.Integration
                 var response = await Client.SendRequest(new SemanticTokensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") }, CancellationToken);
 
                 response.Should().NotBeNull();
-                response.Data.Should().HaveCount(3);
+                response!.Data.Should().HaveCount(3);
             }
 
             public class DelegateServer : IConfigureLanguageServerOptions
@@ -76,8 +70,7 @@ namespace Lsp.Tests.Integration
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1 }.ToImmutableArray() });
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1, 2 }.ToImmutableArray() });
                         observer.OnCompleted();
-                    }, new SemanticTokensRegistrationOptions() {
-                    }
+                    }, new SemanticTokensRegistrationOptions()
                 );
             }
         }
