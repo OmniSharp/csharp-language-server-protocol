@@ -1,5 +1,4 @@
 using System;
-using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
@@ -17,7 +16,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// </summary>
     [Obsolete(Constants.Proposal)]
     [Method(TextDocumentNames.Moniker, Direction.ClientToServer)]
-    public class MonikerParams : WorkDoneTextDocumentPositionParams, IPartialItemsRequest<Container<Moniker>, Moniker>
+    public class MonikerParams : WorkDoneTextDocumentPositionParams, IPartialItemsRequest<Container<Moniker>?, Moniker>
     {
         /// <inheritdoc />
         [Optional]

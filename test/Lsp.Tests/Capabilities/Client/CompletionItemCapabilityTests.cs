@@ -30,7 +30,7 @@ namespace Lsp.Tests.Capabilities.Client
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":true}");
             deresult.Should().BeEquivalentTo(
                 new CompletionItemCapabilityOptions {
-                    TagSupport = new Supports<CompletionItemTagSupportCapabilityOptions>(true)
+                    TagSupport = new Supports<CompletionItemTagSupportCapabilityOptions?>(true)
                 }
             );
         }
@@ -40,7 +40,7 @@ namespace Lsp.Tests.Capabilities.Client
         {
             var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":{\"valueSet\": [1]}}");
             deresult.TagSupport.IsSupported.Should().Be(true);
-            deresult.TagSupport.Value.ValueSet.Should().Contain(CompletionItemTag.Deprecated);
+            deresult.TagSupport.Value!.ValueSet.Should().Contain(CompletionItemTag.Deprecated);
         }
     }
 }

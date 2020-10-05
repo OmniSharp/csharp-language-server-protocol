@@ -46,7 +46,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     Workspace = new WorkspaceClientCapabilities {
-                        Symbol = new Supports<WorkspaceSymbolCapability>(
+                        Symbol = new Supports<WorkspaceSymbolCapability?>(
                             true, new WorkspaceSymbolCapability {
                                 DynamicRegistration = true,
                                 SymbolKind = new SymbolKindCapabilityOptions {
@@ -74,7 +74,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     Workspace = new WorkspaceClientCapabilities {
-                        Symbol = new Supports<WorkspaceSymbolCapability>(
+                        Symbol = new Supports<WorkspaceSymbolCapability?>(
                             true, new WorkspaceSymbolCapability {
                                 DynamicRegistration = true,
                                 TagSupport = new TagSupportCapabilityOptions {

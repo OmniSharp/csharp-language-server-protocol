@@ -30,7 +30,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        CodeAction = new Supports<CodeActionCapability>(
+                        CodeAction = new Supports<CodeActionCapability?>(
                             true, new CodeActionCapability {
                                 DynamicRegistration = true,
                                 CodeActionLiteralSupport = new CodeActionLiteralSupportOptions {

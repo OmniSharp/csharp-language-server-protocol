@@ -27,7 +27,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Show_Messages_Through_Window_Extension_Methods()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             server.Window.ShowError("Something bad happened...");
             server.Window.ShowInfo("Here's something cool...");
@@ -56,7 +56,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Show_Messages_Through_Server_Extension_Methods()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             server.ShowError("Something bad happened...");
             server.ShowInfo("Here's something cool...");

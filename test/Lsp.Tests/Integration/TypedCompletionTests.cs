@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
@@ -56,9 +56,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-a";
-                            return Task.FromResult(codeLens);
+                        completionItem => {
+                            completionItem.Command!.Name = "resolved-a";
+                            return Task.FromResult(completionItem);
                         },
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -81,9 +81,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-b";
-                            return Task.FromResult(codeLens);
+                        completionItem => {
+                            completionItem.Command!.Name = "resolved-b";
+                            return Task.FromResult(completionItem);
                         },
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -103,9 +103,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-c";
-                            return Task.FromResult(codeLens);
+                        completionItem => {
+                            completionItem.Command!.Name = "resolved-c";
+                            return Task.FromResult(completionItem);
                         },
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -125,9 +125,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-d";
-                            return Task.FromResult(codeLens);
+                        completionItem => {
+                            completionItem.Command!.Name = "resolved-d";
+                            return Task.FromResult(completionItem);
                         },
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
@@ -136,24 +136,24 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            var codeLens = await client.RequestCompletion(
+            var items = await client.RequestCompletion(
                 new CompletionParams {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
 
-            var lens = codeLens.ToArray();
+            var lens = items.ToArray();
 
             var responses = await Task.WhenAll(lens.Select(z => client.ResolveCompletion(z)));
-            responses.Select(z => z.Command.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
-            responses.Select(z => z.Command.Name).Should().NotContain("resolved-d");
+            responses.Select(z => z.Command!.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
+            responses.Select(z => z.Command!.Name).Should().NotContain("resolved-d");
             lens.Length.Should().Be(3);
         }
 
         [Fact]
         public async Task Should_Resolve_With_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, capability, token) => {
@@ -176,9 +176,9 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (completionItem, capability, token) => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -198,7 +198,7 @@ namespace Lsp.Tests.Integration
         [FactWithSkipOn(SkipOnPlatform.Mac)]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion<Data>(
                         (completionParams, observer, capability, token) => {
@@ -222,9 +222,9 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (completionItem, capability, token) => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -242,7 +242,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, token) => {
@@ -265,9 +265,9 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (completionItem, token) => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -287,7 +287,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion<Data>(
                         (completionParams, observer, token) => {
@@ -311,9 +311,9 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (completionItem, token) => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -331,7 +331,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         completionParams => {
@@ -354,9 +354,9 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         completionItem => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -376,7 +376,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Partial_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion<Data>(
                         (completionParams, observer) => {
@@ -400,9 +400,9 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         completionItem => {
-                            completionItem.Data.Id.Should().NotBeEmpty();
-                            completionItem.Data.Child.Should().NotBeNull();
-                            completionItem.Data.Name.Should().Be("name");
+                            completionItem.Data!.Id.Should().NotBeEmpty();
+                            completionItem.Data!.Child.Should().NotBeNull();
+                            completionItem.Data!.Name.Should().Be("name");
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
@@ -421,7 +421,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, capability, token) => {
@@ -456,7 +456,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_Partial_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, observer, capability, token) => {
@@ -490,7 +490,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, token) => {
@@ -525,7 +525,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_Partial_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, observer, token) => {
@@ -559,7 +559,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         completionParams => {
@@ -594,7 +594,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_Partial()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         (completionParams, observer) => {
@@ -627,13 +627,14 @@ namespace Lsp.Tests.Integration
 
         private class Data : HandlerIdentity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public Guid Id { get; set; }
-            public Nested Child { get; set; }
+            public Nested Child { get; set; } = null!;
         }
 
         private class Nested : HandlerIdentity
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTimeOffset Date { get; set; }
         }
     }

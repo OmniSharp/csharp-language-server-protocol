@@ -3,16 +3,11 @@ using System.Runtime.InteropServices;
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using Xunit;
-using Xunit.Abstractions;
 
 namespace Lsp.Tests
 {
     public class VsCodeDocumentUriTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-
-        public VsCodeDocumentUriTests(ITestOutputHelper testOutputHelper) => _testOutputHelper = testOutputHelper;
-
         [Fact(DisplayName = "file#toString")]
         public void FileToString()
         {

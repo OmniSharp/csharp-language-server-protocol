@@ -60,12 +60,14 @@ namespace Dap.Tests
                 Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialize;
             var (client, server) = await Initialize(
-                options => options.AddHandler(onDebugAdapterClientInitialize as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerInitialize as IJsonRpcHandler)
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterClientInitialize!),
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterServerInitialize!)
             );
 
-            await onDebugAdapterClientInitialize.Received(1).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialize.Received(1).OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
+            await onDebugAdapterClientInitialize.Received(1)!.OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
+            await onDebugAdapterServerInitialize.Received(1)!.OnInitialize(server, server.ClientSettings, Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -105,12 +107,14 @@ namespace Dap.Tests
                 Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialized;
             var (client, server) = await Initialize(
-                options => options.AddHandler(onDebugAdapterClientInitialized as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerInitialized as IJsonRpcHandler)
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterClientInitialized!),
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterServerInitialized!)
             );
 
-            await onDebugAdapterClientInitialized.Received(1).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerInitialized.Received(1).OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
+            await onDebugAdapterClientInitialized.Received(1)!.OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
+            await onDebugAdapterServerInitialized.Received(1)!.OnInitialized(server, server.ClientSettings, server.ServerSettings, Arg.Any<CancellationToken>());
         }
 
         [Fact]
@@ -150,12 +154,14 @@ namespace Dap.Tests
                 Substitute.For(new[] { typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandler) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerStarted;
             var (client, server) = await Initialize(
-                options => options.AddHandler(onDebugAdapterClientStarted as IJsonRpcHandler),
-                options => options.AddHandler(onDebugAdapterServerStarted as IJsonRpcHandler)
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterClientStarted!),
+                // ReSharper disable once SuspiciousTypeConversion.Global
+                options => options.AddHandler((IJsonRpcHandler) onDebugAdapterServerStarted!)
             );
 
-            await onDebugAdapterClientStarted.Received(1).OnStarted(client, Arg.Any<CancellationToken>());
-            await onDebugAdapterServerStarted.Received(1).OnStarted(server, Arg.Any<CancellationToken>());
+            await onDebugAdapterClientStarted.Received(1)!.OnStarted(client, Arg.Any<CancellationToken>());
+            await onDebugAdapterServerStarted.Received(1)!.OnStarted(server, Arg.Any<CancellationToken>());
         }
     }
 }

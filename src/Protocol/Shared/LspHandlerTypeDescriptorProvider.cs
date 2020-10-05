@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
     public class LspHandlerTypeDescriptorProvider : ILspHandlerTypeDescriptorProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
-        private readonly ConcurrentDictionary<Type, string> MethodNames = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _methodNames = new ConcurrentDictionary<Type, string>();
 
         internal readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
 
@@ -76,7 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         public string? GetMethodName(Type type)
         {
-            if (MethodNames.TryGetValue(type, out var method)) return method;
+            if (_methodNames.TryGetValue(type, out var method)) return method;
 
             // Custom method
             var attribute = MethodAttribute.From(type);
@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                 return null;
             }
 
-            MethodNames.TryAdd(type, attribute.Method);
+            _methodNames.TryAdd(type, attribute.Method);
             return attribute.Method;
         }
     }

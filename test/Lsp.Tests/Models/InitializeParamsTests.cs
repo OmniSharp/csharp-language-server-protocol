@@ -64,7 +64,7 @@ namespace Lsp.Tests.Models
                         Symbol = new WorkspaceSymbolCapability { DynamicRegistration = true },
                     }
                 },
-                InitializationOptions = null,
+                InitializationOptions = null!,
                 ProcessId = 1234,
                 RootUri = new Uri("file:///file/abc/12.cs"),
                 Trace = InitializeTrace.Verbose

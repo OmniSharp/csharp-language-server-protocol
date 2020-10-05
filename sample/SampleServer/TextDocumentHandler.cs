@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+#pragma warning disable CS0618
 
 namespace SampleServer
 {
@@ -154,17 +155,16 @@ namespace SampleServer
 
     internal class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
     {
-        private readonly IServerWorkDoneManager _manager;
         private readonly IServerWorkDoneManager _serverWorkDoneManager;
         private readonly IProgressManager _progressManager;
-        private readonly ILogger<MyWorkspaceSymbolsHandler> logger;
+        private readonly ILogger<MyWorkspaceSymbolsHandler> _logger;
 
         public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
             base(new WorkspaceSymbolRegistrationOptions())
         {
             _serverWorkDoneManager = serverWorkDoneManager;
             _progressManager = progressManager;
-            this.logger = logger;
+            this._logger = logger;
         }
 
         public override async Task<Container<SymbolInformation>> Handle(

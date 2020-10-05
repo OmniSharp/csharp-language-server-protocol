@@ -5,7 +5,6 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
-using System.Threading.Tasks;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -95,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                  var registrations = new List<Registration>();
                                  foreach (var descriptor in descriptors)
                                  {
-                                     if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType))
+                                     if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!))
                                      {
                                          if (descriptor.RegistrationOptions is IWorkDoneProgressOptions wdpo)
                                          {

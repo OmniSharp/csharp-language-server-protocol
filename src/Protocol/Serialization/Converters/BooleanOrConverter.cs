@@ -44,10 +44,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var parentType = objectType.GetTypeInfo().GenericTypeArguments[0];
             return ReadJsonGenericMethod.MakeGenericMethod(parentType)
-                                        .Invoke(null, new[] { reader, existingValue, serializer });
+                                        .Invoke(null, new object[] { reader, serializer });
         }
 
-        private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, object existingValue, JsonSerializer serializer)
+        private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Boolean)
             {

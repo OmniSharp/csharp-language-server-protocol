@@ -192,6 +192,7 @@ namespace Dap.Tests.Integration
         [Method(nameof(ClassRequest))]
         class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : class
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public ClassHandler(T jsonRpcServer)
@@ -210,6 +211,7 @@ namespace Dap.Tests.Integration
         [Method(nameof(InterfaceRequest))]
         class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit>
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public InterfaceHandler(T jsonRpcServer)

@@ -1,0 +1,9 @@
+[*]
+dotnet_diagnostic.CS0618.severity = none
+dotnet_diagnostic.CS4014.severity = none
+dotnet_diagnostic.CS1998.severity = none
+dotnet_diagnostic.VSTHRD003.severity = none
+dotnet_diagnostic.VSTHRD103.severity = none
+dotnet_diagnostic.VSTHRD105.severity = none
+dotnet_diagnostic.VSTHRD110.severity = none
+dotnet_diagnostic.VSTHRD200.severity = none

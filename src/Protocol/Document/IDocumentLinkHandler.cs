@@ -480,7 +480,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             );
         }
 
-        private class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T>, ICanBeIdentifiedHandler where T : HandlerIdentity?, new()
+        private class DelegatingDocumentLinkHandler<T> : DocumentLinkHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Func<DocumentLinkParams, DocumentLinkCapability, CancellationToken, Task<DocumentLinkContainer<T>>> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;
@@ -502,7 +502,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleResolve(request, Capability, cancellationToken);
         }
 
-        private class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T>, ICanBeIdentifiedHandler where T : HandlerIdentity?, new()
+        private class DelegatingPartialDocumentLinkHandler<T> : PartialDocumentLinkHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Action<DocumentLinkParams, IObserver<IEnumerable<DocumentLink<T>>>, DocumentLinkCapability, CancellationToken> _handleParams;
             private readonly Func<DocumentLink<T>, DocumentLinkCapability, CancellationToken, Task<DocumentLink<T>>> _handleResolve;

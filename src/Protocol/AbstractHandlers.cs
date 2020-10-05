@@ -90,7 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             IJsonRpcRequestHandler<TParams, TResponse>,
             IRegistration<TRegistrationOptions>, ICapability<TCapability>
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>, new()
+            where TResponse : IEnumerable<TItem>?, new()
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {

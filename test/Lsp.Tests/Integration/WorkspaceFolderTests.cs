@@ -14,7 +14,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
 using Xunit;
@@ -35,10 +34,10 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Disable_If_Not_Supported()
         {
-            var (client, server) = await Initialize(
+            var (_, server) = await Initialize(
                 options => {
                     options.DisableAllCapabilities();
-                    options.OnInitialize(async (languageClient, request, token) => { request.Capabilities.Workspace.WorkspaceFolders = false; });
+                    options.OnInitialize(async (languageClient, request, token) => { request.Capabilities!.Workspace!.WorkspaceFolders = false; });
                 }, ConfigureServer
             );
             server.WorkspaceFolderManager.IsSupported.Should().Be(false);
@@ -49,7 +48,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Enable_If_Supported()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
             server.WorkspaceFolderManager.IsSupported.Should().Be(true);
         }
 
@@ -73,7 +72,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Have_Workspace_Folder_At_Startup()
         {
-            var (client, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Have_Workspace_Folder_At_Startup)); }, ConfigureServer);
+            var (_, server) = await Initialize(options => { options.WithWorkspaceFolder("/abcd/", nameof(Should_Have_Workspace_Folder_At_Startup)); }, ConfigureServer);
 
             var folder = server.WorkspaceFolderManager.CurrentWorkspaceFolders.Should().HaveCount(1).And.Subject.First();
             folder.Name.Should().Be(nameof(Should_Have_Workspace_Folder_At_Startup));
@@ -154,7 +153,7 @@ namespace Lsp.Tests.Integration
                     WorkspaceFolders = null
                 }
             );
-            languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder> ) null);
+            languageServer.SendRequest(Arg.Any<WorkspaceFolderParams>(), Arg.Any<CancellationToken>()).Returns((Container<WorkspaceFolder>? ) null);
             var workspaceFolders = new LanguageServerWorkspaceFolderManager(workspaceLanguageServer);
             var started = (IOnLanguageServerStarted) workspaceFolders;
             await started.OnStarted(languageServer, CancellationToken);

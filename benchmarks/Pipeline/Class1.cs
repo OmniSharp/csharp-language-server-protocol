@@ -17,19 +17,19 @@ namespace Pipeline
     [SimpleJob(RuntimeMoniker.NetCoreApp21)]
     public class ClassicVsPipelines
     {
-        private const string sampleCommand =
+        private const string SampleCommand =
             "Content-Length: 88\r\n\r\n{\"seq\":1,\"type\":\"response\",\"request_seq\":1,\"success\":true,\"command\":\"command\",\"body\":{}}";
 
-        private const string anotherPayload =
+        private const string AnotherPayload =
             "Content-Length: 894\r\n\r\n{\"edit\":{\"documentChanges\":[{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/d.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text2\"}]},{\"textDocument\":{\"version\":1,\"uri\":\"file:///abc/123/b.cs\"},\"edits\":[{\"range\":{\"start\":{\"line\":1,\"character\":1},\"end\":{\"line\":2,\"character\":2}},\"newText\":\"new text2\"},{\"range\":{\"start\":{\"line\":3,\"character\":3},\"end\":{\"line\":4,\"character\":4}},\"newText\":\"new text3\"}]},{\"kind\":\"create\",\"uri\":\"file:///abc/123/b.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"rename\",\"oldUri\":\"file:///abc/123/b.cs\",\"newUri\":\"file:///abc/123/c.cs\",\"options\":{\"overwrite\":true,\"ignoreIfExists\":true}},{\"kind\":\"delete\",\"uri\":\"file:///abc/123/c.cs\",\"options\":{\"recursive\":false,\"ignoreIfNotExists\":true}}]}}";
 
 
-        private ClassicHandler _classic;
-        private PipelinesBased _pipelines;
+        private ClassicHandler? _classic;
+        private PipelinesBased? _pipelines;
 
         [Params(
-            sampleCommand,
-            anotherPayload
+            SampleCommand,
+            AnotherPayload
         )]
         public string Payload { get; set; }
 

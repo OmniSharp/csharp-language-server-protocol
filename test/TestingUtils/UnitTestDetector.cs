@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 
@@ -7,6 +6,7 @@ namespace TestingUtils
 {
     class UnitTestDetector
     {
+        // ReSharper disable once InconsistentNaming
         public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))
                                   && string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("TF_BUILD"));
 

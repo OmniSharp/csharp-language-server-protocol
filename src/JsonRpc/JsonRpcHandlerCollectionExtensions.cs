@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using DryIoc;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace OmniSharp.Extensions.JsonRpc
 {

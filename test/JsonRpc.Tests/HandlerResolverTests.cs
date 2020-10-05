@@ -4,7 +4,6 @@ using DryIoc;
 using FluentAssertions;
 using FluentAssertions.Common;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using Xunit;

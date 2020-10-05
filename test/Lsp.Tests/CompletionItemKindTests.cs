@@ -44,7 +44,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        Completion = new Supports<CompletionCapability>(
+                        Completion = new Supports<CompletionCapability?>(
                             true, new CompletionCapability {
                                 DynamicRegistration = true,
                                 CompletionItemKind = new CompletionItemKindCapabilityOptions {
@@ -73,7 +73,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        Completion = new Supports<CompletionCapability>(
+                        Completion = new Supports<CompletionCapability?>(
                             true, new CompletionCapability {
                                 DynamicRegistration = true,
                                 CompletionItem = new CompletionItemCapabilityOptions {

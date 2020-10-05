@@ -128,9 +128,9 @@ namespace Lsp.Tests
         public void Debugger_Display_Should_Not_Throw(Type type)
         {
             var instance = Activator.CreateInstance(type);
-            var property = type.GetProperty("DebuggerDisplay", BindingFlags.NonPublic | BindingFlags.Instance);
-            Func<string> a1 = () => property.GetValue(instance) as string;
-            Func<string> a2 = () => instance.ToString();
+            var property = type.GetProperty("DebuggerDisplay", BindingFlags.NonPublic | BindingFlags.Instance)!;
+            Func<string> a1 = () => (property.GetValue(instance) as string)!;
+            Func<string> a2 = () => instance!.ToString()!;
 
             a1.Should().NotThrow().And.NotBeNull();
             a2.Should().NotThrow().And.NotBeNull();
@@ -142,8 +142,8 @@ namespace Lsp.Tests
             {
                 foreach (var item in typeof(DocumentSymbol).Assembly.ExportedTypes
                                                            .Where(z => !z.IsGenericTypeDefinition)
-                                                           .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(z => z.Value.StartsWith("{DebuggerDisplay")))
-                                                           .Where(z => z.GetConstructors().Any(z => z.GetParameters().Length == 0))
+                                                           .Where(z => z.GetCustomAttributes<DebuggerDisplayAttribute>().Any(x => x.Value.StartsWith("{DebuggerDisplay")))
+                                                           .Where(z => z.GetConstructors().Any(x => x.GetParameters().Length == 0))
                 )
                 {
                     Add(item);
@@ -169,8 +169,8 @@ namespace Lsp.Tests
         {
             var paramsType = HandlerTypeDescriptorHelper.GetHandlerInterface(type).GetGenericArguments()[0];
 
-            var lhs = MethodAttribute.From(type);
-            var rhs = MethodAttribute.From(paramsType);
+            var lhs = MethodAttribute.From(type)!;
+            var rhs = MethodAttribute.From(paramsType)!;
             lhs.Method.Should().Be(rhs.Method, $"{type.FullName} method does not match {paramsType.FullName}");
             lhs.Direction.Should().Be(rhs.Direction, $"{type.FullName} direction does not match {paramsType.FullName}");
         }
@@ -179,7 +179,7 @@ namespace Lsp.Tests
         [ClassData(typeof(RegistrationConverters))]
         public void Registration_Converters_Should_Have_THe_Same_Properties(Type type)
         {
-            var types = type.BaseType.GetGenericArguments();
+            var types = type.BaseType?.GetGenericArguments() ?? Array.Empty<Type>();
             var source = types[0].GetProperties().Select(z => z.Name);
             var destination = types[1].GetProperties().Select(z => z.Name).Except(new [] { "Id" });
             source.Should().Contain(destination);
@@ -211,7 +211,7 @@ namespace Lsp.Tests
             {
                 _logger.LogInformation("Delegating Handler: {Type}", delegatingHandler);
                 delegatingHandler.DeclaringType.Should().NotBeNull();
-                delegatingHandler.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
+                delegatingHandler.DeclaringType!.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
                                  .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
             }
         }
@@ -363,28 +363,22 @@ namespace Lsp.Tests
                     return info => info.GetParameters().Any(m);
                 }
 
-                Func<MethodInfo, bool> ForParameter(int index, Func<ParameterInfo, bool> m)
-                {
-                    return info => m(info.GetParameters()[index]);
-                }
-
                 var containsCancellationToken = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Reverse().Take(2).Any(x => x == typeof(CancellationToken)));
-                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType) : typeof(Task);
+                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 var returns = ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == returnType);
                 var isAction = ForAnyParameter(info => info.ParameterType.Name.StartsWith(nameof(Action)));
                 var isFunc = ForAnyParameter(info => info.ParameterType.Name.StartsWith("Func"));
                 var takesParameter = ForAnyParameter(info => info.ParameterType.GetGenericArguments().FirstOrDefault() == descriptor.ParamsType);
                 var takesCapability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == descriptor.CapabilityType);
-                var returnsTask = ForAnyParameter(info => info.ParameterType.GetGenericArguments().LastOrDefault() == typeof(Task));
 
                 if (descriptor.IsRequest && TypeHandlerExtensionData.HandlersToSkip.All(z => descriptor.HandlerType != z))
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                     if (descriptor.HasCapability)
                     {
                         matcher.Match(
-                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
+                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType!.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
                             takesCapability, containsCancellationToken, returns
                         );
                     }
@@ -394,10 +388,10 @@ namespace Lsp.Tests
                         var capability = ForAnyParameter(info => info.ParameterType.GetGenericArguments().Skip(2).FirstOrDefault() == descriptor.CapabilityType);
                         var observesPartialResultType = ForAnyParameter(
                             info =>
-                                info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == typeof(IObserver<>).MakeGenericType(descriptor.PartialItemType)
+                                info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() == typeof(IObserver<>).MakeGenericType(descriptor.PartialItemType!)
                         );
 
-                        matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>>", isAction, takesParameter, observesPartialResultType);
+                        matcher.Match($"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType!.Name}>>", isAction, takesParameter, observesPartialResultType);
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, Task>", isFunc, takesParameter, observesPartialResultType, returnsTask);
                         matcher.Match(
                             $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, CancellationToken>", isAction, takesParameter,
@@ -408,7 +402,7 @@ namespace Lsp.Tests
                         if (descriptor.HasCapability)
                         {
                             matcher.Match(
-                                $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken>",
+                                $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemType.Name}>, {descriptor.CapabilityType!.Name}, CancellationToken>",
                                 isAction,
                                 takesParameter,
                                 capability, containsCancellationToken, observesPartialResultType
@@ -427,11 +421,11 @@ namespace Lsp.Tests
                         var observesPartialResultType = ForAnyParameter(
                             info =>
                                 info.ParameterType.GetGenericArguments().Skip(1).FirstOrDefault() ==
-                                typeof(IObserver<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType))
+                                typeof(IObserver<>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType!))
                         );
 
                         matcher.Match(
-                            $"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>>", isAction, takesParameter,
+                            $"Action<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType!.Name}>>>", isAction, takesParameter,
                             observesPartialResultType
                         );
                         // matcher.Match($"Func<{descriptor.ParamsType.Name}, IObserver<IEnumerable<{descriptor.PartialItemsType.Name}>>, Task>", isFunc, takesParameter,
@@ -447,7 +441,7 @@ namespace Lsp.Tests
                         if (descriptor.HasCapability)
                         {
                             matcher.Match(
-                                $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemsType.Name}>, {descriptor.CapabilityType.Name}, CancellationToken>",
+                                $"Action<{descriptor.ParamsType.Name}, IObserver<{descriptor.PartialItemsType.Name}>, {descriptor.CapabilityType!.Name}, CancellationToken>",
                                 isAction,
                                 takesParameter,
                                 capability, containsCancellationToken, observesPartialResultType
@@ -463,14 +457,14 @@ namespace Lsp.Tests
 
                 if (descriptor.IsNotification)
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                     matcher.Match($"Action<{descriptor.ParamsType.Name}>", isAction, takesParameter);
                     matcher.Match($"Action<{descriptor.ParamsType.Name}, CancellationToken>", isAction, takesParameter, containsCancellationToken);
                     if (descriptor.HasCapability)
                     {
                         matcher.Match(
-                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
+                            $"Func<{descriptor.ParamsType.Name}, {descriptor.CapabilityType!.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter,
                             takesCapability, containsCancellationToken, returns
                         );
                         matcher.Match(
@@ -483,7 +477,7 @@ namespace Lsp.Tests
             {
                 var matcher = new MethodMatcher(sendMethodRegistries, descriptor, extensionClass);
                 Func<MethodInfo, bool> containsCancellationToken = info => info.GetParameters().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
-                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType) : typeof(Task);
+                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 Func<MethodInfo, bool> returns = info => info.ReturnType == returnType;
                 Func<MethodInfo, bool> isAction = info => info.ReturnType.Name == "Void";
                 Func<MethodInfo, bool> takesParameter = info => info.GetParameters().Skip(1).Any(z => z.ParameterType == descriptor.ParamsType);
@@ -491,29 +485,29 @@ namespace Lsp.Tests
                 if (descriptor.IsRequest && descriptor.HasPartialItems)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
-                        typeof(IRequestProgressObservable<,>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType), descriptor.ResponseType)
+                        typeof(IRequestProgressObservable<,>).MakeGenericType(typeof(IEnumerable<>).MakeGenericType(descriptor.PartialItemsType!), descriptor.ResponseType!)
                                                              .IsAssignableFrom(info.ReturnType);
                     matcher.Match(
-                        $"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<IEnumerable<{descriptor.PartialItemsType.Name}>, {descriptor.ResponseType.Name}>>",
+                        $"Func<{descriptor.ParamsType!.Name}, CancellationToken, IProgressObservable<IEnumerable<{descriptor.PartialItemsType!.Name}>, {descriptor.ResponseType!.Name}>>",
                         takesParameter, containsCancellationToken, partialReturnType
                     );
                 }
                 else if (descriptor.IsRequest && descriptor.HasPartialItem)
                 {
                     Func<MethodInfo, bool> partialReturnType = info =>
-                        typeof(IRequestProgressObservable<,>).MakeGenericType(descriptor.PartialItemType, descriptor.ResponseType).IsAssignableFrom(info.ReturnType);
+                        typeof(IRequestProgressObservable<,>).MakeGenericType(descriptor.PartialItemType!, descriptor.ResponseType!).IsAssignableFrom(info.ReturnType);
                     matcher.Match(
-                        $"Func<{descriptor.ParamsType.Name}, CancellationToken, IProgressObservable<{descriptor.PartialItemType.Name}, {descriptor.ResponseType.Name}>>",
+                        $"Func<{descriptor.ParamsType!.Name}, CancellationToken, IProgressObservable<{descriptor.PartialItemType!.Name}, {descriptor.ResponseType!.Name}>>",
                         takesParameter, containsCancellationToken, partialReturnType
                     );
                 }
                 else if (descriptor.IsRequest)
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", takesParameter, containsCancellationToken, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, CancellationToken, {returnType.Name}>", takesParameter, containsCancellationToken, returns);
                 }
                 else if (descriptor.IsNotification)
                 {
-                    matcher.Match($"Action<{descriptor.ParamsType.Name}>", isAction, takesParameter);
+                    matcher.Match($"Action<{descriptor.ParamsType!.Name}>", isAction, takesParameter);
                 }
             }
         }
@@ -524,11 +518,11 @@ namespace Lsp.Tests
             private readonly IEnumerable<Type> _registries;
             private readonly ILspHandlerTypeDescriptor _descriptor;
             private readonly Type _extensionClass;
-            private readonly string _methodName;
+            private readonly string? _methodName;
 
             public MethodMatcher(
                 IEnumerable<Type> registries,
-                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string methodName = null
+                ILspHandlerTypeDescriptor descriptor, Type extensionClass, string? methodName = null
             )
             {
                 _registries = registries;
@@ -616,7 +610,7 @@ namespace Lsp.Tests
             {
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(
                     z =>
-                        z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(z => z.IsGenericType && typeof(IRequest<>).IsAssignableFrom(z.GetGenericTypeDefinition()))
+                        z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(x => x.IsGenericType && typeof(IRequest<>).IsAssignableFrom(x.GetGenericTypeDefinition()))
                 ))
                 {
                     Add(type);
@@ -673,7 +667,7 @@ namespace Lsp.Tests
                 )
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
-                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type));
+                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type)!);
                 }
             }
         }
@@ -731,7 +725,7 @@ namespace Lsp.Tests
         private static string SpecialCasedHandlerName(IHandlerTypeDescriptor descriptor) =>
             new Regex(@"(\w+(?:\`\d)?)$")
                .Replace(
-                    descriptor.HandlerType.Name ?? string.Empty,
+                    descriptor.HandlerType.Name,
                     descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
                 );
 
@@ -739,7 +733,7 @@ namespace Lsp.Tests
         {
             var name = GetExtensionClassName(descriptor);
             return descriptor.HandlerType.Assembly.GetExportedTypes()
-                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && ( z.Name == name || z.Name == name + "Base" ));
+                             .FirstOrDefault(z => z.IsClass && z.IsAbstract && ( z.Name == name || z.Name == name + "Base" ))!;
         }
 
         private static string GetOnMethodName(IHandlerTypeDescriptor descriptor) => "On" + SpecialCasedHandlerName(descriptor);

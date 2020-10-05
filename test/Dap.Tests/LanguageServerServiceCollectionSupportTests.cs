@@ -57,8 +57,10 @@ namespace Dap.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                           serviceCollection =>
+                                               serviceCollection.AddJsonRpcHandler<Handler>(
+                                                   new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
+                                               )
                                        );
                                }
                            )
@@ -146,6 +148,7 @@ namespace Dap.Tests
 
         private class Response
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public string Value { get; }
 
             public Response(string value) => Value = value;

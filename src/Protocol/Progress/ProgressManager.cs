@@ -119,7 +119,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IPartialItemsRequest<TResponse, TItem> request,
             Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken
         )
-            where TResponse : IEnumerable<TItem>
+            where TResponse : IEnumerable<TItem>?
         {
             request.PartialResultToken ??= new ProgressToken(Guid.NewGuid().ToString());
             if (_activeObservables.TryGetValue(request.PartialResultToken, out var o) && o is IRequestProgressObservable<IEnumerable<TItem>, TResponse> observable)

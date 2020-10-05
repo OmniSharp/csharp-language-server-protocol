@@ -22,7 +22,7 @@ namespace Dap.Tests.Integration.Fixtures
         public DebugAdapterProtocolFixture() :
             base(new TConfigureFixture().Configure(new JsonRpcTestOptions(new TestLoggerFactory(null))))
         {
-            _loggerFactory = TestOptions.ServerLoggerFactory as TestLoggerFactory;
+            _loggerFactory = (TestOptions.ServerLoggerFactory as TestLoggerFactory)!;
         }
 
         public void Swap(ITestOutputHelper testOutputHelper)

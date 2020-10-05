@@ -336,6 +336,7 @@ namespace Lsp.Tests.Integration
         [Method(nameof(ClassRequest))]
         class ClassHandler<T> : IJsonRpcRequestHandler<ClassRequest, Unit> where T : class
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public ClassHandler(T jsonRpcServer)
@@ -354,6 +355,7 @@ namespace Lsp.Tests.Integration
         [Method(nameof(InterfaceRequest))]
         class InterfaceHandler<T> : IJsonRpcRequestHandler<InterfaceRequest, Unit>
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly T _jsonRpcServer;
 
             public InterfaceHandler(T jsonRpcServer)
@@ -372,6 +374,7 @@ namespace Lsp.Tests.Integration
         [Method(nameof(NestedRequest))]
         class NestedClientHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly ILanguageClientFacade _languageClientFacade;
 
             public NestedClientHandler(ILanguageClientFacade languageClientFacade)
@@ -386,6 +389,7 @@ namespace Lsp.Tests.Integration
         [Method(nameof(NestedRequest))]
         class NestedServerHandler : IJsonRpcRequestHandler<NestedRequest, Unit>
         {
+            // ReSharper disable once NotAccessedField.Local
             private readonly ILanguageServerFacade _languageClientFacade;
 
             public NestedServerHandler(ILanguageServerFacade languageClientFacade)

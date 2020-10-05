@@ -30,7 +30,7 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        PublishDiagnostics = new Supports<PublishDiagnosticsCapability>(
+                        PublishDiagnostics = new Supports<PublishDiagnosticsCapability?>(
                             true, new PublishDiagnosticsCapability {
                                 TagSupport = new PublishDiagnosticsTagSupportCapabilityOptions {
                                     ValueSet = new Container<DiagnosticTag>()

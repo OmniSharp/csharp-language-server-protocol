@@ -13,14 +13,14 @@ namespace Lsp.Tests
     {
         public static string SerializeObject(object value, ClientVersion version = ClientVersion.Lsp3) => SerializeObject(value, null, null, version);
 
-        public static string SerializeObject(object value, Type type, JsonSerializerSettings settings, ClientVersion version = ClientVersion.Lsp3)
+        public static string SerializeObject(object value, Type? type, JsonSerializerSettings? settings, ClientVersion version = ClientVersion.Lsp3)
         {
             var jsonSerializer = new Serializer(version);
 
             return SerializeObjectInternal(value, type, jsonSerializer);
         }
 
-        private static string SerializeObjectInternal(object value, Type type, ISerializer serializer)
+        private static string SerializeObjectInternal(object value, Type? type, ISerializer serializer)
         {
             var sb = new StringBuilder(256);
             var sw = new StringWriter(sb, CultureInfo.InvariantCulture);
@@ -32,7 +32,7 @@ namespace Lsp.Tests
                 serializer.JsonSerializer.Serialize(jsonWriter, value, type);
             }
 
-            return sw.ToString()?.Replace("\r\n", "\n")?.TrimEnd(); //?.Replace("\n", "\r\n");
+            return sw.ToString().Replace("\r\n", "\n").TrimEnd(); //?.Replace("\n", "\r\n");
         }
     }
 }

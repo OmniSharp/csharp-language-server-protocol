@@ -4,10 +4,6 @@ namespace Dap.Tests.Integration.Fixtures
 {
     public sealed class DefaultClient : IConfigureDebugAdapterClientOptions
     {
-        public DefaultClient()
-        {
-        }
-
         public void Configure(DebugAdapterClientOptions options)
         {
         }

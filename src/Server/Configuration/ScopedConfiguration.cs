@@ -47,6 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void Dispose()
         {
+            // ReSharper disable once SuspiciousTypeConversion.Global
             if (_configuration is IDisposable disposable) disposable.Dispose();
             _disposable.Dispose();
         }

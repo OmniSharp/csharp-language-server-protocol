@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -9,14 +7,8 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
-using OmniSharp.Extensions.JsonRpc.Testing;
-using OmniSharp.Extensions.LanguageProtocol.Testing;
-using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Server;
-using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -70,8 +62,8 @@ namespace Lsp.Tests.Integration
             );
 
             await Observable.Create<Unit>(
-                observer => new CompositeDisposable() {
-                    observable.Select(z => z.Value).Take(5).Subscribe(_ => observer.OnNext(Unit.Default), observer.OnCompleted),
+                innerObserver => new CompositeDisposable() {
+                    observable.Select(z => z.Value).Take(5).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
             ).ToTask(CancellationToken);
@@ -118,8 +110,8 @@ namespace Lsp.Tests.Integration
             );
 
             await Observable.Create<Unit>(
-                observer => new CompositeDisposable() {
-                    observable.Select(z => z.Value).Take(5).Subscribe(_ => observer.OnNext(Unit.Default), observer.OnCompleted),
+                innerObserver => new CompositeDisposable() {
+                    observable.Select(z => z.Value).Take(5).Subscribe(v => innerObserver.OnNext(Unit.Default), innerObserver.OnCompleted),
                     workDoneObservable
                 }
             ).ToTask(CancellationToken);
@@ -191,6 +183,7 @@ namespace Lsp.Tests.Integration
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
+                    _                            => throw new NotSupportedException()
                 }
             ).ToArray().ToTask(CancellationToken);
 
@@ -252,6 +245,7 @@ namespace Lsp.Tests.Integration
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
+                    _                            => throw new NotSupportedException()
                 }
             ).ToArray().ToTask(CancellationToken);
 
@@ -317,6 +311,7 @@ namespace Lsp.Tests.Integration
                     WorkDoneProgressBegin begin  => begin.Message,
                     WorkDoneProgressReport begin => begin.Message,
                     WorkDoneProgressEnd begin    => begin.Message,
+                    _                            => throw new NotSupportedException()
                 }
             ).ToArray().ToTask(CancellationToken);
 

@@ -13,13 +13,13 @@ namespace Lsp.Tests.Integration.Fixtures
     [Parallel, Method("tests/run", Direction.ClientToServer)]
     public class UnitTest : IRequest
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 
     [CapabilityKey("workspace", "unitTests")]
     public class UnitTestCapability : DynamicCapability
     {
-        public string Property { get; set; }
+        public string Property { get; set; } = null!;
     }
 
     public class UnitTestRegistrationOptions : IWorkDoneProgressOptions, IRegistrationOptions
@@ -32,7 +32,7 @@ namespace Lsp.Tests.Integration.Fixtures
             [Optional] public bool SupportsDebugging { get; set; }
         }
 
-        class Converter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
+        private class Converter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
         {
             public Converter() : base("unitTests")
             {
@@ -51,8 +51,8 @@ namespace Lsp.Tests.Integration.Fixtures
     [Parallel, Method("tests/discover", Direction.ClientToServer)]
     public class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
     {
-        public ProgressToken PartialResultToken { get; set; }
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; } = null!;
+        public ProgressToken? WorkDoneToken { get; set; } = null!;
     }
 
     [Parallel, Method("tests/discover", Direction.ClientToServer)]

@@ -215,6 +215,7 @@ namespace JsonRpc.Tests
                 _serverRequestSettler = serverRequestSettler;
             }
 
+            // ReSharper disable once UnusedMethodReturnValue.Local
             public IDisposable ScheduleAbsoluteStart(SettlerType settlerType, long dueTime) =>
                 settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleAbsolute(dueTime, () => _clientRequestSettler.OnStartRequest()),
@@ -222,6 +223,7 @@ namespace JsonRpc.Tests
                     _                  => throw new NotImplementedException()
                 };
 
+            // ReSharper disable once UnusedMethodReturnValue.Local
             public IDisposable ScheduleAbsoluteEnd(SettlerType settlerType, long dueTime) =>
                 settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleAbsolute(dueTime, () => _clientRequestSettler.OnEndRequest()),
@@ -229,6 +231,7 @@ namespace JsonRpc.Tests
                     _                  => throw new NotImplementedException()
                 };
 
+            // ReSharper disable once UnusedMethodReturnValue.Local
             public IDisposable ScheduleRelativeStart(SettlerType settlerType, long dueTime) =>
                 settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleRelative(dueTime, () => _clientRequestSettler.OnStartRequest()),
@@ -236,6 +239,7 @@ namespace JsonRpc.Tests
                     _                  => throw new NotImplementedException()
                 };
 
+            // ReSharper disable once UnusedMethodReturnValue.Local
             public IDisposable ScheduleRelativeEnd(SettlerType settlerType, long dueTime) =>
                 settlerType switch {
                     SettlerType.Client => _testScheduler.ScheduleRelative(dueTime, () => _clientRequestSettler.OnEndRequest()),

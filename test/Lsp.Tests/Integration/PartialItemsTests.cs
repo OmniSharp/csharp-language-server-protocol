@@ -8,7 +8,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
-using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -39,7 +38,7 @@ namespace Lsp.Tests.Integration
                 );
 
                 result.Should().HaveCount(3);
-                result.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+                result.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
             }
 
             [FactWithSkipOn(SkipOnPlatform.All)]
@@ -60,7 +59,7 @@ namespace Lsp.Tests.Integration
                                         .ToTask(CancellationToken);
 
                 items.Should().HaveCount(3);
-                items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+                items.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
             }
 
             [Fact]
@@ -73,7 +72,7 @@ namespace Lsp.Tests.Integration
                 );
 
                 response.Should().HaveCount(3);
-                response.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
+                response.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
             }
 
             public class DelegateServer : IConfigureLanguageServerOptions
@@ -128,7 +127,7 @@ namespace Lsp.Tests.Integration
                 Client.TextDocument
                       .ObserveWorkDone(
                            new CodeLensParams { TextDocument = new TextDocumentIdentifier(@"c:\test.cs") },
-                           (client, request) => CodeLensExtensions.RequestCodeLens((ITextDocumentLanguageClient) client, request, CancellationToken),
+                           (client, request) => CodeLensExtensions.RequestCodeLens(client, request, CancellationToken),
                            Observer.Create<WorkDoneProgress>(z => work.Add(z))
                        ).Subscribe(x => items.AddRange(x));
 
@@ -139,7 +138,7 @@ namespace Lsp.Tests.Integration
                 var workResults = work.Select(z => z.Message);
 
                 items.Should().HaveCount(4);
-                items.Select(z => z.Command.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3", "CodeLens 4");
+                items.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3", "CodeLens 4");
 
                 workResults.Should().ContainInOrder("Begin", "Report 1", "Report 2", "Report 3", "Report 4", "End");
             }

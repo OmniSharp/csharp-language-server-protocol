@@ -4,7 +4,6 @@ using System.Linq;
 using DryIoc;
 using FluentAssertions;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -225,7 +224,7 @@ namespace Lsp.Tests
 
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
-            handler.Add(codeLensHandler as IJsonRpcHandler);
+            handler.Add((codeLensHandler as IJsonRpcHandler)!);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().Select(x => x.Key);
             descriptor.Should().BeEquivalentTo("[foo]", "[foo]");

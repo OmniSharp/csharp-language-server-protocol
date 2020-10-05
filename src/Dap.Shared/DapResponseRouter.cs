@@ -110,7 +110,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                     cancellationToken.Register(
                         () => {
                             if (tcs.Task.IsCompleted) return;
+#pragma warning disable VSTHRD110
                             _router.SendRequest(RequestNames.Cancel, new { requestId = nextId }).Returning<CancelArguments>(CancellationToken.None);
+#pragma warning restore VSTHRD110
                         }
                     );
                 }

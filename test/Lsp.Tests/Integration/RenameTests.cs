@@ -9,7 +9,6 @@ using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
-using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
@@ -21,13 +20,13 @@ namespace Lsp.Tests.Integration
 {
     public class RenameTests : LanguageProtocolTestBase
     {
-        private readonly Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange>> _prepareRename;
-        private readonly Func<RenameParams, CancellationToken, Task<WorkspaceEdit>> _rename;
+        private readonly Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange?>> _prepareRename;
+        private readonly Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> _rename;
 
         public RenameTests(ITestOutputHelper outputHelper) : base(new JsonRpcTestOptions().ConfigureForXUnit(outputHelper, LogEventLevel.Verbose))
         {
-            _prepareRename = Substitute.For<Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange>>>();
-            _rename = Substitute.For<Func<RenameParams, CancellationToken, Task<WorkspaceEdit>>>();
+            _prepareRename = Substitute.For<Func<PrepareRenameParams, CancellationToken, Task<RangeOrPlaceholderRange?>>>();
+            _rename = Substitute.For<Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>>>();
         }
 
         [Fact]
@@ -55,7 +54,7 @@ namespace Lsp.Tests.Integration
                         }
                     );
 
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
                 new PrepareRenameParams() {
@@ -69,13 +68,13 @@ namespace Lsp.Tests.Integration
 
             var renameResponse = await client.RequestRename(
                 new RenameParams() {
-                    Position = result.Range.Start,
+                    Position = result!.Range!.Start,
                     NewName = "newname",
                     TextDocument = DocumentUri.FromFileSystemPath("/abcd/file.cs")
                 }
             );
 
-            renameResponse.DocumentChanges.Should().HaveCount(1);
+            renameResponse!.DocumentChanges.Should().HaveCount(1);
             renameResponse.DocumentChanges.Should().Match(z => z.Any(x => x.IsCreateFile));
         }
 
@@ -83,8 +82,8 @@ namespace Lsp.Tests.Integration
         public async Task Should_Handle_Prepare_Rename_With_No_Value()
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<CancellationToken>())
-                          .Returns(Task.FromResult<RangeOrPlaceholderRange>(null));
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+                          .Returns(Task.FromResult<RangeOrPlaceholderRange?>(null)!);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
                 new PrepareRenameParams() {
@@ -113,7 +112,7 @@ namespace Lsp.Tests.Integration
                                }
                            );
 
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
                 new PrepareRenameParams() {
@@ -123,7 +122,7 @@ namespace Lsp.Tests.Integration
                 CancellationToken
             );
 
-            result.IsRange.Should().BeTrue();
+            result!.IsRange.Should().BeTrue();
         }
 
         [Fact]
@@ -146,7 +145,7 @@ namespace Lsp.Tests.Integration
                                }
                            );
 
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
                 new PrepareRenameParams() {
@@ -156,7 +155,7 @@ namespace Lsp.Tests.Integration
                 CancellationToken
             );
 
-            result.IsPlaceholderRange.Should().BeTrue();
+            result!.IsPlaceholderRange.Should().BeTrue();
         }
 
         [Fact]
@@ -164,17 +163,14 @@ namespace Lsp.Tests.Integration
         {
             _prepareRename.Invoke(Arg.Any<PrepareRenameParams>(), Arg.Any<CancellationToken>())
                           .Returns(
-                               call => {
-                                   var pos = call.Arg<PrepareRenameParams>().Position;
-                                   return new RangeOrPlaceholderRange(
-                                       new RenameDefaultBehavior() {
-                                           DefaultBehavior = true
-                                       }
-                                   );
-                               }
+                               call => new RangeOrPlaceholderRange(
+                                   new RenameDefaultBehavior() {
+                                       DefaultBehavior = true
+                                   }
+                               )
                            );
 
-            var (client, server) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
 
             var result = await client.PrepareRename(
                 new PrepareRenameParams() {
@@ -184,7 +180,7 @@ namespace Lsp.Tests.Integration
                 CancellationToken
             );
 
-            result.IsDefaultBehavior.Should().BeTrue();
+            result!.IsDefaultBehavior.Should().BeTrue();
         }
 
         private void ServerOptionsAction(LanguageServerOptions obj)

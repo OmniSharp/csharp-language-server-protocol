@@ -22,7 +22,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Return_Default_Handlers()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
             handlersManager.Descriptors.Should().HaveCount(8);
@@ -32,9 +32,9 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Return_Additional_Handlers()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
-            server.Register(o => o.AddHandler(Substitute.For(new Type[] { typeof (ICompletionHandler), typeof(ICompletionResolveHandler) }, Array.Empty<object>()) as IJsonRpcHandler));
+            server.Register(o => o.AddHandler((IJsonRpcHandler) Substitute.For(new[] { typeof (ICompletionHandler), typeof(ICompletionResolveHandler) }, Array.Empty<object>())));
             var handlersManager = server.GetRequiredService<IHandlersManager>();
             handlersManager.Descriptors.Should().HaveCount(10);
             handlersManager.GetHandlers().Should().HaveCount(6);
@@ -43,7 +43,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Link_Should_Fail_If_No_Handler_Is_Defined()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
             var handlersManager = server.GetRequiredService<IHandlersManager>();
 
@@ -54,9 +54,9 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Link_Should_Fail_If_Link_Is_On_The_Wrong_Side()
         {
-            var (client, server) = await Initialize(options => {}, options => {});
+            var (_, server) = await Initialize(options => {}, options => {});
 
-            server.Register(o => o.AddHandler(Substitute.For(new Type[] { typeof (ICompletionHandler), typeof(ICompletionResolveHandler) }, Array.Empty<object>()) as IJsonRpcHandler));
+            server.Register(o => o.AddHandler((IJsonRpcHandler) Substitute.For(new[] { typeof (ICompletionHandler), typeof(ICompletionResolveHandler) }, Array.Empty<object>())));
             var handlersManager = server.GetRequiredService<IHandlersManager>();
 
             Action a  = () => handlersManager.AddLink("my/completion", TextDocumentNames.Completion);

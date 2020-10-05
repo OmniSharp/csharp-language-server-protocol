@@ -4,9 +4,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DryIoc;
 using FluentAssertions;
-using JsonRpc.Tests;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
@@ -26,6 +24,7 @@ using Xunit.Sdk;
 using Arg = NSubstitute.Arg;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
+#pragma warning disable CS0162
 
 namespace Lsp.Tests
 {
@@ -71,7 +70,7 @@ namespace Lsp.Tests
             var cts = new CancellationTokenSource();
             cts.Cancel();
 
-            var response = ( (IRequestRouter<ILspHandlerDescriptor>) mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
+            ( (IRequestRouter<ILspHandlerDescriptor>) mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
             Func<Task> action = () => ( (IRequestRouter<ILspHandlerDescriptor>) mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
             await action.Should().ThrowAsync<OperationCanceledException>();
         }

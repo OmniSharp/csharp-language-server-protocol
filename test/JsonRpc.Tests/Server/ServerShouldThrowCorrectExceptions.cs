@@ -17,13 +17,13 @@ namespace JsonRpc.Tests.Server
 
         private class Data
         {
-            public string Value { get; set; }
+            public string Value { get; set; } = null!;
         }
 
         [Fact]
         public async Task Should_Throw_Method_Not_Supported()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 clientOptions => { },
                 serverOptions => { serverOptions.OnRequest("method", async (Data data) => new Data { Value = data.Value }); }
             );

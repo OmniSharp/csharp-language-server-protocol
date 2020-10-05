@@ -150,7 +150,8 @@ namespace OmniSharp.Extensions.JsonRpc
                 {
                     var property = typeof(Task<>)
                                   .MakeGenericType(result.GetType().GetTypeInfo().GetGenericArguments()[0]).GetTypeInfo()
-                                  .GetProperty(nameof(Task<object>.Result), BindingFlags.Public | BindingFlags.Instance)!;
+                                  .GetProperty("Result"
+                                             , BindingFlags.Public | BindingFlags.Instance)!;
 
                     responseValue = property.GetValue(result);
                     if (responseValue?.GetType() == typeof(Unit))
