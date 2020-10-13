@@ -16,7 +16,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             WithAssemblies(typeof(LanguageServerOptions).Assembly, typeof(LspRequestRouter).Assembly);
         }
+
         public ServerInfo? ServerInfo { get; set; }
+        public bool DefaultServerConfiguration { get; set; } = true;
+        public bool DefaultWorkspaceFolderManager { get; set; } = true;
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
             AddHandler(method, handler, options);
@@ -29,7 +32,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options) =>
             AddHandler(handlerFunc, options);
 
-        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options) => AddHandler(handler, options);
+        ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
+            AddHandler(handler, options);
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler<TTHandler>(JsonRpcHandlerOptions? options) => AddHandler<TTHandler>(options);
 

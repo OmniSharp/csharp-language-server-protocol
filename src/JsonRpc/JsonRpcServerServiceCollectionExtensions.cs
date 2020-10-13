@@ -132,7 +132,7 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInitializer<IHandlersManager>(
                 (manager, context) => {
                     var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                    descriptions.Populate(context, manager);
+                    descriptions.Populate(context, manager, _ => true);
                 }
             );
 

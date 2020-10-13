@@ -20,7 +20,27 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     {
         internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider? outerServiceProvider)
         {
-            container = container.AddLanguageProtocolInternals(options);
+            bool Filter(JsonRpcHandlerDescription description)
+            {
+                // Disable just the handlers, so that anything that uses the existing classes doesn't break
+                // They are exposed as properties currently replacing them makes it harder
+                // TODO: Add a decorator that logs warnings when a disabled interface is used.
+                {
+                    if (!options.DefaultRegistrationManager &&
+                        description is JsonRpcHandlerInstanceDescription instance &&
+                        instance.HandlerInstance is LanguageClientRegistrationManager) return false;
+                }
+
+                {
+                    if (!options.DefaultWorkspaceFolderManager &&
+                        description is JsonRpcHandlerInstanceDescription instance &&
+                        instance.HandlerInstance is LanguageClientWorkspaceFoldersManager) return false;
+                }
+
+                return true;
+            }
+
+            container = container.AddLanguageProtocolInternals(options, Filter);
 
             container.RegisterInstance(options.ClientCapabilities);
             container.RegisterMany<LspClientReceiver>(

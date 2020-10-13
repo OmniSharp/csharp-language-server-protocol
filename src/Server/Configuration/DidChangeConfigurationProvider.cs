@@ -96,7 +96,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             return Concat(
                 Create<System.Reactive.Unit>(
                     observer => {
-                        var newData = new Dictionary<string, string>();
+                        var newData = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase); // configuration is case-insensitive
                         return GetConfigurationFromClient(_configurationItems)
                               .Select(
                                    x => {

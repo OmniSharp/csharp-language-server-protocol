@@ -108,6 +108,18 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return options;
         }
 
+        public static LanguageClientOptions UseDefaultRegistrationManager(this LanguageClientOptions options, bool value = true)
+        {
+            options.DefaultRegistrationManager = value;
+            return options;
+        }
+
+        public static LanguageClientOptions UseDefaultWorkspaceFolderManager(this LanguageClientOptions options, bool value = true)
+        {
+            options.DefaultWorkspaceFolderManager = value;
+            return options;
+        }
+
         public static LanguageClientOptions ConfigureLogging(
             this LanguageClientOptions options,
             Action<ILoggingBuilder> builderAction

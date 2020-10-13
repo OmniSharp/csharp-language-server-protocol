@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 {
     internal static class LanguageProtocolServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageProtocolInternals<T>(this IContainer container, LanguageProtocolRpcOptionsBase<T> options) where T : IJsonRpcHandlerRegistry<T>
+        internal static IContainer AddLanguageProtocolInternals<T>(this IContainer container, LanguageProtocolRpcOptionsBase<T> options, Func<JsonRpcHandlerDescription, bool> filter) where T : IJsonRpcHandlerRegistry<T>
         {
             options.RequestProcessIdentifier ??= options.SupportsContentModified
                 ? new RequestProcessIdentifier(RequestProcessType.Parallel)
@@ -40,7 +40,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterInitializer<SharedHandlerCollection>(
                 (manager, context) => {
                     var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                    descriptions.Populate(context, manager);
+                    descriptions.Populate(context, manager, filter);
                 }
             );
             container.RegisterMany<ResponseRouter>(Reuse.Singleton);

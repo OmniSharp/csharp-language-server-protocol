@@ -15,8 +15,17 @@
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
         <PackageReference Include="CodeGeneration.Roslyn.Tool" />
+
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Options" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="ExampleExtensions" />
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Integration\DisableDefaultsTests.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

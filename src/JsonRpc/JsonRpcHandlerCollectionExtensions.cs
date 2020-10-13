@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DryIoc;
 
@@ -5,11 +6,12 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal static class JsonRpcHandlerCollectionExtensions
     {
-        public static void Populate(this IJsonRpcHandlerCollection collection, IResolverContext resolverContext, IHandlersManager handlersManager)
+        public static void Populate(this IJsonRpcHandlerCollection collection, IResolverContext resolverContext, IHandlersManager handlersManager, Func<JsonRpcHandlerDescription, bool> filter)
         {
             var links = new List<JsonRpcHandlerLinkDescription>();
             foreach (var item in collection)
             {
+                if (!filter(item)) continue;
                 switch (item)
                 {
                     case JsonRpcHandlerFactoryDescription factory when !(factory.Method is null):
