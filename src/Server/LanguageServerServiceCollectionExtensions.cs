@@ -23,7 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerServiceCollectionExtensions
     {
-        private static readonly Assembly MediatRAssembly = typeof(IMediator).Assembly;
         internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider? outerServiceProvider)
         {
             bool Filter(JsonRpcHandlerDescription description)
@@ -81,7 +80,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             );
 
             container.RegisterMany<DidChangeConfigurationProvider>(
-                serviceTypeCondition: type => type.Assembly != MediatRAssembly,
                 made: Parameters.Of
                                 .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
@@ -132,10 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
             container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
-            container.RegisterMany<LanguageServerWorkspaceFolderManager>(
-                serviceTypeCondition: type => type.Assembly != MediatRAssembly,
-                reuse: Reuse.Singleton
-            );
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(reuse: Reuse.Singleton);
 
             return container;
         }

@@ -19,7 +19,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public static class LanguageClientServiceCollectionExtensions
     {
-        private static readonly Assembly MediatRAssembly = typeof(IMediator).Assembly;
         internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider? outerServiceProvider)
         {
             bool Filter(JsonRpcHandlerDescription description)
@@ -114,10 +113,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterMany<LanguageClientWorkDoneManager>(Reuse.Singleton);
             container.RegisterMany<LanguageClientWorkspaceFoldersManager>(
-                serviceTypeCondition: type => type.Assembly != MediatRAssembly && (options.WorkspaceFolders  || type != typeof(IJsonRpcHandler)), reuse: Reuse.Singleton
+                serviceTypeCondition: type => options.WorkspaceFolders  || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
             );
             container.RegisterMany<LanguageClientRegistrationManager>(
-                serviceTypeCondition: type => type.Assembly != MediatRAssembly && (options.DynamicRegistration || type != typeof(IJsonRpcHandler)), reuse: Reuse.Singleton
+                serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
             );
 
             return container;
