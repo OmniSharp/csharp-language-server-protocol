@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,12 +16,14 @@ using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using OmniSharp.Extensions.LanguageServer.Shared;
+
 #pragma warning disable CS0618
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerServiceCollectionExtensions
     {
+        private static readonly Assembly MediatRAssembly = typeof(IMediator).Assembly;
         internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider? outerServiceProvider)
         {
             bool Filter(JsonRpcHandlerDescription description)
@@ -78,6 +81,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             );
 
             container.RegisterMany<DidChangeConfigurationProvider>(
+                serviceTypeCondition: type => type.Assembly != MediatRAssembly,
                 made: Parameters.Of
                                 .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
@@ -104,7 +108,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();
@@ -128,7 +132,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
             container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
-            container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(
+                serviceTypeCondition: type => type.Assembly != MediatRAssembly,
+                reuse: Reuse.Singleton
+            );
 
             return container;
         }

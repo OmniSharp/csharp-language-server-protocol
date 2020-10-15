@@ -171,8 +171,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 yield return MakeAction(CreateAsyncAction(true, requestType));
                 if (capability != null)
                 {
-                    yield return MakeAction(CreateAction(requestType, capability));
-                    yield return MakeAction(CreateAsyncAction(requestType, capability));
+                    method = method.WithExpressionBody(
+                        GetNotificationCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, capability)
+                    );
                     yield return MakeAction(CreateAction(requestType, capability));
                     yield return MakeAction(CreateAsyncAction(requestType, capability));
                 }

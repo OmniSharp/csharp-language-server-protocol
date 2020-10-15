@@ -12,7 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [Method(WorkspaceNames.DidChangeWorkspaceFolders, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
-    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>, IRegistration<object>
+    public interface IDidChangeWorkspaceFoldersHandler : IJsonRpcNotificationHandler<DidChangeWorkspaceFoldersParams>,
+                                                         IRegistration<object> // TODO: Remove this in the future
     {
     }
 

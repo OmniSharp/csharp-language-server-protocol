@@ -1088,6 +1088,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
             }
 
+            public NotificationCapability(Action<TParams, TCapability, CancellationToken> handler) :
+                this(
+                    Guid.Empty, (request, capability, ct) => {
+                        handler(request, capability, ct);
+                        return Task.CompletedTask;
+                    }
+                )
+            {
+            }
+
+
             public NotificationCapability(Func<TParams, TCapability, CancellationToken, Task> handler) :
                 this(Guid.Empty, handler)
             {

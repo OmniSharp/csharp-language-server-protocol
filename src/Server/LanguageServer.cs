@@ -500,7 +500,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var result = manager.GetDisposable();
             if (_instanceHasStarted.Started)
             {
-                LanguageServerHelpers.InitHandlers(this, result);
+                LanguageServerHelpers.InitHandlers(this, result, _supportedCapabilities);
             }
 
             return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(z => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
