@@ -98,7 +98,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             var (client, server) = Create(
                 options => {
                     clientOptionsAction.Invoke(options);
-                    options.WithCapability(new DidChangeConfigurationCapability() {  DynamicRegistration = true});
+                    options.WithCapability(new DidChangeConfigurationCapability());
                     options.Services.AddSingleton<TestConfigurationProvider>();
                 }, serverOptionsAction
             );
