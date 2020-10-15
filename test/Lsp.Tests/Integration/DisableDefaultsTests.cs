@@ -44,14 +44,16 @@ namespace Lsp.Tests.Integration
             var unregistrationAction = Substitute.For<Func<UnregistrationParams, Task>>();
             var (client, _) = await Initialize(
                 options => options
-                   .OnRegisterCapability(registrationAction)
+                          .OnRegisterCapability(registrationAction)
                           .OnUnregisterCapability(unregistrationAction),
                 options => { }
             );
 
             var clientManager = client.Services.GetRequiredService<IHandlersManager>();
             clientManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Request<RegistrationParams>);
+            clientManager.Descriptors.Should().ContainSingle(f => f.Method == ClientNames.RegisterCapability);
             clientManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Request<UnregistrationParams>);
+            clientManager.Descriptors.Should().ContainSingle(f => f.Method == ClientNames.UnregisterCapability);
         }
 
         [Fact]
@@ -66,9 +68,11 @@ namespace Lsp.Tests.Integration
 
             var clientManager = client.Services.GetRequiredService<IHandlersManager>();
             clientManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Request<WorkspaceFolderParams, Container<WorkspaceFolder>?>);
+            clientManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.WorkspaceFolders);
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
             serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams, object>);
+            serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeWorkspaceFolders);
         }
 
         [Fact]
@@ -76,9 +80,9 @@ namespace Lsp.Tests.Integration
         {
             var action = Substitute.For<Action<DidChangeWorkspaceFoldersParams>>();
             var (client, server) = await Initialize(
-                options => {},
+                options => { },
                 options => options
-                          .OnDidChangeWorkspaceFolders(action, new object())
+                   .OnDidChangeWorkspaceFolders(action, new object())
             );
 
             var config = client.Services.GetRequiredService<TestConfigurationProvider>();
@@ -112,6 +116,7 @@ namespace Lsp.Tests.Integration
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
             serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeConfigurationParams, object>);
+            serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeConfiguration);
         }
 
         [Fact]
