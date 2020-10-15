@@ -38,18 +38,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return options;
         }
 
-        public static LanguageServerOptions UseDefaultServerConfiguration(this LanguageServerOptions options, bool value = true)
-        {
-            options.DefaultServerConfiguration = value;
-            return options;
-        }
-
-        public static LanguageServerOptions UseDefaultWorkspaceFolderManager(this LanguageServerOptions options, bool value = true)
-        {
-            options.DefaultWorkspaceFolderManager = value;
-            return options;
-        }
-
         public static LanguageServerOptions OnInitialize(this LanguageServerOptions options, OnLanguageServerInitializeDelegate @delegate)
         {
             options.Services.AddSingleton(@delegate);

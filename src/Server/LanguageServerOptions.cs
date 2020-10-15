@@ -18,8 +18,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         }
 
         public ServerInfo? ServerInfo { get; set; }
-        public bool DefaultServerConfiguration { get; set; } = true;
-        public bool DefaultWorkspaceFolderManager { get; set; } = true;
 
         ILanguageServerRegistry IJsonRpcHandlerRegistry<ILanguageServerRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
             AddHandler(method, handler, options);

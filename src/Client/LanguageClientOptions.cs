@@ -41,8 +41,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         public InitializeTrace Trace { get; set; }
 
         public object? InitializationOptions { get; set; }
-        public bool DefaultRegistrationManager { get; set; } = true;
-        public bool DefaultWorkspaceFolderManager { get; set; } = true;
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
             AddHandler(method, handler, options);

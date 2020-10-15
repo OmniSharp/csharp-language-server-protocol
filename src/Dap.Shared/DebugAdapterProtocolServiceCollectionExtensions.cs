@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             container.RegisterInitializer<DebugAdapterHandlerCollection>(
                 (manager, context) => {
                     var descriptions = context.Resolve<IJsonRpcHandlerCollection>();
-                    descriptions.Populate(context, manager, _ => true);
+                    descriptions.Populate(context, manager);
                 }
             );
             container.RegisterMany<DapResponseRouter>(Reuse.Singleton);
