@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
-            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(  options.OnUnhandledException, default))
+            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(options.OnUnhandledException, default))
             {
                 container.RegisterInstance(options.OnUnhandledException);
             }
@@ -80,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             container.RegisterMany<LanguageClientWorkDoneManager>(Reuse.Singleton);
             container.RegisterMany<LanguageClientWorkspaceFoldersManager>(
-                serviceTypeCondition: type => options.WorkspaceFolders  || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
+                serviceTypeCondition: type => options.WorkspaceFolders || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
             );
             container.RegisterMany<LanguageClientRegistrationManager>(
                 serviceTypeCondition: type => options.DynamicRegistration || type != typeof(IJsonRpcHandler), reuse: Reuse.Singleton
