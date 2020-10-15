@@ -1,3 +1,4 @@
+#if false
 using System;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -57,7 +58,6 @@ namespace Microsoft.Extensions.Configuration
             );
         }
 
-#if false
         /// <summary>
         /// Registers a injected configuration service which TOptions will bind against.
         /// </summary>
@@ -171,6 +171,6 @@ namespace Microsoft.Extensions.Configuration
             Configure<TOptions>(builder.Services, name, configureBinder);
             return builder;
         }
-#endif
     }
 }
+#endif
