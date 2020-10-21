@@ -1,6 +1,8 @@
 using System;
 using System.IO.Pipelines;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -79,23 +81,51 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(Reuse.Scoped);
             container.RegisterDelegate<ServiceFactory>(context => context.Resolve, Reuse.ScopedOrSingleton);
+            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandler<,>));
+            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandlerDecorator<,>), setup: Setup.Decorator);
 
-            return container.With(
-                rules => rules.WithUnknownServiceResolvers(
-                    request => {
-                        if (request.ServiceType.IsGenericType && typeof(IRequestHandler<,>).IsAssignableFrom(request.ServiceType.GetGenericTypeDefinition()))
-                        {
-                            var context = request.Container.Resolve<IRequestContext?>();
-                            if (context != null)
-                            {
-                                return new RegisteredInstanceFactory(context.Descriptor.Handler);
-                            }
-                        }
+            return container;
+        }
 
-                        return null;
+        class RequestHandler<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        {
+            private readonly IRequestContext _requestContext;
+
+            public RequestHandler(IRequestContext requestContext)
+            {
+                _requestContext = requestContext;
+            }
+            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            {
+                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+            }
+        }
+
+        class RequestHandlerDecorator<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        {
+            private readonly IRequestHandler<T, R>? _handler;
+            private readonly IRequestContext? _requestContext;
+
+            public RequestHandlerDecorator(IRequestHandler<T, R>? handler = null, IRequestContext? requestContext = null)
+            {
+                _handler = handler;
+                _requestContext = requestContext;
+            }
+            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            {
+                if (_requestContext == null)
+                {
+                    if (_handler == null)
+                    {
+                        throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, R>).FullName}");
+
                     }
-                )
-            );
+
+                    return _handler.Handle(request, cancellationToken);
+                }
+
+                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+            }
         }
 
         internal static IContainer AddJsonRpcServerInternals(this IContainer container, JsonRpcServerOptions options)

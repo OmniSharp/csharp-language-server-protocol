@@ -71,7 +71,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             var result = manager.GetDisposable();
             if (_instancesHasStarted.Started)
             {
-                LanguageServerHelpers.InitHandlers(ResolverContext.Resolve<ILanguageServer>(), result);
+                LanguageServerHelpers.InitHandlers(ResolverContext.Resolve<ILanguageServer>(), result, _supportedCapabilities.Value);
             }
 
             return LanguageServerHelpers.RegisterHandlers(_hasStarted, Client, _workDoneManager.Value, _supportedCapabilities.Value, result);

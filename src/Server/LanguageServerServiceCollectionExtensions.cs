@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -15,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using OmniSharp.Extensions.LanguageServer.Shared;
+
 #pragma warning disable CS0618
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -75,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterDelegate<IConfiguration>(
                 _ => {
                     var builder = new ConfigurationBuilder();
-                    var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
+                    var didChangeConfigurationProvider = _.GetRequiredService<ILanguageServerConfiguration>();
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {
@@ -84,7 +86,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();
@@ -108,7 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
             container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
-            container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(reuse: Reuse.Singleton);
 
             return container;
         }

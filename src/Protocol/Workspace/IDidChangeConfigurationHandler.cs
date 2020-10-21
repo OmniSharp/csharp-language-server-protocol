@@ -14,15 +14,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
     public interface IDidChangeConfigurationHandler : IJsonRpcNotificationHandler<DidChangeConfigurationParams>,
-                                                      IRegistration<object>, ICapability<DidChangeConfigurationCapability>
+                                                      IRegistration<object>, // TODO: Remove this in the future
+                                                      ICapability<DidChangeConfigurationCapability>
     {
     }
 
     public abstract class DidChangeConfigurationHandler : IDidChangeConfigurationHandler
     {
-        public object GetRegistrationOptions() => new object();
         public abstract Task<Unit> Handle(DidChangeConfigurationParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DidChangeConfigurationCapability capability) => Capability = capability;
         protected DidChangeConfigurationCapability Capability { get; private set; } = null!;
+        public object GetRegistrationOptions() => new object();
     }
 }

@@ -5,6 +5,7 @@ using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -19,28 +20,41 @@ namespace OmniSharp.Extensions.LanguageServer.Server
     {
         static IEnumerable<T> GetUniqueHandlers<T>(CompositeDisposable disposable)
         {
-            return disposable.OfType<ILspHandlerDescriptor>()
-                             .Select(z => z.Handler)
-                             .OfType<T>()
-                             .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetUniqueHandlers<T>))
-                             .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetLspHandlers<T>))
-                             .Distinct();
+            return GetUniqueHandlers(disposable).OfType<T>();
         }
 
-        static IEnumerable<T> GetLspHandlers<T>(LspHandlerDescriptorDisposable disposable)
+        static IEnumerable<IJsonRpcHandler> GetUniqueHandlers(CompositeDisposable disposable)
         {
-            return disposable.Descriptors
-                             .Select(z => z.Handler)
-                             .OfType<T>()
+            return GetAllDescriptors(disposable)
+                  .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetAllDescriptors))
+                  .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetAllDescriptors))
+                  .Select(z => z.Handler)
+                  .Distinct();
+        }
+
+        static IEnumerable<ILspHandlerDescriptor> GetAllDescriptors(CompositeDisposable disposable)
+        {
+            return disposable.OfType<ILspHandlerDescriptor>()
+                             .Concat(disposable.OfType<CompositeDisposable>().SelectMany(GetAllDescriptors))
+                             .Concat(disposable.OfType<LspHandlerDescriptorDisposable>().SelectMany(GetAllDescriptors))
                              .Distinct();
         }
 
-        internal static void InitHandlers(ILanguageServer client, CompositeDisposable result)
+        static IEnumerable<ILspHandlerDescriptor> GetAllDescriptors(LspHandlerDescriptorDisposable disposable)
+        {
+            return disposable.Descriptors;
+        }
+
+        internal static void InitHandlers(ILanguageServer client, CompositeDisposable result, ISupportedCapabilities supportedCapabilities )
         {
             Observable.Concat(
                 GetUniqueHandlers<IOnLanguageServerInitialize>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialize(client, client.ClientSettings, ct)))
                    .Merge(),
+                GetAllDescriptors(result)
+                   .Select(item => LspHandlerDescriptorHelpers.InitializeHandler(item, supportedCapabilities, item.Handler))
+                   .ToObservable()
+                   .Select(z => Unit.Default),
                 GetUniqueHandlers<IOnLanguageServerInitialized>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialized(client, client.ClientSettings, client.ServerSettings, ct)))
                    .Merge(),

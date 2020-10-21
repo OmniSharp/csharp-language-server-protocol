@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -28,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
-            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(  options.OnUnhandledException, default))
+            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(options.OnUnhandledException, default))
             {
                 container.RegisterInstance(options.OnUnhandledException);
             }
@@ -79,7 +80,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
                     if (providedConfiguration != null)
                     {
-                        builder.CustomAddConfiguration((providedConfiguration.ImplementationInstance as IConfiguration)!);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();

@@ -18,6 +18,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         {
             WithAssemblies(typeof(LanguageClientOptions).Assembly, typeof(LspRequestRouter).Assembly);
         }
+
         public ClientCapabilities ClientCapabilities { get; set; } = new ClientCapabilities {
             Experimental = new Dictionary<string, JToken>(),
             Window = new WindowClientCapabilities(),
@@ -52,7 +53,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options) =>
             AddHandler(handlerFunc, options);
 
-        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options) => AddHandler(handler, options);
+        ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options) =>
+            AddHandler(handler, options);
 
         ILanguageClientRegistry IJsonRpcHandlerRegistry<ILanguageClientRegistry>.AddHandler<TTHandler>(JsonRpcHandlerOptions? options) => AddHandler<TTHandler>(options);
 
