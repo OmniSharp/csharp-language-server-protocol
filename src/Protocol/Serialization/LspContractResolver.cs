@@ -11,7 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    internal class ContractResolver : DefaultContractResolver
+    internal class LspContractResolver : DefaultContractResolver
     {
         private readonly CompletionItemKind[] _completionItemKinds;
         private readonly CompletionItemTag[] _completionItemTags;
@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         private readonly DiagnosticTag[] _diagnosticTags;
         private readonly CodeActionKind[] _codeActionKinds;
 
-        public ContractResolver(
+        public LspContractResolver(
             CompletionItemKind[] completionItemKinds,
             CompletionItemTag[] completionItemTags,
             SymbolKind[] documentSymbolKinds,

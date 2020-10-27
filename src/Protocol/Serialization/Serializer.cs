@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonSerializer CreateSerializer()
         {
             var serializer = base.CreateSerializer();
-            serializer.ContractResolver = new ContractResolver(
+            serializer.ContractResolver = new LspContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultCompletionItemTags,
                 DefaultSymbolKinds,
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonSerializerSettings CreateSerializerSettings()
         {
             var settings = base.CreateSerializerSettings();
-            settings.ContractResolver = new ContractResolver(
+            settings.ContractResolver = new LspContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultCompletionItemTags,
                 DefaultSymbolKinds,
@@ -200,7 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
 
             AddOrReplaceConverters(Settings.Converters);
-            Settings.ContractResolver = new ContractResolver(
+            Settings.ContractResolver = new LspContractResolver(
                 completionItemKinds,
                 completionItemTags,
                 documentSymbolKinds,
@@ -212,7 +212,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             );
 
             AddOrReplaceConverters(JsonSerializer.Converters);
-            JsonSerializer.ContractResolver = new ContractResolver(
+            JsonSerializer.ContractResolver = new LspContractResolver(
                 completionItemKinds,
                 completionItemTags,
                 documentSymbolKinds,
