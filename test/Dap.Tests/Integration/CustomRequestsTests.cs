@@ -58,9 +58,9 @@ namespace Dap.Tests.Integration
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             var request = args[0].Should().BeOfType<AttachRequestArguments>().Which;
-            request.ExtensionData.Should().ContainKey("ComputerName").And.Subject["ComputerName"].Should().Be("computer");
-            request.ExtensionData.Should().ContainKey("RunspaceId").And.Subject["RunspaceId"].Should().Be("1234");
-            request.ExtensionData.Should().ContainKey("ProcessId").And.Subject["ProcessId"].Should().Be("4321");
+            request.ExtensionData.Should().ContainKey("computerName").And.Subject["computerName"].Should().Be("computer");
+            request.ExtensionData.Should().ContainKey("runspaceId").And.Subject["runspaceId"].Should().Be("1234");
+            request.ExtensionData.Should().ContainKey("processId").And.Subject["processId"].Should().Be("4321");
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace Dap.Tests.Integration
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             var request = args[0].Should().BeOfType<LaunchRequestArguments>().Which;
-            request.ExtensionData.Should().ContainKey("Script").And.Subject["Script"].Should().Be("build.ps1");
+            request.ExtensionData.Should().ContainKey("script").And.Subject["script"].Should().Be("build.ps1");
         }
 
         [Fact]
@@ -182,9 +182,9 @@ namespace Dap.Tests.Integration
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             var request = args[0].Should().BeOfType<AttachRequestArguments>().Which;
-            request.ExtensionData.Should().ContainKey("ComputerName").And.Subject["ComputerName"].Should().Be("computer");
-            request.ExtensionData.Should().ContainKey("RunspaceId").And.Subject["RunspaceId"].Should().Be("1234");
-            request.ExtensionData.Should().ContainKey("ProcessId").And.Subject["ProcessId"].Should().Be("4321");
+            request.ExtensionData.Should().ContainKey("computerName").And.Subject["computerName"].Should().Be("computer");
+            request.ExtensionData.Should().ContainKey("runspaceId").And.Subject["runspaceId"].Should().Be("1234");
+            request.ExtensionData.Should().ContainKey("processId").And.Subject["processId"].Should().Be("4321");
         }
 
         [Fact]
@@ -244,7 +244,7 @@ namespace Dap.Tests.Integration
             var call = fake.ReceivedCalls().Single();
             var args = call.GetArguments();
             var request = args[0].Should().BeOfType<LaunchRequestArguments>().Which;
-            request.ExtensionData.Should().ContainKey("Script").And.Subject["Script"].Should().Be("build.ps1");
+            request.ExtensionData.Should().ContainKey("script").And.Subject["script"].Should().Be("build.ps1");
         }
 
         [Fact]
