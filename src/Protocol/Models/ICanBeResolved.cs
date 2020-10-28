@@ -14,4 +14,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         JToken? Data { get; set; }
     }
+
+    public interface ICanHaveData
+    {
+        /// <summary>
+        /// A data entry field that is preserved for resolve requests
+        /// </summary>
+        [Optional]
+        JToken? Data { get; set; }
+    }
 }

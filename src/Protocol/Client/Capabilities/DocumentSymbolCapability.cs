@@ -29,5 +29,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         [Obsolete(Constants.Proposal)]
         [Optional]
         public TagSupportCapabilityOptions? TagSupport { get; set; }
+
+        /// <summary>
+        /// The client supports an additional label presented in the UI when
+        /// registering a document symbol provider.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [Optional]
+        public bool LabelSupport { get; set; }
     }
 }

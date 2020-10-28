@@ -31,5 +31,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool VersionSupport { get; set; }
+
+        /// <summary>
+        /// Client supports a codeDescription property
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool CodeDescriptionSupport { get; set; }
+
+        /// <summary>
+        /// Whether code action supports the `data` property which is
+        /// preserved between a `textDocument/publishDiagnostics` and
+        /// `textDocument/codeAction` request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool DataSupport { get; set; }
     }
 }
