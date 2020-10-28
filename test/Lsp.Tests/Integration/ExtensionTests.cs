@@ -18,6 +18,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using TestingUtils;
 
 namespace Lsp.Tests.Integration
 {
@@ -79,7 +80,7 @@ namespace Lsp.Tests.Integration
             onRunUnitHandler.Received(1).Invoke(Arg.Any<UnitTest>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Custom_Capabilities_Using_Json()
         {
             var onDiscoverHandler = Substitute.For<Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>>>();
