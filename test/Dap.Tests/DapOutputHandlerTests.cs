@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
@@ -21,7 +22,7 @@ namespace Dap.Tests
         {
             var rec = Substitute.For<IReceiver>();
             rec.ShouldFilterOutput(Arg.Any<object>()).Returns(true);
-            return new OutputHandler(writer, new DapSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            return new OutputHandler(writer, new DapProtocolSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]

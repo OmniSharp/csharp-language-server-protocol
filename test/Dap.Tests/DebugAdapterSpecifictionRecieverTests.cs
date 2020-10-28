@@ -2,6 +2,9 @@ using System.Linq;
 using FluentAssertions;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Serialization;
+using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using OmniSharp.Extensions.JsonRpc.Server.Messages;
 using Xunit;
@@ -15,8 +18,8 @@ namespace Dap.Tests
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
             var receiver = new DapReceiver();
-            var inSerializer = new DapSerializer();
-            var outSerializer = new DapSerializer();
+            var inSerializer = new DapProtocolSerializer();
+            var outSerializer = new DapProtocolSerializer();
             var (requests, _) = receiver.GetRequests(JToken.Parse(json));
             var result = requests.ToArray();
             request.Length.Should().Be(result.Length);
@@ -29,6 +32,19 @@ namespace Dap.Tests
                 inSerializer.SerializeObject(response)
                             .Should().Be(outSerializer.SerializeObject(r));
             }
+        }
+
+        [Fact]
+        public void Should_Camel_Case_As_Expected()
+        {
+            var serializer = new DapProtocolSerializer();
+            var response = serializer.SerializeObject(
+                new InitializeResponse() {
+                    SupportsCancelRequest = true
+                }
+            );
+
+            response.Should().Be("{\"supportsConfigurationDoneRequest\":false,\"supportsFunctionBreakpoints\":false,\"supportsConditionalBreakpoints\":false,\"supportsHitConditionalBreakpoints\":false,\"supportsEvaluateForHovers\":false,\"supportsStepBack\":false,\"supportsSetVariable\":false,\"supportsRestartFrame\":false,\"supportsGotoTargetsRequest\":false,\"supportsStepInTargetsRequest\":false,\"supportsCompletionsRequest\":false,\"supportsModulesRequest\":false,\"supportsRestartRequest\":false,\"supportsExceptionOptions\":false,\"supportsValueFormattingOptions\":false,\"supportsExceptionInfoRequest\":false,\"supportTerminateDebuggee\":false,\"supportsDelayedStackTraceLoading\":false,\"supportsLoadedSourcesRequest\":false,\"supportsLogPoints\":false,\"supportsTerminateThreadsRequest\":false,\"supportsSetExpression\":false,\"supportsTerminateRequest\":false,\"supportsDataBreakpoints\":false,\"supportsReadMemoryRequest\":false,\"supportsDisassembleRequest\":false,\"supportsCancelRequest\":true,\"supportsBreakpointLocationsRequest\":false,\"supportsClipboardContext\":false,\"supportsSteppingGranularity\":false,\"supportsInstructionBreakpoints\":false}");
         }
 
         private class SpecificationMessages : TheoryData<string, Renor[]>
