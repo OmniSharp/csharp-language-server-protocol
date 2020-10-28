@@ -284,7 +284,7 @@ namespace Lsp.Tests.Integration
             item.Detail.Should().Be("resolved");
         }
 
-        [Fact]
+        [FactWithSkipOn(SkipOnPlatform.Mac)]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
