@@ -14,7 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// </summary>
     [Obsolete(Constants.Proposal)]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class CallHierarchyItem : ICanHaveData
+    public class CallHierarchyItem : ICanBeResolved
     {
         /// <summary>
         /// The name of this item.
@@ -79,8 +79,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
     /// </summary>
     [Obsolete(Constants.Proposal)]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class CallHierarchyItem<T> : ICanHaveData
-        where T : class?, new()
+    public class CallHierarchyItem<T> : ICanBeResolved
+        where T : HandlerIdentity?, new()
     {
         /// <summary>
         /// The name of this item.
@@ -126,14 +126,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         /// </summary>
         public T Data
         {
-            get => ( (ICanHaveData) this ).Data?.ToObject<T>()!;
-            set => ( (ICanHaveData) this ).Data = JToken.FromObject(value);
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>()!;
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value);
         }
 
-        JToken? ICanHaveData.Data { get; set; }
+        JToken? ICanBeResolved.Data { get; set; }
 
         public static implicit operator CallHierarchyItem(CallHierarchyItem<T> value) => new CallHierarchyItem {
-            Data = ( (ICanHaveData) value ).Data,
+            Data = ( (ICanBeResolved) value ).Data,
             Detail = value.Detail,
             Kind = value.Kind,
             Name = value.Name,
@@ -154,7 +154,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
                 Tags = value.Tags,
                 Uri = value.Uri
             };
-            ( (ICanHaveData) item ).Data = value.Data;
+            ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
 

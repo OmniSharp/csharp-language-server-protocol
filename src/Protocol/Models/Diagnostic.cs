@@ -61,6 +61,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [Optional]
         public Container<DiagnosticRelatedInformation>? RelatedInformation { get; set; }
 
+        /// <summary>
+        /// A data entry field that is preserved on a code lens item between
+        /// a code lens and a code lens resolve request.
+        /// </summary>
         [Optional] public JToken? Data { get; set; }
 
         private string DebuggerDisplay =>
