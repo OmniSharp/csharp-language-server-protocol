@@ -149,7 +149,7 @@ namespace Lsp.Tests.Integration
             outgoingHandler.Received(1).Invoke(Arg.Any<CallHierarchyOutgoingCallsParams<Data>>());
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Mac)]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var incomingHandler = Substitute.For<Action<CallHierarchyIncomingCallsParams<Data>, IObserver<IEnumerable<CallHierarchyIncomingCall>>>>();
