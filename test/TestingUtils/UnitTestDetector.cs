@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace TestingUtils
 {
-    class UnitTestDetector
+    internal class UnitTestDetector
     {
         // ReSharper disable once InconsistentNaming
         public static bool IsCI() => string.IsNullOrWhiteSpace(Environment.GetEnvironmentVariable("CI"))

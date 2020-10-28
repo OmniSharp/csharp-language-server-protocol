@@ -28,7 +28,7 @@ namespace Lsp.Tests.Integration
             {
             }
 
-            [FactWithSkipOn(SkipOnPlatform.All)]
+            [RetryFact]
             public async Task Should_Behave_Like_A_Task()
             {
                 var result = await Client.TextDocument.RequestCodeLens(
@@ -41,7 +41,7 @@ namespace Lsp.Tests.Integration
                 result.Select(z => z.Command!.Name).Should().ContainInOrder("CodeLens 1", "CodeLens 2", "CodeLens 3");
             }
 
-            [FactWithSkipOn(SkipOnPlatform.All)]
+            [RetryFact]
             public async Task Should_Behave_Like_An_Observable()
             {
                 var items = await Client.TextDocument

@@ -97,7 +97,7 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.Completion);
             }
 
-            [FactWithSkipOn(SkipOnPlatform.All)]
+            [RetryFact]
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);

@@ -15,7 +15,7 @@ namespace TestingUtils
 
         public override string? Skip
         {
-            get => /*!UnitTestDetector.IsCI() && */_platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
+            get => !UnitTestDetector.IsCI() && _platformsToSkip.Any(UnitTestDetector.PlatformToSkipPredicate)
                 ? "Skipped on platform" + ( string.IsNullOrWhiteSpace(_skip) ? "" : " because " + _skip )
                 : null;
             set => _skip = value;

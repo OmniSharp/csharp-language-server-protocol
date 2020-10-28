@@ -46,7 +46,7 @@ namespace NSubstitute
             _testOutputHelper.Swap(testOutputHelper);
         }
 
-        class InnerTestOutputHelper : ITestOutputHelper
+        private class InnerTestOutputHelper : ITestOutputHelper
         {
             private ITestOutputHelper? _testOutputHelper;
 

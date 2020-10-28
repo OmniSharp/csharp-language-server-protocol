@@ -204,7 +204,7 @@ namespace Lsp.Tests.Integration
             item.CodeAction!.Command!.Name.Should().Be("resolved");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Mac)]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
             var (client, _) = await Initialize(
@@ -297,7 +297,7 @@ namespace Lsp.Tests.Integration
             item.CodeAction!.Command!.Name.Should().Be("resolved");
         }
 
-        [FactWithSkipOn(SkipOnPlatform.Mac)]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
             var (client, _) = await Initialize(
