@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [GenerateHandlerMethods]
     public interface ISemanticTokensDeltaHandler :
         IJsonRpcRequestHandler<SemanticTokensDeltaParams, SemanticTokensFullOrDelta?>,
-        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
+        IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
     {
     }
 
@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [Method(TextDocumentNames.SemanticTokensRange, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     public interface ISemanticTokensRangeHandler : IJsonRpcRequestHandler<SemanticTokensRangeParams, SemanticTokens?>,
-                                                   IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>, IDoesNotParticipateInRegistration
+                                                   IRegistration<SemanticTokensRegistrationOptions>, ICapability<SemanticTokensCapability>
     {
     }
 

@@ -83,7 +83,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 source.TypeDescriptor,
                 source.HandlerType,
                 source.RegistrationType,
-                source.CapabilityType
+                source.CapabilityType,
+                Guid.NewGuid()
             );
             Interlocked.Exchange(ref _descriptors, _descriptors.Add(descriptor));
             var cd = new CompositeDisposable();
@@ -233,7 +234,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         private LspHandlerDescriptor GetDescriptor(
             string method, Type handlerType, IJsonRpcHandler handler, JsonRpcHandlerOptions? options,
             ILspHandlerTypeDescriptor? typeDescriptor,
-            Type @interface, Type? registrationType, Type? capabilityType
+            Type @interface, Type? registrationType, Type? capabilityType, Guid? id = null
         )
         {
             Type? @params = null;
@@ -307,7 +308,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
                     Interlocked.Exchange(ref _descriptors, descriptors.ToImmutable());
                 },
-                typeDescriptor
+                typeDescriptor,
+                id
             );
 
             return descriptor;

@@ -45,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return disposable.Descriptors;
         }
 
-        internal static void InitHandlers(ILanguageServer client, CompositeDisposable result, ISupportedCapabilities supportedCapabilities )
+        internal static void InitHandlers(ILanguageServer client, CompositeDisposable result, ISupportedCapabilities supportedCapabilities)
         {
             Observable.Concat(
                 GetUniqueHandlers<IOnLanguageServerInitialize>(result)
@@ -105,7 +105,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         .LastOrDefaultAsync()
                         .Select(
                              _ => {
-                                 var registrations = new List<Registration>();
+                                 var registrations = new HashSet<Registration>();
                                  foreach (var descriptor in descriptors)
                                  {
                                      if (descriptor.HasCapability && supportedCapabilities.AllowsDynamicRegistration(descriptor.CapabilityType!))
@@ -118,18 +118,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                          registrations.Add(
                                              new Registration {
                                                  Id = descriptor.Id.ToString(),
-                                                 Method = descriptor.Method,
+                                                 Method = RegistrationNameAttribute.From(descriptor.RegistrationType)?.Method ?? descriptor.Method,
                                                  RegisterOptions = descriptor.RegistrationOptions
                                              }
                                          );
                                      }
                                  }
 
-                                 return registrations;
+                                 return registrations.Distinct(new Registration.TextDocumentComparer()).ToArray();
                              }
                          )
                         .SelectMany(
-                             registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations }, ct)), (a, b) => a
+                             registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
+                             (a, b) => a
                          )
                         .Aggregate((z, b) => z)
                         .Subscribe(
@@ -139,7 +140,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                          () => {
                                              client.UnregisterCapability(
                                                  new UnregistrationParams {
-                                                     Unregisterations = registrations
+                                                     Unregisterations = registrations.ToArray()
                                                  }
                                              ).ToObservable().Subscribe();
                                          }
