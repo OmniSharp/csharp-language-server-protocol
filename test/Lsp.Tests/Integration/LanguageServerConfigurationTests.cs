@@ -166,7 +166,7 @@ namespace Lsp.Tests.Integration
             server.Configuration["notmysection:key"].Should().BeNull();
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Support_Configuration_Binding()
         {
             var (_, server, configuration) = await InitializeWithConfiguration(ConfigureClient, ConfigureServer);

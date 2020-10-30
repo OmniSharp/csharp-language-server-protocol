@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -84,7 +85,7 @@ namespace Lsp.Tests.Integration
             {
                 var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
                 await client.RegistrationManager.Registrations.Take(1);
-                using var _ = server.Register(r => r.AddHandlerLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull));
+                using var _ = server.Register(r => r.AddHandlerLink(TextDocumentNames.Completion, "@/" + TextDocumentNames.Completion));
 
                 await TestHelper.DelayUntil(
                     () => client.RegistrationManager.CurrentRegistrations,
@@ -92,10 +93,8 @@ namespace Lsp.Tests.Integration
                     CancellationToken
                 );
 
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
-                client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
-                client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensRange);
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.SemanticTokensFull);
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.Completion);
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.Completion);
             }
 
             [RetryFact]
@@ -132,6 +131,26 @@ namespace Lsp.Tests.Integration
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
                 );
+            }
+
+            [Fact]
+            public async Task Should_Only_Register_Semantic_Tokens_Registration_Once()
+            {
+                var tokens = Substitute.For<SemanticTokensHandlerBase>(new SemanticTokensRegistrationOptions());
+                var (client, server) = await Initialize(new ConfigureClient().Configure, options => {
+                    new ConfigureServer().Configure(options);
+                    options.AddHandler(tokens);
+                });
+
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => registration.Method == TextDocumentNames.SemanticTokensRegistration),
+                    CancellationToken
+                );
+
+                tokens.Received(Quantity.Exactly(1)).GetRegistrationOptions();
+
+                client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
             private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions!, documentFilter);
@@ -188,11 +207,11 @@ namespace Lsp.Tests.Integration
 
                 await TestHelper.DelayUntil(
                     () => client.RegistrationManager.CurrentRegistrations,
-                    registrations => registrations.Any(r => r.Method == TextDocumentNames.SemanticTokensFull),
+                    registrations => registrations.Any(r => r.Method == TextDocumentNames.SemanticTokensRegistration),
                     CancellationToken
                 );
 
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
             [Fact]

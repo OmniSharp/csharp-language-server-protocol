@@ -29,10 +29,31 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             RequestProcessType? requestProcessType,
             Action disposeAction,
             ILspHandlerTypeDescriptor? typeDescriptor
+        ) : this(
+            method, key, handler, handlerType, @params, registrationType, registrationOptions, allowsDynamicRegistration, capabilityType, requestProcessType, disposeAction,
+            typeDescriptor, null
+        )
+        {
+        }
+
+        public LspHandlerDescriptor(
+            string method,
+            string key,
+            IJsonRpcHandler handler,
+            Type handlerType,
+            Type? @params,
+            Type? registrationType,
+            object? registrationOptions,
+            Func<bool> allowsDynamicRegistration,
+            Type? capabilityType,
+            RequestProcessType? requestProcessType,
+            Action disposeAction,
+            ILspHandlerTypeDescriptor? typeDescriptor,
+            Guid? id
         )
         {
             _disposeAction = disposeAction;
-            Id = Guid.NewGuid();
+            Id = id.HasValue ? id.Value : handler is ICanBeIdentifiedHandler h && h.Id != Guid.Empty ? h.Id : Guid.NewGuid();
             Method = method;
             Key = key;
             ImplementationType = handler.GetType();

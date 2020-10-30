@@ -51,6 +51,7 @@
         },
         "documentSymbol": {
             "hierarchicalDocumentSymbolSupport": false,
+            "labelSupport": false,
             "dynamicRegistration": true
         },
         "formatting": {

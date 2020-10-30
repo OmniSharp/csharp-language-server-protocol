@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 {
     [Obsolete(Constants.Proposal)]
+    [RegistrationName(TextDocumentNames.SemanticTokensRegistration)]
     public class SemanticTokensRegistrationOptions : StaticWorkDoneTextDocumentRegistrationOptions
     {
         /// <summary>

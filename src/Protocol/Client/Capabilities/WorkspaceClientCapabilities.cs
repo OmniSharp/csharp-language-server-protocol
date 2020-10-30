@@ -31,6 +31,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         public Supports<ExecuteCommandCapability?> ExecuteCommand { get; set; }
 
         /// <summary>
+        /// Capabilities specific to the semantic token requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0 - proposed state.
+        /// </summary>
+        public Supports<SemanticTokensWorkspaceCapability> SemanticTokens { get; set; }
+
+        /// <summary>
         /// The client has support for workspace folders.
         ///
         /// Since 3.6.0
