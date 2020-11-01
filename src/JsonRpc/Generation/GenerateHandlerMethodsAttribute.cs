@@ -17,7 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
         {
         }
 
-        public string MethodName { get; set; }
+        public string? MethodName { get; set; }
 
         /// <summary>
         /// Allow the request to be derived and create methods that take a request type argument.

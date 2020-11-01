@@ -14,6 +14,7 @@
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=RemoveRedundantBraces/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UnnecessaryWhitespace/@EntryIndexedValue">WARNING</s:String>
 	<s:String x:Key="/Default/CodeInspection/Highlighting/InspectionSeverities/=UseNullPropagationWhenPossible/@EntryIndexedValue">SUGGESTION</s:String>
+	<s:String x:Key="/Default/CodeInspection/Highlighting/SweaWarningsMode/@EntryValue">ShowAndRun</s:String>
     <s:Boolean x:Key="/Default/CodeInspection/Roslyn/UseRoslynInSwea/@EntryValue">True</s:Boolean>
     <s:String x:Key="/Default/CodeStyle/CodeCleanup/Profiles/=Full_0020Cleanup/@EntryIndexedValue">&lt;?xml version="1.0" encoding="utf-16"?&gt;&lt;Profile name="Full Cleanup"&gt;&lt;CSCodeStyleAttributes ArrangeTypeAccessModifier="True" ArrangeTypeMemberAccessModifier="True" SortModifiers="True" RemoveRedundantParentheses="True" AddMissingParentheses="True" ArrangeBraces="False" ArrangeAttributes="True" ArrangeArgumentsStyle="True" ArrangeCodeBodyStyle="True" ArrangeVarStyle="True" ArrangeTrailingCommas="False" /&gt;&lt;RemoveCodeRedundancies&gt;True&lt;/RemoveCodeRedundancies&gt;&lt;CSUseAutoProperty&gt;True&lt;/CSUseAutoProperty&gt;&lt;CSMakeFieldReadonly&gt;True&lt;/CSMakeFieldReadonly&gt;&lt;CSMakeAutoPropertyGetOnly&gt;True&lt;/CSMakeAutoPropertyGetOnly&gt;&lt;CSArrangeQualifiers&gt;True&lt;/CSArrangeQualifiers&gt;&lt;CSFixBuiltinTypeReferences&gt;True&lt;/CSFixBuiltinTypeReferences&gt;&lt;CSOptimizeUsings&gt;&lt;OptimizeUsings&gt;True&lt;/OptimizeUsings&gt;&lt;EmbraceInRegion&gt;False&lt;/EmbraceInRegion&gt;&lt;RegionName&gt;&lt;/RegionName&gt;&lt;/CSOptimizeUsings&gt;&lt;CSShortenReferences&gt;True&lt;/CSShortenReferences&gt;&lt;CSReformatCode&gt;True&lt;/CSReformatCode&gt;&lt;CSharpFormatDocComments&gt;True&lt;/CSharpFormatDocComments&gt;&lt;XAMLCollapseEmptyTags&gt;False&lt;/XAMLCollapseEmptyTags&gt;&lt;IDEA_SETTINGS&gt;&amp;lt;profile version="1.0"&amp;gt;&#xD;
   &amp;lt;option name="myName" value="Full Cleanup" /&amp;gt;&#xD;
@@ -238,6 +239,7 @@
     &lt;/Entry&gt;&#xD;
   &lt;/TypePattern&gt;&#xD;
 &lt;/Patterns&gt;</s:String>
+	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EFeature_002EServices_002EDaemon_002ESettings_002EMigration_002ESwaWarningsModeSettingsMigrate/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpKeepExistingMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpPlaceEmbeddedOnSameLineMigration/@EntryIndexedValue">True</s:Boolean>
 	<s:Boolean x:Key="/Default/Environment/SettingsMigration/IsMigratorApplied/=JetBrains_002EReSharper_002EPsi_002ECSharp_002ECodeStyle_002ECSharpUseContinuousIndentInsideBracesMigration/@EntryIndexedValue">True</s:Boolean>

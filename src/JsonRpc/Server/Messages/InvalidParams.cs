@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server.Messages
         {
         }
 
-        public InvalidParams(object id, string method) : base(id, method, new ErrorMessage(-32602, "Invalid params"))
+        public InvalidParams(object? id, string method) : base(id, method, new ErrorMessage(-32602, "Invalid params"))
         {
         }
     }

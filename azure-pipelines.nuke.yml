@@ -21,9 +21,9 @@ parameters:
   Configuration: 'Release'
   Verbosity: 'Normal'
 steps:
-  - pwsh: ./build.ps1 Build --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
+  - pwsh: dotnet nuke Build --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
     displayName: '⚙ Build'
-  - pwsh: ./build.ps1 Test Trigger_Code_Coverage_Reports Generate_Code_Coverage_Report_Cobertura Generate_Code_Coverage_Badges Generate_Code_Coverage_Summary Generate_Code_Coverage_Report --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
+  - pwsh: dotnet nuke Test Trigger_Code_Coverage_Reports Generate_Code_Coverage_Report_Cobertura Generate_Code_Coverage_Badges Generate_Code_Coverage_Summary Generate_Code_Coverage_Report --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
     displayName: '🚦 Test'
-  - pwsh: ./build.ps1 Pack --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
+  - pwsh: dotnet nuke Pack --skip --artifacts '${{ parameters.Artifacts }}' --coverage '${{ parameters.Coverage }}' --configuration '${{ parameters.Configuration }}' --verbosity '${{ parameters.Verbosity }}'
     displayName: '📦 Pack'

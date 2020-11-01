@@ -46,7 +46,7 @@ namespace SampleServer
             return result;
         }
 
-        public override async Task<SemanticTokensFullOrDelta> Handle(
+        public override async Task<SemanticTokensFullOrDelta?> Handle(
             SemanticTokensDeltaParams request,
             CancellationToken cancellationToken
         )

@@ -2,6 +2,7 @@
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.ExecuteCommand))]
     public class ExecuteCommandCapability : DynamicCapability, ConnectedCapability<IExecuteCommandHandler>
     {
     }

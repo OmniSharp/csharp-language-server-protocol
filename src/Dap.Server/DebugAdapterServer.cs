@@ -16,6 +16,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.DebugAdapter.Shared;
 using OmniSharp.Extensions.JsonRpc;
+// ReSharper disable SuspiciousTypeConversion.Global
 
 namespace OmniSharp.Extensions.DebugAdapter.Server
 {
@@ -28,31 +29,32 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         private readonly IEnumerable<IOnDebugAdapterServerInitialized> _initializedHandlers;
         private readonly IEnumerable<OnDebugAdapterServerStartedDelegate> _startedDelegates;
         private readonly IEnumerable<IOnDebugAdapterServerStarted> _startedHandlers;
+        private readonly InstanceHasStarted _instanceHasStarted;
         private readonly IServiceProvider _serviceProvider;
         private readonly CompositeDisposable _disposable = new CompositeDisposable();
         private readonly Connection _connection;
         private readonly DapReceiver _receiver;
-        private Task _initializingTask;
+        private Task? _initializingTask;
         private readonly ISubject<InitializeResponse> _initializeComplete = new AsyncSubject<InitializeResponse>();
         private readonly Capabilities _capabilities;
-        private bool _started;
+        private readonly DebugAdapterSettingsBag _settingsBag;
         private readonly int? _concurrency;
 
-        internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+        internal static IContainer CreateContainer(DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider) =>
             JsonRpcServerContainer.Create(outerServiceProvider)
                                   .AddDebugAdapterServerInternals(options, outerServiceProvider);
 
         public static DebugAdapterServer Create(DebugAdapterServerOptions options) => Create(options, null);
         public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction) => Create(optionsAction, null);
 
-        public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider)
+        public static DebugAdapterServer Create(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider? outerServiceProvider)
         {
             var options = new DebugAdapterServerOptions();
             optionsAction(options);
             return Create(options, outerServiceProvider);
         }
 
-        public static DebugAdapterServer Create(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+        public static DebugAdapterServer Create(DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider) =>
             CreateContainer(options, outerServiceProvider).Resolve<DebugAdapterServer>();
 
         public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options) => From(options, null, CancellationToken.None);
@@ -62,29 +64,30 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
         public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, CancellationToken cancellationToken) =>
             From(optionsAction, null, cancellationToken);
 
-        public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider) =>
+        public static Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider) =>
             From(options, outerServiceProvider, CancellationToken.None);
 
-        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider) =>
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider? outerServiceProvider) =>
             From(optionsAction, outerServiceProvider, CancellationToken.None);
 
-        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static Task<DebugAdapterServer> From(Action<DebugAdapterServerOptions> optionsAction, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var options = new DebugAdapterServerOptions();
             optionsAction(options);
             return From(options, outerServiceProvider, cancellationToken);
         }
 
-        public static async Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider outerServiceProvider, CancellationToken cancellationToken)
+        public static async Task<DebugAdapterServer> From(DebugAdapterServerOptions options, IServiceProvider? outerServiceProvider, CancellationToken cancellationToken)
         {
             var server = Create(options, outerServiceProvider);
-            await server.Initialize(cancellationToken);
+            await server.Initialize(cancellationToken).ConfigureAwait(false);
             return server;
         }
 
         internal DebugAdapterServer(
             IOptions<DebugAdapterServerOptions> options,
             Capabilities capabilities,
+            DebugAdapterSettingsBag settingsBag,
             DapReceiver receiver,
             DebugAdapterHandlerCollection collection,
             IEnumerable<OnDebugAdapterServerInitializeDelegate> initializeDelegates,
@@ -96,10 +99,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             IDebugAdapterServerProgressManager progressManager,
             IEnumerable<IOnDebugAdapterServerInitialize> initializeHandlers,
             IEnumerable<IOnDebugAdapterServerInitialized> initializedHandlers,
-            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers
+            IEnumerable<IOnDebugAdapterServerStarted> startedHandlers,
+            InstanceHasStarted instanceHasStarted
         ) : base(collection, responseRouter)
         {
             _capabilities = capabilities;
+            _settingsBag = settingsBag;
             _receiver = receiver;
             _collection = collection;
             _initializeDelegates = initializeDelegates;
@@ -111,6 +116,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             _initializeHandlers = initializeHandlers;
             _initializedHandlers = initializedHandlers;
             _startedHandlers = startedHandlers;
+            _instanceHasStarted = instanceHasStarted;
             _concurrency = options.Value.Concurrency;
 
             _disposable.Add(collection.Add(this));
@@ -123,7 +129,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             {
                 try
                 {
-                    await _initializingTask;
+                    await _initializingTask.ConfigureAwait(false);
                 }
                 catch
                 {
@@ -137,7 +143,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             try
             {
                 _initializingTask = _initializeComplete.ToTask(token);
-                await _initializingTask;
+                await _initializingTask.ConfigureAwait(false);
                 await DebugAdapterEventingHelper.Run(
                     _startedDelegates,
                     (handler, ct) => handler(this, ct),
@@ -145,8 +151,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                     (handler, ct) => handler.OnStarted(this, ct),
                     _concurrency,
                     token
-                );
-                _started = true;
+                ).ConfigureAwait(false);
+                _instanceHasStarted.Started = true;
 
                 this.SendDebugAdapterInitialized(new InitializedEvent());
             }
@@ -167,7 +173,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             CancellationToken cancellationToken
         )
         {
-            ClientSettings = request;
+            _settingsBag.ClientSettings = request;
 
             await DebugAdapterEventingHelper.Run(
                 _initializeDelegates,
@@ -176,7 +182,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 (handler, ct) => handler.OnInitialize(this, request, ct),
                 _concurrency,
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
 
             _receiver.Initialized();
 
@@ -184,42 +190,42 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 AdditionalModuleColumns = _capabilities.AdditionalModuleColumns,
                 ExceptionBreakpointFilters = _capabilities.ExceptionBreakpointFilters,
                 SupportedChecksumAlgorithms = _capabilities.SupportedChecksumAlgorithms,
-                SupportsCompletionsRequest = _capabilities.SupportsCompletionsRequest ?? _collection.ContainsHandler(typeof(ICompletionsHandler)),
+                SupportsCompletionsRequest = _capabilities.SupportsCompletionsRequest || _collection.ContainsHandler(typeof(ICompletionsHandler)),
                 SupportsConditionalBreakpoints = _capabilities.SupportsConditionalBreakpoints,
-                SupportsDataBreakpoints = _capabilities.SupportsDataBreakpoints ??
+                SupportsDataBreakpoints = _capabilities.SupportsDataBreakpoints ||
                                           _collection.ContainsHandler(typeof(IDataBreakpointInfoHandler)) || _collection.ContainsHandler(typeof(ISetDataBreakpointsHandler)),
-                SupportsDisassembleRequest = _capabilities.SupportsDisassembleRequest ?? _collection.ContainsHandler(typeof(IDisassembleHandler)),
+                SupportsDisassembleRequest = _capabilities.SupportsDisassembleRequest || _collection.ContainsHandler(typeof(IDisassembleHandler)),
                 SupportsExceptionOptions = _capabilities.SupportsExceptionOptions,
-                SupportsFunctionBreakpoints = _capabilities.SupportsFunctionBreakpoints ?? _collection.ContainsHandler(typeof(ISetFunctionBreakpointsHandler)),
+                SupportsFunctionBreakpoints = _capabilities.SupportsFunctionBreakpoints || _collection.ContainsHandler(typeof(ISetFunctionBreakpointsHandler)),
                 SupportsLogPoints = _capabilities.SupportsLogPoints,
-                SupportsModulesRequest = _capabilities.SupportsModulesRequest ?? _collection.ContainsHandler(typeof(IModuleHandler)),
-                SupportsRestartFrame = _capabilities.SupportsRestartFrame ?? _collection.ContainsHandler(typeof(IRestartFrameHandler)),
-                SupportsRestartRequest = _capabilities.SupportsRestartRequest ?? _collection.ContainsHandler(typeof(IRestartHandler)),
-                SupportsSetExpression = _capabilities.SupportsSetExpression ?? _collection.ContainsHandler(typeof(ISetExpressionHandler)),
-                SupportsSetVariable = _capabilities.SupportsSetVariable ?? _collection.ContainsHandler(typeof(ISetVariableHandler)),
-                SupportsStepBack = _capabilities.SupportsStepBack ??
+                SupportsModulesRequest = _capabilities.SupportsModulesRequest || _collection.ContainsHandler(typeof(IModuleHandler)),
+                SupportsRestartFrame = _capabilities.SupportsRestartFrame || _collection.ContainsHandler(typeof(IRestartFrameHandler)),
+                SupportsRestartRequest = _capabilities.SupportsRestartRequest || _collection.ContainsHandler(typeof(IRestartHandler)),
+                SupportsSetExpression = _capabilities.SupportsSetExpression || _collection.ContainsHandler(typeof(ISetExpressionHandler)),
+                SupportsSetVariable = _capabilities.SupportsSetVariable || _collection.ContainsHandler(typeof(ISetVariableHandler)),
+                SupportsStepBack = _capabilities.SupportsStepBack ||
                                    _collection.ContainsHandler(typeof(IStepBackHandler)) && _collection.ContainsHandler(typeof(IReverseContinueHandler)),
-                SupportsTerminateRequest = _capabilities.SupportsTerminateRequest ?? _collection.ContainsHandler(typeof(ITerminateHandler)),
+                SupportsTerminateRequest = _capabilities.SupportsTerminateRequest || _collection.ContainsHandler(typeof(ITerminateHandler)),
                 SupportTerminateDebuggee = _capabilities.SupportTerminateDebuggee,
-                SupportsConfigurationDoneRequest = _capabilities.SupportsConfigurationDoneRequest ?? _collection.ContainsHandler(typeof(IConfigurationDoneHandler)),
+                SupportsConfigurationDoneRequest = _capabilities.SupportsConfigurationDoneRequest || _collection.ContainsHandler(typeof(IConfigurationDoneHandler)),
                 SupportsEvaluateForHovers = _capabilities.SupportsEvaluateForHovers,
-                SupportsExceptionInfoRequest = _capabilities.SupportsExceptionInfoRequest ?? _collection.ContainsHandler(typeof(IExceptionInfoHandler)),
-                SupportsGotoTargetsRequest = _capabilities.SupportsGotoTargetsRequest ?? _collection.ContainsHandler(typeof(IGotoTargetsHandler)),
+                SupportsExceptionInfoRequest = _capabilities.SupportsExceptionInfoRequest || _collection.ContainsHandler(typeof(IExceptionInfoHandler)),
+                SupportsGotoTargetsRequest = _capabilities.SupportsGotoTargetsRequest || _collection.ContainsHandler(typeof(IGotoTargetsHandler)),
                 SupportsHitConditionalBreakpoints = _capabilities.SupportsHitConditionalBreakpoints,
-                SupportsLoadedSourcesRequest = _capabilities.SupportsLoadedSourcesRequest ?? _collection.ContainsHandler(typeof(ILoadedSourcesHandler)),
-                SupportsReadMemoryRequest = _capabilities.SupportsReadMemoryRequest ?? _collection.ContainsHandler(typeof(IReadMemoryHandler)),
-                SupportsTerminateThreadsRequest = _capabilities.SupportsTerminateThreadsRequest ?? _collection.ContainsHandler(typeof(ITerminateThreadsHandler)),
+                SupportsLoadedSourcesRequest = _capabilities.SupportsLoadedSourcesRequest || _collection.ContainsHandler(typeof(ILoadedSourcesHandler)),
+                SupportsReadMemoryRequest = _capabilities.SupportsReadMemoryRequest || _collection.ContainsHandler(typeof(IReadMemoryHandler)),
+                SupportsTerminateThreadsRequest = _capabilities.SupportsTerminateThreadsRequest || _collection.ContainsHandler(typeof(ITerminateThreadsHandler)),
                 SupportsValueFormattingOptions = _capabilities.SupportsValueFormattingOptions,
                 SupportsDelayedStackTraceLoading = _capabilities.SupportsDelayedStackTraceLoading,
-                SupportsStepInTargetsRequest = _capabilities.SupportsStepInTargetsRequest ?? _collection.ContainsHandler(typeof(IStepInTargetsHandler)),
-                SupportsCancelRequest = _capabilities.SupportsCancelRequest ?? _collection.ContainsHandler(typeof(ICancelHandler)),
+                SupportsStepInTargetsRequest = _capabilities.SupportsStepInTargetsRequest || _collection.ContainsHandler(typeof(IStepInTargetsHandler)),
+                SupportsCancelRequest = _capabilities.SupportsCancelRequest || _collection.ContainsHandler(typeof(ICancelHandler)),
                 SupportsClipboardContext = _capabilities.SupportsClipboardContext,
-                SupportsInstructionBreakpoints = _capabilities.SupportsInstructionBreakpoints ?? _collection.ContainsHandler(typeof(ISetInstructionBreakpointsHandler)),
+                SupportsInstructionBreakpoints = _capabilities.SupportsInstructionBreakpoints || _collection.ContainsHandler(typeof(ISetInstructionBreakpointsHandler)),
                 SupportsSteppingGranularity = _capabilities.SupportsSteppingGranularity,
-                SupportsBreakpointLocationsRequest = _capabilities.SupportsBreakpointLocationsRequest ?? _collection.ContainsHandler(typeof(IBreakpointLocationsHandler))
+                SupportsBreakpointLocationsRequest = _capabilities.SupportsBreakpointLocationsRequest || _collection.ContainsHandler(typeof(IBreakpointLocationsHandler))
             };
 
-            ServerSettings = response;
+            _settingsBag.ServerSettings = response;
 
             await DebugAdapterEventingHelper.Run(
                 _initializedDelegates,
@@ -228,7 +234,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 (handler, ct) => handler.OnInitialized(this, request, response, ct),
                 _concurrency,
                 cancellationToken
-            );
+            ).ConfigureAwait(false);
 
             _initializeComplete.OnNext(response);
             _initializeComplete.OnCompleted();
@@ -236,14 +242,14 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
             return response;
         }
 
-        public InitializeRequestArguments ClientSettings { get; private set; }
-        public InitializeResponse ServerSettings { get; private set; }
+        public InitializeRequestArguments ClientSettings => _settingsBag.ClientSettings;
+        public InitializeResponse ServerSettings => _settingsBag.ServerSettings;
         public IDebugAdapterServerProgressManager ProgressManager { get; }
 
         public void Dispose()
         {
-            _disposable?.Dispose();
-            _connection?.Dispose();
+            _disposable.Dispose();
+            _connection.Dispose();
         }
 
         object IServiceProvider.GetService(Type serviceType) => _serviceProvider.GetService(serviceType);

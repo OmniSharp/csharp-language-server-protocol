@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -8,16 +9,16 @@ using OmniSharp.Extensions.JsonRpc.Client;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class ResponseRouter : IResponseRouter
+    internal class ResponseRouter : IResponseRouter
     {
-        internal readonly IOutputHandler OutputHandler;
+        internal readonly Lazy<IOutputHandler> OutputHandler;
         internal readonly ISerializer Serializer;
-        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> _handlerTypeDescriptorProvider;
+        private readonly IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> _handlerTypeDescriptorProvider;
 
         internal readonly ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)> Requests =
             new ConcurrentDictionary<long, (string method, TaskCompletionSource<JToken> pendingTask)>();
 
-        public ResponseRouter(IOutputHandler outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor> handlerTypeDescriptorProvider)
+        public ResponseRouter(Lazy<IOutputHandler> outputHandler, ISerializer serializer, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?> handlerTypeDescriptorProvider)
         {
             OutputHandler = outputHandler;
             Serializer = serializer;
@@ -25,14 +26,14 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public void SendNotification(string method) =>
-            OutputHandler.Send(
+            OutputHandler.Value.Send(
                 new OutgoingNotification {
                     Method = method
                 }
             );
 
         public void SendNotification<T>(string method, T @params) =>
-            OutputHandler.Send(
+            OutputHandler.Value.Send(
                 new OutgoingNotification {
                     Method = method,
                     Params = @params
@@ -48,10 +49,12 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
 
-        public (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id)
+        public bool TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
         {
-            Requests.TryGetValue(id, out var source);
-            return source;
+            var result = Requests.TryGetValue(id, out var source);
+            method = source.method;
+            pendingTask = source.pendingTask;
+            return result;
         }
 
         private string GetMethodName(Type type) =>
@@ -61,9 +64,9 @@ namespace OmniSharp.Extensions.JsonRpc
         {
             private readonly ResponseRouter _router;
             private readonly string _method;
-            private readonly object _params;
+            private readonly object? _params;
 
-            public ResponseRouterReturnsImpl(ResponseRouter router, string method, object @params)
+            public ResponseRouterReturnsImpl(ResponseRouter router, string method, object? @params)
             {
                 _router = router;
                 _method = method;
@@ -78,23 +81,23 @@ namespace OmniSharp.Extensions.JsonRpc
 
                 cancellationToken.ThrowIfCancellationRequested();
 
-                _router.OutputHandler.Send(
-                    new OutgoingRequest {
-                        Method = _method,
-                        Params = _params,
-                        Id = nextId
-                    }
-                );
-                cancellationToken.Register(
-                    () => {
-                        if (tcs.Task.IsCompleted) return;
-                        _router.CancelRequest(new CancelParams { Id = nextId });
-                    }
-                );
-
                 try
                 {
-                    var result = await tcs.Task;
+                    _router.OutputHandler.Value.Send(
+                        new OutgoingRequest {
+                            Method = _method,
+                            Params = _params,
+                            Id = nextId
+                        }
+                    );
+                    cancellationToken.Register(
+                        () => {
+                            if (tcs.Task.IsCompleted) return;
+                            _router.CancelRequest(new CancelParams { Id = nextId });
+                        }
+                    );
+
+                    var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
                         return (TResponse) (object) Unit.Value;
@@ -108,7 +111,7 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken);
+            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
         }
     }
 }

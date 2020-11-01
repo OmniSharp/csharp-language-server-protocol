@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
@@ -38,7 +39,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             // scheme, https://tools.ietf.org/html/rfc3986#section-3.1
             // ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-            if (!string.IsNullOrWhiteSpace(ret.Scheme) && !SchemePattern.IsMatch(ret.Scheme))
+            if (!string.IsNullOrWhiteSpace(ret.Scheme) && !SchemePattern.IsMatch(ret.Scheme!))
             {
                 throw new UriFormatException("Scheme contains illegal characters.");
             }
@@ -71,7 +72,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        private static string SchemeFix(string scheme, bool? strict)
+        private static string? SchemeFix(string? scheme, bool? strict)
         {
             if (string.IsNullOrWhiteSpace(scheme) && strict != true)
             {
@@ -88,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         private static readonly Regex Regexp =
             new Regex(@"^(([^:/?#]+?):)?(\/\/([^/?#]*))?([^?#]*)(\?([^#]*))?(#(.*))?");
 
-        private static string ReferenceResolution(string scheme, string path)
+        private static string ReferenceResolution(string? scheme, string path)
         {
             // the slash-character is our "default base' as we don"t
             // support constructing URIs relative to other URIs. This
@@ -98,11 +99,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 if (string.IsNullOrWhiteSpace(path))
                 {
-                    path = StrSlash;
+                    return StrSlash;
                 }
-                else if (path[0] != Slash)
+
+                if (path[0] != Slash)
                 {
-                    path = Slash + path;
+                    return Slash + path;
                 }
             }
 
@@ -135,7 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         private static string EncodeUriComponentFast(string uriComponent, bool allowSlash)
         {
-            string res = null;
+            StringBuilder? res = null;
             var nativeEncodePos = -1;
 
             for (var pos = 0; pos < uriComponent.Length; pos++)
@@ -162,23 +164,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     // check if we are delaying native encode
                     if (nativeEncodePos != -1)
                     {
-                        res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
+                        res ??= new StringBuilder();
+                        res.Append(Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos)));
                         nativeEncodePos = -1;
                     }
 
                     // check if we write into a new string (by default we try to return the param)
-                    if (res != null)
-                    {
-                        res += uriComponent[pos];
-                    }
+                    res?.Append(uriComponent[pos]);
                 }
                 else
                 {
                     // encoding needed, we need to allocate a new string
                     if (res == null)
-
                     {
-                        res = uriComponent.Substring(0, pos);
+                        res ??= new StringBuilder();
+                        res.Append(uriComponent.Substring(0, pos));
                     }
 
                     // check with default table first
@@ -187,12 +187,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         // check if we are delaying native encode
                         if (nativeEncodePos != -1)
                         {
-                            res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos));
+                            res.Append(Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos, pos - nativeEncodePos)));
                             nativeEncodePos = -1;
                         }
 
                         // append escaped variant to result
-                        res += escaped;
+                        res.Append(escaped);
                     }
                     else if (nativeEncodePos == -1)
                     {
@@ -204,15 +204,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             if (nativeEncodePos != -1)
             {
-                res += Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos));
+                res ??= new StringBuilder();
+                res.Append(Uri.EscapeDataString(uriComponent.Substring(nativeEncodePos)));
             }
 
-            return !string.IsNullOrWhiteSpace(res) ? res : uriComponent;
+            return res != null ? res.ToString() : uriComponent;
         }
 
         private static string EncodeUriComponentMinimal(string path)
         {
-            string res = null;
+            StringBuilder? res = null;
             for (var pos = 0; pos < path.Length; pos++)
             {
                 var code = path[pos];
@@ -220,21 +221,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     if (res == null)
                     {
-                        res = path.Substring(0, pos);
+                        res = new StringBuilder(path.Substring(0, pos));
                     }
 
-                    res += EncodeTable[code];
+                    res.Append(EncodeTable[code]);
                 }
                 else
                 {
-                    if (res != null)
-                    {
-                        res += path[pos];
-                    }
+                    res?.Append(path[pos]);
                 }
             }
 
-            return res ?? path;
+            return res != null ? res.ToString() : path;
         }
 
         /// <summary>
@@ -290,67 +288,73 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return !skipEncoding ? EncodeUriComponentFast(p, allowSlash) : EncodeUriComponentMinimal(p);
             }
 
-            var res = "";
+            var res = new StringBuilder();
             var (scheme, authority, path, query, fragment) = uri;
             if (!string.IsNullOrWhiteSpace(scheme))
             {
-                res += scheme;
-                res += ":";
+                res.Append(scheme);
+                res.Append(":");
             }
 
             if (!string.IsNullOrWhiteSpace(authority) || scheme == "file")
             {
-                res += Slash;
-                res += Slash;
+                res.Append(Slash);
+                res.Append(Slash);
             }
 
             if (!string.IsNullOrWhiteSpace(authority))
             {
-                var idx = authority.IndexOf("@");
+                var idx = authority.IndexOf("@", StringComparison.Ordinal);
                 if (idx != -1)
                 {
                     // <user>@<auth>
                     var userinfo = authority.Substring(0, idx);
                     authority = authority.Substring(idx + 1);
-                    idx = userinfo.IndexOf(":");
+                    idx = userinfo.IndexOf(":", StringComparison.Ordinal);
                     if (idx == -1)
                     {
-                        res += Encoder(userinfo, false);
+                        res.Append(Encoder(userinfo, false));
                     }
                     else
                     {
                         // <user>:<pass>@<auth>
-                        res += Encoder(userinfo.Substring(0, idx), false);
-                        res += ":";
-                        res += Encoder(userinfo.Substring(idx + 1), false);
+                        res.Append(Encoder(userinfo.Substring(0, idx), false));
+                        res.Append(":");
+                        res.Append(Encoder(userinfo.Substring(idx + 1), false));
                     }
 
-                    res += "@";
+                    res.Append("@");
                 }
 
                 authority = authority.ToLowerInvariant();
                 idx = authority.IndexOf(":", StringComparison.Ordinal);
                 if (idx == -1)
                 {
-                    res += Encoder(authority, false);
+                    res.Append(Encoder(authority, false));
                 }
                 else
                 {
                     // <auth>:<port>
-                    res += Encoder(authority.Substring(0, idx), false);
-                    res += authority.Substring(idx);
+                    res.Append(Encoder(authority.Substring(0, idx), false));
+                    res.Append(authority.Substring(idx));
                 }
             }
 
             if (!string.IsNullOrWhiteSpace(path))
             {
+                var appended = false;
                 // lower-case windows drive letters in /C:/fff or C:/fff
                 if (path.Length >= 3 && path[0] == CharCode.Slash && path[2] == CharCode.Colon)
                 {
                     var code = path[1];
                     if (code >= CharCode.A && code <= CharCode.Z)
                     {
-                        path = $"/{Convert.ToChar(code + 32)}:{path.Substring(3)}"; // "/c:".length == 3
+                        appended = true;
+                        res.Append("/");
+                        res.Append(Convert.ToChar(code + 32));
+                        res.Append(":");
+                        res.Append(Encoder(path.Substring(3), true));
+//                         path = $"/{Convert.ToChar(code + 32)}:{path.Substring(3)}"; // "/c:".length == 3
                     }
                 }
                 else if (path.Length >= 2 && path[1] == CharCode.Colon)
@@ -358,27 +362,33 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     var code = path[0];
                     if (code >= CharCode.A && code <= CharCode.Z)
                     {
-                        path = $"{Convert.ToChar(code + 32)}:{path.Substring(2)}"; // "/c:".length == 3
+                        appended = true;
+                        res.Append(Convert.ToChar(code + 32));
+                        res.Append(":");
+                        res.Append(Encoder(path.Substring(2), true));
+//                         path = $"{Convert.ToChar(code + 32)}:{path.Substring(2)}"; // "/c:".length == 3
                     }
                 }
 
-                // encode the rest of the path
-                res += Encoder(path, true);
+                if (!appended)
+                {
+                    res.Append(Encoder(path, true));
+                }
             }
 
             if (!string.IsNullOrWhiteSpace(query))
             {
-                res += "?";
-                res += Encoder(query, false);
+                res.Append("?");
+                res.Append(Encoder(query, false));
             }
 
             if (!string.IsNullOrWhiteSpace(fragment))
             {
-                res += "#";
-                res += !skipEncoding ? EncodeUriComponentFast(fragment, false) : fragment;
+                res.Append("#");
+                res.Append(!skipEncoding ? EncodeUriComponentFast(fragment, false) : fragment);
             }
 
-            return res;
+            return res.ToString();
         }
 
         private static string DecodeUriComponentGraceful(string str)

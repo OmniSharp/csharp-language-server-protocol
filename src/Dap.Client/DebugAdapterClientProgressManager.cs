@@ -64,6 +64,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
             return Unit.Task;
         }
 
-        public void Dispose() => _disposable?.Dispose();
+        public void Dispose() => _disposable.Dispose();
     }
 }

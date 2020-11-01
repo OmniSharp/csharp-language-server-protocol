@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// compatibility.
         /// </summary>
         [Optional]
-        public bool? AllThreadsContinued { get; set; }
+        public bool AllThreadsContinued { get; set; }
     }
 }

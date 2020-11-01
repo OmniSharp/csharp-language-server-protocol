@@ -31,7 +31,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Execute_A_Command()
         {
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -59,7 +59,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            await client.ExecuteCommand(item.Command);
+            await client.ExecuteCommand(item.Command!);
 
             await command.Received(1).Invoke(Arg.Any<ExecuteCommandParams>());
         }
@@ -69,7 +69,7 @@ namespace Lsp.Tests.Integration
         {
             var commanda = Substitute.For<Func<ExecuteCommandParams, Task>>();
             var commandb = Substitute.For<Func<ExecuteCommandParams, ExecuteCommandCapability, CancellationToken, Task>>();
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => {
                     options.WithCapability(
                         new ExecuteCommandCapability {
@@ -109,7 +109,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            await client.ExecuteCommand(item.Command);
+            await client.ExecuteCommand(item.Command!);
 
             await commanda.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
             await commandb.Received(1).Invoke(Arg.Any<ExecuteCommandParams>(), Arg.Any<ExecuteCommandCapability>(), Arg.Any<CancellationToken>());
@@ -120,7 +120,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Fail_To_Execute_A_Command_When_No_Command_Is_Defined()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -142,7 +142,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
         }
 
@@ -150,7 +150,7 @@ namespace Lsp.Tests.Integration
         public async Task Should_Fail_To_Execute_A_Command_When_No_Command_Name_Is_Given()
         {
             var command = Substitute.For<Func<ExecuteCommandParams, Task>>();
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -180,7 +180,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
 
             await command.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
@@ -191,7 +191,7 @@ namespace Lsp.Tests.Integration
         {
             var commandc = Substitute.For<Func<ExecuteCommandParams, Task>>();
             var commandb = Substitute.For<Func<ExecuteCommandParams, Task>>();
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -225,7 +225,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().ThrowAsync<MethodNotSupportedException>();
 
             await commandc.Received(0).Invoke(Arg.Any<ExecuteCommandParams>());
@@ -235,7 +235,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Execute_1_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -265,14 +265,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_2_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -303,14 +303,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_3_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -342,14 +342,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_4_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -382,14 +382,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_5_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -425,14 +425,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_6_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -470,14 +470,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_1_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -507,14 +507,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_2_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -545,14 +545,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_3_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -584,14 +584,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_4_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -624,14 +624,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_5_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -665,14 +665,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_6_With_Missing_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -707,14 +707,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_1_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -744,14 +744,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_2_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -782,14 +782,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_3_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -821,14 +821,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_4_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -861,14 +861,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_5_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -902,14 +902,14 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
 
         [Fact]
         public async Task Should_Execute_6_Null_Args()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCompletion(
                         x => {
@@ -944,7 +944,7 @@ namespace Lsp.Tests.Integration
 
             item.Command.Should().NotBeNull();
 
-            Func<Task> action = () => client.ExecuteCommand(item.Command);
+            Func<Task> action = () => client.ExecuteCommand(item.Command!);
             await action.Should().NotThrowAsync();
         }
     }

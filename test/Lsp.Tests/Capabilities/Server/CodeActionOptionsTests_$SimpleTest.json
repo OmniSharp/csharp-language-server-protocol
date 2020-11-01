@@ -1,0 +1,8 @@
+{
+    "codeActionKinds": [
+        "quickfix",
+        "refactor"
+    ],
+    "resolveProvider": true,
+    "workDoneProgress": false
+}

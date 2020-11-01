@@ -9,7 +9,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// Holds changes to existing resources.
         /// </summary>
         [Optional]
-        public IDictionary<DocumentUri, IEnumerable<TextEdit>> Changes { get; set; }
+        public IDictionary<DocumentUri, IEnumerable<TextEdit>>? Changes { get; set; }
 
         /// <summary>
         /// An array of `TextDocumentEdit`s to express changes to n different text documents
@@ -24,6 +24,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// only plain `TextEdit`s using the `changes` property are supported.
         /// </summary>
         [Optional]
-        public Container<WorkspaceEditDocumentChange> DocumentChanges { get; set; }
+        public Container<WorkspaceEditDocumentChange>? DocumentChanges { get; set; }
     }
 }

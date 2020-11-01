@@ -8,11 +8,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The array of added workspace folders
         /// </summary>
-        public Container<WorkspaceFolder> Added { get; set; }
+        public Container<WorkspaceFolder> Added { get; set; } = new Container<WorkspaceFolder>();
 
         /// <summary>
         /// The array of the removed workspace folders
         /// </summary>
-        public Container<WorkspaceFolder> Removed { get; set; }
+        public Container<WorkspaceFolder> Removed { get; set; } = new Container<WorkspaceFolder>();
     }
 }

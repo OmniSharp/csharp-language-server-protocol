@@ -16,26 +16,26 @@ namespace NSubstitute
         private readonly InnerTestOutputHelper _testOutputHelper;
 
         public TestLoggerFactory(
-            ITestOutputHelper testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}",
+            ITestOutputHelper? testOutputHelper, string outputTemplate = "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level}] {Message}{NewLine}{Exception}",
             LogEventLevel logEventLevel = LogEventLevel.Debug
         )
         {
-            _testOutputHelper = new InnerTestOutputHelper();
-            _testOutputHelper.Swap(testOutputHelper);
+            _testOutputHelper = new InnerTestOutputHelper(testOutputHelper);
 
             _loggerProvider = new SerilogLoggerProvider(
                 new LoggerConfiguration()
                    .MinimumLevel.Is(logEventLevel)
-                   .WriteTo.TestOutput(_testOutputHelper)
+                   .WriteTo.TestOutput(_testOutputHelper, outputTemplate: outputTemplate)
                    .CreateLogger()
             );
         }
 
-        ILogger ILoggerFactory.CreateLogger(string categoryName) => _loggerProvider.CreateLogger(categoryName);
-
-        void ILoggerFactory.AddProvider(ILoggerProvider provider)
+        ILogger ILoggerFactory.CreateLogger(string categoryName)
         {
+            return _loggerProvider.CreateLogger(categoryName);
         }
+
+        void ILoggerFactory.AddProvider(ILoggerProvider provider) { }
 
         void IDisposable.Dispose()
         {
@@ -46,9 +46,14 @@ namespace NSubstitute
             _testOutputHelper.Swap(testOutputHelper);
         }
 
-        class InnerTestOutputHelper : ITestOutputHelper
+        private class InnerTestOutputHelper : ITestOutputHelper
         {
-            private ITestOutputHelper _testOutputHelper;
+            private ITestOutputHelper? _testOutputHelper;
+
+            public InnerTestOutputHelper(ITestOutputHelper? testOutputHelper)
+            {
+                _testOutputHelper = testOutputHelper;
+            }
             public void Swap(ITestOutputHelper testOutputHelper)
             {
                 Interlocked.Exchange(ref _testOutputHelper, testOutputHelper);

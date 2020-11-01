@@ -12,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 using HandlerIdentity = OmniSharp.Extensions.LanguageServer.Protocol.Models.HandlerIdentity;
@@ -27,7 +28,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
@@ -55,9 +56,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-a";
-                            return Task.FromResult(codeLens);
+                        l => {
+                            l.Command!.Name = "resolved-a";
+                            return Task.FromResult(l);
                         },
                         new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -80,9 +81,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-b";
-                            return Task.FromResult(codeLens);
+                        l => {
+                            l.Command!.Name = "resolved-b";
+                            return Task.FromResult(l);
                         },
                         new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -102,9 +103,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-c";
-                            return Task.FromResult(codeLens);
+                        l => {
+                            l.Command!.Name = "resolved-c";
+                            return Task.FromResult(l);
                         },
                         new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -124,9 +125,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Command.Name = "resolved-d";
-                            return Task.FromResult(codeLens);
+                        l => {
+                            l.Command!.Name = "resolved-d";
+                            return Task.FromResult(l);
                         },
                         new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
@@ -144,15 +145,15 @@ namespace Lsp.Tests.Integration
             var lens = codeLens.ToArray();
 
             var responses = await Task.WhenAll(lens.Select(z => client.ResolveCodeLens(z)));
-            responses.Select(z => z.Command.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
-            responses.Select(z => z.Command.Name).Should().NotContain("resolved-d");
+            responses.Select(z => z.Command!.Name).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
+            responses.Select(z => z.Command!.Name).Should().NotContain("resolved-d");
             lens.Length.Should().Be(3);
         }
 
         [Fact]
         public async Task Should_Resolve_With_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, capability, token) => {
@@ -174,12 +175,12 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        (codeLens, capability, token) => {
-                            codeLens.Data.Id.Should().NotBeEmpty();
-                            codeLens.Data.Child.Should().NotBeNull();
-                            codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
-                            return Task.FromResult(codeLens);
+                        (lens, capability, token) => {
+                            lens.Data.Id.Should().NotBeEmpty();
+                            lens.Data.Child.Should().NotBeNull();
+                            lens.Data.Name.Should().Be("name");
+                            lens.Command!.Name = "resolved";
+                            return Task.FromResult(lens);
                         },
                         new CodeLensRegistrationOptions()
                     );
@@ -191,13 +192,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens<Data>(
                         (codeLensParams, observer, capability, token) => {
@@ -224,7 +225,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -235,13 +236,13 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
         [Fact]
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, token) => {
@@ -267,7 +268,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -280,13 +281,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens<Data>(
                         (codeLensParams, observer, token) => {
@@ -313,7 +314,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -324,13 +325,13 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
         [Fact]
         public async Task Should_Resolve_With_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         codeLensParams => {
@@ -356,7 +357,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -369,13 +370,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens<Data>(
                         (codeLensParams, observer) => {
@@ -402,7 +403,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Data.Id.Should().NotBeEmpty();
                             codeLens.Data.Child.Should().NotBeNull();
                             codeLens.Data.Name.Should().Be("name");
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -413,14 +414,14 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
 
         [Fact]
         public async Task Should_Resolve_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, capability, token) => {
@@ -436,7 +437,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (codeLens, capability, token) => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -449,13 +450,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, observer, capability, token) => {
@@ -472,7 +473,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (codeLens, capability, token) => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -483,13 +484,13 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
         [Fact]
         public async Task Should_Resolve_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, token) => {
@@ -505,7 +506,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         (codeLens, token) => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -518,13 +519,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, observer, token) => {
@@ -541,7 +542,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         (codeLens, token) => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -552,13 +553,13 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
         [Fact]
         public async Task Should_Resolve()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         codeLensParams => {
@@ -574,7 +575,7 @@ namespace Lsp.Tests.Integration
                             );
                         },
                         codeLens => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -587,13 +588,13 @@ namespace Lsp.Tests.Integration
             var item = items.Single();
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnCodeLens(
                         (codeLensParams, observer) => {
@@ -610,7 +611,7 @@ namespace Lsp.Tests.Integration
                             observer.OnCompleted();
                         },
                         codeLens => {
-                            codeLens.Command.Name = "resolved";
+                            codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
                         new CodeLensRegistrationOptions()
@@ -621,18 +622,19 @@ namespace Lsp.Tests.Integration
             var item = await client.RequestCodeLens(new CodeLensParams()).SelectMany(z => z).Take(1).ToTask(CancellationToken);
 
             item = await client.ResolveCodeLens(item);
-            item.Command.Name.Should().Be("resolved");
+            item.Command!.Name.Should().Be("resolved");
         }
 
         private class Data : HandlerIdentity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public Guid Id { get; set; }
-            public Nested Child { get; set; }
+            public Nested Child { get; set; } = null!;
         }
 
         private class Nested : HandlerIdentity
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTimeOffset Date { get; set; }
         }
     }

@@ -121,7 +121,7 @@ namespace JsonRpc.Tests
         public async Task ShouldFilterMessages()
         {
             var pipe = new Pipe(new PipeOptions());
-            using var handler = NewHandler(pipe.Writer, _ => _ is RpcError e && e.Id.Equals(2));
+            using var handler = NewHandler(pipe.Writer, _ => _ is RpcError e && e.Id!.Equals(2));
 
             var value = new RpcError(1, new ErrorMessage(1, "something", new object()));
             var value2 = new RpcError(2, new ErrorMessage(1, "something", new object()));

@@ -39,16 +39,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         }
 
         public bool IsTextDocumentEdit => TextDocumentEdit != null;
-        public TextDocumentEdit TextDocumentEdit { get; }
+        public TextDocumentEdit? TextDocumentEdit { get; }
 
         public bool IsCreateFile => CreateFile != null;
-        public CreateFile CreateFile { get; }
+        public CreateFile? CreateFile { get; }
 
         public bool IsRenameFile => RenameFile != null;
-        public RenameFile RenameFile { get; }
+        public RenameFile? RenameFile { get; }
 
         public bool IsDeleteFile => DeleteFile != null;
-        public DeleteFile DeleteFile { get; }
+        public DeleteFile? DeleteFile { get; }
 
         public static implicit operator WorkspaceEditDocumentChange(TextDocumentEdit textDocumentEdit) => new WorkspaceEditDocumentChange(textDocumentEdit);
 

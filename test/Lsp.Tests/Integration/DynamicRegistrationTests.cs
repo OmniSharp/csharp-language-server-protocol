@@ -1,13 +1,11 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reactive;
 using System.Reactive.Linq;
-using System.Reactive.Threading.Tasks;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -17,9 +15,8 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
-using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -27,26 +24,38 @@ namespace Lsp.Tests.Integration
 {
     public static class DynamicRegistration
     {
-        public class DynamicRegistrationTests : LanguageProtocolFixtureTest<DefaultOptions, ConfigureClient, ConfigureServer>
+        public class DynamicRegistrationTests : LanguageProtocolTestBase
         {
             [Fact]
-            public void Should_Register_Dynamically_After_Initialization()
+            public async Task Should_Register_Dynamically_After_Initialization()
             {
-                Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
+                var (client, _) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
+                client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                Client.RegistrationManager.CurrentRegistrations.Should().Contain(
-                    x =>
-                        x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations
+                       .Any(x => x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")),
+                    CancellationToken
                 );
+
+                client.RegistrationManager.CurrentRegistrations.Should()
+                      .Contain(
+                           x =>
+                               x.Method == TextDocumentNames.Completion &&
+                               SelectorMatches(x, z => z.HasLanguage && z.Language == "csharp")
+                       );
             }
 
             [Fact]
             public async Task Should_Register_Dynamically_While_Server_Is_Running()
             {
-                await WaitForRegistrationUpdate();
-                Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
+                var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
+                client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                using var _ = Server.Register(
+                using var _ = server.Register(
                     x => x
                        .OnCompletion(
                             (@params, token) => Task.FromResult(new CompletionList()),
@@ -56,31 +65,16 @@ namespace Lsp.Tests.Integration
                         )
                 );
 
-                await WaitForRegistrationUpdate();
-                Client.RegistrationManager.CurrentRegistrations.Should().Contain(
-                    x =>
-                        x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
-                );
-            }
-
-            [Fact]
-            public async Task Should_Register_Links_Dynamically_While_Server_Is_Running()
-            {
-                await WaitForRegistrationUpdate();
-                Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
-
-                using var _ = Server.Register(
-                    x => x
-                       .OnCompletion(
-                            (@params, token) => Task.FromResult(new CompletionList()),
-                            new CompletionRegistrationOptions {
-                                DocumentSelector = DocumentSelector.ForLanguage("vb")
-                            }
-                        )
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations
+                       .Any(
+                            registration => SelectorMatches(registration, z => z.HasLanguage && z.Language == "vb")
+                        ),
+                    CancellationToken
                 );
 
-                await WaitForRegistrationUpdate();
-                Client.RegistrationManager.CurrentRegistrations.Should().Contain(
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
                 );
@@ -89,64 +83,91 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Gather_Linked_Registrations()
             {
-                using var _ = Server.Register(r => r.AddHandlerLink(TextDocumentNames.SemanticTokensFull, "@/" + TextDocumentNames.SemanticTokensFull));
+                var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
+                using var _ = server.Register(r => r.AddHandlerLink(TextDocumentNames.Completion, "@/" + TextDocumentNames.Completion));
 
-                await WaitForRegistrationUpdate();
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => registration.Method.StartsWith("@/")),
+                    CancellationToken
+                );
 
-                Client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
-                Client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensFullDelta);
-                Client.RegistrationManager.CurrentRegistrations.Should().NotContain(x => x.Method == TextDocumentNames.SemanticTokensRange);
-                Client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.SemanticTokensFull);
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.Completion);
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == "@/" + TextDocumentNames.Completion);
             }
 
-            [Fact]
+            [RetryFact]
             public async Task Should_Unregister_Dynamically_While_Server_Is_Running()
             {
-                await WaitForRegistrationUpdate();
+                var (client, server) = await Initialize(new ConfigureClient().Configure, new ConfigureServer().Configure);
+                await client.RegistrationManager.Registrations.Take(1);
 
-                Client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
+                client.ServerSettings.Capabilities.CompletionProvider.Should().BeNull();
 
-                using (var disposable = Server.Register(
+                var disposable = server.Register(
                     x => x.OnCompletion(
                         (@params, token) => Task.FromResult(new CompletionList()),
                         new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     )
-                ))
-                {
-                    await WaitForRegistrationUpdate();
-                    disposable.Dispose();
-                    await WaitForRegistrationUpdate();
-                }
+                );
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
+                    CancellationToken
+                );
+                disposable.Dispose();
 
-                Client.RegistrationManager.CurrentRegistrations.Should().NotContain(
+
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => !registrations.Any(registration => SelectorMatches(registration, x => x.HasLanguage && x.Language == "vb")),
+                    CancellationToken
+                );
+
+                client.RegistrationManager.CurrentRegistrations.Should().NotContain(
                     x =>
                         x.Method == TextDocumentNames.Completion && SelectorMatches(x, z => z.HasLanguage && z.Language == "vb")
                 );
             }
 
-            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions, documentFilter);
+            [Fact]
+            public async Task Should_Only_Register_Semantic_Tokens_Registration_Once()
+            {
+                var tokens = Substitute.For<SemanticTokensHandlerBase>(new SemanticTokensRegistrationOptions());
+                var (client, server) = await Initialize(new ConfigureClient().Configure, options => {
+                    new ConfigureServer().Configure(options);
+                    options.AddHandler(tokens);
+                });
+
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(registration => registration.Method == TextDocumentNames.SemanticTokensRegistration),
+                    CancellationToken
+                );
+
+                tokens.Received(Quantity.Exactly(1)).GetRegistrationOptions();
+
+                client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
+            }
+
+            private bool SelectorMatches(Registration registration, Func<DocumentFilter, bool> documentFilter) => SelectorMatches(registration.RegisterOptions!, documentFilter);
 
             private bool SelectorMatches(object options, Func<DocumentFilter, bool> documentFilter)
             {
+                if (options is Registration registration)
+                    return SelectorMatches(registration.RegisterOptions!, documentFilter);
                 if (options is ITextDocumentRegistrationOptions tdro)
-                    return tdro.DocumentSelector.Any(documentFilter);
+                    return tdro.DocumentSelector?.Any(documentFilter) == true;
                 if (options is DocumentSelector selector)
                     return selector.Any(documentFilter);
                 return false;
             }
 
-            private Task WaitForRegistrationUpdate()
-            {
-                return Client.RegistrationManager.Registrations
-                             .Throttle(TestOptions.WaitTime)
-                             .Take(1)
-                             .ToTask(CancellationToken);
-            }
-
-            public DynamicRegistrationTests(ITestOutputHelper testOutputHelper, LanguageProtocolFixture<DefaultOptions, ConfigureClient, ConfigureServer> fixture) : base(
-                testOutputHelper, fixture
+            public DynamicRegistrationTests(ITestOutputHelper testOutputHelper) : base(
+                new JsonRpcTestOptions().ConfigureForXUnit(testOutputHelper)
             )
             {
             }
@@ -161,7 +182,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Gather_Static_Registrations()
             {
-                var (client, server) = await Initialize(
+                var (client, _) = await Initialize(
                     new ConfigureClient().Configure,
                     options => {
                         new ConfigureServer().Configure(options);
@@ -177,17 +198,20 @@ namespace Lsp.Tests.Integration
                         // This forces it to do that.
                         options.OnInitialized(
                             (server, request, response, token) => {
-                                response.Capabilities.SemanticTokensProvider = SemanticTokensOptions.Of(
-                                    semanticRegistrationOptions,
-                                    Enumerable.Empty<ILspHandlerDescriptor>()
-                                );
-                                response.Capabilities.SemanticTokensProvider.Id = semanticRegistrationOptions.Id;
+                                response.Capabilities.SemanticTokensProvider = new SemanticTokensRegistrationOptions.StaticOptions { Id = semanticRegistrationOptions.Id };
                                 return Task.CompletedTask;
                             }
                         );
                     }
                 );
-                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensFull);
+
+                await TestHelper.DelayUntil(
+                    () => client.RegistrationManager.CurrentRegistrations,
+                    registrations => registrations.Any(r => r.Method == TextDocumentNames.SemanticTokensRegistration),
+                    CancellationToken
+                );
+
+                client.RegistrationManager.CurrentRegistrations.Should().Contain(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
 
             [Fact]
@@ -201,20 +225,20 @@ namespace Lsp.Tests.Integration
                 );
 
                 client.ServerSettings.Capabilities.CompletionProvider.Should().BeEquivalentTo(
-                    new CompletionOptions {
+                    new CompletionRegistrationOptions.StaticOptions {
                         ResolveProvider = true,
                         TriggerCharacters = new Container<string>("a", "b"),
                         AllCommitCharacters = new Container<string>("1", "2"),
                     }, x => x.Excluding(z => z.WorkDoneProgress)
                 );
-                server.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                server.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -222,7 +246,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -230,14 +254,14 @@ namespace Lsp.Tests.Integration
                         }
                     }, x => x.ConfigureForSupports().Excluding(z => z.DynamicRegistration)
                 );
-                client.ClientSettings.Capabilities.TextDocument.Completion.Value.Should().BeEquivalentTo(
+                client.ClientSettings.Capabilities!.TextDocument!.Completion.Value.Should().BeEquivalentTo(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -245,7 +269,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()
@@ -263,14 +287,15 @@ namespace Lsp.Tests.Integration
         {
             public void Configure(LanguageClientOptions options)
             {
+                options.EnableDynamicRegistration();
                 options.WithCapability(
                     new CompletionCapability {
-                        CompletionItem = new CompletionItemCapability {
+                        CompletionItem = new CompletionItemCapabilityOptions {
                             DeprecatedSupport = true,
                             DocumentationFormat = new[] { MarkupKind.Markdown },
                             PreselectSupport = true,
                             SnippetSupport = true,
-                            TagSupport = new CompletionItemTagSupportCapability {
+                            TagSupport = new CompletionItemTagSupportCapabilityOptions {
                                 ValueSet = new[] {
                                     CompletionItemTag.Deprecated
                                 }
@@ -278,7 +303,7 @@ namespace Lsp.Tests.Integration
                             CommitCharactersSupport = true
                         },
                         ContextSupport = true,
-                        CompletionItemKind = new CompletionItemKindCapability {
+                        CompletionItemKind = new CompletionItemKindCapabilityOptions {
                             ValueSet = new Container<CompletionItemKind>(
                                 Enum.GetValues(typeof(CompletionItemKind))
                                     .Cast<CompletionItemKind>()

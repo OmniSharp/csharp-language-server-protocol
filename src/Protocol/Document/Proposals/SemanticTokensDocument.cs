@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Immutable;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
@@ -13,8 +12,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
         private Guid _id;
 
-        internal ImmutableArray<int> _data;
-        internal int _dataLen;
+        internal ImmutableArray<int> Data;
+        internal int DataLen;
 
         private ImmutableArray<int>? _prevData;
 
@@ -32,8 +31,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         private void Initialize()
         {
             _id = Guid.NewGuid();
-            _data = new ImmutableArray<int>();
-            _dataLen = 0;
+            Data = new ImmutableArray<int>();
+            DataLen = 0;
         }
 
         public string Id => _id.ToString();
@@ -48,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
         {
             if (@params.PreviousResultId == Id)
             {
-                _prevData = _data;
+                _prevData = Data;
             }
 
             return new SemanticTokensBuilder(this, _legend);
@@ -59,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             _prevData = null;
             return new SemanticTokens {
                 ResultId = Id,
-                Data = _data
+                Data = Data
             };
         }
 
@@ -72,17 +71,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
             var currentCharOffset = 0;
             var capturing = false;
             var innerOffset = 0;
-            for (var i = 0; i < _data.Length; i += 5)
+            for (var i = 0; i < Data.Length; i += 5)
             {
-                var lineOffset = _data[i];
+                var lineOffset = Data[i];
                 currentLine += lineOffset;
                 if (lineOffset > 0) currentCharOffset = 0;
                 if (!capturing)
                 {
                     if (range.Start.Line == currentLine)
                     {
-                        var charOffset = _data[i + 1];
-                        var length = _data[i + 2];
+                        var charOffset = Data[i + 1];
+                        var length = Data[i + 2];
                         // TODO: Do we want to capture partial tokens?
                         // using Sys|tem.Collections.Generic|
                         //           ^^^ do we want a token for 'tem`?
@@ -90,7 +89,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         {
                             capturing = true;
                             // var overlap = ((currentCharOffset + charOffset) - range.Start.Character);
-                            data.AddRange(0, charOffset, length, _data[i + 3], _data[i + 4]);
+                            data.AddRange(0, charOffset, length, Data[i + 3], Data[i + 4]);
                             continue;
                         }
 
@@ -98,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         {
                             capturing = true;
                             var overlap = currentCharOffset + charOffset + length - range.Start.Character;
-                            data.AddRange(0, 0, overlap, _data[i + 3], _data[i + 4]);
+                            data.AddRange(0, 0, overlap, Data[i + 3], Data[i + 4]);
                             innerOffset = charOffset - overlap;
                             continue;
                         }
@@ -110,39 +109,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 {
                     if (range.End.Line == currentLine)
                     {
-                        var charOffset = _data[i + 1];
-                        var length = _data[i + 2];
+                        var charOffset = Data[i + 1];
+                        var length = Data[i + 2];
                         if (currentCharOffset + charOffset >= range.End.Character)
                         {
-                            capturing = false;
                             break;
                         }
 
                         if (currentCharOffset + charOffset + length >= range.End.Character)
                         {
-                            capturing = false;
                             var overlap = currentCharOffset + charOffset + length - range.End.Character;
-                            data.AddRange(lineOffset, charOffset, length - overlap, _data[i + 3], _data[i + 4]);
+                            data.AddRange(lineOffset, charOffset, length - overlap, Data[i + 3], Data[i + 4]);
                             break;
                         }
 
                         currentCharOffset += charOffset;
 
-                        data.AddRange(_data[i], _data[i + 1], _data[i + 2], _data[i + 3], _data[i + 4]);
+                        data.AddRange(Data[i], Data[i + 1], Data[i + 2], Data[i + 3], Data[i + 4]);
                     }
                     else
                     {
                         if (innerOffset > 0)
                         {
                             data.AddRange(
-                                _data[i], _data[i + 1] - innerOffset, _data[i + 2], _data[i + 3],
-                                _data[i + 4]
+                                Data[i], Data[i + 1] - innerOffset, Data[i + 2], Data[i + 3],
+                                Data[i + 4]
                             );
                             innerOffset = 0;
                         }
                         else
                         {
-                            data.AddRange(_data[i], _data[i + 1], _data[i + 2], _data[i + 3], _data[i + 4]);
+                            data.AddRange(Data[i], Data[i + 1], Data[i + 2], Data[i + 3], Data[i + 4]);
                         }
                     }
                 }
@@ -160,10 +157,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 
             var prevData = _prevData.Value;
             var prevDataLength = prevData.Length;
-            var dataLength = _data.Length;
+            var dataLength = Data.Length;
             var startIndex = 0;
             while (startIndex < dataLength && startIndex < prevDataLength && prevData[startIndex] ==
-                _data[startIndex])
+                Data[startIndex])
             {
                 startIndex++;
             }
@@ -173,12 +170,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                 // Find end index
                 var endIndex = 0;
                 while (endIndex < dataLength && endIndex < prevDataLength &&
-                       prevData[prevDataLength - 1 - endIndex] == _data[dataLength - 1 - endIndex])
+                       prevData[prevDataLength - 1 - endIndex] == Data[dataLength - 1 - endIndex])
                 {
                     endIndex++;
                 }
 
-                var newData = ImmutableArray.Create(_data, startIndex, dataLength - endIndex - startIndex);
+                var newData = ImmutableArray.Create(Data, startIndex, dataLength - endIndex - startIndex);
                 var result = new SemanticTokensDelta {
                     ResultId = Id,
                     Edits = new[] {
@@ -199,7 +196,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
                         new SemanticTokensEdit {
                             Start = startIndex,
                             DeleteCount = 0,
-                            Data = ImmutableArray.Create(_data, startIndex, _dataLen - startIndex)
+                            Data = ImmutableArray.Create(Data, startIndex, DataLen - startIndex)
                         }
                     }
                 };

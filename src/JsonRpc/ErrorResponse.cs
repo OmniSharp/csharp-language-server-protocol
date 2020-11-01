@@ -17,11 +17,11 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         public bool IsResponse => Response != null;
-        public OutgoingResponse Response { get; }
+        public OutgoingResponse? Response { get; }
 
         public bool IsError => Error != null;
-        public RpcError Error { get; }
-        public object Value => IsResponse ? (object) Response : IsError ? Error : null;
+        public RpcError? Error { get; }
+        public object? Value => IsResponse ? (object?) Response : IsError ? Error : null;
 
         public static implicit operator ErrorResponse(OutgoingResponse outgoingResponse) => new ErrorResponse(outgoingResponse);
 

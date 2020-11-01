@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
         private readonly ISerializer _serializer;
         private readonly ILogger<OutputHandler> _logger;
         private readonly Subject<object> _queue;
-        private readonly TaskCompletionSource<object> _outputIsFinished;
+        private readonly TaskCompletionSource<object?> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
 
         public OutputHandler(
@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc
             _serializer = serializer;
             _logger = logger;
             _queue = new Subject<object>();
-            _outputIsFinished = new TaskCompletionSource<object>();
+            _outputIsFinished = new TaskCompletionSource<object?>();
 
             _disposable = new CompositeDisposable {
                 _queue
@@ -62,15 +62,15 @@ namespace OmniSharp.Extensions.JsonRpc
         {
         }
 
-        public void Send(object value)
+        public void Send(object? value)
         {
-            if (_queue.IsDisposed) return;
+            if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
             _queue.OnNext(value);
         }
 
         public async Task StopAsync()
         {
-            await _pipeWriter.CompleteAsync();
+            await _pipeWriter.CompleteAsync().ConfigureAwait(false);
             _disposable.Dispose();
         }
 
@@ -81,8 +81,8 @@ namespace OmniSharp.Extensions.JsonRpc
         [EditorBrowsable(EditorBrowsableState.Never)]
         internal async Task WriteAndFlush()
         {
-            await _pipeWriter.FlushAsync();
-            await _pipeWriter.CompleteAsync();
+            await _pipeWriter.FlushAsync().ConfigureAwait(false);
+            await _pipeWriter.CompleteAsync().ConfigureAwait(false);
         }
 
         private async Task ProcessOutputStream(object value, CancellationToken cancellationToken)
@@ -92,9 +92,9 @@ namespace OmniSharp.Extensions.JsonRpc
                 // TODO: this will be part of the serialization refactor to make streaming first class
                 var content = _serializer.SerializeObject(value);
                 var contentBytes = Encoding.UTF8.GetBytes(content).AsMemory();
-                await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"), cancellationToken);
-                await _pipeWriter.WriteAsync(contentBytes, cancellationToken);
-                await _pipeWriter.FlushAsync(cancellationToken);
+                await _pipeWriter.WriteAsync(Encoding.UTF8.GetBytes($"Content-Length: {contentBytes.Length}\r\n\r\n"), cancellationToken).ConfigureAwait(false);
+                await _pipeWriter.WriteAsync(contentBytes, cancellationToken).ConfigureAwait(false);
+                await _pipeWriter.FlushAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException ex) when (ex.CancellationToken != cancellationToken)
             {

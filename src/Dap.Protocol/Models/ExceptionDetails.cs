@@ -12,36 +12,36 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Message contained in the exception.
         /// </summary>
         [Optional]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         /// <summary>
         /// Short type name of the exception object.
         /// </summary>
         [Optional]
-        public string TypeName { get; set; }
+        public string? TypeName { get; set; }
 
         /// <summary>
         /// Fully-qualified type name of the exception object.
         /// </summary>
         [Optional]
-        public string FullTypeName { get; set; }
+        public string? FullTypeName { get; set; }
 
         /// <summary>
         /// Optional expression that can be evaluated in the current scope to obtain the exception object.
         /// </summary>
         [Optional]
-        public string EvaluateName { get; set; }
+        public string? EvaluateName { get; set; }
 
         /// <summary>
         /// Stack trace at the time the exception was thrown.
         /// </summary>
         [Optional]
-        public string StackTrace { get; set; }
+        public string? StackTrace { get; set; }
 
         /// <summary>
         /// Details of the exception contained by this exception, if any.
         /// </summary>
         [Optional]
-        public Container<ExceptionDetails> InnerException { get; set; }
+        public Container<ExceptionDetails>? InnerException { get; set; }
     }
 }

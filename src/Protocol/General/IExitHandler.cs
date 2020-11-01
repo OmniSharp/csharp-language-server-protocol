@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     [Serial]
     [Method(GeneralNames.Exit, Direction.ClientToServer)]
     [GenerateHandlerMethods]
-    [GenerateRequestMethods]
+    [GenerateRequestMethods(typeof(ILanguageClient))]
     public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
     {
     }
@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     {
         public virtual async Task<Unit> Handle(ExitParams request, CancellationToken cancellationToken)
         {
-            await Handle(cancellationToken);
+            await Handle(cancellationToken).ConfigureAwait(false);
             return Unit.Value;
         }
 

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
-using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -34,29 +33,40 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         Task<Unit> IRequestHandler<DidChangeWorkspaceFoldersParams, Unit>.Handle(DidChangeWorkspaceFoldersParams request, CancellationToken cancellationToken)
         {
             if (!IsSupported) return Unit.Task;
-            foreach (var folder in request.Event?.Added ?? Enumerable.Empty<WorkspaceFolder>())
+            foreach (var folder in request.Event.Added)
             {
                 _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
+                if (_workspaceFoldersChangedSubject.IsDisposed) continue;
                 _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Add, folder));
             }
 
-            foreach (var folder in request.Event?.Removed ?? Enumerable.Empty<WorkspaceFolder>())
+            foreach (var folder in request.Event.Removed)
             {
                 _workspaceFolders.TryRemove(folder.Uri, out _);
+                if (_workspaceFoldersChangedSubject.IsDisposed) continue;
                 _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Remove, folder));
             }
 
-            _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            if (_workspaceFoldersSubject.IsDisposed)
+            {
+                _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
+            }
+
             return Unit.Task;
         }
 
-        async Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
+        Task IOnLanguageServerStarted.OnStarted(ILanguageServer server, CancellationToken cancellationToken)
         {
-            IsSupported = server.ClientSettings?.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
+            IsSupported = server.ClientSettings.Capabilities?.Workspace?.WorkspaceFolders.IsSupported == true;
             if (IsSupported)
             {
-                await Refresh().LastOrDefaultAsync().ToTask(cancellationToken);
+                foreach (var folder in server.ClientSettings.WorkspaceFolders ?? Enumerable.Empty<WorkspaceFolder>())
+                {
+                    _workspaceFolders.AddOrUpdate(folder.Uri, folder, (a, b) => folder);
+                    _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Add, folder));
+                }
             }
+            return Task.CompletedTask;
         }
 
         public IObservable<WorkspaceFolder> Refresh() => Observable.Create<WorkspaceFolder>(
@@ -65,6 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 return Observable.FromAsync(ct => _server.RequestWorkspaceFolders(new WorkspaceFolderParams(), ct))
                                  .Do(
                                       workspaceFolders => {
+                                          workspaceFolders ??= new Container<WorkspaceFolder>();
                                           var existingFolders = new HashSet<WorkspaceFolder>(_workspaceFolders.Values.Join(workspaceFolders, z => z.Uri, z => z.Uri, (a, b) => b));
                                           var additions = new HashSet<WorkspaceFolder>();
                                           var removals = new HashSet<WorkspaceFolder>();
@@ -82,6 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                               _workspaceFoldersChangedSubject.OnNext(new WorkspaceFolderChange(WorkspaceFolderEvent.Remove, oldFolder));
                                           }
 
+                                          if (_workspaceFoldersSubject.IsDisposed) return;
                                           _workspaceFoldersSubject.OnNext(_workspaceFolders.Values);
                                       }
                                   )
@@ -91,7 +103,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         );
 
         public IObservable<WorkspaceFolderChange> Changed => _workspaceFoldersChangedSubject.AsObservable();
-        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.AsObservable();
+        public IObservable<IEnumerable<WorkspaceFolder>> WorkspaceFolders => _workspaceFoldersSubject.IsDisposed ? Observable.Empty<IEnumerable<WorkspaceFolder>>() : _workspaceFoldersSubject.AsObservable();
         public IEnumerable<WorkspaceFolder> CurrentWorkspaceFolders => _workspaceFolders.Values;
 
         public bool IsSupported { get; private set; }
@@ -100,8 +112,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         public void Dispose()
         {
-            _workspaceFoldersSubject?.Dispose();
-            _workspaceFoldersChangedSubject?.Dispose();
+            if (!_workspaceFoldersSubject.IsDisposed) _workspaceFoldersSubject.Dispose();
+            if (!_workspaceFoldersChangedSubject.IsDisposed) _workspaceFoldersChangedSubject.Dispose();
         }
     }
 }

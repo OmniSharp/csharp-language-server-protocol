@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {
         private long? _long;
-        private string _string;
+        private string? _string;
 
         public ProgressToken(long value)
         {
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool IsString => _string != null;
 
-        public string String
+        public string? String
         {
             get => _string;
             set {
@@ -63,7 +63,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             hashCode = hashCode * -1521134295 + IsLong.GetHashCode();
             hashCode = hashCode * -1521134295 + Long.GetHashCode();
             hashCode = hashCode * -1521134295 + IsString.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(String);
+            if (String != null) hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(String);
             return hashCode;
         }
 
@@ -77,7 +77,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public bool Equals(string other) => IsString && String == other;
 
-        private string DebuggerDisplay => IsString ? String : IsLong ? Long.ToString() : "";
+        private string DebuggerDisplay => IsString ? String! : IsLong ? Long.ToString() : "";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

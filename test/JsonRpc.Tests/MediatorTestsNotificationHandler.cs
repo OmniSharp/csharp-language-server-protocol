@@ -1,18 +1,25 @@
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
+using DryIoc;
+using MediatR;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
+using Arg = NSubstitute.Arg;
 
 namespace JsonRpc.Tests
 {
     public class MediatorTestsNotificationHandler : AutoTestBase
     {
         [Method("exit")]
-        public interface IExitHandler : IJsonRpcNotificationHandler
+        public class ExitParams : IRequest
+        {
+        }
+
+        [Method("exit")]
+        public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
         {
         }
 
@@ -23,7 +30,7 @@ namespace JsonRpc.Tests
         {
             var exitHandler = Substitute.For<IExitHandler>();
 
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { exitHandler };
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { exitHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
@@ -31,7 +38,7 @@ namespace JsonRpc.Tests
 
             await router.RouteNotification(router.GetDescriptors(notification), notification, CancellationToken.None);
 
-            await exitHandler.Received(1).Handle(Arg.Any<EmptyRequest>(), Arg.Any<CancellationToken>());
+            await exitHandler.Received(1).Handle(Arg.Any<ExitParams>(), Arg.Any<CancellationToken>());
         }
     }
 }

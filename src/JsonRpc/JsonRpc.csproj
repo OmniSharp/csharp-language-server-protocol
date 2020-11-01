@@ -10,9 +10,7 @@
         <PackageReference Include="System.Collections.Immutable" />
         <PackageReference Include="System.Reactive" />
         <PackageReference Include="Microsoft.Extensions.Logging" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" />
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="MediatR" />
         <PackageReference Include="System.IO.Pipelines" />

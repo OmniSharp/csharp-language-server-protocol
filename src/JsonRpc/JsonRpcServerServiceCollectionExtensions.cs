@@ -1,14 +1,13 @@
 using System;
-using System.Collections.Generic;
 using System.IO.Pipelines;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -72,6 +71,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                 }
             );
+            container.RegisterMany<InstanceHasStarted>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
             return container.AddJsonRpcMediatR();
         }
@@ -81,23 +81,51 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterMany(new[] { typeof(IMediator).GetAssembly() }, Registrator.Interfaces, Reuse.ScopedOrSingleton);
             container.RegisterMany<RequestContext>(Reuse.Scoped);
             container.RegisterDelegate<ServiceFactory>(context => context.Resolve, Reuse.ScopedOrSingleton);
+            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandler<,>));
+            container.Register(typeof(IRequestHandler<,>), typeof(RequestHandlerDecorator<,>), setup: Setup.Decorator);
 
-            return container.With(
-                rules => rules.WithUnknownServiceResolvers(
-                    request => {
-                        if (request.ServiceType.IsGenericType && typeof(IRequestHandler<,>).IsAssignableFrom(request.ServiceType.GetGenericTypeDefinition()))
-                        {
-                            var context = request.Container.Resolve<IRequestContext>();
-                            if (context != null)
-                            {
-                                return new RegisteredInstanceFactory(context.Descriptor.Handler);
-                            }
-                        }
+            return container;
+        }
 
-                        return null;
+        class RequestHandler<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        {
+            private readonly IRequestContext _requestContext;
+
+            public RequestHandler(IRequestContext requestContext)
+            {
+                _requestContext = requestContext;
+            }
+            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            {
+                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+            }
+        }
+
+        class RequestHandlerDecorator<T, R> : IRequestHandler<T, R> where T : IRequest<R>
+        {
+            private readonly IRequestHandler<T, R>? _handler;
+            private readonly IRequestContext? _requestContext;
+
+            public RequestHandlerDecorator(IRequestHandler<T, R>? handler = null, IRequestContext? requestContext = null)
+            {
+                _handler = handler;
+                _requestContext = requestContext;
+            }
+            public Task<R> Handle(T request, CancellationToken cancellationToken)
+            {
+                if (_requestContext == null)
+                {
+                    if (_handler == null)
+                    {
+                        throw new NotImplementedException($"No request handler was registered for type {typeof(IRequestHandler<T, R>).FullName}");
+
                     }
-                )
-            );
+
+                    return _handler.Handle(request, cancellationToken);
+                }
+
+                return ((IRequestHandler<T, R>) _requestContext.Descriptor.Handler).Handle(request, cancellationToken);
+            }
         }
 
         internal static IContainer AddJsonRpcServerInternals(this IContainer container, JsonRpcServerOptions options)
@@ -120,7 +148,7 @@ namespace OmniSharp.Extensions.JsonRpc
             container = container.AddJsonRpcServerCore(options);
             container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
-            container.RegisterInstance(options.Serializer ?? new JsonRpcSerializer());
+            container.RegisterInstance(options.Serializer);
             container.RegisterInstance(options.Receiver);
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterInstance(options.OnUnhandledException ?? ( e => { } ));
@@ -138,16 +166,21 @@ namespace OmniSharp.Extensions.JsonRpc
                 }
             );
 
+            container.Register<IJsonRpcServerFacade, DefaultJsonRpcServerFacade>(reuse: Reuse.Singleton);
             container.RegisterInstance<IOptionsFactory<JsonRpcServerOptions>>(new ValueOptionsFactory<JsonRpcServerOptions>(options));
-            container.RegisterMany<JsonRpcServer>(serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer), reuse: Reuse.Singleton);
+            container.RegisterMany<JsonRpcServer>(
+                serviceTypeCondition: type => type == typeof(IJsonRpcServer) || type == typeof(JsonRpcServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
 
             return container;
         }
 
-        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, Action<JsonRpcServerOptions> configureOptions = null) =>
+        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, Action<JsonRpcServerOptions>? configureOptions = null) =>
             AddJsonRpcServer(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, string name, Action<JsonRpcServerOptions> configureOptions = null)
+        public static IServiceCollection AddJsonRpcServer(this IServiceCollection services, string name, Action<JsonRpcServerOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.
@@ -156,12 +189,10 @@ namespace OmniSharp.Extensions.JsonRpc
                 services.RemoveAll<JsonRpcServer>();
                 services.RemoveAll<IJsonRpcServer>();
                 services.AddSingleton<IJsonRpcServer>(
-                    _ =>
-                        throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
+                    _ => throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
                 );
                 services.AddSingleton<JsonRpcServer>(
-                    _ =>
-                        throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
+                    _ => throw new NotSupportedException("JsonRpcServer has been registered multiple times, you must use JsonRpcServerResolver instead")
                 );
             }
 

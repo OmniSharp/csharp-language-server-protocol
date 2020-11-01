@@ -12,11 +12,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// If false or missing this segment matches the names provided, otherwise it matches anything except the names provided.
         /// </summary>
         [Optional]
-        public bool? Negate { get; set; }
+        public bool Negate { get; set; }
 
         /// <summary>
         /// Depending on the value of 'negate' the names that should match or not match.
         /// </summary>
-        public Container<string> Names { get; set; }
+        public Container<string> Names { get; set; } = null!;
     }
 }

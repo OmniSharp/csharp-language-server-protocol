@@ -13,8 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
     /// <summary>
     /// The base class for test suites.
     /// </summary>
-    public abstract class TestBase
-        : IDisposable
+    public abstract class TestBase : IDisposable
     {
         /// <summary>
         /// Create a new test-suite.
@@ -39,21 +38,20 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
             Disposal.Add(LoggerFactory);
 
             // LoggerFactory.AddDebug(LogLevel);
+            // ReSharper disable once VirtualMemberCallInConstructor
             LoggerFactory.AddTestOutput(TestOutput, LogLevel);
 
             // Ugly hack to get access to the current test.
             CurrentTest = (ITest)
                 TestOutput.GetType()
-                          .GetField("test", BindingFlags.NonPublic | BindingFlags.Instance)
-                          .GetValue(TestOutput);
+                          .GetField("test", BindingFlags.NonPublic | BindingFlags.Instance)!
+                          .GetValue(TestOutput)!;
 
             Assert.True(CurrentTest != null, "Cannot retrieve current test from ITestOutputHelper.");
 
             Log = LoggerFactory.CreateLogger("CurrentTest");
 
-            Disposal.Add(
-                Log.BeginScope("TestDisplayName='{TestName}'", CurrentTest.DisplayName)
-            );
+            Disposal.Add(Log.BeginScope("TestDisplayName='{TestName}'", CurrentTest!.DisplayName));
         }
 
         /// <summary>
@@ -86,6 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                 }
                 finally
                 {
+                    // ReSharper disable once SuspiciousTypeConversion.Global
                     if (Log is IDisposable logDisposal)
                         logDisposal.Dispose();
                 }

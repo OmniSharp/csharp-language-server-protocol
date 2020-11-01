@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 
@@ -16,7 +15,7 @@ namespace DryIoc
         /// you get simply the best of both worlds.</summary>
         public static IContainer Create(
             IEnumerable<ServiceDescriptor> services,
-            Func<IRegistrator, ServiceDescriptor, bool> registerService = null)
+            Func<IRegistrator, ServiceDescriptor, bool>? registerService = null)
         {
             var container = new Container(Rules.MicrosoftDependencyInjectionRules);
 
@@ -48,8 +47,8 @@ namespace DryIoc
         /// </example>
         /// <remarks>You still need to Dispose adapted container at the end / application shutdown.</remarks>
         public static IContainer WithDependencyInjectionAdapter(this IContainer container,
-            IEnumerable<ServiceDescriptor> descriptors = null,
-            Func<IRegistrator, ServiceDescriptor, bool> registerDescriptor = null)
+            IEnumerable<ServiceDescriptor>? descriptors = null,
+            Func<IRegistrator, ServiceDescriptor, bool>? registerDescriptor = null)
         {
             if (container.Rules != Rules.MicrosoftDependencyInjectionRules)
                 container = container.With(rules => rules.WithMicrosoftDependencyInjectionRules());
@@ -121,7 +120,7 @@ namespace DryIoc
         /// ]]></code>
         /// </example>
         public static IContainer Populate(this IContainer container, IEnumerable<ServiceDescriptor> descriptors,
-            Func<IRegistrator, ServiceDescriptor, bool> registerDescriptor = null)
+            Func<IRegistrator, ServiceDescriptor, bool>? registerDescriptor = null)
         {
             if (registerDescriptor == null)
                 foreach (var descriptor in descriptors)
@@ -150,7 +149,9 @@ namespace DryIoc
                 container.RegisterMany(
                     new [] {descriptor.ImplementationType},
                     reuse: reuse,
-                    serviceTypeCondition: type => type == descriptor.ImplementationType || type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type) || typeof(IJsonRpcHandler).IsAssignableFrom(type));
+                    serviceTypeCondition: type => type == descriptor.ImplementationType || type == descriptor.ServiceType || typeof(IEventingHandler).IsAssignableFrom(type) || typeof(IJsonRpcHandler).IsAssignableFrom(type),
+                    nonPublicServiceTypes: true
+                );
             }
             else if (descriptor.ImplementationFactory != null)
             {
@@ -160,7 +161,8 @@ namespace DryIoc
 
                 container.RegisterDelegate(true, descriptor.ServiceType,
                     descriptor.ImplementationFactory,
-                    reuse);
+                    reuse
+                );
             }
             else
             {
@@ -168,7 +170,10 @@ namespace DryIoc
                 if (!(descriptor.ImplementationInstance is IEnumerable<object>) && (descriptor.ImplementationInstance is IEventingHandler || descriptor.ImplementationInstance is IJsonRpcHandler))
                 {
 
-                    container.RegisterInstanceMany(descriptor.ImplementationInstance);
+                    container.RegisterInstanceMany(
+                        descriptor.ImplementationInstance,
+                        nonPublicServiceTypes: true
+                    );
                 }
                 else
                 {

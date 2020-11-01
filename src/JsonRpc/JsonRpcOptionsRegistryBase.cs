@@ -19,27 +19,27 @@ namespace OmniSharp.Extensions.JsonRpc
 
         #region AddHandler
 
-        public sealed override T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(string method, IJsonRpcHandler handler, JsonRpcHandlerOptions? options = null)
         {
             Handlers.Add(JsonRpcHandlerDescription.Named(method, handler, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(string method, JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options = null)
         {
             Handlers.Add(JsonRpcHandlerDescription.Named(method, handlerFunc, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(IJsonRpcHandler handler, JsonRpcHandlerOptions? options = null)
         {
-            Handlers.Add(JsonRpcHandlerDescription.Named(null, handler, options));
+            Handlers.Add(JsonRpcHandlerDescription.Infer(handler, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(JsonRpcHandlerFactory handlerFunc, JsonRpcHandlerOptions? options = null)
         {
-            Handlers.Add(JsonRpcHandlerDescription.Named(null, handlerFunc, options));
+            Handlers.Add(JsonRpcHandlerDescription.Infer(handlerFunc, options));
             return (T) (object) this;
         }
 
@@ -53,25 +53,25 @@ namespace OmniSharp.Extensions.JsonRpc
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions options = null) => AddHandler(typeof(THandler), options);
+        public sealed override T AddHandler<THandler>(JsonRpcHandlerOptions? options = null) => AddHandler(typeof(THandler), options);
 
-        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions options = null) => AddHandler(method, typeof(THandler), options);
+        public sealed override T AddHandler<THandler>(string method, JsonRpcHandlerOptions? options = null) => AddHandler(method, typeof(THandler), options);
 
-        public sealed override T AddHandler(Type type, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(Type type, JsonRpcHandlerOptions? options = null)
         {
             Handlers.Add(JsonRpcHandlerDescription.Infer(type, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandler(string method, Type type, JsonRpcHandlerOptions options = null)
+        public sealed override T AddHandler(string method, Type type, JsonRpcHandlerOptions? options = null)
         {
             Handlers.Add(JsonRpcHandlerDescription.Named(method, type, options));
             return (T) (object) this;
         }
 
-        public sealed override T AddHandlerLink(string sourceMethod, string destinationMethod)
+        public sealed override T AddHandlerLink(string fromMethod, string toMethod)
         {
-            Handlers.Add(JsonRpcHandlerDescription.Link(sourceMethod, destinationMethod));
+            Handlers.Add(JsonRpcHandlerDescription.Link(fromMethod, toMethod));
             return (T) (object) this;
         }
 

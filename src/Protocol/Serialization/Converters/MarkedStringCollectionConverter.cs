@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new Container<MarkedString>(reader.Value as string);
+                return new Container<MarkedString>((reader.Value as string)!);
             }
 
             return new Container<MarkedString>();

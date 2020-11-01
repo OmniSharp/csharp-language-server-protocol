@@ -8,6 +8,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The watchers to register.
         /// </summary>
         [Optional]
-        public Container<FileSystemWatcher> Watchers { get; set; }
+        public Container<FileSystemWatcher>? Watchers { get; set; }
     }
 }

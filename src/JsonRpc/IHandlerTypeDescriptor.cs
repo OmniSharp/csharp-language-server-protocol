@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
@@ -12,9 +12,9 @@ namespace OmniSharp.Extensions.JsonRpc
         bool IsRequest { get; }
         Type HandlerType { get; }
         bool HasParamsType { get; }
-        Type ParamsType { get; }
+        Type? ParamsType { get; }
         bool HasResponseType { get; }
-        Type ResponseType { get; }
+        Type? ResponseType { get; }
     }
 
     /// <summary>

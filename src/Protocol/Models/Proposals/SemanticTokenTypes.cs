@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 
         public override bool Equals(object obj) => obj is SemanticTokenType other && Equals(other);
 
-        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
+        public override int GetHashCode() => _value.GetHashCode();
 
         public static bool operator ==(SemanticTokenType left, SemanticTokenType right) => left.Equals(right);
 

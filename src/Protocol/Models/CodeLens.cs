@@ -20,20 +20,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
         /// </summary>
-        public Range Range { get; set; }
+        public Range Range { get; set; } = null!;
 
         /// <summary>
         /// The command this code lens represents.
         /// </summary>
         [Optional]
-        public Command Command { get; set; }
+        public Command? Command { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JToken? Data { get; set; }
 
         private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
 
@@ -52,15 +52,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// Typed code lens used for the typed handlers
     /// </remarks>
     /// <typeparam name="T"></typeparam>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CodeLens<T> : ICanBeResolved
-        where T : HandlerIdentity, new()
+        where T : HandlerIdentity?, new()
     {
-        /// <inheritdoc />
-        public Range Range { get; set; }
+        /// <summary>
+        /// The range in which this code lens is valid. Should only span a single line.
+        /// </summary>
+        public Range Range { get; set; } = null!;
 
-        /// <inheritdoc />
+        /// <summary>
+        /// The command this code lens represents.
+        /// </summary>
         [Optional]
-        public Command Command { get; set; }
+        public Command? Command { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
@@ -68,11 +73,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public T Data
         {
-            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
-            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>()!;
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value);
         }
 
-        JToken ICanBeResolved.Data { get; set; }
+        JToken? ICanBeResolved.Data { get; set; }
 
         public static implicit operator CodeLens(CodeLens<T> value) => new CodeLens {
             Data = ( (ICanBeResolved) value ).Data,
@@ -89,5 +94,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
+
+        private string DebuggerDisplay => $"{Range}{( Command != null ? $" {Command}" : "" )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

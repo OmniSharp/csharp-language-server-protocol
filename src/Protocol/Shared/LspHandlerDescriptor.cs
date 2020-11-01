@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,18 +21,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             string key,
             IJsonRpcHandler handler,
             Type handlerType,
-            Type @params,
-            Type registrationType,
-            object registrationOptions,
+            Type? @params,
+            Type? registrationType,
+            object? registrationOptions,
             Func<bool> allowsDynamicRegistration,
-            Type capabilityType,
+            Type? capabilityType,
             RequestProcessType? requestProcessType,
             Action disposeAction,
-            ILspHandlerTypeDescriptor typeDescriptor
+            ILspHandlerTypeDescriptor? typeDescriptor
+        ) : this(
+            method, key, handler, handlerType, @params, registrationType, registrationOptions, allowsDynamicRegistration, capabilityType, requestProcessType, disposeAction,
+            typeDescriptor, null
+        )
+        {
+        }
+
+        public LspHandlerDescriptor(
+            string method,
+            string key,
+            IJsonRpcHandler handler,
+            Type handlerType,
+            Type? @params,
+            Type? registrationType,
+            object? registrationOptions,
+            Func<bool> allowsDynamicRegistration,
+            Type? capabilityType,
+            RequestProcessType? requestProcessType,
+            Action disposeAction,
+            ILspHandlerTypeDescriptor? typeDescriptor,
+            Guid? id
         )
         {
             _disposeAction = disposeAction;
-            Id = Guid.NewGuid();
+            Id = id.HasValue ? id.Value : handler is ICanBeIdentifiedHandler h && h.Id != Guid.Empty ? h.Id : Guid.NewGuid();
             Method = method;
             Key = key;
             ImplementationType = handler.GetType();
@@ -46,13 +67,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
             Response = typeDescriptor?.ResponseType ??
                        @params?.GetInterfaces()
-                               .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))?
-                               .GetGenericArguments()[0] ?? typeof(Unit);
+                               .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition() == typeof(IRequest<>))
+                              ?.GetGenericArguments()[0] ?? typeof(Unit);
 
             // If multiple are implemented this behavior is unknown
             CanBeResolvedHandlerType = handler.GetType().GetTypeInfo()
-                                              .ImplementedInterfaces
-                                              .FirstOrDefault(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x));
+                                             ?.ImplementedInterfaces
+                                             ?.FirstOrDefault(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x));
 
             HasReturnType = Response != null && Response != typeof(Unit);
 
@@ -62,13 +83,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
 
-            IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerType) || handlerType
-                                                                                                 .GetInterfaces().Any(
-                                                                                                      z =>
-                                                                                                          z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(
-                                                                                                              z.GetGenericTypeDefinition()
-                                                                                                          )
-                                                                                                  );
+            IsNotification = handlerType.GetInterfaces().Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
             TypeDescriptor = typeDescriptor;
@@ -79,35 +94,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         public Guid Id { get; }
         public bool HasRegistration => RegistrationType != null;
-        public Type RegistrationType { get; }
-        public object RegistrationOptions { get; }
+        public Type? RegistrationType { get; }
+        public object? RegistrationOptions { get; }
         public bool AllowsDynamicRegistration => _allowsDynamicRegistration();
 
         public bool HasCapability => CapabilityType != null;
-        public Type CapabilityType { get; }
+        public Type? CapabilityType { get; }
 
         public string Method { get; }
         public string Key { get; }
-        public Type Params { get; }
-        public Type Response { get; }
+        public Type? Params { get; }
+        public Type? Response { get; }
         public bool IsDelegatingHandler { get; }
 
         public bool IsDynamicCapability => typeof(IDynamicCapability).GetTypeInfo().IsAssignableFrom(CapabilityType);
-        public Type CanBeResolvedHandlerType { get; }
+        public Type? CanBeResolvedHandlerType { get; }
         public bool HasReturnType { get; }
 
         public IJsonRpcHandler Handler { get; }
         public bool IsNotification { get; }
         public bool IsRequest { get; }
         public RequestProcessType? RequestProcessType { get; }
-        public ILspHandlerTypeDescriptor TypeDescriptor { get; }
+        public ILspHandlerTypeDescriptor? TypeDescriptor { get; }
 
         public void Dispose() => _disposeAction();
 
-        public override bool Equals(object obj) => Equals(obj as LspHandlerDescriptor);
+        public override bool Equals(object? obj) => Equals(obj as LspHandlerDescriptor);
 
-        public bool Equals(LspHandlerDescriptor other) =>
-            other != null &&
+        public bool Equals(LspHandlerDescriptor? other) =>
+            other is not null &&
             EqualityComparer<Type>.Default.Equals(HandlerType, other.HandlerType) &&
             Method == other.Method &&
             Key == other.Key;

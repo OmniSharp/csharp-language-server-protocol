@@ -6,23 +6,23 @@ namespace OmniSharp.Extensions.JsonRpc
     public class RpcError
     {
         [JsonConstructor]
-        public RpcError(object id, ErrorMessage message)
+        public RpcError(object? id, ErrorMessage? message)
         {
             Id = id;
             Error = message;
             Method = string.Empty;
         }
 
-        public RpcError(object id, string method, ErrorMessage message)
+        public RpcError(object? id, string? method, ErrorMessage? message)
         {
             Id = id;
             Error = message;
             Method = method ?? string.Empty;
         }
 
-        public object Id { get; }
-        public ErrorMessage Error { get; }
+        public object? Id { get; }
+        public ErrorMessage? Error { get; }
 
-        [JsonIgnore] public string Method { get; }
+        [JsonIgnore] public string? Method { get; }
     }
 }

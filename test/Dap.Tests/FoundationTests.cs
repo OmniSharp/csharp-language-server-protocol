@@ -132,11 +132,10 @@ namespace Dap.Tests
         [ClassData(typeof(HandlersShouldHaveMethodAttributeData))]
         public void HandlersShouldMatchParamsMethodAttribute(Type type)
         {
-            if (typeof(IJsonRpcNotificationHandler).IsAssignableFrom(type)) return;
             var paramsType = HandlerTypeDescriptorHelper.GetHandlerInterface(type).GetGenericArguments()[0];
 
-            var lhs = MethodAttribute.From(type);
-            var rhs = MethodAttribute.From(paramsType);
+            var lhs = MethodAttribute.From(type)!;
+            var rhs = MethodAttribute.From(paramsType)!;
             lhs.Method.Should().Be(rhs.Method, $"{type.FullName} method does not match {paramsType.FullName}");
             lhs.Direction.Should().Be(rhs.Direction, $"{type.FullName} direction does not match {paramsType.FullName}");
         }
@@ -162,7 +161,7 @@ namespace Dap.Tests
             {
                 _logger.LogInformation("Delegating Handler: {Type}", delegatingHandler);
                 delegatingHandler.DeclaringType.Should().NotBeNull();
-                delegatingHandler.DeclaringType.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
+                delegatingHandler.DeclaringType!.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
                                  .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
             }
         }
@@ -268,7 +267,7 @@ namespace Dap.Tests
                 }
 
                 var containsCancellationToken = ForParameter(1, info => info.ParameterType.GetGenericArguments().Reverse().Take(2).Any(x => x == typeof(CancellationToken)));
-                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType) : typeof(Task);
+                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 var returns = ForParameter(1, info => info.ParameterType.GetGenericArguments().LastOrDefault() == returnType);
                 var isAction = ForParameter(1, info => info.ParameterType.Name.StartsWith(nameof(Action)));
                 var isFunc = ForParameter(1, info => info.ParameterType.Name.StartsWith("Func"));
@@ -276,13 +275,13 @@ namespace Dap.Tests
 
                 if (descriptor.IsRequest)
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                 }
 
                 if (descriptor.IsNotification)
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, {returnType.Name}>", isFunc, takesParameter, returns);
                     matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                     matcher.Match($"Action<{descriptor.ParamsType.Name}>", isAction, takesParameter);
                     matcher.Match($"Action<{descriptor.ParamsType.Name}, CancellationToken>", isAction, takesParameter, containsCancellationToken);
@@ -291,7 +290,7 @@ namespace Dap.Tests
             {
                 var matcher = new MethodMatcher(sendMethodRegistries, descriptor, extensionClass, sendMethodName);
                 Func<MethodInfo, bool> containsCancellationToken = info => info.GetParameters().Reverse().Take(2).Any(x => x.ParameterType == typeof(CancellationToken));
-                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType) : typeof(Task);
+                var returnType = descriptor.HasResponseType ? typeof(Task<>).MakeGenericType(descriptor.ResponseType!) : typeof(Task);
                 Func<MethodInfo, bool> returns = info => info.ReturnType == returnType;
                 Func<MethodInfo, bool> isAction = info => info.ReturnType.Name == "Void";
                 var isFunc = returns;
@@ -299,12 +298,12 @@ namespace Dap.Tests
 
                 if (descriptor.IsRequest)
                 {
-                    matcher.Match($"Func<{descriptor.ParamsType.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
+                    matcher.Match($"Func<{descriptor.ParamsType!.Name}, CancellationToken, {returnType.Name}>", isFunc, takesParameter, containsCancellationToken, returns);
                 }
 
                 if (descriptor.IsNotification)
                 {
-                    matcher.Match($"Action<{descriptor.ParamsType.Name}>", isAction, takesParameter);
+                    matcher.Match($"Action<{descriptor.ParamsType!.Name}>", isAction, takesParameter);
                 }
             }
         }
@@ -394,9 +393,9 @@ namespace Dap.Tests
                 foreach (var type in typeof(IDataBreakpointInfoHandler).Assembly.ExportedTypes
                                                                        .Where(
                                                                             z => z.IsClass && !z.IsAbstract && z.GetInterfaces().Any(
-                                                                                z =>
-                                                                                    z.IsGenericType &&
-                                                                                    typeof(IRequest<>).IsAssignableFrom(z.GetGenericTypeDefinition())
+                                                                                x =>
+                                                                                    x.IsGenericType &&
+                                                                                    typeof(IRequest<>).IsAssignableFrom(x.GetGenericTypeDefinition())
                                                                             )
                                                                         ))
                 {
@@ -432,9 +431,9 @@ namespace Dap.Tests
         }
 
 
-        private static readonly Type[] HandlerTypes = {
-            typeof(IJsonRpcNotificationHandler), typeof(IJsonRpcNotificationHandler<>),
-            typeof(IJsonRpcRequestHandler<>), typeof(IJsonRpcRequestHandler<,>),
+        private static readonly Type[] HandlerTypes = { typeof(IJsonRpcNotificationHandler<>),
+            typeof(IJsonRpcRequestHandler<>),
+            typeof(IJsonRpcRequestHandler<,>),
         };
 
         private static bool IsValidInterface(Type type)
@@ -450,9 +449,9 @@ namespace Dap.Tests
         public static Type GetHandlerInterface(Type type)
         {
             if (IsValidInterface(type)) return type;
-            return type?.GetTypeInfo()
+            return type.GetTypeInfo()
                         .ImplementedInterfaces
-                        .First(IsValidInterface);
+                        .First(IsValidInterface)!;
         }
 
 
@@ -460,15 +459,16 @@ namespace Dap.Tests
         {
             public TypeHandlerData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
-
-                    typeof(HandlerTypeDescriptorProvider).Assembly,
-                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
-                    typeof(DebugAdapterClient).Assembly,
-                    typeof(DebugAdapterServer).Assembly,
-                    typeof(DapReceiver).Assembly,
-                    typeof(DebugAdapterProtocolTestBase).Assembly
-                });
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                    new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                        typeof(DebugAdapterClient).Assembly,
+                        typeof(DebugAdapterServer).Assembly,
+                        typeof(DapReceiver).Assembly,
+                        typeof(DebugAdapterProtocolTestBase).Assembly
+                    }
+                );
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes.Where(
                     z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)
                 ))
@@ -476,7 +476,7 @@ namespace Dap.Tests
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
 
-                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type));
+                    Add(handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type)!);
                 }
             }
         }
@@ -485,20 +485,22 @@ namespace Dap.Tests
         {
             public TypeHandlerExtensionData()
             {
-                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(new[] {
-                    typeof(HandlerTypeDescriptorProvider).Assembly,
-                    typeof(DebugAdapterRpcOptionsBase<>).Assembly,
-                    typeof(DebugAdapterClient).Assembly,
-                    typeof(DebugAdapterServer).Assembly,
-                    typeof(DapReceiver).Assembly,
-                    typeof(DebugAdapterProtocolTestBase).Assembly
-                });
+                var handlerTypeDescriptorProvider = new HandlerTypeDescriptorProvider(
+                    new[] {
+                        typeof(HandlerTypeDescriptorProvider).Assembly,
+                        typeof(DebugAdapterRpcOptionsBase<>).Assembly,
+                        typeof(DebugAdapterClient).Assembly,
+                        typeof(DebugAdapterServer).Assembly,
+                        typeof(DapReceiver).Assembly,
+                        typeof(DebugAdapterProtocolTestBase).Assembly
+                    }
+                );
                 foreach (var type in typeof(CompletionsArguments).Assembly.ExportedTypes
                                                                  .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z)))
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type == typeof(IProgressStartHandler) || type == typeof(IProgressUpdateHandler) || type == typeof(IProgressEndHandler)) continue;
-                    var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
+                    var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type)!;
 
                     Add(
                         descriptor,
@@ -516,7 +518,7 @@ namespace Dap.Tests
         private static string SpecialCasedHandlerName(IHandlerTypeDescriptor descriptor) =>
             new Regex(@"(\w+(?:\`\d)?)$")
                .Replace(
-                    descriptor.HandlerType.Name ?? string.Empty,
+                    descriptor.HandlerType.Name,
                     descriptor.HandlerType.Name.Substring(1, descriptor.HandlerType.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
                 );
 

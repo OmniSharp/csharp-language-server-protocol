@@ -8,7 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Serial]
+    [Parallel]
     [Method(TextDocumentNames.RangeFormatting, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
@@ -25,6 +25,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public DocumentRangeFormattingRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<TextEditContainer> Handle(DocumentRangeFormattingParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DocumentRangeFormattingCapability capability) => Capability = capability;
-        protected DocumentRangeFormattingCapability Capability { get; private set; }
+        protected DocumentRangeFormattingCapability Capability { get; private set; } = null!;
     }
 }

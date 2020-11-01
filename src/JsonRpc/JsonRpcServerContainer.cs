@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     internal static class JsonRpcServerContainer
     {
-        public static IContainer Create(IServiceProvider outerServiceProvider)
+        public static IContainer Create(IServiceProvider? outerServiceProvider)
         {
             var container = new Container()
                            .WithDependencyInjectionAdapter()
@@ -21,6 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc
                                        .With(FactoryMethod.ConstructorWithResolvableArgumentsIncludingNonPublic)
                                         //.WithDefaultReuse(Reuse.Singleton)
                                        .WithDefaultReuse(Reuse.Scoped)
+                                       .WithConcreteTypeDynamicRegistrations((req, _) => typeof(IJsonRpcHandler).IsAssignableFrom(req), Reuse.Transient)
                             );
 
             var outerLoggerFactory = outerServiceProvider?.GetService<ILoggerFactory>();

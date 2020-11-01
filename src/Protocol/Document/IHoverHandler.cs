@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.Hover, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover>, IRegistration<HoverRegistrationOptions>, ICapability<HoverCapability>
+    public interface IHoverHandler : IJsonRpcRequestHandler<HoverParams, Hover?>, IRegistration<HoverRegistrationOptions>, ICapability<HoverCapability>
     {
     }
 
@@ -22,8 +22,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public HoverHandler(HoverRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public HoverRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Hover> Handle(HoverParams request, CancellationToken cancellationToken);
+        public abstract Task<Hover?> Handle(HoverParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(HoverCapability capability) => Capability = capability;
-        protected HoverCapability Capability { get; private set; }
+        protected HoverCapability Capability { get; private set; } = null!;
     }
 }

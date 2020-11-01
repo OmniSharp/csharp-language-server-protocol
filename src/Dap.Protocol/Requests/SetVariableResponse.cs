@@ -7,13 +7,13 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The new value of the variable.
         /// </summary>
-        public string Value { get; set; }
+        public string Value { get; set; } = null!;
 
         /// <summary>
         /// The type of the new value.Typically shown in the UI when hovering over the value.
         /// </summary>
         [Optional]
-        public string Type { get; set; }
+        public string? Type { get; set; }
 
         /// <summary>
         /// If variablesReference is > 0, the new value is structured and its children can be retrieved by passing variablesReference to the VariablesRequest.

@@ -1,7 +1,5 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
@@ -25,6 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 throw new ArgumentException("Serializer is missing!", nameof(options));
             }
 
+            options.Services.AddLogging(builder => options.LoggingBuilderAction?.Invoke(builder));
+
             container = container.AddJsonRpcServerCore(options);
             container.RegisterInstanceMany(new LspHandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
@@ -45,6 +45,14 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             );
             container.RegisterMany<ResponseRouter>(Reuse.Singleton);
             container.RegisterMany<ProgressManager>(Reuse.Singleton);
+
+            container.RegisterMany(
+                options.Assemblies
+                       .SelectMany(z => z.GetTypes())
+                       .Where(z => z.IsClass && !z.IsAbstract)
+                       .Where(z => typeof(IRegistrationOptionsConverter).IsAssignableFrom(z)),
+                reuse: Reuse.Singleton
+            );
 
             return container;
         }

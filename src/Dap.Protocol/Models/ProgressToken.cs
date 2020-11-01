@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
     public struct ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
     {
         private long? _long;
-        private string _string;
+        private string? _string;
 
         public ProgressToken(long value)
         {
@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         {
             get => _long ?? 0;
             set {
-                String = null;
+                _string = null;
                 _long = value;
             }
         }
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
 
         public string String
         {
-            get => _string;
+            get => _string ?? string.Empty;
             set {
                 _string = value;
                 _long = null;

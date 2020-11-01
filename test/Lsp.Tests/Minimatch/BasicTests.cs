@@ -35,9 +35,9 @@ namespace Minimatch.Tests
     {
         private static readonly List<Tuple<string, string>> actualRegexes = new List<Tuple<string, string>>();
 
-        private static void TestCase(string pattern, IList<string> expected, Options options = null, IEnumerable<string> input = null)
+        private static void TestCase(string pattern, IList<string> expected, Options? options = null, IEnumerable<string>? input = null)
         {
-            input ??= files;
+            input ??= Files;
 
             Assert.Equal(
                 string.Join(Environment.NewLine, expected.OrderBy(s => s)),
@@ -48,6 +48,7 @@ namespace Minimatch.Tests
             actualRegexes.Add(Tuple.Create(pattern, regex == null ? "false" : "/" + regex + "/" + ( regex.Options == RegexOptions.IgnoreCase ? "i" : "" )));
         }
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
         private static void AssertRegexes(params string[] expectedRegexes)
         {
             Assert.Equal(expectedRegexes.Length, actualRegexes.Count);
@@ -57,15 +58,15 @@ namespace Minimatch.Tests
             }
         }
 
-        private static void AddFiles(params string[] entries) => files.AddRange(entries);
+        private static void AddFiles(params string[] entries) => Files.AddRange(entries);
 
         private static void ReplaceFiles(params string[] entries)
         {
-            files.Clear();
-            files.AddRange(entries);
+            Files.Clear();
+            Files.AddRange(entries);
         }
 
-        private static readonly List<string> files = new List<string>();
+        private static readonly List<string> Files = new List<string>();
 
         public BasicTests()
         {
@@ -97,7 +98,7 @@ namespace Minimatch.Tests
 
             TestCase("b*/", new[] { "bdir/" });
             TestCase("c*", new[] { "c", "ca", "cb" });
-            TestCase("**", files);
+            TestCase("**", Files);
 
             TestCase("\\.\\./*/", new[] { "\\.\\./*/" }, new Options { NoNull = true });
             TestCase("s/\\..*//", new[] { "s/\\..*//" }, new Options { NoNull = true });

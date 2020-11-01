@@ -11,11 +11,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// to the version after all provided content changes have
         /// been applied.
         /// </summary>
-        public VersionedTextDocumentIdentifier TextDocument { get; set; }
+        public VersionedTextDocumentIdentifier TextDocument { get; set; } = null!;
 
         /// <summary>
         /// The actual content changes.
         /// </summary>
-        public Container<TextDocumentContentChangeEvent> ContentChanges { get; set; }
+        public Container<TextDocumentContentChangeEvent> ContentChanges { get; set; } = null!;
     }
 }

@@ -13,6 +13,6 @@
         /// <summary>
         /// A name of the thread.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
     }
 }

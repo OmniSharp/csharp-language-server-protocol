@@ -78,16 +78,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         public static readonly CodeActionKind SourceOrganizeImports = new CodeActionKind("source.organizeImports");
 
-        private readonly string _value;
+        private readonly string? _value;
 
         public CodeActionKind(string kind) => _value = kind;
 
         public static implicit operator CodeActionKind(string kind) => new CodeActionKind(kind);
 
-        public static implicit operator string(CodeActionKind kind) => kind._value;
+        public static implicit operator string(CodeActionKind kind) => kind._value ?? string.Empty;
 
         /// <inheritdoc />
-        public override string ToString() => _value;
+        public override string ToString() => _value ?? string.Empty;
 
         public bool Equals(CodeActionKind other) => _value == other._value;
 
@@ -98,9 +98,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public static bool operator ==(CodeActionKind left, CodeActionKind right) => left.Equals(right);
 
         public static bool operator !=(CodeActionKind left, CodeActionKind right) => !left.Equals(right);
-    }
-
-    public interface IEnumLikeString
-    {
     }
 }

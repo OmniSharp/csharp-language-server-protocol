@@ -1,12 +1,15 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.LanguageServer.Client.Configuration;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -16,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public static class LanguageClientServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddLanguageClientInternals(this IContainer container, LanguageClientOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddLanguageProtocolInternals(options);
 
@@ -26,13 +29,15 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
-            if (options.OnUnhandledException != null)
+            if (!EqualityComparer<OnUnhandledExceptionHandler?>.Default.Equals(options.OnUnhandledException, default))
             {
                 container.RegisterInstance(options.OnUnhandledException);
             }
             else
             {
+#pragma warning disable 4014
                 container.RegisterDelegate(_ => new OnUnhandledExceptionHandler(e => _.GetRequiredService<LanguageClient>().Shutdown()), Reuse.Singleton);
+#pragma warning restore 4014
             }
 
             container.RegisterMany<TextDocumentLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(TextDocumentLanguageClient)), reuse: Reuse.Singleton);
@@ -40,16 +45,26 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             container.RegisterMany<GeneralLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageClient)), reuse: Reuse.Singleton);
             container.RegisterMany<WindowLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageClient)), reuse: Reuse.Singleton);
             container.RegisterMany<WorkspaceLanguageClient>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageClient)), reuse: Reuse.Singleton);
+            container.RegisterMany<DefaultLanguageClientFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultLanguageClientFacade).GetInterfaces()
+                   .Except(typeof(DefaultLanguageClientFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
+            );
             container.RegisterInstance<IOptionsFactory<LanguageClientOptions>>(new ValueOptionsFactory<LanguageClientOptions>(options));
 
-            container.RegisterMany<LanguageClient>(serviceTypeCondition: type => type == typeof(ILanguageClient) || type == typeof(LanguageClient), reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageClient>(
+                serviceTypeCondition: type => type == typeof(ILanguageClient) || type == typeof(LanguageClient),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
 
             container.RegisterInstance(
                 options.ClientInfo ?? new ClientInfo {
-                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Name = Assembly.GetEntryAssembly()?.GetName().ToString() ?? string.Empty,
                     Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                      ?.InformationalVersion ??
                               Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
+                           ?? string.Empty
                 }
             );
 
@@ -60,12 +75,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {
-                        builder.AddConfiguration(outerConfiguration, false);
+                        builder.CustomAddConfiguration(outerConfiguration, false);
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
                     //var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
@@ -87,10 +102,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             return container;
         }
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions> configureOptions = null) =>
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, Action<LanguageClientOptions>? configureOptions = null) =>
             AddLanguageClient(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions> configureOptions = null)
+        public static IServiceCollection AddLanguageClient(this IServiceCollection services, string name, Action<LanguageClientOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

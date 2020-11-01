@@ -6,6 +6,16 @@
         <RootNamespace>OmniSharp.Extensions.LanguageServer.Protocol</RootNamespace>
         <PackageDescription>Language Server Protocol models, classes, interfaces and helper methods</PackageDescription>
     </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Extensions.Configuration" />
+        <!--
+        TODO: Add these in a future version
+        <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
+        <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
+        -->
+    </ItemGroup>
+
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" />
@@ -28,6 +38,9 @@
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
       <Compile Update="Client\OnLanguageClientInitializedDelegate.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="CapabilityKeyAttribute.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
     </ItemGroup>

@@ -9,12 +9,12 @@ namespace SampleServer
 {
     internal class DidChangeWatchedFilesHandler : IDidChangeWatchedFilesHandler
     {
-        private DidChangeWatchedFilesCapability _capability;
-
         public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions() => new DidChangeWatchedFilesRegistrationOptions();
 
         public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken) => Unit.Task;
 
-        public void SetCapability(DidChangeWatchedFilesCapability capability) => _capability = capability;
+        public void SetCapability(DidChangeWatchedFilesCapability capability)
+        {
+        }
     }
 }

@@ -2,6 +2,6 @@
 {
     internal class RequestContext : IRequestContext
     {
-        public IHandlerDescriptor Descriptor { get; set; }
+        public IHandlerDescriptor Descriptor { get; set; } = null!;
     }
 }

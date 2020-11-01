@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     public struct BooleanNumberString
     {
         private long? _long;
-        private string _string;
+        private string? _string;
         private bool? _bool;
 
         public BooleanNumberString(long value)
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             get => _long ?? 0;
             set {
-                String = null;
+                _string = null;
                 _long = value;
                 _bool = null;
             }
@@ -47,7 +47,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public string String
         {
-            get => _string;
+            get => _string ?? string.Empty;
             set {
                 _string = value;
                 _long = null;
@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             get => _bool.HasValue && _bool.Value;
             set {
-                String = null;
+                _string = null;
                 _long = null;
                 _bool = value;
             }

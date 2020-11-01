@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [JsonConverter(typeof(BooleanStringConverter))]
     public struct BooleanString
     {
-        private string _string;
+        private string? _string;
         private bool? _bool;
 
         public BooleanString(string value)
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public string String
         {
-            get => _string;
+            get => _string ?? string.Empty;
             set {
                 _string = value;
                 _bool = null;
@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             get => _bool.HasValue && _bool.Value;
             set {
-                String = null;
+                _string = null;
                 _bool = value;
             }
         }

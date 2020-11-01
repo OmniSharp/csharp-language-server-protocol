@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -51,10 +52,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
 
         public IResponseRouterReturns SendRequest<T>(string method, T @params) => new ResponseRouterReturnsImpl(this, method, @params);
 
-        public (string method, TaskCompletionSource<JToken> pendingTask) GetRequest(long id)
+        public bool TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask)
         {
-            Requests.TryGetValue(id, out var source);
-            return source;
+            var result = Requests.TryGetValue(id, out var source);
+            method = source.method;
+            pendingTask = source.pendingTask;
+            return result;
         }
 
         private string GetMethodName(Type type)
@@ -78,9 +81,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         {
             private readonly DapResponseRouter _router;
             private readonly string _method;
-            private readonly object _params;
+            private readonly object? _params;
 
-            public ResponseRouterReturnsImpl(DapResponseRouter router, string method, object @params)
+            public ResponseRouterReturnsImpl(DapResponseRouter router, string method, object? @params)
             {
                 _router = router;
                 _method = method;
@@ -107,14 +110,16 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                     cancellationToken.Register(
                         () => {
                             if (tcs.Task.IsCompleted) return;
+#pragma warning disable VSTHRD110
                             _router.SendRequest(RequestNames.Cancel, new { requestId = nextId }).Returning<CancelArguments>(CancellationToken.None);
+#pragma warning restore VSTHRD110
                         }
                     );
                 }
 
                 try
                 {
-                    var result = await tcs.Task;
+                    var result = await tcs.Task.ConfigureAwait(false);
                     if (typeof(TResponse) == typeof(Unit))
                     {
                         return (TResponse) (object) Unit.Value;
@@ -128,7 +133,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                 }
             }
 
-            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken);
+            public async Task ReturningVoid(CancellationToken cancellationToken) => await Returning<Unit>(cancellationToken).ConfigureAwait(false);
         }
     }
 }

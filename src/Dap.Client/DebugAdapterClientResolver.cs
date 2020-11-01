@@ -8,10 +8,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
     public class DebugAdapterClientResolver : IDisposable
     {
         private readonly IOptionsMonitor<DebugAdapterClientOptions> _monitor;
-        private readonly IServiceProvider _outerServiceProvider;
+        private readonly IServiceProvider? _outerServiceProvider;
         private readonly ConcurrentDictionary<string, DebugAdapterClient> _servers = new ConcurrentDictionary<string, DebugAdapterClient>();
 
-        public DebugAdapterClientResolver(IOptionsMonitor<DebugAdapterClientOptions> monitor, IServiceProvider outerServiceProvider)
+        public DebugAdapterClientResolver(IOptionsMonitor<DebugAdapterClientOptions> monitor, IServiceProvider? outerServiceProvider)
         {
             _monitor = monitor;
             _outerServiceProvider = outerServiceProvider;

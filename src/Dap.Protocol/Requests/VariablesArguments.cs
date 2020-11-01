@@ -35,6 +35,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Specifies details on how to format the Variable values.
         /// </summary>
         [Optional]
-        public ValueFormat Format { get; set; }
+        public ValueFormat? Format { get; set; }
     }
 }

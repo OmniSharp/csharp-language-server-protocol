@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// A short title like 'Retry', 'Open Log' etc.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         private string DebuggerDisplay => Title;
 

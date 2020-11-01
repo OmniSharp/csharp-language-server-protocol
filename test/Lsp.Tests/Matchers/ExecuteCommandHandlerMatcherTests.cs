@@ -78,8 +78,9 @@ namespace Lsp.Tests.Matchers
             );
 
             // Then
-            result.Should().NotBeNullOrEmpty();
-            result.Should().Contain(x => x.Method == "workspace/executeCommand");
+            var lspHandlerDescriptors = result as ILspHandlerDescriptor[] ?? result.ToArray();
+            lspHandlerDescriptors.Should().NotBeNullOrEmpty();
+            lspHandlerDescriptors.Should().Contain(x => x.Method == "workspace/executeCommand");
         }
     }
 }

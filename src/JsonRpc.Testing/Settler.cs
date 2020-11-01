@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         private readonly IDisposable _connectable;
         private readonly IObservable<Unit> _timeoutValue;
 
-        public Settler(JsonRpcTestOptions options, CancellationToken cancellationToken, IScheduler scheduler = null)
+        public Settler(JsonRpcTestOptions options, CancellationToken cancellationToken, IScheduler? scheduler = null)
         {
             _options = options;
             _cancellationToken = cancellationToken;
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                       }
 
                                       return Timer(_options.WaitTime, _scheduler)
-                                         .Select(z => Unit.Default);
+                                         .Select(v => Unit.Default);
                                   }
                               )
                              .Replay(1, _scheduler);
@@ -76,6 +76,6 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
 
         void IRequestSettler.OnEndRequest() => _requester.OnNext(-1);
 
-        public void Dispose() => _connectable?.Dispose();
+        public void Dispose() => _connectable.Dispose();
     }
 }

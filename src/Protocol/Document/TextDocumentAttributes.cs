@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
@@ -19,29 +18,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         }
 
         public DocumentUri Uri { get; }
-        public string Scheme { get; }
+        public string? Scheme { get; }
         public string LanguageId { get; }
 
-        public override bool Equals(object obj) => Equals(obj as TextDocumentAttributes);
+        public bool Equals(TextDocumentAttributes? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Uri.Equals(other.Uri) && Scheme == other.Scheme && LanguageId == other.LanguageId;
+        }
 
-        public bool Equals(TextDocumentAttributes other) =>
-            other != null &&
-            DocumentUri.Comparer.Equals(Uri, other.Uri) &&
-            Scheme == other.Scheme &&
-            LanguageId == other.LanguageId;
+        public override bool Equals(object? obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            if (obj.GetType() != GetType()) return false;
+            return Equals((TextDocumentAttributes) obj);
+        }
 
         public override int GetHashCode()
         {
-            var hashCode = -918855467;
-            hashCode = hashCode * -1521134295 + DocumentUri.Comparer.GetHashCode(Uri);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Scheme);
-            hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(LanguageId);
-            return hashCode;
+            unchecked
+            {
+                var hashCode = Uri.GetHashCode();
+                hashCode = ( hashCode * 397 ) ^ ( Scheme != null ? Scheme.GetHashCode() : 0 );
+                hashCode = ( hashCode * 397 ) ^ LanguageId.GetHashCode();
+                return hashCode;
+            }
         }
 
-        public static bool operator ==(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2) =>
-            EqualityComparer<TextDocumentAttributes>.Default.Equals(attributes1, attributes2);
+        public static bool operator ==(TextDocumentAttributes? left, TextDocumentAttributes? right) => Equals(left, right);
 
-        public static bool operator !=(TextDocumentAttributes attributes1, TextDocumentAttributes attributes2) => !( attributes1 == attributes2 );
+        public static bool operator !=(TextDocumentAttributes? left, TextDocumentAttributes? right) => !Equals(left, right);
     }
 }

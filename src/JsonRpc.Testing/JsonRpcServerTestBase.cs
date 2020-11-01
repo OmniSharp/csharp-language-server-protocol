@@ -12,8 +12,8 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
     /// </summary>
     public abstract class JsonRpcServerTestBase : JsonRpcTestBase
     {
-        private JsonRpcServer _client;
-        private JsonRpcServer _server;
+        private JsonRpcServer _client= null!;
+        private JsonRpcServer _server = null!;
 
         public JsonRpcServerTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {
@@ -36,6 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
             var clientTask = JsonRpcServer.From(
                 options => {
                     options
+                       .WithLoggerFactory(TestOptions.ClientLoggerFactory)
                        .WithServices(
                             services => services
                                        .AddTransient(typeof(IPipelineBehavior<,>), typeof(SettlePipeline<,>))
@@ -43,7 +44,6 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                                        .AddLogging(
                                             x => {
                                                 x.SetMinimumLevel(LogLevel.Trace);
-                                                x.Services.AddSingleton(TestOptions.ClientLoggerFactory);
                                             }
                                         )
                         );
@@ -71,9 +71,11 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
                 }, CancellationToken
             );
 
-            await Task.WhenAll(clientTask, serverTask);
+            await Task.WhenAll(clientTask, serverTask).ConfigureAwait(false);
+#pragma warning disable VSTHRD103
             _client = clientTask.Result;
             _server = serverTask.Result;
+#pragma warning restore VSTHRD103
 
             Disposable.Add(_client);
             Disposable.Add(_server);

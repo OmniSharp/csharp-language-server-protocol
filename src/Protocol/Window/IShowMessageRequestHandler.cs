@@ -7,7 +7,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 {
-    [Serial]
+    [Parallel]
     [Method(WindowNames.ShowMessageRequest, Direction.ServerToClient)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]

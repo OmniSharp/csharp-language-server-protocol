@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Ids of threads to be terminated.
         /// </summary>
         [Optional]
-        public Container<long> ThreadIds { get; set; }
+        public Container<long>? ThreadIds { get; set; }
     }
 }

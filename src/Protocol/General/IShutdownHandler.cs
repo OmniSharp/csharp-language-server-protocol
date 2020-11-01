@@ -20,7 +20,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     {
         public virtual async Task<Unit> Handle(ShutdownParams request, CancellationToken cancellationToken)
         {
-            await Handle(cancellationToken);
+            await Handle(cancellationToken).ConfigureAwait(false);
             return Unit.Value;
         }
 

@@ -5,6 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     public static class TextDocumentNames
     {
         public const string CodeAction = "textDocument/codeAction";
+        public const string CodeActionResolve = "codeAction/resolve";
         public const string CodeLens = "textDocument/codeLens";
         public const string CodeLensResolve = "codeLens/resolve";
         public const string ColorPresentation = "textDocument/colorPresentation";
@@ -39,8 +40,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Obsolete(Constants.Proposal)] public const string PrepareCallHierarchy = "textDocument/prepareCallHierarchy";
         [Obsolete(Constants.Proposal)] public const string CallHierarchyIncoming = "callHierarchy/incomingCalls";
         [Obsolete(Constants.Proposal)] public const string CallHierarchyOutgoing = "callHierarchy/outgoingCalls";
+        [Obsolete(Constants.Proposal)] public const string SemanticTokensRegistration = "textDocument/semanticTokens";
         [Obsolete(Constants.Proposal)] public const string SemanticTokensFull = "textDocument/semanticTokens/full";
         [Obsolete(Constants.Proposal)] public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
         [Obsolete(Constants.Proposal)] public const string SemanticTokensRange = "textDocument/semanticTokens/range";
+        [Obsolete(Constants.Proposal)] public const string Moniker = "textDocument/moniker";
     }
 }

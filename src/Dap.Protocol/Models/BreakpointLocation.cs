@@ -13,18 +13,18 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Optional start column of breakpoint location.
         /// </summary>
         [Optional]
-        public int Column { get; set; }
+        public int? Column { get; set; }
 
         /// <summary>
         /// Optional end line of breakpoint location if the location covers a range.
         /// </summary>
         [Optional]
-        public int EndLine { get; set; }
+        public int? EndLine { get; set; }
 
         /// <summary>
         /// Optional end column of breakpoint location if the location covers a range.
         /// </summary>
         [Optional]
-        public int EndColumn { get; set; }
+        public int? EndColumn { get; set; }
     }
 }

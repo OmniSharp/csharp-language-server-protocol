@@ -40,7 +40,7 @@ namespace Lsp.Tests.Models
                         SignatureHelp = new SignatureHelpCapability { DynamicRegistration = true },
                         Completion = new CompletionCapability {
                             DynamicRegistration = true,
-                            CompletionItem = new CompletionItemCapability {
+                            CompletionItem = new CompletionItemCapabilityOptions {
                                 SnippetSupport = true
                             }
                         },
@@ -64,7 +64,7 @@ namespace Lsp.Tests.Models
                         Symbol = new WorkspaceSymbolCapability { DynamicRegistration = true },
                     }
                 },
-                InitializationOptions = null,
+                InitializationOptions = null!,
                 ProcessId = 1234,
                 RootUri = new Uri("file:///file/abc/12.cs"),
                 Trace = InitializeTrace.Verbose

@@ -42,7 +42,8 @@
         "moreTriggerCharacter": [
             ";",
             " "
-        ]
+        ],
+        "workDoneProgress": false
     },
     "renameProvider": true,
     "documentLinkProvider": {

@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using MediatR;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public interface IHandlerTypeDescriptorProvider<out T> where T : IHandlerTypeDescriptor
+    public interface IHandlerTypeDescriptorProvider<out T> where T : IHandlerTypeDescriptor?
     {
-        T GetHandlerTypeDescriptor<A>();
+        T GetHandlerTypeDescriptor<TA>();
         T GetHandlerTypeDescriptor(Type type);
-        string GetMethodName<T>() where T : IJsonRpcHandler;
+        string? GetMethodName<TH>() where TH : IJsonRpcHandler;
         bool IsMethodName(string name, params Type[] types);
-        string GetMethodName(Type type);
+        string? GetMethodName(Type type);
     }
 
     public class HandlerTypeDescriptorHelper
     {
-        internal static Type GetMethodType(Type type)
+        internal static Type? GetMethodType(Type type)
         {
             // Custom method
             if (MethodAttribute.AllFrom(type).Any())
@@ -33,7 +32,6 @@ namespace OmniSharp.Extensions.JsonRpc
         }
 
         private static readonly Type[] HandlerTypes = {
-            typeof(IJsonRpcNotificationHandler),
             typeof(IJsonRpcNotificationHandler<>),
             typeof(IJsonRpcRequestHandler<>),
             typeof(IJsonRpcRequestHandler<,>),
@@ -56,7 +54,7 @@ namespace OmniSharp.Extensions.JsonRpc
             try
             {
                 if (IsValidInterface(type)) return type;
-                return type?.GetTypeInfo()
+                return type.GetTypeInfo()
                             .ImplementedInterfaces
                             .First(IsValidInterface);
             }
@@ -66,17 +64,17 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        internal static Type UnwrapGenericType(Type genericType, Type type) =>
-            type?.GetTypeInfo()
+        internal static Type? UnwrapGenericType(Type genericType, Type type) =>
+            type.GetTypeInfo()
                  .ImplementedInterfaces
                  .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == genericType)
                 ?.GetTypeInfo()
                 ?.GetGenericArguments()[0];
     }
 
-    class HandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor>
+    class HandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
-        private readonly ConcurrentDictionary<Type, string> MethodNames =
+        private readonly ConcurrentDictionary<Type, string> _methodNames =
             new ConcurrentDictionary<Type, string>();
 
         internal readonly ILookup<string, IHandlerTypeDescriptor> KnownHandlers;
@@ -106,7 +104,7 @@ namespace OmniSharp.Extensions.JsonRpc
                     }
                 }
             )
-           .Where(z => ( z.IsInterface || ( z.IsClass && !z.IsAbstract ) ))
+           .Where(z => z.IsInterface || z.IsClass && !z.IsAbstract)
             // running on mono this call can cause issues when scanning of the entire assembly.
            .Where(
                 z => {
@@ -124,12 +122,16 @@ namespace OmniSharp.Extensions.JsonRpc
            .Where(z => !z.Name.EndsWith("Manager")) // Manager interfaces are generally specializations around the handlers
            .Select(HandlerTypeDescriptorHelper.GetMethodType)
            .Distinct()
-           .ToLookup(x => MethodAttribute.From(x).Method)
-           .SelectMany(x => x.Select(z => new HandlerTypeDescriptor(z) as IHandlerTypeDescriptor));
+           .ToLookup(x => MethodAttribute.From(x)!.Method)
+           .SelectMany(
+                x => x
+                    .Distinct()
+                    .Select(z => new HandlerTypeDescriptor(z!) as IHandlerTypeDescriptor)
+            );
 
-        public IHandlerTypeDescriptor GetHandlerTypeDescriptor<A>() => GetHandlerTypeDescriptor(typeof(A));
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
 
-        public IHandlerTypeDescriptor GetHandlerTypeDescriptor(Type type)
+        public IHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
         {
             var @default = KnownHandlers
                           .SelectMany(g => g)
@@ -139,17 +141,17 @@ namespace OmniSharp.Extensions.JsonRpc
                 return @default;
             }
 
-            var methodName = GetMethodName(type);
+            var methodName = GetMethodName(type)!;
             return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
         }
 
-        public string GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
 
-        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z).Equals(name));
+        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
 
-        public string GetMethodName(Type type)
+        public string? GetMethodName(Type type)
         {
-            if (MethodNames.TryGetValue(type, out var method)) return method;
+            if (_methodNames.TryGetValue(type, out var method)) return method;
 
             // Custom method
             var attribute = MethodAttribute.From(type);
@@ -161,13 +163,12 @@ namespace OmniSharp.Extensions.JsonRpc
                 return handler.Method;
             }
 
-            // TODO: Log unknown method name
             if (attribute is null)
             {
                 return null;
             }
 
-            MethodNames.TryAdd(type, attribute.Method);
+            _methodNames.TryAdd(type, attribute.Method);
             return attribute.Method;
         }
     }

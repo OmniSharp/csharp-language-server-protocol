@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         private readonly Action _disposeAction;
 
         public HandlerDescriptor(
-            string method, IHandlerTypeDescriptor typeDescriptor, IJsonRpcHandler handler, Type handlerInterface, Type @params, Type response,
+            string method, IHandlerTypeDescriptor? typeDescriptor, IJsonRpcHandler handler, Type handlerInterface, Type? @params, Type? response,
             RequestProcessType? requestProcessType, Action disposeAction
         )
         {
@@ -36,12 +36,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
                                       typeof(DelegatingNotification<>).IsAssignableFrom(@params.GetGenericTypeDefinition())
                                   );
 
-            IsNotification = typeof(IJsonRpcNotificationHandler).IsAssignableFrom(handlerInterface) || handlerInterface
-                                                                                                      .GetInterfaces().Any(
-                                                                                                           z =>
-                                                                                                               z.IsGenericType && typeof(IJsonRpcNotificationHandler<>)
-                                                                                                                  .IsAssignableFrom(z.GetGenericTypeDefinition())
-                                                                                                       );
+            IsNotification = handlerInterface
+                            .GetInterfaces()
+                            .Any(z => z.IsGenericType && typeof(IJsonRpcNotificationHandler<>).IsAssignableFrom(z.GetGenericTypeDefinition()));
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
         }
@@ -52,9 +49,9 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
         public Type HandlerType { get; }
         public Type ImplementationType { get; }
         public string Method { get; }
-        public IHandlerTypeDescriptor TypeDescriptor { get; }
-        public Type Params { get; }
-        public Type Response { get; }
+        public IHandlerTypeDescriptor? TypeDescriptor { get; }
+        public Type? Params { get; }
+        public Type? Response { get; }
         public bool HasReturnType { get; }
         public bool IsDelegatingHandler { get; }
         public RequestProcessType? RequestProcessType { get; }

@@ -3,22 +3,22 @@ using Newtonsoft.Json.Linq;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
-    public class ClientCapabilities
+    public class ClientCapabilities : CapabilitiesBase
     {
         /// <summary>
         /// Workspace specific client capabilities.
         /// </summary>
-        public WorkspaceClientCapabilities Workspace { get; set; }
+        public WorkspaceClientCapabilities? Workspace { get; set; }
 
         /// <summary>
         /// Text document specific client capabilities.
         /// </summary>
-        public TextDocumentClientCapabilities TextDocument { get; set; }
+        public TextDocumentClientCapabilities? TextDocument { get; set; }
 
         /// <summary>
         /// Window specific client capabilities.
         /// </summary>
-        public WindowClientCapabilities Window { get; set; }
+        public WindowClientCapabilities? Window { get; set; }
 
         /// <summary>
         /// Experimental client capabilities.

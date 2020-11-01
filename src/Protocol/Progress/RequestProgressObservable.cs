@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
     internal class RequestProgressObservable<TItem, TResult> : IRequestProgressObservable<TItem, TResult>, IObserver<JToken>
     {
         private readonly ISerializer _serializer;
-        private readonly ISubject<TItem> _dataSubject;
+        private readonly ReplaySubject<TItem> _dataSubject;
         private readonly CompositeDisposable _disposable;
         private readonly Task<TResult> _task;
 
@@ -34,7 +34,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             _disposable = new CompositeDisposable { request.Connect(), Disposable.Create(disposal) };
 
             _task = _dataSubject.ForkJoin(requestResult, factory).ToTask(cancellationToken);
+#pragma warning disable VSTHRD105
+#pragma warning disable VSTHRD110
             _task.ContinueWith(x => Dispose());
+#pragma warning restore VSTHRD110
+#pragma warning restore VSTHRD105
 
             ProgressToken = token;
             if (_dataSubject is IDisposable disposable)
@@ -46,17 +50,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
         public ProgressToken ProgressToken { get; }
         public Type ParamsType { get; } = typeof(TItem);
 
-        public void OnCompleted() => _dataSubject.OnCompleted();
+        public void OnCompleted()
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnCompleted();
+        }
 
-        public void OnError(Exception error) => _dataSubject.OnError(error);
+        public void OnError(Exception error)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnError(error);
+        }
 
-        public void OnNext(JToken value) => _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer));
+        public void OnNext(JToken value)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnNext(value.ToObject<TItem>(_serializer.JsonSerializer));
+        }
 
-        public void Dispose() => _disposable.Dispose();
+        public void Dispose()
+        {
+            if (_disposable.IsDisposed) return;
+            _disposable.Dispose();
+        }
 
         public IDisposable Subscribe(IObserver<TItem> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
 
+#pragma warning disable VSTHRD003
         public Task<TResult> AsTask() => _task;
+#pragma warning restore VSTHRD003
         public TaskAwaiter<TResult> GetAwaiter() => _task.GetAwaiter();
     }
 }

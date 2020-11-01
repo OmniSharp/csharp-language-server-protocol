@@ -4,6 +4,7 @@
             "codeActionKinds": [
                 "quickfix"
             ],
+            "resolveProvider": false,
             "workDoneProgress": false
         },
         "renameProvider": {

@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -22,10 +23,10 @@ namespace Lsp.Tests.Integration
 
         private readonly List<LogMessageParams> _receivedMessages = new List<LogMessageParams>();
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Log_Messages_Through_Window_Extension_Methods()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             server.Window.LogError("Something bad happened...");
             server.Window.LogInfo("Here's something cool...");
@@ -42,7 +43,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
+            await _receivedMessages.DelayUntilCount(6, CancellationToken);
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);
@@ -51,10 +52,10 @@ namespace Lsp.Tests.Integration
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Log).And.Subject.Count(z => z.Type == MessageType.Log).Should().Be(3);
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Log_Messages_Through_Server_Extension_Methods()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             server.LogError("Something bad happened...");
             server.LogInfo("Here's something cool...");
@@ -71,7 +72,7 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
+            await _receivedMessages.DelayUntilCount(6, CancellationToken);
 
             _receivedMessages.Should().HaveCount(6);
             _receivedMessages.Should().Contain(z => z.Type == MessageType.Error);

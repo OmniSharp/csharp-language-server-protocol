@@ -2,15 +2,16 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using MediatR;
-using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Server;
 using Xunit;
 using Xunit.Abstractions;
+using Arg = NSubstitute.Arg;
+using Request = OmniSharp.Extensions.JsonRpc.Server.Request;
 
 namespace JsonRpc.Tests
 {
@@ -23,15 +24,15 @@ namespace JsonRpc.Tests
 
         public class CodeActionParams : IRequest<IEnumerable<Command>>
         {
-            public string TextDocument { get; set; }
-            public string Range { get; set; }
-            public string Context { get; set; }
+            public string TextDocument { get; set; } = null!;
+            public string Range { get; set; } = null!;
+            public string Context { get; set; } = null!;
         }
 
         public class Command
         {
-            public string Title { get; set; }
-            [JsonProperty("command")] public string Name { get; set; }
+            public string Title { get; set; } = null!;
+            [JsonProperty("command")] public string Name { get; set; } = null!;
         }
 
         public MediatorTestsRequestHandlerOfTRequestTResponse(ITestOutputHelper testOutputHelper) : base(testOutputHelper) =>
@@ -41,9 +42,8 @@ namespace JsonRpc.Tests
         public async Task ExecutesHandler()
         {
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            var mediator = Substitute.For<IMediator>();
 
-            var collection = new HandlerCollection(new ServiceCollection().BuildServiceProvider(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { codeActionHandler };
+            var collection = new HandlerCollection(Substitute.For<IResolverContext>(), new HandlerTypeDescriptorProvider(new [] { typeof(HandlerTypeDescriptorProvider).Assembly, typeof(HandlerResolverTests).Assembly })) { codeActionHandler };
             AutoSubstitute.Provide<IHandlersManager>(collection);
             var router = AutoSubstitute.Resolve<RequestRouter>();
 
@@ -51,7 +51,7 @@ namespace JsonRpc.Tests
             var @params = new CodeActionParams { TextDocument = "TextDocument", Range = "Range", Context = "Context" };
             var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params)));
 
-            var response = await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
+            await router.RouteRequest(router.GetDescriptors(request), request, CancellationToken.None);
 
             await codeActionHandler.Received(1).Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>());
         }

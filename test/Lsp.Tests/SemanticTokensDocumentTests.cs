@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -21,16 +21,13 @@ namespace Lsp.Tests
 {
     public class SemanticTokensDocumentTests
     {
-        private readonly ITestOutputHelper _testOutputHelper;
-        private readonly TestLoggerFactory _loggerFactory;
         private readonly ILogger _logger;
         private readonly SemanticTokensLegend _legend;
 
         public SemanticTokensDocumentTests(ITestOutputHelper testOutputHelper)
         {
-            _testOutputHelper = testOutputHelper;
-            _loggerFactory = new TestLoggerFactory(testOutputHelper);
-            _logger = _loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
+            var loggerFactory = new TestLoggerFactory(testOutputHelper);
+            _logger = loggerFactory.CreateLogger<SemanticTokensDocumentTests>();
             _legend = new SemanticTokensLegend {
                 // specify a specific set so that additions to the default list do not cause breaks in the tests.
                 TokenModifiers = new[] {
@@ -106,7 +103,7 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [ClassData(typeof(ReturnDocumentTokensFromScratch_ForRange_Data))]
+        [ClassData(typeof(ReturnDocumentTokensFromScratchForRangeData))]
         public void ReturnDocumentTokensFromScratch_ForRange(Range range, IEnumerable<NormalizedToken> expectedTokens)
         {
             var document = new SemanticTokensDocument(_legend);
@@ -124,9 +121,9 @@ namespace Lsp.Tests
             data.Should().ContainInOrder(expectedTokens);
         }
 
-        public class ReturnDocumentTokensFromScratch_ForRange_Data : TheoryData<Range, IEnumerable<NormalizedToken>>
+        public class ReturnDocumentTokensFromScratchForRangeData : TheoryData<Range, IEnumerable<NormalizedToken>>
         {
-            public ReturnDocumentTokensFromScratch_ForRange_Data()
+            public ReturnDocumentTokensFromScratchForRangeData()
             {
                 Add(
                     new Range {
@@ -180,7 +177,7 @@ namespace Lsp.Tests
         }
 
         [Theory]
-        [ClassData(typeof(ReturnDocumentEdits_Data))]
+        [ClassData(typeof(ReturnDocumentEditsData))]
         public void ReturnDocumentEdits(
             string originalText, string modifiedText,
             IEnumerable<NormalizedToken> expectedTokens
@@ -206,7 +203,7 @@ namespace Lsp.Tests
 
             var result = document.GetSemanticTokensEdits();
             result.IsDelta.Should().BeTrue();
-            var edits = result.Delta;
+            var edits = result.Delta!;
 
             edits.ResultId.Should().Be(document.Id);
             edits.Edits.Should().HaveCount(1);
@@ -221,9 +218,9 @@ namespace Lsp.Tests
             edit1Data.Should().ContainInOrder(expectedTokens);
         }
 
-        public class ReturnDocumentEdits_Data : TheoryData<string, string, IEnumerable<NormalizedToken>>
+        public class ReturnDocumentEditsData : TheoryData<string, string, IEnumerable<NormalizedToken>>
         {
-            public ReturnDocumentEdits_Data()
+            public ReturnDocumentEditsData()
             {
                 Add(
                     ExampleDocumentText,
@@ -254,18 +251,19 @@ namespace Lsp.Tests
             }
         }
 
-
         private class TokenizationValue
         {
-            public SemanticTokenType type { get; set; }
-            public SemanticTokenModifier[] Modifiers { get; set; }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public SemanticTokenType Type { get; set; }
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
+            public SemanticTokenModifier[] Modifiers { get; set; } = Array.Empty<SemanticTokenModifier>();
         }
 
         private void Tokenize(string document, SemanticTokensBuilder builder)
         {
             var faker = new Faker<TokenizationValue>()
                        .RuleFor(
-                            z => z.type,
+                            z => z.Type,
                             f => f.PickRandom(SemanticTokenType.Defaults).OrNull(f, 0.2f) ?? new SemanticTokenType("none")
                         )
                        .RuleFor(
@@ -294,12 +292,12 @@ namespace Lsp.Tests
                     var item = faker.Generate();
                     if (index % 2 == 0)
                     {
-                        builder.Push(line, index, part.Length, item.type, item.Modifiers);
+                        builder.Push(line, index, part.Length, item.Type, item.Modifiers);
                     }
                     else
                     {
                         // ensure range gets some love
-                        builder.Push(( ( line, index ), ( line, part.Length + index ) ), item.type, item.Modifiers);
+                        builder.Push(( ( line, index ), ( line, part.Length + index ) ), item.Type, item.Modifiers);
                     }
                 }
             }
@@ -330,18 +328,18 @@ namespace Lsp.Tests
                 Modifiers = modifiers;
             }
 
-            public bool Equals(string other) => string.Equals(ToString(), other);
+            public bool Equals(string? other) => string.Equals(ToString(), other);
 
-            public bool Equals(NormalizedToken other)
+            public bool Equals(NormalizedToken? other)
             {
-                if (ReferenceEquals(null, other)) return false;
+                if (other is null) return false;
                 if (ReferenceEquals(this, other)) return true;
                 return other.ToString() == ToString();
             }
 
-            public override bool Equals(object obj)
+            public override bool Equals(object? obj)
             {
-                if (ReferenceEquals(null, obj)) return false;
+                if (obj is null) return false;
                 if (ReferenceEquals(this, obj)) return true;
                 return obj.GetType() == GetType() && Equals((NormalizedToken) obj);
             }
@@ -356,14 +354,7 @@ namespace Lsp.Tests
                 sb.Append(Type);
                 sb.Append(":");
 
-                if (Modifiers?.Any() == true)
-                {
-                    sb.Append(string.Join("|", Modifiers));
-                }
-                else
-                {
-                    sb.Append("none");
-                }
+                sb.Append(Modifiers.Any() ? string.Join("|", Modifiers) : "none");
 
                 sb.Append(")");
 
@@ -393,7 +384,7 @@ namespace Lsp.Tests
             public SemanticTokenModifier[] Modifiers { get; }
         }
 
-        private IReadOnlyList<NormalizedToken> Normalize(string document, IReadOnlyList<int> values)
+        private IReadOnlyList<NormalizedToken?> Normalize(string document, IReadOnlyList<int> values)
         {
             var parts = Decompose(values).ToArray();
             return parts
@@ -402,7 +393,7 @@ namespace Lsp.Tests
                   .ToArray();
         }
 
-        private NormalizedToken GetNormalizedToken(
+        private NormalizedToken? GetNormalizedToken(
             string document,
             IReadOnlyList<(int lineOffset, int charOffset, int length, int type, int modifiers)> tokens, int tokenIndex
         )

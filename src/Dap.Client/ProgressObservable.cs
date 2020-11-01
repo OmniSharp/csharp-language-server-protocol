@@ -26,13 +26,29 @@ namespace OmniSharp.Extensions.DebugAdapter.Client
 
         public ProgressToken ProgressToken { get; }
 
-        void IObserver<ProgressEvent>.OnCompleted() => _dataSubject.OnCompleted();
+        void IObserver<ProgressEvent>.OnCompleted()
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnCompleted();
+        }
 
-        void IObserver<ProgressEvent>.OnError(Exception error) => _dataSubject.OnError(error);
+        void IObserver<ProgressEvent>.OnError(Exception error)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnError(error);
+        }
 
-        public void OnNext(ProgressEvent value) => _dataSubject.OnNext(value);
+        public void OnNext(ProgressEvent value)
+        {
+            if (_dataSubject.IsDisposed) return;
+            _dataSubject.OnNext(value);
+        }
 
-        public void Dispose() => _disposable.Dispose();
+        public void Dispose()
+        {
+            if (_disposable.IsDisposed) return;
+            _disposable.Dispose();
+        }
 
         public IDisposable Subscribe(IObserver<ProgressEvent> observer) => _disposable.IsDisposed ? Disposable.Empty : _dataSubject.Subscribe(observer);
     }

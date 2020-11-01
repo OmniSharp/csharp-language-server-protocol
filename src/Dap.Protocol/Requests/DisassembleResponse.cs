@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The list of disassembled instructions.
         /// </summary>
-        public Container<DisassembledInstruction> Instructions { get; set; }
+        public Container<DisassembledInstruction> Instructions { get; set; } = null!;
     }
 }

@@ -18,26 +18,26 @@ namespace Lsp.Tests.Models
             var model = new InitializeResult {
                 Capabilities = new ServerCapabilities {
                     CodeActionProvider = true,
-                    CodeLensProvider = new CodeLensOptions {
+                    CodeLensProvider = new CodeLensRegistrationOptions.StaticOptions {
                         ResolveProvider = true,
                     },
-                    CompletionProvider = new CompletionOptions {
+                    CompletionProvider = new CompletionRegistrationOptions.StaticOptions {
                         ResolveProvider = true,
                         TriggerCharacters = new[] { "a", "b", "c" }
                     },
                     DefinitionProvider = true,
                     DocumentFormattingProvider = true,
                     DocumentHighlightProvider = true,
-                    DocumentLinkProvider = new DocumentLinkOptions {
+                    DocumentLinkProvider = new DocumentLinkRegistrationOptions.StaticOptions {
                         ResolveProvider = true
                     },
-                    DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingOptions {
+                    DocumentOnTypeFormattingProvider = new DocumentOnTypeFormattingRegistrationOptions.StaticOptions {
                         FirstTriggerCharacter = ".",
                         MoreTriggerCharacter = new[] { ";", " " }
                     },
                     DocumentRangeFormattingProvider = true,
                     DocumentSymbolProvider = true,
-                    ExecuteCommandProvider = new ExecuteCommandOptions {
+                    ExecuteCommandProvider = new ExecuteCommandRegistrationOptions.StaticOptions {
                         Commands = new[] { "command1", "command2" }
                     },
                     Experimental = new Dictionary<string, JToken> {
@@ -46,7 +46,7 @@ namespace Lsp.Tests.Models
                     HoverProvider = true,
                     ReferencesProvider = true,
                     RenameProvider = true,
-                    SignatureHelpProvider = new SignatureHelpOptions {
+                    SignatureHelpProvider = new SignatureHelpRegistrationOptions.StaticOptions {
                         TriggerCharacters = new[] { ";", " " }
                     },
                     TextDocumentSync = new TextDocumentSync(
@@ -77,31 +77,31 @@ namespace Lsp.Tests.Models
         {
             var model = new InitializeResult {
                 Capabilities = new ServerCapabilities {
-                    CodeActionProvider = new CodeActionOptions {
+                    CodeActionProvider = new CodeActionRegistrationOptions.StaticOptions() {
                         CodeActionKinds = new[] {
                             CodeActionKind.QuickFix
                         }
                     },
-                    ColorProvider = new DocumentColorOptions {
+                    ColorProvider = new DocumentColorRegistrationOptions.StaticOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    DeclarationProvider = new DeclarationOptions {
+                    DeclarationProvider = new DeclarationRegistrationOptions.StaticOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    FoldingRangeProvider = new FoldingRangeOptions {
+                    FoldingRangeProvider = new FoldingRangeRegistrationOptions.StaticOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    ImplementationProvider = new ImplementationOptions {
+                    ImplementationProvider = new ImplementationRegistrationOptions.StaticOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
-                    RenameProvider = new RenameOptions {
+                    RenameProvider = new RenameRegistrationOptions.StaticOptions {
                         PrepareProvider = true
                     },
-                    TypeDefinitionProvider = new TypeDefinitionOptions {
+                    TypeDefinitionProvider = new TypeDefinitionRegistrationOptions.StaticOptions {
                         DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     }

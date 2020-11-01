@@ -25,16 +25,5 @@ namespace Lsp.Tests
 
             return handler;
         }
-
-        private static void For<T>(this ITextDocumentSyncHandler handler, DocumentSelector documentSelector)
-            where T : class, IRegistration<TextDocumentRegistrationOptions>
-        {
-            var me = handler as T;
-            me.GetRegistrationOptions().Returns(GetOptions(me, documentSelector));
-        }
-
-        private static TextDocumentRegistrationOptions GetOptions<R>(IRegistration<R> handler, DocumentSelector documentSelector)
-            where R : TextDocumentRegistrationOptions, new() =>
-            new R { DocumentSelector = documentSelector };
     }
 }

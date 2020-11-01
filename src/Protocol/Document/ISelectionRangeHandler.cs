@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.SelectionRange, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ISelectionRangeHandler : IJsonRpcRequestHandler<SelectionRangeParams, Container<SelectionRange>>,
+    public interface ISelectionRangeHandler : IJsonRpcRequestHandler<SelectionRangeParams, Container<SelectionRange>?>,
                                               IRegistration<SelectionRangeRegistrationOptions>, ICapability<SelectionRangeCapability>
     {
     }
@@ -25,12 +25,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         public SelectionRangeRegistrationOptions GetRegistrationOptions() => _options;
 
-        public abstract Task<Container<SelectionRange>> Handle(
+        public abstract Task<Container<SelectionRange>?> Handle(
             SelectionRangeParams request,
             CancellationToken cancellationToken
         );
 
         public virtual void SetCapability(SelectionRangeCapability capability) => Capability = capability;
-        protected SelectionRangeCapability Capability { get; private set; }
+        protected SelectionRangeCapability Capability { get; private set; } = null!;
     }
 }

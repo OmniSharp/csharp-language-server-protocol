@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// All(or a range) of variables for the given variable reference.
         /// </summary>
-        public Container<Variable> Variables { get; set; }
+        public Container<Variable>? Variables { get; set; }
     }
 }

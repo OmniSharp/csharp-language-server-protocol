@@ -1,19 +1,13 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server
 {
-    public interface ILanguageServer : ILanguageServerProxy, IJsonRpcHandlerInstance<ILanguageServerRegistry>, IDisposable
+    public interface ILanguageServer : ILanguageServerFacade, IDisposable
     {
-        ITextDocumentLanguageServer TextDocument { get; }
-        IClientLanguageServer Client { get; }
-        IGeneralLanguageServer General { get; }
-        IWindowLanguageServer Window { get; }
-        IWorkspaceLanguageServer Workspace { get; }
         IServiceProvider Services { get; }
         IServerWorkDoneManager WorkDoneManager { get; }
         ILanguageServerConfiguration Configuration { get; }

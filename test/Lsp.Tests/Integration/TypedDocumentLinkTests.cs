@@ -11,6 +11,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -25,7 +26,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Aggregate_With_All_Related_Handlers()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
@@ -50,9 +51,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Tooltip = "resolved-a";
-                            return Task.FromResult(codeLens);
+                        documentLink => {
+                            documentLink.Tooltip = "resolved-a";
+                            return Task.FromResult(documentLink);
                         },
                         new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -72,9 +73,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Tooltip = "resolved-b";
-                            return Task.FromResult(codeLens);
+                        documentLink => {
+                            documentLink.Tooltip = "resolved-b";
+                            return Task.FromResult(documentLink);
                         },
                         new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -91,9 +92,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Tooltip = "resolved-c";
-                            return Task.FromResult(codeLens);
+                        documentLink => {
+                            documentLink.Tooltip = "resolved-c";
+                            return Task.FromResult(documentLink);
                         },
                         new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
@@ -110,9 +111,9 @@ namespace Lsp.Tests.Integration
                                 )
                             );
                         },
-                        codeLens => {
-                            codeLens.Tooltip = "resolved-d";
-                            return Task.FromResult(codeLens);
+                        documentLink => {
+                            documentLink.Tooltip = "resolved-d";
+                            return Task.FromResult(documentLink);
                         },
                         new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
@@ -121,13 +122,13 @@ namespace Lsp.Tests.Integration
                 }
             );
 
-            var codeLens = await client.RequestDocumentLink(
+            var items = await client.RequestDocumentLink(
                 new DocumentLinkParams {
                     TextDocument = new TextDocumentIdentifier("/some/path/file.cs"),
                 }
             );
 
-            var lens = codeLens.ToArray();
+            var lens = items.ToArray();
 
             var responses = await Task.WhenAll(lens.Select(z => client.ResolveDocumentLink(z)));
             responses.Select(z => z.Tooltip).Should().Contain(new[] { "resolved-a", "resolved-b", "resolved-c" });
@@ -138,7 +139,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, capability, token) => {
@@ -177,10 +178,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink<Data>(
                         (documentLinkParams, observer, capability, token) => {
@@ -221,7 +222,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, token) => {
@@ -260,10 +261,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink<Data>(
                         (documentLinkParams, observer, token) => {
@@ -304,7 +305,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_With_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         documentLinkParams => {
@@ -343,10 +344,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_With_Partial_Data()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink<Data>(
                         (documentLinkParams, observer) => {
@@ -388,7 +389,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, capability, token) => {
@@ -417,10 +418,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial_Capability()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, observer, capability, token) => {
@@ -451,7 +452,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, token) => {
@@ -480,10 +481,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial_CancellationToken()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, observer, token) => {
@@ -514,7 +515,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Should_Resolve()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         documentLinkParams => {
@@ -543,10 +544,10 @@ namespace Lsp.Tests.Integration
             item.Tooltip.Should().Be("resolved");
         }
 
-        [Fact]
+        [RetryFact]
         public async Task Should_Resolve_Partial()
         {
-            var (client, server) = await Initialize(
+            var (client, _) = await Initialize(
                 options => { }, options => {
                     options.OnDocumentLink(
                         (documentLinkParams, observer) => {
@@ -576,13 +577,14 @@ namespace Lsp.Tests.Integration
 
         private class Data : HandlerIdentity
         {
-            public string Name { get; set; }
+            public string Name { get; set; } = null!;
             public Guid Id { get; set; }
-            public Nested Child { get; set; }
+            public Nested Child { get; set; } = null!;
         }
 
         private class Nested : HandlerIdentity
         {
+            // ReSharper disable once UnusedAutoPropertyAccessor.Local
             public DateTimeOffset Date { get; set; }
         }
     }

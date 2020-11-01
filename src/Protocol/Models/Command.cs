@@ -12,20 +12,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Title of the command, like `save`.
         /// </summary>
-        public string Title { get; set; }
+        public string Title { get; set; } = null!;
 
         /// <summary>
         /// The identifier of the actual command handler.
         /// </summary>
         [JsonProperty("command")]
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// Arguments that the command handler should be
         /// invoked with.
         /// </summary>
         [Optional]
-        public JArray Arguments { get; set; }
+        public JArray? Arguments { get; set; }
 
         private string DebuggerDisplay =>
             $"{Title}{( string.IsNullOrWhiteSpace(Name) ? "" : $" {Name}" )}{( Arguments == null ? "" : string.Join(", ", Arguments.Select(z => z.ToString().Trim('"'))) )}";

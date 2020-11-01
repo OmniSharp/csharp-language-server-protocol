@@ -6,48 +6,67 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [JsonConverter(typeof(RangeOrPlaceholderRangeConverter))]
     public class RangeOrPlaceholderRange
     {
-        private Range _range;
-        private PlaceholderRange _placeholderRange;
+        private RenameDefaultBehavior? _renameDefaultBehavior;
+        private Range? _range;
+        private PlaceholderRange? _placeholderRange;
 
         public RangeOrPlaceholderRange(Range value)
         {
             _range = value;
-            _placeholderRange = default;
         }
 
         public RangeOrPlaceholderRange(PlaceholderRange value)
         {
-            _range = default;
             _placeholderRange = value;
+        }
+
+        public RangeOrPlaceholderRange(RenameDefaultBehavior renameDefaultBehavior)
+        {
+            _renameDefaultBehavior = renameDefaultBehavior;
         }
 
         public bool IsPlaceholderRange => _placeholderRange != null;
 
-        public PlaceholderRange PlaceholderRange
+        public PlaceholderRange? PlaceholderRange
         {
             get => _placeholderRange;
             set {
                 _placeholderRange = value;
+                _renameDefaultBehavior = default;
                 _range = null;
             }
         }
 
-        public bool IsRange => _range != null;
+        public bool IsRange => _range is not null;
 
-        public Range Range
+        public Range? Range
         {
             get => _range;
             set {
                 _placeholderRange = default;
+                _renameDefaultBehavior = default;
                 _range = value;
             }
         }
 
-        public object RawValue
+        public bool IsDefaultBehavior => _renameDefaultBehavior is not null;
+
+        public RenameDefaultBehavior? DefaultBehavior
+        {
+            get => _renameDefaultBehavior;
+            set {
+                _placeholderRange = default;
+                _renameDefaultBehavior = value;
+                _range = default;
+            }
+        }
+
+        public object? RawValue
         {
             get {
                 if (IsPlaceholderRange) return PlaceholderRange;
                 if (IsRange) return Range;
+                if (IsDefaultBehavior) return DefaultBehavior;
                 return default;
             }
         }

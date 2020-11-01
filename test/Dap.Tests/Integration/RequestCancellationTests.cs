@@ -23,7 +23,7 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Should_Cancel_Pending_Requests()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
 
             Func<Task<CompletionsResponse>> action = () => {
                 var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(100));
@@ -37,7 +37,7 @@ namespace Dap.Tests.Integration
         public void Should_Cancel_Requests_After_Timeout()
         {
             Func<Task<CompletionsResponse>> action = async () => {
-                var (client, server) = await Initialize(
+                var (client, _) = await Initialize(
                     ConfigureClient, x => {
                         ConfigureServer(x);
                         x.WithMaximumRequestTimeout(TimeSpan.FromMilliseconds(1000));

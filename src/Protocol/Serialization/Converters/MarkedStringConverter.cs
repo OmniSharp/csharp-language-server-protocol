@@ -29,12 +29,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             if (reader.TokenType == JsonToken.StartObject)
             {
                 var result = JObject.Load(reader);
-                return new MarkedString(result["language"]?.Value<string>(), result["value"]?.Value<string>());
+                return new MarkedString(result["language"]?.Value<string>(), result["value"].Value<string>());
             }
 
             if (reader.TokenType == JsonToken.String)
             {
-                return new MarkedString(reader.Value as string);
+                return new MarkedString((reader.Value as string)!);
             }
 
             return "";

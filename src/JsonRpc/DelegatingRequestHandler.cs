@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task<JToken> Handle(DelegatingRequest<T> request, CancellationToken cancellationToken)
         {
-            var response = await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken);
+            var response = await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken).ConfigureAwait(false);
             return JToken.FromObject(response, _serializer.JsonSerializer);
         }
     }
@@ -36,7 +36,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
         public async Task<JToken> Handle(DelegatingRequest<T> request, CancellationToken cancellationToken)
         {
-            await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken);
+            await _handler.Invoke(request.Value.ToObject<T>(_serializer.JsonSerializer), cancellationToken).ConfigureAwait(false);
             return JValue.CreateNull();
         }
     }

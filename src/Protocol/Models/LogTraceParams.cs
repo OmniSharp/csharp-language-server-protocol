@@ -10,12 +10,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The message to be logged.
         /// </summary>
-        public string Message { get; set; }
+        public string Message { get; set; } = null!;
 
         /// <summary>
         /// Additional information that can be computed if the `trace` configuration is set to `'verbose'`
         /// </summary>
         [Optional]
-        public string Verbose { get; set; }
+        public string? Verbose { get; set; }
     }
 }

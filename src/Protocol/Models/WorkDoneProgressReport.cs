@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// enablement state are allowed to ignore the setting.
         /// </summary>
         [Optional]
-        public bool? Cancellable { get; set; }
+        public bool Cancellable { get; set; }
 
         /// <summary>
         /// Optional progress percentage to display (value 100 is considered 100%).

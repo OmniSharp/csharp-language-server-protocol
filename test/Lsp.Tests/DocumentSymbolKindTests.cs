@@ -46,10 +46,10 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        DocumentSymbol = new Supports<DocumentSymbolCapability>(
+                        DocumentSymbol = new Supports<DocumentSymbolCapability?>(
                             true, new DocumentSymbolCapability {
                                 DynamicRegistration = true,
-                                SymbolKind = new SymbolKindCapability {
+                                SymbolKind = new SymbolKindCapabilityOptions {
                                     ValueSet = new Container<SymbolKind>(SymbolKind.Class)
                                 }
                             }
@@ -75,10 +75,10 @@ namespace Lsp.Tests
             serializer.SetClientCapabilities(
                 ClientVersion.Lsp3, new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
-                        DocumentSymbol = new Supports<DocumentSymbolCapability>(
+                        DocumentSymbol = new Supports<DocumentSymbolCapability?>(
                             true, new DocumentSymbolCapability {
                                 DynamicRegistration = true,
-                                TagSupport = new TagSupportCapability {
+                                TagSupport = new TagSupportCapabilityOptions {
                                     ValueSet = new Container<SymbolTag>()
                                 }
                             }

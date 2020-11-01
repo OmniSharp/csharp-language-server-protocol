@@ -13,6 +13,6 @@
         /// <summary>
         /// The name of the stepIn target (shown in the UI).
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
     }
 }

@@ -9,10 +9,6 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="System.Reactive" />
-    </ItemGroup>
-
-    <ItemGroup>
         <ProjectReference Include="..\Dap.Shared\Dap.Shared.csproj" />
     </ItemGroup>
 </Project>

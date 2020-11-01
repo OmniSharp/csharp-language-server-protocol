@@ -10,13 +10,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
     {
         private static readonly MethodInfo WriteJsonGenericMethod = typeof(BooleanOrConverter)
                                                                    .GetTypeInfo()
-                                                                   .GetMethod(nameof(WriteJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+                                                                   .GetMethod(nameof(WriteJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static)!;
 
         private static readonly MethodInfo ReadJsonGenericMethod = typeof(BooleanOrConverter)
                                                                   .GetTypeInfo()
-                                                                  .GetMethod(nameof(ReadJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static);
+                                                                  .GetMethod(nameof(ReadJsonGeneric), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
         {
             if (value == null) return;
             WriteJsonGenericMethod.MakeGenericMethod(value.GetType().GetTypeInfo().GenericTypeArguments[0])
@@ -44,10 +44,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         {
             var parentType = objectType.GetTypeInfo().GenericTypeArguments[0];
             return ReadJsonGenericMethod.MakeGenericMethod(parentType)
-                                        .Invoke(null, new[] { reader, existingValue, serializer });
+                                        .Invoke(null, new object[] { reader, serializer });
         }
 
-        private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, object existingValue, JsonSerializer serializer)
+        private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, JsonSerializer serializer)
         {
             if (reader.TokenType == JsonToken.Boolean)
             {
@@ -59,7 +59,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
                 return new BooleanOr<T>(JObject.Load(reader).ToObject<T>(serializer));
             }
 
-            return new BooleanOr<T>(default(T));
+            return new BooleanOr<T>(false);
         }
 
         public override bool CanRead => true;

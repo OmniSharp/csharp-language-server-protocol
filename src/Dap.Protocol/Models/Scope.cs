@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// <summary>
         /// Name of the scope such as 'Arguments', 'Locals', or 'Registers'. This string is shown in the UI as is and can be translated.
         /// </summary>
-        public string Name { get; set; }
+        public string Name { get; set; } = null!;
 
         /// <summary>
         /// An optional hint for how to present this scope in the UI. If this attribute is missing, the scope is shown with a generic UI.
@@ -21,7 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// etc.
         /// </summary>
         [Optional]
-        public string PresentationHint { get; set; }
+        public string? PresentationHint { get; set; }
 
         /// <summary>
         /// The variables of this scope can be retrieved by passing the value of variablesReference to the VariablesRequest.
@@ -51,7 +51,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Models
         /// Optional source for this scope.
         /// </summary>
         [Optional]
-        public Source Source { get; set; }
+        public Source? Source { get; set; }
 
         /// <summary>
         /// Optional start line of the range covered by this scope.

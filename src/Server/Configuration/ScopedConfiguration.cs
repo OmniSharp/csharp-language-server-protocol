@@ -10,7 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
     internal class ScopedConfiguration : IScopedConfiguration
     {
         private ConfigurationRoot _configuration;
-        private readonly IConfiguration _rootConfiguration;
         private readonly WorkspaceConfigurationSource _configurationSource;
         private readonly IDisposable _disposable;
 
@@ -18,14 +17,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             IConfiguration rootConfiguration,
             ConfigurationConverter configurationConverter,
             IEnumerable<(string key, JToken settings)> configuration,
-            IDisposable disposable)
+            IDisposable disposable
+        )
         {
             _configurationSource = new WorkspaceConfigurationSource(configurationConverter, configuration);
-            _configuration = new ConfigurationBuilder()
-                            .AddConfiguration(rootConfiguration)
-                            .Add(_configurationSource)
-                            .Build() as ConfigurationRoot;
-            _rootConfiguration = rootConfiguration;
+            _configuration = (new ConfigurationBuilder()
+                             .CustomAddConfiguration(rootConfiguration)
+                             .Add(_configurationSource)
+                             .Build() as ConfigurationRoot)!;
             _disposable = disposable;
         }
 
@@ -48,7 +47,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         public void Dispose()
         {
-            _configuration.Dispose();
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            if (_configuration is IDisposable disposable) disposable.Dispose();
             _disposable.Dispose();
         }
     }

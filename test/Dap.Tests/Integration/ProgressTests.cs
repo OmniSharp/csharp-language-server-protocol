@@ -10,6 +10,7 @@ using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Server;
 using OmniSharp.Extensions.DebugAdapter.Testing;
 using OmniSharp.Extensions.JsonRpc.Testing;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -21,11 +22,6 @@ namespace Dap.Tests.Integration
             new JsonRpcTestOptions().ConfigureForXUnit(outputHelper)
         )
         {
-        }
-
-        private class Data
-        {
-            public string Value { get; set; } = "Value";
         }
 
         [Fact(Skip = "Tests work locally - fail sometimes on ci :(")]
@@ -75,13 +71,14 @@ namespace Dap.Tests.Integration
                 }
             );
 
-            await Task.Delay(1000);
+            await data.DelayUntilCount(6, CancellationToken);
 
             var results = data.Select(
                 z => z switch {
                     ProgressStartEvent begin  => begin.Message,
                     ProgressUpdateEvent begin => begin.Message,
                     ProgressEndEvent begin    => begin.Message,
+                    _                         => throw new NotSupportedException()
                 }
             );
 
@@ -148,6 +145,7 @@ namespace Dap.Tests.Integration
                     ProgressStartEvent begin  => begin.Message,
                     ProgressUpdateEvent begin => begin.Message,
                     ProgressEndEvent begin    => begin.Message,
+                    _                         => throw new NotSupportedException()
                 }
             );
 

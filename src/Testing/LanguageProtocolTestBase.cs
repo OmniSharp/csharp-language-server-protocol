@@ -21,8 +21,8 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
     /// </summary>
     public abstract class LanguageProtocolTestBase : JsonRpcTestBase
     {
-        private ILanguageClient _client;
-        private ILanguageServer _server;
+        private ILanguageClient? _client;
+        private ILanguageServer? _server;
 
         public LanguageProtocolTestBase(JsonRpcTestOptions testOptions) : base(testOptions)
         {
@@ -78,17 +78,16 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return ( _client, _server );
         }
 
-        protected internal virtual async Task<(ILanguageClient client, ILanguageServer server)> Initialize(
+        protected internal virtual Task<(ILanguageClient client, ILanguageServer server)> Initialize(
             Action<LanguageClientOptions> clientOptionsAction,
             Action<LanguageServerOptions> serverOptionsAction
         )
         {
             ( _client, _server ) = Create(clientOptionsAction, serverOptionsAction);
 
-            return await Observable.FromAsync(_client.Initialize).ForkJoin(
-                Observable.FromAsync(_server.Initialize),
-                (a, b) => ( _client, _server )
-            ).ToTask(CancellationToken);
+            return Observable.FromAsync(_client.Initialize)
+                             .ForkJoin(Observable.FromAsync(_server.Initialize), (a, b) => ( client: _client!, server: _server! ))
+                             .ToTask(CancellationToken);
         }
 
         protected virtual async Task<(ILanguageClient client, ILanguageServer server, TestConfigurationProvider configurationProvider)> InitializeWithConfiguration(
@@ -98,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
         {
             var (client, server) = Create(
                 options => {
-                    clientOptionsAction?.Invoke(options);
+                    clientOptionsAction.Invoke(options);
                     options.WithCapability(new DidChangeConfigurationCapability());
                     options.Services.AddSingleton<TestConfigurationProvider>();
                 }, serverOptionsAction
@@ -107,7 +106,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
             return await Observable.FromAsync(client.Initialize).ForkJoin(
                 Observable.FromAsync(server.Initialize),
                 (a, b) => ( client, server, client.GetRequiredService<TestConfigurationProvider>() )
-            ).ToTask(CancellationToken);
+            ).ToTask(CancellationToken).ConfigureAwait(false);
         }
     }
 }

@@ -6,14 +6,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class VersionedTextDocumentIdentifier : TextDocumentIdentifier, IEquatable<VersionedTextDocumentIdentifier>
     {
-        public bool Equals(VersionedTextDocumentIdentifier other)
+        /// <summary>
+        /// The version number of this document.
+        /// </summary>
+        public int? Version { get; set; }
+
+        private string DebuggerDisplay => $"{Uri}@({Version})";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
+        public bool Equals(VersionedTextDocumentIdentifier? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             return base.Equals(other) && Version == other.Version;
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -25,22 +34,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             unchecked
             {
-                return ( base.GetHashCode() * 397 ) ^ Version.GetHashCode();
+                if (Version != null) return ( base.GetHashCode() * 397 ) ^ Version.GetHashCode();
+                return base.GetHashCode();
             }
         }
 
-        public static bool operator ==(VersionedTextDocumentIdentifier left, VersionedTextDocumentIdentifier right) => Equals(left, right);
+        public static bool operator ==(VersionedTextDocumentIdentifier? left, VersionedTextDocumentIdentifier? right) => Equals(left, right);
 
-        public static bool operator !=(VersionedTextDocumentIdentifier left, VersionedTextDocumentIdentifier right) => !Equals(left, right);
-
-        /// <summary>
-        /// The version number of this document.
-        /// </summary>
-        public int? Version { get; set; }
-
-        private string DebuggerDisplay => $"{Uri}@({Version})";
-
-        /// <inheritdoc />
-        public override string ToString() => DebuggerDisplay;
+        public static bool operator !=(VersionedTextDocumentIdentifier? left, VersionedTextDocumentIdentifier? right) => !Equals(left, right);
     }
 }

@@ -19,22 +19,22 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// Optional title of the terminal.
         /// </summary>
         [Optional]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         /// <summary>
         /// Working directory of the command.
         /// </summary>
-        public string Cwd { get; set; }
+        public string Cwd { get; set; } = null!;
 
         /// <summary>
         /// List of arguments.The first argument is the command to run.
         /// </summary>
-        public Container<string> Args { get; set; }
+        public Container<string> Args { get; set; } = null!;
 
         /// <summary>
         /// Environment key-value pairs that are added to or removed from the default environment.
         /// </summary>
         [Optional]
-        public IDictionary<string, string> Env { get; set; }
+        public IDictionary<string, string>? Env { get; set; }
     }
 }

@@ -1,6 +1,4 @@
 ﻿using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
@@ -21,7 +19,7 @@ namespace Lsp.Tests.Integration.Fixtures
         public LanguageProtocolFixture() :
             base(new TConfigureFixture().Configure(new JsonRpcTestOptions(new TestLoggerFactory(null))))
         {
-            _loggerFactory = TestOptions.ServerLoggerFactory as TestLoggerFactory;
+            _loggerFactory = (TestOptions.ServerLoggerFactory as TestLoggerFactory)!;
         }
 
         public void Swap(ITestOutputHelper testOutputHelper)
@@ -29,8 +27,8 @@ namespace Lsp.Tests.Integration.Fixtures
             _loggerFactory.Swap(testOutputHelper);
         }
 
-        public ILanguageClient Client { get; private set; }
-        public ILanguageServer Server { get; private set; }
+        public ILanguageClient Client { get; private set; }= null!;
+        public ILanguageServer Server { get; private set; } = null!;
 
         public async Task InitializeAsync()
         {

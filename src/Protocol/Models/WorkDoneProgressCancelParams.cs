@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The token to be used to report progress.
         /// </summary>
-        public ProgressToken Token { get; set; }
+        public ProgressToken? Token { get; set; }
     }
 }

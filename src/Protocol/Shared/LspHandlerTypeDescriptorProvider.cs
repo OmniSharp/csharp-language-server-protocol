@@ -1,24 +1,23 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 {
-    public interface ILspHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<ILspHandlerTypeDescriptor>
+    public interface ILspHandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<ILspHandlerTypeDescriptor?>
     {
-        string GetMethodForRegistrationOptions(object registrationOptions);
-        Type GetRegistrationType(string method);
+        string? GetMethodForRegistrationOptions(object registrationOptions);
+        Type? GetRegistrationType(string method);
     }
 
-    public class LspHandlerTypeDescriptorProvider : ILspHandlerTypeDescriptorProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor>
+    public class LspHandlerTypeDescriptorProvider : ILspHandlerTypeDescriptorProvider, IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>
     {
-        private readonly ConcurrentDictionary<Type, string> MethodNames = new ConcurrentDictionary<Type, string>();
+        private readonly ConcurrentDictionary<Type, string> _methodNames = new ConcurrentDictionary<Type, string>();
 
-        private readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
+        internal readonly ILookup<string, ILspHandlerTypeDescriptor> KnownHandlers;
 
         internal LspHandlerTypeDescriptorProvider(IEnumerable<Assembly> assemblies)
         {
@@ -28,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                            .ToLookup(x => x.Method, x => x, StringComparer.Ordinal);
         }
 
-        public string GetMethodForRegistrationOptions(object registrationOptions)
+        public string? GetMethodForRegistrationOptions(object registrationOptions)
         {
             var registrationType = registrationOptions.GetType();
             var interfaces = new HashSet<Type>(
@@ -44,17 +43,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                              .FirstOrDefault()?.Method;
         }
 
-        public Type GetRegistrationType(string method) => KnownHandlers[method]
-                                                         .Where(z => z.HasRegistration)
-                                                         .Select(z => z.RegistrationType)
-                                                         .FirstOrDefault();
+        public Type? GetRegistrationType(string method) => KnownHandlers[method]
+                                                          .Where(z => z.HasRegistration)
+                                                          .Select(z => z.RegistrationType)
+                                                          .FirstOrDefault();
 
-        public ILspHandlerTypeDescriptor GetHandlerTypeDescriptor<A>() => GetHandlerTypeDescriptor(typeof(A));
-        IHandlerTypeDescriptor IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor>.GetHandlerTypeDescriptor(Type type) => GetHandlerTypeDescriptor(type);
+        public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor(typeof(TA));
+        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor(Type type) => GetHandlerTypeDescriptor(type);
 
-        IHandlerTypeDescriptor IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor>.GetHandlerTypeDescriptor<A>() => GetHandlerTypeDescriptor<A>();
+        IHandlerTypeDescriptor? IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>.GetHandlerTypeDescriptor<TA>() => GetHandlerTypeDescriptor<TA>();
 
-        public ILspHandlerTypeDescriptor GetHandlerTypeDescriptor(Type type)
+        public ILspHandlerTypeDescriptor? GetHandlerTypeDescriptor(Type type)
         {
             var @default = KnownHandlers
                           .SelectMany(g => g)
@@ -68,16 +67,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             }
 
             var methodName = GetMethodName(type);
-            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName].FirstOrDefault();
+            return string.IsNullOrWhiteSpace(methodName) ? null : KnownHandlers[methodName!].FirstOrDefault();
         }
 
-        public string GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
+        public string? GetMethodName<T>() where T : IJsonRpcHandler => GetMethodName(typeof(T));
 
-        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z).Equals(name));
+        public bool IsMethodName(string name, params Type[] types) => types.Any(z => GetMethodName(z)?.Equals(name) == true);
 
-        public string GetMethodName(Type type)
+        public string? GetMethodName(Type type)
         {
-            if (MethodNames.TryGetValue(type, out var method)) return method;
+            if (_methodNames.TryGetValue(type, out var method)) return method;
 
             // Custom method
             var attribute = MethodAttribute.From(type);
@@ -95,7 +94,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
                 return null;
             }
 
-            MethodNames.TryAdd(type, attribute.Method);
+            _methodNames.TryAdd(type, attribute.Method);
             return attribute.Method;
         }
     }

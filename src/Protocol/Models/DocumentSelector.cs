@@ -30,8 +30,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator DocumentSelector(List<DocumentFilter> items) => new DocumentSelector(items);
 
-        public static implicit operator string(DocumentSelector documentSelector) =>
-            documentSelector != null ? string.Join(", ", documentSelector.Select(x => (string) x)) : null;
+        public static implicit operator string(DocumentSelector? documentSelector) =>
+            documentSelector is not null ? string.Join(", ", documentSelector.Select(x => (string) x)) : string.Empty;
 
         public bool IsMatch(TextDocumentAttributes attributes) => this.Any(z => z.IsMatch(attributes));
 

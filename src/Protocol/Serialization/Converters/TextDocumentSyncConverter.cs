@@ -5,10 +5,15 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
 {
-    internal class TextDocumentSyncConverter : JsonConverter<TextDocumentSync>
+    internal class TextDocumentSyncConverter : JsonConverter<TextDocumentSync?>
     {
-        public override void WriteJson(JsonWriter writer, TextDocumentSync value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, TextDocumentSync? value, JsonSerializer serializer)
         {
+            if (value == null)
+            {
+                writer.WriteValue(TextDocumentSyncKind.None);
+                return;
+            }
             if (value.HasOptions)
             {
                 serializer.Serialize(writer, value.Options);
@@ -19,14 +24,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
             }
         }
 
-        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override TextDocumentSync ReadJson(JsonReader reader, Type objectType, TextDocumentSync? existingValue, bool hasExistingValue, JsonSerializer serializer)
         {
-            if (reader.TokenType == JsonToken.Integer)
+            switch (reader.TokenType)
             {
-                return new TextDocumentSync((TextDocumentSyncKind) Convert.ToInt32(reader.Value));
+                case JsonToken.Integer:
+                    return new TextDocumentSync((TextDocumentSyncKind) Convert.ToInt32(reader.Value));
+                case JsonToken.Null:
+                case JsonToken.Undefined:
+                    return new TextDocumentSync(TextDocumentSyncKind.None);
+                default:
+                    return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>(serializer));
             }
-
-            return new TextDocumentSync(JObject.Load(reader).ToObject<TextDocumentSyncOptions>(serializer));
         }
 
         public override bool CanRead => true;

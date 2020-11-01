@@ -4,10 +4,10 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization;
-using OmniSharp.Extensions.JsonRpc.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+#pragma warning disable 618
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonSerializer CreateSerializer()
         {
             var serializer = base.CreateSerializer();
-            serializer.ContractResolver = new ContractResolver(
+            serializer.ContractResolver = new LspContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultCompletionItemTags,
                 DefaultSymbolKinds,
@@ -70,7 +70,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         protected override JsonSerializerSettings CreateSerializerSettings()
         {
             var settings = base.CreateSerializerSettings();
-            settings.ContractResolver = new ContractResolver(
+            settings.ContractResolver = new LspContractResolver(
                 DefaultCompletionItemKinds,
                 DefaultCompletionItemTags,
                 DefaultSymbolKinds,
@@ -110,15 +110,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
             ReplaceConverter(converters, new DocumentUriConverter());
-            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
-            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
-            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
-            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+//            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
+//            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+//            ReplaceConverter(converters, new AggregateConverter<CommandOrCodeActionContainer>());
             ReplaceConverter(converters, new AggregateCompletionListConverter());
             base.AddOrReplaceConverters(converters);
         }
 
-        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities clientCapabilities)
+        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities? clientCapabilities)
         {
             var completionItemKinds = DefaultCompletionItemKinds;
             var completionItemTags = DefaultCompletionItemTags;
@@ -133,13 +134,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             {
                 var completion = clientCapabilities.TextDocument.Completion.Value;
                 var valueSet = completion?.CompletionItemKind?.ValueSet;
-                if (valueSet != null)
+                if (valueSet is not null)
                 {
                     completionItemKinds = valueSet.ToArray();
                 }
 
                 var tagSupportSet = completion?.CompletionItem?.TagSupport.Value?.ValueSet;
-                if (tagSupportSet != null)
+                if (tagSupportSet is not null)
                 {
                     completionItemTags = tagSupportSet.ToArray();
                 }
@@ -149,13 +150,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             {
                 var symbol = clientCapabilities.TextDocument.DocumentSymbol.Value;
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
-                if (symbolKindSet != null)
+                if (symbolKindSet is not null)
                 {
                     documentSymbolKinds = symbolKindSet.ToArray();
                 }
 
-                var valueSet = symbol?.TagSupport.Value?.ValueSet;
-                if (valueSet != null)
+                var valueSet = symbol?.TagSupport?.ValueSet;
+                if (valueSet is not null)
                 {
                     documentSymbolTags = valueSet.ToArray();
                 }
@@ -165,13 +166,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             {
                 var symbol = clientCapabilities.Workspace.Symbol.Value;
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
-                if (symbolKindSet != null)
+                if (symbolKindSet is not null)
                 {
                     workspaceSymbolKinds = symbolKindSet.ToArray();
                 }
 
                 var tagSupportSet = symbol?.TagSupport.Value?.ValueSet;
-                if (tagSupportSet != null)
+                if (tagSupportSet is not null)
                 {
                     workspaceSymbolTags = tagSupportSet.ToArray();
                 }
@@ -179,9 +180,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (clientCapabilities?.TextDocument?.PublishDiagnostics.IsSupported == true)
             {
-                var publishDiagnostics = clientCapabilities?.TextDocument?.PublishDiagnostics.Value;
-                var tagValueSet = publishDiagnostics.TagSupport.Value?.ValueSet;
-                if (tagValueSet != null)
+                var publishDiagnostics = clientCapabilities.TextDocument?.PublishDiagnostics.Value;
+                var tagValueSet = publishDiagnostics?.TagSupport.Value?.ValueSet;
+                if (tagValueSet is not null)
                 {
                     diagnosticTags = tagValueSet.ToArray();
                 }
@@ -189,9 +190,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (clientCapabilities?.TextDocument?.CodeAction.IsSupported == true)
             {
-                var codeActions = clientCapabilities?.TextDocument?.CodeAction.Value;
-                var kindValueSet = codeActions.CodeActionLiteralSupport?.CodeActionKind?.ValueSet;
-                if (kindValueSet != null)
+                var codeActions = clientCapabilities.TextDocument?.CodeAction.Value;
+                var kindValueSet = codeActions?.CodeActionLiteralSupport?.CodeActionKind.ValueSet;
+                if (kindValueSet is not null)
                 {
                     codeActionKinds = kindValueSet.ToArray();
                 }
@@ -199,7 +200,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
 
             AddOrReplaceConverters(Settings.Converters);
-            Settings.ContractResolver = new ContractResolver(
+            Settings.ContractResolver = new LspContractResolver(
                 completionItemKinds,
                 completionItemTags,
                 documentSymbolKinds,
@@ -211,7 +212,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             );
 
             AddOrReplaceConverters(JsonSerializer.Converters);
-            JsonSerializer.ContractResolver = new ContractResolver(
+            JsonSerializer.ContractResolver = new LspContractResolver(
                 completionItemKinds,
                 completionItemTags,
                 documentSymbolKinds,

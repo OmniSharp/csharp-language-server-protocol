@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The document that was opened.
         /// </summary>
-        public TextDocumentItem TextDocument { get; set; }
+        public TextDocumentItem TextDocument { get; set; } = null!;
     }
 }

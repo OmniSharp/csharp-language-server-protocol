@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Xunit;
 using Xunit.Abstractions;
+#pragma warning disable CS0162
 
 namespace Lsp.Tests.Integration
 {
@@ -23,7 +24,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Server_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
 
             var result = await client.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
@@ -38,7 +39,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Client_Should_Stay_Alive_When_Requests_Throw_An_Exception()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             var result = await server.SendRequest("keepalive").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
@@ -53,7 +54,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Server_Should_Support_Links()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (client, _) = await Initialize(ConfigureClient, ConfigureServer);
 
             var result = await client.SendRequest("ka").Returning<bool>(CancellationToken);
             result.Should().BeTrue();
@@ -68,7 +69,7 @@ namespace Lsp.Tests.Integration
         [Fact]
         public async Task Client_Should_Support_Links()
         {
-            var (client, server) = await Initialize(ConfigureClient, ConfigureServer);
+            var (_, server) = await Initialize(ConfigureClient, ConfigureServer);
 
             var result = await server.SendRequest("ka").Returning<bool>(CancellationToken);
             result.Should().BeTrue();

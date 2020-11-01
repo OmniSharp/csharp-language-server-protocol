@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Reflection;
 using DryIoc;
+using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -16,11 +17,13 @@ using OmniSharp.Extensions.LanguageServer.Server.Matchers;
 using OmniSharp.Extensions.LanguageServer.Server.Pipelines;
 using OmniSharp.Extensions.LanguageServer.Shared;
 
+#pragma warning disable CS0618
+
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
     public static class LanguageServerServiceCollectionExtensions
     {
-        internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider outerServiceProvider)
+        internal static IContainer AddLanguageServerInternals(this IContainer container, LanguageServerOptions options, IServiceProvider? outerServiceProvider)
         {
             container = container.AddLanguageProtocolInternals(options);
             container.RegisterMany<LspServerReceiver>(
@@ -43,9 +46,18 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<GeneralLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(GeneralLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<WindowLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WindowLanguageServer)), reuse: Reuse.Singleton);
             container.RegisterMany<WorkspaceLanguageServer>(serviceTypeCondition: type => type.Name.Contains(nameof(WorkspaceLanguageServer)), reuse: Reuse.Singleton);
+            container.RegisterMany<DefaultLanguageServerFacade>(
+                serviceTypeCondition: type => type.IsClass || !type.Name.Contains("Proxy") && typeof(DefaultLanguageServerFacade).GetInterfaces()
+                   .Except(typeof(DefaultLanguageServerFacade).BaseType!.GetInterfaces()).Any(z => type == z),
+                reuse: Reuse.Singleton
+            );
             container.RegisterInstance<IOptionsFactory<LanguageServerOptions>>(new ValueOptionsFactory<LanguageServerOptions>(options));
 
-            container.RegisterMany<LanguageServer>(serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer), reuse: Reuse.Singleton);
+            container.RegisterMany<LanguageServer>(
+                serviceTypeCondition: type => type == typeof(ILanguageServer) || type == typeof(LanguageServer),
+                reuse: Reuse.Singleton,
+                setup: Setup.With(condition: req => req.IsResolutionRoot || req.Container.Resolve<IInsanceHasStarted>().Started)
+            );
 
             container.RegisterMany<DidChangeConfigurationProvider>(
                 made: Parameters.Of
@@ -65,19 +77,19 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterDelegate<IConfiguration>(
                 _ => {
                     var builder = new ConfigurationBuilder();
-                    var didChangeConfigurationProvider = _.GetRequiredService<DidChangeConfigurationProvider>();
+                    var didChangeConfigurationProvider = _.GetRequiredService<ILanguageServerConfiguration>();
                     var outerConfiguration = outerServiceProvider?.GetService<IConfiguration>();
                     if (outerConfiguration != null)
                     {
-                        builder.AddConfiguration(outerConfiguration, false);
+                        builder.CustomAddConfiguration(outerConfiguration, false);
                     }
 
                     if (providedConfiguration != null)
                     {
-                        builder.AddConfiguration(providedConfiguration.ImplementationInstance as IConfiguration);
+                        builder.CustomAddConfiguration(( providedConfiguration.ImplementationInstance as IConfiguration )!);
                     }
 
-                    return builder.AddConfiguration(didChangeConfigurationProvider).Build();
+                    return builder.CustomAddConfiguration(didChangeConfigurationProvider).Build();
                 },
                 Reuse.Singleton
             );
@@ -85,7 +97,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<LanguageServerLoggerFilterOptions>(serviceTypeCondition: type => type.IsInterface, reuse: Reuse.Singleton);
             container.RegisterInstance(
                 options.ServerInfo ?? new ServerInfo {
-                    Name = Assembly.GetEntryAssembly()?.GetName().Name,
+                    Name = Assembly.GetEntryAssembly()?.GetName().Name ?? string.Empty,
                     Version = Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()
                                      ?.InformationalVersion ??
                               Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyVersionAttribute>()?.Version
@@ -96,16 +108,17 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             container.RegisterMany<ExecuteCommandMatcher>(Reuse.Singleton);
             container.RegisterMany<ResolveCommandMatcher>(Reuse.Singleton);
             container.RegisterMany(new[] { typeof(ResolveCommandPipeline<,>) });
+            container.RegisterMany(new[] { typeof(SemanticTokensDeltaPipeline<,>) });
             container.RegisterMany<LanguageServerWorkDoneManager>(Reuse.Singleton);
-            container.RegisterMany<LanguageServerWorkspaceFolderManager>(Reuse.Singleton);
+            container.RegisterMany<LanguageServerWorkspaceFolderManager>(reuse: Reuse.Singleton);
 
             return container;
         }
 
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions> configureOptions = null) =>
+        public static IServiceCollection AddLanguageServer(this IServiceCollection services, Action<LanguageServerOptions>? configureOptions = null) =>
             AddLanguageServer(services, Options.DefaultName, configureOptions);
 
-        public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions> configureOptions = null)
+        public static IServiceCollection AddLanguageServer(this IServiceCollection services, string name, Action<LanguageServerOptions>? configureOptions = null)
         {
             // If we get called multiple times we're going to remove the default server
             // and force consumers to use the resolver.

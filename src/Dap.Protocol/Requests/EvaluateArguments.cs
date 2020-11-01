@@ -11,7 +11,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// The expression to evaluate.
         /// </summary>
-        public string Expression { get; set; }
+        public string Expression { get; set; } = null!;
 
         /// <summary>
         /// Evaluate the expression in the scope of this stack frame. If not specified, the expression is evaluated in the global scope.
@@ -28,12 +28,12 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// etc.
         /// </summary>
         [Optional]
-        public string Context { get; set; }
+        public string? Context { get; set; }
 
         /// <summary>
         /// Specifies details on how to format the Evaluate result.
         /// </summary>
         [Optional]
-        public ValueFormat Format { get; set; }
+        public ValueFormat? Format { get; set; }
     }
 }

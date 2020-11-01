@@ -8,11 +8,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Serial]
+    [Parallel]
     [Method(TextDocumentNames.PrepareRename, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange>, IRegistration<TextDocumentRegistrationOptions>,
+    public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange?>, IRegistration<TextDocumentRegistrationOptions>,
                                              ICapability<RenameCapability>
     {
     }
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public PrepareRenameHandler(TextDocumentRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<RangeOrPlaceholderRange> Handle(PrepareRenameParams request, CancellationToken cancellationToken);
+        public abstract Task<RangeOrPlaceholderRange?> Handle(PrepareRenameParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(RenameCapability capability) => Capability = capability;
-        protected RenameCapability Capability { get; private set; }
+        protected RenameCapability Capability { get; private set; } = null!;
     }
 }

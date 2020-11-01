@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// All threads.
         /// </summary>
-        public Container<Thread> Threads { get; set; }
+        public Container<Thread>? Threads { get; set; }
     }
 }

@@ -10,14 +10,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document.
         /// </summary>
-        public TextDocumentIdentifier TextDocument { get; set; }
+        public TextDocumentIdentifier TextDocument { get; set; } = null!;
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken PartialResultToken { get; set; }
+        public ProgressToken? PartialResultToken { get; set; }
 
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }

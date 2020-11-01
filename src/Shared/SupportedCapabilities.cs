@@ -8,11 +8,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
-    internal class SupportedCapabilities : ISupportedCapabilities
+    internal class SupportedCapabilities : ISupportedCapabilities, ICapabilitiesProvider
     {
         private static readonly MethodInfo SetCapabilityInnerMethod = typeof(SupportedCapabilities)
                                                                      .GetTypeInfo()
-                                                                     .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static);
+                                                                     .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
         private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
 
@@ -22,13 +22,33 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 if (_supports.TryGetValue(item.ValueType, out _))
                     _supports.Remove(item.ValueType);
-                _supports.Add(item.ValueType, item.Value);
+                _supports.Add(item.ValueType, item.Value!);
             }
+        }
+
+        public void Add(ICapability capability)
+        {
+            var valueType = capability.GetType();
+            if (_supports.TryGetValue(valueType, out _))
+                _supports.Remove(valueType);
+            _supports.Add(valueType, capability);
+        }
+
+        public T GetCapability<T>() where T : ICapability?
+        {
+            if (_supports.TryGetValue(typeof(T), out var value) && value is T c) return c;
+            return default!;
+        }
+
+        public ICapability? GetCapability(Type type)
+        {
+            if (_supports.TryGetValue(type, out var value) && value is ICapability c) return c;
+            return default;
         }
 
         public bool AllowsDynamicRegistration(Type capabilityType)
         {
-            if (_supports.TryGetValue(capabilityType, out var capability))
+            if (capabilityType != null && _supports.TryGetValue(capabilityType, out var capability))
             {
                 if (capability is IDynamicCapability dc)
                     return dc.DynamicRegistration;

@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
 {
     public class ResolveCommandPipeline<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse>
+        where TRequest : notnull
     {
         private readonly ILogger<ResolveCommandPipeline<TRequest, TResponse>> _logger;
         private readonly ILspHandlerDescriptor _descriptor;
@@ -20,12 +21,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
         public ResolveCommandPipeline(IRequestContext context, ILogger<ResolveCommandPipeline<TRequest, TResponse>> logger)
         {
             _logger = logger;
-            _descriptor = context.Descriptor as ILspHandlerDescriptor;
+            _descriptor = (context.Descriptor as ILspHandlerDescriptor)!;
         }
 
         public async Task<TResponse> Handle(TRequest request, CancellationToken cancellationToken, RequestHandlerDelegate<TResponse> next)
         {
-            var response = await next();
+            var response = await next().ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
 
             // Only pin the handler type, if we know the source handler (codelens) is also the resolver.

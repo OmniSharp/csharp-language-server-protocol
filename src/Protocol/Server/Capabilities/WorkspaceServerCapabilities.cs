@@ -10,6 +10,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.6.0
         /// </summary>
         [Optional]
-        public WorkspaceFolderOptions WorkspaceFolders { get; set; }
+        public WorkspaceFolderOptions? WorkspaceFolders { get; set; }
     }
 }

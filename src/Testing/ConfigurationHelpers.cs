@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
 {
     public static class ConfigurationHelpers
     {
-        public static IConfiguration ToConfiguration(this IEnumerable<KeyValuePair<string, string>> configurationData)
+        public static IConfiguration ToConfiguration(this IEnumerable<KeyValuePair<string, string>>? configurationData)
         {
             var cb = new ConfigurationBuilder();
             if (configurationData != null) cb.AddInMemoryCollection(configurationData);

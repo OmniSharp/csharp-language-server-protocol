@@ -14,19 +14,19 @@ using Xunit.Abstractions;
 namespace OmniSharp.Extensions.LanguageServer.Client.Tests
 {
     /// <summary>
-    /// The base class for test suites that use a <see cref="PipeServerProcess" />.
+    /// The base class for test suites that use a <see cref="PipeServerTestBase" />.
     /// </summary>
     public abstract class PipeServerTestBase : TestBase, IAsyncLifetime
     {
         /// <summary>
-        /// The <see cref="PipeServerProcess" /> used to connect client and server streams.
+        /// The <see cref="PipeServerTestBase" /> used to connect client and server streams.
         /// </summary>
         private readonly CancellationTokenSource _cancellationTokenSource;
 
         protected CancellationToken CancellationToken => _cancellationTokenSource.Token;
 
-        private ILanguageClient _client;
-        private ILanguageServer _server;
+        private ILanguageClient? _client;
+        private ILanguageServer? _server;
 
         /// <summary>
         /// Create a new <see cref="PipeServerTestBase" />.
@@ -47,10 +47,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         /// <summary>
         /// The workspace root path.
         /// </summary>
-        protected string WorkspaceRoot => Path.GetDirectoryName(GetType().Assembly.Location);
+        protected string WorkspaceRoot => Path.GetDirectoryName(GetType().Assembly.Location)!;
 
         /// <summary>
-        /// Create a <see cref="LanguageClient" /> connected to the test's <see cref="PipeServerProcess" />.
+        /// Create a <see cref="LanguageClient" /> connected to the test's <see cref="PipeServerTestBase" />.
         /// </summary>
         /// <returns>
         /// The <see cref="LanguageClient" />.
@@ -90,6 +90,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
         }
 
         public virtual Task InitializeAsync() => Task.CompletedTask;
-        public Task DisposeAsync() => _client.Shutdown();
+        public Task DisposeAsync() => _client?.Shutdown()!;
     }
 }

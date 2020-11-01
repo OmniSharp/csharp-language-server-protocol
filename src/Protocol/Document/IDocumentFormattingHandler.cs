@@ -8,11 +8,11 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
-    [Serial]
+    [Parallel]
     [Method(TextDocumentNames.DocumentFormatting, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDocumentFormattingHandler : IJsonRpcRequestHandler<DocumentFormattingParams, TextEditContainer>, IRegistration<DocumentFormattingRegistrationOptions>,
+    public interface IDocumentFormattingHandler : IJsonRpcRequestHandler<DocumentFormattingParams, TextEditContainer?>, IRegistration<DocumentFormattingRegistrationOptions>,
                                                   ICapability<DocumentFormattingCapability>
     {
     }
@@ -23,8 +23,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public DocumentFormattingHandler(DocumentFormattingRegistrationOptions registrationOptions) => _options = registrationOptions;
 
         public DocumentFormattingRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<TextEditContainer> Handle(DocumentFormattingParams request, CancellationToken cancellationToken);
+        public abstract Task<TextEditContainer?> Handle(DocumentFormattingParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DocumentFormattingCapability capability) => Capability = capability;
-        protected DocumentFormattingCapability Capability { get; private set; }
+        protected DocumentFormattingCapability Capability { get; private set; } = null!;
     }
 }

@@ -1,7 +1,7 @@
 using FluentAssertions;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Xunit;
 
 namespace Lsp.Tests.Capabilities.Server
@@ -12,14 +12,14 @@ namespace Lsp.Tests.Capabilities.Server
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new ExecuteCommandOptions {
+            var model = new ExecuteCommandRegistrationOptions.StaticOptions {
                 Commands = new[] { "command1", "command2" }
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ExecuteCommandOptions>(expected);
+            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ExecuteCommandRegistrationOptions.StaticOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

@@ -9,6 +9,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The actual workspace folder change event.
         /// </summary>
-        public WorkspaceFoldersChangeEvent Event { get; set; }
+        public WorkspaceFoldersChangeEvent Event { get; set; } = null!;
     }
 }

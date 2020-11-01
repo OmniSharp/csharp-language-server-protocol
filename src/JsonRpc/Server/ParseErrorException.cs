@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public ParseErrorException(object requestId)
+        public ParseErrorException(object? requestId)
             : base(ErrorCodes.ParseError, requestId, "Error parsing request.")
         {
         }

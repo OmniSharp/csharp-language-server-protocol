@@ -14,14 +14,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public (int start, int end) Range { get; }
         public bool IsRange => Label == null;
-        public string Label { get; }
+        public string? Label { get; }
         public bool IsLabel => Label != null;
 
         public static implicit operator ParameterInformationLabel(string label) => new ParameterInformationLabel(label);
 
         public static implicit operator ParameterInformationLabel((int start, int end) range) => new ParameterInformationLabel(range);
 
-        private string DebuggerDisplay => IsRange ? $"(start: {Range.start}, end: {Range.end})" : IsLabel ? Label : string.Empty;
+        private string DebuggerDisplay => IsRange ? $"(start: {Range.start}, end: {Range.end})" : IsLabel ? Label! : string.Empty;
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

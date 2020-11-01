@@ -90,8 +90,10 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services.AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
+                                           serviceCollection =>
+                                               serviceCollection.AddJsonRpcHandler<Handler>(
+                                                   new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial }
+                                               )
                                        );
                                }
                            )
@@ -121,8 +123,8 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services
+                                           serviceCollection =>
+                                               serviceCollection
                                                   .AddSingleton(new OutsideService("inside"))
                                                   .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
                                                   .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
@@ -159,8 +161,8 @@ namespace JsonRpc.Tests
                                       .WithInput(pipe.Reader)
                                       .WithOutput(pipe.Writer)
                                       .WithServices(
-                                           services =>
-                                               services
+                                           serviceCollection =>
+                                               serviceCollection
                                                   .AddSingleton(new OutsideService("inside"))
                                                   .AddJsonRpcHandler<Handler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
                                                   .AddJsonRpcHandler<ExternalHandler>(new JsonRpcHandlerOptions { RequestProcessType = RequestProcessType.Serial })
@@ -255,6 +257,23 @@ namespace JsonRpc.Tests
             a.Should().Throw<NotSupportedException>();
         }
 
+        [Fact]
+        public async Task Should_Register_Private_Classes_With_Dry_Ioc()
+        {
+            var server = await JsonRpcServer.From(
+                options => {
+                    var pipe = new Pipe();
+                    options
+                       .WithInput(pipe.Reader)
+                       .WithOutput(pipe.Writer);
+
+                    options.Services.AddSingleton<TestClass, InternalTestClass>();
+                }
+            );
+            server.GetService<InternalTestClass>().Should().NotBeNull();
+            server.GetService<TestClass>().Should().NotBeNull().And.BeOfType<InternalTestClass>();
+        }
+
         [Method("outside")]
         private class Request : IRequest<Response>
         {
@@ -296,6 +315,14 @@ namespace JsonRpc.Tests
             public OutsideService(string value) => Value = value;
 
             public string Value { get; }
+        }
+
+        internal class TestClass
+        {
+        }
+
+        internal class InternalTestClass : TestClass
+        {
         }
     }
 }

@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observable;
             }
 
-            observable = new ProgressObservable<T>(token, factory, () => _activeObservables.TryRemove(token, out var disposable));
+            observable = new ProgressObservable<T>(token, factory, () => _activeObservables.TryRemove(token, out _));
             _activeObservables.TryAdd(token, observable);
             return observable;
         }
@@ -68,12 +68,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
             observable = new RequestProgressObservable<TItem, TResult>(
                 _serializer,
-                request.PartialResultToken,
+                request.PartialResultToken!,
                 MakeRequest(request),
                 (x, f) => factory(x),
-                cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out var disposable)
+                cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken!, out _)
             );
-            _activeObservables.TryAdd(request.PartialResultToken, observable);
+            _activeObservables.TryAdd(request.PartialResultToken!, observable);
             return observable;
         }
 
@@ -90,7 +90,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
             observable = new RequestProgressObservable<TItem, TResult>(
                 _serializer, request.PartialResultToken, MakeRequest(request), factory,
-                cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out var disposable)
+                cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);
             return observable;
@@ -109,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
             observable = new PartialItemsRequestProgressObservable<TItem, IEnumerable<TItem>>(
                 _serializer, request.PartialResultToken, MakeRequest(request),
-                x => x, cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out var disposable)
+                x => x, cancellationToken, () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);
             return observable;
@@ -119,7 +119,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             IPartialItemsRequest<TResponse, TItem> request,
             Func<IEnumerable<TItem>, TResponse> factory, CancellationToken cancellationToken
         )
-            where TResponse : IEnumerable<TItem>
+            where TResponse : IEnumerable<TItem>?
         {
             request.PartialResultToken ??= new ProgressToken(Guid.NewGuid().ToString());
             if (_activeObservables.TryGetValue(request.PartialResultToken, out var o) && o is IRequestProgressObservable<IEnumerable<TItem>, TResponse> observable)
@@ -129,13 +129,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
             observable = new PartialItemsRequestProgressObservable<TItem, TResponse>(
                 _serializer, request.PartialResultToken, MakeRequest(request), factory, cancellationToken,
-                () => _activeObservables.TryRemove(request.PartialResultToken, out var disposable)
+                () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);
             return observable;
         }
 
-        public IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<TItem> request, CancellationToken cancellationToken)
+        public IRequestProgressObservable<TItem> MonitorUntil<TItem>(IPartialItemsRequest<Container<TItem>, TItem> request, CancellationToken cancellationToken)
         {
             request.PartialResultToken ??= new ProgressToken(Guid.NewGuid().ToString());
             if (_activeObservables.TryGetValue(request.PartialResultToken, out var o) && o is IRequestProgressObservable<TItem> observable)
@@ -145,7 +145,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 
             observable = new PartialItemsRequestProgressObservable<TItem>(
                 _serializer, request.PartialResultToken, MakeRequest(request), x => new Container<TItem>(x), cancellationToken,
-                () => _activeObservables.TryRemove(request.PartialResultToken, out var disposable)
+                () => _activeObservables.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservables.TryAdd(request.PartialResultToken, observable);
             return observable;
@@ -158,7 +158,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 return observer;
             }
 
-            observer = new ProgressObserver<T>(token, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(token, out var disposable));
+            observer = new ProgressObserver<T>(token, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(token, out _));
             _activeObservers.TryAdd(token, observer);
             return observer;
         }
@@ -172,14 +172,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             }
 
             observer = new ProgressObserver<TItem>(
-                request.PartialResultToken, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(request.PartialResultToken, out var disposable)
+                request.PartialResultToken, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservers.TryAdd(request.PartialResultToken, observer);
             return observer;
         }
 
         public IProgressObserver<IEnumerable<TItem>> For<TResponse, TItem>(IPartialItemsRequest<TResponse, TItem> request, CancellationToken cancellationToken)
-            where TResponse : IEnumerable<TItem>
+            where TResponse : IEnumerable<TItem>?
         {
             if (request.PartialResultToken == null) return ProgressObserver<IEnumerable<TItem>>.Noop;
             if (_activeObservers.TryGetValue(request.PartialResultToken, out var o) && o is IProgressObserver<IEnumerable<TItem>> observer)
@@ -188,7 +188,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
             }
 
             observer = new ProgressObserver<IEnumerable<TItem>>(
-                request.PartialResultToken, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(request.PartialResultToken, out var disposable)
+                request.PartialResultToken, _router, _serializer, cancellationToken, () => _activeObservers.TryRemove(request.PartialResultToken, out _)
             );
             _activeObservers.TryAdd(request.PartialResultToken, observer);
             return observer;
@@ -201,7 +201,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
                 async (observer, ct) => {
                     try
                     {
-                        observer.OnNext(await _router.SendRequest(request, ct));
+                        observer.OnNext(await _router.SendRequest(request, ct).ConfigureAwait(false));
                         observer.OnCompleted();
                     }
                     catch (OperationCanceledException e)

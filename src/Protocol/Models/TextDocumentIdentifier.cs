@@ -15,16 +15,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The text document's URI.
         /// </summary>
-        public DocumentUri Uri { get; set; }
+        public DocumentUri Uri { get; set; } = null!;
 
-        public bool Equals(TextDocumentIdentifier other)
+        public bool Equals(TextDocumentIdentifier? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
-            return Uri?.Equals(other.Uri) == true;
+            return Uri.Equals(other.Uri);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
@@ -32,7 +32,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return Equals((TextDocumentIdentifier) obj);
         }
 
-        public override int GetHashCode() => Uri.GetHashCode();
+        // ReSharper disable once ConstantConditionalAccessQualifier
+        public override int GetHashCode() => Uri?.GetHashCode() ?? 0;
 
         public static bool operator ==(TextDocumentIdentifier left, TextDocumentIdentifier right) => Equals(left, right);
 
@@ -42,7 +43,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator TextDocumentIdentifier(string uri) => new TextDocumentIdentifier { Uri = uri };
 
-        private string DebuggerDisplay => Uri?.ToString();
+        // ReSharper disable once ConstantConditionalAccessQualifier
+        private string DebuggerDisplay => Uri?.ToString() ?? string.Empty;
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

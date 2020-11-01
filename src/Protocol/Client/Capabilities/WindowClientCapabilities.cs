@@ -3,7 +3,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Window specific client capabilities.
     /// </summary>
-    public class WindowClientCapabilities
+    public class WindowClientCapabilities : CapabilitiesBase
     {
         /// <summary>
         /// Whether client supports handling progress notifications.

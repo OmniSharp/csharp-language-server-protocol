@@ -7,6 +7,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
         /// <summary>
         /// Set of loaded sources.
         /// </summary>
-        public Container<Source> Sources { get; set; }
+        public Container<Source> Sources { get; set; } = null!;
     }
 }

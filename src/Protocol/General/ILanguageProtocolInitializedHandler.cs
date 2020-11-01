@@ -13,11 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.General
     [Method(GeneralNames.Initialized, Direction.ClientToServer)]
     [GenerateHandlerMethods(typeof(ILanguageServerRegistry), MethodName = "OnLanguageProtocolInitialized")]
     [GenerateRequestMethods(typeof(ILanguageClient), MethodName = "SendLanguageProtocolInitialized")]
-    public interface ILanguageProtocolInitializedHandler : IJsonRpcNotificationHandler<InitializedParams>
+    internal interface ILanguageProtocolInitializedHandler : IJsonRpcNotificationHandler<InitializedParams>
     {
     }
 
-    public abstract class LanguageProtocolInitializedHandler : ILanguageProtocolInitializedHandler
+    internal abstract class LanguageProtocolInitializedHandler : ILanguageProtocolInitializedHandler
     {
         public abstract Task<Unit> Handle(InitializedParams request, CancellationToken cancellationToken);
     }

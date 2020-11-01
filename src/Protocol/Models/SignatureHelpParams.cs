@@ -4,7 +4,7 @@ using OmniSharp.Extensions.JsonRpc;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [Method(TextDocumentNames.SignatureHelp, Direction.ClientToServer)]
-    public class SignatureHelpParams : WorkDoneTextDocumentPositionParams, IRequest<SignatureHelp>
+    public class SignatureHelpParams : WorkDoneTextDocumentPositionParams, IRequest<SignatureHelp?>
     {
         /// <summary>
         /// The signature help context. This is only available if the client specifies
@@ -12,6 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
-        public SignatureHelpContext Context { get; set; }
+        public SignatureHelpContext Context { get; set; } = null!;
     }
 }

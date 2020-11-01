@@ -11,8 +11,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
     {
         private readonly IResponseRouter _router;
         private readonly ISerializer _serializer;
-        private readonly Func<Exception, WorkDoneProgressEnd> _onError;
-        private readonly Func<WorkDoneProgressEnd> _onComplete;
+        private readonly Func<Exception, WorkDoneProgressEnd>? _onError;
+        private readonly Func<WorkDoneProgressEnd>? _onComplete;
         private readonly CompositeDisposable _disposable;
 
         public WorkDoneObserver(
@@ -20,8 +20,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             IResponseRouter router,
             ISerializer serializer,
             WorkDoneProgressBegin begin,
-            Func<Exception, WorkDoneProgressEnd> onError,
-            Func<WorkDoneProgressEnd> onComplete,
+            Func<Exception, WorkDoneProgressEnd>? onError,
+            Func<WorkDoneProgressEnd>? onComplete,
             CancellationToken cancellationToken
         )
         {
@@ -53,12 +53,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
         public void OnNext(string message, double? percentage, bool? cancellable) =>
             OnNext(
                 new WorkDoneProgressReport {
-                    Cancellable = cancellable,
+                    Cancellable = cancellable ?? false,
                     Message = message,
                     Percentage = percentage
                 }
             );
 
-        public void Dispose() => _disposable?.Dispose();
+        public void Dispose() => _disposable.Dispose();
     }
 }

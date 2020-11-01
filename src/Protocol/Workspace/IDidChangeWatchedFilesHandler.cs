@@ -9,7 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Serial]
+    [Parallel]
     [Method(WorkspaceNames.DidChangeWatchedFiles, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
@@ -26,6 +26,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken);
         public virtual void SetCapability(DidChangeWatchedFilesCapability capability) => Capability = capability;
-        protected DidChangeWatchedFilesCapability Capability { get; private set; }
+        protected DidChangeWatchedFilesCapability Capability { get; private set; } = null!;
     }
 }

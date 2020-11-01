@@ -10,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc.Client
             Request = request;
         }
 
-        public OutgoingResponse(object id, object result, ServerRequest request)
+        public OutgoingResponse(object id, object? result, ServerRequest request)
         {
             Id = id;
             Result = result;
@@ -18,7 +18,7 @@ namespace OmniSharp.Extensions.JsonRpc.Client
         }
 
         public object Id { get; set; }
-        public object Result { get; set; }
+        public object? Result { get; set; }
         public ServerRequest Request { get; }
     }
 }

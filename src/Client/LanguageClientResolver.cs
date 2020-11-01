@@ -8,10 +8,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
     public class LanguageClientResolver : IDisposable
     {
         private readonly IOptionsMonitor<LanguageClientOptions> _monitor;
-        private readonly IServiceProvider _outerServiceProvider;
+        private readonly IServiceProvider? _outerServiceProvider;
         private readonly ConcurrentDictionary<string, LanguageClient> _clients = new ConcurrentDictionary<string, LanguageClient>();
 
-        public LanguageClientResolver(IOptionsMonitor<LanguageClientOptions> monitor, IServiceProvider outerServiceProvider)
+        public LanguageClientResolver(IOptionsMonitor<LanguageClientOptions> monitor, IServiceProvider? outerServiceProvider)
         {
             _monitor = monitor;
             _outerServiceProvider = outerServiceProvider;

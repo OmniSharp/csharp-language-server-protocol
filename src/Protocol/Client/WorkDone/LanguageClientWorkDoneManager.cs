@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Reactive.Disposables;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -29,9 +28,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
             _pendingWork = new ConcurrentDictionary<ProgressToken, IProgressObservable<WorkDoneProgress>>();
         }
 
-        public void Initialize(WindowClientCapabilities windowClientCapabilities) =>
-            IsSupported = windowClientCapabilities.WorkDoneProgress.IsSupported &&
-                          windowClientCapabilities.WorkDoneProgress.Value;
+        public void Initialize(WindowClientCapabilities? windowClientCapabilities) =>
+            IsSupported = windowClientCapabilities?.WorkDoneProgress.IsSupported == true;
 
         public bool IsSupported { get; private set; }
 
@@ -60,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 
         Task<Unit> IRequestHandler<WorkDoneProgressCreateParams, Unit>.Handle(WorkDoneProgressCreateParams request, CancellationToken cancellationToken)
         {
-            Monitor(request.Token);
+            if (request.Token != null) Monitor(request.Token);
             return Unit.Task;
         }
 

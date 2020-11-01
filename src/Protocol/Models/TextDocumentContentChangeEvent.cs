@@ -12,7 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The range of the document that changed.
         /// </summary>
         [Optional]
-        public Range Range { get; set; }
+        public Range? Range { get; set; }
 
         /// <summary>
         /// The length of the range that got replaced.
@@ -23,6 +23,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The new text of the document.
         /// </summary>
-        public string Text { get; set; }
+        public string Text { get; set; } = null!;
     }
 }

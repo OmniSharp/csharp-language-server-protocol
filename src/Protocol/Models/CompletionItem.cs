@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using MediatR;
 using Newtonsoft.Json.Linq;
@@ -16,7 +17,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// also the text that is inserted when selecting
         /// this completion.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// The kind of this completion item. Based of the kind
@@ -31,20 +32,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Container<CompletionItemTag> Tags { get; set; }
+        public Container<CompletionItemTag>? Tags { get; set; }
 
         /// <summary>
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>
         [Optional]
-        public string Detail { get; set; }
+        public string? Detail { get; set; }
 
         /// <summary>
         /// A human-readable string that represents a doc-comment.
         /// </summary>
         [Optional]
-        public StringOrMarkupContent Documentation { get; set; }
+        public StringOrMarkupContent? Documentation { get; set; }
 
         /// <summary>
         /// Indicates if this item is deprecated.
@@ -67,7 +68,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// with other items. When `falsy` the label is used.
         /// </summary>
         [Optional]
-        public string SortText { get; set; }
+        public string? SortText { get; set; }
 
         /// <summary>
         /// A string that should be used when filtering a set of
@@ -75,7 +76,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
 
         [Optional]
-        public string FilterText { get; set; }
+        public string? FilterText { get; set; }
 
         /// <summary>
         /// A string that should be inserted a document when selecting
@@ -83,7 +84,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
 
         [Optional]
-        public string InsertText { get; set; }
+        public string? InsertText { get; set; }
 
         /// <summary>
         /// The format of the insert text. The format applies to both the `insertText` property
@@ -100,7 +101,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// has been requested.
         /// </summary>
         [Optional]
-        public TextEdit TextEdit { get; set; }
+        public TextEdit? TextEdit { get; set; }
 
         /// <summary>
         /// An optional array of additional text edits that are applied when
@@ -108,7 +109,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// nor with themselves.
         /// </summary>
         [Optional]
-        public TextEditContainer AdditionalTextEdits { get; set; }
+        public TextEditContainer? AdditionalTextEdits { get; set; }
 
         /// <summary>
         /// An optional set of characters that when pressed while this completion is active will accept it first and
@@ -116,7 +117,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// characters will be ignored.
         /// </summary>
         [Optional]
-        public Container<string> CommitCharacters { get; set; }
+        public Container<string>? CommitCharacters { get; set; }
 
         /// <summary>
         /// An optional command that is executed/// after* inserting this completion./// Note* that
@@ -124,14 +125,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// additionalTextEdits-property.
         /// </summary>
         [Optional]
-        public Command Command { get; set; }
+        public Command? Command { get; set; }
 
         /// <summary>
         /// An data entry field that is preserved on a completion item between
         /// a completion and a completion resolve request.
         /// </summary>
         [Optional]
-        public JToken Data { get; set; }
+        public JToken? Data { get; set; }
 
         private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
 
@@ -142,15 +143,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     /// <remarks>
     /// Typed code lens used for the typed handlers
     /// </remarks>
+    [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public class CompletionItem<T> : ICanBeResolved
-        where T : HandlerIdentity, new()
+        where T : HandlerIdentity?, new()
     {
         /// <summary>
         /// The label of this completion item. By default
         /// also the text that is inserted when selecting
         /// this completion.
         /// </summary>
-        public string Label { get; set; }
+        public string Label { get; set; } = null!;
 
         /// <summary>
         /// The kind of this completion item. Based of the kind
@@ -165,20 +167,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Container<CompletionItemTag> Tags { get; set; }
+        public Container<CompletionItemTag>? Tags { get; set; }
 
         /// <summary>
         /// A human-readable string with additional information
         /// about this item, like type or symbol information.
         /// </summary>
         [Optional]
-        public string Detail { get; set; }
+        public string? Detail { get; set; }
 
         /// <summary>
         /// A human-readable string that represents a doc-comment.
         /// </summary>
         [Optional]
-        public StringOrMarkupContent Documentation { get; set; }
+        public StringOrMarkupContent? Documentation { get; set; }
 
         /// <summary>
         /// Indicates if this item is deprecated.
@@ -201,7 +203,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// with other items. When `falsy` the label is used.
         /// </summary>
         [Optional]
-        public string SortText { get; set; }
+        public string? SortText { get; set; }
 
         /// <summary>
         /// A string that should be used when filtering a set of
@@ -209,7 +211,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
 
         [Optional]
-        public string FilterText { get; set; }
+        public string? FilterText { get; set; }
 
         /// <summary>
         /// A string that should be inserted a document when selecting
@@ -217,7 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
 
         [Optional]
-        public string InsertText { get; set; }
+        public string? InsertText { get; set; }
 
         /// <summary>
         /// The format of the insert text. The format applies to both the `insertText` property
@@ -234,7 +236,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// has been requested.
         /// </summary>
         [Optional]
-        public TextEdit TextEdit { get; set; }
+        public TextEdit? TextEdit { get; set; }
 
         /// <summary>
         /// An optional array of additional text edits that are applied when
@@ -242,7 +244,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// nor with themselves.
         /// </summary>
         [Optional]
-        public TextEditContainer AdditionalTextEdits { get; set; }
+        public TextEditContainer? AdditionalTextEdits { get; set; }
 
         /// <summary>
         /// An optional set of characters that when pressed while this completion is active will accept it first and
@@ -250,7 +252,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// characters will be ignored.
         /// </summary>
         [Optional]
-        public Container<string> CommitCharacters { get; set; }
+        public Container<string>? CommitCharacters { get; set; }
 
         /// <summary>
         /// An optional command that is executed/// after* inserting this completion./// Note* that
@@ -258,20 +260,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// additionalTextEdits-property.
         /// </summary>
         [Optional]
-        public Command Command { get; set; }
+        public Command? Command { get; set; }
 
         /// <summary>
         /// A data entry field that is preserved on a code lens item between
         /// a code lens and a code lens resolve request.
         /// </summary>
         [Optional]
+        [MaybeNull]
         public T Data
         {
-            get => ( (ICanBeResolved) this ).Data?.ToObject<T>();
-            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value ?? new object());
+            get => ( (ICanBeResolved) this ).Data?.ToObject<T>()!;
+            set => ( (ICanBeResolved) this ).Data = JToken.FromObject(value);
         }
 
-        JToken ICanBeResolved.Data { get; set; }
+        JToken? ICanBeResolved.Data { get; set; }
 
         public static implicit operator CompletionItem(CompletionItem<T> value) => new CompletionItem {
             Data = ( (ICanBeResolved) value ).Data,
@@ -314,5 +317,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             ( (ICanBeResolved) item ).Data = value.Data;
             return item;
         }
+
+        private string DebuggerDisplay => $"[{Kind}] {Label}{( Tags?.Any() == true ? $" tags: {string.Join(", ", Tags.Select(z => z.ToString()))}" : "" )}";
+
+        /// <inheritdoc />
+        public override string ToString() => DebuggerDisplay;
     }
 }

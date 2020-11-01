@@ -67,19 +67,6 @@ public partial class Solution
                 new SetupDotNetStep("Use .NET Core 3.1 SDK") {
                     DotNetVersion = "3.1.x"
                 },
-                new RunStep("🪓 **DOTNET HACK** 🪓") {
-                    Shell = GithubActionShell.Pwsh,
-                    Run = @"$version = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Leaf;
-                        $root = Split-Path (Split-Path $ENV:DOTNET_ROOT -Parent) -Parent;
-                        $directories = Get-ChildItem $root | Where-Object { $_.Name -ne $version };
-                        foreach ($dir in $directories) {
-                            $from = $dir.FullName;
-                            $to = ""$root/$version"";
-                            Write-Host Copying from $from to $to;
-                            Copy-Item ""$from\*"" $to -Recurse -Force;
-                        }
-                        "
-                },
             }
         );
 

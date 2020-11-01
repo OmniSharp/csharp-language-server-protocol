@@ -5,6 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
     /// <summary>
     /// Capabilities specific to `textDocument/publishDiagnostics`.
     /// </summary>
+    [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.PublishDiagnostics))]
     public class PublishDiagnosticsCapability : ICapability
     {
         /// <summary>
@@ -20,7 +21,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.15.0
         /// </summary>
         [Optional]
-        public Supports<PublishDiagnosticsTagSupportCapability> TagSupport { get; set; }
+        public Supports<PublishDiagnosticsTagSupportCapabilityOptions?> TagSupport { get; set; }
 
         /// <summary>
         /// Whether the client interprets the version property of the
@@ -30,5 +31,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public bool VersionSupport { get; set; }
+
+        /// <summary>
+        /// Client supports a codeDescription property
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool CodeDescriptionSupport { get; set; }
+
+        /// <summary>
+        /// Whether code action supports the `data` property which is
+        /// preserved between a `textDocument/publishDiagnostics` and
+        /// `textDocument/codeAction` request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool DataSupport { get; set; }
     }
 }

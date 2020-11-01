@@ -17,8 +17,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="requestId">
         /// The LSP / JSON-RPC request Id (if known).
         /// </param>
-        public RequestCancelledException(object requestId)
-            : this(ErrorCodes.RequestCancelled, requestId.ToString(), "Request was cancelled.", null)
+        public RequestCancelledException(object? requestId)
+            : this(ErrorCodes.RequestCancelled, requestId?.ToString() ?? "(unknown)", "Request was cancelled.", null!)
         {
         }
 
@@ -31,8 +31,8 @@ namespace OmniSharp.Extensions.JsonRpc.Server
         /// <param name="inner">
         /// The exception that caused this exception to be raised.
         /// </param>
-        public RequestCancelledException(object requestId, Exception inner)
-            : this(ErrorCodes.RequestCancelled, requestId.ToString(), "Request was cancelled.", inner)
+        public RequestCancelledException(object? requestId, Exception inner)
+            : this(ErrorCodes.RequestCancelled, requestId?.ToString() ?? "(unknown)", "Request was cancelled.", inner)
         {
         }
 

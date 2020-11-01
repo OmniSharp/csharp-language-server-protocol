@@ -6,6 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     {
         /// <inheritdoc />
         [Optional]
-        public ProgressToken WorkDoneToken { get; set; }
+        public ProgressToken? WorkDoneToken { get; set; }
     }
 }
