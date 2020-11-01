@@ -10,6 +10,7 @@
         <ProjectReference Include="..\..\src\Dap.Protocol\Dap.Protocol.csproj" />
         <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
+        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
 <!--        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />-->
     </ItemGroup>
 </Project>

@@ -17,12 +17,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     [Generator]
     public class GenerateHandlerMethodsGenerator : ISourceGenerator
     {
-        public void Initialize(InitializationContext context)
+        public void Initialize(GeneratorInitializationContext context)
         {
             context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
         }
 
-        public void Execute(SourceGeneratorContext context)
+        public void Execute(GeneratorExecutionContext context)
         {
             if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
             {
@@ -104,22 +104,24 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    .OrderBy(x => x.Name.ToFullString())
                                                    .ToImmutableArray();
 
-    var obsoleteAttribute = handlerInterface.AttributeLists
-                                                    .SelectMany(z => z.Attributes)
-                                                    .Where(z => z.Name.ToFullString() == nameof(ObsoleteAttribute) || z.Name.ToFullString() == "Obsolete")
-                                                    .ToArray();            var attributes = List(
+                var obsoleteAttribute = candidateClass.AttributeLists
+                                                      .SelectMany(z => z.Attributes)
+                                                      .Where(z => z.Name.ToFullString() == nameof(ObsoleteAttribute) || z.Name.ToFullString() == "Obsolete")
+                                                      .ToArray();
+                var attributes = List(
                     new[] {
                         AttributeList(
                             SeparatedList(
                                 new[] {
                                     Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
-                                    Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),}.Union(obsoleteAttribute)
+                                    Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
+                                }.Union(obsoleteAttribute)
+                            )
                         )
-                                )
-                            }
-                        );
+                    }
+                );
 
-                var isInternal = handlerInterface.Modifiers.Any(z => z.IsKind(SyntaxKind.InternalKeyword));
+                var isInternal = candidateClass.Modifiers.Any(z => z.IsKind(SyntaxKind.InternalKeyword));
 
                 var cu = CompilationUnit(
                              List<ExternAliasDirectiveSyntax>(),
@@ -136,16 +138,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                         .WithModifiers(
                                                              TokenList(
                                                                  new[] { isInternal ? Token(SyntaxKind.InternalKeyword) : Token(SyntaxKind.PublicKeyword) }.Concat(
-                                                            new[] {
-                                                                 Token(SyntaxKind.StaticKeyword),
-                                                                 Token(SyntaxKind.PartialKeyword)
-                                                             }
+                                                                     new[] {
+                                                                         Token(SyntaxKind.StaticKeyword),
+                                                                         Token(SyntaxKind.PartialKeyword)
+                                                                     }
+                                                                 )
+                                                             )
                                                          )
-                                                        )
-                                                )
-                                               .WithMembers(List(methods))
-                                               .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                                               .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
+                                                        .WithMembers(List(methods))
+                                                        .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                                                        .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
                                                         .NormalizeWhitespace()
                                                  }
                                              )
@@ -166,7 +168,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
 
         private void GetExtensionHandlers(
-            SourceGeneratorContext context,
+            GeneratorExecutionContext context,
             TypeDeclarationSyntax handlerClassOrInterface,
             INamedTypeSymbol symbol,
             AttributeData attributeData,
@@ -184,15 +186,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 else if (IsRequest(symbol))
                 {
                     var requestType = GetRequestType(symbol);
-                    var responseType = GetResponseType(symbol);
-                    methods.AddRange(HandleRequest(handlerClassOrInterface, symbol, requestType, responseType, registry, additionalUsings, attributeData));
+                    var responseType = GetResponseType(handlerClassOrInterface);
+                    methods.AddRange(HandleRequest(handlerClassOrInterface, symbol, requestType, responseType!, registry, additionalUsings, attributeData));
                 }
             }
         }
 
 
         private void GetExtensionRequestHandlers(
-            SourceGeneratorContext context,
+            GeneratorExecutionContext context,
             TypeDeclarationSyntax handlerClassOrInterface,
             INamedTypeSymbol symbol,
             AttributeData attributeData,
@@ -233,8 +235,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 if (IsRequest(symbol))
                 {
                     var requestType = GetRequestType(symbol);
-                    var responseType = GetResponseType(symbol);
-                    methods.AddRange(HandleRequestRequests(handlerClassOrInterface, symbol, requestType, responseType, registry, additionalUsings, attributeData));
+                    var responseType = GetResponseType(handlerClassOrInterface);
+                    methods.AddRange(HandleRequestRequests(handlerClassOrInterface, symbol, requestType, responseType!, registry, additionalUsings, attributeData));
                 }
             }
         }
@@ -469,7 +471,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, false));
                     if (capability != null)
                     {
-                        method = method.WithExpressionBody(GetPartialResultCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, capability));
+                        method = method.WithExpressionBody(
+                            GetPartialResultCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, capability)
+                        );
                         yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, capability));
                     }
                 }
@@ -483,6 +487,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     {
                         method = method.WithExpressionBody(GetVoidRequestCapabilityHandlerExpression(GetMethodName(handlerInterface), requestType, capability));
                     }
+
                     yield return MakeAction(CreateAsyncFunc(responseType, requestType, capability));
                 }
             }
@@ -581,7 +586,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     var partialTypeSyntax = ResolveTypeName(partialItem);
 
-                    method = method.WithBody(GetPartialResultRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, registrationOptions));
+                    method = method.WithBody(
+                        GetPartialResultRegistrationHandlerExpression(GetMethodName(handlerInterface), requestType, partialTypeSyntax, responseType, registrationOptions)
+                    );
 
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, true));
                     yield return MakeAction(CreatePartialAction(requestType, partialTypeSyntax, false));
@@ -616,7 +623,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             AttributeData attributeData,
             TypeDeclarationSyntax interfaceSyntax,
             INamedTypeSymbol interfaceType,
-            SourceGeneratorContext context,
+            GeneratorExecutionContext context,
             HashSet<string> additionalUsings
         )
         {
@@ -728,7 +735,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
 
         public static IEnumerable<NameSyntax> GetProxies(
-            SourceGeneratorContext context,
+            GeneratorExecutionContext context,
             AttributeData attributeData,
             TypeDeclarationSyntax interfaceSyntax,
             INamedTypeSymbol interfaceType,
@@ -878,7 +885,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             TypeDeclarationSyntax handlerInterface,
             INamedTypeSymbol interfaceType,
             INamedTypeSymbol requestType,
-            INamedTypeSymbol responseType,
+            TypeSyntax responseType,
             NameSyntax registryType,
             HashSet<string> additionalUsings,
             AttributeData attributeData
@@ -917,7 +924,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                              SeparatedList(
                                                  new TypeSyntax[] {
                                                      partialTypeSyntax,
-                                                     ResolveTypeName(responseType)
+                                                     responseType
                                                  }
                                              )
                                          )
@@ -931,7 +938,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithExpressionBody(GetPartialInvokeExpression(responseType))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             .NormalizeWhitespace();
                 yield break;
@@ -952,7 +959,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                              SeparatedList(
                                                  new TypeSyntax[] {
                                                      partialItemsSyntax,
-                                                     ResolveTypeName(responseType)
+                                                     responseType
                                                  }
                                              )
                                          )
@@ -966,7 +973,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  )
                              )
                             .WithParameterList(parameterList)
-                            .WithExpressionBody(GetPartialInvokeExpression(ResolveTypeName(responseType)))
+                            .WithExpressionBody(GetPartialInvokeExpression(responseType))
                             .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
                             .NormalizeWhitespace();
                 ;
@@ -974,9 +981,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
 
-            var responseSyntax = responseType.Name == "Unit"
+            var responseSyntax = responseType.ToFullString().EndsWith("Unit")
                 ? IdentifierName("Task") as NameSyntax
-                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { ResolveTypeName(responseType) })));
+                : GenericName("Task").WithTypeArgumentList(TypeArgumentList(SeparatedList<TypeSyntax>(new[] { responseType })));
             yield return MethodDeclaration(responseSyntax, methodName)
                         .WithModifiers(
                              TokenList(

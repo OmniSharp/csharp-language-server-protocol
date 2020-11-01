@@ -72,6 +72,7 @@ namespace Generation.Tests
             // and append preamble to the expected
             var expectedText = NormalizedPreamble + NormalizeToLf(expected).Trim();
             generatedText.Should().Be(expectedText);
+            //Assert.Equal(expectedText, generatedText);
         }
 
         public static async Task<string> Generate<T>(string source) where T : ISourceGenerator, new()
@@ -105,9 +106,13 @@ namespace Generation.Tests
 
             ISourceGenerator generator = new T();
 
-            var driver = new CSharpGeneratorDriver(compilation.SyntaxTrees[0].Options, ImmutableArray.Create(generator), default, ImmutableArray<AdditionalText>.Empty);
+            var driver = CSharpGeneratorDriver.Create(
+                ImmutableArray.Create(generator),
+                ImmutableArray<AdditionalText>.Empty,
+                compilation.SyntaxTrees[0].Options as CSharpParseOptions
+            );
 
-            driver.RunFullGeneration(compilation, out var outputCompilation, out diagnostics);
+            driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out diagnostics);
             // Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
             // the syntax tree added by the generator will be the last one in the compilation

@@ -14,7 +14,6 @@
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
-        <PackageReference Include="CodeGeneration.Roslyn.Tool" />
 
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.Options" />
