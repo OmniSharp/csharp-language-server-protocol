@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
             var builder = new ConfigurationBuilder()
                .Add(new DidChangeConfigurationSource(this));
             configurationBuilderAction(builder);
-            _configuration = (builder.Build() as ConfigurationRoot)!;
+            _configuration = ( builder.Build() as ConfigurationRoot )!;
 
             var triggerChange = new Subject<System.Reactive.Unit>();
             _compositeDisposable.Add(triggerChange);
@@ -86,9 +86,16 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 
         private IObservable<System.Reactive.Unit> GetWorkspaceConfiguration()
         {
-            if (_capability == null || _configurationItems.Count == 0)
+            // do not warn if they are not using configuration
+            if (_capability == null)
+            {
+                return Empty<System.Reactive.Unit>();
+            }
+
+            if (_configurationItems.Count == 0)
             {
                 _logger.LogWarning("No ConfigurationItems have been defined, configuration won't surface any configuration from the client!");
+
                 OnReload();
                 return Empty<System.Reactive.Unit>();
             }
@@ -113,9 +120,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                                    }
                                )
                               .Do(
-                                   _ => { }, () => {
-                                       Data = newData;
-                                   }
+                                   _ => { },
+                                   () => Data = newData
                                )
                               .Subscribe(observer);
                     }
@@ -150,7 +156,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                         OnReload();
                         o.OnCompleted();
                         return Disposable.Empty;
-                    })
+                    }
+                )
             );
         }
 
@@ -217,7 +224,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
                 return EmptyDisposableConfiguration.Instance;
 
             var data = await GetConfigurationFromClient(scopes.Select(z => new ConfigurationItem { Section = z.Section, ScopeUri = scopeUri }))
-                            .Select(z => (z.scope.Section ?? string.Empty, z.settings))
+                            .Select(z => ( z.scope.Section ?? string.Empty, z.settings ))
                             .ToArray()
                             .ToTask(cancellationToken)
                             .ConfigureAwait(false);
