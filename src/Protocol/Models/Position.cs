@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class Position : IEquatable<Position>, IComparable<Position>, IComparable
+    public partial  class Position : IEquatable<Position>, IComparable<Position>, IComparable
     {
         public Position()
         {

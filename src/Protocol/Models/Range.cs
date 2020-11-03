@@ -5,7 +5,7 @@ using System.Diagnostics;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class Range : IEquatable<Range>
+    public partial class Range : IEquatable<Range>
     {
         public Range()
         {
@@ -15,6 +15,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         {
             Start = start;
             End = end;
+        }
+
+        public Range(int startLine, int startCharacter, int endLine, int endCharacter)
+        {
+            Start = ( startLine, startCharacter );
+            End = ( endLine, endCharacter );
         }
 
         /// <summary>
@@ -48,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator Range((Position start, Position end) value) => new Range(value.start, value.end);
 
-        private string DebuggerDisplay => $"[start: {Start}, end: {End}]";
+        private string DebuggerDisplay => $"[start: ({Start.Line}, {Start.Character}), end: ({End.Line}, {End.Character})]";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;

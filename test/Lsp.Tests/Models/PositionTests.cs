@@ -52,5 +52,17 @@ namespace Lsp.Tests.Models
             a.Should().BeLessOrEqualTo(c);
             a.Should().BeGreaterOrEqualTo(c);
         }
+
+        [Fact]
+        public void Should_Support_Delta()
+        {
+            var a = new Position(1, 1);
+            a = a.Delta(deltaLine: 1);
+            a.Line.Should().Be(2);
+            a = a.Delta(deltaCharacter: -1);
+            a.Character.Should().Be(0);
+            a = a.Delta(-1, 1);
+            a.Should().Be(( 1, 1 ));
+        }
     }
 }
