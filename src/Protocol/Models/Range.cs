@@ -54,7 +54,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 
         public static implicit operator Range((Position start, Position end) value) => new Range(value.start, value.end);
 
-        private string DebuggerDisplay => $"[start: ({Start.Line}, {Start.Character}), end: ({End.Line}, {End.Character})]";
+        private string DebuggerDisplay => $"[start: ({Start?.Line}, {Start?.Character}), end: ({End?.Line}, {End?.Character})]";
 
         /// <inheritdoc />
         public override string ToString() => DebuggerDisplay;
