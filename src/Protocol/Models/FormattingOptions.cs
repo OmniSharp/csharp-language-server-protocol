@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public long TabSize
         {
-            get => this["tabSize"].IsLong ? this["tabSize"].Long : -1;
+            get => TryGetValue("tabSize", out var tabSize) && tabSize.IsLong ? tabSize.Long : -1;
             set => this["tabSize"] = value;
         }
 
@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool InsertSpaces
         {
-            get => this["insertSpaces"].IsBool ? this["insertSpaces"].Bool : false;
+            get => TryGetValue("insertSpaces", out var insertSpaces) && insertSpaces.IsBool && insertSpaces.Bool;
             set => this["insertSpaces"] = value;
         }
 
@@ -37,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool TrimTrailingWhitespace
         {
-            get => this["trimTrailingWhitespace"].IsBool ? this["trimTrailingWhitespace"].Bool : false;
+            get => TryGetValue("trimTrailingWhitespace", out var trimTrailingWhitespace) && trimTrailingWhitespace.IsBool && trimTrailingWhitespace.Bool;
             set => this["trimTrailingWhitespace"] = value;
         }
 
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool InsertFinalNewline
         {
-            get => this["insertFinalNewline"].IsBool ? this["insertFinalNewline"].Bool : false;
+            get => TryGetValue("insertFinalNewline", out var insertFinalNewline) && insertFinalNewline.IsBool && insertFinalNewline.Bool;
             set => this["insertFinalNewline"] = value;
         }
 
@@ -61,7 +61,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [JsonIgnore]
         public bool TrimFinalNewlines
         {
-            get => this["trimFinalNewlines"].IsBool ? this["trimFinalNewlines"].Bool : false;
+            get => TryGetValue("trimFinalNewlines", out var trimFinalNewlines) && trimFinalNewlines.IsBool && trimFinalNewlines.Bool;
             set => this["trimFinalNewlines"] = value;
         }
     }
