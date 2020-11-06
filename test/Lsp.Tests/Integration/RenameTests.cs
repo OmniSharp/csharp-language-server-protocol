@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Server;
 using Serilog.Events;
+using TestingUtils;
 using Xunit;
 using Xunit.Abstractions;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
@@ -190,6 +191,20 @@ namespace Lsp.Tests.Integration
             );
 
             result!.IsDefaultBehavior.Should().BeTrue();
+        }
+
+        [Fact]
+        public async Task Should_Not_Register_Prepare_Rename()
+        {
+            var (client, _) = await Initialize(ClientOptionsAction, ServerOptionsAction);
+            await client.DelayUntil(
+                c => client.RegistrationManager.CurrentRegistrations.Any(z => z.Method == TextDocumentNames.Rename),
+                CancellationToken
+            );
+
+            await SettleNext();
+
+            client.RegistrationManager.CurrentRegistrations.Should().NotContain(z => z.Method == TextDocumentNames.PrepareRename);
         }
 
         private void ServerOptionsAction(LanguageServerOptions obj)
