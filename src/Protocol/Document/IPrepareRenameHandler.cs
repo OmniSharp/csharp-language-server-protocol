@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IPrepareRenameHandler : IJsonRpcRequestHandler<PrepareRenameParams, RangeOrPlaceholderRange?>, IRegistration<TextDocumentRegistrationOptions>,
-                                             ICapability<RenameCapability>
+                                             ICapability<RenameCapability>, IDoesNotParticipateInRegistration
     {
     }
 
