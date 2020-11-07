@@ -7,7 +7,8 @@
             "detail": "details",
             "deprecated": false,
             "preselect": false,
-            "insertTextFormat": 0
+            "insertTextFormat": 0,
+            "insertTextMode": 0
         }
     ]
 }
