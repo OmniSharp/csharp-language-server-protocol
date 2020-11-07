@@ -11,5 +11,9 @@
             "newText": "new text"
         }
     ],
-    "commitCharacters": [";", "/", "."]
+    "commitCharacters": [
+        ";",
+        "/",
+        "."
+    ]
 }
