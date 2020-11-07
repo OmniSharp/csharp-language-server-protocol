@@ -10,6 +10,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The maximum number of folding ranges that the client prefers to receive per document. The value serves as a
         /// hint, servers are free to follow the limit.
         /// </summary>
+        /// <remarks>
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public int? RangeLimit { get; set; }
 

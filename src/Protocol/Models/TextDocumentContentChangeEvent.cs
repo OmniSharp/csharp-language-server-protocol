@@ -17,6 +17,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The length of the range that got replaced.
         /// </summary>
+        /// <remarks>
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public int RangeLength { get; set; }
 

@@ -12,6 +12,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Size of a tab in spaces.
         /// </summary>
+        /// <remarks>
+        /// TODO: UPDATE THIS next version
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [JsonIgnore]
         public long TabSize
         {

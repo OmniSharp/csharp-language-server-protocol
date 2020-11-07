@@ -61,7 +61,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The capabilities provided by the client (editor or tool)
         /// </summary>
-        [MaybeNull] public ClientCapabilities Capabilities { get; set; } = null!;
+        [MaybeNull]
+        public ClientCapabilities Capabilities { get; set; } = null!;
 
         /// <summary>
         /// The initial trace setting. If omitted trace is disabled ('off').
@@ -85,9 +86,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         [MaybeNull]
         public ProgressToken? WorkDoneToken { get; set; }
 
+        /// <summary>
+        /// The locale the client is currently showing the user interface
+        /// in. This must not necessarily be the locale of the operating
+        /// system.
+        ///
+        /// Uses IETF language tags as the value's syntax
+        /// (See https://en.wikipedia.org/wiki/IETF_language_tag)
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public string? Locale { get; set; }
+
         public InitializeParams()
         {
-
         }
 
         internal InitializeParams(IInitializeParams<JObject> @params, ClientCapabilities clientCapabilities)

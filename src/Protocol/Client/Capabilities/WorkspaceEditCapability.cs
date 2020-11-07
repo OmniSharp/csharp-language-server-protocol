@@ -25,5 +25,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public FailureHandlingKind? FailureHandling { get; set; }
+
+        /// <summary>
+        /// Whether the client normalizes line endings to the client specific
+        /// setting.
+        /// If set to `true` the client will normalize line ending characters
+        /// in a workspace edit containg to the client specific new line
+        /// character.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public bool NormalizesLineEndings { get; set; }
     }
 }

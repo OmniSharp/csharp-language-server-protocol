@@ -1,3 +1,5 @@
+using System;
+
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
     public class WorkspaceClientCapabilities : CapabilitiesBase
@@ -36,7 +38,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         ///
         /// @since 3.16.0 - proposed state.
         /// </summary>
+        [Obsolete(Constants.Proposal)]
         public Supports<SemanticTokensWorkspaceCapability> SemanticTokens { get; set; }
+
+        /// <summary>
+        /// Capabilities specific to the code lens requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0 - proposed state.
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public Supports<CodeLensWorkspaceClientCapabilities> CodeLens { get; set; }
 
         /// <summary>
         /// The client has support for workspace folders.
