@@ -13,9 +13,8 @@ namespace Lsp.Tests.Models
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new TextDocumentItem {
-                Uri = new Uri("file:///abc/def.cs"),
-                LanguageId = "csharp",
+            var model = new TextDocumentItem("csharp",  new Uri("file:///abc/def.cs"))
+            {
                 Text = "content",
                 Version = 1
             };

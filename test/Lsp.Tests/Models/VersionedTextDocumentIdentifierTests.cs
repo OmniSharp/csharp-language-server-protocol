@@ -13,10 +13,7 @@ namespace Lsp.Tests.Models
         [JsonFixture]
         public void SimpleTest(string expected)
         {
-            var model = new VersionedTextDocumentIdentifier {
-                Uri = new Uri("file:///abc/123.cs"),
-                Version = 12
-            };
+            var model = new VersionedTextDocumentIdentifier(new Uri("file:///abc/123.cs"), 12);
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);

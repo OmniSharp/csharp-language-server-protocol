@@ -28,7 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// </summary>
     /// <remarks>This exists because of some non-standard serialization in vscode around uris and .NET's behavior when deserializing those uris</remarks>
     [JsonConverter(typeof(DocumentUriConverter))]
-    public partial class DocumentUri : IEquatable<DocumentUri?>
+    public partial record DocumentUri
     {
         /// <summary>
         /// scheme is the "http' part of 'http://www.msft.com/some/path?query#fragment".
@@ -112,48 +112,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// <remarks>This will not a uri encode asian and cyrillic characters</remarks>
         public string GetFileSystemPath() => UriToFsPath(this, false);
 
-        /// <inheritdoc />
-        public bool Equals(DocumentUri? other)
-        {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            // It's possible mac can have case insensitive file systems... we can always come back and change this.
-            var comparison = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? StringComparison.Ordinal
-                : StringComparison.OrdinalIgnoreCase;
-            return string.Equals(Path, other.Path, comparison) &&
-                   string.Equals(Scheme, other.Scheme, comparison) &&
-                   string.Equals(Authority, other.Authority, comparison) &&
-                   string.Equals(Query, other.Query, comparison) &&
-                   string.Equals(Fragment, other.Fragment, comparison);
-        }
-
-        /// <inheritdoc />
-        public override bool Equals(object? obj)
-        {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((DocumentUri) obj);
-        }
-
-        /// <inheritdoc />
-        public override int GetHashCode()
-        {
-            // It's possible mac can have case insensitive file systems... we can always come back and change this.
-            var comparer = RuntimeInformation.IsOSPlatform(OSPlatform.Linux)
-                ? StringComparer.Ordinal
-                : StringComparer.OrdinalIgnoreCase;
-            unchecked
-            {
-                var hashCode = comparer.GetHashCode(Path);
-                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Scheme);
-                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Authority);
-                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Query);
-                hashCode = ( hashCode * 397 ) ^ comparer.GetHashCode(Fragment);
-                return hashCode;
-            }
-        }
-
         /// <summary>
         /// Deconstruct the document uri into it's different parts
         /// </summary>
@@ -174,22 +132,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             query = Query;
             fragment = Fragment;
         }
-
-        /// <summary>
-        /// Check if two uris are equal
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public static bool operator ==(DocumentUri left, DocumentUri right) => Equals(left, right);
-
-        /// <summary>
-        /// Check if two uris are not equal
-        /// </summary>
-        /// <param name="left"></param>
-        /// <param name="right"></param>
-        /// <returns></returns>
-        public static bool operator !=(DocumentUri left, DocumentUri right) => !Equals(left, right);
 
         /// <summary>
         /// Convert this uri into a <see cref="string" />.

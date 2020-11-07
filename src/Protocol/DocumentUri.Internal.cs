@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public partial class DocumentUri
+    public partial record DocumentUri
     {
         private static readonly Regex WindowsPath =
             new Regex(@"^\w(?:\:|%3a)[\\|\/]", RegexOptions.Compiled | RegexOptions.IgnoreCase);

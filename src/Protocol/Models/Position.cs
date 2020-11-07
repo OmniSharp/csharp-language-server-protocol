@@ -1,38 +1,17 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
+using Newtonsoft.Json;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public partial  class Position : IEquatable<Position>, IComparable<Position>, IComparable
+    public partial record Position(int Line, int Character) : IComparable<Position>, IComparable
     {
-        public Position()
+        public Position() : this(0, 0)
         {
         }
-
-        public Position(int line, int character)
-        {
-            Line = line;
-            Character = character;
-        }
-
-        /// <summary>
-        /// Line position in a document (zero-based).
-        /// </summary>
-        public int Line { get; set; }
-
-        /// <summary>
-        /// Character offset on a line in a document (zero-based).
-        /// </summary>
-        public int Character { get; set; }
-
-        public override bool Equals(object? obj) => Equals(obj as Position);
-
-        public bool Equals(Position? other) =>
-            other is not null &&
-            Line == other.Line &&
-            Character == other.Character;
 
         public int CompareTo(Position? other)
         {
@@ -57,11 +36,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             return hashCode;
         }
 
-        public static bool operator ==(Position position1, Position position2) => EqualityComparer<Position>.Default.Equals(position1, position2);
-
-        public static bool operator !=(Position position1, Position position2) => !( position1 == position2 );
-
         public static implicit operator Position((int line, int character) value) => new Position(value.line, value.character);
+
+        public void Deconstruct(out int line, out int character)
+        {
+            line = Line;
+            character = Character;
+        }
 
         public static bool operator <(Position left, Position right) => Comparer<Position>.Default.Compare(left, right) < 0;
 

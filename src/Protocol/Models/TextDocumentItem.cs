@@ -3,23 +3,21 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class TextDocumentItem : TextDocumentIdentifier
+    public record TextDocumentItem(DocumentUri Uri, string LanguageId) : TextDocumentIdentifier(Uri)
     {
-        /// <summary>
-        /// The text document's language identifier.
-        /// </summary>
-        public string LanguageId { get; set; } = null!;
+        public TextDocumentItem(): this(languageId: null!, uri:null!) {}
+        public TextDocumentItem(string languageId, DocumentUri uri) : this(uri, languageId) { }
 
         /// <summary>
         /// The version number of this document (it will strictly increase after each
         /// change, including undo/redo).
         /// </summary>
-        public int? Version { get; set; }
+        public int Version { get; init; }
 
         /// <summary>
         /// The content of the opened text document.
         /// </summary>
-        public string Text { get; set; } = null!;
+        public string? Text { get; init; }
 
         private string DebuggerDisplay => $"({LanguageId}@{Version}) {Uri}";
 

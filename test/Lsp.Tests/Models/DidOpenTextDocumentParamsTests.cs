@@ -14,11 +14,9 @@ namespace Lsp.Tests.Models
         public void SimpleTest(string expected)
         {
             var model = new DidOpenTextDocumentParams {
-                TextDocument = new TextDocumentItem {
-                    Uri = new Uri("file:///abc/def.cs"),
-                    LanguageId = "csharp",
-                    Text = "content",
-                    Version = 1
+                TextDocument = new TextDocumentItem("csharp", new Uri("file:///abc/def.cs")) {
+                    Version = 1,
+                    Text = "content"
                 }
             };
             var result = Fixture.SerializeObject(model);

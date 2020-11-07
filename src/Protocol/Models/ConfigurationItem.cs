@@ -3,36 +3,21 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class ConfigurationItem : IEquatable<ConfigurationItem?>
+    public record ConfigurationItem
     {
-        [Optional] public DocumentUri? ScopeUri { get; set; }
-        [Optional] public string? Section { get; set; }
+        public ConfigurationItem() { }
 
-        public bool Equals(ConfigurationItem? other)
+        public ConfigurationItem(string section)
         {
-            if (other is null) return false;
-            if (ReferenceEquals(this, other)) return true;
-            return Equals(ScopeUri, other.ScopeUri) && Section == other.Section;
+            Section = section;
         }
 
-        public override bool Equals(object? obj)
+        public ConfigurationItem(string section, DocumentUri scopeUri): this(section)
         {
-            if (obj is null) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((ConfigurationItem)obj);
+            ScopeUri = scopeUri;
         }
 
-        public override int GetHashCode()
-        {
-            unchecked
-            {
-                return ( ( ScopeUri is not null ? ScopeUri.GetHashCode() : 0 ) * 397 ) ^ ( Section is not null ? Section.GetHashCode() : 0 );
-            }
-        }
-
-        public static bool operator ==(ConfigurationItem left, ConfigurationItem right) => Equals(left, right);
-
-        public static bool operator !=(ConfigurationItem left, ConfigurationItem right) => !Equals(left, right);
+        [Optional] public DocumentUri? ScopeUri { get; init; }
+        [Optional] public string? Section { get; init; }
     }
 }

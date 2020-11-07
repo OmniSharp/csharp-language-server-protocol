@@ -603,16 +603,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                     Source = "Test",
                     Code = new DiagnosticCode(1234),
                     Message = "This is a diagnostic message.",
-                    Range = new Range {
-                        Start = new Position {
-                            Line = 2,
-                            Character = 5
-                        },
-                        End = new Position {
-                            Line = 3,
-                            Character = 7
-                        }
-                    },
+                    Range = new Range((2, 5),(3, 7)),
                     Severity = DiagnosticSeverity.Warning
                 }
             };

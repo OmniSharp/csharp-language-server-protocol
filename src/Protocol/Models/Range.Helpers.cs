@@ -4,7 +4,7 @@ using System.Collections.Generic;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
 
-    public partial class Range
+    public partial record Range
     {
         /// <summary>
         /// Test if this range is empty.

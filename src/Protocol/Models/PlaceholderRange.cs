@@ -1,8 +1,7 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class PlaceholderRange
+    public record PlaceholderRange(Range Range, string Placeholder)
     {
-        public Range Range { get; set; } = null!;
-        public string Placeholder { get; set; } = null!;
+        public PlaceholderRange(): this(( ( 0, 0 ), ( 0, 0 ) ), "") { }
     }
 }

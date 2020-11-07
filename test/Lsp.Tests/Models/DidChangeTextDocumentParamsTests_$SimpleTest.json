@@ -1,6 +1,6 @@
 ﻿{
     "textDocument": {
-        "version": null,
+        "version": 0,
         "uri": "file:///somepath/to/a/file.ext"
     },
     "contentChanges": [

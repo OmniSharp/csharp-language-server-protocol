@@ -126,31 +126,13 @@ namespace Lsp.Tests
             public ReturnDocumentTokensFromScratchForRangeData()
             {
                 Add(
-                    new Range {
-                        Start = new Position {
-                            Line = 12,
-                            Character = 21,
-                        },
-                        End = new Position {
-                            Line = 14,
-                            Character = 27
-                        }
-                    },
+                    ((12, 21),(14, 27)),
                     new NormalizedToken[] {
                         "ssage (enum:none)", "= (label:none)", "Hello (comment:none)", "World!! (enum:none)", "Console (interface:static)", "WriteLi (event:async|modification)"
                     }
                 );
                 Add(
-                    new Range {
-                        Start = new Position {
-                            Line = 0,
-                            Character = 0,
-                        },
-                        End = new Position {
-                            Line = 5,
-                            Character = 0
-                        }
-                    },
+                    ((0,0),(5, 0)),
                     new NormalizedToken[] {
                         "using (macro:async|deprecated)", "System (macro:async|deprecated)", "using (event:none)", "System (number:none)", "Collections (struct:readonly)",
                         "Generic (class:none)", "using (variable:modification|defaultLibrary)", "System (comment:static|deprecated)", "Linq (comment:definition)",
@@ -159,16 +141,7 @@ namespace Lsp.Tests
                     }
                 );
                 Add(
-                    new Range {
-                        Start = new Position {
-                            Line = 14,
-                            Character = 0,
-                        },
-                        End = new Position {
-                            Line = 14,
-                            Character = 30
-                        }
-                    },
+                    ((14, 0),(14, 30)),
                     new NormalizedToken[] {
                         "Console (interface:static)", "WriteLine (event:async|modification)", "message (interface:static)"
                     }
