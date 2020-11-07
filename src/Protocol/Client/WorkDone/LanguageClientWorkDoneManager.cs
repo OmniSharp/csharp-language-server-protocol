@@ -58,7 +58,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 
         Task<Unit> IRequestHandler<WorkDoneProgressCreateParams, Unit>.Handle(WorkDoneProgressCreateParams request, CancellationToken cancellationToken)
         {
-            if (request.Token != null) Monitor(request.Token);
+            if (request.Token.HasValue) Monitor(request.Token.Value);
             return Unit.Task;
         }
 

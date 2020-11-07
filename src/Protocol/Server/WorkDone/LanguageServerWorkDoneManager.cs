@@ -95,12 +95,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             Func<WorkDoneProgressEnd>? onComplete = null
         )
         {
-            if (!IsSupported || request.WorkDoneToken == null)
+            if (!IsSupported || !request.WorkDoneToken.HasValue)
             {
                 return NoopWorkDoneObserver.Instance;
             }
 
-            if (_activeObservers.TryGetValue(request.WorkDoneToken, out var item))
+            if (_activeObservers.TryGetValue(request.WorkDoneToken.Value, out var item))
             {
                 return item;
             }
@@ -112,7 +112,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             onComplete ??= () => new WorkDoneProgressEnd();
             var cts = new CancellationTokenSource();
             var observer = new WorkDoneObserver(
-                request.WorkDoneToken,
+                request.WorkDoneToken.Value,
                 _router,
                 _serializer,
                 begin,
@@ -130,14 +130,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
             WorkDoneProgressCancelParams request, CancellationToken cancellationToken
         )
         {
-            if (request.Token == null) return Unit.Task;
+            if (!request.Token.HasValue) return Unit.Task;
 
-            if (_activeObserverTokens.TryRemove(request.Token, out var cts))
+            if (_activeObserverTokens.TryRemove(request.Token.Value, out var cts))
             {
                 cts.Cancel();
             }
 
-            _activeObservers.TryRemove(request.Token, out _);
+            _activeObservers.TryRemove(request.Token.Value, out _);
 
             return Unit.Task;
         }

@@ -9,6 +9,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public partial record Position(int Line, int Character) : IComparable<Position>, IComparable
     {
+        public static Position Zero => ( 0, 0 );
+
         public Position() : this(0, 0)
         {
         }

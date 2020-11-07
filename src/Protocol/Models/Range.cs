@@ -8,7 +8,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     public partial record Range(Position Start, Position End)
     {
-        public Range() :this((0, 0), (0, 0))
+        public static Range Empty => ( Position.Zero, Position.Zero );
+
+        public Range() : this(Position.Zero, Position.Zero)
         {
         }
 

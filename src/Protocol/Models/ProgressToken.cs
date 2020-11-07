@@ -8,10 +8,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(ProgressTokenConverter))]
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
-    public class ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>
+    public readonly struct ProgressToken : IEquatable<ProgressToken>, IEquatable<long>, IEquatable<string>, IEquatable<Guid>
     {
-        private long? _long;
-        private string? _string;
+        private readonly long? _long;
+        private readonly string? _string;
 
         public ProgressToken(long value)
         {
@@ -25,31 +25,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             _string = value;
         }
 
-        public bool IsLong => _long.HasValue;
-
-        public long Long
+        public ProgressToken(Guid value)
         {
-            get => _long ?? 0;
-            set {
-                String = null;
-                _long = value;
-            }
+            _long = null;
+            _string = value.ToString();
         }
+
+        public bool IsLong => _long.HasValue;
+        public long Long => _long ?? 0;
 
         public bool IsString => _string != null;
-
-        public string? String
-        {
-            get => _string;
-            set {
-                _string = value;
-                _long = null;
-            }
-        }
+        public string? String => _string;
 
         public static implicit operator ProgressToken(long value) => new ProgressToken(value);
 
         public static implicit operator ProgressToken(string value) => new ProgressToken(value);
+        public static implicit operator ProgressToken(Guid value) => new ProgressToken(value);
 
         public ProgressParams Create<T>(T value, JsonSerializer jsonSerializer) => ProgressParams.Create(this, value, jsonSerializer);
 
@@ -60,9 +51,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public override int GetHashCode()
         {
             var hashCode = 1456509845;
-            hashCode = hashCode * -1521134295 + IsLong.GetHashCode();
             hashCode = hashCode * -1521134295 + Long.GetHashCode();
-            hashCode = hashCode * -1521134295 + IsString.GetHashCode();
             if (String != null) hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(String);
             return hashCode;
         }
@@ -74,8 +63,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             String == other.String;
 
         public bool Equals(long other) => IsLong && Long == other;
-
         public bool Equals(string other) => IsString && String == other;
+        public bool Equals(Guid other) => IsString && String == other.ToString();
 
         private string DebuggerDisplay => IsString ? String! : IsLong ? Long.ToString() : "";
 
