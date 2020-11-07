@@ -12,22 +12,38 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The zero-based line number from where the folded range starts.
         /// </summary>
+        /// <remarks>
+        /// TODO: UPDATE THIS next version
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         public long StartLine { get; set; }
 
         /// <summary>
         /// The zero-based character offset from where the folded range starts. If not defined, defaults to the length of the start line.
         /// </summary>
+        /// <remarks>
+        /// TODO: UPDATE THIS next version
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public long? StartCharacter { get; set; }
 
         /// <summary>
         /// The zero-based line number where the folded range ends.
         /// </summary>
+        /// <remarks>
+        /// TODO: UPDATE THIS next version
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         public long EndLine { get; set; }
 
         /// <summary>
         /// The zero-based character offset before the folded range ends. If not defined, defaults to the length of the end line.
         /// </summary>
+        /// <remarks>
+        /// TODO: UPDATE THIS next version
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public long? EndCharacter { get; set; }
 

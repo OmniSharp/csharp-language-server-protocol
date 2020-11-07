@@ -20,11 +20,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// Line position in a document (zero-based).
         /// </summary>
+        /// <remarks>
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         public int Line { get; set; }
 
         /// <summary>
         /// Character offset on a line in a document (zero-based).
         /// </summary>
+        /// <remarks>
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         public int Character { get; set; }
 
         public override bool Equals(object? obj) => Equals(obj as Position);

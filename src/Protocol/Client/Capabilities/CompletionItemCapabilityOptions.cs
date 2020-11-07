@@ -79,5 +79,21 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// </summary>
         [Optional]
         public CompletionItemCapabilityResolveSupportOptions? ResolveSupport { get; set; }
+
+        /// <summary>
+        /// The client supports the `insertTextMode` property on
+        /// a completion item to override the whitespace handling mode
+        /// as defined by the client (see `insertTextMode`).
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Optional]
+        public CompletionItemInsertTextModeSupportCapabilityOptions? InsertTextModeSupport { get; set; }
     }
+
+    public class CompletionItemInsertTextModeSupportCapabilityOptions
+    {
+        public Container<InsertTextMode> ValueSet { get; set; }
+    }
+
 }

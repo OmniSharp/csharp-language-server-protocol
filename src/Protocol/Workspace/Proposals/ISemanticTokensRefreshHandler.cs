@@ -25,4 +25,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals
         public abstract Task<Unit> Handle(SemanticTokensRefreshParams request, CancellationToken cancellationToken);
         public void SetCapability(SemanticTokensCapability capability) => Capability = capability;
     }
+
+    [Obsolete(Constants.Proposal)]
+    [Parallel]
+    [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
+    [GenerateHandlerMethods]
+    [GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+    public interface ICodeLensRefreshHandler : IJsonRpcRequestHandler<CodeLensRefreshParams>, ICapability<CodeLensCapability> { }
 }

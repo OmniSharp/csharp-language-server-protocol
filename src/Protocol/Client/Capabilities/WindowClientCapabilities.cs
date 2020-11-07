@@ -9,5 +9,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// Whether client supports handling progress notifications.
         /// </summary>
         public Supports<bool> WorkDoneProgress { get; set; }
+
+        /// <summary>
+		 /// Capabilities specific to the showMessage request
+        ///
+        /// @since 3.16.0 - proposed state
+         /// </summary>
+        public Supports<ShowMessageRequestClientCapabilities> ShowMessage { get; set; }
     }
 }

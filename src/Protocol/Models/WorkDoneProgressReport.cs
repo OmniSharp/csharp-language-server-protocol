@@ -29,6 +29,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// The value should be steadily rising. Clients are free to ignore values
         /// that are not following this rule.
         /// </summary>
+        /// <remarks>
+        /// TODO: Change this (breaking)
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public double? Percentage { get; set; }
     }
