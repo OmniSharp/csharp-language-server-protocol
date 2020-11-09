@@ -17,6 +17,7 @@ namespace NSubstitute
         ) =>
             jsonRpcTestOptions
                .WithClientLoggerFactory(new TestLoggerFactory(outputHelper, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Client] [{Level}] {Message}{NewLine}{Exception}", logEventLevel))
-               .WithServerLoggerFactory(new TestLoggerFactory(outputHelper, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Server] [{Level}] {Message}{NewLine}{Exception}", logEventLevel));
+               .WithServerLoggerFactory(new TestLoggerFactory(outputHelper, "{Timestamp:yyyy-MM-dd HH:mm:ss} [Server] [{Level}] {Message}{NewLine}{Exception}", logEventLevel))
+        ;
     }
 }

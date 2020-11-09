@@ -19,16 +19,14 @@ namespace JsonRpc.Tests
     {
         private static OutputHandler NewHandler(PipeWriter writer)
         {
-            var rec = Substitute.For<IReceiver>();
-            rec.ShouldFilterOutput(Arg.Any<object>()).Returns(true);
-            return new OutputHandler(writer, new JsonRpcSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            return new OutputHandler(writer, new JsonRpcSerializer(), new []{ new AlwaysOutputFilter()}, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         private static OutputHandler NewHandler(PipeWriter writer, Func<object, bool> filter)
         {
-            var rec = Substitute.For<IReceiver>();
-            rec.ShouldFilterOutput(Arg.Any<object>()).Returns(_ => filter(_.ArgAt<object>(0)));
-            return new OutputHandler(writer, new JsonRpcSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            var rec = Substitute.For<IOutputFilter>();
+            rec.ShouldOutput(Arg.Any<object>()).Returns(_ => filter(_.ArgAt<object>(0)));
+            return new OutputHandler(writer, new JsonRpcSerializer(), new [] { rec }, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]

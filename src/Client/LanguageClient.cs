@@ -266,7 +266,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
             _connection.Open();
             var serverParams = await SendRequest(ClientSettings, token).ConfigureAwait(false);
-            _receiver.Initialized();
 
             ServerSettings = serverParams;
 
@@ -279,10 +278,14 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 token
             ).ConfigureAwait(false);
 
+            _receiver.Initialized();
             // post init
 
             if (_collection.ContainsHandler(typeof(IRegisterCapabilityHandler)))
                 RegistrationManager.RegisterCapabilities(serverParams.Capabilities);
+
+            // TODO: pull supported fields and add any static registrations to the registration manager
+            this.SendLanguageProtocolInitialized(new InitializedParams());
 
             await LanguageProtocolEventingHelper.Run(
                 _startedDelegates,
@@ -294,9 +297,6 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ).ConfigureAwait(false);
 
             _instanceHasStarted.Started = true;
-
-            // TODO: pull supported fields and add any static registrations to the registration manager
-            this.SendLanguageProtocolInitialized(new InitializedParams());
         }
 
         private void RegisterCapabilities(ClientCapabilities capabilities)

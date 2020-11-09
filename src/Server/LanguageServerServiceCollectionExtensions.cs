@@ -31,6 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
+            container.RegisterMany<LspServerOutputFilter>(Reuse.Singleton, nonPublicServiceTypes: true);
 
             if (options.OnUnhandledException != null)
             {
