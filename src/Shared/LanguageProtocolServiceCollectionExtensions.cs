@@ -33,6 +33,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             container.RegisterMany<LanguageProtocolSettingsBag>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
             container.RegisterMany<SupportedCapabilities>(Reuse.Singleton);
+            container.RegisterMany<OutputHandlerInitialized>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.Register<TextDocumentIdentifiers>(Reuse.Singleton);
             container.RegisterInitializer<TextDocumentIdentifiers>((identifiers, context) => { identifiers.Add(context.GetServices<ITextDocumentIdentifier>().ToArray()); });
             container.RegisterMany<LspRequestRouter>(Reuse.Singleton);

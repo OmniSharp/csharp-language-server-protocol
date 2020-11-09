@@ -24,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             };
             if (!result)
             {
-                _logger.LogWarning("Tried to send request or notification before initialization was completed {@Request}", value);
+                _logger.LogTrace("Tried to send request or notification before initialization was completed and will be sent later {@Request}", value);
             }
 
             return result;

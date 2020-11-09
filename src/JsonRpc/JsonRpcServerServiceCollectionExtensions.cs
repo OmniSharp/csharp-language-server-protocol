@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             container.RegisterMany<OutputHandler>(
-                serviceTypeCondition: type => type.IsInterface,
+                nonPublicServiceTypes: true,
                 made: Parameters.Of
                                 .Type<PipeWriter>(serviceKey: nameof(options.Output)),
                 reuse: Reuse.Singleton

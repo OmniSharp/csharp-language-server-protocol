@@ -57,10 +57,17 @@ namespace Lsp.Tests.Integration
         {
             if (!(TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory)) throw new Exception("wtf");
             var logs = new List<LogEvent>();
+            var onInitializeNotify = Substitute.For<Action>();
+            var onInitializedNotify = Substitute.For<Action>();
             using var _ = loggerFactory.Where(z => z.Level == LogEventLevel.Warning).Subscribe(z => logs.Add(z));
 
             var (client, server) = await Initialize(
-                ConfigureClient, options => {
+                options => {
+                    ConfigureClient(options);
+                    options
+                       .OnNotification("OnInitializeNotify", onInitializeNotify)
+                       .OnNotification("OnInitializedNotify", onInitializedNotify);
+                }, options => {
                     ConfigureServer(options);
                     options
                        .OnInitialize(
@@ -80,6 +87,11 @@ namespace Lsp.Tests.Integration
             logs.Should().HaveCount(2);
             logs[0].RenderMessage().Should().Contain("OnInitializeNotify");
             logs[1].RenderMessage().Should().Contain("OnInitializedNotify");
+
+            await SettleNext();
+
+            onInitializeNotify.Received(1).Invoke();
+            onInitializedNotify.Received(1).Invoke();
         }
 
         [Fact]

@@ -6,15 +6,9 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class Receiver : IReceiver
+    public class Receiver : IReceiver, IOutputFilter
     {
-        private readonly IEnumerable<IOutputFilter> _outputFilters;
         protected bool _initialized { get; private set; }
-        public Receiver(IEnumerable<IOutputFilter> outputFilters)
-        {
-            // dryioc lazy enumerable, this avoid the enumerable resolving multiple times
-            _outputFilters = outputFilters.ToArray();
-        }
 
         public bool IsValid(JToken container)
         {
@@ -31,8 +25,6 @@ namespace OmniSharp.Extensions.JsonRpc
 
             return false;
         }
-
-        public bool ShouldFilterOutput(object value) => _initialized || _outputFilters.Any(z => z.ShouldOutput(value));
 
         public void Initialized() => _initialized = true;
 
@@ -114,5 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             return new Request(requestId!, method!, @params);
         }
+
+        public bool ShouldOutput(object value) => _initialized;
     }
 }

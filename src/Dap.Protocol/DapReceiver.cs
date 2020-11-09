@@ -12,15 +12,9 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
-    public class DapReceiver : IReceiver
+    public class DapReceiver : IReceiver, IOutputFilter
     {
-        private readonly IEnumerable<IOutputFilter> _outputFilters;
         private bool _initialized;
-
-        public DapReceiver(IEnumerable<IOutputFilter> outputFilters)
-        {
-            _outputFilters = outputFilters;
-        }
 
         public (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
@@ -141,10 +135,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         }
 
         public void Initialized() => _initialized = true;
-
-        public bool ShouldFilterOutput(object value)
-        {
-            return _initialized || _outputFilters.Any(z => z.ShouldOutput(value));
-        }
+        public bool ShouldOutput(object value) => _initialized;
     }
 }

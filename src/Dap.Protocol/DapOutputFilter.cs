@@ -13,7 +13,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         {
             _logger = logger;
         }
-        
+
         public bool ShouldOutput(object value)
         {
             var result = value is OutgoingResponse ||
@@ -22,7 +22,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
 
             if (!result)
             {
-                _logger.LogWarning("Tried to send request or notification before initialization was completed {@Request}", value);
+                _logger.LogWarning("Tried to send request or notification before initialization was completed and will be sent later {@Request}", value);
             }
 
             return result;

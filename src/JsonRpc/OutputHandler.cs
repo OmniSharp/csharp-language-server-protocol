@@ -1,6 +1,9 @@
 using System;
+using System.Buffers;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO.Pipelines;
+using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -16,45 +19,59 @@ namespace OmniSharp.Extensions.JsonRpc
     {
         private readonly PipeWriter _pipeWriter;
         private readonly ISerializer _serializer;
+        private readonly IEnumerable<IOutputFilter> _outputFilters;
         private readonly ILogger<OutputHandler> _logger;
         private readonly Subject<object> _queue;
+        private readonly ReplaySubject<object> _delayedQueue;
         private readonly TaskCompletionSource<object?> _outputIsFinished;
         private readonly CompositeDisposable _disposable;
+        private bool _delayComplete;
 
         public OutputHandler(
             PipeWriter pipeWriter,
             ISerializer serializer,
-            IReceiver receiver,
+            IEnumerable<IOutputFilter> outputFilters,
             IScheduler scheduler,
             ILogger<OutputHandler> logger
         )
         {
             _pipeWriter = pipeWriter;
             _serializer = serializer;
+            _outputFilters = outputFilters.ToArray();
             _logger = logger;
             _queue = new Subject<object>();
+            _delayedQueue = new ReplaySubject<object>();
             _outputIsFinished = new TaskCompletionSource<object?>();
 
             _disposable = new CompositeDisposable {
                 _queue
                    .ObserveOn(scheduler)
-                   .Where(receiver.ShouldFilterOutput)
                    .Select(value => Observable.FromAsync(ct => ProcessOutputStream(value, ct)))
                    .Concat()
                    .Subscribe(),
-                _queue
+                _delayedQueue
+                   .ToArray()
+                   .SelectMany(z => z)
+                   .Subscribe(_queue.OnNext),
+                _queue,
+                _delayedQueue
             };
+        }
+
+        private bool ShouldSend(object value)
+        {
+            return _outputFilters.Any(z => z.ShouldOutput(value));
         }
 
         public OutputHandler(
             PipeWriter pipeWriter,
             ISerializer serializer,
-            IReceiver receiver,
+            IEnumerable<IOutputFilter> outputFilters,
             ILogger<OutputHandler> logger
         ) : this(
             pipeWriter,
             serializer,
-            receiver,
+            outputFilters,
             TaskPoolScheduler.Default,
             //new EventLoopScheduler(_ => new Thread(_) { IsBackground = true, Name = "OutputHandler" }),
             logger
@@ -65,7 +82,23 @@ namespace OmniSharp.Extensions.JsonRpc
         public void Send(object? value)
         {
             if (_queue.IsDisposed || _disposable.IsDisposed || value == null) return;
-            _queue.OnNext(value);
+            if (!ShouldSend(value))
+            {
+                if (_delayComplete || _delayedQueue.IsDisposed || !_delayedQueue.HasObservers) return;
+                _delayedQueue.OnNext(value);
+            }
+            else
+            {
+                _queue.OnNext(value);
+            }
+        }
+
+        public void Initialized()
+        {
+            if (_delayComplete || _delayedQueue.IsDisposed || !_delayedQueue.HasObservers) return;
+            _delayedQueue.OnCompleted();
+            _delayComplete = true;
+            _delayedQueue.Dispose();
         }
 
         public async Task StopAsync()

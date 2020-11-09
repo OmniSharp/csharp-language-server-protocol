@@ -356,7 +356,7 @@ namespace JsonRpc.Tests
             logger.LogInformation("Start");
 
             var reader = createPipeReader();
-            var receiver = new Receiver(Enumerable.Empty<IOutputFilter>());
+            var receiver = new Receiver();
             var incomingRequestRouter = Substitute.For<IRequestRouter<IHandlerDescriptor?>>();
             var outputHandler = Substitute.For<IOutputHandler>();
             var responseRouter = Substitute.For<IResponseRouter>();

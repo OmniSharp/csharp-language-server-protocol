@@ -11,15 +11,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public class LspClientReceiver : Receiver, ILspClientReceiver
     {
-        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private readonly ILogger<LspClientReceiver> _logger;
 
-        public LspClientReceiver(
-            ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider,
-            ILogger<LspClientReceiver> logger,
-            IEnumerable<IOutputFilter> outputFilters) : base(outputFilters)
+        public LspClientReceiver(ILogger<LspClientReceiver> logger)
         {
-            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
             _logger = logger;
         }
 
