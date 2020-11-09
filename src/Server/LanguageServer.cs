@@ -30,6 +30,7 @@ using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
+
 // ReSharper disable SuspiciousTypeConversion.Global
 
 namespace OmniSharp.Extensions.LanguageServer.Server
@@ -409,7 +410,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var kinds = _collection
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
-                               .Select(x => ((TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions())?.SyncKind ?? TextDocumentSyncKind.None)
+                               .Select(x => ( (TextDocumentChangeRegistrationOptions?) x.GetRegistrationOptions() )?.SyncKind ?? TextDocumentSyncKind.None)
                                .Where(x => x != TextDocumentSyncKind.None)
                                .ToArray();
                     if (kinds.Any())
@@ -459,11 +460,11 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 token
             ).ConfigureAwait(false);
 
-            _serverReceiver.Initialized();
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)
             {
+                _serverReceiver.Initialized();
                 _initializeComplete.OnNext(result);
                 _initializeComplete.OnCompleted();
             }
@@ -475,6 +476,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             if (_clientVersion == ClientVersion.Lsp3)
             {
+                _serverReceiver.Initialized();
                 _initializeComplete.OnNext(ServerSettings);
                 _initializeComplete.OnCompleted();
             }

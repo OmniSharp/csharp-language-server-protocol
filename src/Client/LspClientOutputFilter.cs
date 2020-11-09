@@ -16,7 +16,12 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public bool ShouldOutput(object value)
         {
-            var result = value is OutgoingResponse || value is OutgoingRequest { Params: InitializeParams };
+            var result = value switch {
+                OutgoingResponse                                   => true,
+                OutgoingRequest { Params: InitializeParams }       => true,
+                OutgoingNotification { Params: InitializedParams } => true,
+                _                                                  => false
+            };
             if (!result)
             {
                 _logger.LogWarning("Tried to send request or notification before initialization was completed {@Request}", value);
