@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Client;
@@ -10,12 +11,33 @@ using OmniSharp.Extensions.LanguageServer.Server.Messages;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
+    class LspServerOutputFilter : IOutputFilter
+    {
+        private readonly ILogger<LspServerOutputFilter> _logger;
+
+        public LspServerOutputFilter(ILogger<LspServerOutputFilter> logger)
+        {
+            _logger = logger;
+        }
+
+        public bool ShouldOutput(object value)
+        {
+            var result = value is OutgoingResponse ||
+                         value is OutgoingNotification n && ( n.Params is LogMessageParams || n.Params is ShowMessageParams || n.Params is TelemetryEventParams ) ||
+                         value is OutgoingRequest { Params: ShowMessageRequestParams };
+            if (!result)
+            {
+                _logger.LogWarning("Tried to send request or notification before initialization was completed {@Request}", value);
+            }
+
+            return result;
+        }
+    }
     public class LspServerReceiver : Receiver, ILspServerReceiver
     {
         private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
-        private bool _initialized;
 
-        public LspServerReceiver(ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
+        public LspServerReceiver(ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider, IEnumerable<IOutputFilter> outputFilters) : base(outputFilters)
         {
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
         }
@@ -50,16 +72,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             return ( newResults, hasResponse );
-        }
-
-        public void Initialized() => _initialized = true;
-
-        public override bool ShouldFilterOutput(object value)
-        {
-            if (_initialized) return true;
-            return value is OutgoingResponse ||
-                   value is OutgoingNotification n && ( n.Params is LogMessageParams || n.Params is ShowMessageParams || n.Params is TelemetryEventParams ) ||
-                   value is OutgoingRequest r && r.Params is ShowMessageRequestParams;
         }
     }
 }

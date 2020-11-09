@@ -13,7 +13,7 @@ namespace JsonRpc.Tests.Server
         [ClassData(typeof(SimpleTestMessages))]
         public void ShouldParse_SimpleMessages(string message, Type outputType, object? expectedResult)
         {
-            var receiver = new Receiver();
+            var receiver = new Receiver(Enumerable.Empty<IOutputFilter>());
             var (requests, _) = receiver.GetRequests(JToken.Parse(message));
             var result = requests.Single().Request!;
 

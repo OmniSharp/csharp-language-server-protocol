@@ -440,8 +440,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             // TODO: Need a call back here
             // serverCapabilities.Experimental;
 
-            _serverReceiver.Initialized();
-
             var result = ServerSettings = new InitializeResult {
                 Capabilities = serverCapabilities,
                 ServerInfo = _serverInfo
@@ -460,6 +458,8 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _concurrency,
                 token
             ).ConfigureAwait(false);
+
+            _serverReceiver.Initialized();
 
             // TODO:
             if (_clientVersion == ClientVersion.Lsp2)

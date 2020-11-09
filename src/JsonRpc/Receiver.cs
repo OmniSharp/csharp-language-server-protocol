@@ -8,6 +8,14 @@ namespace OmniSharp.Extensions.JsonRpc
 {
     public class Receiver : IReceiver
     {
+        private readonly IEnumerable<IOutputFilter> _outputFilters;
+        protected bool _initialized { get; private set; }
+        public Receiver(IEnumerable<IOutputFilter> outputFilters)
+        {
+            // dryioc lazy enumerable, this avoid the enumerable resolving multiple times
+            _outputFilters = outputFilters.ToArray();
+        }
+
         public bool IsValid(JToken container)
         {
             // request must be an object or array
@@ -24,7 +32,9 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
-        public virtual bool ShouldFilterOutput(object value) => true;
+        public bool ShouldFilterOutput(object value) => _initialized || _outputFilters.Any(z => z.ShouldOutput(value));
+
+        public void Initialized() => _initialized = true;
 
         public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {

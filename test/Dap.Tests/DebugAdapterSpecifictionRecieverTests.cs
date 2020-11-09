@@ -17,7 +17,7 @@ namespace Dap.Tests
         [ClassData(typeof(SpecificationMessages))]
         public void ShouldRespond_AsExpected(string json, Renor[] request)
         {
-            var receiver = new DapReceiver();
+            var receiver = new DapReceiver(Enumerable.Empty<IOutputFilter>());
             var inSerializer = new DapProtocolSerializer();
             var outSerializer = new DapProtocolSerializer();
             var (requests, _) = receiver.GetRequests(JToken.Parse(json));
@@ -121,7 +121,7 @@ namespace Dap.Tests
         [ClassData(typeof(InvalidMessages))]
         public void Should_ValidateInvalidMessages(string json, bool expected)
         {
-            var receiver = new DapReceiver();
+            var receiver = new DapReceiver(Enumerable.Empty<IOutputFilter>());
             var result = receiver.IsValid(JToken.Parse(json));
             result.Should().Be(expected);
         }

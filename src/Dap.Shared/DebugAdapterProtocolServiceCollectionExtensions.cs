@@ -21,6 +21,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Shared
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterMany<DebugAdapterSettingsBag>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DapReceiver>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
+            container.RegisterMany<DapOutputFilter>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterMany<DebugAdapterRequestRouter>(Reuse.Singleton);
             container.RegisterMany<DebugAdapterHandlerCollection>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterInitializer<DebugAdapterHandlerCollection>(

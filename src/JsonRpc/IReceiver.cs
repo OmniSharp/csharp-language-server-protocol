@@ -9,5 +9,6 @@ namespace OmniSharp.Extensions.JsonRpc
         (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container);
         bool IsValid(JToken container);
         bool ShouldFilterOutput(object value);
+        void Initialized();
     }
 }
