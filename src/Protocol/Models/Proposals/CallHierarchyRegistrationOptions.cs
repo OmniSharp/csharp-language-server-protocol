@@ -29,7 +29,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
             public override StaticOptions Convert(CallHierarchyRegistrationOptions source)
             {
                 return new StaticOptions {
-                    WorkDoneProgress = source.WorkDoneProgress
+                    WorkDoneProgress = source.WorkDoneProgress,
                 };
             }
         }

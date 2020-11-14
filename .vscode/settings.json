@@ -1,6 +1,7 @@
 {
     "coverage-gutters.lcovname": "*.info",
     "coverage-gutters.showGutterCoverage": true,
+    "omnisharp.enableLspDriver": true,
     "cSpell.words": [
         "Unregisterations",
         "Unregistration",

@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 
     public class CompletionItemInsertTextModeSupportCapabilityOptions
     {
-        public Container<InsertTextMode> ValueSet { get; set; }
+        public Container<InsertTextMode> ValueSet { get; set; } = null!;
     }
 
 }

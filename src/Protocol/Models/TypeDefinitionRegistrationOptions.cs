@@ -11,7 +11,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             public TypeDefinitionRegistrationOptionsConverter() : base(nameof(ServerCapabilities.TypeDefinitionProvider))
             {
             }
-            public override StaticOptions Convert(TypeDefinitionRegistrationOptions source) => new StaticOptions { WorkDoneProgress = source.WorkDoneProgress };
+            public override StaticOptions Convert(TypeDefinitionRegistrationOptions source) => new StaticOptions {
+                WorkDoneProgress = source.WorkDoneProgress,
+                DocumentSelector = source.DocumentSelector
+            };
         }
     }
 }

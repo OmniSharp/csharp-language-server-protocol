@@ -155,6 +155,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         [Optional]
         [Obsolete(Constants.Proposal)]
         public SemanticTokensRegistrationOptions.StaticOptions? SemanticTokensProvider { get; set; }
+
         /// <summary>
         /// The server provides Call Hierarchy support.
         /// </summary>
@@ -175,6 +176,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
         /// Since 3.15.0
         /// </summary>
         public BooleanOr<SelectionRangeRegistrationOptions.StaticOptions>? SelectionRangeProvider { get; set; }
+
+        /// <summary>
+        /// The server provides on type rename support.
+        ///
+        /// Since 3.16.0
+        /// </summary>
+        [Optional]
+        [Obsolete(Constants.Proposal)]
+        public BooleanOr<OnTypeRenameRegistrationOptions.StaticOptions>? OnTypeRenameProvider { get; set; }
 
         /// <summary>
         /// The server provides folding provider support.

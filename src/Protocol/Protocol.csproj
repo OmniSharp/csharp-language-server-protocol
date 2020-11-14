@@ -44,5 +44,11 @@
       <Compile Update="CapabilityKeyAttribute.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>
+      <Compile Update="Window\IShowDocumentRequestHandler.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
+      <Compile Update="Document\IOnTypeRenameHandler.cs">
+        <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
+      </Compile>
     </ItemGroup>
 </Project>

@@ -45,5 +45,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Obsolete(Constants.Proposal)] public const string SemanticTokensFullDelta = "textDocument/semanticTokens/full/delta";
         [Obsolete(Constants.Proposal)] public const string SemanticTokensRange = "textDocument/semanticTokens/range";
         [Obsolete(Constants.Proposal)] public const string Moniker = "textDocument/moniker";
+        [Obsolete(Constants.Proposal)] public const string OnTypeRename = "textDocument/onTypeRename";
     }
 }
