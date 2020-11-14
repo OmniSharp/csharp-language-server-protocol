@@ -30,7 +30,7 @@ namespace SampleServer
         ) =>
             _logger = logger;
 
-        public override async Task<SemanticTokens> Handle(
+        public override async Task<SemanticTokens?> Handle(
             SemanticTokensParams request, CancellationToken cancellationToken
         )
         {
@@ -38,7 +38,7 @@ namespace SampleServer
             return result;
         }
 
-        public override async Task<SemanticTokens> Handle(
+        public override async Task<SemanticTokens?> Handle(
             SemanticTokensRangeParams request, CancellationToken cancellationToken
         )
         {
@@ -66,7 +66,7 @@ namespace SampleServer
             var content = await File.ReadAllTextAsync(DocumentUri.GetFileSystemPath(identifier), cancellationToken);
             await Task.Yield();
 
-            foreach (var (line, text) in content.Split('\n').Select((text, line) => ( line, text )))
+            foreach (var (line, text) in content.Split('\n').Select((text, line) => (line, text)))
             {
                 var parts = text.TrimEnd().Split(';', ' ', '.', '"', '(', ')');
                 var index = 0;

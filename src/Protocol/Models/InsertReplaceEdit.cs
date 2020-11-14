@@ -13,17 +13,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// <summary>
         /// The string to be inserted.
         /// </summary>
-        public string NewText { get; set; }
+        public string NewText { get; set; } = null!;
 
         /// <summary>
         /// The range if the insert is requested
         /// </summary>
-        public Range Insert { get; set; }
+        public Range Insert { get; set; } = null!;
 
         /// <summary>
         /// The range if the replace is requested.
         /// </summary>
-        public Range Replace { get; set; }
+        public Range Replace { get; set; } = null!;
 
         private string DebuggerDisplay => $"{Insert} / {Replace} {( string.IsNullOrWhiteSpace(NewText) ? string.Empty : NewText.Length > 30 ? NewText.Substring(0, 30) : NewText )}";
 

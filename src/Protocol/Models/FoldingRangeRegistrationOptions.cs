@@ -13,7 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
             public FoldingRangeRegistrationOptionsConverter() : base(nameof(ServerCapabilities.FoldingRangeProvider))
             {
             }
-            public override StaticOptions Convert(FoldingRangeRegistrationOptions source) => new StaticOptions { WorkDoneProgress = source.WorkDoneProgress };
+
+            public override StaticOptions Convert(FoldingRangeRegistrationOptions source) => new StaticOptions {
+                WorkDoneProgress = source.WorkDoneProgress,
+                DocumentSelector = source.DocumentSelector
+            };
         }
     }
 }

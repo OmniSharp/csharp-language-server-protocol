@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Client.Configuration
         {
             if (_shouldDisposeConfig)
             {
-                (_config as IDisposable)?.Dispose();
+                ( _config as IDisposable )?.Dispose();
             }
         }
     }
