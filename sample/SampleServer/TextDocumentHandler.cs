@@ -164,7 +164,7 @@ namespace SampleServer
         {
             _serverWorkDoneManager = serverWorkDoneManager;
             _progressManager = progressManager;
-            this._logger = logger;
+            _logger = logger;
         }
 
         public override async Task<Container<SymbolInformation>> Handle(

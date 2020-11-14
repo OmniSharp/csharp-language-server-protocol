@@ -14,7 +14,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{2F323ED5-E
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".config", ".config", "{AE4D7807-6F78-428C-A0D9-914BA583A104}"
-	ProjectSection(SolutionItems) = preProject
+	ProjectSection(SolutionItems) = prePrlaoject
 		.appveyor.yml = .appveyor.yml
 		.editorconfig = .editorconfig
 		.gitattributes = .gitattributes

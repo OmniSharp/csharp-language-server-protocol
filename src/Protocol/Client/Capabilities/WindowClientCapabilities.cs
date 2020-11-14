@@ -16,5 +16,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// @since 3.16.0 - proposed state
          /// </summary>
         public Supports<ShowMessageRequestClientCapabilities> ShowMessage { get; set; }
+
+        /// <summary>
+        /// Client capabilities for the show document request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        public Supports<ShowDocumentClientCapabilities> ShowDocument { get; set; }
     }
 }

@@ -17,5 +17,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         /// </summary>
         [Optional]
         public string? FailureReason { get; set; }
+
+        /// <summary>
+        /// Depending on the client's failure handling strategy `failedChange`
+        /// might contain the index of the change that failed. This property is
+        /// only available if the client signals a `failureHandlingStrategy`
+        /// in its client capabilities.
+        /// </summary>
+        [Optional]
+        public int? FailedChange { get; set; }
     }
 }

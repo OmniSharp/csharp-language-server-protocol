@@ -2,16 +2,16 @@
 <Project>
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Rocket.Surgery.MSBuild.CI" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Rocket.Surgery.MSBuild.Metadata" Version="1.0.0" PrivateAssets="All" />
-    <PackageReference Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.CI" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.Metadata" Version="1.1.0" PrivateAssets="All" />
+    <PackageReference Include="Rocket.Surgery.MSBuild.SourceLink" Version="1.1.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Update="GitVersion.Tool" Version="5.5.0" />
+    <PackageReference Update="GitVersion.Tool" Version="5.5.1" />
     <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.4" />
     <PackageReference Update="ReportGenerator" Version="4.8.0" />
-    <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.10" />
+    <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.2" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Update="Microsoft.Extensions.Logging" Version="2.0.0" />
