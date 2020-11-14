@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Events;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
@@ -11,7 +12,7 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol
 {
-    public class DapReceiver : IReceiver
+    public class DapReceiver : IReceiver, IOutputFilter
     {
         private bool _initialized;
 
@@ -134,13 +135,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         }
 
         public void Initialized() => _initialized = true;
-
-        public bool ShouldFilterOutput(object value)
-        {
-            if (_initialized) return true;
-            return value is OutgoingResponse ||
-                   value is OutgoingNotification n && n.Params is InitializedEvent ||
-                   value is OutgoingRequest r && r.Params is InitializeRequestArguments;
-        }
+        public bool ShouldOutput(object value) => _initialized;
     }
 }

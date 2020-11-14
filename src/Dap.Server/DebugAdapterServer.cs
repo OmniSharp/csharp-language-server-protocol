@@ -184,8 +184,6 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 cancellationToken
             ).ConfigureAwait(false);
 
-            _receiver.Initialized();
-
             var response = new InitializeResponse {
                 AdditionalModuleColumns = _capabilities.AdditionalModuleColumns,
                 ExceptionBreakpointFilters = _capabilities.ExceptionBreakpointFilters,
@@ -235,6 +233,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Server
                 _concurrency,
                 cancellationToken
             ).ConfigureAwait(false);
+
+            _receiver.Initialized();
 
             _initializeComplete.OnNext(response);
             _initializeComplete.OnCompleted();

@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.JsonRpc
             }
 
             container.RegisterMany<OutputHandler>(
-                serviceTypeCondition: type => type.IsInterface,
+                nonPublicServiceTypes: true,
                 made: Parameters.Of
                                 .Type<PipeWriter>(serviceKey: nameof(options.Output)),
                 reuse: Reuse.Singleton
@@ -135,11 +135,6 @@ namespace OmniSharp.Extensions.JsonRpc
                 throw new ArgumentException("Serializer is missing!", nameof(options));
             }
 
-            if (options.Receiver == null)
-            {
-                throw new ArgumentException("Receiver is missing!", nameof(options));
-            }
-
             if (options.RequestProcessIdentifier == null)
             {
                 throw new ArgumentException("RequestProcessIdentifier is missing!", nameof(options));
@@ -149,7 +144,16 @@ namespace OmniSharp.Extensions.JsonRpc
             container.RegisterInstanceMany(new HandlerTypeDescriptorProvider(options.Assemblies), nonPublicServiceTypes: true);
 
             container.RegisterInstance(options.Serializer);
-            container.RegisterInstance(options.Receiver);
+            if (options.Receiver == null)
+            {
+                container.Register<IReceiver, Receiver>(Reuse.Singleton);
+            }
+            else
+            {
+                container.RegisterInstance(options.Receiver);
+            }
+            container.RegisterMany<AlwaysOutputFilter>(Reuse.Singleton, nonPublicServiceTypes: true);
+
             container.RegisterInstance(options.RequestProcessIdentifier);
             container.RegisterInstance(options.OnUnhandledException ?? ( e => { } ));
 

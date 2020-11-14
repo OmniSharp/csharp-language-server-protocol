@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 
 namespace OmniSharp.Extensions.JsonRpc
@@ -9,7 +10,7 @@ namespace OmniSharp.Extensions.JsonRpc
             RequestProcessIdentifier = new ParallelRequestProcessIdentifier();
         }
         public ISerializer Serializer { get; set; } = new JsonRpcSerializer();
-        public IReceiver Receiver { get; set; } = new Receiver();
+        [DisallowNull] public IReceiver? Receiver { get; set; } = null!;
 
         public JsonRpcServerOptions WithReceiver(IReceiver receiver)
         {

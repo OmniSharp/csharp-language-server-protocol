@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Client;
 using OmniSharp.Extensions.JsonRpc.Server;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
@@ -11,12 +11,11 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 {
     public class LspClientReceiver : Receiver, ILspClientReceiver
     {
-        private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
-        private bool _initialized;
+        private readonly ILogger<LspClientReceiver> _logger;
 
-        public LspClientReceiver(ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
+        public LspClientReceiver(ILogger<LspClientReceiver> logger)
         {
-            _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+            _logger = logger;
         }
 
         public override (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
@@ -29,36 +28,33 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var (results, hasResponse) = base.GetRequests(container);
             foreach (var item in results)
             {
-                if (item.IsRequest && _handlerTypeDescriptorProvider.IsMethodName(item.Request!.Method, typeof(IShowMessageRequestHandler)))
+                switch (item)
                 {
-                    newResults.Add(item);
-                }
-                else if (item.IsResponse)
-                {
-                    newResults.Add(item);
-                }
-                else if (item.IsNotification &&
-                         _handlerTypeDescriptorProvider.IsMethodName(
-                             item.Notification!.Method,
-                             typeof(IShowMessageHandler),
-                             typeof(ILogMessageHandler),
-                             typeof(ITelemetryEventHandler)
-                         )
-                )
-                {
-                    newResults.Add(item);
+                    case { IsResponse: true }:
+                    case { IsRequest: true, Request: { Method: WindowNames.ShowMessageRequest } }:
+                    case { IsNotification: true, Notification: { Method: WindowNames.ShowMessage } }:
+                    case { IsNotification: true, Notification: { Method: WindowNames.LogMessage } }:
+                    case { IsNotification: true, Notification: { Method: WindowNames.TelemetryEvent } }:
+                    case { IsNotification: true, Notification: { Method: WindowNames.WorkDoneProgressCancel } }:
+                    case { IsNotification: true, Notification: { Method: WindowNames.WorkDoneProgressCreate } }:
+                        newResults.Add(item);
+                        break;
+                    case { IsRequest: true, Request: { } }:
+                        _logger.LogWarning("Unexpected request {Method} {@Request}", item.Request.Method, item.Request);
+                        break;
+                    case { IsNotification: true, Notification: { } }:
+                        _logger.LogWarning("Unexpected notification {Method} {@Request}", item.Notification.Method, item.Notification);
+                        break;
+                    case { IsError: true, Error: { } }:
+                        _logger.LogWarning("Unexpected error {Method} {@Request}", item.Error.Method, item.Error);
+                        break;
+                    default:
+                        _logger.LogError("Unexpected Renor {@Renor}", item);
+                        break;
                 }
             }
 
             return ( newResults, hasResponse );
-        }
-
-        public void Initialized() => _initialized = true;
-
-        public override bool ShouldFilterOutput(object value)
-        {
-            if (_initialized) return true;
-            return value is OutgoingResponse || value is OutgoingRequest v && v.Params is InitializeParams;
         }
     }
 }

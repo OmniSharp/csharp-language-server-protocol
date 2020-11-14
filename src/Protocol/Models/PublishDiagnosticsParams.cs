@@ -17,6 +17,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         ///
         /// @since 3.15.0
         /// </summary>
+        /// <remarks>
+        /// <see cref="uint"/> in the LSP spec
+        /// </remarks>
         [Optional]
         public int? Version { get; set; }
 

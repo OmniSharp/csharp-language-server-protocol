@@ -6,8 +6,10 @@ using OmniSharp.Extensions.JsonRpc.Server.Messages;
 
 namespace OmniSharp.Extensions.JsonRpc
 {
-    public class Receiver : IReceiver
+    public class Receiver : IReceiver, IOutputFilter
     {
+        protected bool _initialized { get; private set; }
+
         public bool IsValid(JToken container)
         {
             // request must be an object or array
@@ -24,7 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc
             return false;
         }
 
-        public virtual bool ShouldFilterOutput(object value) => true;
+        public void Initialized() => _initialized = true;
 
         public virtual (IEnumerable<Renor> results, bool hasResponse) GetRequests(JToken container)
         {
@@ -104,5 +106,7 @@ namespace OmniSharp.Extensions.JsonRpc
 
             return new Request(requestId!, method!, @params);
         }
+
+        public bool ShouldOutput(object value) => _initialized;
     }
 }

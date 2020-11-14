@@ -2,6 +2,7 @@ using System;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
 {
@@ -34,5 +35,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities
         /// The formats the clients supports.
         /// </summary>
         public Container<SemanticTokenFormat> Formats { get; set; } = null!;
+
+        /// <summary>
+        /// Whether the client supports tokens that can overlap each other.
+        /// </summary>
+        [Optional]
+        public bool OverlappingTokenSupport { get; set; }
+
+        /// <summary>
+        /// Whether the client supports tokens that can span multiple lines.
+        /// </summary>
+        [Optional]
+        public bool MultilineTokenSupport { get; set; }
     }
 }

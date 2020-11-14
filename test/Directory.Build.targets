@@ -8,6 +8,7 @@
         <PackageReference Include="NSubstitute" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
         <PackageReference Include="Serilog.Extensions.Logging" />
+        <PackageReference Include="Serilog.Sinks.Observable" />
         <PackageReference Include="Serilog.Sinks.XUnit" />
         <PackageReference Include="coverlet.collector" />
         <PackageReference Include="coverlet.msbuild" />

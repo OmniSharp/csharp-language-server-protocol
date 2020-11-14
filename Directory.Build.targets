@@ -10,7 +10,7 @@
     <ItemGroup>
         <PackageReference Update="GitVersion.Tool" Version="5.5.0" />
         <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.4" />
-        <PackageReference Update="ReportGenerator" Version="4.7.1" />
+        <PackageReference Update="ReportGenerator" Version="4.8.0" />
         <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.0-beta.10" />
     </ItemGroup>
     <ItemGroup>
@@ -22,12 +22,13 @@
         <PackageReference Update="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
         <PackageReference Update="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
         <PackageReference Update="Newtonsoft.Json" Version="11.0.2" />
-        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.7.1" />
+        <PackageReference Update="Microsoft.NET.Test.Sdk" Version="16.8.0" />
         <PackageReference Update="xunit.runner.visualstudio" Version="2.4.3" />
         <PackageReference Update="xunit" Version="2.4.1" />
         <PackageReference Update="FluentAssertions" Version="5.10.3" />
         <PackageReference Update="NSubstitute" Version="4.2.2" />
         <PackageReference Update="Serilog.Extensions.Logging" Version="2.0.2" />
+        <PackageReference Update="Serilog.Sinks.Observable" Version="2.0.2" />
         <PackageReference Update="Serilog.Sinks.XUnit" Version="2.0.4" />
         <PackageReference Update="XunitXml.TestLogger" Version="2.1.26" />
         <PackageReference Update="coverlet.collector" Version="1.3.0" />
@@ -41,7 +42,7 @@
         <PackageReference Update="Xunit.SkippableFact" Version="1.4.13" />
         <PackageReference Update="System.IO.Pipelines" Version="4.7.3" />
         <PackageReference Update="Nerdbank.Streams" Version="2.6.81" />
-        <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0-5.final" />
+        <PackageReference Update="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="3.8.0" />
         <PackageReference Update="Microsoft.CodeAnalysis.Analyzers" Version="3.3.1" />
         <PackageReference Update="DryIoc.Internal" Version="4.5.1" />
     </ItemGroup>

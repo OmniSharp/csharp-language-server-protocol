@@ -31,6 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 nonPublicServiceTypes: true,
                 ifAlreadyRegistered: IfAlreadyRegistered.Keep
             );
+            container.RegisterMany<LspServerOutputFilter>(Reuse.Singleton, nonPublicServiceTypes: true);
 
             if (options.OnUnhandledException != null)
             {
@@ -64,13 +65,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                 .Type<Action<IConfigurationBuilder>>(defaultValue: options.ConfigurationBuilderAction),
                 reuse: Reuse.Singleton
             );
-            container.RegisterMany<ConfigurationConverter>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
             container.RegisterInitializer<ILanguageServerConfiguration>(
                 (provider, context) => {
-                    var configurationItems = context.ResolveMany<ConfigurationItem>();
-                    provider.AddConfigurationItems(configurationItems);
+                    provider.AddConfigurationItems(context.ResolveMany<ConfigurationItem>());
                 }
             );
+            container.RegisterMany<ConfigurationConverter>(nonPublicServiceTypes: true, reuse: Reuse.Singleton);
 
 
             var providedConfiguration = options.Services.FirstOrDefault(z => z.ServiceType == typeof(IConfiguration) && z.ImplementationInstance is IConfiguration);

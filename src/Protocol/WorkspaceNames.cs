@@ -14,5 +14,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public const string WorkspaceFolders = "workspace/workspaceFolders";
         [Obsolete(Constants.Proposal)]
         public const string SemanticTokensRefresh = "workspace/semanticTokens/refresh";
+        [Obsolete(Constants.Proposal)]
+        public const string CodeLensRefresh = "workspace/codeLens/refresh";
     }
 }

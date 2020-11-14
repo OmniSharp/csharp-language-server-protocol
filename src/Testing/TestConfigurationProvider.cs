@@ -160,7 +160,7 @@ namespace OmniSharp.Extensions.LanguageProtocol.Testing
                 return (T) arr2[i];
             }
 
-            return (root[key] as T)!;
+            return ( root[key] as T )!;
         }
 
         private static JToken? GetValueFromToken(JToken root, string key)

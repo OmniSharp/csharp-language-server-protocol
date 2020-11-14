@@ -1,11 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
+using NSubstitute.ReceivedExtensions;
 using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
@@ -15,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 using OmniSharp.Extensions.LanguageServer.Server;
+using Serilog.Events;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -48,14 +53,54 @@ namespace Lsp.Tests.Integration
         }
 
         [Fact]
+        public async Task Should_Not_Be_Able_To_Send_Messages_Unit_Initialization()
+        {
+            if (!(TestOptions.ClientLoggerFactory is TestLoggerFactory loggerFactory)) throw new Exception("wtf");
+            var logs = new List<LogEvent>();
+            var onInitializeNotify = Substitute.For<Action>();
+            var onInitializedNotify = Substitute.For<Action>();
+            using var _ = loggerFactory.Where(z => z.Level == LogEventLevel.Warning).Subscribe(z => logs.Add(z));
+
+            var (client, server) = await Initialize(
+                options => {
+                    ConfigureClient(options);
+                    options
+                       .OnNotification("OnInitializeNotify", onInitializeNotify)
+                       .OnNotification("OnInitializedNotify", onInitializedNotify);
+                }, options => {
+                    ConfigureServer(options);
+                    options
+                       .OnInitialize(
+                            (languageServer, request, token) => {
+                                languageServer.SendNotification("OnInitializeNotify");
+                                return Task.CompletedTask;
+                            }
+                        )
+                       .OnInitialized(
+                            (languageServer, request, response, token) => {
+                                languageServer.SendNotification("OnInitializedNotify");
+                                return Task.CompletedTask;
+                            }
+                        );
+                }
+            );
+            logs.Should().HaveCount(2);
+            logs[0].RenderMessage().Should().Contain("OnInitializeNotify");
+            logs[1].RenderMessage().Should().Contain("OnInitializedNotify");
+
+            await SettleNext();
+
+            onInitializeNotify.Received(1).Invoke();
+            onInitializedNotify.Received(1).Invoke();
+        }
+
+        [Fact]
         public async Task Should_Be_Able_To_Register_Before_Initialize()
         {
-            var (client, server) = Create(options => options.EnableDynamicRegistration().EnableAllCapabilities(), options => {});
+            var (client, server) = Create(options => options.EnableDynamicRegistration().EnableAllCapabilities(), options => { });
 
             server.Register(
-                r => {
-                    r.AddHandler<CodeLensHandlerA>();
-                }
+                r => { r.AddHandler<CodeLensHandlerA>(); }
             );
 
             await Observable.FromAsync(client.Initialize)
@@ -80,6 +125,7 @@ namespace Lsp.Tests.Integration
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
         }
+
         private readonly List<string> _logs = new List<string>();
 
         private void ConfigureClient(LanguageClientOptions options) =>

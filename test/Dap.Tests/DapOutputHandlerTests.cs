@@ -20,9 +20,7 @@ namespace Dap.Tests
     {
         private static OutputHandler NewHandler(PipeWriter writer)
         {
-            var rec = Substitute.For<IReceiver>();
-            rec.ShouldFilterOutput(Arg.Any<object>()).Returns(true);
-            return new OutputHandler(writer, new DapProtocolSerializer(), rec, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
+            return new OutputHandler(writer, new DapProtocolSerializer(), new []{ new AlwaysOutputFilter()}, Scheduler.Immediate, NullLogger<OutputHandler>.Instance);
         }
 
         [Fact]
