@@ -131,25 +131,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                  new[] {
                                      NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
                                         .WithMembers(
-                                             List(
-                                                 new MemberDeclarationSyntax[] {
-                                                     ClassDeclaration(className)
-                                                        .WithAttributeLists(attributes)
-                                                        .WithModifiers(
-                                                             TokenList(
-                                                                 new[] { isInternal ? Token(SyntaxKind.InternalKeyword) : Token(SyntaxKind.PublicKeyword) }.Concat(
-                                                                     new[] {
-                                                                         Token(SyntaxKind.StaticKeyword),
-                                                                         Token(SyntaxKind.PartialKeyword)
-                                                                     }
-                                                                 )
+                                             SingletonList<MemberDeclarationSyntax>(
+                                                 ClassDeclaration(className)
+                                                    .WithAttributeLists(attributes)
+                                                    .WithModifiers(
+                                                         TokenList(
+                                                             new[] { isInternal ? Token(SyntaxKind.InternalKeyword) : Token(SyntaxKind.PublicKeyword) }.Concat(
+                                                                 new[] {
+                                                                     Token(SyntaxKind.StaticKeyword),
+                                                                     Token(SyntaxKind.PartialKeyword)
+                                                                 }
                                                              )
                                                          )
-                                                        .WithMembers(List(methods))
-                                                        .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                                                        .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                                                        .NormalizeWhitespace()
-                                                 }
+                                                     )
+                                                    .WithMembers(List(methods))
+                                                    .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                                                    .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
+                                                    .NormalizeWhitespace()
                                              )
                                          )
                                  }

@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Newtonsoft.Json.Linq;
 using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -47,6 +48,7 @@ namespace Generation.Tests
                 typeof(GenerateHandlerMethodsAttribute).Assembly,
                 typeof(IDebugAdapterClientRegistry).Assembly,
                 typeof(Unit).Assembly,
+                typeof(JToken).Assembly,
                 typeof(ILanguageServerRegistry).Assembly,
             };
             MetadataReferences = coreMetaReferences
@@ -68,11 +70,11 @@ namespace Generation.Tests
         {
             var generatedTree = await GenerateAsync<T>(source);
             // normalize line endings to just LF
-            var generatedText = NormalizeToLf(generatedTree.GetText().ToString());
+            var generatedText = NormalizeToLf(generatedTree.GetText().ToString()).Trim();
             // and append preamble to the expected
             var expectedText = NormalizedPreamble + NormalizeToLf(expected).Trim();
+//            Assert.Equal(expectedText, generatedText);
             generatedText.Should().Be(expectedText);
-            //Assert.Equal(expectedText, generatedText);
         }
 
         public static async Task<string> Generate<T>(string source) where T : ISourceGenerator, new()
@@ -102,7 +104,7 @@ namespace Generation.Tests
             }
 
             var diagnostics = compilation.GetDiagnostics();
-            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
+//            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
             ISourceGenerator generator = new T();
 
@@ -113,7 +115,7 @@ namespace Generation.Tests
             );
 
             driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out diagnostics);
-            // Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
+            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
 
             // the syntax tree added by the generator will be the last one in the compilation
             return outputCompilation.SyntaxTrees.Last();
