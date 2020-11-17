@@ -1,19 +1,25 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using CodeGeneration.Roslyn;
-using CodeGeneration.Roslyn.Engine;
 using FluentAssertions;
 using MediatR;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Text;
+using Newtonsoft.Json.Linq;
+using NSubstitute;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.JsonRpc.Generators;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using Xunit;
 
@@ -39,10 +45,10 @@ namespace Generation.Tests
                 coreAssemblyNames.Select(x => MetadataReference.CreateFromFile(Path.Combine(coreAssemblyPath, x)));
             var otherAssemblies = new[] {
                 typeof(CSharpCompilation).Assembly,
-                typeof(CodeGenerationAttributeAttribute).Assembly,
                 typeof(GenerateHandlerMethodsAttribute).Assembly,
                 typeof(IDebugAdapterClientRegistry).Assembly,
                 typeof(Unit).Assembly,
+                typeof(JToken).Assembly,
                 typeof(ILanguageServerRegistry).Assembly,
             };
             MetadataReferences = coreMetaReferences
@@ -56,23 +62,24 @@ namespace Generation.Tests
         internal const string CSharpDefaultFileExt = "cs";
         internal const string TestProjectName = "TestProject";
 
-        internal static readonly string NormalizedPreamble = NormalizeToLf(DocumentTransform.GeneratedByAToolPreamble + Lf);
+        internal static readonly string NormalizedPreamble = NormalizeToLf(Preamble.GeneratedByATool + Lf);
 
         internal static readonly ImmutableArray<MetadataReference> MetadataReferences;
 
-        public static async Task AssertGeneratedAsExpected(string source, string expected)
+        public static async Task AssertGeneratedAsExpected<T>(string source, string expected) where T : ISourceGenerator, new()
         {
-            var generatedTree = await GenerateAsync(source);
+            var generatedTree = await GenerateAsync<T>(source);
             // normalize line endings to just LF
-            var generatedText = NormalizeToLf(generatedTree.GetText().ToString());
+            var generatedText = NormalizeToLf(generatedTree.GetText().ToString()).Trim();
             // and append preamble to the expected
             var expectedText = NormalizedPreamble + NormalizeToLf(expected).Trim();
+//            Assert.Equal(expectedText, generatedText);
             generatedText.Should().Be(expectedText);
         }
 
-        public static async Task<string> Generate(string source)
+        public static async Task<string> Generate<T>(string source) where T : ISourceGenerator, new()
         {
-            var generatedTree = await GenerateAsync(source);
+            var generatedTree = await GenerateAsync<T>(source);
             // normalize line endings to just LF
             var generatedText = NormalizeToLf(generatedTree.GetText().ToString());
             // and append preamble to the expected
@@ -81,7 +88,7 @@ namespace Generation.Tests
 
         public static string NormalizeToLf(string input) => input.Replace(CrLf, Lf);
 
-        public static async Task<SyntaxTree> GenerateAsync(string source)
+        public static async Task<SyntaxTree> GenerateAsync<T>(string source) where T : ISourceGenerator, new()
         {
             var document = CreateProject(source).Documents.Single();
             var tree = await document.GetSyntaxTreeAsync();
@@ -97,10 +104,21 @@ namespace Generation.Tests
             }
 
             var diagnostics = compilation.GetDiagnostics();
+//            Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
+
+            ISourceGenerator generator = new T();
+
+            var driver = CSharpGeneratorDriver.Create(
+                ImmutableArray.Create(generator),
+                ImmutableArray<AdditionalText>.Empty,
+                compilation.SyntaxTrees[0].Options as CSharpParseOptions
+            );
+
+            driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out diagnostics);
             Assert.Empty(diagnostics.Where(x => x.Severity >= DiagnosticSeverity.Warning));
-            var progress = new Progress<Diagnostic>();
-            var result = await DocumentTransform.TransformAsync(compilation, tree, null, Assembly.Load, progress, CancellationToken.None);
-            return result;
+
+            // the syntax tree added by the generator will be the last one in the compilation
+            return outputCompilation.SyntaxTrees.Last();
         }
 
         public static Project CreateProject(params string[] sources)
@@ -135,6 +153,23 @@ namespace Generation.Tests
             }
 
             return project;
+        }
+    }
+
+    class NotSureWhatToCallYou : CSharpSyntaxWalker
+    {
+        private readonly ISyntaxReceiver _syntaxReceiver;
+
+        public NotSureWhatToCallYou(ISyntaxReceiver syntaxReceiver)
+        {
+            _syntaxReceiver = syntaxReceiver;
+        }
+
+        public override void Visit(SyntaxNode? node)
+        {
+            if (node == null) return;
+            _syntaxReceiver.OnVisitSyntaxNode(node);
+            base.Visit(node);
         }
     }
 }

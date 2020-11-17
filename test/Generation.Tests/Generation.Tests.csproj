@@ -1,17 +1,16 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;netcoreapp2.1</TargetFrameworks>
+        <TargetFrameworks>netcoreapp3.1;net5.0;netcoreapp2.1</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
+        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" />
         <ProjectReference Include="..\..\src\JsonRpc\JsonRpc.csproj" />
         <ProjectReference Include="..\..\src\Dap.Protocol\Dap.Protocol.csproj" />
         <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />
-        <PackageReference Include="CodeGeneration.Roslyn.Engine" Version="0.7.63" />
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
+<!--        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />-->
     </ItemGroup>
 </Project>

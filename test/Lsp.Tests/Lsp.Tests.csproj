@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;netcoreapp2.1</TargetFrameworks>
+        <TargetFrameworks>netcoreapp3.1;net5.0;netcoreapp2.1</TargetFrameworks>
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
@@ -9,12 +9,11 @@
         <EmbeddedResource Include="**\*.json" />
     </ItemGroup>
     <ItemGroup>
-        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="CodeGenerationRoslynPlugin" />
+        <ProjectReference Include="..\..\src\JsonRpc.Generators\JsonRpc.Generators.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
         <ProjectReference Include="..\..\src\Client\Client.csproj" />
         <ProjectReference Include="..\..\src\Server\Server.csproj" />
         <ProjectReference Include="..\..\src\Testing\Testing.csproj" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
-        <PackageReference Include="CodeGeneration.Roslyn.Tool" />
 
         <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
         <PackageReference Include="Microsoft.Extensions.Options" />

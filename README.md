@@ -58,6 +58,7 @@ For more information about using the `DebugAdapterClient` / `DebugAdapterServer`
 | OmniSharp.Extensions.DebugAdapter.Shared | [![nuget-version-2fkn0yzdbhmg-badge]![nuget-downloads-2fkn0yzdbhmg-badge]][nuget-2fkn0yzdbhmg] |
 | OmniSharp.Extensions.DebugAdapter.Testing | [![nuget-version-jppuysmkpfcw-badge]![nuget-downloads-jppuysmkpfcw-badge]][nuget-jppuysmkpfcw] |
 | OmniSharp.Extensions.JsonRpc | [![nuget-version-a1bmkwyotvkg-badge]![nuget-downloads-a1bmkwyotvkg-badge]][nuget-a1bmkwyotvkg] |
+| OmniSharp.Extensions.JsonRpc.Generators | [![nuget-version-m6majhsjiw1q-badge]![nuget-downloads-m6majhsjiw1q-badge]][nuget-m6majhsjiw1q] |
 | OmniSharp.Extensions.JsonRpc.Testing | [![nuget-version-punkj7/efvjq-badge]![nuget-downloads-punkj7/efvjq-badge]][nuget-punkj7/efvjq] |
 | OmniSharp.Extensions.LanguageClient | [![nuget-version-fclou9t/p2ba-badge]![nuget-downloads-fclou9t/p2ba-badge]][nuget-fclou9t/p2ba] |
 | OmniSharp.Extensions.LanguageProtocol | [![nuget-version-vddj9t6jnirq-badge]![nuget-downloads-vddj9t6jnirq-badge]][nuget-vddj9t6jnirq] |
@@ -118,6 +119,9 @@ This project is supported by the [.NET Foundation](http://www.dotnetfoundation.o
 [nuget-a1bmkwyotvkg]: https://www.nuget.org/packages/OmniSharp.Extensions.JsonRpc/
 [nuget-version-a1bmkwyotvkg-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.JsonRpc.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-a1bmkwyotvkg-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.JsonRpc.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
+[nuget-m6majhsjiw1q]: https://www.nuget.org/packages/OmniSharp.Extensions.JsonRpc.Generators/
+[nuget-version-m6majhsjiw1q-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.JsonRpc.Generators.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
+[nuget-downloads-m6majhsjiw1q-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.JsonRpc.Generators.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"
 [nuget-punkj7/efvjq]: https://www.nuget.org/packages/OmniSharp.Extensions.JsonRpc.Testing/
 [nuget-version-punkj7/efvjq-badge]: https://img.shields.io/nuget/v/OmniSharp.Extensions.JsonRpc.Testing.svg?color=004880&logo=nuget&style=flat-square "NuGet Version"
 [nuget-downloads-punkj7/efvjq-badge]: https://img.shields.io/nuget/dt/OmniSharp.Extensions.JsonRpc.Testing.svg?color=004880&logo=nuget&style=flat-square "NuGet Downloads"

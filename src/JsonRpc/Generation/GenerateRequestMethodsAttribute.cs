@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using CodeGeneration.Roslyn;
 
 namespace OmniSharp.Extensions.JsonRpc.Generation
 {
@@ -10,8 +9,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     /// <remarks>
     /// Efforts will be made to make this available for consumers once source generators land
     /// </remarks>
-    [AttributeUsage(AttributeTargets.Interface)]
-    [CodeGenerationAttribute("OmniSharp.Extensions.JsonRpc.Generators.GenerateRequestMethodsGenerator, OmniSharp.Extensions.JsonRpc.Generators")]
+    [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Class)]
     [Conditional("CodeGeneration")]
     public class GenerateRequestMethodsAttribute : Attribute
     {

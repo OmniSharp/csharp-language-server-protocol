@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static bool IsRequest(INamedTypeSymbol symbol) => symbol.AllInterfaces.Any(z => z.Name == "IJsonRpcRequestHandler");
 
-        public static ExpressionSyntax GetMethodName(InterfaceDeclarationSyntax interfaceSyntax)
+        public static ExpressionSyntax GetMethodName(TypeDeclarationSyntax interfaceSyntax)
         {
             var methodAttribute = interfaceSyntax.AttributeLists
                                                  .SelectMany(z => z.Attributes)

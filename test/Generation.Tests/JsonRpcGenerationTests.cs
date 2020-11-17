@@ -1,4 +1,5 @@
 using System.Threading.Tasks;
+using OmniSharp.Extensions.JsonRpc.Generators;
 using TestingUtils;
 using Xunit;
 using static Generation.Tests.GenerationHelpers;
@@ -30,18 +31,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     }
 }";
 
-            var expected = @"using System;
-using System.Threading;
-using System.Threading.Tasks;
+            var expected = @"
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
@@ -53,20 +55,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, Task> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Action<ExitParams, CancellationToken> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, CancellationToken, Task> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-#nullable enable
-    public static partial class ExitExtensions
-    {
         public static void SendExit(this ILanguageClient mediator, ExitParams @params) => mediator.SendNotification(@params);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -87,17 +80,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
 }";
 
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using System.Collections.Generic;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
 {
@@ -109,20 +102,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
         public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, Task> handler) => registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Action<CapabilitiesEvent, CancellationToken> handler) => registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
         public static IDebugAdapterClientRegistry OnCapabilities(this IDebugAdapterClientRegistry registry, Func<CapabilitiesEvent, CancellationToken, Task> handler) => registry.AddHandler(EventNames.Capabilities, NotificationHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
-{
-#nullable enable
-    public static partial class CapabilitiesExtensions
-    {
         public static void SendCapabilities(this IDebugAdapterServer mediator, CapabilitiesEvent @params) => mediator.SendNotification(@params);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
 
@@ -149,18 +133,19 @@ namespace Test
     }
 }";
 
-            var expected = @"using System;
-using System.Threading;
-using System.Threading.Tasks;
+            var expected = @"
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -172,20 +157,11 @@ namespace Test
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, Task> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Action<ExitParams, CancellationToken> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
         public static ILanguageServerRegistry OnExit(this ILanguageServerRegistry registry, Func<ExitParams, CancellationToken, Task> handler) => registry.AddHandler(GeneralNames.Exit, NotificationHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace Test
-{
-#nullable enable
-    public static partial class ExitExtensions
-    {
         public static void SendExit(this ILanguageClient mediator, ExitParams @params) => mediator.SendNotification(@params);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -213,10 +189,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }";
 
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -224,8 +198,10 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
 using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
@@ -268,20 +244,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             registrationOptions ??= new TextDocumentChangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, SynchronizationCapability, TextDocumentChangeRegistrationOptions>(handler, registrationOptions));
         }
-    }
-#nullable restore
-}
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-#nullable enable
-    public static partial class DidChangeTextDocumentExtensions
-    {
         public static void DidChangeTextDocument(this ILanguageClient mediator, DidChangeTextDocumentParams @params) => mediator.SendNotification(@params);
     }
 #nullable restore
-}";
-            await AssertGeneratedAsExpected(source, expected);
+}
+";
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -311,20 +280,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }";
 
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
@@ -367,21 +336,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             registrationOptions ??= new FoldingRangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.FoldingRange, new LanguageProtocolDelegatingHandlers.Request<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRangeCapability, FoldingRangeRegistrationOptions>(handler, registrationOptions));
         }
-    }
-#nullable restore
-}
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-#nullable enable
-    public static partial class FoldingRangeExtensions
-    {
         public static IRequestProgressObservable<IEnumerable<FoldingRange>, Container<FoldingRange>> RequestFoldingRange(this ITextDocumentLanguageClient mediator, FoldingRangeRequestParam @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new Container<FoldingRange>(value), cancellationToken);
         public static IRequestProgressObservable<IEnumerable<FoldingRange>, Container<FoldingRange>> RequestFoldingRange(this ILanguageClient mediator, FoldingRangeRequestParam @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new Container<FoldingRange>(value), cancellationToken);
     }
 #nullable restore
-}";
-            await AssertGeneratedAsExpected(source, expected);
+}
+";
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -407,20 +369,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }";
 
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
@@ -463,20 +425,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             registrationOptions ??= new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionCapability, DefinitionRegistrationOptions>(handler, registrationOptions));
         }
-    }
-#nullable restore
-}
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
-{
-#nullable enable
-    public static partial class DefinitionExtensions
-    {
         public static IRequestProgressObservable<IEnumerable<LocationOrLocationLink>, LocationOrLocationLinks> RequestDefinition(this ILanguageClient mediator, DefinitionParams @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new LocationOrLocationLinks(value), cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
 
@@ -503,20 +457,20 @@ namespace Test
 }";
 
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
 using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
-using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using System.Collections.Generic;
-using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -559,20 +513,12 @@ namespace Test
             registrationOptions ??= new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionCapability, DefinitionRegistrationOptions>(handler, registrationOptions));
         }
-    }
-#nullable restore
-}
 
-namespace Test
-{
-#nullable enable
-    public static partial class DefinitionExtensions
-    {
         public static IRequestProgressObservable<IEnumerable<LocationOrLocationLink>, LocationOrLocationLinks> RequestDefinition(this ITextDocumentLanguageClient mediator, DefinitionParams @params, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(@params, value => new LocationOrLocationLinks(value), cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -595,18 +541,18 @@ namespace Test
     public interface ILanguageProtocolInitializeHandler : IJsonRpcRequestHandler<InitializeParams, InitializeResult> {}
 }";
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
 using System.Collections.Generic;
-using MediatR;
-using Microsoft.Extensions.DependencyInjection;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Test
 {
@@ -616,20 +562,11 @@ namespace Test
     {
         public static ILanguageServerRegistry OnLanguageProtocolInitialize(this ILanguageServerRegistry registry, Func<InitializeParams, Task<InitializeResult>> handler) => registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));
         public static ILanguageServerRegistry OnLanguageProtocolInitialize(this ILanguageServerRegistry registry, Func<InitializeParams, CancellationToken, Task<InitializeResult>> handler) => registry.AddHandler(GeneralNames.Initialize, RequestHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace Test
-{
-#nullable enable
-    public static partial class LanguageProtocolInitializeExtensions
-    {
         public static Task<InitializeResult> RequestLanguageProtocolInitialize(this ITextDocumentLanguageClient mediator, InitializeParams @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -651,17 +588,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
     public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse> { }
 }";
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using System.Collections.Generic;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
@@ -675,20 +612,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
             where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
-{
-#nullable enable
-    public static partial class AttachExtensions
-    {
         public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [Fact]
@@ -712,17 +640,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 #nullable restore
 }";
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using System.Collections.Generic;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
 {
@@ -736,20 +664,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
             where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse?>> handler)
             where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
-{
-#nullable enable
-    public static partial class AttachExtensions
-    {
         public static Task<AttachResponse?> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]
@@ -776,17 +695,17 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
     public interface IAttachHandler : IAttachHandler<AttachRequestArguments> { }
 }";
             var expected = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
-using OmniSharp.Extensions.JsonRpc;
-using OmniSharp.Extensions.JsonRpc.Generation;
-using System.Collections.Generic;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -800,20 +719,11 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
         public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-    }
-#nullable restore
-}
-
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
-{
-#nullable enable
-    public static partial class AttachExtensions
-    {
         public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments @params, CancellationToken cancellationToken = default) => mediator.SendRequest(@params, cancellationToken);
     }
 #nullable restore
 }";
-            await AssertGeneratedAsExpected(source, expected);
+            await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
         }
     }
 }
