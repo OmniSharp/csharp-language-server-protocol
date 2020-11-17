@@ -6,8 +6,8 @@
         <RootNamespace>OmniSharp.Extensions.JsonRpc.Generators</RootNamespace>
         <NoPackageAnalysis>true</NoPackageAnalysis>
 
-<!--        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
-        <IncludeBuildOutput>false</IncludeBuildOutput>
+<!--        <IncludeBuildOutput>false</IncludeBuildOutput>-->
+<!--        <NoPackageAnalysis>true</NoPackageAnalysis>-->
     </PropertyGroup>
 
     <ItemGroup>
