@@ -42,7 +42,6 @@ namespace Lsp.Tests
                                      new SemanticTokenModifier("modification"),
                                      new SemanticTokenModifier("defaultLibrary")
                                  }
-                                .Select(z => z.ToString())
                                 .ToArray(),
                 TokenTypes = new[] {
                                  new SemanticTokenType("comment"),
@@ -69,7 +68,6 @@ namespace Lsp.Tests
                                  new SemanticTokenType("event"),
                                  new SemanticTokenType("enumMember"),
                              }
-                            .Select(x => x.ToString())
                             .ToArray(),
             };
         }
@@ -278,7 +276,7 @@ namespace Lsp.Tests
                                            .OrNull(f, 0.2f)
                         );
 
-            foreach (var (line, text) in document.Split('\n').Select((text, line) => ( line, text )))
+            foreach (var (line, text) in document.Split('\n').Select((text, line) => (line, text)))
             {
                 var parts = text.TrimEnd().Split(';', ' ', '.', '"', '(', ')');
                 var index = 0;
@@ -297,7 +295,7 @@ namespace Lsp.Tests
                     else
                     {
                         // ensure range gets some love
-                        builder.Push(( ( line, index ), ( line, part.Length + index ) ), item.Type, item.Modifiers);
+                        builder.Push(((line, index), (line, part.Length + index)), item.Type, item.Modifiers);
                     }
                 }
             }
@@ -341,7 +339,7 @@ namespace Lsp.Tests
             {
                 if (obj is null) return false;
                 if (ReferenceEquals(this, obj)) return true;
-                return obj.GetType() == GetType() && Equals((NormalizedToken) obj);
+                return obj.GetType() == GetType() && Equals((NormalizedToken)obj);
             }
 
             public override int GetHashCode() => HashCode.Combine(Text, Type, Modifiers);
@@ -434,7 +432,7 @@ namespace Lsp.Tests
         {
             for (var i = 0; i < values.Count; i += 5)
             {
-                yield return ( values[i], values[i + 1], values[i + 2], values[i + 3], values[i + 4] );
+                yield return (values[i], values[i + 1], values[i + 2], values[i + 3], values[i + 4]);
             }
         }
 

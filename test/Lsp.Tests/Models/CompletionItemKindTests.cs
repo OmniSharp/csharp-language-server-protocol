@@ -17,7 +17,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemKind>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemKind>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

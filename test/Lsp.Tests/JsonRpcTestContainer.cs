@@ -20,7 +20,7 @@ namespace Lsp.Tests
                                                                .WithUndefinedTestDependenciesResolver(request => Substitute.For(new[] { request.ServiceType }, null))
                                                                .WithConcreteTypeDynamicRegistrations((type, o) => true, Reuse.Transient)
                                                    );
-            container.RegisterInstanceMany(new Serializer(ClientVersion.Lsp3));
+            container.RegisterInstanceMany(new LspSerializer(ClientVersion.Lsp3));
             return container;
         }
     }

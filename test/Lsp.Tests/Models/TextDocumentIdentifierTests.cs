@@ -19,14 +19,14 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentIdentifier>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentIdentifier>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
         public void Should_Deserialize_For_Example_Value()
         {
-            var serializer = new Serializer(ClientVersion.Lsp3);
+            var serializer = new LspSerializer(ClientVersion.Lsp3);
             var result = serializer.DeserializeObject<TextDocumentIdentifier>(
                 @"{
                 ""uri"":""file:///Users/tyler/Code/PowerShell/vscode/PowerShellEditorServices/test/PowerShellEditorServices.Test.E2E/bin/Debug/netcoreapp3.1/0b0jnxg2.kgh.ps1""

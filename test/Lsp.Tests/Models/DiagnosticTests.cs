@@ -25,7 +25,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -61,7 +61,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -74,7 +74,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Diagnostic>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

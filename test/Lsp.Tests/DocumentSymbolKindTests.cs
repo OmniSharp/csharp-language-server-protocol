@@ -14,7 +14,7 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialSymbolKinds()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
                 new SymbolInformation {
                     Kind = SymbolKind.Event
@@ -28,7 +28,7 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialSymbolTags()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
                 new SymbolInformation {
                     Tags = new Container<SymbolTag>(SymbolTag.Deprecated)
@@ -42,9 +42,9 @@ namespace Lsp.Tests
         [Fact]
         public void CustomBehavior_When_SymbolKind_Defined_By_Client()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             serializer.SetClientCapabilities(
-                ClientVersion.Lsp3, new ClientCapabilities {
+                new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
                         DocumentSymbol = new Supports<DocumentSymbolCapability?>(
                             true, new DocumentSymbolCapability {
@@ -66,35 +66,6 @@ namespace Lsp.Tests
 
             var result = serializer.DeserializeObject<DocumentSymbol>(json);
             result.Kind.Should().Be(SymbolKind.Class);
-        }
-
-        [Fact]
-        public void CustomBehavior_When_SymbolTag_Defined_By_Client()
-        {
-            var serializer = new Serializer();
-            serializer.SetClientCapabilities(
-                ClientVersion.Lsp3, new ClientCapabilities {
-                    TextDocument = new TextDocumentClientCapabilities {
-                        DocumentSymbol = new Supports<DocumentSymbolCapability?>(
-                            true, new DocumentSymbolCapability {
-                                DynamicRegistration = true,
-                                TagSupport = new TagSupportCapabilityOptions {
-                                    ValueSet = new Container<SymbolTag>()
-                                }
-                            }
-                        )
-                    }
-                }
-            );
-
-            var json = serializer.SerializeObject(
-                new DocumentSymbol {
-                    Tags = new Container<SymbolTag>(SymbolTag.Deprecated)
-                }
-            );
-
-            var result = serializer.DeserializeObject<DocumentSymbol>(json);
-            result.Tags.Should().BeEmpty();
         }
     }
 }

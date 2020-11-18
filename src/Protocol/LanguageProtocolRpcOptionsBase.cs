@@ -24,16 +24,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Services.AddSingleton(typeof(ITextDocumentIdentifier), item);
             }
 
-            return (T) (object) this;
+            return (T)(object)this;
         }
 
         public T AddTextDocumentIdentifier<TI>() where TI : ITextDocumentIdentifier
         {
             Services.AddSingleton(typeof(ITextDocumentIdentifier), typeof(TI));
-            return (T) (object) this;
+            return (T)(object)this;
         }
 
-        public ISerializer Serializer { get; set; } = new Serializer(ClientVersion.Lsp3);
+        public ISerializer Serializer { get; set; } = new LspSerializer(ClientVersion.Lsp3);
         internal bool AddDefaultLoggingProvider { get; set; }
         internal Action<ILoggingBuilder>? LoggingBuilderAction { get; set; } = _ => { };
         internal Action<IConfigurationBuilder>? ConfigurationBuilderAction { get; set; } = _ => { };

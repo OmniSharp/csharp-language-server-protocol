@@ -1,68 +1,86 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 #pragma warning disable 618
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
-    public class Serializer : JsonRpcSerializer, ISerializer
+    public class LspSerializer : JsonRpcSerializer, ISerializer
     {
-        private static readonly CompletionItemKind[] DefaultCompletionItemKinds = Enum
+        private static readonly ImmutableArray<CompletionItemKind> DefaultCompletionItemKinds = Enum
                                                                                  .GetValues(typeof(CompletionItemKind))
                                                                                  .Cast<CompletionItemKind>()
-                                                                                 .ToArray();
+                                                                                 .ToImmutableArray();
 
-        private static readonly CompletionItemTag[] DefaultCompletionItemTags = Enum
+        private static readonly ImmutableArray<CompletionItemTag> DefaultCompletionItemTags = Enum
                                                                                .GetValues(typeof(CompletionItemTag))
                                                                                .Cast<CompletionItemTag>()
-                                                                               .ToArray();
+                                                                               .ToImmutableArray();
 
-        private static readonly SymbolKind[] DefaultSymbolKinds = Enum.GetValues(typeof(SymbolKind))
+        private static readonly ImmutableArray<SymbolKind> DefaultSymbolKinds = Enum.GetValues(typeof(SymbolKind))
                                                                       .Cast<SymbolKind>()
-                                                                      .ToArray();
+                                                                      .ToImmutableArray();
 
-        private static readonly SymbolTag[] DefaultSymbolTags = Enum.GetValues(typeof(SymbolTag))
+        private static readonly ImmutableArray<SymbolTag> DefaultSymbolTags = Enum.GetValues(typeof(SymbolTag))
                                                                     .Cast<SymbolTag>()
-                                                                    .ToArray();
+                                                                    .ToImmutableArray();
 
-        private static readonly DiagnosticTag[] DefaultDiagnosticTags = Enum.GetValues(typeof(DiagnosticTag))
+        private static readonly ImmutableArray<DiagnosticTag> DefaultDiagnosticTags = Enum.GetValues(typeof(DiagnosticTag))
                                                                             .Cast<DiagnosticTag>()
-                                                                            .ToArray();
+                                                                            .ToImmutableArray();
 
-        private static readonly CodeActionKind[] DefaultCodeActionKinds = typeof(CodeActionKind).GetFields(BindingFlags.Static | BindingFlags.Public)
-                                                                                                .Select(z => z.GetValue(null))
-                                                                                                .Cast<CodeActionKind>()
-                                                                                                .ToArray();
+        private static readonly ImmutableArray<CodeActionKind> DefaultCodeActionKinds = CodeActionKind.Defaults.ToImmutableArray();
+        private static readonly ImmutableArray<SemanticTokenType> DefaultSemanticTokenType = SemanticTokenType.Defaults.ToImmutableArray();
+        private static readonly ImmutableArray<SemanticTokenModifier> DefaultSemanticTokenModifiers = SemanticTokenModifier.Defaults.ToImmutableArray();
+
+
+        private ImmutableArray<CompletionItemKind> _completionItemKinds = DefaultCompletionItemKinds;
+        private ImmutableArray<CompletionItemTag> _completionItemTags = DefaultCompletionItemTags;
+        private ImmutableArray<SymbolKind> _documentSymbolKinds = DefaultSymbolKinds;
+        private ImmutableArray<SymbolTag> _documentSymbolTags = DefaultSymbolTags;
+        private ImmutableArray<SymbolKind> _workspaceSymbolKinds = DefaultSymbolKinds;
+        private ImmutableArray<SymbolTag> _workspaceSymbolTags = DefaultSymbolTags;
+        private ImmutableArray<DiagnosticTag> _diagnosticTags = DefaultDiagnosticTags;
+        private ImmutableArray<CodeActionKind> _codeActionKinds = DefaultCodeActionKinds;
+        private ImmutableArray<SemanticTokenType> _semanticTokenTypes = DefaultSemanticTokenType;
+        private ImmutableArray<SemanticTokenModifier> _semanticTokenModifier = DefaultSemanticTokenModifiers;
+
+        // TODO: Add semantic tokens?
 
         public ClientVersion ClientVersion { get; }
 
-        public static Serializer Instance { get; } = new Serializer();
+        public static LspSerializer Instance { get; } = new LspSerializer();
 
-        public Serializer() : this(ClientVersion.Lsp3)
+        public LspSerializer() : this(ClientVersion.Lsp3)
         {
         }
 
-        public Serializer(ClientVersion clientVersion) => ClientVersion = clientVersion;
+        public LspSerializer(ClientVersion clientVersion) => ClientVersion = clientVersion;
 
 
         protected override JsonSerializer CreateSerializer()
         {
             var serializer = base.CreateSerializer();
             serializer.ContractResolver = new LspContractResolver(
-                DefaultCompletionItemKinds,
-                DefaultCompletionItemTags,
-                DefaultSymbolKinds,
-                DefaultSymbolKinds,
-                DefaultSymbolTags,
-                DefaultSymbolTags,
-                DefaultDiagnosticTags,
-                DefaultCodeActionKinds
+                _completionItemKinds,
+                _completionItemTags,
+                _documentSymbolKinds,
+                _workspaceSymbolKinds,
+                _documentSymbolTags,
+                _workspaceSymbolTags,
+                _diagnosticTags,
+                _codeActionKinds,
+                _semanticTokenTypes,
+                _semanticTokenModifier
             );
             return serializer;
         }
@@ -71,14 +89,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
         {
             var settings = base.CreateSerializerSettings();
             settings.ContractResolver = new LspContractResolver(
-                DefaultCompletionItemKinds,
-                DefaultCompletionItemTags,
-                DefaultSymbolKinds,
-                DefaultSymbolKinds,
-                DefaultSymbolTags,
-                DefaultSymbolTags,
-                DefaultDiagnosticTags,
-                DefaultCodeActionKinds
+                _completionItemKinds,
+                _completionItemTags,
+                _documentSymbolKinds,
+                _workspaceSymbolKinds,
+                _documentSymbolTags,
+                _workspaceSymbolTags,
+                _diagnosticTags,
+                _codeActionKinds,
+                _semanticTokenTypes,
+                _semanticTokenModifier
             );
             return settings;
         }
@@ -110,39 +130,93 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             ReplaceConverter(converters, new RangeOrPlaceholderRangeConverter());
             ReplaceConverter(converters, new EnumLikeStringConverter());
             ReplaceConverter(converters, new DocumentUriConverter());
-//            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
-//            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
-//            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
-//            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
-//            ReplaceConverter(converters, new AggregateConverter<CommandOrCodeActionContainer>());
+            //            ReplaceConverter(converters, new AggregateConverter<CodeLensContainer>());
+            //            ReplaceConverter(converters, new AggregateConverter<DocumentLinkContainer>());
+            //            ReplaceConverter(converters, new AggregateConverter<LocationContainer>());
+            //            ReplaceConverter(converters, new AggregateConverter<LocationOrLocationLinks>());
+            //            ReplaceConverter(converters, new AggregateConverter<CommandOrCodeActionContainer>());
             ReplaceConverter(converters, new AggregateCompletionListConverter());
             base.AddOrReplaceConverters(converters);
         }
 
-        public void SetClientCapabilities(ClientVersion clientVersion, ClientCapabilities? clientCapabilities)
+        public LspSerializer WithCompletionItemKinds(IEnumerable<CompletionItemKind> completionItemKinds)
         {
-            var completionItemKinds = DefaultCompletionItemKinds;
-            var completionItemTags = DefaultCompletionItemTags;
-            var documentSymbolKinds = DefaultSymbolKinds;
-            var documentSymbolTags = DefaultSymbolTags;
-            var workspaceSymbolKinds = DefaultSymbolKinds;
-            var workspaceSymbolTags = DefaultSymbolTags;
-            var diagnosticTags = DefaultDiagnosticTags;
-            var codeActionKinds = DefaultCodeActionKinds;
+            _completionItemKinds = completionItemKinds.ToImmutableArray();
+            return Reset();
+        }
 
+        public LspSerializer WithCompletionItemTags(IEnumerable<CompletionItemTag> completionItemTags)
+        {
+            _completionItemTags = completionItemTags.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithDocumentSymbolKinds(IEnumerable<SymbolKind> documentSymbolKinds)
+        {
+            _documentSymbolKinds = documentSymbolKinds.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithDocumentSymbolTags(IEnumerable<SymbolTag> documentSymbolTags)
+        {
+            _documentSymbolTags = documentSymbolTags.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithWorkspaceSymbolKinds(IEnumerable<SymbolKind> workspaceSymbolKinds)
+        {
+            _workspaceSymbolKinds = workspaceSymbolKinds.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithWorkspaceSymbolTags(IEnumerable<SymbolTag> workspaceSymbolTags)
+        {
+            _workspaceSymbolTags = workspaceSymbolTags.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithDiagnosticTags(IEnumerable<DiagnosticTag> diagnosticTags)
+        {
+            _diagnosticTags = diagnosticTags.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer WithCodeActionKinds(IEnumerable<CodeActionKind> codeActionKinds)
+        {
+            _codeActionKinds = codeActionKinds.ToImmutableArray();
+            return Reset();
+        }
+
+        public LspSerializer SetServerCapabilities(ServerCapabilities? serverCapabilities)
+        {
+            if (serverCapabilities?.CodeActionProvider?.IsValue == true)
+            {
+                var codeActions = serverCapabilities.CodeActionProvider.Value;
+                var kindValueSet = codeActions?.CodeActionKinds;
+                if (kindValueSet is not null)
+                {
+                    _codeActionKinds = kindValueSet.ToImmutableArray();
+                }
+            }
+
+            return Reset();
+        }
+
+        public LspSerializer SetClientCapabilities(ClientCapabilities? clientCapabilities)
+        {
             if (clientCapabilities?.TextDocument?.Completion.IsSupported == true)
             {
                 var completion = clientCapabilities.TextDocument.Completion.Value;
                 var valueSet = completion?.CompletionItemKind?.ValueSet;
                 if (valueSet is not null)
                 {
-                    completionItemKinds = valueSet.ToArray();
+                    _completionItemKinds = valueSet.ToImmutableArray();
                 }
 
                 var tagSupportSet = completion?.CompletionItem?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet is not null)
                 {
-                    completionItemTags = tagSupportSet.ToArray();
+                    _completionItemTags = tagSupportSet.ToImmutableArray();
                 }
             }
 
@@ -152,13 +226,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
                 if (symbolKindSet is not null)
                 {
-                    documentSymbolKinds = symbolKindSet.ToArray();
+                    _documentSymbolKinds = symbolKindSet.ToImmutableArray();
                 }
 
                 var valueSet = symbol?.TagSupport?.ValueSet;
                 if (valueSet is not null)
                 {
-                    documentSymbolTags = valueSet.ToArray();
+                    _documentSymbolTags = valueSet.ToImmutableArray();
                 }
             }
 
@@ -168,13 +242,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var symbolKindSet = symbol?.SymbolKind?.ValueSet;
                 if (symbolKindSet is not null)
                 {
-                    workspaceSymbolKinds = symbolKindSet.ToArray();
+                    _workspaceSymbolKinds = symbolKindSet.ToImmutableArray();
                 }
 
                 var tagSupportSet = symbol?.TagSupport.Value?.ValueSet;
                 if (tagSupportSet is not null)
                 {
-                    workspaceSymbolTags = tagSupportSet.ToArray();
+                    _workspaceSymbolTags = tagSupportSet.ToImmutableArray();
                 }
             }
 
@@ -184,7 +258,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var tagValueSet = publishDiagnostics?.TagSupport.Value?.ValueSet;
                 if (tagValueSet is not null)
                 {
-                    diagnosticTags = tagValueSet.ToArray();
+                    _diagnosticTags = tagValueSet.ToImmutableArray();
                 }
             }
 
@@ -194,34 +268,43 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
                 var kindValueSet = codeActions?.CodeActionLiteralSupport?.CodeActionKind.ValueSet;
                 if (kindValueSet is not null)
                 {
-                    codeActionKinds = kindValueSet.ToArray();
+                    _codeActionKinds = kindValueSet.ToImmutableArray();
                 }
             }
 
+            return Reset();
+        }
 
+        private LspSerializer Reset()
+        {
             AddOrReplaceConverters(Settings.Converters);
             Settings.ContractResolver = new LspContractResolver(
-                completionItemKinds,
-                completionItemTags,
-                documentSymbolKinds,
-                workspaceSymbolKinds,
-                documentSymbolTags,
-                workspaceSymbolTags,
-                diagnosticTags,
-                codeActionKinds
+                _completionItemKinds,
+                _completionItemTags,
+                _documentSymbolKinds,
+                _workspaceSymbolKinds,
+                _documentSymbolTags,
+                _workspaceSymbolTags,
+                _diagnosticTags,
+                _codeActionKinds,
+                _semanticTokenTypes,
+                _semanticTokenModifier
             );
 
             AddOrReplaceConverters(JsonSerializer.Converters);
             JsonSerializer.ContractResolver = new LspContractResolver(
-                completionItemKinds,
-                completionItemTags,
-                documentSymbolKinds,
-                workspaceSymbolKinds,
-                documentSymbolTags,
-                workspaceSymbolTags,
-                diagnosticTags,
-                codeActionKinds
+                _completionItemKinds,
+                _completionItemTags,
+                _documentSymbolKinds,
+                _workspaceSymbolKinds,
+                _documentSymbolTags,
+                _workspaceSymbolTags,
+                _diagnosticTags,
+                _codeActionKinds,
+                _semanticTokenTypes,
+                _semanticTokenModifier
             );
+            return this;
         }
     }
 }

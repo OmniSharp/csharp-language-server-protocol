@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
+using System.Reflection;
 using Newtonsoft.Json;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
@@ -12,6 +15,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
     [JsonConverter(typeof(EnumLikeStringConverter))]
     public readonly struct CodeActionKind : IEquatable<CodeActionKind>, IEnumLikeString
     {
+        private static readonly Lazy<IReadOnlyList<CodeActionKind>> _defaults =
+            new Lazy<IReadOnlyList<CodeActionKind>>(
+                () => {
+                    return typeof(CodeActionKind)
+                          .GetFields(BindingFlags.Static | BindingFlags.Public)
+                          .Select(z => z.GetValue(null))
+                          .Cast<CodeActionKind>()
+                          .ToArray();
+                }
+            );
+
+        public static IEnumerable<CodeActionKind> Defaults => _defaults.Value;
+
         /// <summary>
         /// Base kind for quickfix actions: ''
         /// </summary>

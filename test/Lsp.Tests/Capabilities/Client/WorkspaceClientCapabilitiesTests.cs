@@ -30,7 +30,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
@@ -44,7 +44,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WorkspaceClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

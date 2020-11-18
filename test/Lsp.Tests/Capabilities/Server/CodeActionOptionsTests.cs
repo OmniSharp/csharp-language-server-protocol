@@ -14,13 +14,13 @@ namespace Lsp.Tests.Capabilities.Server
         {
             var model = new CodeActionRegistrationOptions.StaticOptions {
                 ResolveProvider = true,
-                CodeActionKinds = new [] { CodeActionKind.QuickFix, CodeActionKind.Refactor }
+                CodeActionKinds = new[] { CodeActionKind.QuickFix, CodeActionKind.Refactor }
             };
             var result = Fixture.SerializeObject(model);
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeActionRegistrationOptions.StaticOptions>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CodeActionRegistrationOptions.StaticOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

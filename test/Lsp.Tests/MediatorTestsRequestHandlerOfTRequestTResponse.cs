@@ -51,7 +51,7 @@ namespace Lsp.Tests
                 );
 
             var collection = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                                         new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
+                                                         new LspHandlerTypeDescriptorProvider(new[] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }))
                 { textDocumentSyncHandler, codeActionHandler };
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
@@ -66,12 +66,12 @@ namespace Lsp.Tests
                 }
             };
 
-            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new Serializer(ClientVersion.Lsp3).Settings)));
+            var request = new Request(id, "textDocument/codeAction", JObject.Parse(JsonConvert.SerializeObject(@params, new LspSerializer(ClientVersion.Lsp3).Settings)));
             var cts = new CancellationTokenSource();
             cts.Cancel();
 
-            ( (IRequestRouter<ILspHandlerDescriptor>) mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
-            Func<Task> action = () => ( (IRequestRouter<ILspHandlerDescriptor>) mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
+            ( (IRequestRouter<ILspHandlerDescriptor>)mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
+            Func<Task> action = () => ( (IRequestRouter<ILspHandlerDescriptor>)mediator ).RouteRequest(mediator.GetDescriptors(request), request, cts.Token);
             await action.Should().ThrowAsync<OperationCanceledException>();
         }
     }

@@ -12,7 +12,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Fact]
         public void TagSupportTrue()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<PublishDiagnosticsCapability>("{\"tagSupport\":true}");
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<PublishDiagnosticsCapability>("{\"tagSupport\":true}");
             deresult.Should().BeEquivalentTo(
                 new PublishDiagnosticsCapability {
                     TagSupport = new Supports<PublishDiagnosticsTagSupportCapabilityOptions?>(true)
@@ -23,7 +23,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Fact]
         public void TagSupportObject()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<PublishDiagnosticsCapability>("{\"tagSupport\":{\"valueSet\": [2,1]}}");
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<PublishDiagnosticsCapability>("{\"tagSupport\":{\"valueSet\": [2,1]}}");
             deresult.TagSupport.IsSupported.Should().Be(true);
             deresult.TagSupport.Value!.ValueSet.Should().ContainInOrder(DiagnosticTag.Deprecated, DiagnosticTag.Unnecessary);
         }

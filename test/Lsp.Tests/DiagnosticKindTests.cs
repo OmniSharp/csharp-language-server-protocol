@@ -12,7 +12,7 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialDiagnosticTags()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
                 new Diagnostic {
                     Tags = new Container<DiagnosticTag>(DiagnosticTag.Deprecated)
@@ -21,34 +21,6 @@ namespace Lsp.Tests
 
             var result = serializer.DeserializeObject<Diagnostic>(json);
             result.Tags.Should().Contain(DiagnosticTag.Deprecated);
-        }
-
-        [Fact]
-        public void CustomBehavior_When_DiagnosticTag_Defined_By_Client()
-        {
-            var serializer = new Serializer();
-            serializer.SetClientCapabilities(
-                ClientVersion.Lsp3, new ClientCapabilities {
-                    TextDocument = new TextDocumentClientCapabilities {
-                        PublishDiagnostics = new Supports<PublishDiagnosticsCapability?>(
-                            true, new PublishDiagnosticsCapability {
-                                TagSupport = new PublishDiagnosticsTagSupportCapabilityOptions {
-                                    ValueSet = new Container<DiagnosticTag>()
-                                }
-                            }
-                        )
-                    }
-                }
-            );
-
-            var json = serializer.SerializeObject(
-                new Diagnostic {
-                    Tags = new Container<DiagnosticTag>(DiagnosticTag.Deprecated)
-                }
-            );
-
-            var result = serializer.DeserializeObject<Diagnostic>(json);
-            result.Tags.Should().BeEmpty();
         }
     }
 }

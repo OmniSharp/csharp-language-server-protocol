@@ -10,7 +10,7 @@ namespace Lsp.Tests.Models
         [Fact]
         public void CommentTest()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(FoldingRangeKind.Comment);
             json.Should().Be("\"comment\"");
         }
@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
         [Fact]
         public void ImportsTest()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(FoldingRangeKind.Imports);
             json.Should().Be("\"imports\"");
         }
@@ -26,7 +26,7 @@ namespace Lsp.Tests.Models
         [Fact]
         public void RegionTest()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(FoldingRangeKind.Region);
             json.Should().Be("\"region\"");
         }

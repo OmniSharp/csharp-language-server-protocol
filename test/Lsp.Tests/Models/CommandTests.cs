@@ -22,7 +22,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Command>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Command>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

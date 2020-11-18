@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Shared;
 // ReSharper disable SuspiciousTypeConversion.Global
@@ -44,7 +45,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly IEnumerable<IOnLanguageClientInitialize> _initializeHandlers;
         private readonly IEnumerable<OnLanguageClientInitializedDelegate> _initializedDelegates;
         private readonly IEnumerable<IOnLanguageClientInitialized> _initializedHandlers;
-        private readonly ISerializer _serializer;
+        private readonly LspSerializer _serializer;
         private readonly InstanceHasStarted _instanceHasStarted;
         private readonly IResponseRouter _responseRouter;
         private readonly ISubject<InitializeResult> _initializeComplete = new AsyncSubject<InitializeResult>();
@@ -145,7 +146,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager, IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
             IEnumerable<IOnLanguageClientInitialize> initializeHandlers, IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
             IEnumerable<IOnLanguageClientInitialized> initializedHandlers,
-            ISerializer serializer,
+            LspSerializer serializer,
             InstanceHasStarted instanceHasStarted
         ) : base(handlerCollection, responseRouter)
         {
@@ -162,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             _initializationOptions = options.Value.InitializationOptions;
             _settingsBag = languageProtocolSettingsBag;
             _collection = handlerCollection;
-            Services  = _resolverContext = resolverContext;
+            Services = _resolverContext = resolverContext;
 
             _responseRouter = responseRouter;
             ProgressManager = progressManager;
@@ -268,6 +269,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             var serverParams = await SendRequest(ClientSettings, token).ConfigureAwait(false);
 
             ServerSettings = serverParams;
+            _serializer.SetServerCapabilities(serverParams.Capabilities);
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
@@ -385,7 +387,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();
 
-        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)]out TaskCompletionSource<JToken> pendingTask) =>
+        bool IResponseRouter.TryGetRequest(long id, [NotNullWhen(true)] out string method, [NotNullWhen(true)] out TaskCompletionSource<JToken> pendingTask) =>
             _responseRouter.TryGetRequest(id, out method, out pendingTask);
 
         public Task<InitializeResult> WasStarted => _initializeComplete.ToTask();

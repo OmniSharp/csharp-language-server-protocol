@@ -20,14 +20,14 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
         [Fact]
         public void TagSupportTrue()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":true}");
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":true}");
             deresult.Should().BeEquivalentTo(
                 new CompletionItemCapabilityOptions {
                     TagSupport = new Supports<CompletionItemTagSupportCapabilityOptions?>(true)
@@ -38,7 +38,7 @@ namespace Lsp.Tests.Capabilities.Client
         [Fact]
         public void TagSupportObject()
         {
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":{\"valueSet\": [1]}}");
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionItemCapabilityOptions>("{\"tagSupport\":{\"valueSet\": [1]}}");
             deresult.TagSupport.IsSupported.Should().Be(true);
             deresult.TagSupport.Value!.ValueSet.Should().Contain(CompletionItemTag.Deprecated);
         }

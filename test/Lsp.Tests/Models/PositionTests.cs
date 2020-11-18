@@ -17,7 +17,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Position>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Position>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -62,7 +62,7 @@ namespace Lsp.Tests.Models
             a = a.Delta(deltaCharacter: -1);
             a.Character.Should().Be(0);
             a = a.Delta(-1, 1);
-            a.Should().Be(( 1, 1 ));
+            a.Should().Be((1, 1));
         }
     }
 }

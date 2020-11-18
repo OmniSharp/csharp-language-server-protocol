@@ -21,7 +21,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<WillSaveTextDocumentParams>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<WillSaveTextDocumentParams>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

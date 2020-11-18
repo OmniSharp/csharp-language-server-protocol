@@ -15,7 +15,7 @@ namespace Lsp.Tests
 
         public static string SerializeObject(object value, Type? type, JsonSerializerSettings? settings, ClientVersion version = ClientVersion.Lsp3)
         {
-            var jsonSerializer = new Serializer(version);
+            var jsonSerializer = new LspSerializer(version);
 
             return SerializeObjectInternal(value, type, jsonSerializer);
         }

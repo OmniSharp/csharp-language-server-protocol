@@ -24,7 +24,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<SignatureHelpRegistrationOptions>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<SignatureHelpRegistrationOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

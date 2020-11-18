@@ -21,6 +21,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
@@ -29,7 +30,6 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server.Abstractions;
 using OmniSharp.Extensions.LanguageServer.Server.Logging;
 using OmniSharp.Extensions.LanguageServer.Shared;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 // ReSharper disable SuspiciousTypeConversion.Global
 
@@ -41,7 +41,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private ClientVersion? _clientVersion;
         private readonly ServerInfo _serverInfo;
         private readonly ILspServerReceiver _serverReceiver;
-        private readonly ISerializer _serializer;
+        private readonly LspSerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
         private readonly IHandlerCollection _collection;
         private readonly IEnumerable<OnLanguageServerInitializeDelegate> _initializeDelegates;
@@ -128,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             ILanguageServerConfiguration configuration,
             ServerInfo serverInfo,
             ILspServerReceiver receiver,
-            ISerializer serializer,
+            LspSerializer serializer,
             IResolverContext resolverContext,
             ISupportedCapabilities supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
@@ -299,7 +299,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             _clientVersion = clientCapabilities.GetClientVersion();
-            _serializer.SetClientCapabilities(_clientVersion.Value, clientCapabilities);
+            _serializer.SetClientCapabilities(clientCapabilities);
 
             var supportedCapabilities = new List<ISupports>();
             if (_clientVersion == ClientVersion.Lsp3)
@@ -410,7 +410,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var kinds = _collection
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
-                               .Select(x => ( (TextDocumentChangeRegistrationOptions?) x.GetRegistrationOptions() )?.SyncKind ?? TextDocumentSyncKind.None)
+                               .Select(x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions() )?.SyncKind ?? TextDocumentSyncKind.None)
                                .Where(x => x != TextDocumentSyncKind.None)
                                .ToArray();
                     if (kinds.Any())
@@ -506,7 +506,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             }
 
             return LanguageServerHelpers.RegisterHandlers(_initializeComplete.Select(z => System.Reactive.Unit.Default), Client, WorkDoneManager, _supportedCapabilities, result);
-//            return LanguageServerHelpers.RegisterHandlers(_initializingTask ?? _initializeComplete.ToTask(), Client, WorkDoneManager, _supportedCapabilities, result);
+            //            return LanguageServerHelpers.RegisterHandlers(_initializingTask ?? _initializeComplete.ToTask(), Client, WorkDoneManager, _supportedCapabilities, result);
         }
 
         object IServiceProvider.GetService(Type serviceType) => Services.GetService(serviceType);

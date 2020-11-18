@@ -12,7 +12,7 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemKinds()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
                 new CompletionItem {
                     Kind = CompletionItemKind.Event
@@ -26,7 +26,7 @@ namespace Lsp.Tests
         [Fact]
         public void DefaultBehavior_Should_Only_Support_InitialCompletionItemTags()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             var json = serializer.SerializeObject(
                 new CompletionItem {
                     Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
@@ -40,9 +40,9 @@ namespace Lsp.Tests
         [Fact]
         public void CustomBehavior_When_CompletionItemKinds_Defined_By_Client()
         {
-            var serializer = new Serializer();
+            var serializer = new LspSerializer();
             serializer.SetClientCapabilities(
-                ClientVersion.Lsp3, new ClientCapabilities {
+                new ClientCapabilities {
                     TextDocument = new TextDocumentClientCapabilities {
                         Completion = new Supports<CompletionCapability?>(
                             true, new CompletionCapability {
@@ -64,37 +64,6 @@ namespace Lsp.Tests
 
             var result = serializer.DeserializeObject<CompletionItem>(json);
             result.Kind.Should().Be(CompletionItemKind.Class);
-        }
-
-        [Fact]
-        public void CustomBehavior_When_CompletionItemTags_Defined_By_Client()
-        {
-            var serializer = new Serializer();
-            serializer.SetClientCapabilities(
-                ClientVersion.Lsp3, new ClientCapabilities {
-                    TextDocument = new TextDocumentClientCapabilities {
-                        Completion = new Supports<CompletionCapability?>(
-                            true, new CompletionCapability {
-                                DynamicRegistration = true,
-                                CompletionItem = new CompletionItemCapabilityOptions {
-                                    TagSupport = new CompletionItemTagSupportCapabilityOptions {
-                                        ValueSet = new Container<CompletionItemTag>()
-                                    }
-                                }
-                            }
-                        )
-                    }
-                }
-            );
-
-            var json = serializer.SerializeObject(
-                new CompletionItem {
-                    Tags = new Container<CompletionItemTag>(CompletionItemTag.Deprecated)
-                }
-            );
-
-            var result = serializer.DeserializeObject<CompletionItem>(json);
-            result.Tags.Should().BeEmpty();
         }
     }
 }

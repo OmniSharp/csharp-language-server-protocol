@@ -18,7 +18,7 @@ namespace Lsp.Tests.Messages
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<RpcError>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<RpcError>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }
