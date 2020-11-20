@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Net.Mail;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -27,7 +28,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                 AttributeList(
                                                     SeparatedList(
                                                         new[] {
-                                                            Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                                                             Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
                                                         }
                                                     )
@@ -48,6 +48,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             {
                 handlerInterface = handlerInterface.AddBaseListTypes(SimpleBaseType(registrationAndOrCapability));
             }
+
+            attributesToCopy = attributesToCopy.Concat(
+                new[] {
+                    AttributeList(
+                        SeparatedList(
+                            new[] {
+                                Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
+                            }
+                        )
+                    )
+                }
+            ).ToArray();
 
             members.Add(handlerInterface);
 
@@ -83,6 +95,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     members.Add(handlerClass);
                 }
             }
+
+            if (members.Count == 0) yield break;
 
             yield return NamespaceDeclaration(ParseName(item.JsonRpcAttributes.HandlerNamespace))
                         .WithMembers(List(members))

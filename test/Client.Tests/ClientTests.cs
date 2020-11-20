@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                                     }
                                 }
                             )!;
-                        }, new HoverRegistrationOptions()
+                        },  () => new HoverRegistrationOptions()
                     );
                 }
             );

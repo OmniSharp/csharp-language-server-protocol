@@ -56,6 +56,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
+        public abstract class Request<TParams, TResult> :
+            IJsonRpcRequestHandler<TParams, TResult>
+            where TParams : IRequest<TResult>
+        {
+            public abstract Task<TResult> Handle(TParams request, CancellationToken cancellationToken);
+        }
+
         public abstract class Request<TParams, TResult, TRegistrationOptions> :
             Base<TRegistrationOptions>,
             IJsonRpcRequestHandler<TParams, TResult>
@@ -323,6 +330,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             protected abstract void Handle(TParams request, IObserver<IEnumerable<TItem>> results, CancellationToken cancellationToken);
+        }
+
+        public abstract class Notification<TParams> : IJsonRpcRequestHandler<TParams>
+            where TParams : IRequest
+        {
+            public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
+            {
+                Handle(request);
+                return Unit.Task;
+            }
+
+            protected abstract void Handle(TParams request);
         }
 
         public abstract class Notification<TParams, TRegistrationOptions, TCapability> :

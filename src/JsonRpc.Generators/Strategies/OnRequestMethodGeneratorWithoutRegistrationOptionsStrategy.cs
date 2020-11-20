@@ -127,13 +127,26 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             {
                 if (request.Capability is { } capability)
                 {
-                    factory = MakeMethodFactory(
-                        method.WithExpressionBody(
-                            GetRequestCapabilityHandlerExpression(
-                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, capability.Syntax
-                            )
-                        ), extensionMethodContext.GetRegistryParameterList()
-                    );
+                    if (request.IsUnit)
+                    {
+                        factory = MakeMethodFactory(
+                            method.WithExpressionBody(
+                                GetVoidRequestCapabilityHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList()
+                        );
+                    }
+                    else
+                    {
+                        factory = MakeMethodFactory(
+                            method.WithExpressionBody(
+                                GetRequestCapabilityHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList()
+                        );
+                    }
 
                     yield return factory(CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
 

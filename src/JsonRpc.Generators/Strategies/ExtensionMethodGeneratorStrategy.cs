@@ -59,6 +59,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             );
 
+            if (methods.Count == 0) yield break;
+
             yield return NamespaceDeclaration(ParseName(item.JsonRpcAttributes.HandlerNamespace))
                                       .WithMembers(
                                            SingletonList<MemberDeclarationSyntax>(

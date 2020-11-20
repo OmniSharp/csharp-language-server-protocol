@@ -33,7 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax
                              )
                          );
-            if (request.Response.Syntax.ToFullString().EndsWith("Unit"))
+            if (request.IsUnit)
             {
                 method = method.WithBody(
                     GetVoidRequestRegistrationHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, registrationOptions.Syntax)
@@ -135,14 +135,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             {
                 if (request.Capability is { } capability)
                 {
-                    factory = MakeFactory(
-                        method.WithBody(
-                            GetRequestRegistrationHandlerExpression(
-                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax,
-                                capability.Syntax
-                            )
-                        ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
-                    );
+                    if (request.IsUnit)
+                    {
+                        factory = MakeFactory(
+                            method.WithBody(
+                                GetVoidRequestRegistrationHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, registrationOptions.Syntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
+                        );
+                    }
+                    else
+                    {
+                        factory = MakeFactory(
+                            method.WithBody(
+                                GetRequestRegistrationHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax,
+                                    capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
+                        );
+                    }
 
                     yield return factory(CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
 
