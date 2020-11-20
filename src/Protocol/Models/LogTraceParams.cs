@@ -1,10 +1,14 @@
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
+    [Parallel]
     [Method(GeneralNames.LogTrace, Direction.ServerToClient)]
+    [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
     public class LogTraceParams : IRequest
     {
         /// <summary>

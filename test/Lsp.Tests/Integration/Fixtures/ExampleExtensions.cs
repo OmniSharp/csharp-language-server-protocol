@@ -66,7 +66,7 @@ namespace Lsp.Tests.Integration.Fixtures
     [Parallel, Method("tests/run", Direction.ClientToServer)]
     [GenerateHandlerMethods(typeof(ILanguageServerRegistry))]
     [GenerateRequestMethods(typeof(ILanguageClient))]
-    public interface IRunUnitTestHandler : IJsonRpcRequestHandler<UnitTest>, IRegistration<UnitTestRegistrationOptions>, ICapability<UnitTestCapability>
+    public interface IRunUnitTestHandler : IJsonRpcRequestHandler<UnitTest>, IRegistration<UnitTestRegistrationOptions, UnitTestCapability>
     {
     }
 }

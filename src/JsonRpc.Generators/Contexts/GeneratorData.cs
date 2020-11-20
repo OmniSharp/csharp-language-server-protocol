@@ -4,7 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
-    abstract record ExtensionMethodData(
+    abstract record GeneratorData(
         TypeDeclarationSyntax TypeDeclaration,
         INamedTypeSymbol TypeSymbol,
         JsonRpcAttributes JsonRpcAttributes,

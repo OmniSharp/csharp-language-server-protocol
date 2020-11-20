@@ -16,7 +16,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         HashSet<string> AdditionalUsings,
         SemanticModel Model,
         GeneratorExecutionContext Context
-    ) : ExtensionMethodData(
+    ) : GeneratorData(
         TypeDeclaration, TypeSymbol, JsonRpcAttributes, LspAttributes, DapAttributes, Request, Capability, RegistrationOptions,
         AdditionalUsings, Model, Context
     );

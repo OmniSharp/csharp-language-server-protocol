@@ -7,7 +7,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class EnsureNamespaceStrategy : IExtensionMethodGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
         {
             if (item.Capability != null) item.AdditionalUsings.Add(item.Capability.Symbol.ContainingNamespace.ToDisplayString());
             if (item.RegistrationOptions != null) item.AdditionalUsings.Add(item.RegistrationOptions.Symbol.ContainingNamespace.ToDisplayString());

@@ -12,6 +12,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         DapAttributes? DapAttributes,
         SyntaxSymbol Request,
         SyntaxSymbol Response,
+        bool IsUnit,
         SyntaxSymbol? Capability,
         SyntaxSymbol? RegistrationOptions,
         SyntaxSymbol? PartialItem,
@@ -19,7 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             HashSet<string> AdditionalUsings,
             SemanticModel Model,
         GeneratorExecutionContext Context
-    ) : ExtensionMethodData(
+    ) : GeneratorData(
         TypeDeclaration, TypeSymbol,
         JsonRpcAttributes, LspAttributes, DapAttributes, Request, Capability, RegistrationOptions,
         AdditionalUsings, Model, Context

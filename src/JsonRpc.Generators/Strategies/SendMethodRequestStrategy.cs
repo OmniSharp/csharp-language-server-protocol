@@ -8,7 +8,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class SendMethodRequestStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (item is not RequestItem request) yield break;
             if (extensionMethodContext is not { IsProxy: true }) yield break;
@@ -49,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                      )
                                                                  )
                                                              ),
-                                               SyntaxFactory.Identifier(extensionMethodContext.GetSendMethodName())
+                                               SyntaxFactory.Identifier(item.JsonRpcAttributes.RequestMethodName)
                                            )
                                           .WithModifiers(
                                                SyntaxFactory.TokenList(
@@ -82,7 +82,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                      )
                                                                  )
                                                              ),
-                                               SyntaxFactory.Identifier(extensionMethodContext.GetSendMethodName())
+                                               SyntaxFactory.Identifier(item.JsonRpcAttributes.RequestMethodName)
                                            )
                                           .WithModifiers(
                                                SyntaxFactory.TokenList(
@@ -102,7 +102,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             var responseSyntax = request.Response!.Symbol.Name.EndsWith("Unit")
                 ? SyntaxFactory.IdentifierName("Task") as NameSyntax
                 : SyntaxFactory.GenericName("Task").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { request.Response.Syntax })));
-            yield return SyntaxFactory.MethodDeclaration(responseSyntax, extensionMethodContext.GetSendMethodName())
+            yield return SyntaxFactory.MethodDeclaration(responseSyntax, item.JsonRpcAttributes.RequestMethodName)
                                       .WithModifiers(
                                            SyntaxFactory.TokenList(
                                                SyntaxFactory.Token(SyntaxKind.PublicKeyword),

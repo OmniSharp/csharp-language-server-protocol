@@ -73,7 +73,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(WorkspaceNames.ExecuteCommand)]
-        public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability>
+        public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
         {
             // ReSharper disable once NotAccessedField.Local
             private ExecuteCommandCapability? _capability;

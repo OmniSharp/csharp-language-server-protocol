@@ -12,20 +12,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.Definition, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDefinitionHandler : IJsonRpcRequestHandler<DefinitionParams, LocationOrLocationLinks>, IRegistration<DefinitionRegistrationOptions>,
-                                          ICapability<DefinitionCapability>
+    public interface IDefinitionHandler : IJsonRpcRequestHandler<DefinitionParams, LocationOrLocationLinks>, IRegistration<DefinitionRegistrationOptions, DefinitionCapability>
     {
     }
 
-    public abstract class DefinitionHandler : IDefinitionHandler
+    public abstract class DefinitionHandler : AbstractHandlers.Base<DefinitionRegistrationOptions, DefinitionCapability>, IDefinitionHandler
     {
-        private readonly DefinitionRegistrationOptions _options;
-
-        public DefinitionHandler(DefinitionRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public DefinitionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<LocationOrLocationLinks> Handle(DefinitionParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(DefinitionCapability capability) => Capability = capability;
-        protected DefinitionCapability Capability { get; private set; } = null!;
     }
 }

@@ -23,28 +23,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Window
 
     public static partial class ShowMessageExtensions
     {
-        public static void Show(this ILanguageServer mediator, ShowMessageParams @params) => mediator.ShowMessage(@params);
+        public static void Show(this ILanguageServer mediator, ShowMessageParams @params) => mediator.SendNotification(@params);
 
-        public static void ShowError(this ILanguageServer mediator, string message) => mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Error, Message = message });
+        public static void ShowError(this ILanguageServer mediator, string message) => mediator.SendNotification(new ShowMessageParams { Type = MessageType.Error, Message = message });
 
-        public static void Show(this ILanguageServer mediator, string message) => mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Log, Message = message });
+        public static void Show(this ILanguageServer mediator, string message) => mediator.SendNotification(new ShowMessageParams { Type = MessageType.Log, Message = message });
 
         public static void ShowWarning(this ILanguageServer mediator, string message) =>
-            mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Warning, Message = message });
+            mediator.SendNotification(new ShowMessageParams { Type = MessageType.Warning, Message = message });
 
-        public static void ShowInfo(this ILanguageServer mediator, string message) => mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Info, Message = message });
+        public static void ShowInfo(this ILanguageServer mediator, string message) => mediator.SendNotification(new ShowMessageParams { Type = MessageType.Info, Message = message });
 
-        public static void Show(this IWindowLanguageServer mediator, ShowMessageParams @params) => mediator.ShowMessage(@params);
+        public static void Show(this IWindowLanguageServer mediator, ShowMessageParams @params) => mediator.SendNotification(@params);
 
         public static void ShowError(this IWindowLanguageServer mediator, string message) =>
-            mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Error, Message = message });
+            mediator.SendNotification(new ShowMessageParams { Type = MessageType.Error, Message = message });
 
-        public static void Show(this IWindowLanguageServer mediator, string message) => mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Log, Message = message });
+        public static void Show(this IWindowLanguageServer mediator, string message) => mediator.SendNotification(new ShowMessageParams { Type = MessageType.Log, Message = message });
 
         public static void ShowWarning(this IWindowLanguageServer mediator, string message) =>
-            mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Warning, Message = message });
+            mediator.SendNotification(new ShowMessageParams { Type = MessageType.Warning, Message = message });
 
         public static void ShowInfo(this IWindowLanguageServer mediator, string message) =>
-            mediator.ShowMessage(new ShowMessageParams { Type = MessageType.Info, Message = message });
+            mediator.SendNotification(new ShowMessageParams { Type = MessageType.Info, Message = message });
     }
 }

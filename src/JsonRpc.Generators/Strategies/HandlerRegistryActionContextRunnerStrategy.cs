@@ -14,16 +14,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         {
             _strategies = strategies;
         }
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
         {
             return item.JsonRpcAttributes.HandlerRegistries
                        .Select(
                             registry => new ExtensionMethodContext(
-                                item.JsonRpcAttributes.GenerateHandlerMethods!, item.TypeDeclaration, item.TypeSymbol, registry, item.JsonRpcAttributes.HandlerRegistries,
+                                item.JsonRpcAttributes.GenerateHandlerMethods!.Data, item.TypeDeclaration, item.TypeSymbol, registry, item.JsonRpcAttributes.HandlerRegistries,
                                 item.Context
                             ) { IsRegistry = true }
                         )
-                       .SelectMany(actionContext => _strategies, (actionContext, strategy) => new { actionContext, strategy })
+                       .SelectMany(_ => _strategies, (actionContext, strategy) => new { actionContext, strategy })
                        .SelectMany(@t => @t.strategy.Apply(@t.actionContext, item));
         }
     }

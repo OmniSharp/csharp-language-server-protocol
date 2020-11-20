@@ -13,7 +13,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class)]
     [Conditional("CodeGeneration")]
-    public class GenerateTypedDataAttribute : Attribute { }
+    public class GenerateTypedDataAttribute : Attribute
+    {
+    }
 
     /// <summary>
     /// Allows generating a typed container counterpart to any model that implements <see cref="ICanBeResolved" />
@@ -23,21 +25,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// </remarks>
     [AttributeUsage(AttributeTargets.Class)]
     [Conditional("CodeGeneration")]
-    public class GenerateContainerAttribute : Attribute { }
+    public class GenerateContainerAttribute : Attribute
+    {
+    }
 
     /// <summary>
-    /// Generates work done on a registration options object
+    /// Defines a converter that is used for converting from dynamic to static
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    [Conditional("CodeGeneration")]
-    public class WorkDoneProgressAttribute : Attribute { }
+//    [Conditional("CodeGeneration")]
+    public class CapabilityAttribute : Attribute
+    {
+        public Type CapabilityType { get; }
+
+        public CapabilityAttribute(Type capabilityType)
+        {
+            CapabilityType = capabilityType;
+        }
+    }
 
     /// <summary>
-    /// Generates text document on a registration options object
+    /// Defines a converter that is used for converting from dynamic to static
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    [Conditional("CodeGeneration")]
-    public class TextDocumentAttribute : Attribute { }
+//    [Conditional("CodeGeneration")]
+    public class RegistrationOptionsKeyAttribute : Attribute
+    {
+        public RegistrationOptionsKeyAttribute(string serverCapabilitiesKey)
+        {
+            ServerCapabilitiesKey = serverCapabilitiesKey;
+        }
+
+        public string ServerCapabilitiesKey { get; }
+    }
 
     /// <summary>
     /// Defines a converter that is used for converting from dynamic to static
@@ -46,12 +66,39 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 //    [Conditional("CodeGeneration")]
     public class RegistrationOptionsAttribute : Attribute
     {
-        public string ServerCapabilitiesKey { get; }
+        public Type RegistrationOptionsType { get; }
+        public bool SupportsWorkDoneProgress { get; init; }
+        public bool SupportsDocumentSelector { get; init; }
+        public Type? Converter { get; init; }
 
-        public RegistrationOptionsAttribute(string serverCapabilitiesKey)
+        public bool SupportsTextDocument
         {
-            ServerCapabilitiesKey = serverCapabilitiesKey;
+            get => SupportsDocumentSelector;
+            init => SupportsDocumentSelector = value;
         }
+
+        public RegistrationOptionsAttribute(Type registrationOptionsType)
+        {
+            RegistrationOptionsType = registrationOptionsType;
+        }
+    }
+
+    /// <summary>
+    /// Generates work done on a registration options object
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    [Conditional("CodeGeneration")]
+    public class WorkDoneProgressAttribute : Attribute
+    {
+    }
+
+    /// <summary>
+    /// Generates text document on a registration options object
+    /// </summary>
+    [AttributeUsage(AttributeTargets.Class)]
+    [Conditional("CodeGeneration")]
+    public class TextDocumentAttribute : Attribute
+    {
     }
 
     /// <summary>

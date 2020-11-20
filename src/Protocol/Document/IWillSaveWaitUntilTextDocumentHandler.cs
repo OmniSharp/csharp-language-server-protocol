@@ -13,18 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IWillSaveWaitUntilTextDocumentHandler : IJsonRpcRequestHandler<WillSaveWaitUntilTextDocumentParams, TextEditContainer?>,
-                                                             IRegistration<TextDocumentRegistrationOptions>, ICapability<SynchronizationCapability>
+                                                             IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>
     {
-    }
-
-    public abstract class WillSaveWaitUntilTextDocumentHandler : IWillSaveWaitUntilTextDocumentHandler
-    {
-        private readonly TextDocumentRegistrationOptions _options;
-        public WillSaveWaitUntilTextDocumentHandler(TextDocumentRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<TextEditContainer?> Handle(WillSaveWaitUntilTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
-        protected SynchronizationCapability Capability { get; private set; } = null!;
     }
 }

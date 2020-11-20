@@ -13,19 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.WillSave, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IWillSaveTextDocumentHandler : IJsonRpcNotificationHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>,
-                                                    ICapability<SynchronizationCapability>
+    public interface IWillSaveTextDocumentHandler : IJsonRpcNotificationHandler<WillSaveTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>
     {
-    }
-
-    public abstract class WillSaveTextDocumentHandler : IWillSaveTextDocumentHandler
-    {
-        private readonly TextDocumentRegistrationOptions _options;
-        public WillSaveTextDocumentHandler(TextDocumentRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Unit> Handle(WillSaveTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
-        protected SynchronizationCapability Capability { get; private set; } = null!;
     }
 }

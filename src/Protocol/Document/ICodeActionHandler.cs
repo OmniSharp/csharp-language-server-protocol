@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
 using System.Threading.Tasks;
+using DryIoc;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
@@ -23,7 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.CodeAction, Direction.ClientToServer)]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ICodeActionHandler : IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>,
-                                          IRegistration<CodeActionRegistrationOptions>, ICapability<CodeActionCapability>
+                                          IRegistration<CodeActionRegistrationOptions, CodeActionCapability>
     {
     }
 
@@ -35,41 +36,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     }
 
     [Obsolete("This handler is obsolete and is related by CodeActionHandlerBase")]
-    public abstract class CodeActionHandler : ICodeActionHandler
+    public abstract class CodeActionHandler : AbstractHandlers.Base<CodeActionRegistrationOptions, CodeActionCapability>, ICodeActionHandler
     {
-        private readonly CodeActionRegistrationOptions _options;
-        public CodeActionHandler(CodeActionRegistrationOptions registrationOptions) => _options = registrationOptions;
-        public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
-        protected CodeActionCapability Capability { get; private set; } = null!;
     }
 
-    public abstract class CodeActionHandlerBase : ICodeActionHandler, ICodeActionResolveHandler
+    public abstract class CodeActionHandlerBase :
+        AbstractHandlers.Base<CodeActionRegistrationOptions, CodeActionCapability>,
+        ICodeActionHandler,
+        ICodeActionResolveHandler
     {
-        private readonly CodeActionRegistrationOptions _options;
-
-        public CodeActionHandlerBase(CodeActionRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-            _options.ResolveProvider = true;
-        }
-
-        public CodeActionRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken);
         public abstract Task<CodeAction> Handle(CodeAction request, CancellationToken cancellationToken);
         Guid ICanBeIdentifiedHandler.Id { get; } = Guid.NewGuid();
-        public virtual void SetCapability(CodeActionCapability capability) => Capability = capability;
-        protected CodeActionCapability Capability { get; private set; } = null!;
     }
 
     public abstract class PartialCodeActionHandlerBase :
-        AbstractHandlers.PartialResults<CodeActionParams, CommandOrCodeActionContainer, CommandOrCodeAction, CodeActionCapability, CodeActionRegistrationOptions>, ICodeActionHandler, ICodeActionResolveHandler
+        AbstractHandlers.PartialResults<CodeActionParams, CommandOrCodeActionContainer, CommandOrCodeAction, CodeActionRegistrationOptions, CodeActionCapability>, ICodeActionHandler, ICodeActionResolveHandler
     {
-        protected PartialCodeActionHandlerBase(CodeActionRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
-            registrationOptions, progressManager,
-            lenses => new CommandOrCodeActionContainer(lenses)
-        )
+        protected PartialCodeActionHandlerBase(IProgressManager progressManager) : base(progressManager, lenses => new CommandOrCodeActionContainer(lenses))
         {
         }
 
@@ -79,11 +64,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public abstract class CodeActionHandlerBase<T> : CodeActionHandlerBase where T : HandlerIdentity?, new()
     {
-        public CodeActionHandlerBase(CodeActionRegistrationOptions registrationOptions) : base(registrationOptions)
-        {
-        }
-
-
         public sealed override async Task<CommandOrCodeActionContainer> Handle(CodeActionParams request, CancellationToken cancellationToken)
         {
             var response = await HandleParams(request, cancellationToken).ConfigureAwait(false);
@@ -102,10 +82,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
     public abstract class PartialCodeActionHandlerBase<T> : PartialCodeActionHandlerBase where T : HandlerIdentity?, new()
     {
-        protected PartialCodeActionHandlerBase(CodeActionRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
-            registrationOptions,
-            progressManager
-        )
+        protected PartialCodeActionHandlerBase(IProgressManager progressManager) : base(progressManager)
         {
         }
 
@@ -133,37 +110,34 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             Func<CodeAction, CodeActionCapability, CancellationToken, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (link, cap, token) => Task.FromResult(link);
             var id = Guid.NewGuid();
 
             return registry.AddHandler(
                                 TextDocumentNames.CodeAction,
-                                new LanguageProtocolDelegatingHandlers.Request<CodeActionParams, CommandOrCodeActionContainer, CodeActionCapability,
-                                    CodeActionRegistrationOptions>(
+                                new LanguageProtocolDelegatingHandlers.Request<CodeActionParams, CommandOrCodeActionContainer,
+                                    CodeActionRegistrationOptions, CodeActionCapability>(
                                     id,
-                                    handler,
-                                    registrationOptions
+                                    handler, registrationOptionsFactory
                                 )
                             )
                            .AddHandler(
                                 TextDocumentNames.CodeActionResolve,
-                                new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionCapability, CodeActionRegistrationOptions>(
+                                new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions, CodeActionCapability>(
                                     id,
-                                    resolveHandler,
-                                    registrationOptions
+                                    resolveHandler, registrationOptionsFactory
                                 )
                             )
                 ;
@@ -173,16 +147,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CodeActionContainer<T>>> handler,
             Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (link, c, token) => Task.FromResult(link);
 
             return registry.AddHandler(
                 _ => new DelegatingCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     async (@params, capability, token) => await handler(@params, capability, token),
                     resolveHandler
                 )
@@ -192,19 +165,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CancellationToken, Task<CommandOrCodeActionContainer>> handler,
             Func<CodeAction, CancellationToken, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= () => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (link, token) => Task.FromResult(link);
             var id = Guid.NewGuid();
 
@@ -213,16 +185,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeActionParams, CommandOrCodeActionContainer,
                                     CodeActionRegistrationOptions>(
                                     id,
-                                    handler,
-                                    registrationOptions
+                                    handler, registrationOptionsFactory
                                 )
                             )
                            .AddHandler(
                                 TextDocumentNames.CodeActionResolve,
                                 new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions>(
                                     id,
-                                    resolveHandler,
-                                    registrationOptions
+                                    resolveHandler, registrationOptionsFactory
                                 )
                             )
                 ;
@@ -232,16 +202,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, CancellationToken, Task<CodeActionContainer<T>>> handler,
             Func<CodeAction<T>, CancellationToken, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (link, token) => Task.FromResult(link);
 
             return registry.AddHandler(
                 _ => new DelegatingCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     async (@params, capability, token) => await handler(@params, token),
                     (lens, capability, token) => resolveHandler(lens, token)
                 )
@@ -251,19 +220,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, Task<CommandOrCodeActionContainer>> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, Task<CommandOrCodeActionContainer>> handler,
             Func<CodeAction, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= () => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= Task.FromResult;
             var id = Guid.NewGuid();
 
@@ -272,16 +240,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 new LanguageProtocolDelegatingHandlers.RequestRegistration<CodeActionParams, CommandOrCodeActionContainer,
                                     CodeActionRegistrationOptions>(
                                     id,
-                                    handler,
-                                    registrationOptions
+                                    handler, registrationOptionsFactory
                                 )
                             )
                            .AddHandler(
                                 TextDocumentNames.CodeActionResolve,
                                 new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions>(
                                     id,
-                                    resolveHandler,
-                                    registrationOptions
+                                    resolveHandler, registrationOptionsFactory
                                 )
                             )
                 ;
@@ -291,16 +257,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             this ILanguageServerRegistry registry,
             Func<CodeActionParams, Task<CodeActionContainer<T>>> handler,
             Func<CodeAction<T>, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= Task.FromResult;
 
             return registry.AddHandler(
                 _ => new DelegatingCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     async (@params, capability, token) => await handler(@params),
                     (lens, capability, token) => resolveHandler(lens)
                 )
@@ -310,19 +275,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CodeActionCapability, CancellationToken> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CodeActionCapability, CancellationToken> handler,
             Func<CodeAction, CodeActionCapability, CancellationToken, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (lens, capability, token) => Task.FromResult(lens);
             var id = Guid.NewGuid();
 
@@ -331,17 +295,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                              TextDocumentNames.CodeAction,
                              _ => new CodeActionPartialResults(
                                  id,
-                                 handler,
-                                 registrationOptions,
+                                 handler, registrationOptionsFactory,
                                  _.GetRequiredService<IProgressManager>()
                              )
                          )
                         .AddHandler(
                              TextDocumentNames.CodeActionResolve,
-                             new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionCapability, CodeActionRegistrationOptions>(
+                             new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions, CodeActionCapability>(
                                  id,
-                                 resolveHandler,
-                                 registrationOptions
+                                 resolveHandler, registrationOptionsFactory
                              )
                          )
                 ;
@@ -351,16 +313,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction<T>>>, CodeActionCapability, CancellationToken> handler,
             Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (lens, capability, token) => Task.FromResult(lens);
 
             return registry.AddHandler(
                 _ => new DelegatingPartialCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     _.GetRequiredService<IProgressManager>(),
                     handler,
                     resolveHandler
@@ -371,19 +332,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CancellationToken> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CancellationToken> handler,
             Func<CodeAction, CancellationToken, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= () => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (lens, token) => Task.FromResult(lens);
             var id = Guid.NewGuid();
 
@@ -391,8 +351,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 TextDocumentNames.CodeAction,
                                 _ => new CodeActionPartialResults(
                                     id,
-                                    (@params, observer, capability, arg4) => handler(@params, observer, arg4),
-                                    registrationOptions,
+                                    (@params, observer, capability, arg4) => handler(@params, observer, arg4), _ => registrationOptionsFactory(),
                                     _.GetRequiredService<IProgressManager>()
                                 )
                             )
@@ -401,7 +360,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions>(
                                     id,
                                     resolveHandler,
-                                    registrationOptions
+                                    registrationOptionsFactory
                                 )
                             )
                 ;
@@ -411,16 +370,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction<T>>>, CancellationToken> handler,
             Func<CodeAction<T>, CancellationToken, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= (lens, token) => Task.FromResult(lens);
 
             return registry.AddHandler(
                 _ => new DelegatingPartialCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     _.GetRequiredService<IProgressManager>(),
                     (@params, observer, capability, token) => handler(@params, observer, token),
                     (lens, capability, token) => resolveHandler(lens, token)
@@ -431,19 +389,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>> handler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         ) =>
-            OnCodeAction(registry, handler, null, registrationOptions);
+            OnCodeAction(registry, handler, null, registrationOptionsFactory);
 
         public static ILanguageServerRegistry OnCodeAction(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>> handler,
             Func<CodeAction, Task<CodeAction>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionRegistrationOptions>? registrationOptionsFactory
         )
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= () => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= Task.FromResult;
             var id = Guid.NewGuid();
 
@@ -451,8 +408,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 TextDocumentNames.CodeAction,
                                 _ => new CodeActionPartialResults(
                                     id,
-                                    (@params, observer, capability, arg3) => handler(@params, observer),
-                                    registrationOptions,
+                                    (@params, observer, _, _) => handler(@params, observer), _ => registrationOptionsFactory(),
                                     _.GetRequiredService<IProgressManager>()
                                 )
                             )
@@ -461,86 +417,55 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                                 new LanguageProtocolDelegatingHandlers.CanBeResolved<CodeAction, CodeActionRegistrationOptions>(
                                     id,
                                     resolveHandler,
-                                    registrationOptions
+                                    registrationOptionsFactory
                                 )
                             )
                 ;
         }
 
         sealed class CodeActionPartialResults :
-            IJsonRpcRequestHandler<CodeActionParams, CommandOrCodeActionContainer>,
-            IRegistration<CodeActionRegistrationOptions>,
-            ICanBeIdentifiedHandler,
-            ICapability<CodeActionCapability>
+            AbstractHandlers.PartialResults<CodeActionParams, CommandOrCodeActionContainer, CommandOrCodeAction, CodeActionRegistrationOptions, CodeActionCapability>,
+            ICanBeIdentifiedHandler
         {
             private readonly Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CodeActionCapability, CancellationToken> _handler;
-            private readonly CodeActionRegistrationOptions _registrationOptions;
-            private readonly IProgressManager _progressManager;
+            private readonly Func<CodeActionCapability, CodeActionRegistrationOptions> _registrationOptionsFactory;
             private readonly Guid _id;
-            private CodeActionCapability? _capability;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public CodeActionPartialResults(
-                Guid id, Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CodeActionCapability, CancellationToken> handler, CodeActionRegistrationOptions registrationOptions, IProgressManager progressManager
-            )
+                Guid id,
+                Action<CodeActionParams, IObserver<IEnumerable<CodeAction>>, CodeActionCapability, CancellationToken> handler,
+                Func<CodeActionCapability, CodeActionRegistrationOptions> registrationOptionsFactory,
+                IProgressManager progressManager
+            ) : base(progressManager, z => new CommandOrCodeActionContainer(z.Select(z => z)))
             {
                 _id = id;
                 _handler = handler;
-                _registrationOptions = registrationOptions;
-                _progressManager = progressManager;
+                _registrationOptionsFactory = registrationOptionsFactory;
             }
 
-            async Task<CommandOrCodeActionContainer> IRequestHandler<CodeActionParams, CommandOrCodeActionContainer>.Handle(CodeActionParams request, CancellationToken cancellationToken)
-            {
-                var observer = _progressManager.For(request, cancellationToken);
-                if (observer != ProgressObserver<IEnumerable<CommandOrCodeAction>>.Noop)
-                {
-                    _handler(
-                        request,
-                        Observer.Create<IEnumerable<CodeAction>>(
-                            v => observer.OnNext(v.Select(z => new CommandOrCodeAction(z))),
-                            observer.OnError,
-                            observer.OnCompleted
-                        ),
-                        _capability!,
-                        cancellationToken
-                        );
-                    await observer;
-                    return new CommandOrCodeActionContainer();
-                }
+            protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability) => _registrationOptionsFactory(capability);
 
-                var subject = new Subject<IEnumerable<CodeAction>>();
-                var task = subject.Aggregate(
-                                       new List<CodeAction>(), (acc, items) => {
-                                           acc.AddRange(items);
-                                           return acc;
-                                       }
-                                   )
-                                  .ToTask(cancellationToken);
-                _handler(request, subject, _capability!, cancellationToken);
-                var actions = await task.ConfigureAwait(false);
-                var result = new CommandOrCodeActionContainer(actions.Select(z => new CommandOrCodeAction(z)));
-                return result;
-            }
-
-            CodeActionRegistrationOptions IRegistration<CodeActionRegistrationOptions>.GetRegistrationOptions() => _registrationOptions;
-            public void SetCapability(CodeActionCapability capability) => _capability = capability;
+            protected override void Handle(CodeActionParams request, IObserver<IEnumerable<CommandOrCodeAction>> results, CancellationToken cancellationToken) =>
+                _handler(request, Observer.Create<IEnumerable<CodeAction>>(
+                             actions => results.OnNext(actions.Select(z => new CommandOrCodeAction(z))),
+                             results.OnError,
+                             results.OnCompleted), Capability, cancellationToken);
         }
 
         public static ILanguageServerRegistry OnCodeAction<T>(
             this ILanguageServerRegistry registry,
             Action<CodeActionParams, IObserver<IEnumerable<CodeAction<T>>>> handler,
             Func<CodeAction<T>, Task<CodeAction<T>>>? resolveHandler,
-            CodeActionRegistrationOptions? registrationOptions
+            Func<CodeActionCapability, CodeActionRegistrationOptions>? registrationOptionsFactory
         ) where T : HandlerIdentity?, new()
         {
-            registrationOptions ??= new CodeActionRegistrationOptions();
-            registrationOptions.ResolveProvider = true;
+            registrationOptionsFactory ??= _ => new CodeActionRegistrationOptions() { ResolveProvider = true };
             resolveHandler ??= Task.FromResult;
 
             return registry.AddHandler(
                 _ => new DelegatingPartialCodeActionHandler<T>(
-                    registrationOptions,
+                    registrationOptionsFactory,
                     _.GetRequiredService<IProgressManager>(),
                     (@params, observer, capability, token) => handler(@params, observer),
                     (lens, capability, token) => resolveHandler(lens)
@@ -550,15 +475,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 
         private class DelegatingCodeActionHandler<T> : CodeActionHandlerBase<T> where T : HandlerIdentity?, new()
         {
+            private readonly Func<CodeActionCapability, CodeActionRegistrationOptions> _registrationOptionsFactory;
             private readonly Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CommandOrCodeActionContainer>> _handleParams;
             private readonly Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>> _handleResolve;
 
             public DelegatingCodeActionHandler(
-                CodeActionRegistrationOptions registrationOptions,
+                Func<CodeActionCapability, CodeActionRegistrationOptions> registrationOptionsFactory,
                 Func<CodeActionParams, CodeActionCapability, CancellationToken, Task<CommandOrCodeActionContainer>> handleParams,
                 Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>> handleResolve
-            ) : base(registrationOptions)
+            ) : base()
             {
+                _registrationOptionsFactory = registrationOptionsFactory;
                 _handleParams = handleParams;
                 _handleResolve = handleResolve;
             }
@@ -567,20 +494,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleParams(request, Capability, cancellationToken);
 
             protected override Task<CodeAction<T>> HandleResolve(CodeAction<T> request, CancellationToken cancellationToken) => _handleResolve(request, Capability, cancellationToken);
+            protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability) => _registrationOptionsFactory(capability);
         }
 
         private class DelegatingPartialCodeActionHandler<T> : PartialCodeActionHandlerBase<T> where T : HandlerIdentity?, new()
         {
             private readonly Action<CodeActionParams, IObserver<IEnumerable<CodeAction<T>>>, CodeActionCapability, CancellationToken> _handleParams;
             private readonly Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>> _handleResolve;
+            private readonly Func<CodeActionCapability, CodeActionRegistrationOptions> _registrationOptionsFactory;
 
             public DelegatingPartialCodeActionHandler(
-                CodeActionRegistrationOptions registrationOptions,
+                Func<CodeActionCapability, CodeActionRegistrationOptions> registrationOptionsFactory,
                 IProgressManager progressManager,
                 Action<CodeActionParams, IObserver<IEnumerable<CodeAction<T>>>, CodeActionCapability, CancellationToken> handleParams,
                 Func<CodeAction<T>, CodeActionCapability, CancellationToken, Task<CodeAction<T>>> handleResolve
-            ) : base(registrationOptions, progressManager)
+            ) : base(progressManager)
             {
+                _registrationOptionsFactory = registrationOptionsFactory;
                 _handleParams = handleParams;
                 _handleResolve = handleResolve;
             }
@@ -589,6 +519,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
                 _handleParams(request, results, Capability, cancellationToken);
 
             protected override Task<CodeAction<T>> HandleResolve(CodeAction<T> request, CancellationToken cancellationToken) => _handleResolve(request, Capability, cancellationToken);
+            protected override CodeActionRegistrationOptions CreateRegistrationOptions(CodeActionCapability capability) => _registrationOptionsFactory(capability);
         }
     }
 }

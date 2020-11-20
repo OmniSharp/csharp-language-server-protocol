@@ -8,13 +8,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         AttributeData AttributeData,
         TypeDeclarationSyntax TypeDeclaration,
         INamedTypeSymbol TypeSymbol,
-        NameSyntax Item,
-        ImmutableArray<NameSyntax> RelatedItems,
+        TypeSyntax Item,
+        ImmutableArray<TypeSyntax> RelatedItems,
         GeneratorExecutionContext Context
     )
     {
-        public string GetSendMethodName() => Helpers.GetSendMethodName(TypeSymbol, AttributeData);
-        public string GetOnMethodName() => Helpers.GetOnMethodName(TypeSymbol, AttributeData);
         public bool IsProxy { get; init; }
         public bool IsRegistry { get; init; }
     }

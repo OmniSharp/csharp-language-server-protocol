@@ -6,6 +6,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     internal interface IExtensionMethodContextGeneratorStrategy
     {
-        IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item);
+        IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item);
     }
 }

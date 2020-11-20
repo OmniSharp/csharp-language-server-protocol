@@ -14,18 +14,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IDidChangeTextDocumentHandler : IJsonRpcNotificationHandler<DidChangeTextDocumentParams>,
-                                                     IRegistration<TextDocumentChangeRegistrationOptions>, ICapability<SynchronizationCapability>
+                                                     IRegistration<TextDocumentChangeRegistrationOptions, SynchronizationCapability>
     {
     }
 
-    public abstract class DidChangeTextDocumentHandler : IDidChangeTextDocumentHandler
+    public abstract class DidChangeTextDocumentHandler : AbstractHandlers.Base<TextDocumentChangeRegistrationOptions, SynchronizationCapability>, IDidChangeTextDocumentHandler
     {
-        private readonly TextDocumentChangeRegistrationOptions _options;
-        public DidChangeTextDocumentHandler(TextDocumentChangeRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public TextDocumentChangeRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(DidChangeTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
-        protected SynchronizationCapability Capability { get; private set; } = null!;
     }
 }

@@ -12,19 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.SignatureHelp, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface ISignatureHelpHandler : IJsonRpcRequestHandler<SignatureHelpParams, SignatureHelp?>, IRegistration<SignatureHelpRegistrationOptions>,
-                                             ICapability<SignatureHelpCapability>
+    public interface ISignatureHelpHandler : IJsonRpcRequestHandler<SignatureHelpParams, SignatureHelp?>, IRegistration<SignatureHelpRegistrationOptions, SignatureHelpCapability>
     {
-    }
-
-    public abstract class SignatureHelpHandler : ISignatureHelpHandler
-    {
-        private readonly SignatureHelpRegistrationOptions _options;
-        public SignatureHelpHandler(SignatureHelpRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public SignatureHelpRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<SignatureHelp?> Handle(SignatureHelpParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SignatureHelpCapability capability) => Capability = capability;
-        protected SignatureHelpCapability Capability { get; private set; } = null!;
     }
 }

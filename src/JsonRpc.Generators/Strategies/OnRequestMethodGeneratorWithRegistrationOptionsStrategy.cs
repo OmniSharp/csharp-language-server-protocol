@@ -5,133 +5,165 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
+using static OmniSharp.Extensions.JsonRpc.Generators.DelegateHelpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class OnRequestMethodGeneratorWithRegistrationOptionsStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
-            if (item is { RegistrationOptions: null }) yield break;
+            if (item is not { RegistrationOptions: {} registrationOptions }) yield break;
             if (item is not RequestItem request) yield break;
             if (extensionMethodContext is not { IsRegistry: true }) yield break;
 
-            var allowDerivedRequests = extensionMethodContext.AttributeData.NamedArguments
-                                                    .Where(z => z.Key == "AllowDerivedRequests")
-                                                    .Select(z => z.Value.Value)
-                                                    .FirstOrDefault() is bool b && b;
+            var allowDerivedRequests = item.JsonRpcAttributes.AllowDerivedRequests;
 
-            var registrationOptions = request.RegistrationOptions!;
-
-            var method = SyntaxFactory.MethodDeclaration(extensionMethodContext.Item, extensionMethodContext.GetOnMethodName())
-                                      .WithModifiers(
-                                           SyntaxFactory.TokenList(
-                                               SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                                               SyntaxFactory.Token(SyntaxKind.StaticKeyword)
-                                           )
-                                       )
-                                      .WithBody(Helpers.GetRequestRegistrationHandlerExpression(Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax));
+            var method = MethodDeclaration(extensionMethodContext.Item, item.JsonRpcAttributes.HandlerMethodName)
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithBody(
+                             GetRequestRegistrationHandlerExpression(
+                                 GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax
+                             )
+                         );
             if (request.Response.Syntax.ToFullString().EndsWith("Unit"))
             {
-                method = method.WithBody(Helpers.GetVoidRequestRegistrationHandlerExpression(Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, registrationOptions.Syntax));
+                method = method.WithBody(
+                    GetVoidRequestRegistrationHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, registrationOptions.Syntax)
+                );
             }
 
-            var factory = MakeFactory(method, extensionMethodContext.GetRegistryParameterList(), SyntaxFactory.TypeArgumentList(SyntaxFactory.SingletonSeparatedList(item.RegistrationOptions.Syntax)));
+            var factory = MakeFactory(method, extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SingletonSeparatedList(registrationOptions.Syntax)));
 
-            yield return factory(DelegateHelpers. CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
-            yield return factory(DelegateHelpers. CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
+            yield return factory(CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
+            yield return factory(CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
 
             if (allowDerivedRequests)
             {
-                static Func<TypeSyntax, MethodDeclarationSyntax> MakeGenericFactory(Func<TypeSyntax, MethodDeclarationSyntax> factory, TypeSyntax constraint)
-                {
-                    return syntax => factory(syntax)
-                                    .WithTypeParameterList(SyntaxFactory.TypeParameterList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.TypeParameter(SyntaxFactory.Identifier("T")))))
-                                    .WithConstraintClauses(
-                                         SyntaxFactory.SingletonList(
-                                             SyntaxFactory.TypeParameterConstraintClause(SyntaxFactory.IdentifierName("T"))
-                                                          .WithConstraints(SyntaxFactory.SingletonSeparatedList<TypeParameterConstraintSyntax>(SyntaxFactory.TypeConstraint(constraint)))
-                                         )
-                                     )
-                                    .NormalizeWhitespace();
-                }
-
                 var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                yield return genericFactory(DelegateHelpers.CreateGenericAsyncFunc(false, request.Response.Syntax));
-                yield return genericFactory(DelegateHelpers.CreateGenericAsyncFunc(true, request.Response.Syntax));
+                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, false, IdentifierName("T")));
+                yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T")));
             }
 
-            if (request.PartialItems is {} partialItems)
+            if (request.PartialItems is { } partialItems)
             {
-                var partialItemsSyntax = SyntaxFactory.GenericName("IEnumerable").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(new[] { partialItems.Syntax })));
-                factory = DelegateHelpers.MakeMethodFactory(method.WithBody(
-                                                                Helpers.GetPartialResultsRegistrationHandlerExpression(
-                                                                    Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, partialItems.Syntax,
-                                                                    registrationOptions.Syntax
-                                                                )
-                                                            ), extensionMethodContext.GetRegistryParameterList());
+                var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { partialItems.Syntax })));
+                factory = MakeFactory(
+                    method.WithBody(
+                        GetPartialResultsRegistrationHandlerExpression(
+                            GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, partialItems.Syntax,
+                            registrationOptions.Syntax
+                        )
+                    ), extensionMethodContext.GetRegistryParameterList(),
+                    TypeArgumentList(SingletonSeparatedList(registrationOptions.Syntax))
+                );
 
-                yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItemsSyntax, false));
-                yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItemsSyntax, true));
-                if (request.Capability is {} capability)
+                yield return factory(CreatePartialAction(request.Request.Syntax, partialItemsSyntax, false));
+                yield return factory(CreatePartialAction(request.Request.Syntax, partialItemsSyntax, true));
+                if (allowDerivedRequests)
                 {
-                    factory = DelegateHelpers.MakeMethodFactory(method.WithBody(
-                                                                    Helpers.GetPartialResultsRegistrationHandlerExpression(
-                                                                        Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, partialItems.Syntax,
-                                                                        registrationOptions.Syntax, capability.Syntax
-                                                                    )
-                                                                ), extensionMethodContext.GetRegistryParameterList());
-                    yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItemsSyntax, capability.Syntax));
+                    var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, false));
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItemsSyntax, true));
+                }
+
+                if (request.Capability is { } capability)
+                {
+                    factory = MakeFactory(
+                        method.WithBody(
+                            GetPartialResultsRegistrationHandlerExpression(
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, partialItems.Syntax,
+                                registrationOptions.Syntax, capability.Syntax
+                            )
+                        ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
+                    );
+                    yield return factory(CreatePartialAction(request.Request.Syntax, partialItemsSyntax, capability.Syntax));
                 }
             }
 
-            if (request.PartialItem is {} partialItem)
+            if (request.PartialItem is { } partialItem)
             {
+                factory = MakeFactory(
+                    method.WithBody(
+                        GetPartialResultRegistrationHandlerExpression(
+                            GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItem.Syntax, request.Response.Syntax,
+                            registrationOptions.Syntax
+                        )
+                    ),
+                    extensionMethodContext.GetRegistryParameterList(),
+                    TypeArgumentList(SingletonSeparatedList(registrationOptions.Syntax))
+                );
 
-                factory = DelegateHelpers.MakeMethodFactory(method.WithBody(
-                                                                Helpers.GetPartialResultRegistrationHandlerExpression(Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItem.Syntax, request.Response.Syntax, registrationOptions.Syntax)
-                                                            ), extensionMethodContext.GetRegistryParameterList());
+                yield return factory(CreatePartialAction(request.Request.Syntax, partialItem.Syntax, false));
+                yield return factory(CreatePartialAction(request.Request.Syntax, partialItem.Syntax, true));
 
-                yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItem.Syntax, false));
-                yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItem.Syntax, true));
-                if (request.Capability is {} capability)
+                if (allowDerivedRequests)
                 {
-                    factory = DelegateHelpers.MakeMethodFactory(method.WithBody(
-                                                                    Helpers.GetPartialResultRegistrationHandlerExpression(
-                                                                        Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItem.Syntax, request.Response.Syntax, registrationOptions.Syntax,
-                                                                        capability.Syntax
-                                                                    )
-                                                                ), extensionMethodContext.GetRegistryParameterList());
-                    yield return factory(Helpers.CreatePartialAction(request.Request.Syntax, partialItem.Syntax, capability.Syntax));
+                    var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, false));
+                    yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true));
+                }
+
+                if (request.Capability is { } capability)
+                {
+                    factory = MakeFactory(
+                        method.WithBody(
+                            GetPartialResultRegistrationHandlerExpression(
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItem.Syntax, request.Response.Syntax,
+                                registrationOptions.Syntax,
+                                capability.Syntax
+                            )
+                        ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
+                    );
+                    yield return factory(CreatePartialAction(request.Request.Syntax, partialItem.Syntax, capability.Syntax));
+
+                    if (allowDerivedRequests)
+                    {
+                        var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
+                        yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true, capability.Syntax));
+                    }
                 }
             }
 
             {
                 if (request.Capability is { } capability)
                 {
-                        factory = DelegateHelpers.MakeMethodFactory(method.WithBody(
-                                                                        Helpers.GetRequestRegistrationHandlerExpression(
-                                                                            Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax, capability.Syntax
-                                                                        )
-                                                                    ), extensionMethodContext.GetRegistryParameterList());
+                    factory = MakeFactory(
+                        method.WithBody(
+                            GetRequestRegistrationHandlerExpression(
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, registrationOptions.Syntax,
+                                capability.Syntax
+                            )
+                        ), extensionMethodContext.GetRegistryParameterList(), TypeArgumentList(SeparatedList(new[] { capability.Syntax, registrationOptions.Syntax }))
+                    );
 
-                    yield return factory(DelegateHelpers.CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
+                    yield return factory(CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
+
+                    if (allowDerivedRequests)
+                    {
+                        var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
+                        yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, IdentifierName("T"), capability.Syntax));
+                    }
                 }
             }
         }
 
-        private static Func<TypeSyntax, MethodDeclarationSyntax> MakeFactory(MethodDeclarationSyntax method, ParameterListSyntax preParameterList, TypeArgumentListSyntax typeArguments)
+        private static Func<TypeSyntax, MethodDeclarationSyntax> MakeFactory(
+            MethodDeclarationSyntax method, ParameterListSyntax preParameterList, TypeArgumentListSyntax typeArguments
+        )
         {
-            return DelegateHelpers.MakeMethodFactory(
-                method, preParameterList, SyntaxFactory.ParameterList(
-                    SyntaxFactory.SingletonSeparatedList(
-                        SyntaxFactory.Parameter(
-                            SyntaxFactory.Identifier("registrationOptionsFactory")
-                        ).WithType(
-                            SyntaxFactory.GenericName(
-                                              SyntaxFactory.Identifier("Func")
-                                          )
-                                         .WithTypeArgumentList(typeArguments)
+            return MakeMethodFactory(
+                method, preParameterList, ParameterList(
+                    SingletonSeparatedList(
+                        Parameter(Identifier("registrationOptionsFactory")).WithType(
+                            GenericName(Identifier("Func")).WithTypeArgumentList(typeArguments)
                         )
                     )
                 )

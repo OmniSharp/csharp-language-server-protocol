@@ -410,7 +410,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var kinds = _collection
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
-                               .Select(x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions() )?.SyncKind ?? TextDocumentSyncKind.None)
+                               .Select(x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!) )?.SyncKind ?? TextDocumentSyncKind.None)
                                .Where(x => x != TextDocumentSyncKind.None)
                                .ToArray();
                     if (kinds.Any())

@@ -13,24 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface ISelectionRangeHandler : IJsonRpcRequestHandler<SelectionRangeParams, Container<SelectionRange>?>,
-                                              IRegistration<SelectionRangeRegistrationOptions>, ICapability<SelectionRangeCapability>
+                                              IRegistration<SelectionRangeRegistrationOptions, SelectionRangeCapability>
     {
-    }
-
-    public abstract class SelectionRangeHandler : ISelectionRangeHandler
-    {
-        private readonly SelectionRangeRegistrationOptions _options;
-
-        public SelectionRangeHandler(SelectionRangeRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public SelectionRangeRegistrationOptions GetRegistrationOptions() => _options;
-
-        public abstract Task<Container<SelectionRange>?> Handle(
-            SelectionRangeParams request,
-            CancellationToken cancellationToken
-        );
-
-        public virtual void SetCapability(SelectionRangeCapability capability) => Capability = capability;
-        protected SelectionRangeCapability Capability { get; private set; } = null!;
     }
 }

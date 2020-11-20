@@ -8,17 +8,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class WarnIfResponseRouterIsNotProvidedStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (extensionMethodContext is not { IsProxy: true }) yield break;
 
             var generateRequestMethods = item.JsonRpcAttributes.GenerateRequestMethods;
             if (generateRequestMethods != null && (
-                                                      generateRequestMethods.ConstructorArguments.Length == 0 ||
-                                                      generateRequestMethods.ConstructorArguments[0].Kind != TypedConstantKind.Array
-                                                   && generateRequestMethods.ConstructorArguments[0].Value == null
-                                                   || generateRequestMethods.ConstructorArguments[0].Kind == TypedConstantKind.Array
-                                                   && generateRequestMethods.ConstructorArguments[0].Values.Length == 0 )
+                                                      generateRequestMethods.Data.ConstructorArguments.Length == 0 ||
+                                                      generateRequestMethods.Data.ConstructorArguments[0].Kind != TypedConstantKind.Array
+                                                   && generateRequestMethods.Data.ConstructorArguments[0].Value == null
+                                                   || generateRequestMethods.Data.ConstructorArguments[0].Kind == TypedConstantKind.Array
+                                                   && generateRequestMethods.Data.ConstructorArguments[0].Values.Length == 0 )
                                                && !extensionMethodContext.TypeSymbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
             {
                 item.Context.ReportDiagnostic(

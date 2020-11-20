@@ -28,9 +28,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
             };
         }
 
-        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions() => _options;
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions() => _options;
-        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.GetRegistrationOptions() => _changeOptions;
+        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) => _options;
+
+        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability)=> _options;
+
+        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability)=> _changeOptions;
 
         public abstract TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri);
         public abstract Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken);

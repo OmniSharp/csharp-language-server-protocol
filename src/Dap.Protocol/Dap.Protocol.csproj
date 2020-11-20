@@ -11,6 +11,13 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Configuration" />
     </ItemGroup>
+    <PropertyGroup>
+        <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Condition="'$(DesignTimeBuild)' == 'true' and '$(IDEA_INITIAL_DIRECTORY)' != ''" Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />

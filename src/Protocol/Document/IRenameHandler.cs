@@ -12,18 +12,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.Rename, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit?>, IRegistration<RenameRegistrationOptions>, ICapability<RenameCapability>
+    public interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit?>, IRegistration<RenameRegistrationOptions, RenameCapability>
     {
-    }
-
-    public abstract class RenameHandler : IRenameHandler
-    {
-        private readonly RenameRegistrationOptions _options;
-        public RenameHandler(RenameRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public RenameRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<WorkspaceEdit?> Handle(RenameParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(RenameCapability capability) => Capability = capability;
-        protected RenameCapability Capability { get; private set; } = null!;
     }
 }

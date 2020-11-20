@@ -17,28 +17,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
-    public interface IExecuteCommandHandler : IJsonRpcRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability>
+    public interface IExecuteCommandHandler : IJsonRpcRequestHandler<ExecuteCommandParams>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
     {
     }
 
-    public abstract class ExecuteCommandHandler : IExecuteCommandHandler
+    public abstract class ExecuteCommandHandler : AbstractHandlers.Base<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>, IExecuteCommandHandler
     {
-        private readonly ExecuteCommandRegistrationOptions _options;
-
-        public ExecuteCommandHandler(ExecuteCommandRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public ExecuteCommandRegistrationOptions GetRegistrationOptions() => _options;
         public abstract Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(ExecuteCommandCapability capability) => Capability = capability;
-        protected ExecuteCommandCapability Capability { get; private set; } = null!;
     }
 
     public abstract class ExecuteCommandHandlerBase<T> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -49,14 +46,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public abstract class ExecuteCommandHandlerBase<T, T2> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -69,14 +71,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public abstract class ExecuteCommandHandlerBase<T, T2, T3> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -91,14 +98,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public abstract class ExecuteCommandHandlerBase<T, T2, T3, T4> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -115,14 +127,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public abstract class ExecuteCommandHandlerBase<T, T2, T3, T4, T5> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -141,14 +158,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public abstract class ExecuteCommandHandlerBase<T, T2, T3, T4, T5, T6> : ExecuteCommandHandler
     {
+        private readonly string _command;
         private readonly ISerializer _serializer;
 
-        public ExecuteCommandHandlerBase(string command, ISerializer serializer) : base(new ExecuteCommandRegistrationOptions { Commands = new Container<string>(command) }) =>
+        public ExecuteCommandHandlerBase(string command, ISerializer serializer)
+        {
+            _command = command;
             _serializer = serializer;
+        }
 
         public sealed override Task<Unit> Handle(ExecuteCommandParams request, CancellationToken cancellationToken)
         {
@@ -169,15 +191,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
         }
 
         public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken);
+        protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) => new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
     }
 
     public static partial class ExecuteCommandExtensions
     {
         public static Task ExecuteCommand(this IWorkspaceLanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
-            => mediator.ExecuteCommand(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
+            => mediator.SendRequest(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
 
         public static Task ExecuteCommand(this ILanguageClient mediator, Command @params, CancellationToken cancellationToken = default)
-            => mediator.ExecuteCommand(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
+            => mediator.SendRequest(new ExecuteCommandParams { Arguments = @params.Arguments, Command = @params.Name }, cancellationToken);
 
         public static ILanguageServerRegistry OnExecuteCommand<T>(
             this ILanguageServerRegistry registry, string command, Func<T, ExecuteCommandCapability, CancellationToken, Task> handler

@@ -14,12 +14,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         {
             _strategies = strategies;
         }
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(GeneratorData item)
         {
             return item.JsonRpcAttributes.RequestProxies
                        .Select(
                             registry => new ExtensionMethodContext(
-                                item.JsonRpcAttributes.GenerateRequestMethods!, item.TypeDeclaration, item.TypeSymbol, registry, item.JsonRpcAttributes.RequestProxies,
+                                item.JsonRpcAttributes.GenerateRequestMethods!.Data, item.TypeDeclaration, item.TypeSymbol, registry, item.JsonRpcAttributes.RequestProxies,
                                 item.Context
                             ) { IsProxy = true }
                         )

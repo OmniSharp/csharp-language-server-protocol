@@ -18,35 +18,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IMonikerHandler :
         IJsonRpcRequestHandler<MonikerParams, Container<Moniker>?>,
-        IRegistration<MonikerRegistrationOptions>,
-        ICapability<MonikerCapability>
+        IRegistration<MonikerRegistrationOptions, MonikerCapability>
     {
     }
 
     [Obsolete(Constants.Proposal)]
-    public abstract class MonikerHandlerBase : IMonikerHandler
+    public abstract class MonikerHandlerBase : AbstractHandlers.Request<MonikerParams, Container<Moniker>?, MonikerRegistrationOptions, MonikerCapability>, IMonikerHandler
     {
-        private readonly MonikerRegistrationOptions _options;
-
-        protected MonikerHandlerBase(MonikerRegistrationOptions registrationOptions)
-        {
-            _options = registrationOptions;
-        }
-
-        public MonikerRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Container<Moniker>?> Handle(MonikerParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(MonikerCapability capability) => Capability = capability;
-        protected MonikerCapability Capability { get; private set; } = null!;
     }
 
     [Obsolete(Constants.Proposal)]
     public abstract class PartialMonikerHandlerBase :
-        AbstractHandlers.PartialResults<MonikerParams, Container<Moniker>?, Moniker, MonikerCapability, MonikerRegistrationOptions>, IMonikerHandler
+        AbstractHandlers.PartialResults<MonikerParams, Container<Moniker>?, Moniker, MonikerRegistrationOptions, MonikerCapability>, IMonikerHandler
     {
-        protected PartialMonikerHandlerBase(MonikerRegistrationOptions registrationOptions, IProgressManager progressManager) : base(
-            registrationOptions, progressManager,
-            items => new Container<Moniker>(items)
-        )
+        protected PartialMonikerHandlerBase(IProgressManager progressManager) : base(progressManager, items => new Container<Moniker>(items))
         {
         }
 

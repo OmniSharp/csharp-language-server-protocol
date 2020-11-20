@@ -8,12 +8,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class SendMethodNotificationStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
             if (item is not NotificationItem notification) yield break;
             if (extensionMethodContext is not { IsProxy: true }) yield break;
 
-            var method = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), extensionMethodContext.GetSendMethodName())
+            var method = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), item.JsonRpcAttributes.RequestMethodName)
                                       .WithModifiers(
                                            SyntaxFactory.TokenList(
                                                SyntaxFactory.Token(SyntaxKind.PublicKeyword),

@@ -27,11 +27,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             HasPartialItems = PartialItemsType != null;
             HasPartialItem = PartialItemType != null;
 
-            RegistrationType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType);
+            RegistrationType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<>), handlerType)
+                ??HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<,>), handlerType, 0);
             HasRegistration = RegistrationType != null && RegistrationType != typeof(object);
             if (!HasRegistration) RegistrationType = null;
 
-            CapabilityType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType);
+            CapabilityType = HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(ICapability<>), handlerType)
+                           ??HandlerTypeDescriptorHelper.UnwrapGenericType(typeof(IRegistration<,>), handlerType, 1);
             HasCapability = CapabilityType != null;
             if (!HasCapability) CapabilityType = null;
 

@@ -13,20 +13,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [Method(TextDocumentNames.DidOpen, Direction.ClientToServer)]
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
-    public interface IDidOpenTextDocumentHandler : IJsonRpcNotificationHandler<DidOpenTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions>,
-                                                   ICapability<SynchronizationCapability>
+    public interface IDidOpenTextDocumentHandler : IJsonRpcNotificationHandler<DidOpenTextDocumentParams>, IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>
     {
-    }
-
-    public abstract class DidOpenTextDocumentHandler : IDidOpenTextDocumentHandler
-    {
-        private readonly TextDocumentRegistrationOptions _options;
-
-        public DidOpenTextDocumentHandler(TextDocumentRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public TextDocumentRegistrationOptions GetRegistrationOptions() => _options;
-        public abstract Task<Unit> Handle(DidOpenTextDocumentParams request, CancellationToken cancellationToken);
-        public virtual void SetCapability(SynchronizationCapability capability) => Capability = capability;
-        protected SynchronizationCapability Capability { get; private set; } = null!;
     }
 }

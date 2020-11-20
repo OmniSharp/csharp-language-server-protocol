@@ -2,39 +2,54 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
+using static OmniSharp.Extensions.JsonRpc.Generators.DelegateHelpers;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
     internal class OnNotificationMethodGeneratorWithoutRegistrationOptionsStrategy : IExtensionMethodContextGeneratorStrategy
     {
-        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, ExtensionMethodData item)
+        public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
-            if (item is not NotificationItem or { RegistrationOptions: {} }) yield break;
+            if (item is { RegistrationOptions: {} }) yield break;
+            if (item is not NotificationItem notification) yield break;
             if (extensionMethodContext is not { IsRegistry: true }) yield break;
 
-            var method = SyntaxFactory.MethodDeclaration(extensionMethodContext.Item, extensionMethodContext.GetOnMethodName())
+            var allowDerivedRequests = item.JsonRpcAttributes.AllowDerivedRequests;
+
+            var method = MethodDeclaration(extensionMethodContext.Item, item.JsonRpcAttributes.HandlerMethodName)
                                       .WithModifiers(
-                                           SyntaxFactory.TokenList(
-                                               SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                                               SyntaxFactory.Token(SyntaxKind.StaticKeyword)
+                                           TokenList(
+                                               Token(SyntaxKind.PublicKeyword),
+                                               Token(SyntaxKind.StaticKeyword)
                                            )
                                        )
-                                      .WithExpressionBody(Helpers.GetNotificationHandlerExpression(Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
-                                      .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+                                      .WithExpressionBody(GetNotificationHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
+                                      .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
-            var factory = DelegateHelpers.MakeMethodFactory(method, extensionMethodContext.GetRegistryParameterList());
-            yield return factory(DelegateHelpers.CreateAction(false, item.Request.Syntax));
-            yield return factory(DelegateHelpers.CreateAsyncAction(false, item.Request.Syntax));
-            yield return factory(DelegateHelpers.CreateAction(true, item.Request.Syntax));
-            yield return factory(DelegateHelpers.CreateAsyncAction(true, item.Request.Syntax));
+            var factory = MakeMethodFactory(method, extensionMethodContext.GetRegistryParameterList());
+            yield return factory(CreateAction(false, item.Request.Syntax));
+            yield return factory(CreateAsyncAction(false, item.Request.Syntax));
+            yield return factory(CreateAction(true, item.Request.Syntax));
+            yield return factory(CreateAsyncAction(true, item.Request.Syntax));
+
+            if (allowDerivedRequests)
+            {
+                var genericFactory = MakeGenericFactory(factory, notification.Request.Syntax);
+                yield return genericFactory(CreateAction(IdentifierName("T")));
+                yield return genericFactory(CreateAsyncAction(false, IdentifierName("T")));
+                yield return genericFactory(CreateAction(true, IdentifierName("T")));
+                yield return genericFactory(CreateAsyncAction(true, IdentifierName("T")));
+            }
 
             if (item.Capability is not null)
             {
-                factory = DelegateHelpers.MakeMethodFactory(
+                factory = MakeMethodFactory(
                     method
                        .WithExpressionBody(
-                            Helpers.GetNotificationCapabilityHandlerExpression(
-                                Helpers.GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration),
+                            GetNotificationCapabilityHandlerExpression(
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration),
                                 item.Request.Syntax,
                                 item.Capability.Syntax
                             )
@@ -42,8 +57,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     extensionMethodContext.GetRegistryParameterList()
                 );
                 // might cause issues
-                yield return factory(DelegateHelpers.CreateAction(true, item.Request.Syntax, item.Capability.Syntax));
-                yield return factory(DelegateHelpers.CreateAsyncAction(true, item.Request.Syntax, item.Capability.Syntax));
+                yield return factory(CreateAction(true, item.Request.Syntax, item.Capability.Syntax));
+                yield return factory(CreateAsyncAction(true, item.Request.Syntax, item.Capability.Syntax));
+
+                if (allowDerivedRequests)
+                {
+                    var genericFactory = MakeGenericFactory(factory, IdentifierName("T"));
+                    yield return genericFactory(CreateAction(true, IdentifierName("T"), item.Capability.Syntax));
+                    yield return genericFactory(CreateAsyncAction(true, IdentifierName("T"), item.Capability.Syntax));
+                }
             }
         }
     }

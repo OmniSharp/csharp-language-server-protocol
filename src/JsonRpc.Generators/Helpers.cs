@@ -13,9 +13,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     internal static class Helpers
     {
-        public static bool IsNotification(INamedTypeSymbol symbol) => symbol.AllInterfaces.Any(z => z.Name == "IJsonRpcNotificationHandler");
+        public static bool IsNotification(TypeDeclarationSyntax symbol) =>
+            symbol.BaseList?.Types
+                  .Any(
+                       z =>
+                           z.Type is SimpleNameSyntax and (
+                               { Identifier: { Text: "IJsonRpcNotificationHandler" }, Arity: 0 or 1 }
+                               or { Identifier: { Text: "IRequest" }, Arity: 0 }
+                               )
+                   ) == true;
 
-        public static bool IsRequest(INamedTypeSymbol symbol) => symbol.AllInterfaces.Any(z => z.Name == "IJsonRpcRequestHandler");
+        public static bool IsRequest(TypeDeclarationSyntax symbol) =>
+            symbol.BaseList?.Types
+                  .Any(
+                       z =>
+                           z.Type is SimpleNameSyntax and (
+                               { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }
+                               or { Identifier: { Text: "IRequest" }, Arity: 1 }
+                               )
+                   ) == true;
 
         public static ExpressionSyntax GetJsonRpcMethodName(TypeDeclarationSyntax interfaceSyntax)
         {
@@ -28,52 +44,70 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static SyntaxSymbol GetResponseType(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            var type = syntax.BaseList?.Types
-                             .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                             .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "IJsonRpcRequestHandler")
-                             .Select(z => z!.Arity == 1 ? IdentifierName("MediatR.Unit") : z.TypeArgumentList.Arguments[1])
-                             .FirstOrDefault()
-                    ?? syntax.BaseList?.Types
-                             .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                             .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "ICanBeResolvedHandler")
-                             .Select(z => z!.TypeArgumentList.Arguments[0])
-                             .FirstOrDefault();
+            TypeSyntax? type = null!;
+            foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
+            {
+                type = baseType.Type switch {
+                    GenericNameSyntax gns => gns switch {
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 } => IdentifierName("MediatR.Unit"),
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
+                        { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }  => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
+                        _                                                            => null
+                    },
+                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } } => IdentifierName("MediatR.Unit"),
+                    _                                                             => null
+                };
+                if (type != null) break;
+            }
+
             if (type == null) throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
 
-            var handlerInterface = symbol.AllInterfaces.First(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            if (handlerInterface.TypeArguments[1] is INamedTypeSymbol ns)
+            var handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
+            if (handlerInterface?.TypeArguments[1] is INamedTypeSymbol ns)
                 return new SyntaxSymbol(type, ns);
+            handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequest" && z.Arity == 1);
+            if (handlerInterface?.TypeArguments[0] is INamedTypeSymbol ns2)
+                return new SyntaxSymbol(type, ns2);
             throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
         }
 
-        public static SyntaxSymbol GetRequestType(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static SyntaxSymbol? GetRequestType(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            TypeSyntax type;
+            TypeSyntax? type;
             if (syntax.ConstraintClauses.Any())
             {
                 type = syntax.ConstraintClauses.First()
                              .Constraints
                              .OfType<TypeConstraintSyntax>()
-                             .FirstOrDefault()?.Type
-                    ?? throw new ArgumentException("Generic type does not have a constraint", nameof(syntax));
+                             .FirstOrDefault()?.Type;
+            }
+            else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>().Any(z => z.Identifier.Text == "IRequest") == true)
+            {
+                type = ParseTypeName(syntax.Identifier.ToFullString());
             }
             else
             {
                 var interfaceType = syntax.BaseList?.Types
-                                          .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                                          .Where(z => z != null)
-                                          .First(
-                                               z => z!.Identifier.Text == "IJsonRpcRequestHandler" || z.Identifier.Text == "ICanBeResolvedHandler"
-                                                                                                   || z.Identifier.Text == "IJsonRpcNotificationHandler"
-                                           )!;
+                                          .Select(
+                                               z => z.Type is GenericNameSyntax gns and (
+                                                   { Identifier: { Text: "IJsonRpcRequestHandler" } } or
+                                                   { Identifier: { Text: "ICanBeResolvedHandler" } } or
+                                                   { Identifier: { Text: "IJsonRpcNotificationHandler" } }
+                                                   )
+                                                   ? gns
+                                                   : null!
+                                           )
+                                          .FirstOrDefault(z => z is not null);
 
-                type = interfaceType.TypeArgumentList.Arguments[0];
+                type = interfaceType?.TypeArgumentList.Arguments[0];
             }
 
-            var handlerInterface = symbol.AllInterfaces.First(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            var arg = handlerInterface.TypeArguments[0];
+            if (type == null) return null;
+
+            var handlerInterface = symbol.AllInterfaces
+                                         .FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
+            var arg = handlerInterface?.TypeArguments[0] ?? ( symbol.AllInterfaces.Any(z => z.Name == "IRequest" && z.Arity == 1) ? symbol as ITypeSymbol : null );
             if (arg is ITypeParameterSymbol typeParameterSymbol)
             {
                 return new SyntaxSymbol(
@@ -87,46 +121,81 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 return new SyntaxSymbol(type, namedTypeSymbol);
             }
 
-            throw new NotSupportedException($"Request Type {symbol.ToDisplayString()} is not supported!");
+            return null;
         }
 
-        public static SyntaxSymbol? GetCapability(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static SyntaxSymbol? GetCapability(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, LspAttributes? lspAttributes)
         {
-            var type = syntax.BaseList?.Types
-                             .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                             .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "ICapability" && z.Arity == 1)
-                             .Select(z => z!.TypeArgumentList.Arguments[0])
-                             .FirstOrDefault()
-                    ?? syntax.BaseList?.Types
-                             .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                             .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "IRegistration" && z.Arity == 2)
-                             .Select(z => z!.TypeArgumentList.Arguments[1])
-                             .FirstOrDefault();
+            TypeSyntax? type = null!;
+            foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
+            {
+                type = baseType.Type switch {
+                    GenericNameSyntax gns => gns switch {
+                        { Identifier: { Text: "ICapability" }, Arity: 1 }   => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IRegistration" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
+                        _                                                   => null
+                    },
+                    _ => null
+                };
+                if (type != null) break;
+            }
 
-            if (type == null) return null;
+            if (type == null
+             && lspAttributes?.CapabilityAttribute?.Syntax is { } and { ArgumentList: { Arguments: { Count: > 0 } } arguments }
+             && arguments.Arguments[0].Expression is TypeOfExpressionSyntax toes)
+            {
+                type = toes.Type;
+            }
+
+            if (type == null)
+                return null;
 
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "ICapability" && z.TypeArguments.Length == 1)?.TypeArguments[0]
                                 ?? symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRegistration" && z.TypeArguments.Length == 2)?.TypeArguments[1];
+            if (handlerInterface == null
+             && lspAttributes?.CapabilityAttribute?.Data is { } and { ConstructorArguments: { Length: > 0 } constructorArguments }
+             && constructorArguments[0].Value is INamedTypeSymbol nts)
+            {
+                handlerInterface = nts;
+            }
+
             return new SyntaxSymbol(type, ( handlerInterface as INamedTypeSymbol )!);
         }
 
-        public static SyntaxSymbol? GetRegistrationOptions(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static SyntaxSymbol? GetRegistrationOptions(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, LspAttributes? lspAttributes)
         {
-            var type = syntax.BaseList?.Types
-                             .Select(z => z.Type is GenericNameSyntax genericNameSyntax ? genericNameSyntax : null)
-                             .Where(z => z != null)
-                             .Where(z => z!.Identifier.Text == "IRegistration" && z.Arity > 0)
-                             .Select(z => z!.TypeArgumentList.Arguments[0])
-                             .FirstOrDefault();
-            if (type == null) return null;
+            TypeSyntax? type = null!;
+            foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
+            {
+                type = baseType.Type switch {
+                    GenericNameSyntax gns and { Identifier: { Text: "IRegistration" }, Arity: >0 } => gns.TypeArgumentList.Arguments[0],
+                    _                                                                              => null
+                };
+                if (type != null) break;
+            }
+
+            if (type == null
+             && lspAttributes?.RegistrationOptionsAttribute?.Syntax is { } and { ArgumentList: { Arguments: { Count: > 0 } } arguments }
+             && arguments.Arguments[0].Expression is TypeOfExpressionSyntax toes)
+            {
+                type = toes.Type;
+            }
+
+            if (type == null)
+                return null;
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRegistration" && z.TypeArguments.Length == 1)?.TypeArguments[0]
                                 ?? symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRegistration" && z.TypeArguments.Length == 2)?.TypeArguments[0];
+            if (handlerInterface == null
+             && lspAttributes?.RegistrationOptionsAttribute?.Data is { } and { ConstructorArguments: { Length: > 0 } constructorArguments }
+             && constructorArguments[0].Value is INamedTypeSymbol nts)
+            {
+                handlerInterface = nts;
+            }
+
             return new SyntaxSymbol(type, ( handlerInterface as INamedTypeSymbol )!);
         }
 
@@ -985,10 +1054,28 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
             }
 
-            return new Regex(@"(\w+(?:\<\w\>)?)$")
+            var substringIndex = symbol.Name.IndexOf("Handler", StringComparison.Ordinal);
+            if (substringIndex is -1)
+            {
+                substringIndex = symbol.Name.IndexOf("Params", StringComparison.Ordinal);
+            }
+
+            if (substringIndex is -1)
+            {
+                substringIndex = symbol.Name.Length - 1;
+            }
+
+            var start = 0;
+            if (symbol.Name.StartsWith("I", StringComparison.Ordinal) && char.IsUpper(symbol.Name[1]))
+            {
+                start = 1;
+                substringIndex -= 1;
+            }
+
+            return new Regex(@"(\w+(?:\<\w+\>)?)$")
                    .Replace(
                         symbol.ToDisplayString(),
-                        symbol.Name.Substring(1, symbol.Name.IndexOf("Handler", StringComparison.Ordinal) - 1)
+                        symbol.Name.Substring(start, substringIndex)
                     )
                 ;
         }
@@ -997,51 +1084,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var name = SpecialCasedHandlerFullName(symbol);
             return name.Substring(name.LastIndexOf('.') + 1);
-        }
-
-        public static string GetOnMethodName(INamedTypeSymbol symbol, AttributeData attributeData)
-        {
-            var namedMethod = attributeData.NamedArguments
-                                           .Where(z => z.Key == "MethodName")
-                                           .Select(z => z.Value.Value)
-                                           .FirstOrDefault();
-            if (namedMethod is string value) return value;
-            return "On" + SpecialCasedHandlerName(symbol);
-        }
-
-        public static string GetSendMethodName(INamedTypeSymbol symbol, AttributeData attributeData)
-        {
-            var namedMethod = attributeData.NamedArguments
-                                           .Where(z => z.Key == "MethodName")
-                                           .Select(z => z.Value.Value)
-                                           .FirstOrDefault();
-            if (namedMethod is string value) return value;
-            var name = SpecialCasedHandlerName(symbol);
-            if (
-                name.StartsWith("Run")
-             || name.StartsWith("Execute")
-                // TODO: Change this next breaking change
-                // || name.StartsWith("Set")
-                // || name.StartsWith("Attach")
-                // || name.StartsWith("Read")
-             || name.StartsWith("Did")
-             || name.StartsWith("Log")
-             || name.StartsWith("Show")
-             || name.StartsWith("Register")
-             || name.StartsWith("Prepare")
-             || name.StartsWith("Publish")
-             || name.StartsWith("ApplyWorkspaceEdit")
-             || name.StartsWith("Unregister"))
-            {
-                return name;
-            }
-
-            if (name.EndsWith("Resolve", StringComparison.Ordinal))
-            {
-                return "Resolve" + name.Substring(0, name.IndexOf("Resolve", StringComparison.Ordinal));
-            }
-
-            return IsNotification(symbol) ? "Send" + name : "Request" + name;
         }
     }
 }

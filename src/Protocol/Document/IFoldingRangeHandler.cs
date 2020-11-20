@@ -13,24 +13,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
     [GenerateHandlerMethods]
     [GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))]
     public interface IFoldingRangeHandler : IJsonRpcRequestHandler<FoldingRangeRequestParam, Container<FoldingRange>?>,
-                                            IRegistration<FoldingRangeRegistrationOptions>, ICapability<FoldingRangeCapability>
+                                            IRegistration<FoldingRangeRegistrationOptions, FoldingRangeCapability>
+
     {
-    }
-
-    public abstract class FoldingRangeHandler : IFoldingRangeHandler
-    {
-        private readonly FoldingRangeRegistrationOptions _options;
-
-        public FoldingRangeHandler(FoldingRangeRegistrationOptions registrationOptions) => _options = registrationOptions;
-
-        public FoldingRangeRegistrationOptions GetRegistrationOptions() => _options;
-
-        public abstract Task<Container<FoldingRange>?> Handle(
-            FoldingRangeRequestParam request,
-            CancellationToken cancellationToken
-        );
-
-        public virtual void SetCapability(FoldingRangeCapability capability) => Capability = capability;
-        protected FoldingRangeCapability Capability { get; private set; } = null!;
     }
 }

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Reflection;
 using MediatR;
 
-namespace OmniSharp.Extensions.JsonRpc
+namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     public class RegistrationNameAttribute  : Attribute
     {
