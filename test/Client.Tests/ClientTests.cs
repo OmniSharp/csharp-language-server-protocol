@@ -162,7 +162,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                                     true
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, () => new CompletionRegistrationOptions()
                     );
                 }
             );

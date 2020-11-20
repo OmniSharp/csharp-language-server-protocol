@@ -41,6 +41,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -85,6 +86,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -147,6 +149,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace Test
 {
@@ -199,6 +202,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -210,28 +214,16 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class DidChangeTextDocumentExtensions
     {
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams> handler, Func<TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
         {
-            registrationOptionsFactory ??= () => new TextDocumentChangeRegistrationOptions();
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions>(handler, registrationOptionsFactory));
+            registrationOptionsFactory ??= _ => new TextDocumentChangeRegistrationOptions();
+            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(handler, registrationOptionsFactory));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, Func<TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
         {
-            registrationOptionsFactory ??= () => new TextDocumentChangeRegistrationOptions();
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions>(handler, registrationOptionsFactory));
-        }
-
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, CancellationToken> handler, Func<TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
-        {
-            registrationOptionsFactory ??= () => new TextDocumentChangeRegistrationOptions();
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions>(handler, registrationOptionsFactory));
-        }
-
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, Func<TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
-        {
-            registrationOptionsFactory ??= () => new TextDocumentChangeRegistrationOptions();
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions>(handler, registrationOptionsFactory));
+            registrationOptionsFactory ??= _ => new TextDocumentChangeRegistrationOptions();
+            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(handler, registrationOptionsFactory));
         }
 
         public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, CancellationToken> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
@@ -241,6 +233,18 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
 
         public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
+        {
+            registrationOptionsFactory ??= _ => new TextDocumentChangeRegistrationOptions();
+            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(handler, registrationOptionsFactory));
+        }
+
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
+        {
+            registrationOptionsFactory ??= _ => new TextDocumentChangeRegistrationOptions();
+            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(handler, registrationOptionsFactory));
+        }
+
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= _ => new TextDocumentChangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(handler, registrationOptionsFactory));
@@ -291,6 +295,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -314,19 +319,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             return registry.AddHandler(TextDocumentNames.FoldingRange, new LanguageProtocolDelegatingHandlers.RequestRegistration<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRangeRegistrationOptions>(handler, registrationOptionsFactory));
         }
 
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>> handler, Func<FoldingRangeRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>> handler, Func<FoldingRangeRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new FoldingRangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new Container<FoldingRange>(values)));
         }
 
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, CancellationToken> handler, Func<FoldingRangeRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, CancellationToken> handler, Func<FoldingRangeRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new FoldingRangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new Container<FoldingRange>(values)));
         }
 
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability, CancellationToken> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability, CancellationToken> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= _ => new FoldingRangeRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions, FoldingRangeCapability>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new Container<FoldingRange>(values)));
@@ -380,6 +385,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Test;
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -403,19 +409,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.RequestRegistration<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions>(handler, registrationOptionsFactory));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= _ => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
@@ -472,6 +478,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace Test
 {
@@ -491,19 +498,19 @@ namespace Test
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.RequestRegistration<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions>(handler, registrationOptionsFactory));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry Observe(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry Observe(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= () => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptionsFactory)
+        public static ILanguageServerRegistry Observe(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptionsFactory)
         {
             registrationOptionsFactory ??= _ => new DefinitionRegistrationOptions();
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(handler, registrationOptionsFactory, _.GetService<IProgressManager>(), values => new LocationOrLocationLinks(values)));
@@ -526,15 +533,19 @@ namespace Test
         public async Task Supports_Custom_Method_Names()
         {
             var source = @"
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using System;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
+using Test;
 
 namespace Test
 {
@@ -554,6 +565,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Test;
 
 namespace Test
 {
@@ -593,6 +605,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -645,6 +658,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -699,6 +713,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
@@ -707,6 +722,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+
 
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
@@ -761,6 +777,8 @@ using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Bogus;
+using OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using RenameCapability = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.RenameCapability;

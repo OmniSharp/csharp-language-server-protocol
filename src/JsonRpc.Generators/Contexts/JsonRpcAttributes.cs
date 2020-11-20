@@ -13,6 +13,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         SyntaxAttributeData? GenerateHandlerMethods,
         ImmutableArray<TypeSyntax> HandlerRegistries,
         string HandlerMethodName,
+        string PartialHandlerMethodName,
         bool AllowDerivedRequests,
         SyntaxAttributeData? GenerateRequestMethods,
         ImmutableArray<TypeSyntax> RequestProxies,
@@ -32,6 +33,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 null,
                 ImmutableArray<TypeSyntax>.Empty,
                 GetHandlerMethodName(symbol),
+                GetPartialHandlerMethodName(symbol),
                 false,
                 null,
                 ImmutableArray<TypeSyntax>.Empty,
@@ -301,6 +303,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         public static string GetHandlerMethodName(INamedTypeSymbol symbol)
         {
             return "On" + Helpers.SpecialCasedHandlerName(symbol);
+        }
+
+        public static string GetPartialHandlerMethodName(INamedTypeSymbol symbol)
+        {
+            return "Observe" + Helpers.SpecialCasedHandlerName(symbol);
         }
 
         public static string GetRequestMethodName(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)

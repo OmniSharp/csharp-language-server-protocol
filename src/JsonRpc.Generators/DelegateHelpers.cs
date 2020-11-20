@@ -33,6 +33,24 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             .NormalizeWhitespace();
         }
 
+        public static Func<TypeSyntax, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
+            Func<TypeSyntax, IEnumerable<MethodDeclarationSyntax>> factory, TypeSyntax constraint
+        )
+        {
+            return syntax => factory(syntax)
+               .Select(
+                    method => method
+                             .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                             .WithConstraintClauses(
+                                  SingletonList(
+                                      TypeParameterConstraintClause(IdentifierName("T"))
+                                         .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
+                                  )
+                              )
+                             .NormalizeWhitespace()
+                );
+        }
+
         public static GenericNameSyntax CreateAction(bool withCancellationToken, params TypeSyntax[] arguments)
         {
             var typeArguments = arguments.ToList();
@@ -42,7 +60,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             return GenericName(Identifier("Action"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
+               .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
         }
 
         public static GenericNameSyntax CreateAction(params TypeSyntax[] arguments) => CreateAction(true, arguments);
@@ -81,7 +99,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             return GenericName(Identifier("Func"))
-                                .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
+               .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
         }
     }
 }

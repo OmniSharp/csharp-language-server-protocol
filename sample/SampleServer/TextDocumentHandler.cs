@@ -51,13 +51,6 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
-            GetRegistrationOptions() =>
-            new TextDocumentChangeRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                SyncKind = Change
-            };
-
         public void SetCapability(SynchronizationCapability capability) => _capability = capability;
 
         public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
@@ -68,9 +61,20 @@ namespace SampleServer
             return Unit.Value;
         }
 
-        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions() =>
+        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) =>
+            new TextDocumentChangeRegistrationOptions {
+                DocumentSelector = _documentSelector,
+                SyncKind = Change
+            };
+
+        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) =>
             new TextDocumentRegistrationOptions {
                 DocumentSelector = _documentSelector,
+            };
+
+        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) => new TextDocumentSaveRegistrationOptions {
+                DocumentSelector = _documentSelector,
+                IncludeText = capability.DidSave
             };
 
         public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
@@ -85,26 +89,12 @@ namespace SampleServer
 
         public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions() =>
-            new TextDocumentSaveRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                IncludeText = true
-            };
-
         public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
     }
 
-    internal class MyDocumentSymbolHandler : DocumentSymbolHandler
+    internal class MyDocumentSymbolHandler : IDocumentSymbolHandler
     {
-        public MyDocumentSymbolHandler() : base(
-            new DocumentSymbolRegistrationOptions {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp")
-            }
-        )
-        {
-        }
-
-        public override async Task<SymbolInformationOrDocumentSymbolContainer> Handle(
+        public async Task<SymbolInformationOrDocumentSymbolContainer> Handle(
             DocumentSymbolParams request,
             CancellationToken cancellationToken
         )
@@ -151,23 +141,26 @@ namespace SampleServer
             // await Task.Delay(2000, cancellationToken);
             return symbols;
         }
+
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability) => new DocumentSymbolRegistrationOptions {
+            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+        };
     }
 
-    internal class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
+    internal class MyWorkspaceSymbolsHandler : IWorkspaceSymbolsHandler
     {
         private readonly IServerWorkDoneManager _serverWorkDoneManager;
         private readonly IProgressManager _progressManager;
         private readonly ILogger<MyWorkspaceSymbolsHandler> _logger;
 
-        public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
-            base(new WorkspaceSymbolRegistrationOptions())
+        public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger)
         {
             _serverWorkDoneManager = serverWorkDoneManager;
             _progressManager = progressManager;
             _logger = logger;
         }
 
-        public override async Task<Container<SymbolInformation>> Handle(
+        public async Task<Container<SymbolInformation>> Handle(
             WorkspaceSymbolParams request,
             CancellationToken cancellationToken
         )
@@ -272,5 +265,7 @@ namespace SampleServer
                 );
             }
         }
+
+        public WorkspaceSymbolRegistrationOptions GetRegistrationOptions(WorkspaceSymbolCapability capability) => new WorkspaceSymbolRegistrationOptions();
     }
 }

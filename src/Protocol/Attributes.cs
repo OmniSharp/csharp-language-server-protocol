@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
@@ -114,5 +115,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             ConverterType = converterType;
         }
+    }
+
+    public static class RegistrationOptionsFactoryAdapter
+    {
+        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions, TCapability>(Func<TCapability, TRegistrationOptions>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new()
+            where TCapability : ICapability => registrationOptionsFactory ?? ( _ => new TRegistrationOptions() );
+
+        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions, TCapability>(Func<TRegistrationOptions>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new()
+            where TCapability : ICapability => _ => registrationOptionsFactory?.Invoke() ?? new TRegistrationOptions();
+
+        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions, TCapability>(TRegistrationOptions? registrationOptions)
+            where TRegistrationOptions : class, new()
+            where TCapability : ICapability => _ => registrationOptions ?? new TRegistrationOptions();
+
+        public static Func<TRegistrationOptions> Adapt<TRegistrationOptions>(Func<TRegistrationOptions>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new() => registrationOptionsFactory ?? ( () => new TRegistrationOptions() );
+
+        public static Func<TRegistrationOptions> Adapt<TRegistrationOptions>(TRegistrationOptions? registrationOptions)
+            where TRegistrationOptions : class, new() => () => registrationOptions ?? new TRegistrationOptions();
     }
 }

@@ -1,6 +1,7 @@
 #nullable enable
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Microsoft.CodeAnalysis;
@@ -29,6 +30,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        z =>
                            z.Type is SimpleNameSyntax and (
                                { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }
+                               or { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }
                                or { Identifier: { Text: "IRequest" }, Arity: 1 }
                                )
                    ) == true;
@@ -268,7 +270,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static GenericNameSyntax CreatePartialAction(TypeSyntax requestType, TypeSyntax partialType, params TypeSyntax[] types) =>
             CreatePartialAction(requestType, partialType, true, types);
 
-        private static ExpressionStatementSyntax EnsureRegistrationOptionsIsSet(NameSyntax registrationOptionsName, TypeSyntax registrationOptionsType, bool hasCapability) =>
+        public static ExpressionStatementSyntax EnsureRegistrationOptionsIsSet(NameSyntax registrationOptionsName, TypeSyntax registrationOptionsType, bool hasCapability) =>
             ExpressionStatement(
                 AssignmentExpression(
                     SyntaxKind.CoalesceAssignmentExpression,
@@ -288,7 +290,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static InvocationExpressionSyntax AddHandler(params ArgumentSyntax[] arguments) => InvocationExpression(
+        public static InvocationExpressionSyntax AddHandler(params ArgumentSyntax[] arguments) => InvocationExpression(
                 MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
                     IdentifierName("registry"),
@@ -306,48 +308,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetRegistrationHandlerArgumentList(NameSyntax registrationOptionsName) =>
+        public static ArgumentListSyntax GetRegistrationHandlerArgumentList(TypeSyntax registrationOptionsName, TypeArgumentListSyntax genericTypes) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
                         Argument(IdentifierName("handler")),
-                        Argument(registrationOptionsName)
+                        Argument(GetRegistrationOptionsAdapter(registrationOptionsName, genericTypes))
+
                     }
                 )
             );
+
+        public static InvocationExpressionSyntax GetRegistrationOptionsAdapter(TypeSyntax registrationOptionsName, TypeArgumentListSyntax genericTypes)
+        {
+            return InvocationExpression(QualifiedName(IdentifierName("RegistrationOptionsFactoryAdapter")
+                                                         , GenericName("Adapt").WithTypeArgumentList(genericTypes)))
+               .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(registrationOptionsName))));
+        }
 
         private static ArgumentListSyntax GetPartialResultArgumentList(TypeSyntax responseName) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
                         Argument(IdentifierName("handler")),
-                        Argument(
-                            InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("_"),
-                                    GenericName(Identifier("GetService"))
-                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
-                                )
-                            )
-                        ),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
-                                   .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
-                            )
-                        )
-                    }
-                )
-            );
-
-        private static ArgumentListSyntax GetPartialResultRegistrationArgumentList(TypeSyntax registrationOptionsName, TypeSyntax responseName) =>
-            ArgumentList(
-                SeparatedList(
-                    new[] {
-                        Argument(IdentifierName("handler")),
-                        Argument(registrationOptionsName),
                         Argument(
                             InvocationExpression(
                                 MemberAccessExpression(
@@ -395,34 +378,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialItemsRegistrationArgumentList(TypeSyntax registrationOptionsName, TypeSyntax responseName) =>
-            ArgumentList(
-                SeparatedList(
-                    new[] {
-                        Argument(IdentifierName("handler")),
-                        Argument(registrationOptionsName),
-                        Argument(
-                            InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("_"),
-                                    GenericName(Identifier("GetService"))
-                                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("IProgressManager"))))
-                                )
-                            )
-                        ),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(Identifier("values")),
-                                ObjectCreationExpression(responseName is NullableTypeSyntax nts ? nts.ElementType : responseName)
-                                   .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("values")))))
-                            )
-                        )
-                    }
-                )
-            );
-
-        private static ObjectCreationExpressionSyntax CreateHandlerArgument(NameSyntax className, string innerClassName, params TypeSyntax[] genericArguments) =>
+        public static ObjectCreationExpressionSyntax CreateHandlerArgument(NameSyntax className, string innerClassName, params TypeSyntax[] genericArguments) =>
             ObjectCreationExpression(
                 QualifiedName(
                     className,
@@ -443,52 +399,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 capabilityName
                             )
                            .WithArgumentList(GetHandlerArgumentList())
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetNotificationRegistrationHandlerExpression(ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax registrationOptionsName)
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptionsName, false),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "Notification",
-                                    requestName,
-                                    registrationOptionsName
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetNotificationRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax registrationOptionsName,
-            TypeSyntax capabilityName
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptionsName, true),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "Notification",
-                                    requestName,
-                                    registrationOptionsName,
-                                    capabilityName
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
                     )
                 )
             );
@@ -532,104 +442,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 capability
                             )
                            .WithArgumentList(GetHandlerArgumentList())
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetRequestRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax responseType,
-            TypeSyntax registrationOptions
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, false),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "RequestRegistration",
-                                    requestType,
-                                    responseType,
-                                    registrationOptions
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetVoidRequestRegistrationHandlerExpression(ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax registrationOptions)
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, false),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "RequestRegistration",
-                                    requestType,
-                                    registrationOptions
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetRequestRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax responseType,
-            TypeSyntax registrationOptions,
-            TypeSyntax capability
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, true),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "Request",
-                                    requestType,
-                                    responseType,
-                                    registrationOptions,
-                                    capability
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetVoidRequestRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax registrationOptions,
-            TypeSyntax capability
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, true),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            CreateHandlerArgument(
-                                    IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                    "Request",
-                                    requestType,
-                                    registrationOptions,
-                                    capability
-                                )
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptionsFactory")))
-                        )
                     )
                 )
             );
@@ -701,70 +513,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             );
         }
 
-        public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax itemType, TypeSyntax responseType,
-            TypeSyntax registrationOptions
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, false),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(
-                                    Identifier("_")
-                                ),
-                                CreateHandlerArgument(
-                                        IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                        "PartialResult",
-                                        requestType,
-                                        responseType,
-                                        itemType,
-                                        registrationOptions
-                                    )
-                                   .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptionsFactory"), responseType))
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetPartialResultRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax itemType, TypeSyntax responseType,
-            TypeSyntax registrationOptions,
-            TypeSyntax capability
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, true),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(
-                                    Identifier("_")
-                                ),
-                                CreateHandlerArgument(
-                                        IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                        "PartialResult",
-                                        requestType,
-                                        responseType,
-                                        itemType,
-                                        registrationOptions,
-                                        capability
-                                    )
-                                   .WithArgumentList(GetPartialResultRegistrationArgumentList(IdentifierName("registrationOptionsFactory"), responseType))
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
         public static ArrowExpressionClauseSyntax GetPartialResultHandlerExpression(
             ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax partialItem, TypeSyntax responseType
         )
@@ -813,69 +561,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     capabilityName
                                 )
                                .WithArgumentList(GetPartialItemsArgumentList(responseType))
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetPartialResultsRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax responseType, TypeSyntax itemName, TypeSyntax registrationOptions
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, false),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(
-                                    Identifier("_")
-                                ),
-                                CreateHandlerArgument(
-                                        IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                        "PartialResults",
-                                        requestType,
-                                        responseType,
-                                        itemName,
-                                        registrationOptions
-                                    )
-                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptionsFactory"), responseType))
-                            )
-                        )
-                    )
-                )
-            );
-        }
-
-        public static BlockSyntax GetPartialResultsRegistrationHandlerExpression(
-            ExpressionSyntax nameExpression, TypeSyntax requestType, TypeSyntax responseType,
-            TypeSyntax itemName, TypeSyntax registrationOptions,
-            TypeSyntax capability
-        )
-        {
-            return Block(
-                EnsureRegistrationOptionsIsSet(IdentifierName("registrationOptionsFactory"), registrationOptions, true),
-                ReturnStatement(
-                    AddHandler(
-                        Argument(nameExpression),
-                        Argument(
-                            SimpleLambdaExpression(
-                                Parameter(
-                                    Identifier("_")
-                                ),
-                                CreateHandlerArgument(
-                                        IdentifierName("LanguageProtocolDelegatingHandlers"),
-                                        "PartialResults",
-                                        requestType,
-                                        responseType,
-                                        itemName,
-                                        registrationOptions,
-                                        capability
-                                    )
-                                   .WithArgumentList(GetPartialItemsRegistrationArgumentList(IdentifierName("registrationOptionsFactory"), responseType))
-                            )
                         )
                     )
                 )

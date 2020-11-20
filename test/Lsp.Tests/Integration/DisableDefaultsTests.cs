@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
             var serverAction = Substitute.For<Action<DidChangeWorkspaceFoldersParams>>();
             var (client, server) = await Initialize(
                 options => options.OnWorkspaceFolders(clientAction),
-                options => options.OnDidChangeWorkspaceFolders(serverAction, new object())
+                options => options.OnDidChangeWorkspaceFolders(serverAction)
             );
 
             var clientManager = client.Services.GetRequiredService<IHandlersManager>();
@@ -74,7 +74,7 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => { },
                 options => options
-                   .OnDidChangeWorkspaceFolders(action, new object())
+                   .OnDidChangeWorkspaceFolders(action)
             );
 
             var config = client.Services.GetRequiredService<TestConfigurationProvider>();
@@ -103,7 +103,7 @@ namespace Lsp.Tests.Integration
             var action = Substitute.For<Action<DidChangeConfigurationParams>>();
             var (_, server) = await Initialize(
                 options => { },
-                options => options.OnDidChangeConfiguration(action, new object())
+                options => options.OnDidChangeConfiguration(action)
             );
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
@@ -121,7 +121,7 @@ namespace Lsp.Tests.Integration
                           .WithServices(z => z.AddSingleton<TestConfigurationProvider>()),
                 options => options
                           .WithConfigurationSection("mysection")
-                          .OnDidChangeConfiguration(action, new object())
+                          .OnDidChangeConfiguration(action)
             );
 
             var clientManager = client.Services.GetRequiredService<SharedHandlerCollection>();

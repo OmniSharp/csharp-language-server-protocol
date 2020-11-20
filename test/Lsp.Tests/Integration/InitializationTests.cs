@@ -14,6 +14,7 @@ using OmniSharp.Extensions.JsonRpc.Testing;
 using OmniSharp.Extensions.LanguageProtocol.Testing;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -114,9 +115,9 @@ namespace Lsp.Tests.Integration
             response.Should().NotBeNull();
         }
 
-        class CodeLensHandlerA : CodeLensHandler
+        class CodeLensHandlerA : CodeLensHandlerBase
         {
-            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade) : base(new CodeLensRegistrationOptions())
+            public CodeLensHandlerA(ILanguageServerFacade languageServerFacade)
             {
                 languageServerFacade.Should().NotBeNull();
             }
@@ -124,6 +125,7 @@ namespace Lsp.Tests.Integration
             public override Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken) => Task.FromResult(new CodeLensContainer());
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
+            protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability) => new ();
         }
 
         private readonly List<string> _logs = new List<string>();

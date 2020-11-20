@@ -13,8 +13,6 @@ namespace SampleServer
 
         public Task<Unit> Handle(DidChangeWatchedFilesParams request, CancellationToken cancellationToken) => Unit.Task;
 
-        public void SetCapability(DidChangeWatchedFilesCapability capability)
-        {
-        }
+        public DidChangeWatchedFilesRegistrationOptions GetRegistrationOptions(DidChangeWatchedFilesCapability capability) => new DidChangeWatchedFilesRegistrationOptions();
     }
 }

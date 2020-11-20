@@ -8,6 +8,7 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -15,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
+using Arg = NSubstitute.Arg;
 
 namespace Lsp.Tests
 {
@@ -215,7 +217,7 @@ namespace Lsp.Tests
         public void Should_DealWithClassesThatImplementMultipleHandlers_BySettingKeyAccordingly()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions()
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
@@ -243,7 +245,7 @@ namespace Lsp.Tests
             yield return new[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
             var documentLinkHandler = Substitute.For(new[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions()
+            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions(Arg.Any<DocumentLinkCapability>())
                                                           .Returns(
                                                                new DocumentLinkRegistrationOptions {
                                                                    DocumentSelector = new DocumentSelector()
@@ -253,7 +255,7 @@ namespace Lsp.Tests
             yield return new[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
             var completionHandler = Substitute.For(new[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions()
+            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions(Arg.Any<CompletionCapability>())
                                                       .Returns(
                                                            new CompletionRegistrationOptions {
                                                                DocumentSelector = new DocumentSelector()

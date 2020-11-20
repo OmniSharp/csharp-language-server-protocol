@@ -9,6 +9,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
+using Arg = NSubstitute.Arg;
 
 namespace Lsp.Tests
 {
@@ -19,7 +20,7 @@ namespace Lsp.Tests
         public ClientCapabilityProviderFixture()
         {
             var handler = Substitute.For<IExecuteCommandHandler>();
-            handler.GetRegistrationOptions().Returns(new ExecuteCommandRegistrationOptions());
+            handler.GetRegistrationOptions(Arg.Any<ExecuteCommandCapability>()).Returns(new ExecuteCommandRegistrationOptions());
 
             var handlerCollection = new SharedHandlerCollection(
                 SupportedCapabilitiesFixture.AlwaysTrue,

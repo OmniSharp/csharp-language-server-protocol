@@ -15,7 +15,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
     {
         public IEnumerable<MemberDeclarationSyntax> Apply(ExtensionMethodContext extensionMethodContext, GeneratorData item)
         {
-            if (item is { RegistrationOptions: {}}) yield break;
+            if (item is { RegistrationOptions: { } }) yield break;
             if (item is not RequestItem request) yield break;
             if (extensionMethodContext is not { IsRegistry: true }) yield break;
 
@@ -32,10 +32,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             var factory = MakeMethodFactory(method, extensionMethodContext.GetRegistryParameterList());
-            {
-                yield return factory(CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
-                yield return factory(CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
-            }
+            yield return factory(CreateAsyncFunc(request.Response.Syntax, false, request.Request.Syntax));
+            yield return factory(CreateAsyncFunc(request.Response.Syntax, true, request.Request.Syntax));
 
             if (allowDerivedRequests)
             {
@@ -45,16 +43,52 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, true, IdentifierName("T")));
             }
 
+            {
+                if (request.Capability is { } capability)
+                {
+                    if (request.IsUnit)
+                    {
+                        factory = MakeMethodFactory(
+                            method.WithExpressionBody(
+                                GetVoidRequestCapabilityHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList()
+                        );
+                    }
+                    else
+                    {
+                        factory = MakeMethodFactory(
+                            method.WithExpressionBody(
+                                GetRequestCapabilityHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList()
+                        );
+                    }
+
+                    yield return factory(CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
+
+                    if (allowDerivedRequests)
+                    {
+                        var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
+                        yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, IdentifierName("T"), capability.Syntax));
+                    }
+                }
+            }
+
             if (request.PartialItems is { } partialItems)
             {
                 var partialItemsSyntax = GenericName("IEnumerable").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { partialItems.Syntax })));
 
                 factory = MakeMethodFactory(
-                    method.WithExpressionBody(
-                        GetPartialResultsHandlerExpression(
-                            GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItems.Syntax, request.Response.Syntax
-                        )
-                    ), extensionMethodContext.GetRegistryParameterList()
+                    method
+                       .WithIdentifier(Identifier(item.JsonRpcAttributes.PartialHandlerMethodName))
+                       .WithExpressionBody(
+                            GetPartialResultsHandlerExpression(
+                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, partialItems.Syntax, request.Response.Syntax
+                            )
+                        ), extensionMethodContext.GetRegistryParameterList()
                 );
 
                 yield return factory(CreatePartialAction(request.Request.Syntax, partialItemsSyntax, false));
@@ -69,12 +103,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 if (request.Capability is { } capability)
                 {
                     factory = MakeMethodFactory(
-                        method.WithExpressionBody(
-                            GetPartialResultsCapabilityHandlerExpression(
-                                GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax,
-                                partialItemsSyntax, capability.Syntax
-                            )
-                        ), extensionMethodContext.GetRegistryParameterList()
+                        method
+                           .WithIdentifier(Identifier(item.JsonRpcAttributes.PartialHandlerMethodName))
+                           .WithExpressionBody(
+                                GetPartialResultsCapabilityHandlerExpression(
+                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax,
+                                    partialItemsSyntax, capability.Syntax
+                                )
+                            ), extensionMethodContext.GetRegistryParameterList()
                     );
                     yield return factory(CreatePartialAction(request.Request.Syntax, partialItemsSyntax, capability.Syntax));
 
@@ -120,40 +156,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     {
                         var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
                         yield return genericFactory(CreatePartialAction(IdentifierName("T"), partialItem.Syntax, true, capability.Syntax));
-                    }
-                }
-            }
-
-            {
-                if (request.Capability is { } capability)
-                {
-                    if (request.IsUnit)
-                    {
-                        factory = MakeMethodFactory(
-                            method.WithExpressionBody(
-                                GetVoidRequestCapabilityHandlerExpression(
-                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, capability.Syntax
-                                )
-                            ), extensionMethodContext.GetRegistryParameterList()
-                        );
-                    }
-                    else
-                    {
-                        factory = MakeMethodFactory(
-                            method.WithExpressionBody(
-                                GetRequestCapabilityHandlerExpression(
-                                    GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration), request.Request.Syntax, request.Response.Syntax, capability.Syntax
-                                )
-                            ), extensionMethodContext.GetRegistryParameterList()
-                        );
-                    }
-
-                    yield return factory(CreateAsyncFunc(request.Response.Syntax, request.Request.Syntax, capability.Syntax));
-
-                    if (allowDerivedRequests)
-                    {
-                        var genericFactory = MakeGenericFactory(factory, request.Request.Syntax);
-                        yield return genericFactory(CreateAsyncFunc(request.Response.Syntax, IdentifierName("T"), capability.Syntax));
                     }
                 }
             }

@@ -50,6 +50,26 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
 
+            public Request(Func<TParams, Task<TResult>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Request(Func<TParams, CancellationToken, Task<TResult>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Request(Guid id, Func<TParams, Task<TResult>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(id, (request, _, _) => handler(request), registrationOptionsFactory)
+            {
+            }
+
+            public Request(Guid id, Func<TParams, CancellationToken, Task<TResult>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(id, (request, _, token) => handler(request, token), registrationOptionsFactory)
+            {
+            }
+
             Task<TResult> IRequestHandler<TParams, TResult>.
                 Handle(TParams request, CancellationToken cancellationToken) =>
                 _handler(request, Capability, cancellationToken);
@@ -151,6 +171,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _handler = handler;
                 _registrationOptionsFactory = registrationOptionsFactory;
             }
+
+            public Request(Func<TParams, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, (a, _, _) => handler(a), registrationOptionsFactory)
+            {
+            }
+
+            public Request(Func<TParams, CancellationToken, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+
+            public Request(Guid id, Func<TParams, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(id, (a, _, _) => handler(a), registrationOptionsFactory)
+            {
+            }
+
+            public Request(Guid id, Func<TParams, CancellationToken, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory):
+                 this(id, (a, _, t) => handler(a, t), registrationOptionsFactory)
+            {
+            }
+
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
             {
@@ -371,6 +413,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _registrationOptionsFactory = registrationOptionsFactory;
                 _progressManager = progressManager;
                 _factory = factory;
+            }
+
+            public PartialResult(
+                Action<TParams, IObserver<TItem>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager, Func<TItem, TResponse> factory
+            ) :
+                this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResult(
+                Action<TParams, IObserver<TItem>, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<TItem, TResponse> factory
+            ) :
+                this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResult(
+                Guid id, Action<TParams, IObserver<TItem>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<TItem, TResponse> factory
+            ) :
+                this(id, (request, observer, _, _) => handler(request, observer), registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResult(
+                Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<TItem, TResponse> factory
+            ):
+                this(id, (request, observer, _, token) => handler(request, observer, token), registrationOptionsFactory, progressManager, factory)
+            {
             }
 
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
@@ -632,6 +705,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
+            public PartialResults(
+                Action<TParams, IObserver<IEnumerable<TItem>>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<IEnumerable<TItem>, TResponse> factory
+            ) :
+                this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResults(
+                Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<IEnumerable<TItem>, TResponse> factory
+            ) :
+                this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResults(
+                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
+                Func<IEnumerable<TItem>, TResponse> factory
+            ) :
+                this(id, (request, observer, _, _) => handler(request, observer), registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
+            public PartialResults(Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory,
+                                  IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory) :
+                this(id, (p, o, _, t) => handler(p, o, t), registrationOptionsFactory, progressManager, factory)
+            {
+            }
+
             async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
@@ -886,27 +989,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public Notification(Action<TParams, TCapability> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
-                this(
-                    Guid.Empty, (request, capability, _) => {
-                        handler(request, capability);
-                        return Task.CompletedTask;
-                    }, registrationOptionsFactory
-                )
+                this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
 
             public Notification(Action<TParams, TCapability, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
-                this(
-                    Guid.Empty, (request, c, ct) => {
-                        handler(request, c, ct);
-                        return Task.CompletedTask;
-                    }, registrationOptionsFactory
-                )
+                this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
 
             public Notification(Func<TParams, TCapability, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
-                this(Guid.Empty, (request, capability, _) => handler(request, capability), registrationOptionsFactory)
+                this(Guid.Empty, handler, registrationOptionsFactory)
             {
             }
 
@@ -945,6 +1038,56 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _id = id;
                 _handler = handler;
                 _registrationOptionsFactory = registrationOptionsFactory;
+            }
+
+            public Notification(Action<TParams> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Notification(Action<TParams, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Notification(Func<TParams, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Notification(Func<TParams, CancellationToken, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(Guid.Empty, handler, registrationOptionsFactory)
+            {
+            }
+
+            public Notification(Guid id, Action<TParams> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(
+                    id, (request, _, _) => {
+                        handler(request);
+                        return Task.CompletedTask;
+                    }, registrationOptionsFactory
+                )
+            {
+            }
+
+            public Notification(Guid id, Action<TParams, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(
+                    id, (request, _, ct) => {
+                        handler(request, ct);
+                        return Task.CompletedTask;
+                    }, registrationOptionsFactory
+                )
+            {
+            }
+
+            public Notification(Guid id, Func<TParams, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(id, (request, _, _) => handler(request), registrationOptionsFactory)
+            {
+            }
+
+            public Notification(Guid id, Func<TParams, CancellationToken, Task> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory) :
+                this(id, (request, _, token) => handler(request, token), registrationOptionsFactory)
+            {
             }
 
             async Task<Unit> IRequestHandler<TParams, Unit>.Handle(TParams request, CancellationToken cancellationToken)
