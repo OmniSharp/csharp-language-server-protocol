@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Reactive.Threading.Tasks;
@@ -335,13 +336,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         public abstract class Notification<TParams> : IJsonRpcRequestHandler<TParams>
             where TParams : IRequest
         {
-            public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
-            {
-                Handle(request);
-                return Unit.Task;
-            }
-
-            protected abstract void Handle(TParams request);
+            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
         }
 
         public abstract class Notification<TParams, TRegistrationOptions, TCapability> :
@@ -351,13 +346,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
-            public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
-            {
-                Handle(request);
-                return Unit.Task;
-            }
-
-            protected abstract void Handle(TParams request);
+            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
         }
 
         public abstract class Notification<TParams, TRegistrationOptions> :
@@ -366,13 +355,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TParams : IRequest
             where TRegistrationOptions : class, new()
         {
-            public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
-            {
-                Handle(request);
-                return Unit.Task;
-            }
-
-            protected abstract void Handle(TParams request);
+            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
         }
 
         public abstract class NotificationCapability<TParams, TCapability> :
@@ -381,13 +364,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TParams : IRequest
             where TCapability : ICapability
         {
-            public Task<Unit> Handle(TParams request, CancellationToken cancellationToken)
-            {
-                Handle(request);
-                return Unit.Task;
-            }
-
-            protected abstract void Handle(TParams request);
+            public abstract Task<Unit> Handle(TParams request, CancellationToken cancellationToken);
         }
     }
 }

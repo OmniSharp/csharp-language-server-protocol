@@ -7,6 +7,121 @@ namespace Generation.Tests
     public class GeneratedRegistrationOptionsTests
     {
         [FactWithSkipOn(SkipOnPlatform.Windows)]
+        public async Task Supports_Generating_Strongly_Typed_WorkDone_Registration_Options()
+        {
+            var source = @"
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
+namespace Test
+{
+    [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider), SupportsWorkDoneProgress = true)]
+    public partial class WorkspaceSymbolRegistrationOptions { }
+}
+";
+            var expected = @"using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
+#nullable enable
+namespace Test
+{
+    [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+    public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress
+        {
+            get;
+            set;
+        }
+
+        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticWorkspaceSymbolRegistrationOptions>
+        {
+            public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
+            {
+            }
+
+            public override StaticWorkspaceSymbolRegistrationOptions Convert(WorkspaceSymbolRegistrationOptions source)
+            {
+                return new StaticWorkspaceSymbolRegistrationOptions{};
+            }
+        }
+    }
+
+    public partial class StaticWorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress
+        {
+            get;
+            set;
+        }
+    }
+}
+#nullable restore";
+            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+        }
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        public async Task Supports_Generating_Strongly_Typed_WorkDone_Registration_Options_Interface()
+        {
+            var source = @"
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
+namespace Test
+{
+    [GenerateRegistrationOptions(nameof(ServerCapabilities.WorkspaceSymbolProvider))]
+    public partial class WorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions { }
+}
+";
+
+            var expected = @"
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
+#nullable enable
+namespace Test
+{
+    [RegistrationOptionsConverterAttribute(typeof(WorkspaceSymbolRegistrationOptionsConverter))]
+    public partial class WorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress
+        {
+            get;
+            set;
+        }
+
+        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticWorkspaceSymbolRegistrationOptions>
+        {
+            public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
+            {
+            }
+
+            public override StaticWorkspaceSymbolRegistrationOptions Convert(WorkspaceSymbolRegistrationOptions source)
+            {
+                return new StaticWorkspaceSymbolRegistrationOptions{};
+            }
+        }
+    }
+
+    public partial class StaticWorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress
+        {
+            get;
+            set;
+        }
+    }
+}
+#nullable restore";
+            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
+        }
+
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
         public async Task Supports_Generating_Strongly_Typed_Registration_Options()
         {
             var source = @"
@@ -24,12 +139,13 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    [RegistrationOptions(nameof(ServerCapabilities.CodeActionProvider)), TextDocument, WorkDoneProgress]
+    [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider), SupportsDocumentSelector = true, SupportsWorkDoneProgress = true]
     public partial class CodeActionRegistrationOptions
     {
         /// <summary>
@@ -67,14 +183,14 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
-using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
     [RegistrationOptionsConverterAttribute(typeof(CodeActionRegistrationOptionsConverter))]
-    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions, OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
         public DocumentSelector? DocumentSelector
         {
@@ -91,7 +207,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 
         class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticCodeActionRegistrationOptions>
         {
-            public Converter(): base(nameof(ServerCapabilities.CodeActionProvider))
+            public CodeActionRegistrationOptionsConverter(): base(nameof(ServerCapabilities.CodeActionProvider))
             {
             }
 
@@ -102,7 +218,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
     }
 
-    public partial class StaticCodeActionRegistrationOptions : IWorkDoneProgressOptions
+    public partial class StaticCodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
     {
         /// <summary>
         /// CodeActionKinds that this server may return.
@@ -138,9 +254,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
     }
 }
-#nullable restore
-
-";
+#nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
 
@@ -167,9 +281,9 @@ using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    [RegistrationOptions(nameof(ServerCapabilities.CodeActionProvider)), TextDocument, WorkDoneProgress]
+    [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider)]
     [RegistrationOptionsConverter(typeof(CodeActionRegistrationOptionsConverter))]
-    public partial class CodeActionRegistrationOptions
+    public partial class CodeActionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
     {
         /// <summary>
         /// CodeActionKinds that this server may return.
@@ -231,7 +345,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 {
-    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions, ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+    public partial class CodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
     {
         public DocumentSelector? DocumentSelector
         {

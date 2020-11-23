@@ -33,6 +33,39 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             .NormalizeWhitespace();
         }
 
+        public static Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax> MakeGenericFactory(
+            Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax> factory, TypeSyntax constraint
+        )
+        {
+            return (syntax, resolveSyntax) => factory(syntax, resolveSyntax)
+                                             .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                                             .WithConstraintClauses(
+                                                  SingletonList(
+                                                      TypeParameterConstraintClause(IdentifierName("T"))
+                                                         .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
+                                                  )
+                                              )
+                                             .NormalizeWhitespace();
+        }
+
+        public static Func<TypeSyntax, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
+            Func<TypeSyntax, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> factory, TypeSyntax constraint
+        )
+        {
+            return (syntax, resolveSyntax) => factory(syntax, resolveSyntax)
+               .Select(
+                    method => method
+                             .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("T")))))
+                             .WithConstraintClauses(
+                                  SingletonList(
+                                      TypeParameterConstraintClause(IdentifierName("T"))
+                                         .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
+                                  )
+                              )
+                             .NormalizeWhitespace()
+                );
+        }
+
         public static Func<TypeSyntax, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
             Func<TypeSyntax, IEnumerable<MethodDeclarationSyntax>> factory, TypeSyntax constraint
         )
@@ -68,8 +101,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static GenericNameSyntax CreateAsyncAction(params TypeSyntax[] arguments) => CreateAsyncFunc(null, true, arguments);
 
         public static GenericNameSyntax CreateAsyncAction(bool withCancellationToken, params TypeSyntax[] arguments) => CreateAsyncFunc(null, withCancellationToken, arguments);
-
-        public static GenericNameSyntax CreateAsyncFunc(TypeSyntax? returnType, params TypeSyntax[] arguments) => CreateAsyncFunc(returnType, true, arguments);
 
         public static GenericNameSyntax CreateAsyncFunc(TypeSyntax? returnType, bool withCancellationToken, params TypeSyntax[] arguments)
         {

@@ -43,10 +43,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 // can this be async???
                 context.CancellationToken.ThrowIfCancellationRequested();
 
-                var model = compilation.GetSemanticModel(candidateClass.SyntaxTree);
-                var symbol = model.GetDeclaredSymbol(candidateClass);
-                if (symbol is null) continue;
-
                 var additionalUsings = new HashSet<string> {
                     "System",
                     "System.Collections.Generic",
@@ -60,52 +56,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 try
                 {
-                    var requestType = GetRequestType(candidateClass, symbol);
-                    if (requestType == null) continue;
-                    var jsonRpcAttributes = JsonRpcAttributes.Parse(context, candidateClass, symbol, additionalUsings);
-                    var lspAttributes = LspAttributes.Parse(context, candidateClass, symbol);
-                    var dapAttributes = DapAttributes.Parse(context, candidateClass, symbol);
-
-                    additionalUsings.Add(jsonRpcAttributes.HandlerNamespace);
-                    additionalUsings.Add(jsonRpcAttributes.ModelNamespace);
-                    if (IsNotification(candidateClass))
-                    {
-                        actionItem = new NotificationItem(
-                            candidateClass,
-                            symbol,
-                            jsonRpcAttributes,
-                            lspAttributes,
-                            dapAttributes,
-                            requestType,
-                            GetCapability(candidateClass, symbol, lspAttributes),
-                            GetRegistrationOptions(candidateClass, symbol, lspAttributes),
-                            additionalUsings,
-                            model,
-                            context
-                        );
-                    }
-
-                    if (IsRequest(candidateClass))
-                    {
-                        var responseType = GetResponseType(candidateClass, symbol);
-                        actionItem = new RequestItem(
-                            candidateClass,
-                            symbol,
-                            jsonRpcAttributes,
-                            lspAttributes,
-                            dapAttributes,
-                            requestType,
-                            responseType,
-                            responseType.Symbol.Name == "Unit",
-                            GetCapability(candidateClass, symbol, lspAttributes),
-                            GetRegistrationOptions(candidateClass, symbol, lspAttributes),
-                            GetPartialItem(candidateClass, symbol, requestType),
-                            GetPartialItems(candidateClass, symbol, requestType),
-                            additionalUsings,
-                            model,
-                            context
-                        );
-                    }
+                    actionItem = GeneratorData.Create(context, candidateClass, additionalUsings);
                 }
                 catch (Exception e)
                 {
@@ -169,7 +120,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .NormalizeWhitespace();
 
                 context.AddSource(
-                    $"JsonRpc_Handlers_{candidateClass.Identifier.ToFullString().Replace(".", "_")}.cs",
+                    $"{candidateClass.Identifier.ToFullString().Replace(".", "_")}{ (candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "") }.cs",
                     cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }
@@ -181,17 +132,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 new WarnIfResponseRouterIsNotProvidedStrategy(),
                 new OnNotificationMethodGeneratorWithoutRegistrationOptionsStrategy(),
                 new OnNotificationMethodGeneratorWithRegistrationOptionsStrategy(),
-                new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(),
-                new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(),
+                new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(false),
+                new OnRequestMethodGeneratorWithoutRegistrationOptionsStrategy(true),
+                new OnRequestTypedResolveMethodGeneratorWithoutRegistrationOptionsStrategy(),
+                new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(false),
+                new OnRequestMethodGeneratorWithRegistrationOptionsStrategy(true),
+                new OnRequestTypedResolveMethodGeneratorWithRegistrationOptionsStrategy(),
                 new SendMethodNotificationStrategy(),
                 new SendMethodRequestStrategy()
             );
             var actionStrategies = ImmutableArray.Create<IExtensionMethodGeneratorStrategy>(
                 new EnsureNamespaceStrategy(),
                 new HandlerRegistryActionContextRunnerStrategy(actionContextStrategies),
-                new RequestProxyActionContextRunnerStrategy(actionContextStrategies)
+                new RequestProxyActionContextRunnerStrategy(actionContextStrategies),
+                new TypedDelegatingHandlerStrategy()
             );
             var compilationUnitStrategies = ImmutableArray.Create<ICompilationUnitGeneratorStrategy>(
+                new AutoImplementParamsGeneratorStrategy(),
                 new HandlerGeneratorStrategy(),
                 new ExtensionMethodGeneratorStrategy(actionStrategies)
             );

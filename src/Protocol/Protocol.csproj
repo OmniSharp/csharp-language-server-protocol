@@ -58,7 +58,6 @@
       </Compile>
     </ItemGroup>
     <ItemGroup>
-      <Folder Include="General" />
       <Folder Include="Window" />
       <Folder Include="Workspace" />
     </ItemGroup>

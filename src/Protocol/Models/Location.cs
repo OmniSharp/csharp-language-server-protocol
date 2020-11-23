@@ -5,6 +5,7 @@ using System.Diagnostics;
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+    [GenerateContainer]
     public class Location : IEquatable<Location>
     {
         /// <summary>

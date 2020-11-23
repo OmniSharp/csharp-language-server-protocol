@@ -31,6 +31,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            z.Type is SimpleNameSyntax and (
                                { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 or 2 }
                                or { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }
+                               or { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }
+                               or { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }
                                or { Identifier: { Text: "IRequest" }, Arity: 1 }
                                )
                    ) == true;
@@ -54,6 +56,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 } => IdentifierName("MediatR.Unit"),
                         { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
                         { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }  => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }    => gns.TypeArgumentList.Arguments[0],
+                        { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }   => gns.TypeArgumentList.Arguments[0],
                         { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
                         _                                                            => null
                     },
@@ -76,7 +80,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         public static SyntaxSymbol? GetRequestType(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            TypeSyntax? type;
+            TypeSyntax? type = null;
             if (syntax.ConstraintClauses.Any())
             {
                 type = syntax.ConstraintClauses.First()
@@ -90,19 +94,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
             else
             {
-                var interfaceType = syntax.BaseList?.Types
-                                          .Select(
-                                               z => z.Type is GenericNameSyntax gns and (
-                                                   { Identifier: { Text: "IJsonRpcRequestHandler" } } or
-                                                   { Identifier: { Text: "ICanBeResolvedHandler" } } or
-                                                   { Identifier: { Text: "IJsonRpcNotificationHandler" } }
-                                                   )
-                                                   ? gns
-                                                   : null!
-                                           )
-                                          .FirstOrDefault(z => z is not null);
-
-                type = interfaceType?.TypeArgumentList.Arguments[0];
+                foreach (var baseType in syntax.BaseList?.Types.AsEnumerable() ?? Array.Empty<BaseTypeSyntax>())
+                {
+                    type = baseType.Type switch {
+                        GenericNameSyntax gns => gns switch {
+                            { Identifier: { Text: "IJsonRpcRequestHandler" } }          => gns.TypeArgumentList.Arguments[0],
+                            { Identifier: { Text: "IJsonRpcNotificationHandler" } }     => gns.TypeArgumentList.Arguments[0],
+                            { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
+                            { Identifier: { Text: "IRequest" } }                        => ParseTypeName(syntax.Identifier.ToFullString()),
+                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }   => ParseTypeName(syntax.Identifier.ToFullString()),
+                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }  => ParseTypeName(syntax.Identifier.ToFullString()),
+                            _                                                           => null,
+                        },
+                        _ => null,
+                    };
+                    if (type != null) break;
+                }
             }
 
             if (type == null) return null;
@@ -267,9 +274,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                .WithTypeArgumentList(TypeArgumentList(SeparatedList(typeArguments)));
         }
 
-        public static GenericNameSyntax CreatePartialAction(TypeSyntax requestType, TypeSyntax partialType, params TypeSyntax[] types) =>
-            CreatePartialAction(requestType, partialType, true, types);
-
         public static ExpressionStatementSyntax EnsureRegistrationOptionsIsSet(NameSyntax registrationOptionsName, TypeSyntax registrationOptionsType, bool hasCapability) =>
             ExpressionStatement(
                 AssignmentExpression(
@@ -299,38 +303,91 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             )
            .WithArgumentList(ArgumentList(SeparatedList(arguments)));
 
+        public static InvocationExpressionSyntax AddHandler(ExpressionSyntax syntax, params ArgumentSyntax[] arguments) =>
+            InvocationExpression(MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, syntax, IdentifierName("AddHandler")))
+               .WithArgumentList(ArgumentList(SeparatedList(arguments)));
+
         private static ArgumentListSyntax GetHandlerArgumentList() =>
             ArgumentList(
                 SeparatedList(
                     new[] {
-                        Argument(IdentifierName("handler"))
+                        HandlerArgument
                     }
                 )
             );
 
-        public static ArgumentListSyntax GetRegistrationHandlerArgumentList(TypeSyntax registrationOptionsName, TypeArgumentListSyntax genericTypes) =>
+        public static ArgumentListSyntax GetRegistrationHandlerArgumentList(
+            TypeSyntax registrationOptionsName, TypeSyntax registrationType, ArgumentSyntax handlerArgument, TypeSyntax? capabilityType, bool includeId
+        ) =>
             ArgumentList(
                 SeparatedList(
-                    new[] {
-                        Argument(IdentifierName("handler")),
-                        Argument(GetRegistrationOptionsAdapter(registrationOptionsName, genericTypes))
-
-                    }
+                    includeId
+                        ? new[] {
+                            Argument(IdentifierName("id")),
+                            handlerArgument,
+                            Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType))
+                        }
+                        : new[] {
+                            handlerArgument,
+                            Argument(GetRegistrationOptionsAdapter(registrationOptionsName, registrationType, capabilityType))
+                        }
                 )
             );
 
-        public static InvocationExpressionSyntax GetRegistrationOptionsAdapter(TypeSyntax registrationOptionsName, TypeArgumentListSyntax genericTypes)
+        public static ArgumentSyntax HandlerArgument = Argument(IdentifierName("handler"));
+        public static ArgumentSyntax ResolveHandlerArgument = Argument(IdentifierName("resolveHandler"));
+
+        public static ArgumentSyntax GetHandlerAdapterArgument(
+            TypeArgumentListSyntax typeArgumentListSyntax, ArgumentSyntax handlerArgument, TypeSyntax? capabilityType, bool isPartial
+        )
         {
-            return InvocationExpression(QualifiedName(IdentifierName("RegistrationOptionsFactoryAdapter")
-                                                         , GenericName("Adapt").WithTypeArgumentList(genericTypes)))
+            var adapterName = ( isPartial ? "Partial" : "Handler" ) + "Adapter";
+            TypeSyntax name = IdentifierName(adapterName);
+            if (capabilityType is { })
+            {
+                name = GenericName(Identifier(adapterName))
+                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(capabilityType)));
+            }
+
+            return Argument(
+                InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            name,
+                            GenericName(Identifier("Adapt"))
+                               .WithTypeArgumentList(typeArgumentListSyntax)
+                        )
+                    )
+                   .WithArgumentList(ArgumentList(SingletonSeparatedList(handlerArgument)))
+            );
+        }
+
+        public static InvocationExpressionSyntax GetRegistrationOptionsAdapter(
+            TypeSyntax registrationOptionsName,
+            TypeSyntax registrationType,
+            TypeSyntax? capabilityType
+        )
+        {
+            NameSyntax name = IdentifierName("RegistrationAdapter");
+            if (capabilityType is { })
+            {
+                name = GenericName(Identifier("RegistrationAdapter"))
+                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(capabilityType)));
+            }
+            return InvocationExpression(
+                    QualifiedName(
+                        name
+                      , GenericName("Adapt").WithTypeArgumentList(TypeArgumentList(SeparatedList(new [] { registrationType })))
+                    )
+                )
                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(registrationOptionsName))));
         }
 
-        private static ArgumentListSyntax GetPartialResultArgumentList(TypeSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialResultArgumentList(TypeSyntax responseName, ArgumentSyntax handlerArgument) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
-                        Argument(IdentifierName("handler")),
+                        handlerArgument,
                         Argument(
                             InvocationExpression(
                                 MemberAccessExpression(
@@ -352,11 +409,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
-        private static ArgumentListSyntax GetPartialItemsArgumentList(TypeSyntax responseName) =>
+        private static ArgumentListSyntax GetPartialItemsArgumentList(TypeSyntax responseName, ArgumentSyntax handlerArgument) =>
             ArgumentList(
                 SeparatedList(
                     new[] {
-                        Argument(IdentifierName("handler")),
+                        handlerArgument,
                         Argument(
                             InvocationExpression(
                                 MemberAccessExpression(
@@ -386,6 +443,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 )
             );
 
+        public static ObjectCreationExpressionSyntax CreateHandlerArgument(string innerClassName, params TypeSyntax[] genericArguments) =>
+            ObjectCreationExpression(GenericName(innerClassName).WithTypeArgumentList(TypeArgumentList(SeparatedList(genericArguments))));
+
         public static ArrowExpressionClauseSyntax GetNotificationCapabilityHandlerExpression(ExpressionSyntax nameExpression, TypeSyntax requestName, TypeSyntax capabilityName)
         {
             return ArrowExpressionClause(
@@ -398,7 +458,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 requestName,
                                 capabilityName
                             )
-                           .WithArgumentList(GetHandlerArgumentList())
+                           .AddArgumentListArguments(
+                                GetHandlerAdapterArgument(
+                                    TypeArgumentList(SeparatedList(new[] { requestName })),
+                                    HandlerArgument,
+                                    capabilityName,
+                                    false
+                                )
+                            )
                     )
                 )
             );
@@ -420,7 +487,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 responseType,
                                 capability
                             )
-                           .WithArgumentList(GetHandlerArgumentList())
+                           .AddArgumentListArguments(
+                                GetHandlerAdapterArgument(
+                                    TypeArgumentList(SeparatedList(new[] { requestType, responseType })),
+                                    HandlerArgument,
+                                    capability,
+                                    false
+                                )
+                            )
                     )
                 )
             );
@@ -441,7 +515,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 requestType,
                                 capability
                             )
-                           .WithArgumentList(GetHandlerArgumentList())
+                           .AddArgumentListArguments(
+                                GetHandlerAdapterArgument(
+                                    TypeArgumentList(SeparatedList(new[] { requestType })),
+                                    HandlerArgument,
+                                    capability,
+                                    false
+                                )
+                            )
                     )
                 )
             );
@@ -506,7 +587,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     itemType,
                                     capabilityName
                                 )
-                               .WithArgumentList(GetPartialResultArgumentList(responseType))
+                               .AddArgumentListArguments(
+                                    GetHandlerAdapterArgument(
+                                        TypeArgumentList(SeparatedList(new[] { requestName, itemType })),
+                                        HandlerArgument,
+                                        capabilityName,
+                                        true
+                                    )
+                                )
                         )
                     )
                 )
@@ -532,7 +620,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     responseType,
                                     partialItem
                                 )
-                               .WithArgumentList(GetPartialResultArgumentList(responseType))
+                               .WithArgumentList(GetPartialResultArgumentList(responseType, HandlerArgument))
                         )
                     )
                 )
@@ -560,7 +648,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     itemName,
                                     capabilityName
                                 )
-                               .WithArgumentList(GetPartialItemsArgumentList(responseType))
+                               .AddArgumentListArguments(
+                                    GetHandlerAdapterArgument(
+                                        TypeArgumentList(SeparatedList(new[] { requestName, itemName })),
+                                        HandlerArgument,
+                                        capabilityName,
+                                        true
+                                    )
+                                )
                         )
                     )
                 )
@@ -587,7 +682,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     responseType,
                                     itemName
                                 )
-                               .WithArgumentList(GetPartialItemsArgumentList(responseType))
+                               .WithArgumentList(GetPartialItemsArgumentList(responseType, HandlerArgument))
                         )
                     )
                 )
@@ -617,7 +712,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                     IdentifierName("For")
                                                 )
                                             )
-                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("handler")))))
+                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
                                     )
                                 }
                             )
@@ -636,10 +731,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
                    .WithArgumentList(
                         ArgumentList(
-                            SeparatedList<ArgumentSyntax>(
-                                new SyntaxNodeOrToken[] {
+                            SeparatedList(
+                                new[] {
                                     Argument(nameExpression),
-                                    Token(SyntaxKind.CommaToken),
                                     Argument(
                                         InvocationExpression(
                                                 MemberAccessExpression(
@@ -648,7 +742,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                     IdentifierName("For")
                                                 )
                                             )
-                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("handler")))))
+                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
                                     )
                                 }
                             )
@@ -769,6 +863,47 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var name = SpecialCasedHandlerFullName(symbol);
             return name.Substring(name.LastIndexOf('.') + 1);
+        }
+
+        public static TypeConstraintSyntax HandlerIdentityConstraint { get; } = TypeConstraint(NullableType(IdentifierName("HandlerIdentity")));
+
+        public static TypeParameterConstraintClauseSyntax HandlerIdentityConstraintClause(IdentifierNameSyntax? openGenericType = null) =>
+            TypeParameterConstraintClause(openGenericType ?? IdentifierName("T"))
+               .WithConstraints(SeparatedList(new TypeParameterConstraintSyntax[] { HandlerIdentityConstraint, ConstructorConstraint() }));
+
+        public static LocalDeclarationStatementSyntax NewGuid { get; } = LocalDeclarationStatement(
+            VariableDeclaration(IdentifierName("var"))
+               .WithVariables(
+                    SingletonSeparatedList(
+                        VariableDeclarator(Identifier("id"))
+                           .WithInitializer(
+                                EqualsValueClause(
+                                    InvocationExpression(
+                                        MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, IdentifierName("Guid"), IdentifierName("NewGuid"))
+                                    )
+                                )
+                            )
+                    )
+                )
+        );
+    }
+
+    public static class SyntaxExtensions
+    {
+        public static ClassDeclarationSyntax WithHandlerIdentityConstraint(this ClassDeclarationSyntax syntax, IdentifierNameSyntax? openGenericType = null)
+        {
+            openGenericType ??= IdentifierName("T");
+            return syntax
+                  .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(openGenericType.Identifier.Text))))
+                  .WithConstraintClauses(SingletonList(Helpers.HandlerIdentityConstraintClause(openGenericType)));
+        }
+
+        public static MethodDeclarationSyntax WithHandlerIdentityConstraint(this MethodDeclarationSyntax syntax, IdentifierNameSyntax? openGenericType = null)
+        {
+            openGenericType ??= IdentifierName("T");
+            return syntax
+                  .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(openGenericType.Identifier.Text))))
+                  .WithConstraintClauses(SingletonList(Helpers.HandlerIdentityConstraintClause(openGenericType)));
         }
     }
 }

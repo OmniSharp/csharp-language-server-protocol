@@ -6,7 +6,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
 {
     [Obsolete(Constants.Proposal)]
     [JsonConverter(typeof(SemanticTokensFullOrDeltaConverter))]
-    public struct SemanticTokensFullOrDelta
+    public class SemanticTokensFullOrDelta
     {
         public SemanticTokensFullOrDelta(SemanticTokensDelta delta)
         {

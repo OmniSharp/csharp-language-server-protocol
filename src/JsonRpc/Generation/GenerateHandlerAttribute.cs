@@ -14,5 +14,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
     public class GenerateHandlerAttribute : Attribute
     {
         public GenerateHandlerAttribute(string? @namespace = null) { }
+
+        public string? Name { get; init; }
     }
 }

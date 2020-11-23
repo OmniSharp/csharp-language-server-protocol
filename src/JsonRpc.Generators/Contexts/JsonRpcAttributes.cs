@@ -20,6 +20,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         string RequestMethodName,
         SyntaxAttributeData? GenerateHandler,
         string HandlerNamespace,
+        string HandlerName,
         string ModelNamespace
     )
     {
@@ -29,17 +30,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             var generateRequestMethodsAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateRequestMethodsAttribute");
             var generateHandlerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateHandlerAttribute");
 
+            var handlerName = Helpers.SpecialCasedHandlerName(symbol).Split('.').Last();
             var attributes = new JsonRpcAttributes(
                 null,
                 ImmutableArray<TypeSyntax>.Empty,
-                GetHandlerMethodName(symbol),
-                GetPartialHandlerMethodName(symbol),
+                GetHandlerMethodName(symbol, handlerName),
+                GetPartialHandlerMethodName(symbol, handlerName),
                 false,
                 null,
                 ImmutableArray<TypeSyntax>.Empty,
-                GetRequestMethodName(syntax, symbol),
+                GetRequestMethodName(syntax, symbol, handlerName),
                 null,
                 symbol.ContainingNamespace.ToDisplayString(),
+                handlerName,
                 symbol.ContainingNamespace.ToDisplayString()
             );
 
@@ -47,8 +50,18 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             {
                 attributes = attributes with {
                     GenerateHandler = SyntaxAttributeData.Parse(generateHandlerData),
-                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string : attributes.HandlerNamespace
-                    };
+                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string : attributes.HandlerNamespace,
+                    HandlerName = generateHandlerData is { NamedArguments: { Length: >= 1 } namedArguments } ?
+                        namedArguments
+                           .Select(z => z is { Key: "Name", Value: { Value:  string str } } ? str : null)
+                           .FirstOrDefault(z => z is { Length: >0 }) ?? attributes.HandlerName : attributes.HandlerName
+                };
+
+                attributes = attributes with {
+                    HandlerMethodName = GetHandlerMethodName(symbol, attributes.HandlerName),
+                    PartialHandlerMethodName = GetPartialHandlerMethodName(symbol, attributes.HandlerName),
+                    RequestMethodName = GetRequestMethodName(syntax, symbol, attributes.HandlerName)
+                };
             }
 
             if (symbol.GetAttribute(generateHandlerMethodsAttributeSymbol) is { } generateHandlerMethodsData)
@@ -300,19 +313,19 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         private static NameSyntax DebugProtocolClientToServer { get; } =
             SyntaxFactory.ParseName("IDebugAdapterClient");
 
-        public static string GetHandlerMethodName(INamedTypeSymbol symbol)
+        public static string GetHandlerMethodName(INamedTypeSymbol symbol, string? handlerName)
         {
-            return "On" + Helpers.SpecialCasedHandlerName(symbol);
+            return "On" + (handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol));
         }
 
-        public static string GetPartialHandlerMethodName(INamedTypeSymbol symbol)
+        public static string GetPartialHandlerMethodName(INamedTypeSymbol symbol, string? handlerName)
         {
-            return "Observe" + Helpers.SpecialCasedHandlerName(symbol);
+            return "Observe" + (handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol));
         }
 
-        public static string GetRequestMethodName(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static string GetRequestMethodName(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, string? handlerName)
         {
-            var name = Helpers.SpecialCasedHandlerName(symbol);
+            var name = handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol);
             if (
                 name.StartsWith("Run")
              || name.StartsWith("Execute")

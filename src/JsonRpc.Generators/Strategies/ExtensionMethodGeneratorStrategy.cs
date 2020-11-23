@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
             );
 
-            var className = GetExtensionClassName(item.TypeSymbol);
+            var className = item.JsonRpcAttributes.HandlerName + "Extensions";
 
             var obsoleteAttribute = item.TypeDeclaration.AttributeLists
                                         .SelectMany(z => z.Attributes)

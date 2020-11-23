@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 
@@ -14,8 +16,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
     public class RegistrationOptionsGenerator : ISourceGenerator
     {
         private static string[] RequiredUsings = new[] {
-            "OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities",
             "OmniSharp.Extensions.LanguageServer.Protocol",
+            "OmniSharp.Extensions.LanguageServer.Protocol.Serialization",
+            "OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities",
         };
 
         public void Initialize(GeneratorInitializationContext context)
@@ -33,123 +36,167 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
 
-            var registrationOptionsAttribute = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsAttribute")!;
-            var textDocumentAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.TextDocumentAttribute")!;
-            var workDoneProgressAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.WorkDoneProgressAttribute")!;
-            var registrationOptionsConverterAttributeSymbol =
-                compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute")!;
             var registrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions")!;
             var textDocumentRegistrationOptionsInterfaceSymbol =
                 compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions")!;
             var workDoneProgressOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions")!;
+            // TODO:
+            var staticRegistrationOptionsInterfaceSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.IStaticRegistrationOptions")!;
 
             foreach (var registrationOptions in syntaxReceiver.RegistrationOptions)
             {
-                var semanticModel = context.Compilation.GetSemanticModel(registrationOptions.SyntaxTree);
-                var typeSymbol = semanticModel.GetDeclaredSymbol(registrationOptions);
-                var hasAttribute = typeSymbol?.GetAttributes().Any(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, registrationOptionsAttribute));
-                if (typeSymbol == null || typeSymbol.IsAbstract || hasAttribute != true) continue;
+                try
+                {
+                    var semanticModel = context.Compilation.GetSemanticModel(registrationOptions.SyntaxTree);
+                    var typeSymbol = semanticModel.GetDeclaredSymbol(registrationOptions);
 
-                var converterAttribute = typeSymbol.GetAttributes()
-                                                   .FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, registrationOptionsConverterAttributeSymbol));
+                    if (typeSymbol is not { }) continue;
+                    var data = RegistrationOptionAttributes.Parse(context, registrationOptions, typeSymbol);
+                    if (data is not { }) continue;
 
-                var extendedRegistrationOptions = registrationOptions
-                                                 .WithAttributeLists(List<AttributeListSyntax>())
-                                                 .WithBaseList(
-                                                      BaseList(
-                                                          SingletonSeparatedList<BaseTypeSyntax>(
-                                                              SimpleBaseType(ParseName(registrationOptionsInterfaceSymbol.ToDisplayString()))
+
+                    var extendedRegistrationOptions = registrationOptions
+                                                     .WithAttributeLists(List<AttributeListSyntax>())
+                                                     .WithBaseList(
+                                                          BaseList(
+                                                              SingletonSeparatedList<BaseTypeSyntax>(
+                                                                  SimpleBaseType(ParseName(registrationOptionsInterfaceSymbol.ToDisplayString()))
+                                                              )
                                                           )
                                                       )
-                                                  )
-                                                 .WithMembers(List<MemberDeclarationSyntax>());
+                                                     .WithMembers(List<MemberDeclarationSyntax>());
 
-                var staticRegistrationOptions = registrationOptions
-                                               .WithIdentifier(Identifier($"Static{registrationOptions.Identifier.Text}"))
-                                               .WithMembers(List<MemberDeclarationSyntax>(registrationOptions.Members.OfType<PropertyDeclarationSyntax>()))
-                                               .WithAttributeLists(List<AttributeListSyntax>());
 
-                if (typeSymbol.GetAttributes().Any(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, textDocumentAttributeSymbol)))
-                {
-                    extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, textDocumentRegistrationOptionsInterfaceSymbol)
-                       .AddMembers(
-                            PropertyDeclaration(NullableType(IdentifierName("DocumentSelector")), Identifier("DocumentSelector"))
-                               .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                               .WithAccessorList(
-                                    AccessorList(
-                                        List(
-                                            new[] {
-                                                AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
-                                                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                                AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
-                                                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                            }
+                    var staticRegistrationOptions = registrationOptions
+                                                   .WithIdentifier(Identifier($"StaticOptions"))
+                                                   .WithMembers(List<MemberDeclarationSyntax>(registrationOptions.Members.OfType<PropertyDeclarationSyntax>()))
+                                                   .WithAttributeLists(List<AttributeListSyntax>());
+
+                    var staticBaseList =
+                        registrationOptions.BaseList?.Types.Where(z => !z.Type.ToFullString().Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name)).ToArray()
+                     ?? Array.Empty<BaseTypeSyntax>();
+                    if (staticBaseList.Length > 0)
+                    {
+                        staticRegistrationOptions = staticRegistrationOptions.WithBaseList(BaseList(SeparatedList(staticBaseList)));
+                    }
+                    else
+                    {
+                        staticRegistrationOptions = staticRegistrationOptions.WithBaseList(null);
+                    }
+
+                    if (data.SupportsDocumentSelector && !data.ImplementsDocumentSelector)
+                    {
+                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name)) != true)
+                        {
+                            extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, textDocumentRegistrationOptionsInterfaceSymbol);
+                        }
+
+                        extendedRegistrationOptions = extendedRegistrationOptions
+                           .AddMembers(
+                                PropertyDeclaration(NullableType(IdentifierName("DocumentSelector")), Identifier("DocumentSelector"))
+                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                                   .WithAccessorList(
+                                        AccessorList(
+                                            List(
+                                                new[] {
+                                                    AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                                                       .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                                    AccessorDeclaration(SyntaxKind.SetAccessorDeclaration)
+                                                       .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                                }
+                                            )
                                         )
                                     )
-                                )
-                        );
-                }
+                            );
+                    }
 
-                if (typeSymbol.GetAttributes().Any(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, workDoneProgressAttributeSymbol)))
-                {
-                    extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, workDoneProgressOptionsInterfaceSymbol)
-                       .AddMembers(GetWorkDoneProperty());
-                    staticRegistrationOptions = ExtendAndImplementInterface(staticRegistrationOptions, workDoneProgressOptionsInterfaceSymbol)
-                       .AddMembers(GetWorkDoneProperty());
-                }
+                    if (data.SupportsWorkDoneProgress && !data.ImplementsWorkDoneProgress)
+                    {
+                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(workDoneProgressOptionsInterfaceSymbol.Name)) != true)
+                        {
+                            extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, workDoneProgressOptionsInterfaceSymbol);
+                            staticRegistrationOptions = ExtendAndImplementInterface(staticRegistrationOptions, workDoneProgressOptionsInterfaceSymbol);
+                        }
 
-                if (converterAttribute == null)
-                {
-                    var converter = CreateConverter(registrationOptions);
-                    extendedRegistrationOptions = extendedRegistrationOptions
-                                                 .AddAttributeLists(
-                                                      AttributeList(
-                                                          SingletonSeparatedList(
-                                                              Attribute(
-                                                                  IdentifierName("RegistrationOptionsConverterAttribute"),
-                                                                  AttributeArgumentList(
-                                                                      SingletonSeparatedList(
-                                                                          AttributeArgument(
-                                                                              TypeOfExpression(IdentifierName(converter.Identifier.Text))
+                        staticRegistrationOptions = staticRegistrationOptions.AddMembers(GetWorkDoneProperty());
+                        extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(GetWorkDoneProperty());
+                    }
+
+                    if (data.SupportsStaticRegistrationOptions && !data.ImplementsStaticRegistrationOptions)
+                    {
+                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(staticRegistrationOptionsInterfaceSymbol.Name)) != true)
+                        {
+                            extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, staticRegistrationOptionsInterfaceSymbol);
+                            staticRegistrationOptions = ExtendAndImplementInterface(staticRegistrationOptions, staticRegistrationOptionsInterfaceSymbol);
+                        }
+
+                        staticRegistrationOptions = staticRegistrationOptions.AddMembers(GetIdProperty());
+                        extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(GetIdProperty());
+                    }
+
+                    if (data.RegistrationOptionsConverter is null
+                     && CreateConverter(registrationOptions, staticRegistrationOptions.Members.OfType<PropertyDeclarationSyntax>()) is { } converter)
+                    {
+                        extendedRegistrationOptions = extendedRegistrationOptions
+                                                     .AddAttributeLists(
+                                                          AttributeList(
+                                                              SingletonSeparatedList(
+                                                                  Attribute(
+                                                                      IdentifierName("RegistrationOptionsConverterAttribute"),
+                                                                      AttributeArgumentList(
+                                                                          SingletonSeparatedList(
+                                                                              AttributeArgument(
+                                                                                  TypeOfExpression(IdentifierName(converter.Identifier.Text))
+                                                                              )
                                                                           )
                                                                       )
                                                                   )
                                                               )
                                                           )
                                                       )
-                                                  )
-                                                 .AddMembers(converter);
-                }
-
-                var cu = CompilationUnit()
-                        .WithUsings(registrationOptions.SyntaxTree.GetCompilationUnitRoot().Usings)
-                        .AddMembers(
-                             NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
-                                .AddMembers(extendedRegistrationOptions, staticRegistrationOptions)
-                                .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                                .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                         )
-                        .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                        .WithTrailingTrivia(CarriageReturnLineFeed);
-
-                foreach (var ns in RequiredUsings)
-                {
-                    if (cu.Usings.All(z => z.Name.ToFullString() != ns))
-                    {
-                        cu = cu.AddUsings(UsingDirective(ParseName(ns)));
+                                                     .AddMembers(converter);
                     }
-                }
 
-                context.AddSource(
-                    $"{registrationOptions.Identifier.Text}Container.cs",
-                    cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
-                );
+                    extendedRegistrationOptions = extendedRegistrationOptions.AddMembers(staticRegistrationOptions);
+
+                    var members = new List<MemberDeclarationSyntax>() { extendedRegistrationOptions };
+
+                    var cu = CompilationUnit()
+                            .WithUsings(registrationOptions.SyntaxTree.GetCompilationUnitRoot().Usings)
+                            .AddMembers(
+                                 NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
+                                    .WithMembers(List(members))
+                                    .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
+                                    .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
+                             )
+                            .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
+                            .WithTrailingTrivia(CarriageReturnLineFeed);
+
+                    foreach (var ns in RequiredUsings)
+                    {
+                        if (cu.Usings.All(z => z.Name.ToFullString() != ns))
+                        {
+                            cu = cu.AddUsings(UsingDirective(ParseName(ns)));
+                        }
+                    }
+
+                    context.AddSource(
+                        $"{registrationOptions.Identifier.Text}.cs",
+                        cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                    );
+                }
+                catch (Exception e)
+                {
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Exception, registrationOptions.GetLocation(), e.Message, e.StackTrace ?? string.Empty));
+                    Debug.WriteLine(e);
+                    Debug.WriteLine(e.StackTrace);
+                }
             }
 
             static ClassDeclarationSyntax ExtendAndImplementInterface(ClassDeclarationSyntax syntax, ITypeSymbol symbolToExtendFrom)
             {
                 return syntax
-                   .AddBaseListTypes(SimpleBaseType(ParseName(symbolToExtendFrom.Name)));
+                   .AddBaseListTypes(SimpleBaseType(ParseName(symbolToExtendFrom.ToDisplayString())));
             }
 
             static PropertyDeclarationSyntax GetWorkDoneProperty()
@@ -174,30 +221,56 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                            )
                        );
             }
+
+            static PropertyDeclarationSyntax GetIdProperty()
+            {
+                return PropertyDeclaration(NullableType(PredefinedType(Token(SyntaxKind.StringKeyword))), Identifier("Id"))
+                      .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                      .WithAttributeLists(
+                           SingletonList(
+                               AttributeList(
+                                   SingletonSeparatedList(Attribute(IdentifierName("Optional")))
+                               )
+                           )
+                       )
+                      .WithAccessorList(
+                           AccessorList(
+                               List(
+                                   new[] {
+                                       AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                                       AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                                   }
+                               )
+                           )
+                       );
+            }
         }
 
-        private static IEnumerable<ExpressionSyntax> GetMapping(ClassDeclarationSyntax syntax, IdentifierNameSyntax paramName)
+        private static IEnumerable<ExpressionSyntax> GetMapping(IEnumerable<PropertyDeclarationSyntax> properties, IdentifierNameSyntax paramName)
         {
-            return syntax.Members.OfType<PropertyDeclarationSyntax>()
-                         .Where(z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword) == true)
-                         .Select(
-                              property => AssignmentExpression(
-                                  SyntaxKind.SimpleAssignmentExpression,
-                                  IdentifierName(property.Identifier.Text),
-                                  MemberAccessExpression(
-                                      SyntaxKind.SimpleMemberAccessExpression,
-                                      paramName,
-                                      IdentifierName(property.Identifier.Text)
-                                  )
-                              )
-                          );
+            return properties
+                  .Where(z => z.AccessorList?.Accessors.Any(a => a.Keyword.Kind() == SyntaxKind.SetKeyword || a.Keyword.Kind() == SyntaxKind.InitKeyword) == true)
+                  .Select(
+                       property => AssignmentExpression(
+                           SyntaxKind.SimpleAssignmentExpression,
+                           IdentifierName(property.Identifier.Text),
+                           MemberAccessExpression(
+                               SyntaxKind.SimpleMemberAccessExpression,
+                               paramName,
+                               IdentifierName(property.Identifier.Text)
+                           )
+                       )
+                   );
         }
 
-        private ClassDeclarationSyntax CreateConverter(ClassDeclarationSyntax syntax)
+        private ClassDeclarationSyntax? CreateConverter(ClassDeclarationSyntax syntax, IEnumerable<PropertyDeclarationSyntax> properties)
         {
             var attribute = syntax.AttributeLists
                                   .SelectMany(z => z.Attributes)
                                   .FirstOrDefault(z => z.Name.ToFullString().Contains("RegistrationOptions") && !z.Name.ToFullString().Contains("RegistrationOptionsConverter"));
+
+            var expression = attribute is { ArgumentList: { Arguments: { Count: > 0 } arguments } } ? arguments[0].Expression : null;
+            if (expression is null) return null;
 
             return ClassDeclaration($"{syntax.Identifier.Text}Converter")
                   .WithBaseList(
@@ -207,11 +280,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    GenericName(Identifier("RegistrationOptionsConverterBase"))
                                       .WithTypeArgumentList(
                                            TypeArgumentList(
-                                               SeparatedList<TypeSyntax>(
-                                                   new SyntaxNodeOrToken[] {
+                                               SeparatedList(
+                                                   new TypeSyntax[] {
                                                        IdentifierName(syntax.Identifier.Text),
-                                                       Token(SyntaxKind.CommaToken),
-                                                       IdentifierName($"Static{syntax.Identifier.Text}")
+                                                       IdentifierName("StaticOptions")
                                                    }
                                                )
                                            )
@@ -223,16 +295,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithMembers(
                        List(
                            new MemberDeclarationSyntax[] {
-                               ConstructorDeclaration(Identifier("Converter"))
+                               ConstructorDeclaration(Identifier($"{syntax.Identifier.Text}Converter"))
                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                                   .WithInitializer(
                                        ConstructorInitializer(
                                            SyntaxKind.BaseConstructorInitializer,
-                                           ArgumentList(SingletonSeparatedList(Argument(attribute!.ArgumentList!.Arguments[0].Expression)))
+                                           ArgumentList(SingletonSeparatedList(Argument(expression)))
                                        )
                                    )
                                   .WithBody(Block()),
-                               MethodDeclaration(IdentifierName($"Static{syntax.Identifier.Text}"), Identifier("Convert"))
+                               MethodDeclaration(IdentifierName("StaticOptions"), Identifier("Convert"))
                                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.OverrideKeyword)))
                                   .WithParameterList(
                                        ParameterList(
@@ -247,13 +319,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                            SingletonList<StatementSyntax>(
                                                ReturnStatement(
                                                    ObjectCreationExpression(
-                                                           IdentifierName($"Static{syntax.Identifier.Text}")
+                                                           IdentifierName("StaticOptions")
                                                        )
                                                       .WithInitializer(
                                                            InitializerExpression(
                                                                SyntaxKind.ObjectInitializerExpression,
                                                                SeparatedList(
-                                                                   GetMapping(syntax, IdentifierName("source")).ToArray()
+                                                                   GetMapping(properties, IdentifierName("source")).ToArray()
                                                                )
                                                            )
                                                        )
@@ -283,7 +355,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 {
                     if (classDeclarationSyntax.AttributeLists
                                               .SelectMany(z => z.Attributes)
-                                              .Any(z => z.Name.ToFullString().Contains("RegistrationOptions"))
+                                              .Any(z => z.Name.ToFullString().Contains("GenerateRegistrationOptions"))
                     )
                     {
                         RegistrationOptions.Add(classDeclarationSyntax);

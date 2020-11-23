@@ -42,29 +42,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             var factory = methodFactory(method);
 
             methods.AddRange(factory(CreateAction(false, item.Request.Syntax)));
-            methods.AddRange( factory(CreateAsyncAction(false, item.Request.Syntax)));
-            methods.AddRange( factory(CreateAction(true, item.Request.Syntax)));
-            methods.AddRange( factory(CreateAsyncAction(true, item.Request.Syntax)));
+            methods.AddRange(factory(CreateAsyncAction(false, item.Request.Syntax)));
+            methods.AddRange(factory(CreateAction(true, item.Request.Syntax)));
+            methods.AddRange(factory(CreateAsyncAction(true, item.Request.Syntax)));
 
             if (allowDerivedRequests)
             {
                 var genericFactory = MakeGenericFactory(factory, notification.Request.Syntax);
-                methods.AddRange( genericFactory(CreateAction(IdentifierName("T"))));
-                methods.AddRange( genericFactory(CreateAsyncAction(false, IdentifierName("T"))));
-                methods.AddRange( genericFactory(CreateAction(true, IdentifierName("T"))));
-                methods.AddRange( genericFactory(CreateAsyncAction(true, IdentifierName("T"))));
+                methods.AddRange(genericFactory(CreateAction(IdentifierName("T"))));
+                methods.AddRange(genericFactory(CreateAsyncAction(false, IdentifierName("T"))));
+                methods.AddRange(genericFactory(CreateAction(true, IdentifierName("T"))));
+                methods.AddRange(genericFactory(CreateAsyncAction(true, IdentifierName("T"))));
             }
 
             if (item.Capability is { } capability)
             {
-                methods.AddRange( factory(CreateAction(true, item.Request.Syntax, capability.Syntax)));
-                methods.AddRange( factory(CreateAsyncAction(true, item.Request.Syntax, capability.Syntax)));
+                methods.AddRange(factory(CreateAction(true, item.Request.Syntax, capability.Syntax)));
+                methods.AddRange(factory(CreateAsyncAction(true, item.Request.Syntax, capability.Syntax)));
 
                 if (allowDerivedRequests)
                 {
                     var genericFactory = MakeGenericFactory(factory, notification.Request.Syntax);
-                    methods.AddRange( genericFactory(CreateAction(true, IdentifierName("T"), capability.Syntax, capability.Syntax)));
-                    methods.AddRange( genericFactory(CreateAsyncAction(true, IdentifierName("T"), capability.Syntax, capability.Syntax)));
+                    methods.AddRange(genericFactory(CreateAction(true, IdentifierName("T"), capability.Syntax, capability.Syntax)));
+                    methods.AddRange(genericFactory(CreateAsyncAction(true, IdentifierName("T"), capability.Syntax, capability.Syntax)));
                 }
             }
 
@@ -101,22 +101,27 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                             )
                     );
                 }
+                else
+                {
+                    yield return MethodFactory(
+                        method, syntax,
+                        Parameter(Identifier("registrationOptions"))
+                           .WithType(
+                                GenericName(Identifier("Func"))
+                                   .WithTypeArgumentList(
+                                        TypeArgumentList(SingletonSeparatedList(registrationOptions))
+                                    )
+                            )
+                    );
+                }
 
-                yield return MethodFactory(
-                    method, syntax,
-                    Parameter(Identifier("registrationOptions"))
-                       .WithType(
-                            GenericName(Identifier("Func"))
-                               .WithTypeArgumentList(
-                                    TypeArgumentList(SingletonSeparatedList(registrationOptions))
-                                )
-                        )
-                );
                 yield return MethodFactory(
                     method, syntax,
                     Parameter(Identifier("registrationOptions")).WithType(registrationOptions)
                 );
-            };
+            }
+
+            ;
         }
 
         private static BlockSyntax GetNotificationRegistrationHandlerExpression(
@@ -125,19 +130,32 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         )
         {
             var args = ImmutableArray.Create(requestName, registrationOptions);
-            var typeArgs = ImmutableArray.Create(registrationOptions);
+            var adapterArgs = ImmutableArray.Create(requestName);
             if (capabilityName is { })
             {
                 args = args.Add(capabilityName);
-                typeArgs = typeArgs.Add(capabilityName);
             }
+
             return Block(
                 ReturnStatement(
                     AddHandler(
                         Argument(nameExpression),
                         Argument(
                             CreateHandlerArgument(IdentifierName("LanguageProtocolDelegatingHandlers"), "Notification", args.ToArray())
-                               .WithArgumentList(GetRegistrationHandlerArgumentList(IdentifierName("registrationOptions"), TypeArgumentList(SeparatedList(typeArgs.ToArray()))))
+                               .WithArgumentList(
+                                    GetRegistrationHandlerArgumentList(
+                                        IdentifierName("registrationOptions"),
+                                        registrationOptions,
+                                        GetHandlerAdapterArgument(
+                                            TypeArgumentList(SeparatedList(adapterArgs.ToArray())),
+                                            HandlerArgument,
+                                            capabilityName,
+                                            false
+                                        ),
+                                        capabilityName,
+                                        false
+                                    )
+                                )
                         )
                     )
                 )
