@@ -36,22 +36,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
             additionalUsings.Add(jsonRpcAttributes.HandlerNamespace);
             additionalUsings.Add(jsonRpcAttributes.ModelNamespace);
-            if (IsNotification(candidateClass))
-            {
-                return new NotificationItem(
-                    candidateClass,
-                    symbol,
-                    jsonRpcAttributes,
-                    lspAttributes,
-                    dapAttributes,
-                    requestType,
-                    GetCapability(candidateClass, symbol, lspAttributes),
-                    GetRegistrationOptions(candidateClass, symbol, lspAttributes),
-                    additionalUsings,
-                    model,
-                    context
-                );
-            }
 
             if (IsRequest(candidateClass))
             {
@@ -69,6 +53,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     GetPartialItem(candidateClass, symbol, requestType),
                     GetPartialItems(candidateClass, symbol, requestType),
+                    additionalUsings,
+                    model,
+                    context
+                );
+            }
+
+            if (IsNotification(candidateClass))
+            {
+                return new NotificationItem(
+                    candidateClass,
+                    symbol,
+                    jsonRpcAttributes,
+                    lspAttributes,
+                    dapAttributes,
+                    requestType,
+                    GetCapability(candidateClass, symbol, lspAttributes),
+                    GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     additionalUsings,
                     model,
                     context

@@ -446,11 +446,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 ServerInfo = _serverInfo
             };
 
-            foreach (var item in _collection)
-            {
-                LspHandlerDescriptorHelpers.InitializeHandler(item, _supportedCapabilities, item.Handler);
-            }
-
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
                 (handler, ct) => handler(this, ClientSettings, result, ct),

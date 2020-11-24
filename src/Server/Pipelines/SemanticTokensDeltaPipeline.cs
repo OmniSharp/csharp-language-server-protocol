@@ -29,14 +29,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server.Pipelines
                 var response = await next().ConfigureAwait(false);
                 if (GetResponse(semanticTokensDeltaParams, response, out var result))
                 {
-                    if (result.Value.IsFull && string.IsNullOrEmpty(result.Value.Full!.ResultId))
+                    if (result.IsFull && string.IsNullOrEmpty(result.Full!.ResultId))
                     {
-                        result.Value.Full.ResultId = semanticTokensDeltaParams.PreviousResultId;
+                        result.Full.ResultId = semanticTokensDeltaParams.PreviousResultId;
                     }
 
-                    if (result.Value.IsDelta && string.IsNullOrEmpty(result.Value.Delta!.ResultId))
+                    if (result.IsDelta && string.IsNullOrEmpty(result.Delta!.ResultId))
                     {
-                        result.Value.Delta.ResultId = semanticTokensDeltaParams.PreviousResultId;
+                        result.Delta.ResultId = semanticTokensDeltaParams.PreviousResultId;
                     }
                 }
                 return response;

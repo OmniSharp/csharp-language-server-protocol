@@ -14,7 +14,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     internal class LspHandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<LspHandlerDescriptor>
     {
         private readonly Action _disposeAction;
-        private readonly Func<bool> _allowsDynamicRegistration;
 
         public LspHandlerDescriptor(
             string method,
@@ -24,13 +23,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type? @params,
             Type? registrationType,
             object? registrationOptions,
-            Func<bool> allowsDynamicRegistration,
             Type? capabilityType,
             RequestProcessType? requestProcessType,
             Action disposeAction,
             ILspHandlerTypeDescriptor? typeDescriptor
         ) : this(
-            method, key, handler, handlerType, @params, registrationType, registrationOptions, allowsDynamicRegistration, capabilityType, requestProcessType, disposeAction,
+            method, key, handler, handlerType, @params, registrationType, registrationOptions, capabilityType, requestProcessType, disposeAction,
             typeDescriptor, null
         )
         {
@@ -44,7 +42,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Type? @params,
             Type? registrationType,
             object? registrationOptions,
-            Func<bool> allowsDynamicRegistration,
             Type? capabilityType,
             RequestProcessType? requestProcessType,
             Action disposeAction,
@@ -62,7 +59,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Params = @params;
             RegistrationType = registrationType;
             RegistrationOptions = registrationOptions;
-            _allowsDynamicRegistration = allowsDynamicRegistration;
             CapabilityType = capabilityType;
 
             Response = typeDescriptor?.ResponseType ??
@@ -96,7 +92,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         public bool HasRegistration => RegistrationType != null;
         public Type? RegistrationType { get; }
         public object? RegistrationOptions { get; }
-        public bool AllowsDynamicRegistration => _allowsDynamicRegistration();
 
         public bool HasCapability => CapabilityType != null;
         public Type? CapabilityType { get; }

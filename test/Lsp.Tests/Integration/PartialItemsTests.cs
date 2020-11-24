@@ -8,6 +8,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using Lsp.Tests.Integration.Fixtures;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -78,7 +79,7 @@ namespace Lsp.Tests.Integration
             public class DelegateServer : IConfigureLanguageServerOptions
             {
                 public void Configure(LanguageServerOptions options) =>
-                    options.OnCodeLens(
+                    options.ObserveCodeLens(
                         (@params, observer, capability, cancellationToken) => {
                             observer.OnNext(
                                 new[] {
@@ -108,7 +109,7 @@ namespace Lsp.Tests.Integration
                                 }
                             );
                             observer.OnCompleted();
-                        }, new CodeLensRegistrationOptions()
+                        }, _ => new CodeLensRegistrationOptions()
                     );
             }
         }
@@ -150,12 +151,12 @@ namespace Lsp.Tests.Integration
             }
         }
 
-        private class InnerCodeLensHandler : CodeLensHandler
+        private class InnerCodeLensHandler : CodeLensHandlerBase
         {
             private readonly IServerWorkDoneManager _workDoneManager;
             private readonly IProgressManager _progressManager;
 
-            public InnerCodeLensHandler(IServerWorkDoneManager workDoneManager, IProgressManager progressManager) : base(new CodeLensRegistrationOptions())
+            public InnerCodeLensHandler(IServerWorkDoneManager workDoneManager, IProgressManager progressManager)
             {
                 _workDoneManager = workDoneManager;
                 _progressManager = progressManager;
@@ -247,6 +248,7 @@ namespace Lsp.Tests.Integration
             }
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
+            protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability) => new CodeLensRegistrationOptions();
         }
     }
 }

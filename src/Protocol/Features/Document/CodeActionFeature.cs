@@ -202,9 +202,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 }
             }
 
-            public static implicit operator CommandOrCodeAction(Command value) => new CommandOrCodeAction(value);
+            public static CommandOrCodeAction From(Command value) => new(value);
+            public static implicit operator CommandOrCodeAction(Command value) => new(value);
 
-            public static implicit operator CommandOrCodeAction(CodeAction value) => new CommandOrCodeAction(value);
+            public static CommandOrCodeAction From(CodeAction value) => new(value);
+            public static implicit operator CommandOrCodeAction(CodeAction value) => new(value);
+            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : HandlerIdentity?, new() => new(value);
 
             private string DebuggerDisplay => $"{( IsCommand ? $"command: {Command}" : IsCodeAction ? $"code action: {CodeAction}" : "..." )}";
 
@@ -223,7 +226,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public partial class CodeActionContainer<T>
         {
-            public static implicit operator CommandOrCodeActionContainer(CodeActionContainer<T> container) => new CodeActionContainer(container.Select(CodeAction.From));
+            public static implicit operator CommandOrCodeActionContainer(CodeActionContainer<T> container) => new(container.Select(CommandOrCodeAction.From));
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.CodeActionProvider))]
@@ -237,7 +240,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// may list out every specific kind they provide.
             /// </summary>
             [Optional]
-            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new Container<CodeActionKind>();
+            public Container<CodeActionKind>? CodeActionKinds { get; set; } = new();
 
             /// <summary>
             /// The server provides support to resolve additional
@@ -314,6 +317,40 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public CodeActionCapabilityResolveSupportOptions? ResolveSupport { get; set; }
+        }
+
+        public class CodeActionLiteralSupportOptions
+        {
+            /// <summary>
+            /// The code action kind is support with the following value
+            /// set.
+            /// </summary>
+            public CodeActionKindCapabilityOptions CodeActionKind { get; set; } = null!;
+        }
+
+        public class CodeActionKindCapabilityOptions
+        {
+            /// <summary>
+            /// The code action kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            /// </summary>
+            public Container<CodeActionKind> ValueSet { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// Whether the client supports resolving additional code action
+        /// properties via a separate `codeAction/resolve` request.
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        public class CodeActionCapabilityResolveSupportOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily.
+            /// </summary>
+            public Container<string> Properties { get; set; } = new Container<string>();
         }
     }
 

@@ -328,7 +328,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            protected PartialCallHierarchyHandlerBase(Guid id, IProgressManager progressManager) : base(progressManager, Container<CallHierarchyItem>.Create)
+            protected PartialCallHierarchyHandlerBase(Guid id, IProgressManager progressManager) : base(progressManager, Container<CallHierarchyItem>.From)
             {
                 _id = id;
                 _incoming = new PartialIncoming(id, progressManager, this);
@@ -366,7 +366,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Guid ICanBeIdentifiedHandler.Id => _id;
 
                 public PartialIncoming(Guid id, IProgressManager progressManager, PartialCallHierarchyHandlerBase self) :
-                    base(progressManager, Container<CallHierarchyIncomingCall>.Create)
+                    base(progressManager, Container<CallHierarchyIncomingCall>.From)
                 {
                     _id = id;
                     _self = self;
@@ -391,7 +391,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 Guid ICanBeIdentifiedHandler.Id => _id;
 
                 public PartialOutgoing(Guid id, IProgressManager progressManager, PartialCallHierarchyHandlerBase self) :
-                    base(progressManager, Container<CallHierarchyOutgoingCall>.Create)
+                    base(progressManager, Container<CallHierarchyOutgoingCall>.From)
 
                 {
                     _id = id;
@@ -421,7 +421,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public sealed override async Task<Container<CallHierarchyItem>?> Handle(CallHierarchyPrepareParams request, CancellationToken cancellationToken)
             {
                 var response = await HandlePrepare(request, cancellationToken);
-                return Container<CallHierarchyItem>.Create(response?.Select(CallHierarchyItem.From) ?? Array.Empty<CallHierarchyItem>());
+                return Container<CallHierarchyItem>.From(response?.Select(CallHierarchyItem.From)!);
             }
 
             public sealed override Task<Container<CallHierarchyIncomingCall>?> Handle(CallHierarchyIncomingCallsParams request, CancellationToken cancellationToken)
@@ -491,7 +491,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             protected sealed override void Handle(
                 CallHierarchyOutgoingCallsParams request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
             ) => Handle(
-                new CallHierarchyOutgoingCallsParams<T>() {
+                new CallHierarchyOutgoingCallsParams<T> {
                     Item = request.Item,
                     PartialResultToken = request.PartialResultToken,
                     WorkDoneToken = request.WorkDoneToken
@@ -808,7 +808,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                         PartialAdapter<CallHierarchyCapability>.Adapt(handler),
                                         RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                         _.GetRequiredService<IProgressManager>(),
-                                        Container<CallHierarchyItem>.Create
+                                        Container<CallHierarchyItem>.From
                                     )
                                 )
                                .AddHandler(
@@ -823,7 +823,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                         PartialAdapter<CallHierarchyCapability>.Adapt(incomingHandler),
                                         RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                         _.GetRequiredService<IProgressManager>(),
-                                        Container<CallHierarchyIncomingCall>.Create
+                                        Container<CallHierarchyIncomingCall>.From
                                     )
                                 )
                                .AddHandler(
@@ -838,7 +838,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                         PartialAdapter<CallHierarchyCapability>.Adapt(outgoingHandler),
                                         RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                         _.GetRequiredService<IProgressManager>(),
-                                        Container<CallHierarchyOutgoingCall>.Create
+                                        Container<CallHierarchyOutgoingCall>.From
                                     )
                                 )
                     ;
@@ -886,7 +886,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter<CallHierarchyCapability>.Adapt(handler),
                                      RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyItem>.Create
+                                     Container<CallHierarchyItem>.From
                                  )
                              )
                             .AddHandler(
@@ -901,7 +901,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter<CallHierarchyCapability>.Adapt(incomingHandler),
                                      RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyIncomingCall>.Create
+                                     Container<CallHierarchyIncomingCall>.From
                                  )
                              )
                             .AddHandler(
@@ -916,7 +916,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter<CallHierarchyCapability>.Adapt(outgoingHandler),
                                      RegistrationAdapter<CallHierarchyCapability>.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyOutgoingCall>.Create
+                                     Container<CallHierarchyOutgoingCall>.From
                                  )
                              )
                     ;
@@ -963,7 +963,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(handler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyItem>.Create
+                                     Container<CallHierarchyItem>.From
                                  )
                              )
                             .AddHandler(
@@ -976,7 +976,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(incomingHandler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyIncomingCall>.Create
+                                     Container<CallHierarchyIncomingCall>.From
                                  )
                              )
                             .AddHandler(
@@ -989,7 +989,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(outgoingHandler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyOutgoingCall>.Create
+                                     Container<CallHierarchyOutgoingCall>.From
                                  )
                              )
                     ;
@@ -1035,7 +1035,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(handler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyItem>.Create
+                                     Container<CallHierarchyItem>.From
                                  )
                              )
                             .AddHandler(
@@ -1050,7 +1050,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(incomingHandler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyIncomingCall>.Create
+                                     Container<CallHierarchyIncomingCall>.From
                                  )
                              )
                             .AddHandler(
@@ -1065,7 +1065,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                                      PartialAdapter.Adapt(outgoingHandler),
                                      RegistrationAdapter.Adapt(registrationOptionsFactory),
                                      _.GetRequiredService<IProgressManager>(),
-                                     Container<CallHierarchyOutgoingCall>.Create
+                                     Container<CallHierarchyOutgoingCall>.From
                                  )
                              )
                     ;

@@ -286,13 +286,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
         }
 
-        public abstract class TextDocumentSyncHandler : ITextDocumentSyncHandler
+        public abstract class TextDocumentSyncHandlerBase : ITextDocumentSyncHandler
         {
-            private readonly Func<SynchronizationCapability, TextDocumentSyncRegistrationOptions> _registrationOptionsFactory;
 
-            public TextDocumentSyncHandler(Func<SynchronizationCapability, TextDocumentSyncRegistrationOptions> registrationOptionsFactory)
+            public TextDocumentSyncHandlerBase()
             {
-                _registrationOptionsFactory = registrationOptionsFactory;
             }
 
             public abstract TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri);
@@ -311,27 +309,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             protected SynchronizationCapability Capability { get; private set; } = default!;
 
-            private TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability)
-            {
+            protected abstract TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability);
+            private TextDocumentSyncRegistrationOptions AssignRegistrationOptions(SynchronizationCapability capability)
+                {
                 Capability = capability;
-                return _registrationOptionsFactory(capability);
+                return CreateRegistrationOptions(capability);
             }
 
             TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
                 SynchronizationCapability capability
-            ) => _registrationOptions ?? CreateRegistrationOptions(capability);
+            ) => _registrationOptions ?? AssignRegistrationOptions(capability);
 
             TextDocumentOpenRegistrationOptions IRegistration<TextDocumentOpenRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
                 SynchronizationCapability capability
-            ) => _registrationOptions ?? CreateRegistrationOptions(capability);
+            ) => _registrationOptions ?? AssignRegistrationOptions(capability);
 
             TextDocumentCloseRegistrationOptions IRegistration<TextDocumentCloseRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
                 SynchronizationCapability capability
-            ) => _registrationOptions ?? CreateRegistrationOptions(capability);
+            ) => _registrationOptions ?? AssignRegistrationOptions(capability);
 
             TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(
                 SynchronizationCapability capability
-            ) => _registrationOptions ?? CreateRegistrationOptions(capability);
+            ) => _registrationOptions ?? AssignRegistrationOptions(capability);
         }
 
 
@@ -655,12 +654,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 );
             }
 
-            private class DelegatingHandler : TextDocumentSyncHandler
+            private class DelegatingHandler : TextDocumentSyncHandlerBase
             {
                 private readonly Func<DidOpenTextDocumentParams, SynchronizationCapability, CancellationToken, Task> _onOpenHandler;
                 private readonly Func<DidCloseTextDocumentParams, SynchronizationCapability, CancellationToken, Task> _onCloseHandler;
                 private readonly Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> _onChangeHandler;
                 private readonly Func<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task> _onSaveHandler;
+                private readonly Func<SynchronizationCapability, TextDocumentSyncRegistrationOptions> _registrationOptionsFactory;
                 private readonly Func<DocumentUri, TextDocumentAttributes> _getTextDocumentAttributes;
 
                 public DelegatingHandler(
@@ -670,10 +670,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onChangeHandler,
                     Func<DidSaveTextDocumentParams, SynchronizationCapability, CancellationToken, Task> onSaveHandler,
                     Func<SynchronizationCapability, TextDocumentSyncRegistrationOptions> registrationOptionsFactory
-                ) : base(registrationOptionsFactory)
+                )
                 {
                     _onOpenHandler = onOpenHandler;
                     _onSaveHandler = onSaveHandler;
+                    _registrationOptionsFactory = registrationOptionsFactory;
                     _onChangeHandler = onChangeHandler;
                     _onCloseHandler = onCloseHandler;
                     _getTextDocumentAttributes = getTextDocumentAttributes;
@@ -702,6 +703,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     await _onCloseHandler.Invoke(request, Capability, cancellationToken).ConfigureAwait(false);
                     return Unit.Value;
                 }
+
+                protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability) => _registrationOptionsFactory(capability);
 
                 public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => _getTextDocumentAttributes.Invoke(uri);
             }

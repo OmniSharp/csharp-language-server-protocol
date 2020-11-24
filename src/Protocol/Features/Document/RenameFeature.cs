@@ -132,7 +132,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.RenameProvider))]
-        public partial class RenameRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions
+        public partial class RenameRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {
             /// <summary>
             /// Renames should be checked and tested before being executed.

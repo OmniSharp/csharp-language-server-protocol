@@ -120,7 +120,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .NormalizeWhitespace();
 
                 context.AddSource(
-                    $"{candidateClass.Identifier.ToFullString().Replace(".", "_")}{ (candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "") }.cs",
+                    $"{candidateClass.Identifier.ToFullString().Trim()}{(candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "")}.cs",
                     cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }

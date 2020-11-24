@@ -14,18 +14,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(ClientNames.RegisterCapability, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client"), GenerateHandlerMethods,
-         GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-        public class RegistrationParams : IRequest
+        [
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client", Name = "RegisterCapability"),
+            GenerateHandlerMethods,
+            GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
+        ]
+        public class RegistrationParams : IRequest, IJsonRpcRequest // fix this
         {
             public RegistrationContainer Registrations { get; set; } = null!;
         }
 
         [Parallel]
         [Method(ClientNames.UnregisterCapability, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client"), GenerateHandlerMethods,
-         GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))]
-        public class UnregistrationParams : IRequest
+        [
+            GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Client", Name = "UnregisterCapability"),
+            GenerateHandlerMethods,
+            GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
+        ]
+        public class UnregistrationParams : IRequest, IJsonRpcRequest
         {
             public UnregistrationContainer? Unregisterations { get; set; }
 

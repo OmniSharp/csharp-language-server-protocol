@@ -17,16 +17,293 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
-using OmniSharp.Extensions.LanguageServer.Protocol;
-using OmniSharp.Extensions.LanguageServer.Protocol.Bogus;
-using OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
-using RenameCapability = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.RenameCapability;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using ITextDocumentIdentifierParams = OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentIdentifierParams;
-using RenameRegistrationOptions = OmniSharp.Extensions.LanguageServer.Protocol.Models.RenameRegistrationOptions;
-using WorkspaceEdit = OmniSharp.Extensions.LanguageServer.Protocol.Models.WorkspaceEdit;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
+{
+    public partial class WorkspaceSymbolParams
+    {
+        [Optional]
+        public ProgressToken? WorkDoneToken
+        {
+            get;
+            set;
+        }
+
+        [Optional]
+        public ProgressToken? PartialResultToken
+        {
+            get;
+            set;
+        }
+    }
+}
+#nullable restore
+
+#nullable enable
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+    [Parallel]
+    [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, Container<SymbolInformation>?>, IRegistration<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class WorkspaceSymbolsHandlerBase : AbstractHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class WorkspaceSymbolsPartialHandlerBase : AbstractHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>, IWorkspaceSymbolsHandler
+    {
+        protected WorkspaceSymbolsPartialHandlerBase(System.Guid id, IProgressManager progressManager): base(progressManager, Container<SymbolInformation>.From)
+        {
+        }
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
+{
+#nullable enable
+    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public static partial class WorkspaceSymbolsExtensions
+    {
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, CancellationToken, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        {
+            return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
+        }
+
+        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestWorkspaceSymbols(this ITextDocumentLanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<SymbolInformation>(value), cancellationToken);
+        public static IRequestProgressObservable<IEnumerable<SymbolInformation>, Container<SymbolInformation>?> RequestWorkspaceSymbols(this ILanguageClient mediator, WorkspaceSymbolParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<SymbolInformation>(value), cancellationToken);
+    }
+#nullable restore
+}";
+            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
+        }
+
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        public async Task Supports_Generating_Custom_Language_Extensions()
+        {
+            var source = @"
+// ------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated a code generator.
+// </auto-generated>
+// ------------------------------------------------------------------------------
+
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+
+#nullable enable
+namespace Lsp.Tests.Integration.Fixtures
+{
+    [Parallel, Method(""tests/run"", Direction.ClientToServer)]
+    [
+        GenerateHandler,
+        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
+        GenerateRequestMethods(typeof(ILanguageClient))
+    ]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
+    public partial class UnitTest : IRequest
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    [Parallel, Method(""tests/discover"", Direction.ClientToServer)]
+    [
+        GenerateHandler,
+        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
+        GenerateRequestMethods(typeof(ILanguageClient))
+    ]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
+    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
+    {
+        public ProgressToken? PartialResultToken { get; set; } = null!;
+        public ProgressToken? WorkDoneToken { get; set; } = null!;
+    }
+
+    [CapabilityKey(""workspace"", ""unitTests"")]
+    public partial class UnitTestCapability : DynamicCapability
+    {
+        public string Property { get; set; } = null!;
+    }
+
+    [GenerateRegistrationOptions(""unitTestDiscovery"")]
+    public partial class UnitTestRegistrationOptions : IWorkDoneProgressOptions
+    {
+        [Optional] public bool SupportsDebugging { get; set; }
+    }
+}
+#nullable restore";
+
+            var expectedOptions = @"using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+
+#nullable enable
+namespace Lsp.Tests.Integration.Fixtures
+{
+    [RegistrationOptionsConverterAttribute(typeof(UnitTestRegistrationOptionsConverter))]
+    public partial class UnitTestRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions
+    {
+        [Optional]
+        public bool WorkDoneProgress
+        {
+            get;
+            set;
+        }
+
+        class UnitTestRegistrationOptionsConverter : RegistrationOptionsConverterBase<UnitTestRegistrationOptions, StaticOptions>
+        {
+            public UnitTestRegistrationOptionsConverter(): base(""unitTestDiscovery"")
+            {
+            }
+
+            public override StaticOptions Convert(UnitTestRegistrationOptions source)
+            {
+                return new StaticOptions{SupportsDebugging = source.SupportsDebugging, WorkDoneProgress = source.WorkDoneProgress};
+            }
+        }
+
+        public partial class StaticOptions : IWorkDoneProgressOptions
+        {
+            [Optional]
+            public bool SupportsDebugging
+            {
+                get;
+                set;
+            }
+
+            [Optional]
+            public bool WorkDoneProgress
+            {
+                get;
+                set;
+            }
+        }
+    }
+}
+#nullable restore";
+            var expectedStrongTypes = @"
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+
+#nullable enable
+namespace Lsp.Tests.Integration.Fixtures
+{
+    [Parallel, Method(""tests/run"", Direction.ClientToServer)]
+    [
+        GenerateHandler,
+        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
+        GenerateRequestMethods(typeof(ILanguageClient))
+    ]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
+    public partial class UnitTest : IRequest
+    {
+        public string Name { get; set; } = null!;
+    }
+
+    [Parallel, Method(""tests/discover"", Direction.ClientToServer)]
+    [
+        GenerateHandler,
+        GenerateHandlerMethods(typeof(ILanguageServerRegistry)),
+        GenerateRequestMethods(typeof(ILanguageClient))
+    ]
+    [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
+    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
+    {
+        public ProgressToken? PartialResultToken { get; set; } = null!;
+        public ProgressToken? WorkDoneToken { get; set; } = null!;
+    }
+
+    [CapabilityKey(""workspace"", ""unitTests"")]
+    public partial class UnitTestCapability : DynamicCapability
+    {
+        public string Property { get; set; } = null!;
+    }
+
+    [GenerateRegistrationOptions(""unitTestDiscovery"")]
+    public partial class UnitTestRegistrationOptions : IWorkDoneProgressOptions
+    {
+        [Optional] public bool SupportsDebugging { get; set; }
+    }
+}
+#nullable restore
+";
+            var expectedHandlers = @"
+using Lsp.Tests.Integration.Fixtures;
+using MediatR;
+using Microsoft.Extensions.DependencyInjection;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System;
 using System.Collections.Generic;
@@ -34,82 +311,72 @@ using System.Threading;
 using System.Threading.Tasks;
 
 #nullable enable
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers
+namespace Lsp.Tests.Integration.Fixtures
 {
-    [Parallel]
-    [Method(TextDocumentNames.Rename, Direction.ClientToServer)]
+    [Parallel, Method(""tests/discover"", Direction.ClientToServer)]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit?>, IRegistration<RenameRegistrationOptions, RenameCapability>
+    public partial interface IDiscoverUnitTestsHandler : IJsonRpcRequestHandler<DiscoverUnitTestsParams, Container<UnitTest>>, IRegistration<UnitTestRegistrationOptions, UnitTestCapability>
     {
     }
 
-    [Parallel]
-    [Method(TextDocumentNames.Rename, Direction.ClientToServer)]
-    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
-    abstract public partial class RenameHandlerBase : AbstractHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class DiscoverUnitTestsHandlerBase : AbstractHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>, IDiscoverUnitTestsHandler
     {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class DiscoverUnitTestsPartialHandlerBase : AbstractHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>, IDiscoverUnitTestsHandler
+    {
+        protected DiscoverUnitTestsPartialHandlerBase(System.Guid id, IProgressManager progressManager): base(progressManager, Container<UnitTest>.From)
+        {
+        }
     }
 }
 #nullable restore
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers
+namespace Lsp.Tests.Integration.Fixtures
 {
 #nullable enable
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class RenameExtensions
+    public static partial class DiscoverUnitTestsExtensions
     {
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, Task<WorkspaceEdit?>> handler, Func<RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, CancellationToken, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, Task<WorkspaceEdit?>> handler, RenameRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, CancellationToken> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> handler, RenameRegistrationOptions registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, UnitTestCapability, CancellationToken> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
         {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
+            return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameRegistrationOptions> registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>> handler, RenameRegistrationOptions registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(handler, RegistrationOptionsFactoryAdapter.Adapt<RenameRegistrationOptions, RenameCapability>(registrationOptions)));
-        }
-
-        public static Task<WorkspaceEdit?> RequestRename(this ITextDocumentLanguageClient mediator, RenameParams request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
-        public static Task<WorkspaceEdit?> RequestRename(this ILanguageClient mediator, RenameParams request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static IRequestProgressObservable<IEnumerable<UnitTest>, Container<UnitTest>> RequestDiscoverUnitTests(this ILanguageClient mediator, DiscoverUnitTestsParams request, CancellationToken cancellationToken = default) => mediator.ProgressManager.MonitorUntil(request, value => new Container<UnitTest>(value), cancellationToken);
     }
 #nullable restore
 }";
-            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
+            await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expectedOptions);
+            await GenerationHelpers.AssertGeneratedAsExpected<StronglyTypedGenerator>(source, expectedStrongTypes);
+            await GenerationHelpers.AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expectedHandlers);
         }
     }
 }

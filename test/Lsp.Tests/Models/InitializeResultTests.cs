@@ -83,26 +83,21 @@ namespace Lsp.Tests.Models
                         }
                     },
                     ColorProvider = new DocumentColorRegistrationOptions.StaticOptions {
-                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
                     DeclarationProvider = new DeclarationRegistrationOptions.StaticOptions {
-                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
                     FoldingRangeProvider = new FoldingRangeRegistrationOptions.StaticOptions {
-                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
                     ImplementationProvider = new ImplementationRegistrationOptions.StaticOptions {
-                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     },
                     RenameProvider = new RenameRegistrationOptions.StaticOptions {
                         PrepareProvider = true
                     },
                     TypeDefinitionProvider = new TypeDefinitionRegistrationOptions.StaticOptions {
-                        DocumentSelector = DocumentSelector.ForPattern("**/*.foo"),
                         Id = "foo"
                     }
                 }

@@ -90,6 +90,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         {
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
+
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""item"")]
+        public static CodeLens? From<T>(CodeLens<T>? item)
+            where T : HandlerIdentity? , new() => item switch
+        {
+        not null => item, _ => null
+        }
+
+        ;
     }
 
     /// <summary>
@@ -152,7 +161,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         }
 
         public static implicit operator CodeLens<T>(CodeLens value) => new CodeLens<T>{Range = value.Range, Command = value.Command, JData = ((ICanBeResolved)value).Data};
-        public static implicit operator CodeLens(CodeLens<T> value) => new CodeLens{Range = value.Range, Command = value.Command, Data = ((ICanBeResolved)value).Data};
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""value"")]
+        public static implicit operator CodeLens? (CodeLens<T>? value) => value switch
+        {
+        not null => new CodeLens{Range = value.Range, Command = value.Command, Data = ((ICanBeResolved)value).Data}, _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""item"")]
+        public static CodeLens<T>? From(CodeLens? item) => item switch
+        {
+        not null => item, _ => null
+        }
+
+        ;
     }
 
     public partial class CodeLensContainer<T> : ContainerBase<CodeLens<T>> where T : HandlerIdentity? , new()
@@ -169,17 +191,90 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         {
         }
 
-        public static implicit operator CodeLensContainer<T>(CodeLens<T>[] items) => new CodeLensContainer<T>(items);
-        public static CodeLensContainer<T> Create(params CodeLens<T>[] items) => new CodeLensContainer<T>(items);
-        public static implicit operator CodeLensContainer<T>(Collection<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static CodeLensContainer<T> Create(Collection<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static implicit operator CodeLensContainer<T>(List<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static CodeLensContainer<T> Create(List<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static implicit operator CodeLensContainer<T>(in ImmutableArray<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static CodeLensContainer<T> Create(in ImmutableArray<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static implicit operator CodeLensContainer<T>(ImmutableList<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static CodeLensContainer<T> Create(ImmutableList<CodeLens<T>> items) => new CodeLensContainer<T>(items);
-        public static implicit operator CodeLensContainer(CodeLensContainer<T> container) => new CodeLensContainer(container.Select(z => (CodeLens)z));
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(IEnumerable<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer<T>? (CodeLens<T>[] items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(params CodeLens<T>[] items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer<T>? (Collection<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(Collection<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer<T>? (List<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(List<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer<T>? (in ImmutableArray<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(in ImmutableArray<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer<T>? (ImmutableList<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer<T>? From(ImmutableList<CodeLens<T>>? items) => items switch
+        {
+        not null => new CodeLensContainer<T>(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""container"")]
+        public static implicit operator CodeLensContainer? (CodeLensContainer<T>? container) => container switch
+        {
+        not null => new CodeLensContainer(container.Select(value => (CodeLens)value)), _ => null
+        }
+
+        ;
     }
 }
 #nullable restore
@@ -241,8 +336,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }
 #nullable restore";
 
-            var expected = @"
-using System;
+            var expected = @"using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -280,21 +374,86 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         {
         }
 
-        public static implicit operator CodeLensContainer(CodeLens[] items) => new CodeLensContainer(items);
-        public static CodeLensContainer Create(params CodeLens[] items) => new CodeLensContainer(items);
-        public static implicit operator CodeLensContainer(Collection<CodeLens> items) => new CodeLensContainer(items);
-        public static CodeLensContainer Create(Collection<CodeLens> items) => new CodeLensContainer(items);
-        public static implicit operator CodeLensContainer(List<CodeLens> items) => new CodeLensContainer(items);
-        public static CodeLensContainer Create(List<CodeLens> items) => new CodeLensContainer(items);
-        public static implicit operator CodeLensContainer(in ImmutableArray<CodeLens> items) => new CodeLensContainer(items);
-        public static CodeLensContainer Create(in ImmutableArray<CodeLens> items) => new CodeLensContainer(items);
-        public static implicit operator CodeLensContainer(ImmutableList<CodeLens> items) => new CodeLensContainer(items);
-        public static CodeLensContainer Create(ImmutableList<CodeLens> items) => new CodeLensContainer(items);
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(IEnumerable<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer? (CodeLens[] items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(params CodeLens[] items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer? (Collection<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(Collection<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer? (List<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(List<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer? (in ImmutableArray<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(in ImmutableArray<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static implicit operator CodeLensContainer? (ImmutableList<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""items"")]
+        public static CodeLensContainer? From(ImmutableList<CodeLens>? items) => items switch
+        {
+        not null => new CodeLensContainer(items), _ => null
+        }
+
+        ;
     }
 }
-#nullable restore
-
-";
+#nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<StronglyTypedGenerator>(source, expected);
         }
     }

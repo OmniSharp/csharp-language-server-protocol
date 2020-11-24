@@ -59,7 +59,7 @@ namespace Lsp.Tests.Integration
                     x => x
                        .OnCompletion(
                             (@params, token) => Task.FromResult(new CompletionList()),
-                            new CompletionRegistrationOptions {
+                            _ => new CompletionRegistrationOptions {
                                 DocumentSelector = DocumentSelector.ForLanguage("vb")
                             }
                         )
@@ -108,7 +108,7 @@ namespace Lsp.Tests.Integration
                 var disposable = server.Register(
                     x => x.OnCompletion(
                         (@params, token) => Task.FromResult(new CompletionList()),
-                        new CompletionRegistrationOptions {
+                        _ => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     )
@@ -136,7 +136,7 @@ namespace Lsp.Tests.Integration
             [Fact]
             public async Task Should_Only_Register_Semantic_Tokens_Registration_Once()
             {
-                var tokens = Substitute.For<SemanticTokensHandlerBase>(new SemanticTokensRegistrationOptions());
+                var tokens = Substitute.For<SemanticTokensHandlerBase>();
                 var (client, server) = await Initialize(new ConfigureClient().Configure, options => {
                     new ConfigureServer().Configure(options);
                     options.AddHandler(tokens);
@@ -148,7 +148,7 @@ namespace Lsp.Tests.Integration
                     CancellationToken
                 );
 
-                tokens.Received(Quantity.Exactly(1)).GetRegistrationOptions();
+                ((IRegistration<SemanticTokensRegistrationOptions, SemanticTokensCapability>) tokens).Received(Quantity.Exactly(1)).GetRegistrationOptions(Arg.Any<SemanticTokensCapability>());
 
                 client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
@@ -327,7 +327,7 @@ namespace Lsp.Tests.Integration
             {
                 options.OnCompletion(
                     (@params, token) => Task.FromResult(new CompletionList()),
-                    new CompletionRegistrationOptions {
+                    _ => new CompletionRegistrationOptions {
                         DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                         ResolveProvider = false,
                         TriggerCharacters = new Container<string>("a", "b"),
@@ -338,7 +338,7 @@ namespace Lsp.Tests.Integration
                 options.OnSemanticTokens(
                     (builder, @params, ct) => { return Task.CompletedTask; },
                     (@params, token) => { return Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())); },
-                    new SemanticTokensRegistrationOptions()
+                    _ => new SemanticTokensRegistrationOptions()
                 );
             }
         }

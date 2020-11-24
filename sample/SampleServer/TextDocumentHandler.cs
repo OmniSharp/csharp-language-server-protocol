@@ -13,11 +13,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
 #pragma warning disable CS0618
 
 namespace SampleServer
 {
-    internal class TextDocumentHandler : ITextDocumentSyncHandler
+    internal class TextDocumentHandler : TextDocumentSyncHandlerBase
     {
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
@@ -28,12 +29,7 @@ namespace SampleServer
             }
         );
 
-        private SynchronizationCapability _capability;
-
-        public TextDocumentHandler(
-            ILogger<TextDocumentHandler> logger, Foo foo,
-            ILanguageServerConfiguration configuration
-        )
+        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo, ILanguageServerConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
@@ -42,7 +38,7 @@ namespace SampleServer
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
-        public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
+        public override Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
             _logger.LogCritical("Critical");
             _logger.LogDebug("Debug");
@@ -51,9 +47,7 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        public void SetCapability(SynchronizationCapability capability) => _capability = capability;
-
-        public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
+        public override async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
             _logger.LogInformation("Hello world!");
@@ -61,23 +55,7 @@ namespace SampleServer
             return Unit.Value;
         }
 
-        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) =>
-            new TextDocumentChangeRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                SyncKind = Change
-            };
-
-        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) =>
-            new TextDocumentRegistrationOptions {
-                DocumentSelector = _documentSelector,
-            };
-
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions, SynchronizationCapability>.GetRegistrationOptions(SynchronizationCapability capability) => new TextDocumentSaveRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                IncludeText = capability.DidSave
-            };
-
-        public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
+        public override Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
             if (_configuration.TryGetScopedConfiguration(notification.TextDocument.Uri, out var disposable))
             {
@@ -87,9 +65,15 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
+        public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability) => new TextDocumentSyncRegistrationOptions() {
+            DocumentSelector = _documentSelector,
+            SyncKind = Change,
+            IncludeText = true
+        };
+
+        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
     }
 
     internal class MyDocumentSymbolHandler : IDocumentSymbolHandler

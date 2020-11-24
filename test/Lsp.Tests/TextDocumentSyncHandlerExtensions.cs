@@ -1,5 +1,6 @@
 using NSubstitute;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
@@ -12,10 +13,10 @@ namespace Lsp.Tests
 
         public static ITextDocumentSyncHandler With(this ITextDocumentSyncHandler handler, DocumentSelector documentSelector, string language)
         {
-            ( (IDidChangeTextDocumentHandler) handler ).GetRegistrationOptions().Returns(new TextDocumentChangeRegistrationOptions { DocumentSelector = documentSelector });
-            ( (IDidOpenTextDocumentHandler) handler ).GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions { DocumentSelector = documentSelector });
-            ( (IDidCloseTextDocumentHandler) handler ).GetRegistrationOptions().Returns(new TextDocumentRegistrationOptions { DocumentSelector = documentSelector });
-            ( (IDidSaveTextDocumentHandler) handler ).GetRegistrationOptions().Returns(new TextDocumentSaveRegistrationOptions { DocumentSelector = documentSelector });
+            ( (IDidChangeTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>()).Returns(new TextDocumentChangeRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidOpenTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>()).Returns(new TextDocumentOpenRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidCloseTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>()).Returns(new TextDocumentCloseRegistrationOptions() { DocumentSelector = documentSelector });
+            ( (IDidSaveTextDocumentHandler) handler ).GetRegistrationOptions(Arg.Any<SynchronizationCapability>()).Returns(new TextDocumentSaveRegistrationOptions() { DocumentSelector = documentSelector });
             handler.GetTextDocumentAttributes(Arg.Any<DocumentUri>())
                    .Returns(c => new TextDocumentAttributes(c.Arg<DocumentUri>(), language));
 

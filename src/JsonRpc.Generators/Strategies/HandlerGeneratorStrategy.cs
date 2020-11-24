@@ -111,9 +111,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         members.Add(
                             GenerateTypedHandler(
                                 handlerClass,
-                                item.Request.Syntax,
-                                r3.Response.Syntax,
-                                resolver.Request.Symbol.Name
+                                r3,
+                                resolver
                             )
                         );
                     }
@@ -155,7 +154,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
                     members.Add(handlerClass);
                 }
-                else if (request is { PartialItems: { } })
+                else if (request is { PartialItems: { } partialItems })
                 {
                     handlerClass = ClassDeclaration(Identifier($"{item.JsonRpcAttributes.HandlerName}PartialHandlerBase"))
                                   .WithAttributeLists(classAttributes)
@@ -187,30 +186,30 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     }
 
                     members.Add(handlerClass);
-                }
 
-                if (resolver is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
-                {
-                    members.Add(
-                        GenerateTypedPartialHandler(
-                            handlerClass,
-                            item.Request.Syntax,
-                            request.Response.Syntax,
-                            resolver.Request.Symbol.Name
-                        )
-                    );
-                }
+                    if (resolver is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
+                    {
+                        members.Add(
+                            GenerateTypedPartialHandler(
+                                handlerClass,
+                                request,
+                                resolver,
+                                partialItems
+                            )
+                        );
+                    }
 
-                if (item is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
-                {
-                    members.Add(
-                        GenerateTypedPartialHandler(
-                            handlerClass,
-                            item.Request.Syntax,
-                            request.Response.Syntax,
-                            item.Request.Symbol.Name
-                        )
-                    );
+                    if (request is { LspAttributes: { GenerateTypedData: true } } && handlerClass is { })
+                    {
+                        members.Add(
+                            GenerateTypedPartialHandler(
+                                handlerClass,
+                                request,
+                                request,
+                                partialItems
+                            )
+                        );
+                    }
                 }
             }
 
@@ -233,11 +232,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             if (item is RequestItem request)
             {
-                if (request.IsUnit)
-                {
-                    return GenericName("IJsonRpcRequestHandler")
-                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(request.Request.Syntax)));
-                }
+//                if (request.IsUnit)
+//                {
+//                    return GenericName("IJsonRpcRequestHandler")
+//                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(request.Request.Syntax)));
+//                }
 
                 return GenericName("IJsonRpcRequestHandler")
                    .WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { request.Request.Syntax, request.Response.Syntax })));
@@ -415,28 +414,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 parameters = parameters.AddParameters(Parameter(Identifier("progressManager")).WithType(IdentifierName("IProgressManager")));
                 arguments = arguments.AddArguments(Argument(IdentifierName("progressManager")));
 
-                if (request.PartialItem is { })
+                if (request.PartialItem is { } || request.PartialItems is { })
                 {
                     arguments = arguments.AddArguments(
                         Argument(
-                            SimpleLambdaExpression(Parameter(Identifier("item")))
-                               .WithExpressionBody(IdentifierName("item"))
-                        )
-                    );
-                }
-                else if (request.PartialItems is { })
-                {
-                    arguments = arguments.AddArguments(
-                        Argument(
-                            SimpleLambdaExpression(Parameter(Identifier("enumerable")))
-                               .WithExpressionBody(
-                                    ObjectCreationExpression(
-                                            request.Response.Syntax is NullableTypeSyntax nts
-                                                ? nts.ElementType
-                                                : request.Response.Syntax
-                                        )
-                                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("enumerable")))))
-                                )
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                request.Response.Syntax.EnsureNotNullable(),
+                                IdentifierName("From")
+                            )
                         )
                     );
                 }
@@ -506,11 +492,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         }
 
         private static ClassDeclarationSyntax GenerateTypedPartialHandler(
-            RequestItem item,
             ClassDeclarationSyntax classDeclarationSyntax,
-            TypeSyntax paramsName,
-            TypeSyntax containerName,
-            string resolveName
+            RequestItem item,
+            RequestItem resolver,
+            SyntaxSymbol partialItems
         )
         {
             return ClassDeclaration(classDeclarationSyntax.Identifier)
@@ -576,7 +561,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(paramsName),
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
                                            Parameter(Identifier("results"))
                                               .WithType(
                                                    GenericName(Identifier("IObserver"))
@@ -584,7 +569,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                            TypeArgumentList(
                                                                SingletonSeparatedList<TypeSyntax>(
                                                                    GenericName(Identifier("IEnumerable"))
-                                                                      .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(resolveName))))
+                                                                      .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(partialItems.Syntax)))
                                                                )
                                                            )
                                                        )
@@ -613,9 +598,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                                TypeArgumentList(
                                                                                    SeparatedList(
                                                                                        new TypeSyntax[] {
-                                                                                           GenericName(
-                                                                                                   Identifier(resolveName)
-                                                                                               )
+                                                                                           GenericName(Identifier(resolver.Response.Symbol.Name))
                                                                                               .WithTypeArgumentList(
                                                                                                    TypeArgumentList(
                                                                                                        SingletonSeparatedList<TypeSyntax>(
@@ -623,7 +606,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                                                        )
                                                                                                    )
                                                                                                ),
-                                                                                           IdentifierName(resolveName)
+                                                                                           partialItems.Syntax
                                                                                        }
                                                                                    )
                                                                                )
@@ -640,7 +623,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                                Argument(
                                                                                    MemberAccessExpression(
                                                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                                                       IdentifierName(resolveName),
+                                                                                       partialItems.Syntax,
                                                                                        IdentifierName("From")
                                                                                    )
                                                                                )
@@ -661,8 +644,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                GenericName(Identifier("Task"))
                                   .WithTypeArgumentList(
                                        TypeArgumentList(
-                                           SingletonSeparatedList<TypeSyntax>(
-                                               IdentifierName(resolveName)
+                                           SingletonSeparatedList(
+                                               resolver.Response.Syntax
                                            )
                                        )
                                    ),
@@ -675,7 +658,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(IdentifierName(resolveName)),
+                                           Parameter(Identifier("request")).WithType(resolver.Request.Syntax),
                                            Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                        }
                                    )
@@ -735,7 +718,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(paramsName),
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
                                            Parameter(Identifier("results"))
                                               .WithType(
                                                    GenericName(Identifier("IObserver"))
@@ -746,9 +729,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                                       .WithTypeArgumentList(
                                                                            TypeArgumentList(
                                                                                SingletonSeparatedList<TypeSyntax>(
-                                                                                   GenericName(
-                                                                                           Identifier(resolveName)
-                                                                                       )
+                                                                                   GenericName(Identifier(resolver.Request.Symbol.Name))
                                                                                       .WithTypeArgumentList(
                                                                                            TypeArgumentList(
                                                                                                SingletonSeparatedList<TypeSyntax>(
@@ -774,7 +755,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .WithTypeArgumentList(
                                        TypeArgumentList(
                                            SingletonSeparatedList<TypeSyntax>(
-                                               GenericName(Identifier(resolveName))
+                                               GenericName(Identifier(resolver.Request.Symbol.Name))
                                                   .WithTypeArgumentList(
                                                        TypeArgumentList(
                                                            SingletonSeparatedList<TypeSyntax>(
@@ -794,7 +775,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        new[] {
                                            Parameter(Identifier("request"))
                                               .WithType(
-                                                   GenericName(Identifier(resolveName))
+                                                   GenericName(Identifier(resolver.Request.Symbol.Name))
                                                       .WithTypeArgumentList(
                                                            TypeArgumentList(
                                                                SingletonSeparatedList<TypeSyntax>(
@@ -813,18 +794,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         }
 
         private static ClassDeclarationSyntax GenerateTypedHandler(
-            RequestItem item,
             ClassDeclarationSyntax classDeclarationSyntax,
-            TypeSyntax paramsName,
-            TypeSyntax containerName,
-            string resolveName
+            RequestItem item,
+            RequestItem resolver
         )
         {
-            // determine the resolve item based on the partial items of the request
-            var responseName = containerName is SimpleNameSyntax sns ? sns.Identifier.Text : containerName.ToFullString();
-            TypeSyntax responseType = containerName;
+            TypeSyntax responseType = GenericName(Identifier(item.Response.Symbol.Name))
+               .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))));
             // Special case... because the spec is awesome
-            if (responseName == "CommandOrCodeActionContainer")
+            if (item.Response.Symbol.Name == "CommandOrCodeActionContainer")
             {
                 responseType = GenericName(Identifier("CodeActionContainer"))
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))));
@@ -864,7 +842,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            )
                           .WithBody(Block()),
                        MethodDeclaration(
-                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(containerName))),
+                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Response.Syntax))),
                                Identifier("Handle")
                            )
                           .WithModifiers(
@@ -876,7 +854,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(paramsName),
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
                                            Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                        }
                                    )
@@ -918,7 +896,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            )
                           .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
                        MethodDeclaration(
-                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName(resolveName)))),
+                               GenericName(Identifier("Task")).WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(resolver.Response.Syntax))),
                                Identifier("Handle")
                            )
                           .WithModifiers(
@@ -930,7 +908,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(IdentifierName(resolveName)),
+                                           Parameter(Identifier("request")).WithType(resolver.Response.Syntax),
                                            Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                        }
                                    )
@@ -985,7 +963,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                ParameterList(
                                    SeparatedList(
                                        new[] {
-                                           Parameter(Identifier("request")).WithType(paramsName),
+                                           Parameter(Identifier("request")).WithType(item.Request.Syntax),
                                            Parameter(Identifier("cancellationToken")).WithType(IdentifierName("CancellationToken"))
                                        }
                                    )
@@ -999,7 +977,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .WithTypeArgumentList(
                                        TypeArgumentList(
                                            SingletonSeparatedList<TypeSyntax>(
-                                               GenericName(Identifier(resolveName))
+                                               GenericName(Identifier(resolver.Response.Symbol.Name))
                                                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))))
                                            )
                                        )
@@ -1013,7 +991,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        new[] {
                                            Parameter(Identifier("request"))
                                               .WithType(
-                                                   GenericName(Identifier(resolveName)).WithTypeArgumentList(
+                                                   GenericName(Identifier(resolver.Response.Symbol.Name)).WithTypeArgumentList(
                                                        TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")))
                                                    )
                                                ),

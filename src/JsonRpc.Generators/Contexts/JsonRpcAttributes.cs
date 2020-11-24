@@ -50,7 +50,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             {
                 attributes = attributes with {
                     GenerateHandler = SyntaxAttributeData.Parse(generateHandlerData),
-                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string : attributes.HandlerNamespace,
+                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string ?? attributes.HandlerNamespace : attributes.HandlerNamespace,
                     HandlerName = generateHandlerData is { NamedArguments: { Length: >= 1 } namedArguments } ?
                         namedArguments
                            .Select(z => z is { Key: "Name", Value: { Value:  string str } } ? str : null)

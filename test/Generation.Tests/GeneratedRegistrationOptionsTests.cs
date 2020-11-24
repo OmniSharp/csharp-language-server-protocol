@@ -19,8 +19,10 @@ namespace Test
     public partial class WorkspaceSymbolRegistrationOptions { }
 }
 ";
-            var expected = @"using OmniSharp.Extensions.LanguageServer.Protocol;
+            var expected = @"
+using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 #nullable enable
 namespace Test
@@ -35,26 +37,26 @@ namespace Test
             set;
         }
 
-        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticWorkspaceSymbolRegistrationOptions>
+        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
             public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
             {
             }
 
-            public override StaticWorkspaceSymbolRegistrationOptions Convert(WorkspaceSymbolRegistrationOptions source)
+            public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
             {
-                return new StaticWorkspaceSymbolRegistrationOptions{};
+                return new StaticOptions{WorkDoneProgress = source.WorkDoneProgress};
             }
         }
-    }
 
-    public partial class StaticWorkspaceSymbolRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-    {
-        [Optional]
-        public bool WorkDoneProgress
+        public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
         {
-            get;
-            set;
+            [Optional]
+            public bool WorkDoneProgress
+            {
+                get;
+                set;
+            }
         }
     }
 }
@@ -80,6 +82,7 @@ namespace Test
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 #nullable enable
 namespace Test
@@ -94,26 +97,26 @@ namespace Test
             set;
         }
 
-        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticWorkspaceSymbolRegistrationOptions>
+        class WorkspaceSymbolRegistrationOptionsConverter : RegistrationOptionsConverterBase<WorkspaceSymbolRegistrationOptions, StaticOptions>
         {
             public WorkspaceSymbolRegistrationOptionsConverter(): base(nameof(ServerCapabilities.WorkspaceSymbolProvider))
             {
             }
 
-            public override StaticWorkspaceSymbolRegistrationOptions Convert(WorkspaceSymbolRegistrationOptions source)
+            public override StaticOptions Convert(WorkspaceSymbolRegistrationOptions source)
             {
-                return new StaticWorkspaceSymbolRegistrationOptions{};
+                return new StaticOptions{WorkDoneProgress = source.WorkDoneProgress};
             }
         }
-    }
 
-    public partial class StaticWorkspaceSymbolRegistrationOptions : IWorkDoneProgressOptions
-    {
-        [Optional]
-        public bool WorkDoneProgress
+        public partial class StaticOptions : IWorkDoneProgressOptions
         {
-            get;
-            set;
+            [Optional]
+            public bool WorkDoneProgress
+            {
+                get;
+                set;
+            }
         }
     }
 }
@@ -205,52 +208,52 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             set;
         }
 
-        class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticCodeActionRegistrationOptions>
+        class CodeActionRegistrationOptionsConverter : RegistrationOptionsConverterBase<CodeActionRegistrationOptions, StaticOptions>
         {
             public CodeActionRegistrationOptionsConverter(): base(nameof(ServerCapabilities.CodeActionProvider))
             {
             }
 
-            public override StaticCodeActionRegistrationOptions Convert(CodeActionRegistrationOptions source)
+            public override StaticOptions Convert(CodeActionRegistrationOptions source)
             {
-                return new StaticCodeActionRegistrationOptions{CodeActionKinds = source.CodeActionKinds, ResolveProvider = source.ResolveProvider};
+                return new StaticOptions{CodeActionKinds = source.CodeActionKinds, ResolveProvider = source.ResolveProvider, WorkDoneProgress = source.WorkDoneProgress};
             }
         }
-    }
 
-    public partial class StaticCodeActionRegistrationOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
-    {
-        /// <summary>
-        /// CodeActionKinds that this server may return.
-        ///
-        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-        /// may list out every specific kind they provide.
-        /// </summary>
-        [Optional]
-        public Container<CodeActionKind>? CodeActionKinds
+        public partial class StaticOptions : OmniSharp.Extensions.LanguageServer.Protocol.Models.IWorkDoneProgressOptions
         {
-            get;
-            set;
-        }
+            /// <summary>
+            /// CodeActionKinds that this server may return.
+            ///
+            /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
+            /// may list out every specific kind they provide.
+            /// </summary>
+            [Optional]
+            public Container<CodeActionKind>? CodeActionKinds
+            {
+                get;
+                set;
+            }
 
-        = new Container<CodeActionKind>();
-        /// <summary>
-        /// The server provides support to resolve additional
-        /// information for a code action.
-        ///
-        /// @since 3.16.0
-        /// </summary>
-        public bool ResolveProvider
-        {
-            get;
-            set;
-        }
+            = new Container<CodeActionKind>();
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a code action.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            public bool ResolveProvider
+            {
+                get;
+                set;
+            }
 
-        [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
+            [Optional]
+            public bool WorkDoneProgress
+            {
+                get;
+                set;
+            }
         }
     }
 }
@@ -359,47 +362,45 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             get;
             set;
         }
-    }
 
-    public partial class StaticCodeActionRegistrationOptions : IWorkDoneProgressOptions
-    {
-        /// <summary>
-        /// CodeActionKinds that this server may return.
-        ///
-        /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
-        /// may list out every specific kind they provide.
-        /// </summary>
-        [Optional]
-        public Container<CodeActionKind>? CodeActionKinds
+        public partial class StaticOptions : IWorkDoneProgressOptions
         {
-            get;
-            set;
-        }
+            /// <summary>
+            /// CodeActionKinds that this server may return.
+            ///
+            /// The list of kinds may be generic, such as `CodeActionKind.Refactor`, or the server
+            /// may list out every specific kind they provide.
+            /// </summary>
+            [Optional]
+            public Container<CodeActionKind>? CodeActionKinds
+            {
+                get;
+                set;
+            }
 
-        = new Container<CodeActionKind>();
-        /// <summary>
-        /// The server provides support to resolve additional
-        /// information for a code action.
-        ///
-        /// @since 3.16.0
-        /// </summary>
-        public bool ResolveProvider
-        {
-            get;
-            set;
-        }
+            = new Container<CodeActionKind>();
+            /// <summary>
+            /// The server provides support to resolve additional
+            /// information for a code action.
+            ///
+            /// @since 3.16.0
+            /// </summary>
+            public bool ResolveProvider
+            {
+                get;
+                set;
+            }
 
-        [Optional]
-        public bool WorkDoneProgress
-        {
-            get;
-            set;
+            [Optional]
+            public bool WorkDoneProgress
+            {
+                get;
+                set;
+            }
         }
     }
 }
-#nullable restore
-
-";
+#nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<RegistrationOptionsGenerator>(source, expected);
         }
     }

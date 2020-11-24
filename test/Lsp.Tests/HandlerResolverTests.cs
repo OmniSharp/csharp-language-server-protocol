@@ -144,10 +144,10 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+            if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
                    .Returns(
-                        new TextDocumentRegistrationOptions {
+                        new TextDocumentSyncRegistrationOptions() {
                             DocumentSelector = new DocumentSelector()
                         }
                     );
@@ -164,18 +164,18 @@ namespace Lsp.Tests
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
+            if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
                 reg.GetRegistrationOptions()
                    .Returns(
-                        new TextDocumentRegistrationOptions {
+                        new TextDocumentSyncRegistrationOptions {
                             DocumentSelector = new DocumentSelector()
                         }
                     );
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
+            if (sub2 is IRegistration<ITextDocumentRegistrationOptions> reg2)
                 reg2.GetRegistrationOptions()
                     .Returns(
-                         new TextDocumentRegistrationOptions {
+                         new TextDocumentSyncRegistrationOptions {
                              DocumentSelector = new DocumentSelector()
                          }
                      );
@@ -235,7 +235,7 @@ namespace Lsp.Tests
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions()
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector()

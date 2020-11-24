@@ -492,7 +492,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 responseName is NullableTypeSyntax nts ? nts.ElementType : responseName,
-                                IdentifierName("Create")
+                                IdentifierName("From")
                             )
                         )
                     }
@@ -521,7 +521,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                             MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 responseName is NullableTypeSyntax nts ? nts.ElementType : responseName,
-                                IdentifierName("Create")
+                                IdentifierName("From")
                             )
                         )
                     }

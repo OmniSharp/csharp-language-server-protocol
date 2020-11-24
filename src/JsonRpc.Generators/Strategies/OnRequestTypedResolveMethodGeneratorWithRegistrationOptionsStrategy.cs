@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 {
                     yield return factory(
                         CreatePartialAction(requestType, enumerableType, true, capability.Syntax),
-                        CreateAsyncFunc(resolveType, false, resolveType, capability.Syntax)
+                        CreateAsyncFunc(resolveType, true, resolveType, capability.Syntax)
                     );
                 }
             }

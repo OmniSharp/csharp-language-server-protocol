@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 {
@@ -13,26 +14,26 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             if (item is not NotificationItem notification) yield break;
             if (extensionMethodContext is not { IsProxy: true }) yield break;
 
-            var method = SyntaxFactory.MethodDeclaration(SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword)), item.JsonRpcAttributes.RequestMethodName)
-                                      .WithModifiers(
-                                           SyntaxFactory.TokenList(
-                                               SyntaxFactory.Token(SyntaxKind.PublicKeyword),
-                                               SyntaxFactory.Token(SyntaxKind.StaticKeyword)
-                                           )
-                                       )
-                                      .WithExpressionBody(Helpers.GetNotificationInvokeExpression())
-                                      .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+            var method = MethodDeclaration(PredefinedType(Token(SyntaxKind.VoidKeyword)), item.JsonRpcAttributes.RequestMethodName)
+                        .WithModifiers(
+                             TokenList(
+                                 Token(SyntaxKind.PublicKeyword),
+                                 Token(SyntaxKind.StaticKeyword)
+                             )
+                         )
+                        .WithExpressionBody(Helpers.GetNotificationInvokeExpression())
+                        .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             yield return method
                         .WithParameterList(
-                             SyntaxFactory.ParameterList(
-                                 SyntaxFactory.SeparatedList(
+                             ParameterList(
+                                 SeparatedList(
                                      new[] {
-                                         SyntaxFactory.Parameter(SyntaxFactory.Identifier("mediator"))
-                                                      .WithType(extensionMethodContext.Item)
-                                                      .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.ThisKeyword))),
-                                         SyntaxFactory.Parameter(SyntaxFactory.Identifier("request"))
-                                                      .WithType(notification.Request.Syntax)
+                                         Parameter(Identifier("mediator"))
+                                            .WithType(extensionMethodContext.Item)
+                                            .WithModifiers(TokenList(Token(SyntaxKind.ThisKeyword))),
+                                         Parameter(Identifier("request"))
+                                            .WithType(notification.Request.Syntax)
                                      }
                                  )
                              )

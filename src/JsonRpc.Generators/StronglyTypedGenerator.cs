@@ -83,7 +83,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
 
                 context.AddSource(
-                     $"{containerName ?? (classToContain.Identifier.Text + "Container")}.cs",
+                    $"{containerName ?? ( classToContain.Identifier.Text + "Container" )}.cs",
                     cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }
@@ -152,11 +152,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 .WithTrailingTrivia(canBeResolved.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
                     ;
 
-                if (container is {})
+                if (container is { })
                 {
                     var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
                     var typedContainer = CreateContainerClass(typedClass, containerName)
-                                        .WithHandlerIdentityConstraint();
+                       .WithHandlerIdentityConstraint();
 
                     var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
                     typedContainer = typedContainer
@@ -189,11 +189,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                     ArgumentList(
                                                                         SingletonSeparatedList(
                                                                             Argument(
-                                                                                SimpleLambdaExpression(Parameter(Identifier("z")))
+                                                                                SimpleLambdaExpression(Parameter(Identifier("value")))
                                                                                    .WithExpressionBody(
                                                                                         CastExpression(
                                                                                             IdentifierName(canBeResolved.Identifier),
-                                                                                            IdentifierName("z")
+                                                                                            IdentifierName("value")
                                                                                         )
                                                                                     )
                                                                             )
@@ -206,6 +206,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                             )
                                     )
                                 )
+                               .MakeMethodNullable(IdentifierName("container"))
                                .WithSemicolonToken(
                                     Token(SyntaxKind.SemicolonToken)
                                 )
@@ -296,6 +297,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        )
                    )
                   .WithExpressionBody(ArrowExpressionClause(IdentifierName("item")))
+                  .MakeMethodNullable(IdentifierName("item"))
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
@@ -316,6 +318,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        )
                    )
                   .WithExpressionBody(ArrowExpressionClause(IdentifierName("item")))
+                  .MakeMethodNullable(IdentifierName("item"))
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
@@ -383,8 +386,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        )
                                    )
                                )
+
                        )
                    )
+                  .MakeMethodNullable(paramName)
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
@@ -666,7 +671,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    Identifier("IEnumerable"),
                                    MethodDeclaration(
                                        className,
-                                       Identifier("Create")
+                                       Identifier("From")
                                    )
                                ),
                                AddConversionBody(
@@ -682,7 +687,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                AddConversionBody(
                                        typeName,
                                        Identifier("List"),
-                                       MethodDeclaration(className, Identifier("Create"))
+                                       MethodDeclaration(className, Identifier("From"))
                                    )
                                   .WithParameterList(ParameterList(SingletonSeparatedList(ArrayParameter(typeName).WithModifiers(TokenList(Token(SyntaxKind.ParamsKeyword)))))),
                                AddConversionBody(
@@ -698,7 +703,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    Identifier("Collection"),
                                    MethodDeclaration(
                                        className,
-                                       Identifier("Create")
+                                       Identifier("From")
                                    )
                                ),
                                AddConversionBody(
@@ -714,7 +719,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    typeName,
                                    Identifier("List"), MethodDeclaration(
                                        className,
-                                       Identifier("Create")
+                                       Identifier("From")
                                    )
                                ),
                                AddConversionBody(
@@ -732,7 +737,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        Identifier("List"),
                                        MethodDeclaration(
                                            className,
-                                           Identifier("Create")
+                                           Identifier("From")
                                        )
                                    )
                                   .WithParameterList(ImmutableArrayParameters(typeName)),
@@ -750,7 +755,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    typeName,
                                    Identifier("ImmutableList"), MethodDeclaration(
                                        className,
-                                       Identifier("Create")
+                                       Identifier("From")
                                    )
                                )
                            }
@@ -779,7 +784,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                 typeName
                                             )
                                         )
-                                    )
+                                    ).EnsureNullable()
                             )
                     )
                 );
@@ -809,6 +814,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             static BaseMethodDeclarationSyntax AddConversionBody(TypeSyntax typeName, SyntaxToken collectionName, BaseMethodDeclarationSyntax syntax)
             {
+                TypeSyntax objectName = syntax is ConversionOperatorDeclarationSyntax d ? d.Type : syntax is MethodDeclarationSyntax m ? m.ReturnType : null!;
+                objectName = objectName.EnsureNotNullable();
                 return syntax
                       .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
                       .WithParameterList(
@@ -825,14 +832,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                            typeName
                                                        )
                                                    )
-                                               )
+                                               ).EnsureNullable()
                                        )
                                )
                            )
                        )
                       .WithExpressionBody(
                            ArrowExpressionClause(
-                               ObjectCreationExpression(syntax is ConversionOperatorDeclarationSyntax d ? d.Type : syntax is MethodDeclarationSyntax m ? m.ReturnType : null!)
+                               ObjectCreationExpression(objectName)
                                   .WithArgumentList(
                                        ArgumentList(
                                            SingletonSeparatedList(
@@ -844,6 +851,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                    )
                            )
                        )
+                      .MakeMethodNullable(IdentifierName("items"))
                       .WithSemicolonToken(
                            Token(SyntaxKind.SemicolonToken)
                        );

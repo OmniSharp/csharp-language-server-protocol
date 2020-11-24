@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.TypeDefinitionProvider))]
-        public partial class TypeDefinitionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }
+        public partial class TypeDefinitionRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions { }
     }
 
     namespace Client.Capabilities

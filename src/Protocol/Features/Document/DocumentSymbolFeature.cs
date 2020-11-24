@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [JsonConverter(typeof(SymbolInformationOrDocumentSymbolConverter))]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [GenerateContainer]
-        public struct SymbolInformationOrDocumentSymbol
+        public class SymbolInformationOrDocumentSymbol
         {
             public SymbolInformationOrDocumentSymbol(DocumentSymbol documentSymbol)
             {

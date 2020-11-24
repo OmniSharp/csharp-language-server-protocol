@@ -51,10 +51,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 GetUniqueHandlers<IOnLanguageServerInitialize>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialize(client, client.ClientSettings, ct)))
                    .Merge(),
-                GetAllDescriptors(result)
-                   .Select(item => LspHandlerDescriptorHelpers.InitializeHandler(item, supportedCapabilities, item.Handler))
-                   .ToObservable()
-                   .Select(z => Unit.Default),
                 GetUniqueHandlers<IOnLanguageServerInitialized>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialized(client, client.ClientSettings, client.ServerSettings, ct)))
                    .Merge(),

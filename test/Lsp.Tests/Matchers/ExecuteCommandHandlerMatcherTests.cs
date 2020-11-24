@@ -68,7 +68,6 @@ namespace Lsp.Tests.Matchers
                         typeof(ExecuteCommandParams),
                         typeof(ExecuteCommandRegistrationOptions),
                         registrationsOptions,
-                        () => true,
                         typeof(ExecuteCommandCapability),
                         null,
                         () => { },

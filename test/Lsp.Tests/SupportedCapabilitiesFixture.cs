@@ -19,10 +19,9 @@ namespace Lsp.Tests
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => true;
 
             public bool AllowsDynamicRegistration(Type capabilityType) => true;
+            public void SetCapability(ILspHandlerTypeDescriptor descriptor, IJsonRpcHandler handler) {}
 
-            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
-            {
-            }
+            public object? GetRegistrationOptions(ILspHandlerTypeDescriptor handlerTypeDescriptor, IJsonRpcHandler handler) => null;
 
             public void Add(IEnumerable<ISupports> supports)
             {
@@ -38,10 +37,9 @@ namespace Lsp.Tests
             public bool AllowsDynamicRegistration(ILspHandlerDescriptor descriptor) => false;
 
             public bool AllowsDynamicRegistration(Type capabilityType) => false;
+            public void SetCapability(ILspHandlerTypeDescriptor descriptor, IJsonRpcHandler handler) {}
 
-            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
-            {
-            }
+            public object? GetRegistrationOptions(ILspHandlerTypeDescriptor handlerTypeDescriptor, IJsonRpcHandler handler) => null;
 
             public void Add(IEnumerable<ISupports> supports)
             {

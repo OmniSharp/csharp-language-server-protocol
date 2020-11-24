@@ -39,7 +39,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                  Token(SyntaxKind.StaticKeyword)
                              )
                          )
-                        .WithExpressionBody(GetRequestHandlerExpression(GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
+                        .WithExpressionBody(GetRequestHandlerExpression(request, GetJsonRpcMethodName(extensionMethodContext.TypeDeclaration)))
                         .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
 
             var methodFactory = MakeFactory(extensionMethodContext.GetRegistryParameterList());

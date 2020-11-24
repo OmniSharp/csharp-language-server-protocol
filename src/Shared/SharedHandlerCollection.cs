@@ -60,8 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
-            var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
-            if (source is null)
+            if (_descriptors.FirstOrDefault(z => z.Method == fromMethod) is not {} source)
             {
                 if (_descriptors.Any(z => z.Method == toMethod))
                 {
@@ -244,20 +243,18 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
             }
 
-            if (registrationType != null)
+            if (registrationType is not null && typeDescriptor is not null)
             {
-                registrationOptions = GetRegistrationMethod
-                                     .MakeGenericMethod(registrationType)
-                                     .Invoke(null, new object[] { handler });
+                registrationOptions = _supportedCapabilities.GetRegistrationOptions(typeDescriptor, handler);
             }
 
             var key = "default";
-            if (handler is IRegistration<TextDocumentRegistrationOptions?> handlerRegistration)
+            if (registrationOptions is ITextDocumentRegistrationOptions textDocumentRegistrationOptions)
             {
-                // Ensure we only do this check for the specific registartion type that was found
-                if (typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registrationType))
+                // Ensure we only do this check for the specific registration type that was found
+                if (typeof(ITextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registrationType))
                 {
-                    key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
+                    key = textDocumentRegistrationOptions.DocumentSelector ?? key;
                 }
 
                 // In some scenarios, users will implement both the main handler and the resolve handler to the same class
@@ -265,12 +262,12 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 // and then route those resolve requests to the correct handler
                 if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x)))
                 {
-                    key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
+                    key = textDocumentRegistrationOptions.DocumentSelector ?? key;
                 }
             }
-            else if (handler is IRegistration<ExecuteCommandRegistrationOptions?> commandRegistration)
+            else if (registrationOptions is ExecuteCommandRegistrationOptions commandRegistrationOptions)
             {
-                key = string.Join("|", commandRegistration.GetRegistrationOptions()?.Commands ?? Array.Empty<string>());
+                key = string.Join("|", commandRegistrationOptions.Commands);
             }
 
             if (string.IsNullOrWhiteSpace(key)) key = "default";
@@ -296,7 +293,6 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 @params,
                 registrationType,
                 registrationOptions,
-                registrationType == null ? (Func<bool>) ( () => false ) : () => capabilityType != null && _supportedCapabilities.AllowsDynamicRegistration(capabilityType),
                 capabilityType,
                 requestProcessType,
                 () => {
@@ -320,8 +316,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         public bool ContainsHandler(TypeInfo typeInfo) =>
             _descriptors.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
 
-        private static object? GetRegistration<T>(IRegistration<T> registration)
-            where T : class?, new() =>
-            registration.GetRegistrationOptions() ?? new T();
+        private static object GetRegistration<T>(IRegistration<T> registration)
+            where T : class => registration.GetRegistrationOptions();
     }
 }

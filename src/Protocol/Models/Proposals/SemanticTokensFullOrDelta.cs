@@ -44,8 +44,41 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         public bool IsDelta => Delta != null;
         public SemanticTokensDelta? Delta { get; }
 
-        public static implicit operator SemanticTokensFullOrDelta(SemanticTokensDelta semanticTokensDelta) => new SemanticTokensFullOrDelta(semanticTokensDelta);
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+        public static SemanticTokensFullOrDelta? From(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
+            not null => new(semanticTokensDelta),
+            _        => null
+        };
 
-        public static implicit operator SemanticTokensFullOrDelta(SemanticTokens semanticTokens) => new SemanticTokensFullOrDelta(semanticTokens);
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+        public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
+            not null => new(semanticTokensDelta),
+            _        => null
+        };
+
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+        public static SemanticTokensFullOrDelta? From(SemanticTokens? semanticTokens) => semanticTokens switch {
+            not null => new(semanticTokens),
+            _        => null
+        };
+
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+        public static implicit operator SemanticTokensFullOrDelta?(SemanticTokens? semanticTokens) => semanticTokens switch {
+            not null => new(semanticTokens),
+            _        => null
+        };
+
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+        public static SemanticTokensFullOrDelta? From(SemanticTokensFullOrDeltaPartialResult? semanticTokens) => semanticTokens switch {
+            not null => new(semanticTokens),
+            _        => null
+        };
+
+        [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+        public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensFullOrDeltaPartialResult? semanticTokens) =>
+            semanticTokens switch {
+                not null => new(semanticTokens),
+                _        => null
+            };
     }
 }

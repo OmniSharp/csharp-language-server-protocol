@@ -94,35 +94,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class PartialResult<TParams, TResponse, TItem, TRegistrationOptions, TCapability> :
             Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : class, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TItem : class?
+            where TParams : IPartialItemRequest<TResponse?, TItem>
+            where TResponse : class?
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
 
-            protected PartialResult(IProgressManager progressManager, Func<TItem, TResponse> factory)
+            protected PartialResult(IProgressManager progressManager, Func<TItem?, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(
                 TParams request,
                 CancellationToken cancellationToken
             )
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer == ProgressObserver<TItem>.Noop)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default(TItem));
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
@@ -134,34 +135,35 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class PartialResult<TParams, TResponse, TItem, TRegistrationOptions> :
             Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : class, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TItem : class?
+            where TParams : IPartialItemRequest<TResponse?, TItem>
+            where TResponse : class?
             where TRegistrationOptions : class, new()
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
 
-            protected PartialResult(IProgressManager progressManager, Func<TItem, TResponse> factory)
+            protected PartialResult(IProgressManager progressManager, Func<TItem?, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(
                 TParams request,
                 CancellationToken cancellationToken
             )
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer == ProgressObserver<TItem>.Noop)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 Handle(request, subject, cancellationToken);
@@ -173,31 +175,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class PartialResultCapability<TParams, TResponse, TItem, TCapability> :
             BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : class, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TItem : class?
+            where TParams : IPartialItemRequest<TResponse?, TItem>
+            where TResponse : class?
             where TCapability : ICapability
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
 
-            protected PartialResultCapability(IProgressManager progressManager, Func<TItem, TResponse> factory)
+            protected PartialResultCapability(IProgressManager progressManager, Func<TItem?, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(
                 TParams request,
                 CancellationToken cancellationToken
             )
             {
                 var observer = _progressManager.For(request, cancellationToken);
-                if (observer == ProgressObserver<TItem>.Noop)
+                if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
                 var subject = new AsyncSubject<TItem>();
@@ -212,29 +215,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class PartialResults<TParams, TResponse, TItem, TRegistrationOptions, TCapability> :
             Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>?, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TParams : IPartialItemsRequest<TResponse?, TItem>
+            where TResponse : IEnumerable<TItem>?
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
 
-            protected PartialResults(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory)
+            protected PartialResults(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -254,28 +257,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public abstract class PartialResults<TParams, TResponse, TItem, TRegistrationOptions> :
             Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>?, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TParams : IPartialItemsRequest<TResponse?, TItem>
+            where TResponse : IEnumerable<TItem>?
             where TRegistrationOptions : class, new()
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
 
-            protected PartialResults(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory)
+            protected PartialResults(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -294,28 +297,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
         public abstract class PartialResultsCapability<TParams, TResponse, TItem, TCapability> :
             BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>
-            where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>?, new()
+            IJsonRpcRequestHandler<TParams, TResponse?>
+            where TParams : IPartialItemsRequest<TResponse?, TItem>
+            where TResponse : IEnumerable<TItem>?
             where TCapability : ICapability
         {
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
 
-            protected PartialResultsCapability(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory)
+            protected PartialResultsCapability(IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory)
             {
                 _progressManager = progressManager;
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     Handle(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();

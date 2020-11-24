@@ -61,7 +61,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-a";
                             return Task.FromResult(action);
                         },
-                        new CodeActionRegistrationOptions {
+                        _ => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-b";
                             return Task.FromResult(action);
                         },
-                        new CodeActionRegistrationOptions {
+                        _ => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -112,7 +112,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-c";
                             return Task.FromResult(action);
                         },
-                        new CodeActionRegistrationOptions {
+                        _ => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -136,7 +136,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-d";
                             return Task.FromResult(action);
                         },
-                        new CodeActionRegistrationOptions {
+                        _ => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -191,7 +191,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -209,7 +209,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction<Data>(
+                    options.ObserveCodeAction<Data>(
                         (codeActionParams, observer, capability, token) => {
                             var a = new CodeActionContainer<Data>(
                                 new CodeAction<Data> {
@@ -239,7 +239,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -284,7 +284,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -302,7 +302,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction<Data>(
+                    options.ObserveCodeAction<Data>(
                         (codeActionParams, observer, token) => {
                             var a = new CodeActionContainer<Data>(
                                 new CodeAction<Data> {
@@ -332,7 +332,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -377,7 +377,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -395,7 +395,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction<Data>(
+                    options.ObserveCodeAction<Data>(
                         (codeActionParams, observer) => {
                             var a = new CodeActionContainer<Data>(
                                 new CodeAction<Data> {
@@ -425,7 +425,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -461,7 +461,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -479,7 +479,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction(
+                    options.ObserveCodeAction(
                         (codeActionParams, observer, capability, token) => {
                             var a = new CommandOrCodeActionContainer(
                                 new CodeAction {
@@ -492,14 +492,14 @@ namespace Lsp.Tests.Integration
                                 }
                             );
 
-                            observer.OnNext(a.GetCodeActions());
+                            observer.OnNext(a);
                             observer.OnCompleted();
                         },
                         (codeAction, capability, token) => {
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -534,7 +534,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -552,7 +552,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction(
+                    options.ObserveCodeAction(
                         (codeActionParams, observer, token) => {
                             var a = new CommandOrCodeActionContainer(
                                 new CodeAction {
@@ -565,14 +565,14 @@ namespace Lsp.Tests.Integration
                                 }
                             );
 
-                            observer.OnNext(a.GetCodeActions());
+                            observer.OnNext(a);
                             observer.OnCompleted();
                         },
                         (codeAction, token) => {
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -607,7 +607,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -625,7 +625,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCodeAction(
+                    options.ObserveCodeAction(
                         (codeActionParams, observer) => {
                             var a = new CommandOrCodeActionContainer(
                                 new CodeAction {
@@ -638,14 +638,14 @@ namespace Lsp.Tests.Integration
                                 }
                             );
 
-                            observer.OnNext(a.GetCodeActions());
+                            observer.OnNext(a);
                             observer.OnCompleted();
                         },
                         codeAction => {
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        new CodeActionRegistrationOptions()
+                        _ => new CodeActionRegistrationOptions()
                     );
                 }
             );

@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 using ISerializer = OmniSharp.Extensions.JsonRpc.ISerializer;
 
 // ReSharper disable once CheckNamespace
@@ -26,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(ExecuteCommandRegistrationOptions)), Capability(typeof(ExecuteCommandCapability))]
-        public partial class ExecuteCommandParams : IRequest, IWorkDoneProgressParams, IExecuteCommandParams
+        public partial class ExecuteCommandParams : IRequest, IJsonRpcRequest, IWorkDoneProgressParams, IExecuteCommandParams
         {
             /// <summary>
             /// The identifier of the actual command handler.
@@ -45,7 +46,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// </summary>
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ExecuteCommandProvider))]
         [RegistrationOptionsConverter(typeof(ExecuteCommandRegistrationOptionsConverter))]
-        public partial class ExecuteCommandRegistrationOptions //: IWorkDoneProgressOptions
+        public partial class ExecuteCommandRegistrationOptions : IWorkDoneProgressOptions
         {
             /// <summary>
             /// The commands to be executed on the server
@@ -75,6 +76,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     };
                 }
             }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(WorkspaceClientCapabilities.ExecuteCommand))]
+        public class ExecuteCommandCapability : DynamicCapability, ConnectedCapability<IExecuteCommandHandler>
+        {
         }
     }
 

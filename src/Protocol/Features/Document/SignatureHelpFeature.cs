@@ -104,6 +104,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public bool ContextSupport { get; set; }
         }
+
+        public class SignatureInformationCapabilityOptions
+        {
+            /// <summary>
+            /// Client supports the follow content formats for the content property. The order describes the preferred format of the client.
+            /// </summary>
+            [Optional]
+            public Container<MarkupKind>? DocumentationFormat { get; set; }
+
+            [Optional] public SignatureParameterInformationCapabilityOptions? ParameterInformation { get; set; }
+
+            /// <summary>
+            /// The client support the `activeParameter` property on `SignatureInformation`
+            /// literal.
+            ///
+            /// @since 3.16.0 - proposed state
+            /// </summary>
+            [Optional]
+            public bool ActiveParameterSupport { get; set; }
+        }
+
+        public class SignatureParameterInformationCapabilityOptions
+        {
+            /// <summary>
+            /// The client supports processing label offsets instead of a
+            /// simple label string.
+            /// </summary>
+            [Optional]
+            public bool LabelOffsetSupport { get; set; }
+        }
     }
 
     namespace Document

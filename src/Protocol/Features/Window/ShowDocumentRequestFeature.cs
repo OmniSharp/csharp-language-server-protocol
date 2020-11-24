@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -23,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Parallel]
         [Method(WindowNames.ShowDocument, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Window"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWindowLanguageServer), typeof(ILanguageServer))]
+        [Capability(typeof(ShowDocumentClientCapabilities))]
         public class ShowDocumentParams : IRequest<ShowDocumentResult>
         {
             /// <summary>
@@ -69,6 +71,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// A boolean indicating if the show was successful.
             /// </summary>
             public bool Success { get; set; }
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        /// <summary>
+        /// Capabilities specific to the showDocument request
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        [CapabilityKey(nameof(ClientCapabilities.Window), nameof(WindowClientCapabilities.ShowDocument))]
+        public class ShowDocumentClientCapabilities: ICapability
+        {
+            /// <summary>
+            /// Capabilities specific to the `MessageActionItem` type.
+            /// </summary>
+            [Optional]
+            public bool Support { get; set; }
         }
     }
 

@@ -126,7 +126,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [Method(WorkspaceNames.CodeLensRefresh, Direction.ServerToClient)]
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
-        [Capability(typeof(CodeLensCapability))]
+        [Capability(typeof(CodeLensWorkspaceClientCapabilities))]
         public partial class CodeLensRefreshParams : IRequest
         {
         }
@@ -137,6 +137,25 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [CapabilityKey(nameof(ClientCapabilities.TextDocument), nameof(TextDocumentClientCapabilities.CodeLens))]
         public partial class CodeLensCapability : DynamicCapability, ConnectedCapability<ICodeLensHandler>
         {
+        }
+
+        /// <summary>
+        /// Capabilities specific to the code lens requests scoped to the
+        /// workspace.
+        ///
+        /// @since 3.16.0 - proposed state.
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        [CapabilityKey(nameof(ClientCapabilities.Workspace), nameof(WorkspaceClientCapabilities.CodeLens))]
+        public class CodeLensWorkspaceClientCapabilities : ICapability
+        {
+            /// <summary>
+            /// Whether the client implementation supports a refresh request send from the server
+            /// to the client. This is useful if a server detects a change which requires a
+            /// re-calculation of all code lenses.
+            /// </summary>
+            [Optional]
+            public bool RefreshSupport { get; set; }
         }
     }
 

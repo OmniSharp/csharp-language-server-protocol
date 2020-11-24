@@ -5,7 +5,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [JsonConverter(typeof(LocationOrLocationLinkConverter))]
     [GenerateContainer("LocationOrLocationLinks")]
-    public readonly struct LocationOrLocationLink
+    public class LocationOrLocationLink
     {
         public LocationOrLocationLink(Location location)
         {

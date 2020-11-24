@@ -34,6 +34,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                or { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }
                                or { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }
                                or { Identifier: { Text: "IRequest" }, Arity: 1 }
+                               or { Identifier: { Text: "IJsonRpcRequest" }, Arity: 0 }
                                )
                    ) == true;
 
@@ -374,10 +375,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 name = GenericName(Identifier("RegistrationAdapter"))
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(capabilityType)));
             }
+
             return InvocationExpression(
                     QualifiedName(
                         name
-                      , GenericName("Adapt").WithTypeArgumentList(TypeArgumentList(SeparatedList(new [] { registrationType })))
+                      , GenericName("Adapt").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { registrationType })))
                     )
                 )
                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(registrationOptionsName))));
@@ -720,7 +722,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     )
             );
 
-        public static ArrowExpressionClauseSyntax GetRequestHandlerExpression(ExpressionSyntax nameExpression) =>
+        public static ArrowExpressionClauseSyntax GetRequestHandlerExpression(
+            RequestItem item,
+            ExpressionSyntax nameExpression
+        ) =>
             ArrowExpressionClause(
                 InvocationExpression(
                         MemberAccessExpression(
@@ -735,14 +740,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 new[] {
                                     Argument(nameExpression),
                                     Argument(
-                                        InvocationExpression(
-                                                MemberAccessExpression(
-                                                    SyntaxKind.SimpleMemberAccessExpression,
-                                                    IdentifierName("RequestHandler"),
-                                                    IdentifierName("For")
+                                        item.IsUnit
+                                            ? ObjectCreationExpression(
+                                                    QualifiedName(
+                                                        IdentifierName("DelegatingHandlers"),
+                                                        GenericName(Identifier("Request"))
+                                                           .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.Request.Syntax)))
+                                                    )
                                                 )
-                                            )
-                                           .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
+                                               .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
+                                            : InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("RequestHandler"),
+                                                        IdentifierName("For")
+                                                    )
+                                                )
+                                               .WithArgumentList(ArgumentList(SingletonSeparatedList(HandlerArgument)))
                                     )
                                 }
                             )
@@ -890,6 +904,84 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
     public static class SyntaxExtensions
     {
+        public static TypeSyntax EnsureNullable(this TypeSyntax typeSyntax) => typeSyntax is NullableTypeSyntax nts ? nts : NullableType(typeSyntax);
+        public static TypeSyntax EnsureNotNullable(this TypeSyntax typeSyntax) => typeSyntax is NullableTypeSyntax nts ? nts.ElementType : typeSyntax;
+
+
+        public static BaseMethodDeclarationSyntax MakeMethodNullable(this BaseMethodDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax)
+        {
+            if (syntax is MethodDeclarationSyntax mds)
+            {
+                syntax = mds.WithReturnType(mds.ReturnType.EnsureNullable());
+            }
+
+            if (syntax is ConversionOperatorDeclarationSyntax cods)
+            {
+                syntax = cods.WithType(cods.Type.EnsureNullable());
+            }
+
+            if (syntax.ExpressionBody is not null)
+            {
+                syntax = syntax.WithExpressionBody(syntax.ExpressionBody.WithExpression(syntax.ExpressionBody.Expression.InsideNullableSwitchExpression(identifierNameSyntax)));
+            }
+
+            return syntax
+                  .WithParameterList(
+                       ParameterList(SeparatedList(syntax.ParameterList.Parameters.Select(parameter => parameter.WithType(parameter.Type?.EnsureNullable())).ToArray()))
+                   )
+                  .AddAttributeLists(
+                       AttributeList(
+                               SingletonSeparatedList(
+                                   Attribute(
+                                           QualifiedName(
+                                               QualifiedName(QualifiedName(IdentifierName("System"), IdentifierName("Diagnostics")), IdentifierName("CodeAnalysis")),
+                                               IdentifierName("NotNullIfNotNull")
+                                           )
+                                       )
+                                      .WithArgumentList(
+                                           AttributeArgumentList(
+                                               SingletonSeparatedList(
+                                                   AttributeArgument(
+                                                       LiteralExpression(
+                                                           SyntaxKind.StringLiteralExpression,
+                                                           Literal(identifierNameSyntax.Identifier.Text)
+                                                       )
+                                                   )
+                                               )
+                                           )
+                                       )
+                               )
+                           )
+                          .WithTarget(AttributeTargetSpecifier(Token(SyntaxKind.ReturnKeyword)))
+                   );
+        }
+
+        public static MethodDeclarationSyntax MakeMethodNullable(this MethodDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax)
+        {
+            return ( MakeMethodNullable(syntax as BaseMethodDeclarationSyntax, identifierNameSyntax) as MethodDeclarationSyntax )!;
+        }
+
+        public static ConversionOperatorDeclarationSyntax MakeMethodNullable(this ConversionOperatorDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax)
+        {
+            return ( MakeMethodNullable(syntax as BaseMethodDeclarationSyntax, identifierNameSyntax) as ConversionOperatorDeclarationSyntax )!;
+        }
+
+        public static SwitchExpressionSyntax InsideNullableSwitchExpression(this ExpressionSyntax creationExpression, IdentifierNameSyntax name)
+        {
+            return SwitchExpression(name)
+               .WithArms(
+                    SeparatedList(
+                        new[] {
+                            SwitchExpressionArm(
+                                UnaryPattern(ConstantPattern(LiteralExpression(SyntaxKind.NullLiteralExpression))),
+                                creationExpression
+                            ),
+                            SwitchExpressionArm(DiscardPattern(), LiteralExpression(SyntaxKind.NullLiteralExpression))
+                        }
+                    )
+                );
+        }
+
         public static ClassDeclarationSyntax WithHandlerIdentityConstraint(this ClassDeclarationSyntax syntax, IdentifierNameSyntax? openGenericType = null)
         {
             openGenericType ??= IdentifierName("T");

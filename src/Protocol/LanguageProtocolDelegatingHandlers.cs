@@ -254,14 +254,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResult<TParams, TResponse, TItem, TRegistrationOptions, TCapability> :
             AbstractHandlers.Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
-            where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : new()
+            where TParams : IPartialItemRequest<TResponse?, TItem>
+            where TItem : class?
+            where TResponse : class?
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
             private readonly Action<TParams, IObserver<TItem>, TCapability, CancellationToken> _handler;
             private readonly Func<TCapability, TRegistrationOptions> _registrationOptionsFactory;
             private readonly IProgressManager _progressManager;
@@ -270,7 +271,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public PartialResult(
                 Guid id, Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<TItem, TResponse> factory
+                Func<TItem?, TResponse?> factory
             )
             {
                 _id = id;
@@ -282,13 +283,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public PartialResult(
                 Action<TParams, IObserver<TItem>, TCapability, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<TItem, TResponse> factory
+                Func<TItem?, TResponse?> factory
             ):
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(
                 TParams request,
                 CancellationToken cancellationToken
             )
@@ -298,10 +299,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 {
                     _handler(request, observer, Capability, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, Capability, cancellationToken);
@@ -313,29 +314,30 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResult<TParams, TResponse, TItem, TRegistrationOptions> :
             AbstractHandlers.Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : new()
+            where TItem : class?
+            where TResponse : class?
             where TRegistrationOptions : class, new()
         {
             private readonly Action<TParams, IObserver<TItem>, CancellationToken> _handler;
             private readonly Func<TRegistrationOptions> _registrationOptionsFactory;
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResult(
                 Action<TParams, IObserver<TItem>, CancellationToken> handler, Func< TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<TItem, TResponse> factory
+                Func<TItem?, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
             }
             public PartialResult(
                 Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, Func<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<TItem, TResponse> factory
+                Func<TItem?, TResponse?> factory
             )
             {
                 _id = id;
@@ -345,17 +347,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
@@ -367,27 +369,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResultCapability<TParams, TResponse, TItem, TCapability> :
             AbstractHandlers.BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : new()
+            where TItem : class?
+            where TResponse : class?
             where TCapability : ICapability
         {
             private readonly Action<TParams, TCapability, IObserver<TItem>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResultCapability(
-                Action<TParams, TCapability, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem, TResponse> factory
+                Action<TParams, TCapability, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem?, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, progressManager, factory)
             {
             }
 
             public PartialResultCapability(
-                Guid id, Action<TParams, TCapability, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem, TResponse> factory
+                Guid id, Action<TParams, TCapability, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem?, TResponse?> factory
             )
             {
                 _id = id;
@@ -396,17 +399,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, Capability, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, Capability, subject, cancellationToken);
@@ -415,23 +418,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         public sealed class PartialResult<TParams, TResponse, TItem> :
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemRequest<TResponse, TItem>
-            where TResponse : new()
+            where TItem : class?
+            where TResponse : class?
         {
             private readonly Action<TParams, IObserver<TItem>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
-            private readonly Func<TItem, TResponse> _factory;
+            private readonly Func<TItem?, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
-            public PartialResult(Action<TParams, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem, TResponse> factory) :
+            public PartialResult(Action<TParams, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem?, TResponse?> factory) :
                 this(Guid.Empty, handler, progressManager, factory)
             {
             }
 
-            public PartialResult(Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem, TResponse> factory)
+            public PartialResult(Guid id, Action<TParams, IObserver<TItem>, CancellationToken> handler, IProgressManager progressManager, Func<TItem?, TResponse?> factory)
             {
                 _id = id;
                 _handler = handler;
@@ -439,17 +443,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<TItem>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(default);
                 }
 
-                var subject = new AsyncSubject<TItem>();
+                var subject = new AsyncSubject<TItem?>();
                 // in the event nothing is emitted...
                 subject.OnNext(default!);
                 _handler(request, subject, cancellationToken);
@@ -459,23 +463,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResults<TParams, TResponse, TItem, TRegistrationOptions, TCapability> :
             AbstractHandlers.Base<TRegistrationOptions, TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>?, new()
+            where TItem : class?
+            where TResponse : IEnumerable<TItem>?
             where TRegistrationOptions : class, new()
             where TCapability : ICapability
         {
             private readonly Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> _handler;
             private readonly Func<TCapability, TRegistrationOptions> _registrationOptionsFactory;
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResults(
                 Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<IEnumerable<TItem>, TResponse> factory
+                Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
@@ -483,7 +488,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public PartialResults(
                 Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, TCapability, CancellationToken> handler, Func<TCapability, TRegistrationOptions> registrationOptionsFactory,
-                IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory
+                IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
                 _id = id;
@@ -493,14 +498,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, Capability, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -521,22 +526,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResults<TParams, TResponse, TItem, TRegistrationOptions> :
             AbstractHandlers.Base<TRegistrationOptions>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>?, new()
+            where TItem : class?
+            where TResponse : IEnumerable<TItem>?
             where TRegistrationOptions : class, new()
         {
             private readonly Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
             private readonly Func<TRegistrationOptions> _registrationOptionsFactory;
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResults(
                 Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, Func<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<IEnumerable<TItem>, TResponse> factory
+                Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, registrationOptionsFactory, progressManager, factory)
             {
@@ -544,7 +550,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public PartialResults(
                 Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, Func<TRegistrationOptions> registrationOptionsFactory, IProgressManager progressManager,
-                Func<IEnumerable<TItem>, TResponse> factory
+                Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
                 _id = id;
@@ -554,14 +560,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -582,21 +588,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public sealed class PartialResultsCapability<TParams, TResponse, TItem, TCapability> :
             AbstractHandlers.BaseCapability<TCapability>,
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>, new()
+            where TItem : class?
+            where TResponse : IEnumerable<TItem>?
             where TCapability : ICapability
         {
             private readonly Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResultsCapability(
                 Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager,
-                Func<IEnumerable<TItem>, TResponse> factory
+                Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, progressManager, factory)
             {
@@ -604,7 +611,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public PartialResultsCapability(
                 Guid id, Action<TParams, TCapability, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager,
-                Func<IEnumerable<TItem>, TResponse> factory
+                Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
                 _id = id;
@@ -613,14 +620,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, Capability, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -638,19 +645,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         public sealed class PartialResults<TParams, TResponse, TItem> :
-            IJsonRpcRequestHandler<TParams, TResponse>,
+            IJsonRpcRequestHandler<TParams, TResponse?>,
             ICanBeIdentifiedHandler
             where TParams : IPartialItemsRequest<TResponse, TItem>
-            where TResponse : IEnumerable<TItem>, new()
+            where TItem : class?
+            where TResponse : IEnumerable<TItem>?
         {
             private readonly Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> _handler;
             private readonly IProgressManager _progressManager;
-            private readonly Func<IEnumerable<TItem>, TResponse> _factory;
+            private readonly Func<IEnumerable<TItem>, TResponse?> _factory;
             private readonly Guid _id;
             Guid ICanBeIdentifiedHandler.Id => _id;
 
             public PartialResults(
-                Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory
+                Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory
             ) :
                 this(Guid.Empty, handler, progressManager, factory)
             {
@@ -660,7 +668,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
 
             public PartialResults(
-                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse> factory
+                Guid id, Action<TParams, IObserver<IEnumerable<TItem>>, CancellationToken> handler, IProgressManager progressManager, Func<IEnumerable<TItem>, TResponse?> factory
             )
             {
                 _id = id;
@@ -669,14 +677,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 _factory = factory;
             }
 
-            async Task<TResponse> IRequestHandler<TParams, TResponse>.Handle(TParams request, CancellationToken cancellationToken)
+            async Task<TResponse?> IRequestHandler<TParams, TResponse?>.Handle(TParams request, CancellationToken cancellationToken)
             {
                 var observer = _progressManager.For(request, cancellationToken);
                 if (observer != ProgressObserver<IEnumerable<TItem>>.Noop)
                 {
                     _handler(request, observer, cancellationToken);
                     await observer;
-                    return new TResponse();
+                    return _factory(Enumerable.Empty<TItem>());
                 }
 
                 var subject = new Subject<IEnumerable<TItem>>();
@@ -789,12 +797,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             }
         }
 
-        public sealed class TypedPartialObserver<T, R> : IObserver<IEnumerable<T>>
+        public sealed class TypedPartialObserver<T, TR> : IObserver<IEnumerable<T>>
         {
-            private readonly IObserver<IEnumerable<R>> _results;
-            private readonly Func<T, R> _factory;
+            private readonly IObserver<IEnumerable<TR>> _results;
+            private readonly Func<T, TR> _factory;
 
-            public TypedPartialObserver(IObserver<IEnumerable<R>> results, Func<T, R> factory)
+            public TypedPartialObserver(IObserver<IEnumerable<TR>> results, Func<T, TR> factory)
             {
                 _results = results;
                 _factory = factory;

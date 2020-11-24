@@ -135,7 +135,7 @@ namespace Lsp.Tests
                                    .Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            codeActionHandler.GetRegistrationOptions().Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
+            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeActionCapability>()).Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                .Returns(new CommandOrCodeActionContainer());
@@ -183,7 +183,7 @@ namespace Lsp.Tests
                                     .Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            codeActionHandler.GetRegistrationOptions().Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
+            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeActionCapability>()).Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                .Returns(new CommandOrCodeActionContainer());
@@ -195,7 +195,7 @@ namespace Lsp.Tests
                               .Returns(new CommandOrCodeActionContainer());
             registry.OnCodeAction(
                 codeActionDelegate,
-                new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") }
+                _ => new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") }
             );
 
             var textDocumentIdentifiers = new TextDocumentIdentifiers();
@@ -245,13 +245,13 @@ namespace Lsp.Tests
                                     .Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeLensHandler>();
-            codeActionHandler.GetRegistrationOptions().Returns(new CodeLensRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
+            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeLensCapability>()).Returns(new CodeLensRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
                .Returns(new CodeLensContainer());
 
             var codeActionHandler2 = Substitute.For<ICodeLensHandler>();
-            codeActionHandler2.GetRegistrationOptions().Returns(new CodeLensRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") });
+            codeActionHandler2.GetRegistrationOptions(Arg.Any<CodeLensCapability>()).Returns(new CodeLensRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cake") });
             codeActionHandler2
                .Handle(Arg.Any<CodeLensParams>(), Arg.Any<CancellationToken>())
                .Returns(new CodeLensContainer());

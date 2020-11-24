@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -63,6 +64,37 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
+        }
+    }
+
+    namespace Client.Capabilities
+    {
+        /// <summary>
+        /// Capabilities specific to the showMessage request
+        ///
+        /// @since 3.16.0 - proposed state
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        [CapabilityKey(nameof(ClientCapabilities.Window), nameof(WindowClientCapabilities.ShowMessage))]
+        public class ShowMessageRequestClientCapabilities
+        {
+            /// <summary>
+            /// Capabilities specific to the `MessageActionItem` type.
+            /// </summary>
+            [Optional]
+            public ShowMessageRequestMessageActionItemClientCapabilities? MessageActionItem { get; set; }
+        }
+
+        [Obsolete(Constants.Proposal)]
+        public class ShowMessageRequestMessageActionItemClientCapabilities
+        {
+            /// <summary>
+            /// Whether the client supports additional attribues which
+            /// are preserved and send back to the server in the
+            /// request's response.
+            /// </summary>
+            [Optional]
+            public bool AdditionalPropertiesSupport { get; set; }
         }
     }
 

@@ -675,7 +675,7 @@ namespace Lsp.Tests
         public class TypeHandlerExtensionData : TheoryData<ILspHandlerTypeDescriptor, string, string, Type, string>
         {
             public static Type[] HandlersToSkip = {
-                typeof(ISemanticTokensHandler),
+                typeof(ISemanticTokensFullHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
                 typeof(ICodeActionHandler),
@@ -701,7 +701,7 @@ namespace Lsp.Tests
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type.Name.EndsWith("Manager")) continue;
                     if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler) || type == typeof(ICodeActionResolveHandler)) continue;
-                    if (type == typeof(ISemanticTokensHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
+                    if (type == typeof(ISemanticTokensFullHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
                     var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
 
                     if (descriptor == null)
