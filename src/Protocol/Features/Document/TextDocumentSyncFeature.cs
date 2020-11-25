@@ -53,6 +53,46 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public TextDocumentSyncKind SyncKind { get; set; }
         }
 
+        /// <summary>
+        /// An event describing a change to a text document. If range and rangeLength are omitted
+        /// the new text is considered to be the full content of the document.
+        /// </summary>
+        public class TextDocumentContentChangeEvent
+        {
+            /// <summary>
+            /// The range of the document that changed.
+            /// </summary>
+            [Optional]
+            public Range? Range { get; set; }
+
+            /// <summary>
+            /// The length of the range that got replaced.
+            /// </summary>
+            /// <remarks>
+            /// <see cref="uint"/> in the LSP spec
+            /// </remarks>
+            [Optional]
+            public int RangeLength { get; set; }
+
+            /// <summary>
+            /// The new text of the document.
+            /// </summary>
+            public string Text { get; set; } = null!;
+        }
+
+        public class TextDocumentEdit
+        {
+            /// <summary>
+            /// The text document to change.
+            /// </summary>
+            public VersionedTextDocumentIdentifier TextDocument { get; set; } = null!;
+
+            /// <summary>
+            /// The edits to be applied.
+            /// </summary>
+            public TextEditContainer Edits { get; set; } = null!;
+        }
+
         [Serial]
         [Method(TextDocumentNames.DidOpen, Direction.ClientToServer)]
         [

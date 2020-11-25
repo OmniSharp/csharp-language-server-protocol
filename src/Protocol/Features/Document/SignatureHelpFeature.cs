@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -8,6 +10,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -35,6 +38,68 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         }
 
         /// <summary>
+        /// Additional information about the context in which a signature help request was triggered.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        public class SignatureHelpContext
+        {
+            /// <summary>
+            /// Action that caused signature help to be triggered.
+            /// </summary>
+            public SignatureHelpTriggerKind TriggerKind { get; set; }
+
+            /// <summary>
+            /// Character that caused signature help to be triggered.
+            ///
+            /// This is undefined when `triggerKind !== SignatureHelpTriggerKind.TriggerCharacter`
+            /// </summary>
+            [Optional]
+            public string? TriggerCharacter { get; set; }
+
+            /// <summary>
+            /// `true` if signature help was already showing when it was triggered.
+            ///
+            /// Retriggers occur when the signature help is already active and can be caused by actions such as
+            /// typing a trigger character, a cursor move, or document content changes.
+            /// </summary>
+            public bool IsRetrigger { get; set; }
+
+            /// <summary>
+            /// The currently active `SignatureHelp`.
+            ///
+            /// The `activeSignatureHelp` has its `SignatureHelp.activeSignature` field updated based on
+            /// the user navigating through available signatures.
+            /// </summary>
+            [Optional]
+            public SignatureHelp? ActiveSignatureHelp { get; set; }
+        }
+
+        /// <summary>
+        /// How a signature help was triggered.
+        ///
+        /// @since 3.15.0
+        /// </summary>
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum SignatureHelpTriggerKind
+        {
+            /// <summary>
+            /// Signature help was invoked manually by the user or by a command.
+            /// </summary>
+            Invoked = 1,
+
+            /// <summary>
+            /// Signature help was triggered by a trigger character.
+            /// </summary>
+            TriggerCharacter = 2,
+
+            /// <summary>
+            /// Signature help was triggered by the cursor moving or by the document content changing.
+            /// </summary>
+            ContentChange = 3,
+        }
+
+        /// <summary>
         /// Signature help represents the signature of something
         /// callable. There can be multiple signature but only one
         /// active and only one active parameter.
@@ -57,6 +122,98 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public int? ActiveParameter { get; set; }
+        }
+
+        /// <summary>
+        /// Represents the signature of something callable. A signature
+        /// can have a label, like a function-name, a doc-comment, and
+        /// a set of parameters.
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public class SignatureInformation
+        {
+            /// <summary>
+            /// The label of this signature. Will be shown in
+            /// the UI.
+            /// </summary>
+            public string Label { get; set; } = null!;
+
+            /// <summary>
+            /// The human-readable doc-comment of this signature. Will be shown
+            /// in the UI but can be omitted.
+            /// </summary>
+            [Optional]
+            public StringOrMarkupContent? Documentation { get; set; }
+
+            /// <summary>
+            /// The parameters of this signature.
+            /// </summary>
+            [Optional]
+            public Container<ParameterInformation>? Parameters { get; set; }
+
+            /// <summary>
+            /// The index of the active parameter.
+            ///
+            /// If provided, this is used in place of `SignatureHelp.activeParameter`.
+            ///
+            /// @since 3.16.0 - proposed state
+            /// </summary>
+            [Optional]
+            public int? ActiveParameter { get; set; }
+
+            private string DebuggerDisplay => $"{Label}{Documentation?.ToString() ?? ""}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        /// <summary>
+        /// Represents a parameter of a callable-signature. A parameter can
+        /// have a label and a doc-comment.
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public class ParameterInformation
+        {
+            /// <summary>
+            /// The label of this parameter. Will be shown in
+            /// the UI.
+            /// </summary>
+            public ParameterInformationLabel Label { get; set; } = null!;
+
+            /// <summary>
+            /// The human-readable doc-comment of this parameter. Will be shown
+            /// in the UI but can be omitted.
+            /// </summary>
+            [Optional]
+            public StringOrMarkupContent? Documentation { get; set; }
+
+            private string DebuggerDisplay => $"{Label}{( Documentation != null ? $" {Documentation}" : string.Empty )}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        [JsonConverter(typeof(ParameterInformationLabelConverter))]
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        public class ParameterInformationLabel
+        {
+            public ParameterInformationLabel((int start, int end) range) => Range = range;
+
+            public ParameterInformationLabel(string label) => Label = label;
+
+            public (int start, int end) Range { get; }
+            public bool IsRange => Label == null;
+            public string? Label { get; }
+            public bool IsLabel => Label != null;
+
+            public static implicit operator ParameterInformationLabel(string label) => new ParameterInformationLabel(label);
+
+            public static implicit operator ParameterInformationLabel((int start, int end) range) => new ParameterInformationLabel(range);
+
+            private string DebuggerDisplay => IsRange ? $"(start: {Range.start}, end: {Range.end})" : IsLabel ? Label! : string.Empty;
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.SignatureHelpProvider))]

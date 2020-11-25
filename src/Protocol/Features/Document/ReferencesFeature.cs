@@ -26,6 +26,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             public ReferenceContext Context { get; set; } = null!;
         }
+        public class ReferenceContext
+        {
+            /// <summary>
+            /// Include the declaration of the current symbol.
+            /// </summary>
+            public bool IncludeDeclaration { get; set; }
+        }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.ReferencesProvider))]
         public partial class ReferenceRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions { }

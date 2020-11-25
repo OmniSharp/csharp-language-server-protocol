@@ -15,7 +15,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     {
         [Parallel]
         [Method(WorkspaceNames.WorkspaceFolders, Direction.ServerToClient)]
-        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceFolders"), GenerateHandlerMethods, GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
+        [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace", Name = "WorkspaceFolders"), GenerateHandlerMethods,
+         GenerateRequestMethods(typeof(IWorkspaceLanguageServer), typeof(ILanguageServer))]
         public partial class WorkspaceFolderParams : IRequest<Container<WorkspaceFolder>?>
         {
             public static WorkspaceFolderParams Instance = new WorkspaceFolderParams();
@@ -65,6 +66,29 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             /// <inheritdoc />
             public override string ToString() => DebuggerDisplay;
+        }
+
+        [GenerateRegistrationOptions]
+        public partial class WorkspaceFolderRegistrationOptions : IWorkspaceFolderOptions
+        {
+            public bool Supported { get; set; }
+            public BooleanString ChangeNotifications { get; set; }
+        }
+
+        /// <summary>
+        /// The workspace folder change event.
+        /// </summary>
+        public partial class WorkspaceFoldersChangeEvent
+        {
+            /// <summary>
+            /// The array of added workspace folders
+            /// </summary>
+            public Container<WorkspaceFolder> Added { get; set; } = new Container<WorkspaceFolder>();
+
+            /// <summary>
+            /// The array of the removed workspace folders
+            /// </summary>
+            public Container<WorkspaceFolder> Removed { get; set; } = new Container<WorkspaceFolder>();
         }
     }
 }

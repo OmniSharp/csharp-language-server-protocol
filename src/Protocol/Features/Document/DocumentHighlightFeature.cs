@@ -1,5 +1,6 @@
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -7,6 +8,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -44,6 +46,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// The highlight kind, default is DocumentHighlightKind.Text.
             /// </summary>
             public DocumentHighlightKind Kind { get; set; }
+        }
+
+        /// <summary>
+        /// A document highlight kind.
+        /// </summary>
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum DocumentHighlightKind
+        {
+            /// <summary>
+            /// A textual occurrence.
+            /// </summary>
+            Text = 1,
+
+            /// <summary>
+            /// Read-access of a symbol, like reading a variable.
+            /// </summary>
+            Read = 2,
+
+            /// <summary>
+            /// Write-access of a symbol, like writing to a variable.
+            /// </summary>
+            Write = 3,
         }
 
         [GenerateRegistrationOptions(nameof(ServerCapabilities.DocumentHighlightProvider))]

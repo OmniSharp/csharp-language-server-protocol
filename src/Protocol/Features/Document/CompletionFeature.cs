@@ -281,12 +281,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [JsonConverter(typeof(CompletionListConverter))]
         public partial class CompletionList
         {
-            public CompletionList(bool isIncomplete): this(Enumerable.Empty<CompletionItem>(), isIncomplete)
+            public CompletionList(bool isIncomplete) : this(Enumerable.Empty<CompletionItem>(), isIncomplete)
             {
                 IsIncomplete = isIncomplete;
             }
 
-            public CompletionList(IEnumerable<CompletionItem> items, bool isIncomplete): base(items)
+            public CompletionList(IEnumerable<CompletionItem> items, bool isIncomplete) : base(items)
             {
                 IsIncomplete = isIncomplete;
             }
@@ -311,17 +311,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
         public partial class CompletionList<T>
         {
-            public CompletionList(bool isIncomplete): this(isIncomplete, Enumerable.Empty<CompletionItem<T>>())
+            public CompletionList(bool isIncomplete) : this(isIncomplete, Enumerable.Empty<CompletionItem<T>>())
             {
                 IsIncomplete = isIncomplete;
             }
 
-            public CompletionList(bool isIncomplete, IEnumerable<CompletionItem<T>> items): base(items)
+            public CompletionList(bool isIncomplete, IEnumerable<CompletionItem<T>> items) : base(items)
             {
                 IsIncomplete = isIncomplete;
             }
 
-            public CompletionList(bool isIncomplete, params CompletionItem<T>[] items): base(items)
+            public CompletionList(bool isIncomplete, params CompletionItem<T>[] items) : base(items)
             {
                 IsIncomplete = isIncomplete;
             }
@@ -370,72 +370,120 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public bool ContextSupport { get; set; }
         }
-    public class CompletionItemCapabilityOptions
-    {
-        /// <summary>
-        /// Client supports snippets as insert text.
-        ///
-        /// A snippet can define tab stops and placeholders with `$1`, `$2`
-        /// and `${3:foo}`. `$0` defines the final tab stop, it defaults to
-        /// the end of the snippet. Placeholders with equal identifiers are linked,
-        /// that is typing in one will update others too.
-        /// </summary>
-        [Optional]
-        public bool SnippetSupport { get; set; }
 
-        /// <summary>
-        /// Client supports commit characters on a completion item.
-        /// </summary>
-        [Optional]
-        public bool CommitCharactersSupport { get; set; }
+        public class CompletionContext
+        {
+            /// <summary>
+            /// How the completion was triggered.
+            /// </summary>
+            public CompletionTriggerKind TriggerKind { get; set; }
 
-        /// <summary>
-        /// Client supports the follow content formats for the documentation
-        /// property. The order describes the preferred format of the client.
-        /// </summary>
-        [Optional]
-        public Container<MarkupKind>? DocumentationFormat { get; set; }
+            /// <summary>
+            /// Most tools trigger completion request automatically without explicitly requesting
+            /// it using a keyboard shortcut (e.g. Ctrl+Space). Typically they do so when the user
+            /// starts to type an identifier. For example if the user types `c` in a JavaScript file
+            /// code complete will automatically pop up present `console` besides others as a
+            /// completion item. Characters that make up identifiers don't need to be listed here.
+            ///
+            /// If code complete should automatically be trigger on characters not being valid inside
+            /// an identifier (for example `.` in JavaScript) list them in `triggerCharacters`.
+            /// </summary>
+            [Optional]
+            public string? TriggerCharacter { get; set; }
+        }
 
-        /// <summary>
-        /// Client supports the deprecated property on a completion item.
-        /// </summary>
-        [Optional]
-        public bool DeprecatedSupport { get; set; }
+        public class CompletionItemCapabilityOptions
+        {
+            /// <summary>
+            /// Client supports snippets as insert text.
+            ///
+            /// A snippet can define tab stops and placeholders with `$1`, `$2`
+            /// and `${3:foo}`. `$0` defines the final tab stop, it defaults to
+            /// the end of the snippet. Placeholders with equal identifiers are linked,
+            /// that is typing in one will update others too.
+            /// </summary>
+            [Optional]
+            public bool SnippetSupport { get; set; }
 
-        /// <summary>
-        /// Client supports the preselect property on a completion item.
-        /// </summary>
-        [Optional]
-        public bool PreselectSupport { get; set; }
+            /// <summary>
+            /// Client supports commit characters on a completion item.
+            /// </summary>
+            [Optional]
+            public bool CommitCharactersSupport { get; set; }
 
-        /// <summary>
-        /// Client supports the tag property on a completion item. Clients supporting
-        /// tags have to handle unknown tags gracefully. Clients especially need to
-        /// preserve unknown tags when sending a completion item back to the server in
-        /// a resolve call.
-        ///
-        /// @since 3.15.0
-        /// </summary>
-        [Optional]
-        public Supports<CompletionItemTagSupportCapabilityOptions?> TagSupport { get; set; }
+            /// <summary>
+            /// Client supports the follow content formats for the documentation
+            /// property. The order describes the preferred format of the client.
+            /// </summary>
+            [Optional]
+            public Container<MarkupKind>? DocumentationFormat { get; set; }
 
-        /// <summary>
-        /// Client support insert replace edit to control different behavior if a
-        /// completion item is inserted in the text or should replace text.
-        ///
-        /// @since 3.16.0 - Proposed state
-        /// </summary>
-        [Optional]
-        public bool InsertReplaceSupport { get; set; }
+            /// <summary>
+            /// Client supports the deprecated property on a completion item.
+            /// </summary>
+            [Optional]
+            public bool DeprecatedSupport { get; set; }
 
-        /// <summary>
-        /// Client supports to resolve `additionalTextEdits` in the `completionItem/resolve`
-        /// request. So servers can postpone computing them.
-        ///
-        /// @since 3.16.0 - Proposed state
-        /// </summary>
-        [Optional]
-        public bool ResolveAdditionalTextEditsSupport { get; set; }
+            /// <summary>
+            /// Client supports the preselect property on a completion item.
+            /// </summary>
+            [Optional]
+            public bool PreselectSupport { get; set; }
+
+            /// <summary>
+            /// Client supports the tag property on a completion item. Clients supporting
+            /// tags have to handle unknown tags gracefully. Clients especially need to
+            /// preserve unknown tags when sending a completion item back to the server in
+            /// a resolve call.
+            ///
+            /// @since 3.15.0
+            /// </summary>
+            [Optional]
+            public Supports<CompletionItemTagSupportCapabilityOptions?> TagSupport { get; set; }
+
+            /// <summary>
+            /// Client support insert replace edit to control different behavior if a
+            /// completion item is inserted in the text or should replace text.
+            ///
+            /// @since 3.16.0 - Proposed state
+            /// </summary>
+            [Optional]
+            public bool InsertReplaceSupport { get; set; }
+
+            /// <summary>
+            /// Client supports to resolve `additionalTextEdits` in the `completionItem/resolve`
+            /// request. So servers can postpone computing them.
+            ///
+            /// @since 3.16.0 - Proposed state
+            /// </summary>
+            [Optional]
+            public bool ResolveAdditionalTextEditsSupport { get; set; }
+
+            /// <summary>
+            /// Indicates which properties a client can resolve lazily on a completion
+            /// item. Before version 3.16.0 only the predefined properties `documentation`
+            /// and `details` could be resolved lazily.
+            ///
+            /// @since 3.16.0 - proposed state
+            /// </summary>
+            [Optional]
+            public CompletionItemCapabilityResolveSupportOptions? ResolveSupport { get; set; }
+
+            /// <summary>
+            /// The client supports the `insertTextMode` property on
+            /// a completion item to override the whitespace handling mode
+            /// as defined by the client (see `insertTextMode`).
+            ///
+            /// @since 3.16.0 - proposed state
+            /// </summary>
+            [Optional]
+            public CompletionItemInsertTextModeSupportCapabilityOptions? InsertTextModeSupport { get; set; }
+        }
+
+        public class CompletionItemInsertTextModeSupportCapabilityOptions
+        {
+            public Container<InsertTextMode> ValueSet { get; set; } = null!;
+        }
 
         /// <summary>
         /// Indicates which properties a client can resolve lazily on a completion
@@ -444,60 +492,104 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         ///
         /// @since 3.16.0 - proposed state
         /// </summary>
-        [Optional]
-        public CompletionItemCapabilityResolveSupportOptions? ResolveSupport { get; set; }
+        public class CompletionItemCapabilityResolveSupportOptions
+        {
+            /// <summary>
+            /// The properties that a client can resolve lazily.
+            /// </summary>
+            public Container<string> Properties { get; set; } = new Container<string>();
+        }
+
+        public class CompletionItemKindCapabilityOptions
+        {
+            /// <summary>
+            /// The completion item kind values the client supports. When this
+            /// property exists the client also guarantees that it will
+            /// handle values outside its set gracefully and falls back
+            /// to a default value when unknown.
+            ///
+            /// If this property is not present the client only supports
+            /// the completion items kinds from `Text` to `Reference` as defined in
+            /// the initial version of the protocol.
+            /// </summary>
+            [Optional]
+            public Container<CompletionItemKind>? ValueSet { get; set; }
+        }
 
         /// <summary>
-        /// The client supports the `insertTextMode` property on
-        /// a completion item to override the whitespace handling mode
-        /// as defined by the client (see `insertTextMode`).
+        /// Completion item tags are extra annotations that tweak the rendering of a completion
+        /// item.
         ///
-        /// @since 3.16.0 - proposed state
+        /// @since 3.15.0
         /// </summary>
-        [Optional]
-        public CompletionItemInsertTextModeSupportCapabilityOptions? InsertTextModeSupport { get; set; }
-    }
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionItemTag
+        {
+            /// <summary>
+            /// Render a completion as obsolete, usually using a strike-out.
+            /// </summary>
+            Deprecated = 1
+        }
 
-    public class CompletionItemInsertTextModeSupportCapabilityOptions
-    {
-        public Container<InsertTextMode> ValueSet { get; set; } = null!;
-    }
-    /// <summary>
-    /// Indicates which properties a client can resolve lazily on a completion
-    /// item. Before version 3.16.0 only the predefined properties `documentation`
-    /// and `details` could be resolved lazily.
-    ///
-    /// @since 3.16.0 - proposed state
-    /// </summary>
-    public class CompletionItemCapabilityResolveSupportOptions
-    {
         /// <summary>
-        /// The properties that a client can resolve lazily.
+        /// The kind of a completion entry.
         /// </summary>
-        public Container<string> Properties { get; set; } = new Container<string>();
-    }
-    public class CompletionItemKindCapabilityOptions
-    {
-        /// <summary>
-        /// The completion item kind values the client supports. When this
-        /// property exists the client also guarantees that it will
-        /// handle values outside its set gracefully and falls back
-        /// to a default value when unknown.
-        ///
-        /// If this property is not present the client only supports
-        /// the completion items kinds from `Text` to `Reference` as defined in
-        /// the initial version of the protocol.
-        /// </summary>
-        [Optional]
-        public Container<CompletionItemKind>? ValueSet { get; set; }
-    }
-    public class CompletionItemTagSupportCapabilityOptions
-    {
-        /// <summary>
-        /// The tags supported by the client.
-        /// </summary>
-        public Container<CompletionItemTag> ValueSet { get; set; } = null!;
-    }
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionItemKind
+        {
+            Text = 1,
+            Method = 2,
+            Function = 3,
+            Constructor = 4,
+            Field = 5,
+            Variable = 6,
+            Class = 7,
+            Interface = 8,
+            Module = 9,
+            Property = 10,
+            Unit = 11,
+            Value = 12,
+            Enum = 13,
+            Keyword = 14,
+            Snippet = 15,
+            Color = 16,
+            File = 17,
+            Reference = 18,
+            Folder = 19,
+            EnumMember = 20,
+            Constant = 21,
+            Struct = 22,
+            Event = 23,
+            Operator = 24,
+            TypeParameter = 25,
+        }
+
+        [JsonConverter(typeof(NumberEnumConverter))]
+        public enum CompletionTriggerKind
+        {
+            /// <summary>
+            /// Completion was triggered by typing an identifier (24x7 code complete), manual invocation (e.g Ctrl+Space) or via API.
+            /// </summary>
+            Invoked = 1,
+
+            /// <summary>
+            /// Completion was triggered by a trigger character specified by the `triggerCharacters` properties of the `CompletionRegistrationOptions`.
+            /// </summary>
+            TriggerCharacter = 2,
+
+            /// <summary>
+            /// Completion was re-triggered as the current completion list is incomplete.
+            /// </summary>
+            TriggerForIncompleteCompletions = 3,
+        }
+
+        public class CompletionItemTagSupportCapabilityOptions
+        {
+            /// <summary>
+            /// The tags supported by the client.
+            /// </summary>
+            public Container<CompletionItemTag> ValueSet { get; set; } = null!;
+        }
     }
 
     namespace Document

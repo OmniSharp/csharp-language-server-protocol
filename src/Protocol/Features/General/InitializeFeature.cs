@@ -1,7 +1,10 @@
 using System.Diagnostics.CodeAnalysis;
+using System.Runtime.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -277,6 +280,24 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// </summary>
             [Optional]
             public ServerInfo? ServerInfo { get; set; }
+        }
+
+        public class InitializeError
+        {
+            /// <summary>
+            /// Indicates whether the client should retry to send the
+            /// initialize request after showing the message provided
+            /// in the ResponseError.
+            /// </summary>
+            public bool Retry { get; set; }
+        }
+
+        [JsonConverter(typeof(StringEnumConverter))]
+        public enum InitializeTrace
+        {
+            [EnumMember(Value = "off")] Off,
+            [EnumMember(Value = "messages")] Messages,
+            [EnumMember(Value = "verbose")] Verbose
         }
     }
 }

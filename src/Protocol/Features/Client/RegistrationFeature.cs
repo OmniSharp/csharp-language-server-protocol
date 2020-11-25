@@ -1,3 +1,8 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -5,6 +10,7 @@ using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
 // ReSharper disable once CheckNamespace
@@ -31,7 +37,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
         ]
-        public class UnregistrationParams : IJsonRpcRequest
+        public partial class UnregistrationParams : IJsonRpcRequest
         {
             public UnregistrationContainer? Unregisterations { get; set; }
 
@@ -42,6 +48,165 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 get => Unregisterations;
                 set => Unregisterations = value;
             }
+        }
+
+        /// <summary>
+        /// General paramters to to regsiter for a capability.
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [GenerateContainer]
+        public partial class Registration
+        {
+            /// <summary>
+            /// The id used to register the request. The id can be used to deregister
+            /// the request again.
+            /// </summary>
+            public string Id { get; set; } = null!;
+
+            /// <summary>
+            /// The method / capability to register for.
+            /// </summary>
+            public string Method { get; set; } = null!;
+
+            /// <summary>
+            /// Options necessary for the registration.
+            /// </summary>
+            [Optional]
+            public object? RegisterOptions { get; set; }
+
+            private string DebuggerDisplay => $"[{Id}] {( RegisterOptions is ITextDocumentRegistrationOptions td ? $"{td.DocumentSelector}" : string.Empty )} {Method}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+
+            public static Unregistration ToUnregistration(Registration registration) => new Unregistration() {
+                Id = registration.Id,
+                Method = registration.Method,
+            };
+
+            public class TextDocumentComparer : IEqualityComparer<Registration?>
+            {
+                public bool Equals(Registration? x, Registration? y)
+                {
+                    if (ReferenceEquals(x, y)) return true;
+                    if (ReferenceEquals(x, null)) return false;
+                    if (ReferenceEquals(y, null)) return false;
+                    if (x.GetType() != y.GetType()) return false;
+                    if (x.RegisterOptions is ITextDocumentRegistrationOptions xTdro && y.RegisterOptions is ITextDocumentRegistrationOptions yTdro)
+                    {
+                        // Id doesn't matter if they target the same text document
+                        // this is arbitrary but should be good in most cases.
+                        return ( x.Id == y.Id || xTdro.DocumentSelector == yTdro.DocumentSelector ) && x.Method == y.Method;
+                    }
+
+                    return x.Id == y.Id && x.Method == y.Method;
+                }
+
+                public int GetHashCode(Registration? obj)
+                {
+                    unchecked
+                    {
+                        if (obj!.RegisterOptions is ITextDocumentRegistrationOptions tdro)
+                        {
+                            var hashCode = obj.Method.GetHashCode();
+                            return ( hashCode * 397 ) ^ ( tdro.DocumentSelector != null ? tdro.DocumentSelector.GetHashCode() : 0 );
+                        }
+                        else
+                        {
+                            var hashCode = obj!.Id.GetHashCode();
+                            hashCode = ( hashCode * 397 ) ^ obj.Method.GetHashCode();
+                            return ( hashCode * 397 ) ^ ( obj.RegisterOptions != null ? obj.RegisterOptions.GetHashCode() : 0 );
+                        }
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// General parameters to unregister a request or notification.
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
+        [GenerateContainer]
+        public partial class Unregistration
+        {
+            /// <summary>
+            /// The id used to unregister the request or notification. Usually an id
+            /// provided during the register request.
+            /// </summary>
+            public string Id { get; set; } = null!;
+
+            /// <summary>
+            /// The method to unregister for.
+            /// </summary>
+            public string Method { get; set; } = null!;
+
+            public static implicit operator Unregistration(Registration registration) =>
+                new Unregistration {
+                    Id = registration.Id,
+                    Method = registration.Method
+                };
+
+            private string DebuggerDisplay => $"[{Id}] {Method}";
+
+            /// <inheritdoc />
+            public override string ToString() => DebuggerDisplay;
+        }
+
+        public partial class UnregistrationContainer
+        {
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static UnregistrationContainer? From(IEnumerable<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static implicit operator UnregistrationContainer?(Registration[] items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static UnregistrationContainer? From(params Registration[] items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static implicit operator UnregistrationContainer?(Collection<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static UnregistrationContainer? From(Collection<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static implicit operator UnregistrationContainer?(List<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static UnregistrationContainer? From(List<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static implicit operator UnregistrationContainer?(ImmutableList<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("items")]
+            public static UnregistrationContainer? From(ImmutableList<Registration>? items) => items switch {
+                not null => new UnregistrationContainer(items.Select(Registration.ToUnregistration)),
+                _        => null
+            };
         }
     }
 
