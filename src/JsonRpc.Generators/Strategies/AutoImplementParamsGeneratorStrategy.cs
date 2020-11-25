@@ -26,6 +26,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             if (members.Count == 0) yield break;
 
+            if (!item.TypeDeclaration.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
+            {
+                item.Context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, item.TypeDeclaration.Identifier.GetLocation(), item.TypeDeclaration.Identifier.Text));
+                yield break;
+            }
+
             yield return NamespaceDeclaration(ParseName(item.JsonRpcAttributes.ModelNamespace))
                                       .WithMembers(List(members))
                                       .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))

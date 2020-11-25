@@ -39,6 +39,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                    )
                                   .WithModifiers(item.TypeDeclaration.Modifiers)
                                   .AddBaseListTypes(SimpleBaseType(GetBaseHandlerInterface(item)));
+
+            if (!handlerInterface.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
+            {
+                handlerInterface = handlerInterface.AddModifiers(Token(SyntaxKind.PartialKeyword));
+           }
+
             if (item.JsonRpcAttributes.AllowDerivedRequests)
             {
                 handlerInterface = handlerInterface
@@ -98,7 +104,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 var handlerClass = ClassDeclaration(Identifier($"{item.JsonRpcAttributes.HandlerName}HandlerBase"))
                                   .WithAttributeLists(classAttributes)
                                   .AddModifiers(Token(SyntaxKind.AbstractKeyword))
-                                  .AddModifiers(item.TypeDeclaration.Modifiers.ToArray());
+                                  .AddModifiers(handlerInterface.Modifiers.ToArray());
                 if (item.JsonRpcAttributes.AllowDerivedRequests)
                 {
                     handlerClass = handlerClass
@@ -124,7 +130,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         ClassDeclaration(handlerClass.Identifier)
                            .WithAttributeLists(handlerClass.AttributeLists)
                            .AddModifiers(Token(SyntaxKind.AbstractKeyword))
-                           .AddModifiers(item.TypeDeclaration.Modifiers.ToArray())
+                           .AddModifiers(handlerInterface.Modifiers.ToArray())
                            .WithBaseList(
                                 BaseList(
                                     SeparatedList<BaseTypeSyntax>(
@@ -210,7 +216,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     handlerClass = ClassDeclaration(Identifier($"{item.JsonRpcAttributes.HandlerName}PartialHandlerBase"))
                                   .WithAttributeLists(classAttributes)
                                   .AddModifiers(Token(SyntaxKind.AbstractKeyword))
-                                  .AddModifiers(item.TypeDeclaration.Modifiers.ToArray())
+                                  .AddModifiers(handlerInterface.Modifiers.ToArray())
                                   .AddBaseListTypes(
                                        SimpleBaseType(GetPartialResultBaseClass(request, request.PartialItem)),
                                        SimpleBaseType(IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler"))
@@ -242,7 +248,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     handlerClass = ClassDeclaration(Identifier($"{item.JsonRpcAttributes.HandlerName}PartialHandlerBase"))
                                   .WithAttributeLists(classAttributes)
                                   .AddModifiers(Token(SyntaxKind.AbstractKeyword))
-                                  .AddModifiers(item.TypeDeclaration.Modifiers.ToArray())
+                                  .AddModifiers(handlerInterface.Modifiers.ToArray())
                                   .AddBaseListTypes(
                                        SimpleBaseType(GetPartialResultsBaseClass(request, request.PartialItems)),
                                        SimpleBaseType(IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler"))

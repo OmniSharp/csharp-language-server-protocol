@@ -29,9 +29,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "Could not infer the request router(s) to use, please specify the target interface(s).", "JsonRPC", DiagnosticSeverity.Error, true
         );
 
-        public static DiagnosticDescriptor ClassMustBePartial { get; } = new DiagnosticDescriptor(
-            "JRPC1004", "Class must be made partial",
-            "Class {0} must be made partial.", "JsonRPC", DiagnosticSeverity.Warning, true
+        public static DiagnosticDescriptor MustBePartial { get; } = new DiagnosticDescriptor(
+            "JRPC1004", "Type must be made partial",
+            "Type {0} must be made partial.", "JsonRPC", DiagnosticSeverity.Error, true
         );
 
         public static DiagnosticDescriptor MustInheritFromCanBeResolved { get; } = new DiagnosticDescriptor(

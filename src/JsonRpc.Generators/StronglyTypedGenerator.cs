@@ -113,7 +113,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (!candidate.Modifiers.Any(SyntaxKind.PartialKeyword))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.ClassMustBePartial, candidate.Identifier.GetLocation()));
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, candidate.Identifier.GetLocation(), candidate.Identifier.Text));
+                    return;
                 }
 
                 var property = candidate.Members.OfType<PropertyDeclarationSyntax>().Single(z => z.Identifier.Text == "Data");
@@ -611,8 +612,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             var typeArgumentList = TypeArgumentList(SingletonSeparatedList(typeName));
 
+            var modifiers = syntax.Modifiers;
+            if (!modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
+            {
+                modifiers = modifiers.Add(Token(SyntaxKind.PartialKeyword));
+            }
+
             return ClassDeclaration(classIdentifier)
-                  .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.PartialKeyword)))
+                  .WithModifiers(modifiers)
                   .WithBaseList(
                        BaseList(
                            SingletonSeparatedList<BaseTypeSyntax>(

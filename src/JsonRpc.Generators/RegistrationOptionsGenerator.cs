@@ -54,6 +54,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     var data = RegistrationOptionAttributes.Parse(context, registrationOptions, typeSymbol);
                     if (data is not { }) continue;
 
+                    if (!registrationOptions.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
+                    {
+                        context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, registrationOptions.Identifier.GetLocation(), registrationOptions.Identifier.Text));
+                        continue;
+                    }
 
                     var extendedRegistrationOptions = registrationOptions
                                                      .WithAttributeLists(List<AttributeListSyntax>())
