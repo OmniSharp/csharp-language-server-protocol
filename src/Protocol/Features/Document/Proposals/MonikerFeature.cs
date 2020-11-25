@@ -1,6 +1,8 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -10,6 +12,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 
 // ReSharper disable once CheckNamespace
@@ -67,6 +70,106 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             [Optional]
             public MonikerKind Kind { get; set; }
         }
+
+        /// <summary>
+        /// Moniker uniqueness level to define scope of the moniker.
+        /// </summary>
+        [DebuggerDisplay("{" + nameof(_value) + "}")]
+        [JsonConverter(typeof(EnumLikeStringConverter))]
+        public readonly struct MonikerKind : IEquatable<MonikerKind>, IEnumLikeString
+        {
+            /// <summary>
+            /// The moniker represent a symbol that is imported into a project
+            /// </summary>
+            public static readonly MonikerKind Import = new MonikerKind("import");
+
+            /// <summary>
+            /// The moniker represents a symbol that is exported from a project
+            /// </summary>
+            public static readonly MonikerKind Export = new MonikerKind("export");
+
+            /// <summary>
+            /// The moniker represents a symbol that is local to a project (e.g. a local
+            /// variable of a function, a class not visible outside the project, ...)
+            /// </summary>
+            public static readonly MonikerKind Local = new MonikerKind("local");
+
+            private readonly string? _value;
+
+            public MonikerKind(string kind) => _value = kind;
+
+            public static implicit operator MonikerKind(string kind) => new MonikerKind(kind);
+
+            public static implicit operator string(MonikerKind kind) => kind._value ?? string.Empty;
+
+            /// <inheritdoc />
+            public override string ToString() => _value ?? string.Empty;
+
+            public bool Equals(MonikerKind other) => _value == other._value;
+
+            public override bool Equals(object obj) => obj is MonikerKind other && Equals(other);
+
+            public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
+
+            public static bool operator ==(MonikerKind left, MonikerKind right) => left.Equals(right);
+
+            public static bool operator !=(MonikerKind left, MonikerKind right) => !left.Equals(right);
+        }
+
+
+    /// <summary>
+    /// A set of predefined code action kinds
+    /// </summary>
+    [DebuggerDisplay("{" + nameof(_value) + "}")]
+    [JsonConverter(typeof(EnumLikeStringConverter))]
+    public readonly struct UniquenessLevel : IEquatable<UniquenessLevel>, IEnumLikeString
+    {
+        /// <summary>
+        /// The moniker is only unique inside a document
+        /// </summary>
+        public static readonly UniquenessLevel Document = new UniquenessLevel("document");
+
+        /// <summary>
+        /// The moniker is unique inside a project for which a dump got created
+        /// </summary>
+        public static readonly UniquenessLevel Project = new UniquenessLevel("project");
+
+        /// <summary>
+        /// The moniker is unique inside the group to which a project belongs
+        /// </summary>
+        public static readonly UniquenessLevel Group = new UniquenessLevel("group");
+
+        /// <summary>
+        /// The moniker is unique inside the moniker scheme.
+        /// </summary>
+        public static readonly UniquenessLevel Scheme = new UniquenessLevel("scheme");
+
+        /// <summary>
+        /// The moniker is globally unique
+        /// </summary>
+        public static readonly UniquenessLevel Global = new UniquenessLevel("global");
+
+        private readonly string? _value;
+
+        public UniquenessLevel(string kind) => _value = kind;
+
+        public static implicit operator UniquenessLevel(string kind) => new UniquenessLevel(kind);
+
+        public static implicit operator string(UniquenessLevel kind) => kind._value ?? string.Empty;
+
+        /// <inheritdoc />
+        public override string ToString() => _value ?? string.Empty;
+
+        public bool Equals(UniquenessLevel other) => _value == other._value;
+
+        public override bool Equals(object obj) => obj is UniquenessLevel other && Equals(other);
+
+        public override int GetHashCode() => _value != null ? _value.GetHashCode() : 0;
+
+        public static bool operator ==(UniquenessLevel left, UniquenessLevel right) => left.Equals(right);
+
+        public static bool operator !=(UniquenessLevel left, UniquenessLevel right) => !left.Equals(right);
+    }
 
         [Obsolete(Constants.Proposal)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.MonikerProvider))]

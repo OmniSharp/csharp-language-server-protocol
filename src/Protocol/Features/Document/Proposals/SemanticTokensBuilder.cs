@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using Range = OmniSharp.Extensions.LanguageServer.Protocol.Models.Range;
 
+// ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document.Proposals
 {
     [Obsolete(Constants.Proposal)]

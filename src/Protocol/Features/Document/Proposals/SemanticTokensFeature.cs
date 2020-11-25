@@ -1,10 +1,14 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
+using Newtonsoft.Json;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
@@ -15,6 +19,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
+using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace.Proposals;
@@ -107,6 +112,19 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
         }
 
+        [Obsolete(Constants.Proposal)]
+        public interface ISemanticTokenResult
+        {
+            /// <summary>
+            /// An optional result id. If provided and clients support delta updating
+            /// the client will include the result id in the next semantic token request.
+            /// A server can then instead of computing all semantic tokens again simply
+            /// send a delta.
+            /// </summary>
+            [Optional]
+            public string? ResultId { get; set; }
+        }
+
         /// <summary>
         /// @since 3.16.0
         /// </summary>
@@ -160,6 +178,485 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L71
             /// </summary>
             public ImmutableArray<int> Data { get; set; }
+        }
+
+
+        /// <summary>
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public class SemanticTokensDelta : ISemanticTokenResult
+        {
+            public SemanticTokensDelta()
+            {
+            }
+
+            public SemanticTokensDelta(SemanticTokensDeltaPartialResult partialResult)
+            {
+                Edits = partialResult.Edits;
+            }
+
+            /// <summary>
+            /// An optional result id. If provided and clients support delta updating
+            /// the client will include the result id in the next semantic token request.
+            /// A server can then instead of computing all semantic tokens again simply
+            /// send a delta.
+            /// </summary>
+            [Optional]
+            public string? ResultId { get; set; }
+
+            /// <summary>
+            /// For a detailed description how these edits are structured pls see
+            /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L131
+            /// </summary>
+            public Container<SemanticTokensEdit> Edits { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public class SemanticTokensDeltaPartialResult
+        {
+            /// <summary>
+            /// The actual tokens. For a detailed description about how the data is
+            /// structured pls see
+            /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L71
+            /// </summary>
+            public Container<SemanticTokensEdit> Edits { get; set; } = null!;
+        }
+
+        /// <summary>
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public class SemanticTokensEdit
+        {
+            /// <summary>
+            /// The start index of the edit
+            /// </summary>
+            /// <remarks>
+            /// <see cref="uint"/> in the LSP spec
+            /// </remarks>
+            public int Start { get; set; }
+
+            /// <summary>
+            /// The number of items to delete
+            /// </summary>
+            /// <remarks>
+            /// <see cref="uint"/> in the LSP spec
+            /// </remarks>
+            public int DeleteCount { get; set; }
+
+            /// <summary>
+            /// The actual tokens. For a detailed description about how the data is
+            /// structured pls see
+            /// https://github.com/microsoft/vscode-extension-samples/blob/5ae1f7787122812dcc84e37427ca90af5ee09f14/semantic-tokens-sample/vscode.proposed.d.ts#L71
+            /// </summary>
+            /// <remarks>
+            /// <see cref="uint"/> in the LSP spec
+            /// </remarks>
+            [Optional]
+            public ImmutableArray<int>? Data { get; set; } = ImmutableArray<int>.Empty;
+        }
+
+        [Obsolete(Constants.Proposal)]
+        [JsonConverter(typeof(SemanticTokensFullOrDeltaConverter))]
+        public class SemanticTokensFullOrDelta
+        {
+            public SemanticTokensFullOrDelta(SemanticTokensDelta delta)
+            {
+                Delta = delta;
+                Full = null;
+            }
+
+            public SemanticTokensFullOrDelta(SemanticTokens full)
+            {
+                Delta = null;
+                Full = full;
+            }
+
+            public SemanticTokensFullOrDelta(SemanticTokensFullOrDeltaPartialResult partialResult)
+            {
+                Full = null;
+                Delta = null;
+
+                if (partialResult.IsDelta)
+                {
+                    Delta = new SemanticTokensDelta(partialResult.Delta!) {
+                        Edits = partialResult.Delta!.Edits
+                    };
+                }
+
+                if (partialResult.IsFull)
+                {
+                    Full = new SemanticTokens(partialResult.Full!);
+                }
+            }
+
+            public bool IsFull => Full != null;
+            public SemanticTokens? Full { get; }
+
+            public bool IsDelta => Delta != null;
+            public SemanticTokensDelta? Delta { get; }
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+            public static SemanticTokensFullOrDelta? From(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
+                not null => new(semanticTokensDelta),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokensDelta")]
+            public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensDelta? semanticTokensDelta) => semanticTokensDelta switch {
+                not null => new(semanticTokensDelta),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            public static SemanticTokensFullOrDelta? From(SemanticTokens? semanticTokens) => semanticTokens switch {
+                not null => new(semanticTokens),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            public static implicit operator SemanticTokensFullOrDelta?(SemanticTokens? semanticTokens) => semanticTokens switch {
+                not null => new(semanticTokens),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            public static SemanticTokensFullOrDelta? From(SemanticTokensFullOrDeltaPartialResult? semanticTokens) => semanticTokens switch {
+                not null => new(semanticTokens),
+                _        => null
+            };
+
+            [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull("semanticTokens")]
+            public static implicit operator SemanticTokensFullOrDelta?(SemanticTokensFullOrDeltaPartialResult? semanticTokens) =>
+                semanticTokens switch {
+                    not null => new(semanticTokens),
+                    _        => null
+                };
+        }
+
+        [Obsolete(Constants.Proposal)]
+        [JsonConverter(typeof(SemanticTokensFullOrDeltaPartialResultConverter))]
+        public class SemanticTokensFullOrDeltaPartialResult
+        {
+            public SemanticTokensFullOrDeltaPartialResult(
+                SemanticTokensPartialResult full
+            )
+            {
+                Full = full;
+                Delta = null;
+            }
+
+            public SemanticTokensFullOrDeltaPartialResult(
+                SemanticTokensDeltaPartialResult delta
+            )
+            {
+                Full = null;
+                Delta = delta;
+            }
+
+            public bool IsDelta => Delta != null;
+            public SemanticTokensDeltaPartialResult? Delta { get; }
+
+            public bool IsFull => Full != null;
+            public SemanticTokensPartialResult? Full { get; }
+
+            public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensPartialResult semanticTokensPartialResult) =>
+                new SemanticTokensFullOrDeltaPartialResult(semanticTokensPartialResult);
+
+            public static implicit operator SemanticTokensFullOrDeltaPartialResult(SemanticTokensDeltaPartialResult semanticTokensDeltaPartialResult) =>
+                new SemanticTokensFullOrDeltaPartialResult(semanticTokensDeltaPartialResult);
+
+            public static implicit operator SemanticTokensFullOrDelta(SemanticTokensFullOrDeltaPartialResult semanticTokensDeltaPartialResult) =>
+                new SemanticTokensFullOrDelta(semanticTokensDeltaPartialResult);
+        }
+
+        /// <summary>
+        /// @since 3.16.0
+        /// </summary>
+        [Obsolete(Constants.Proposal)]
+        public class SemanticTokensLegend
+        {
+            private ImmutableDictionary<SemanticTokenModifier, int>? _tokenModifiersData;
+            private ImmutableDictionary<SemanticTokenType, int>? _tokenTypesData;
+
+            /// <summary>
+            /// The token types a server uses.
+            /// </summary>
+            public Container<SemanticTokenType> TokenTypes { get; set; } = new Container<SemanticTokenType>(SemanticTokenType.Defaults);
+
+            /// <summary>
+            /// The token modifiers a server uses.
+            /// </summary>
+            public Container<SemanticTokenModifier> TokenModifiers { get; set; } = new Container<SemanticTokenModifier>(SemanticTokenModifier.Defaults);
+
+            public int GetTokenTypeIdentity(string tokenType)
+            {
+                EnsureTokenTypes();
+                if (string.IsNullOrWhiteSpace(tokenType)) return 0;
+                return _tokenTypesData != null && _tokenTypesData.TryGetValue(tokenType, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            }
+
+            public int GetTokenTypeIdentity(SemanticTokenType? tokenType)
+            {
+                EnsureTokenTypes();
+                if (!tokenType.HasValue) return 0;
+                if (string.IsNullOrWhiteSpace(tokenType.Value)) return 0;
+                return _tokenTypesData != null && _tokenTypesData.TryGetValue(tokenType.Value, out var tokenTypeNumber) ? tokenTypeNumber : 0;
+            }
+
+            public int GetTokenModifiersIdentity(params string[]? tokenModifiers)
+            {
+                EnsureTokenModifiers();
+                if (tokenModifiers == null) return 0;
+                return tokenModifiers
+                      .Where(z => !string.IsNullOrWhiteSpace(z))
+                      .Aggregate(
+                           0,
+                           (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                               ? acc + tokenModifer
+                               : acc
+                       );
+            }
+
+            public int GetTokenModifiersIdentity(IEnumerable<string>? tokenModifiers)
+            {
+                EnsureTokenModifiers();
+                if (tokenModifiers == null) return 0;
+                return tokenModifiers
+                      .Where(z => !string.IsNullOrWhiteSpace(z))
+                      .Aggregate(
+                           0,
+                           (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                               ? acc + tokenModifer
+                               : acc
+                       );
+            }
+
+            public int GetTokenModifiersIdentity(params SemanticTokenModifier[]? tokenModifiers)
+            {
+                EnsureTokenModifiers();
+                if (tokenModifiers == null) return 0;
+                return tokenModifiers
+                      .Where(z => !string.IsNullOrWhiteSpace(z))
+                      .Aggregate(
+                           0,
+                           (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                               ? acc + tokenModifer
+                               : acc
+                       );
+            }
+
+            public int GetTokenModifiersIdentity(IEnumerable<SemanticTokenModifier>? tokenModifiers)
+            {
+                EnsureTokenModifiers();
+                if (tokenModifiers == null) return 0;
+                return tokenModifiers
+                      .Where(z => !string.IsNullOrWhiteSpace(z))
+                      .Aggregate(
+                           0,
+                           (acc, value) => _tokenModifiersData != null && _tokenModifiersData.TryGetValue(value, out var tokenModifer)
+                               ? acc + tokenModifer
+                               : acc
+                       );
+            }
+
+            private void EnsureTokenTypes() =>
+                _tokenTypesData ??= TokenTypes
+                                   .Select(
+                                        (value, index) => (
+                                            value: new SemanticTokenType(value),
+                                            index
+                                        )
+                                    )
+                                   .Where(z => !string.IsNullOrWhiteSpace(z.value))
+                                   .ToImmutableDictionary(z => z.value, z => z.index);
+
+            private void EnsureTokenModifiers() =>
+                _tokenModifiersData ??= TokenModifiers
+                                       .Select(
+                                            (value, index) => (
+                                                value: new SemanticTokenModifier(value),
+                                                index
+                                            )
+                                        )
+                                       .Where(z => !string.IsNullOrWhiteSpace(z.value))
+                                       .ToImmutableDictionary(z => z.value, z => Convert.ToInt32(Math.Pow(2, z.index)));
+        }
+
+        /// <summary>
+        /// The protocol defines an additional token format capability to allow future extensions of the format.
+        /// The only format that is currently specified is `relative` expressing that the tokens are described using relative positions.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [JsonConverter(typeof(EnumLikeStringConverter))]
+        [Obsolete(Constants.Proposal)]
+        [DebuggerDisplay("{_value}")]
+        public readonly struct SemanticTokenFormat : IEquatable<SemanticTokenFormat>, IEnumLikeString
+        {
+            private static readonly Lazy<IReadOnlyList<SemanticTokenFormat>> _defaults =
+                new Lazy<IReadOnlyList<SemanticTokenFormat>>(
+                    () => {
+                        return typeof(SemanticTokenFormat)
+                              .GetFields(BindingFlags.Static | BindingFlags.Public)
+                              .Select(z => z.GetValue(null))
+                              .Cast<SemanticTokenFormat>()
+                              .ToArray();
+                    }
+                );
+
+            public static IEnumerable<SemanticTokenFormat> Defaults => _defaults.Value;
+
+            public static readonly SemanticTokenFormat Relative = new SemanticTokenFormat("relative");
+
+            private readonly string _value;
+
+            public SemanticTokenFormat(string modifier) => _value = modifier;
+
+            public static implicit operator SemanticTokenFormat(string kind) => new SemanticTokenFormat(kind);
+
+            public static implicit operator string(SemanticTokenFormat kind) => kind._value;
+
+            public override string ToString() => _value;
+            public bool Equals(SemanticTokenFormat other) => _value == other._value;
+
+            public override bool Equals(object obj) => obj is SemanticTokenFormat other && Equals(other);
+
+            public override int GetHashCode() => _value.GetHashCode();
+
+            public static bool operator ==(SemanticTokenFormat left, SemanticTokenFormat right) => left.Equals(right);
+
+            public static bool operator !=(SemanticTokenFormat left, SemanticTokenFormat right) => !left.Equals(right);
+        }
+
+        /// <summary>
+        /// A set of predefined token modifiers. This set is not fixed
+        /// an clients can specify additional token types via the
+        /// corresponding client capabilities.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [JsonConverter(typeof(EnumLikeStringConverter))]
+        [Obsolete(Constants.Proposal)]
+        [DebuggerDisplay("{_value}")]
+        public readonly struct SemanticTokenModifier : IEquatable<SemanticTokenModifier>, IEnumLikeString
+        {
+            private static readonly Lazy<IReadOnlyList<SemanticTokenModifier>> _defaults =
+                new Lazy<IReadOnlyList<SemanticTokenModifier>>(
+                    () => {
+                        return typeof(SemanticTokenModifier)
+                              .GetFields(BindingFlags.Static | BindingFlags.Public)
+                              .Select(z => z.GetValue(null))
+                              .Cast<SemanticTokenModifier>()
+                              .ToArray();
+                    }
+                );
+
+            public static IEnumerable<SemanticTokenModifier> Defaults => _defaults.Value;
+
+            public static readonly SemanticTokenModifier Documentation = new SemanticTokenModifier("documentation");
+            public static readonly SemanticTokenModifier Declaration = new SemanticTokenModifier("declaration");
+            public static readonly SemanticTokenModifier Definition = new SemanticTokenModifier("definition");
+            public static readonly SemanticTokenModifier Static = new SemanticTokenModifier("static");
+            public static readonly SemanticTokenModifier Async = new SemanticTokenModifier("async");
+            public static readonly SemanticTokenModifier Abstract = new SemanticTokenModifier("abstract");
+            public static readonly SemanticTokenModifier Deprecated = new SemanticTokenModifier("deprecated");
+            public static readonly SemanticTokenModifier Readonly = new SemanticTokenModifier("readonly");
+            public static readonly SemanticTokenModifier Modification = new SemanticTokenModifier("modification");
+            public static readonly SemanticTokenModifier DefaultLibrary = new SemanticTokenModifier("defaultLibrary");
+
+            private readonly string _value;
+
+            public SemanticTokenModifier(string modifier) => _value = modifier;
+
+            public static implicit operator SemanticTokenModifier(string kind) => new SemanticTokenModifier(kind);
+
+            public static implicit operator string(SemanticTokenModifier kind) => kind._value;
+
+            public override string ToString() => _value;
+            public bool Equals(SemanticTokenModifier other) => _value == other._value;
+
+            public override bool Equals(object obj) => obj is SemanticTokenModifier other && Equals(other);
+
+            public override int GetHashCode() => _value.GetHashCode();
+
+            public static bool operator ==(SemanticTokenModifier left, SemanticTokenModifier right) => left.Equals(right);
+
+            public static bool operator !=(SemanticTokenModifier left, SemanticTokenModifier right) => !left.Equals(right);
+        }
+
+
+        /// <summary>
+        /// A set of predefined token types. This set is not fixed
+        /// an clients can specify additional token types via the
+        /// corresponding client capabilities.
+        ///
+        /// @since 3.16.0
+        /// </summary>
+        [JsonConverter(typeof(EnumLikeStringConverter))]
+        [Obsolete(Constants.Proposal)]
+        [DebuggerDisplay("{_value}")]
+        public readonly struct SemanticTokenType : IEquatable<SemanticTokenType>, IEnumLikeString
+        {
+            private static readonly Lazy<IReadOnlyList<SemanticTokenType>> _defaults =
+                new Lazy<IReadOnlyList<SemanticTokenType>>(
+                    () => {
+                        return typeof(SemanticTokenType)
+                              .GetFields(BindingFlags.Static | BindingFlags.Public)
+                              .Select(z => z.GetValue(null))
+                              .Cast<SemanticTokenType>()
+                              .ToArray();
+                    }
+                );
+
+            public static IEnumerable<SemanticTokenType> Defaults => _defaults.Value;
+
+            public static readonly SemanticTokenType Comment = new SemanticTokenType("comment");
+            public static readonly SemanticTokenType Keyword = new SemanticTokenType("keyword");
+            public static readonly SemanticTokenType String = new SemanticTokenType("string");
+            public static readonly SemanticTokenType Number = new SemanticTokenType("number");
+            public static readonly SemanticTokenType Regexp = new SemanticTokenType("regexp");
+            public static readonly SemanticTokenType Operator = new SemanticTokenType("operator");
+            public static readonly SemanticTokenType Namespace = new SemanticTokenType("namespace");
+            public static readonly SemanticTokenType Type = new SemanticTokenType("type");
+            public static readonly SemanticTokenType Struct = new SemanticTokenType("struct");
+            public static readonly SemanticTokenType Class = new SemanticTokenType("class");
+            public static readonly SemanticTokenType Interface = new SemanticTokenType("interface");
+            public static readonly SemanticTokenType Enum = new SemanticTokenType("enum");
+            public static readonly SemanticTokenType TypeParameter = new SemanticTokenType("typeParameter");
+            public static readonly SemanticTokenType Function = new SemanticTokenType("function");
+            public static readonly SemanticTokenType Member = new SemanticTokenType("member");
+            public static readonly SemanticTokenType Property = new SemanticTokenType("property");
+            public static readonly SemanticTokenType Macro = new SemanticTokenType("macro");
+            public static readonly SemanticTokenType Variable = new SemanticTokenType("variable");
+            public static readonly SemanticTokenType Parameter = new SemanticTokenType("parameter");
+            public static readonly SemanticTokenType Label = new SemanticTokenType("label");
+            public static readonly SemanticTokenType Modifier = new SemanticTokenType("modifier");
+            public static readonly SemanticTokenType Event = new SemanticTokenType("event");
+            public static readonly SemanticTokenType EnumMember = new SemanticTokenType("enumMember");
+
+            private readonly string _value;
+
+            public SemanticTokenType(string type) => _value = type;
+
+            public static implicit operator SemanticTokenType(string kind) => new SemanticTokenType(kind);
+
+            public static implicit operator string(SemanticTokenType kind) => kind._value;
+
+            public override string ToString() => _value;
+            public bool Equals(SemanticTokenType other) => _value == other._value;
+
+            public override bool Equals(object obj) => obj is SemanticTokenType other && Equals(other);
+
+            public override int GetHashCode() => _value.GetHashCode();
+
+            public static bool operator ==(SemanticTokenType left, SemanticTokenType right) => left.Equals(right);
+
+            public static bool operator !=(SemanticTokenType left, SemanticTokenType right) => !left.Equals(right);
         }
 
         [Obsolete(Constants.Proposal)]
@@ -464,7 +961,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
                     => _getSemanticTokensDocument(@params, Capability, cancellationToken);
 
-                protected internal override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability) => _registrationOptionsFactory(capability);
+                protected internal override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability) =>
+                    _registrationOptionsFactory(capability);
             }
 
             public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens?> RequestSemanticTokens(
