@@ -2,7 +2,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities
 {
-    public class WorkspaceServerCapabilities
+    public class WorkspaceServerCapabilities : CapabilitiesBase
     {
         /// <summary>
         /// The server supports workspace folder.

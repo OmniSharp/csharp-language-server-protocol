@@ -87,7 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
-                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
+                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("capability")).WithType(item.Capability.Syntax))))
                            .WithExpressionBody(
                                 ArrowExpressionClause(
@@ -108,7 +108,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
-                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
+                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))
@@ -376,7 +376,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
-                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
+                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("capability")).WithType(item.Capability.Syntax))))
                            .WithExpressionBody(
                                 ArrowExpressionClause(
@@ -397,7 +397,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         FieldDeclaration(VariableDeclaration(type).WithVariables(SingletonSeparatedList(VariableDeclarator(Identifier("_registrationOptionsFactory")))))
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
-                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.OverrideKeyword)))
+                           .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))

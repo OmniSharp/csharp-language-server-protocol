@@ -234,6 +234,7 @@ namespace Lsp.Tests.Matchers
                                  }
                              );
             collection.Add(codeLensHandler, codeLensHandler2);
+            collection.Initialize();
 
             // When
             var result = handlerMatcher.FindHandler(

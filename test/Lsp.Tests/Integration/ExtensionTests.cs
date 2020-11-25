@@ -146,8 +146,8 @@ namespace Lsp.Tests.Integration
             }
 
             {
-                server.ServerSettings.Capabilities.ExtensionData["unitTests"].Should().NotBeNull();
-                server.ServerSettings.Capabilities.ExtensionData["unitTests"]
+                server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"].Should().NotBeNull();
+                server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"]
                       .ToObject<UnitTestRegistrationOptions.StaticOptions>().SupportsDebugging.Should().BeTrue();
             }
 

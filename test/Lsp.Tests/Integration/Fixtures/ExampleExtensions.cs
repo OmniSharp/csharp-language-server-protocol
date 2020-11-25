@@ -30,7 +30,7 @@ namespace Lsp.Tests.Integration.Fixtures
         GenerateRequestMethods(typeof(ILanguageClient))
     ]
     [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class UnitTest : IRequest
+    public partial class UnitTest : IJsonRpcRequest
     {
         public string Name { get; set; } = null!;
     }

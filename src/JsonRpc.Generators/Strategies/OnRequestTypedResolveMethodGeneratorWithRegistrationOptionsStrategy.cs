@@ -231,7 +231,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             return Block(ReturnStatement(
                              AddHandler(
-                                 Argument(GetJsonRpcMethodName(request.TypeDeclaration)),
                                  Argument(
                                      CreateHandlerArgument($"Delegating{request.JsonRpcAttributes.HandlerName}Handler", IdentifierName("T"))
                                         .WithArgumentList(
@@ -267,7 +266,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             return Block(ReturnStatement(
                              AddHandler(
-                                 Argument(GetJsonRpcMethodName(request.TypeDeclaration)),
                                  Argument(
                                      SimpleLambdaExpression(
                                          Parameter(

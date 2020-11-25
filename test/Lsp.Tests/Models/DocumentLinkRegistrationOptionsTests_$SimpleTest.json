@@ -1,9 +1,9 @@
 {
     "resolveProvider": true,
-    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp"
         }
-    ]
+    ],
+    "workDoneProgress": false
 }

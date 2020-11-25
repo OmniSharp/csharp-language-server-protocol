@@ -63,7 +63,7 @@ namespace Lsp.Tests.Integration
             clientManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.WorkspaceFolders);
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
-            serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams, object>);
+            serverManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Notification<DidChangeWorkspaceFoldersParams>);
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeWorkspaceFolders);
         }
 
@@ -107,7 +107,7 @@ namespace Lsp.Tests.Integration
             );
 
             var serverManager = server.Services.GetRequiredService<IHandlersManager>();
-            serverManager.Descriptors.Should().Contain(f => f.Handler is LanguageProtocolDelegatingHandlers.Notification<DidChangeConfigurationParams, object>);
+            serverManager.Descriptors.Should().Contain(f => f.Handler is DelegatingHandlers.Notification<DidChangeConfigurationParams>);
             serverManager.Descriptors.Should().ContainSingle(f => f.Method == WorkspaceNames.DidChangeConfiguration);
         }
 

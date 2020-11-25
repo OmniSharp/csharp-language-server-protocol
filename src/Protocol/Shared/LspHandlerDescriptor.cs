@@ -13,9 +13,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
     [DebuggerDisplay("{Key}:{Method}")]
     internal class LspHandlerDescriptor : ILspHandlerDescriptor, IDisposable, IEquatable<LspHandlerDescriptor>
     {
+        public int Index { get; }
         private readonly Action _disposeAction;
 
         public LspHandlerDescriptor(
+            int index,
             string method,
             string key,
             IJsonRpcHandler handler,
@@ -28,6 +30,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             Action disposeAction,
             ILspHandlerTypeDescriptor? typeDescriptor
         ) : this(
+            index,
             method, key, handler, handlerType, @params, registrationType, registrationOptions, capabilityType, requestProcessType, disposeAction,
             typeDescriptor, null
         )
@@ -35,6 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         }
 
         public LspHandlerDescriptor(
+            int index,
             string method,
             string key,
             IJsonRpcHandler handler,
@@ -83,10 +87,22 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             IsRequest = !IsNotification;
             RequestProcessType = requestProcessType;
             TypeDescriptor = typeDescriptor;
+            Index = index;
+            IsBuiltIn = handler.GetType().GetCustomAttributes<BuiltInAttribute>().Any();
+        }
+
+        public LspHandlerDescriptor(
+            LspHandlerDescriptor descriptor,
+            string key,
+            object? registrationOptions
+        ) : this(descriptor.Index, descriptor.Method, key, descriptor.Handler, descriptor.HandlerType, descriptor.Params, descriptor.RegistrationType, registrationOptions, descriptor.CapabilityType, descriptor.RequestProcessType, descriptor._disposeAction, descriptor.TypeDescriptor, descriptor.Id)
+        {
         }
 
         public Type ImplementationType { get; }
         public Type HandlerType { get; }
+
+        public bool IsBuiltIn { get; set; }
 
         public Guid Id { get; }
         public bool HasRegistration => RegistrationType != null;
@@ -118,14 +134,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
 
         public bool Equals(LspHandlerDescriptor? other) =>
             other is not null &&
-            EqualityComparer<Type>.Default.Equals(HandlerType, other.HandlerType) &&
+//            EqualityComparer<Type>.Default.Equals(HandlerType, other.HandlerType) &&
             Method == other.Method &&
             Key == other.Key;
 
         public override int GetHashCode()
         {
             var hashCode = -45133801;
-            hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(HandlerType);
+//            hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(HandlerType);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Method);
             hashCode = hashCode * -1521134295 + EqualityComparer<string>.Default.GetHashCode(Key);
             return hashCode;
@@ -135,5 +151,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
             EqualityComparer<LspHandlerDescriptor>.Default.Equals(descriptor1, descriptor2);
 
         public static bool operator !=(LspHandlerDescriptor descriptor1, LspHandlerDescriptor descriptor2) => !( descriptor1 == descriptor2 );
+
+        internal class AllowAllEqualityComparer : IEqualityComparer<LspHandlerDescriptor>
+        {
+            public bool Equals(LspHandlerDescriptor x, LspHandlerDescriptor y) => x.Id == y.Id;
+
+            public int GetHashCode(LspHandlerDescriptor obj) => obj.Id.GetHashCode();
+        }
     }
 }

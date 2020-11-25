@@ -13,6 +13,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Window;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client.WorkDone
 {
+    [BuiltIn]
     internal class LanguageClientWorkDoneManager : IClientWorkDoneManager, IWorkDoneProgressCreateHandler
     {
         private readonly IWindowLanguageClient _router;

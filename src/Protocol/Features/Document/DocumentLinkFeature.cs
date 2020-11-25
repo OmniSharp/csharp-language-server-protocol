@@ -28,6 +28,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
     namespace Models
     {
+        [Parallel]
         [Method(TextDocumentNames.DocumentLink, Direction.ClientToServer)]
         [
             GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Document"),
@@ -47,6 +48,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         /// A document link is a range in a text document that links to an internal or external resource, like another
         /// text document or a web site.
         /// </summary>
+        [Parallel]
         [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
         [Method(TextDocumentNames.DocumentLinkResolve, Direction.ClientToServer)]
         [

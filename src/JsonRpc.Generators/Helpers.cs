@@ -62,8 +62,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
                         _                                                            => null
                     },
-                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } } => IdentifierName("MediatR.Unit"),
-                    _                                                             => null
+                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } }        => IdentifierName("MediatR.Unit"),
+                    SimpleNameSyntax sns and { Identifier: { Text: "IJsonRpcRequest" } } => IdentifierName("MediatR.Unit"),
+                    _                                                                    => null
                 };
                 if (type != null) break;
             }
@@ -73,7 +74,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             var handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
             if (handlerInterface?.TypeArguments[1] is INamedTypeSymbol ns)
                 return new SyntaxSymbol(type, ns);
-            handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => z.Name == "IRequest" && z.Arity == 1);
+            handlerInterface = symbol.AllInterfaces.FirstOrDefault(z => ( z.Name == "IRequest" && z.Arity == 1 ));
             if (handlerInterface?.TypeArguments[0] is INamedTypeSymbol ns2)
                 return new SyntaxSymbol(type, ns2);
             throw new ArgumentException($"Response Type {symbol.ToDisplayString()} is not a name symbol", nameof(symbol));
@@ -89,7 +90,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              .OfType<TypeConstraintSyntax>()
                              .FirstOrDefault()?.Type;
             }
-            else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>().Any(z => z.Identifier.Text == "IRequest") == true)
+            else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>().Any(z => z.Identifier.Text == "IRequest" || z.Identifier.Text == "IJsonRpcRequest")
+                  == true)
             {
                 type = ParseTypeName(syntax.Identifier.ToFullString());
             }
@@ -103,6 +105,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             { Identifier: { Text: "IJsonRpcNotificationHandler" } }     => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "IRequest" } }                        => ParseTypeName(syntax.Identifier.ToFullString()),
+                            { Identifier: { Text: "IJsonRpcRequest" } }                 => ParseTypeName(syntax.Identifier.ToFullString()),
                             { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }   => ParseTypeName(syntax.Identifier.ToFullString()),
                             { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }  => ParseTypeName(syntax.Identifier.ToFullString()),
                             _                                                           => null,
@@ -117,7 +120,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            var arg = handlerInterface?.TypeArguments[0] ?? ( symbol.AllInterfaces.Any(z => z.Name == "IRequest" && z.Arity == 1) ? symbol as ITypeSymbol : null );
+            var arg = handlerInterface?.TypeArguments[0] ?? ( symbol.AllInterfaces.Any(z => (z.Name == "IRequest" && z.Arity == 1) || z.Name == "IJsonRpcRequest") ? symbol as ITypeSymbol : null );
             if (arg is ITypeParameterSymbol typeParameterSymbol)
             {
                 return new SyntaxSymbol(

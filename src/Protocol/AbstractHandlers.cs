@@ -23,10 +23,12 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
             protected TCapability Capability { get; private set; } = default!;
-            protected abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability);
+            protected internal abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability);
 
             TRegistrationOptions IRegistration<TRegistrationOptions, TCapability>.GetRegistrationOptions(TCapability capability)
             {
+                // ReSharper disable twice ConditionIsAlwaysTrueOrFalse
+                if (RegistrationOptions is not null && Capability is not null) return RegistrationOptions;
                 Capability = capability;
                 return RegistrationOptions = CreateRegistrationOptions(capability);
             }
@@ -53,6 +55,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions()
             {
+                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+                if (RegistrationOptions is not null) return RegistrationOptions;
                 return RegistrationOptions = CreateRegistrationOptions();
             }
         }

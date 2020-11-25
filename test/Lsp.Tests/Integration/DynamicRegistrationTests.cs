@@ -3,6 +3,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using FluentAssertions;
+using ImTools;
 using Lsp.Tests.Integration.Fixtures;
 using NSubstitute;
 using NSubstitute.ReceivedExtensions;
@@ -137,6 +138,8 @@ namespace Lsp.Tests.Integration
             public async Task Should_Only_Register_Semantic_Tokens_Registration_Once()
             {
                 var tokens = Substitute.For<SemanticTokensHandlerBase>();
+                tokens.CreateRegistrationOptions(Arg.Any<SemanticTokensCapability>())
+                      .Returns(new SemanticTokensRegistrationOptions());
                 var (client, server) = await Initialize(new ConfigureClient().Configure, options => {
                     new ConfigureServer().Configure(options);
                     options.AddHandler(tokens);
@@ -148,7 +151,7 @@ namespace Lsp.Tests.Integration
                     CancellationToken
                 );
 
-                ((IRegistration<SemanticTokensRegistrationOptions, SemanticTokensCapability>) tokens).Received(Quantity.Exactly(1)).GetRegistrationOptions(Arg.Any<SemanticTokensCapability>());
+                tokens.Received(1).CreateRegistrationOptions(Arg.Any<SemanticTokensCapability>());
 
                 client.RegistrationManager.CurrentRegistrations.Should().ContainSingle(x => x.Method == TextDocumentNames.SemanticTokensRegistration);
             }
@@ -329,15 +332,15 @@ namespace Lsp.Tests.Integration
                     (@params, token) => Task.FromResult(new CompletionList()),
                     _ => new CompletionRegistrationOptions {
                         DocumentSelector = DocumentSelector.ForLanguage("csharp"),
-                        ResolveProvider = false,
+                        ResolveProvider = true,
                         TriggerCharacters = new Container<string>("a", "b"),
                         AllCommitCharacters = new Container<string>("1", "2"),
                     }
                 );
 
                 options.OnSemanticTokens(
-                    (builder, @params, ct) => { return Task.CompletedTask; },
-                    (@params, token) => { return Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())); },
+                    (builder, @params, ct) => Task.CompletedTask,
+                    (@params, token) => Task.FromResult(new SemanticTokensDocument(new SemanticTokensLegend())),
                     _ => new SemanticTokensRegistrationOptions()
                 );
             }

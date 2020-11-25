@@ -8,10 +8,10 @@ using MediatR;
 using Newtonsoft.Json.Linq;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
-using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.ISerializer;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Progress
 {
+    [BuiltIn]
     internal class ProgressManager : IProgressManager
     {
         private readonly IResponseRouter _router;

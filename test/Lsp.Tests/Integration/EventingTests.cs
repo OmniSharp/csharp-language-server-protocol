@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientInitialize =
                 (IOnLanguageClientInitialize) Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerInitialize =
-                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] {  });
             var (client, server) = await Initialize(
                 options => options.AddHandler((IJsonRpcHandler) onLanguageClientInitialize!),
                 options => options.AddHandler((IJsonRpcHandler) onLanguageServerInitialize!)
@@ -76,7 +76,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientInitialize =
                 (IOnLanguageClientInitialize) Substitute.For(new[] { typeof(IOnLanguageClientInitialize), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerInitialize =
-                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerInitialize) Substitute.For(new[] { typeof(IOnLanguageServerInitialize), typeof(CompletionHandlerBase) }, new object[] {  });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientInitialize.Received(0).OnInitialize(client, client.ClientSettings, Arg.Any<CancellationToken>());
@@ -123,7 +123,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientInitialized =
                 (IOnLanguageClientInitialized) Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerInitialized =
-                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(
                 options => options.AddHandler((IJsonRpcHandler) onLanguageClientInitialized!),
                 options => options.AddHandler((IJsonRpcHandler) onLanguageServerInitialized!)
@@ -139,7 +139,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientInitialized =
                 (IOnLanguageClientInitialized) Substitute.For(new[] { typeof(IOnLanguageClientInitialized), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerInitialized =
-                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerInitialized) Substitute.For(new[] { typeof(IOnLanguageServerInitialized), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientInitialized.Received(0).OnInitialized(client, client.ClientSettings, client.ServerSettings, Arg.Any<CancellationToken>());
@@ -186,7 +186,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientStarted =
                 (IOnLanguageClientStarted) Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerStarted =
-                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(
                 options => options.AddHandler((IJsonRpcHandler) onLanguageClientStarted!),
                 options => options.AddHandler((IJsonRpcHandler) onLanguageServerStarted!)
@@ -202,7 +202,7 @@ namespace Lsp.Tests.Integration
             var onLanguageClientStarted =
                 (IOnLanguageClientStarted) Substitute.For(new[] { typeof(IOnLanguageClientStarted), typeof(PublishDiagnosticsHandlerBase) }, Array.Empty<object>());
             var onLanguageServerStarted =
-                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { new CompletionRegistrationOptions() });
+                (IOnLanguageServerStarted) Substitute.For(new[] { typeof(IOnLanguageServerStarted), typeof(CompletionHandlerBase) }, new object[] { });
             var (client, server) = await Initialize(o => { }, o => { });
 
             await onLanguageClientStarted.Received(0).OnStarted(client, Arg.Any<CancellationToken>());

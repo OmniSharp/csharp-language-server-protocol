@@ -219,17 +219,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams> handler, TextDocumentChangeRegistrationOptions registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
         public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, TextDocumentChangeRegistrationOptions registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
@@ -239,17 +229,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, CancellationToken> handler, TextDocumentChangeRegistrationOptions registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
         public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, TextDocumentChangeRegistrationOptions registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
@@ -259,17 +239,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> handler, TextDocumentChangeRegistrationOptions registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
         public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
-        {
-            return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
-        }
-
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler, TextDocumentChangeRegistrationOptions registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
@@ -800,8 +770,7 @@ using System.Threading.Tasks;
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers
 {
-    [Parallel]
-    [Method(TextDocumentNames.Rename, Direction.ClientToServer)]
+    [Parallel, Method(TextDocumentNames.Rename, Direction.ClientToServer)]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public partial interface IRenameHandler : IJsonRpcRequestHandler<RenameParams, WorkspaceEdit?>, IRegistration<RenameRegistrationOptions, RenameCapability>
     {

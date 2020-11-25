@@ -3,10 +3,10 @@
         "a",
         "b"
     ],
-    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp"
         }
-    ]
+    ],
+    "workDoneProgress": false
 }

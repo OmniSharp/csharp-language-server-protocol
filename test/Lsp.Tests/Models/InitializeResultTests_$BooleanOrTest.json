@@ -14,48 +14,23 @@
         "experimental": {},
         "typeDefinitionProvider": {
             "workDoneProgress": false,
-            "id": "foo",
-            "documentSelector": [
-                {
-                    "pattern": "**/*.foo"
-                }
-            ]
+            "id": "foo"
         },
         "implementationProvider": {
             "workDoneProgress": false,
-            "id": "foo",
-            "documentSelector": [
-                {
-                    "pattern": "**/*.foo"
-                }
-            ]
+            "id": "foo"
         },
         "colorProvider": {
             "workDoneProgress": false,
-            "id": "foo",
-            "documentSelector": [
-                {
-                    "pattern": "**/*.foo"
-                }
-            ]
+            "id": "foo"
         },
         "foldingRangeProvider": {
             "workDoneProgress": false,
-            "id": "foo",
-            "documentSelector": [
-                {
-                    "pattern": "**/*.foo"
-                }
-            ]
+            "id": "foo"
         },
         "declarationProvider": {
             "workDoneProgress": false,
-            "id": "foo",
-            "documentSelector": [
-                {
-                    "pattern": "**/*.foo"
-                }
-            ]
+            "id": "foo"
         }
     }
 }

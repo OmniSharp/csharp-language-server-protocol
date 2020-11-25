@@ -27,7 +27,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         [GenerateHandler("OmniSharp.Extensions.LanguageServer.Protocol.Workspace"), GenerateHandlerMethods,
          GenerateRequestMethods(typeof(IWorkspaceLanguageClient), typeof(ILanguageClient))]
         [RegistrationOptions(typeof(ExecuteCommandRegistrationOptions)), Capability(typeof(ExecuteCommandCapability))]
-        public partial class ExecuteCommandParams : IRequest, IJsonRpcRequest, IWorkDoneProgressParams, IExecuteCommandParams
+        public partial class ExecuteCommandParams : IJsonRpcRequest, IWorkDoneProgressParams, IExecuteCommandParams
         {
             /// <summary>
             /// The identifier of the actual command handler.
@@ -110,7 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -137,7 +137,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -166,7 +166,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -197,7 +197,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -230,7 +230,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -265,7 +265,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken);
 
-            protected override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 

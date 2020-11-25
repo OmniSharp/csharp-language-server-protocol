@@ -248,7 +248,7 @@ namespace Lsp.Tests.Integration
             }
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-            protected override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability) => new CodeLensRegistrationOptions();
+            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability) => new CodeLensRegistrationOptions();
         }
     }
 }

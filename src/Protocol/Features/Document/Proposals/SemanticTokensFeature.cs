@@ -463,7 +463,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 protected override Task<SemanticTokensDocument> GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken)
                     => _getSemanticTokensDocument(@params, Capability, cancellationToken);
 
-                protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability) => _registrationOptionsFactory(capability);
+                protected internal override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability) => _registrationOptionsFactory(capability);
             }
 
             public static IRequestProgressObservable<SemanticTokensPartialResult, SemanticTokens?> RequestSemanticTokens(

@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             Task<TResult> IRequestHandler<TParams, TResult>.Handle(TParams request, CancellationToken cancellationToken) =>
                 _handler(request, Capability, cancellationToken);
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class CanBeResolved<TItem, TRegistrationOptions, TCapability> :
@@ -69,7 +69,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             Task<TItem> IRequestHandler<TItem, TItem>.Handle(TItem request, CancellationToken cancellationToken) => _resolveHandler(request, Capability, cancellationToken);
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class CanBeResolved<TItem, TRegistrationOptions> :
@@ -128,7 +128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Unit.Value;
             }
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class RequestRegistration<TParams, TResult, TRegistrationOptions> :
@@ -309,7 +309,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return await subject.Select(_factory).ToTask(cancellationToken).ConfigureAwait(false);
             }
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class PartialResult<TParams, TResponse, TItem, TRegistrationOptions> :
@@ -521,7 +521,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return result;
             }
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class PartialResults<TParams, TResponse, TItem, TRegistrationOptions> :
@@ -732,7 +732,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 return Unit.Value;
             }
 
-            protected override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
+            protected internal override TRegistrationOptions CreateRegistrationOptions(TCapability capability) => _registrationOptionsFactory(capability);
         }
 
         public sealed class Notification<TParams, TRegistrationOptions> :

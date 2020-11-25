@@ -19,7 +19,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
         ]
-        public class RegistrationParams : IRequest, IJsonRpcRequest // fix this
+        public class RegistrationParams : IJsonRpcRequest
         {
             public RegistrationContainer Registrations { get; set; } = null!;
         }
@@ -31,7 +31,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateHandlerMethods,
             GenerateRequestMethods(typeof(IClientLanguageServer), typeof(ILanguageServer))
         ]
-        public class UnregistrationParams : IRequest, IJsonRpcRequest
+        public class UnregistrationParams : IJsonRpcRequest
         {
             public UnregistrationContainer? Unregisterations { get; set; }
 

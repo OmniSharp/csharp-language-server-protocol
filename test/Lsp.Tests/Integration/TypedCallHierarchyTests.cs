@@ -35,7 +35,7 @@ namespace Lsp.Tests.Integration
             var outgoingHandlerA = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var outgoingHandlerB = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Nested>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { options.EnableAllCapabilities(); }, options => {
                     var identifier = Substitute.For<ITextDocumentIdentifier>();
                     identifier.GetTextDocumentAttributes(Arg.Any<DocumentUri>()).Returns(
                         call => new TextDocumentAttributes(call.ArgAt<DocumentUri>(0), "file", "csharp")
@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerA,
                         outgoingHandlerA,
-                        _ => new () {
+                        _ => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -79,7 +79,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerB,
                         outgoingHandlerB,
-                        _ => new () {
+                        _ => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -109,7 +109,7 @@ namespace Lsp.Tests.Integration
             var incomingHandler = Substitute.For<Func<CallHierarchyIncomingCallsParams<Data>, Task<Container<CallHierarchyIncomingCall>?>>>();
             var outgoingHandler = Substitute.For<Func<CallHierarchyOutgoingCallsParams<Data>, Task<Container<CallHierarchyOutgoingCall>?>>>();
             var (client, _) = await Initialize(
-                options => { }, options => {
+                options => { options.EnableAllCapabilities(); }, options => {
                     options.OnCallHierarchy(
                         @params => Task.FromResult(
                             new Container<CallHierarchyItem<Data>?>(
@@ -128,7 +128,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandler,
                         outgoingHandler,
-                        _ => new () {
+                        _ => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -187,7 +187,7 @@ namespace Lsp.Tests.Integration
                             b.OnNext(Enumerable.Empty<CallHierarchyOutgoingCall>());
                             b.OnCompleted();
                         },
-                        _ => new ()
+                        _ => new()
                     );
                 }
             );

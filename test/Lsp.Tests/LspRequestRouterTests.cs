@@ -104,6 +104,7 @@ namespace Lsp.Tests
                         )
                     )
                     { textDocumentSyncHandler, textDocumentSyncHandler2 };
+            collection.Initialize();
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), textDocumentIdentifiers));
@@ -268,6 +269,7 @@ namespace Lsp.Tests
                         )
                     )
                     { textDocumentSyncHandler, textDocumentSyncHandler2, codeActionHandler, codeActionHandler2 };
+            collection.Initialize();
             AutoSubstitute.Provide<IHandlerCollection>(collection);
             AutoSubstitute.Provide<IEnumerable<ILspHandlerDescriptor>>(collection);
             AutoSubstitute.Provide<IHandlerMatcher>(new TextDocumentMatcher(LoggerFactory.CreateLogger<TextDocumentMatcher>(), tdi));

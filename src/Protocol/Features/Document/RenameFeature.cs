@@ -131,6 +131,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             public static implicit operator RangeOrPlaceholderRange(Range value) => new RangeOrPlaceholderRange(value);
         }
 
+        [RegistrationName(TextDocumentNames.Rename)]
         [GenerateRegistrationOptions(nameof(ServerCapabilities.RenameProvider))]
         public partial class RenameRegistrationOptions : ITextDocumentRegistrationOptions, IWorkDoneProgressOptions, IStaticRegistrationOptions
         {

@@ -378,7 +378,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     CancellationToken cancellationToken
                 ) => _self.Handle(request, results, cancellationToken);
 
-                protected override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) =>
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) =>
                     ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>) _self ).GetRegistrationOptions(capability);
             }
 
@@ -402,7 +402,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     CallHierarchyOutgoingCallsParams request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
                 ) => _self.Handle(request, results, cancellationToken);
 
-                protected override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) =>
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) =>
                     ( (IRegistration<CallHierarchyRegistrationOptions, CallHierarchyCapability>) _self ).GetRegistrationOptions(capability);
             }
         }
@@ -1128,7 +1128,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                 ) =>
                     _handleOutgoingCalls(request, Capability, cancellationToken);
 
-                protected override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) => _registrationOptionsFactory(capability);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) => _registrationOptionsFactory(capability);
             }
 
             private class DelegatingPartialCallHierarchyHandler<T> : PartialCallHierarchyHandlerBase<T> where T : HandlerIdentity?, new()
@@ -1168,7 +1168,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                     CallHierarchyOutgoingCallsParams<T> request, IObserver<IEnumerable<CallHierarchyOutgoingCall>> results, CancellationToken cancellationToken
                 ) => _handleOutgoing(request, results, Capability, cancellationToken);
 
-                protected override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) => _registrationOptionsFactory(capability);
+                protected internal override CallHierarchyRegistrationOptions CreateRegistrationOptions(CallHierarchyCapability capability) => _registrationOptionsFactory(capability);
             }
         }
     }

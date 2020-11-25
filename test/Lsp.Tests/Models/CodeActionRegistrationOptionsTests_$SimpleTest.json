@@ -9,7 +9,6 @@
         "source.organizeImports"
     ],
     "resolveProvider": false,
-    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp",
@@ -21,5 +20,6 @@
             "scheme": "scheme",
             "pattern": "pattern"
         }
-    ]
+    ],
+    "workDoneProgress": false
 }

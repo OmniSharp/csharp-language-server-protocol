@@ -14,6 +14,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
+    [BuiltIn]
     internal class LanguageClientWorkspaceFoldersManager : ILanguageClientWorkspaceFoldersManager, IDisposable
     {
         private readonly IWorkspaceLanguageClient _client;

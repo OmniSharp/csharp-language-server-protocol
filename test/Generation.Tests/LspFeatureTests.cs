@@ -56,8 +56,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
 {
-    [Parallel]
-    [Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
+    [Parallel, Method(WorkspaceNames.WorkspaceSymbol, Direction.ClientToServer)]
     [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public partial interface IWorkspaceSymbolsHandler : IJsonRpcRequestHandler<WorkspaceSymbolParams, Container<SymbolInformation>?>, IRegistration<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>
     {

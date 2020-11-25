@@ -46,7 +46,7 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        command, new ExecuteCommandRegistrationOptions {
+                        command, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -90,13 +90,13 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        commanda, new ExecuteCommandRegistrationOptions {
+                        commanda, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandb, new ExecuteCommandRegistrationOptions {
+                        commandb, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-b")
                         }
                     );
@@ -167,7 +167,7 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        command, new ExecuteCommandRegistrationOptions {
+                        command, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -206,13 +206,13 @@ namespace Lsp.Tests.Integration
                     );
 
                     options.OnExecuteCommand(
-                        commandb, new ExecuteCommandRegistrationOptions {
+                        commandb, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-b")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandc, new ExecuteCommandRegistrationOptions {
+                        commandc, _ => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-c")
                         }
                     );

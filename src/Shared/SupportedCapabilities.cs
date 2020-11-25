@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
@@ -8,7 +9,33 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
-    internal class SupportedCapabilities : ISupportedCapabilities, ICapabilitiesProvider
+    internal class SupportedCapabilities : SupportedCapabilitiesBase, ISupportedCapabilities, ICapabilitiesProvider
+    {
+        public T GetCapability<T>() where T : ICapability?
+        {
+            if (TryGetCapability(typeof(T), out var value) && value is T c) return c;
+            return default!;
+        }
+
+        public ICapability? GetCapability(Type type)
+        {
+            if (TryGetCapability(type, out var value) && value is ICapability c) return c;
+            return default;
+        }
+
+        public bool AllowsDynamicRegistration(Type capabilityType)
+        {
+            if (capabilityType != null && TryGetCapability(capabilityType, out var capability))
+            {
+                if (capability is IDynamicCapability dc)
+                    return dc.DynamicRegistration;
+            }
+
+            return false;
+        }
+    }
+
+    internal class SupportedCapabilitiesBase
     {
         private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
 
@@ -25,102 +52,92 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         public void Add(ICapability capability)
         {
             var valueType = capability.GetType();
-            if (_supports.TryGetValue(valueType, out _))
+            if (TryGetCapability(valueType, out _))
                 _supports.Remove(valueType);
             _supports.Add(valueType, capability);
         }
 
-        public T GetCapability<T>() where T : ICapability?
+        protected virtual bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
         {
-            if (_supports.TryGetValue(typeof(T), out var value) && value is T c) return c;
-            return default!;
-        }
-
-        public ICapability? GetCapability(Type type)
-        {
-            if (_supports.TryGetValue(type, out var value) && value is ICapability c) return c;
-            return default;
-        }
-
-        public bool AllowsDynamicRegistration(Type capabilityType)
-        {
-            if (capabilityType != null && _supports.TryGetValue(capabilityType, out var capability))
-            {
-                if (capability is IDynamicCapability dc)
-                    return dc.DynamicRegistration;
-            }
-
-            return false;
-        }
-
-        public void SetCapability(ILspHandlerTypeDescriptor descriptor, IJsonRpcHandler handler)
-        {
-            if (!( descriptor is { HasCapability: true } and { CapabilityType: not null } )) return;
-
-            if ( descriptor is { HasRegistration: true } and { RegistrationType: not null }
-             && typeof(IRegistration<,>).MakeGenericType(descriptor.RegistrationType, descriptor.CapabilityType).IsInstanceOfType(handler))
-            {
-                if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
-                {
-                    SetRegistrationCapabilityInnerMethod
-                       .MakeGenericMethod(descriptor.RegistrationType, descriptor.CapabilityType)
-                       .Invoke(null, new[] { handler, capability });
-                }
-            }
-            else if (!typeof(ICapability<>).MakeGenericType(descriptor.CapabilityType).IsInstanceOfType(handler))
-            {
-                if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
-                {
-                    SetCapabilityInnerMethod
-                                .MakeGenericMethod(descriptor.CapabilityType)
-                                .Invoke(null, new[] { handler, capability });
-                }
-            }
+            return _supports.TryGetValue(capabilityType, out capability);
         }
 
         public object? GetRegistrationOptions(ILspHandlerTypeDescriptor descriptor, IJsonRpcHandler handler)
         {
-            if (!( descriptor is { HasRegistration: true } and { RegistrationType: not null } )) return null;
+            return GetRegistrationOptions(descriptor.RegistrationType, descriptor.CapabilityType, handler);
+        }
 
-            if ( descriptor is { HasCapability: true } and { CapabilityType: not null }
-             && typeof(IRegistration<,>).MakeGenericType(descriptor.RegistrationType, descriptor.CapabilityType).IsInstanceOfType(handler))
+        public object? GetRegistrationOptions(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+        {
+            return GetRegistrationOptions(descriptor.RegistrationType, descriptor.CapabilityType, handler);
+        }
+
+        public object? GetRegistrationOptions(Type? registrationType, Type? capabilityType, IJsonRpcHandler handler)
+        {
+            // this method will play dual purpose, it will ensure that set capability has been called
+            // even though that is not part of the method.
+            if (!( registrationType is not null))
             {
-                if (_supports.TryGetValue(descriptor.CapabilityType, out var capability))
+                if (capabilityType is null || !TryGetCapability(capabilityType, out var capability)) return null;
+
+                if (typeof(ICapability<>).MakeGenericType(capabilityType).IsInstanceOfType(handler))
                 {
-                    SetRegistrationCapabilityInnerMethod
-                       .MakeGenericMethod(descriptor.RegistrationType, descriptor.CapabilityType)
+                    SetCapabilityInnerMethod
+                       .MakeGenericMethod(capabilityType)
                        .Invoke(null, new[] { handler, capability });
                 }
+
+                return null;
             }
-            else if (!typeof(IRegistration<>).MakeGenericType(descriptor.RegistrationType).IsInstanceOfType(handler))
+
+            if (capabilityType is {}
+             && typeof(IRegistration<,>).MakeGenericType(registrationType, capabilityType).IsInstanceOfType(handler))
             {
-                GetRegistrationOptionsInnerMethod
-                   .MakeGenericMethod(descriptor.RegistrationType)
-                   .Invoke(null, new[] { handler });
+                if (TryGetCapability(capabilityType, out var capability))
+                {
+                    var result = SetRegistrationCapabilityInnerMethod
+                                .MakeGenericMethod(registrationType, capabilityType)
+                                .Invoke(null, new[] { handler, capability });
+                    return result;
+                }
+            }
+            else if (!typeof(IRegistration<>).MakeGenericType(registrationType).IsInstanceOfType(handler))
+            {
+                var result = GetRegistrationOptionsInnerMethod
+                            .MakeGenericMethod(registrationType)
+                            .Invoke(null, new object[] { handler });
+                return result;
             }
 
             return null;
         }
 
-        private static readonly MethodInfo SetCapabilityInnerMethod = typeof(SupportedCapabilities)
-                                                                     .GetTypeInfo()
-                                                                     .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
+        protected static readonly MethodInfo SetCapabilityInnerMethod = typeof(SupportedCapabilitiesBase)
+                                                                       .GetTypeInfo()
+                                                                       .GetMethod(nameof(SetCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
         private static void SetCapabilityInner<T>(ICapability<T> capability, T instance) => capability.SetCapability(instance);
 
-        private static readonly MethodInfo SetRegistrationCapabilityInnerMethod = typeof(SupportedCapabilities)
+        private static readonly MethodInfo SetRegistrationCapabilityInnerMethod = typeof(SupportedCapabilitiesBase)
                                                                                  .GetTypeInfo()
                                                                                  .GetMethod(nameof(SetRegistrationCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private static void SetRegistrationCapabilityInner<TR, TC>(IRegistration<TR, TC> capability, TC instance)
+        private static object SetRegistrationCapabilityInner<TR, TC>(IRegistration<TR, TC> capability, TC instance)
             where TR : class
             where TC : ICapability
-            => capability.GetRegistrationOptions(instance);
+        {
+            var registrationCapabilityInner = capability.GetRegistrationOptions(instance);
+            return registrationCapabilityInner;
+        }
 
-        private static readonly MethodInfo GetRegistrationOptionsInnerMethod = typeof(SupportedCapabilities)
-                                                                                 .GetTypeInfo()
-                                                                                 .GetMethod(nameof(GetRegistrationOptionsInner), BindingFlags.NonPublic | BindingFlags.Static)!;
+        private static readonly MethodInfo GetRegistrationOptionsInnerMethod = typeof(SupportedCapabilitiesBase)
+                                                                              .GetTypeInfo()
+                                                                              .GetMethod(nameof(GetRegistrationOptionsInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private static void GetRegistrationOptionsInner<TR>(IRegistration<TR> capability) where TR : class => capability.GetRegistrationOptions();
+        private static object GetRegistrationOptionsInner<TR>(IRegistration<TR> capability) where TR : class
+        {
+            var registrationOptionsInner = capability.GetRegistrationOptions();
+            return registrationOptionsInner;
+        }
     }
 }

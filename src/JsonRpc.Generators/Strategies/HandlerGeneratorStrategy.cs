@@ -21,25 +21,22 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var resolver = GeneratorData.CreateForResolver(item);
 
-            var attributesToCopy = item.TypeDeclaration.AttributeLists
-                                       .Select(z => z.Attributes.Where(AttributeFilter))
-                                       .Where(z => z.Any())
-                                       .Select(z => AttributeList(SeparatedList(z)))
-                                       .Concat(
-                                            new[] {
-                                                AttributeList(
-                                                    SeparatedList(
-                                                        new[] {
-                                                            Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))
-                                                        }
-                                                    )
-                                                )
-                                            }
-                                        )
-                                       .ToArray();
+            var attributesToCopy = AttributeList(
+                SeparatedList(
+                    item.TypeDeclaration.AttributeLists
+                        .SelectMany(z => z.Attributes.Where(AttributeFilter))
+                )
+            );
 
             var handlerInterface = InterfaceDeclaration(Identifier($"I{item.JsonRpcAttributes.HandlerName}Handler"))
-                                  .WithAttributeLists(List(attributesToCopy))
+                                  .WithAttributeLists(
+                                       List(
+                                           new[] {
+                                               attributesToCopy,
+                                               AttributeList(SingletonSeparatedList(Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute"))))
+                                           }
+                                       )
+                                   )
                                   .WithModifiers(item.TypeDeclaration.Modifiers)
                                   .AddBaseListTypes(
                                        SimpleBaseType(GetBaseHandlerInterface(item))
@@ -58,8 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 Attribute(ParseName("System.Runtime.CompilerServices.CompilerGeneratedAttribute")),
                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                             }.Concat(
-                                attributesToCopy
-                                   .SelectMany(z => z.Attributes)
+                                attributesToCopy.Attributes
                                    .Where(z => z.Name.ToFullString().Contains("Obsolete"))
                             ).ToArray()
                         )
@@ -350,8 +346,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
         private static bool AttributeFilter(AttributeSyntax syntax)
         {
-            var fullString = syntax.ToFullString();
-            return !fullString.Contains("Generate") && !fullString.Contains("DebuggerDisplay") && !fullString.Contains("RegistrationOptions") && !fullString.Contains("Capability")
+            var fullString = syntax.Name.ToFullString();
+            return !fullString.Contains("Generate")
+                && !fullString.Contains("DebuggerDisplay")
+                && !fullString.Contains("RegistrationOptions")
+                && !fullString.Contains("Capability")
                 && !fullString.Contains("Resolver");
         }
 
