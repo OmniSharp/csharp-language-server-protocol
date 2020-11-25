@@ -20,6 +20,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -39,6 +40,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Test;
@@ -81,8 +83,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Events.Test
     public interface ICapabilitiesHandler : IJsonRpcNotificationHandler<CapabilitiesEvent> { }
 }";
 
-            var expected = @"
-using MediatR;
+            var expected = @"using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
@@ -125,6 +126,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -143,6 +145,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System;
@@ -181,6 +184,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -200,6 +204,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Test;
@@ -265,6 +270,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 
@@ -286,6 +292,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -352,6 +359,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -370,6 +378,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -435,6 +444,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
@@ -453,6 +463,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -515,6 +526,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System;
@@ -535,6 +547,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using System;
@@ -570,18 +583,18 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
 using MediatR;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
-    [Parallel, Method(RequestNames.Attach, Direction.ClientToServer)]
-    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
-    public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse> { }
+    public class AttachResponse { }
+    [Method(""attach"", Direction.ClientToServer)]
+    [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
+    public class AttachRequestArguments: IRequest<AttachResponse> { }
 }";
-            var expected = @"
-using MediatR;
+            var expected = @"using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -590,19 +603,44 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+#nullable enable
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
+{
+    [Method(""attach"", Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IAttachRequestHandler<in T> : IJsonRpcRequestHandler<T, AttachResponse> where T : AttachRequestArguments
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase<T> : AbstractHandlers.Request<T, AttachResponse>, IAttachRequestHandler<T> where T : AttachRequestArguments
+    {
+    }
+
+    public partial interface IAttachRequestHandler : IAttachRequestHandler<AttachRequestArguments>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase : AttachRequestHandlerBase<AttachRequestArguments>, IAttachRequestHandler
+    {
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
 #nullable enable
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class AttachExtensions
+    public static partial class AttachRequestExtensions
     {
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
-            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
-            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static Task<AttachResponse> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";
@@ -621,20 +659,18 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using System.Collections.Generic;
 using MediatR;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
-#nullable enable
-    [Parallel, Method(RequestNames.Attach, Direction.ClientToServer)]
-    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
-    public interface IAttachHandler : IJsonRpcRequestHandler<AttachRequestArguments, AttachResponse?> { }
-#nullable restore
+    public class AttachResponse { }
+    [Method(""attach"", Direction.ClientToServer)]
+    [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
+    public class AttachRequestArguments: IRequest<AttachResponse?> { }
 }";
-            var expected = @"
-using MediatR;
+            var expected = @"using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
+using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Client;
-using OmniSharp.Extensions.DebugAdapter.Protocol.Requests;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Server;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
@@ -643,19 +679,44 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace OmniSharp.Extensions.DebugAdapter.Protocol.Requests
+#nullable enable
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
+{
+    [Method(""attach"", Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IAttachRequestHandler<in T> : IJsonRpcRequestHandler<T, AttachResponse?> where T : AttachRequestArguments
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase<T> : AbstractHandlers.Request<T, AttachResponse?>, IAttachRequestHandler<T> where T : AttachRequestArguments
+    {
+    }
+
+    public partial interface IAttachRequestHandler : IAttachRequestHandler<AttachRequestArguments>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase : AttachRequestHandlerBase<AttachRequestArguments>, IAttachRequestHandler
+    {
+    }
+}
+#nullable restore
+
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
 #nullable enable
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class AttachExtensions
+    public static partial class AttachRequestExtensions
     {
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse?>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse?>> handler) => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse?>> handler)
-            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse?>> handler)
-            where T : AttachRequestArguments => registry.AddHandler(RequestNames.Attach, RequestHandler.For(handler));
-        public static Task<AttachResponse?> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse?>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse?>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse?>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse?>> handler)
+            where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static Task<AttachResponse?> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";
@@ -678,15 +739,10 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
     public class AttachResponse { }
     [Method(""attach"", Direction.ClientToServer)]
+    [GenerateHandler(AllowDerivedRequests = true), GenerateHandlerMethods, GenerateRequestMethods]
     public class AttachRequestArguments: IRequest<AttachResponse> { }
-
-    [Parallel, Method(""attach"", Direction.ClientToServer)]
-    [GenerateHandlerMethods(AllowDerivedRequests = true), GenerateRequestMethods]
-    public interface IAttachHandler<in T> : IJsonRpcRequestHandler<T, AttachResponse> where T : AttachRequestArguments { }
-    public interface IAttachHandler : IAttachHandler<AttachRequestArguments> { }
 }";
-            var expected = @"
-using MediatR;
+            var expected = @"using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.DebugAdapter.Protocol;
 using OmniSharp.Extensions.DebugAdapter.Protocol.Bogus;
@@ -699,19 +755,44 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+#nullable enable
+namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
+{
+    [Method(""attach"", Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public partial interface IAttachRequestHandler<in T> : IJsonRpcRequestHandler<T, AttachResponse> where T : AttachRequestArguments
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase<T> : AbstractHandlers.Request<T, AttachResponse>, IAttachRequestHandler<T> where T : AttachRequestArguments
+    {
+    }
+
+    public partial interface IAttachRequestHandler : IAttachRequestHandler<AttachRequestArguments>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public partial class AttachRequestHandlerBase : AttachRequestHandlerBase<AttachRequestArguments>, IAttachRequestHandler
+    {
+    }
+}
+#nullable restore
+
 namespace OmniSharp.Extensions.DebugAdapter.Protocol.Bogus
 {
 #nullable enable
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public static partial class AttachExtensions
+    public static partial class AttachRequestExtensions
     {
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest(this IDebugAdapterServerRegistry registry, Func<AttachRequestArguments, CancellationToken, Task<AttachResponse>> handler) => registry.AddHandler(""attach"", RequestHandler.For(handler));
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static IDebugAdapterServerRegistry OnAttach<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
+        public static IDebugAdapterServerRegistry OnAttachRequest<T>(this IDebugAdapterServerRegistry registry, Func<T, CancellationToken, Task<AttachResponse>> handler)
             where T : AttachRequestArguments => registry.AddHandler(""attach"", RequestHandler.For(handler));
-        public static Task<AttachResponse> RequestAttach(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
+        public static Task<AttachResponse> RequestAttachRequest(this IDebugAdapterClient mediator, AttachRequestArguments request, CancellationToken cancellationToken = default) => mediator.SendRequest(request, cancellationToken);
     }
 #nullable restore
 }";
@@ -728,6 +809,7 @@ using System.Threading.Tasks;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using System.Collections.Generic;
 using MediatR;
 using RenameRegistrationOptions = OmniSharp.Extensions.LanguageServer.Protocol.Models.RenameRegistrationOptions;
@@ -757,6 +839,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using RenameCapability = OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities.RenameCapability;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using ITextDocumentIdentifierParams = OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentIdentifierParams;
 using RenameRegistrationOptions = OmniSharp.Extensions.LanguageServer.Protocol.Models.RenameRegistrationOptions;

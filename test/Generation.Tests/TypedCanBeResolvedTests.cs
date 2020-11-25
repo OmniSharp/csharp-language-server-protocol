@@ -21,6 +21,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -59,8 +60,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 }
 #nullable restore";
 
-            var expected = @"
-using System;
+            var expected = @"using System;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,6 +71,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -86,14 +87,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     public partial class CodeLens
     {
         public CodeLens<TData> WithData<TData>(TData data)
-            where TData : HandlerIdentity? , new()
+            where TData : HandlerIdentity?
         {
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
 
         [return: System.Diagnostics.CodeAnalysis.NotNullIfNotNull(""item"")]
         public static CodeLens? From<T>(CodeLens<T>? item)
-            where T : HandlerIdentity? , new() => item switch
+            where T : HandlerIdentity? => item switch
         {
         not null => item, _ => null
         }
@@ -110,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     /// </summary>
     [DebuggerDisplay(""{"" + nameof(DebuggerDisplay) + "",nq}"")]
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
-    public partial class CodeLens<T> : ICanBeResolved where T : HandlerIdentity? , new()
+    public partial class CodeLens<T> : ICanBeResolved where T : HandlerIdentity?
     {
         /// <summary>
         /// The range in which this code lens is valid. Should only span a single line.
@@ -143,7 +144,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         private string DebuggerDisplay => $""{Range}{(Command != null ? $"" {Command}"" : """")}"";
         public override string ToString() => DebuggerDisplay;
         public CodeLens<TData> WithData<TData>(TData data)
-            where TData : HandlerIdentity? , new()
+            where TData : HandlerIdentity?
         {
             return new CodeLens<TData>{Range = Range, Command = Command, Data = data};
         }
@@ -177,7 +178,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         ;
     }
 
-    public partial class CodeLensContainer<T> : ContainerBase<CodeLens<T>> where T : HandlerIdentity? , new()
+    public partial class CodeLensContainer<T> : ContainerBase<CodeLens<T>> where T : HandlerIdentity?
     {
         public CodeLensContainer(): this(Enumerable.Empty<CodeLens<T>>())
         {
@@ -277,9 +278,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
         ;
     }
 }
-#nullable restore
-
-";
+#nullable restore";
             await GenerationHelpers.AssertGeneratedAsExpected<StronglyTypedGenerator>(source, expected);
         }
 
@@ -298,6 +297,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
@@ -347,6 +347,7 @@ using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server;
