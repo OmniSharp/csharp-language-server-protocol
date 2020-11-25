@@ -14,43 +14,15 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals
         private ImmutableDictionary<SemanticTokenModifier, int>? _tokenModifiersData;
         private ImmutableDictionary<SemanticTokenType, int>? _tokenTypesData;
 
-        private Container<string> _tokenTypes = new Container<string>(
-            SemanticTokenType
-               .Defaults
-               .Select(z => (string) z)
-               .ToArray()
-        );
-
-        private Container<string> _tokenModifiers = new Container<string>(
-            SemanticTokenModifier
-               .Defaults
-               .Select(z => (string) z)
-               .ToArray()
-        );
-
         /// <summary>
         /// The token types a server uses.
         /// </summary>
-        public Container<string> TokenTypes
-        {
-            get => _tokenTypes;
-            set {
-                _tokenTypes = value;
-                _tokenTypesData = null;
-            }
-        }
+        public Container<SemanticTokenType> TokenTypes { get; set; } = new Container<SemanticTokenType>(SemanticTokenType.Defaults);
 
         /// <summary>
         /// The token modifiers a server uses.
         /// </summary>
-        public Container<string> TokenModifiers
-        {
-            get => _tokenModifiers;
-            set {
-                _tokenModifiers = value;
-                _tokenModifiersData = null;
-            }
-        }
+        public Container<SemanticTokenModifier> TokenModifiers { get; set; } = new Container<SemanticTokenModifier>(SemanticTokenModifier.Defaults);
 
         public int GetTokenTypeIdentity(string tokenType)
         {

@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models.Proposals;
 
 #pragma warning disable 618
 
@@ -13,24 +15,28 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 {
     internal class LspContractResolver : DefaultContractResolver
     {
-        private readonly CompletionItemKind[] _completionItemKinds;
-        private readonly CompletionItemTag[] _completionItemTags;
-        private readonly SymbolKind[] _documentSymbolKinds;
-        private readonly SymbolKind[] _workspaceSymbolKinds;
-        private readonly SymbolTag[] _documentSymbolTags;
-        private readonly SymbolTag[] _workspaceSymbolTags;
-        private readonly DiagnosticTag[] _diagnosticTags;
-        private readonly CodeActionKind[] _codeActionKinds;
+        private readonly ImmutableArray<CompletionItemKind> _completionItemKinds;
+        private readonly ImmutableArray<CompletionItemTag> _completionItemTags;
+        private readonly ImmutableArray<SymbolKind> _documentSymbolKinds;
+        private readonly ImmutableArray<SymbolKind> _workspaceSymbolKinds;
+        private readonly ImmutableArray<SymbolTag> _documentSymbolTags;
+        private readonly ImmutableArray<SymbolTag> _workspaceSymbolTags;
+        private readonly ImmutableArray<DiagnosticTag> _diagnosticTags;
+        private readonly ImmutableArray<CodeActionKind> _codeActionKinds;
+        private readonly ImmutableArray<SemanticTokenType> _semanticTokenType;
+        private readonly ImmutableArray<SemanticTokenModifier> _semanticTokenModifier;
 
         public LspContractResolver(
-            CompletionItemKind[] completionItemKinds,
-            CompletionItemTag[] completionItemTags,
-            SymbolKind[] documentSymbolKinds,
-            SymbolKind[] workspaceSymbolKinds,
-            SymbolTag[] documentSymbolTags,
-            SymbolTag[] workspaceSymbolTags,
-            DiagnosticTag[] diagnosticTags,
-            CodeActionKind[] codeActionKinds
+            ImmutableArray<CompletionItemKind> completionItemKinds,
+            ImmutableArray<CompletionItemTag> completionItemTags,
+            ImmutableArray<SymbolKind> documentSymbolKinds,
+            ImmutableArray<SymbolKind> workspaceSymbolKinds,
+            ImmutableArray<SymbolTag> documentSymbolTags,
+            ImmutableArray<SymbolTag> workspaceSymbolTags,
+            ImmutableArray<DiagnosticTag> diagnosticTags,
+            ImmutableArray<CodeActionKind> codeActionKinds,
+            ImmutableArray<SemanticTokenType> semanticTokenType,
+            ImmutableArray<SemanticTokenModifier> semanticTokenModifier
         )
         {
             _completionItemKinds = completionItemKinds;
@@ -41,6 +47,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             _workspaceSymbolTags = workspaceSymbolTags;
             _diagnosticTags = diagnosticTags;
             _codeActionKinds = codeActionKinds;
+            _semanticTokenType = semanticTokenType;
+            _semanticTokenModifier = semanticTokenModifier;
             NamingStrategy = new CamelCaseNamingStrategy(true, false, true);
         }
 
@@ -83,13 +91,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(CompletionItem))
             {
-                if (property.PropertyType == typeof(CompletionItemKind))
+                if (property.PropertyType == typeof(CompletionItemKind) && _completionItemKinds is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new RangeValueProvider<CompletionItemKind>(property.ValueProvider, _completionItemKinds);
                 }
 
-                if (property.PropertyType == typeof(Container<CompletionItemTag>))
+                if (property.PropertyType == typeof(Container<CompletionItemTag>) && _completionItemTags is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new ArrayRangeValueProvider<CompletionItemTag>(property.ValueProvider, _completionItemTags);
@@ -98,13 +106,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(DocumentSymbol))
             {
-                if (property.PropertyType == typeof(SymbolKind))
+                if (property.PropertyType == typeof(SymbolKind) && _documentSymbolKinds is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new RangeValueProvider<SymbolKind>(property.ValueProvider, _documentSymbolKinds);
                 }
 
-                if (property.PropertyType == typeof(Container<SymbolTag>))
+                if (property.PropertyType == typeof(Container<SymbolTag>) && _documentSymbolTags is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new ArrayRangeValueProvider<SymbolTag>(property.ValueProvider, _documentSymbolTags);
@@ -113,7 +121,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(Diagnostic))
             {
-                if (property.PropertyType == typeof(Container<DiagnosticTag>))
+                if (property.PropertyType == typeof(Container<DiagnosticTag>) && _diagnosticTags is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new ArrayRangeValueProvider<DiagnosticTag>(property.ValueProvider, _diagnosticTags);
@@ -122,7 +130,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(CodeAction))
             {
-                if (property.PropertyType == typeof(CodeActionKind))
+                if (property.PropertyType == typeof(CodeActionKind) && _codeActionKinds is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new RangeValueProvider<CodeActionKind>(property.ValueProvider, _codeActionKinds);
@@ -131,18 +139,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
 
             if (property.DeclaringType == typeof(SymbolInformation))
             {
-                if (property.PropertyType == typeof(SymbolKind))
+                if (property.PropertyType == typeof(SymbolKind) && _workspaceSymbolKinds is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new RangeValueProvider<SymbolKind>(property.ValueProvider, _workspaceSymbolKinds);
                 }
 
-                if (property.PropertyType == typeof(Container<SymbolTag>))
+                if (property.PropertyType == typeof(Container<SymbolTag>) && _workspaceSymbolTags is { Length: > 0 })
                 {
                     property.ValueProvider =
                         new ArrayRangeValueProvider<SymbolTag>(property.ValueProvider, _workspaceSymbolTags);
                 }
             }
+
+            // TODO: Registration needs to be switched around to pass in the capability
+//            if (property.DeclaringType == typeof(SemanticTokensLegend))
+//            {
+//                if (property.PropertyName == nameof(SemanticTokensLegend.TokenModifiers) && _semanticTokenModifier is { Length: > 0 })
+//                {
+//                    property.ValueProvider = new ArrayRangeValueProvider<SemanticTokenModifier>(property.ValueProvider, _semanticTokenModifier);
+//                }
+//
+//                if (property.PropertyName == nameof(SemanticTokensLegend.TokenTypes) && _semanticTokenType is { Length: > 0 })
+//                {
+//                    property.ValueProvider = new ArrayRangeValueProvider<SemanticTokenType>(property.ValueProvider, _semanticTokenType);
+//                }
+//            }
 
             return property;
         }
@@ -165,10 +187,10 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             where T : struct
         {
             private readonly IValueProvider _valueProvider;
-            private readonly T[] _validValues;
+            private readonly ImmutableArray<T> _validValues;
             private readonly T _defaultValue;
 
-            public RangeValueProvider(IValueProvider valueProvider, T[] validValues)
+            public RangeValueProvider(IValueProvider valueProvider, ImmutableArray<T> validValues)
             {
                 _valueProvider = valueProvider;
                 _validValues = validValues;
@@ -193,9 +215,9 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization
             where T : struct
         {
             private readonly IValueProvider _valueProvider;
-            private readonly T[] _validValues;
+            private readonly ImmutableArray<T> _validValues;
 
-            public ArrayRangeValueProvider(IValueProvider valueProvider, T[] validValues)
+            public ArrayRangeValueProvider(IValueProvider valueProvider, ImmutableArray<T> validValues)
             {
                 _valueProvider = valueProvider;
                 _validValues = validValues;

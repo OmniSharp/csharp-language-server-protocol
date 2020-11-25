@@ -21,7 +21,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DocumentOnTypeFormattingRegistrationOptions.StaticOptions>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<DocumentOnTypeFormattingRegistrationOptions.StaticOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -36,7 +36,7 @@ namespace Lsp.Tests.Capabilities.Server
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<DocumentOnTypeFormattingRegistrationOptions.StaticOptions>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<DocumentOnTypeFormattingRegistrationOptions.StaticOptions>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

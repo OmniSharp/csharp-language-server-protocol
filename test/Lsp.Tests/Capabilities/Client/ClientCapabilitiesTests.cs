@@ -84,7 +84,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<ClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(
                 model, o => o
                    .ConfigureForSupports(Logger)
@@ -95,7 +95,7 @@ namespace Lsp.Tests.Capabilities.Client
         [JsonFixture]
         public void Github_Issue_75(string expected)
         {
-            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new Serializer(ClientVersion.Lsp3).JsonSerializer);
+            Action a = () => JObject.Parse(expected).ToObject(typeof(ClientCapabilities), new LspSerializer(ClientVersion.Lsp3).JsonSerializer);
             a.Should().NotThrow();
         }
     }

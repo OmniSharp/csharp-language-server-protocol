@@ -25,7 +25,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -45,7 +45,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CompletionList>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

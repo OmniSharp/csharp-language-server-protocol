@@ -32,7 +32,7 @@ namespace Lsp.Tests.Models
             result.Should().Be(expected);
 
             // TODO: Come back and fix this...
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<CodeLens>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<CodeLens>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
     }

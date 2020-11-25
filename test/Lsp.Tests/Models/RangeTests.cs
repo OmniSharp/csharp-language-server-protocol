@@ -18,7 +18,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<Range>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<Range>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -69,7 +69,7 @@ namespace Lsp.Tests.Models
                 "lt" => Range.CompareRangesUsingEnds(a, b) < 0,
                 "eq" => Range.CompareRangesUsingEnds(a, b) == 0,
                 "gt" => Range.CompareRangesUsingEnds(a, b) > 0,
-                _    => false
+                _ => false
             } ).Should().BeTrue(because);
 
         }
@@ -93,7 +93,7 @@ namespace Lsp.Tests.Models
                 "lt" => Range.CompareRangesUsingStarts(a, b) < 0,
                 "eq" => Range.CompareRangesUsingStarts(a, b) == 0,
                 "gt" => Range.CompareRangesUsingStarts(a, b) > 0,
-                _    => false
+                _ => false
             } ).Should().BeTrue(because);
 
         }
@@ -169,7 +169,7 @@ namespace Lsp.Tests.Models
         public void Ranges_Can_Be_Added()
         {
             var a = new Range(1, 1, 2, 2);
-            var b = new Range(3,3, 4,0);
+            var b = new Range(3, 3, 4, 0);
 
             ( a + b ).Should().Be(new Range(1, 1, 4, 0));
         }
@@ -178,7 +178,7 @@ namespace Lsp.Tests.Models
         public void Ranges_Can_Span_Lines()
         {
             var a = new Range(1, 1, 1, 2);
-            var b = new Range(3,3, 4,0);
+            var b = new Range(3, 3, 4, 0);
 
             a.SpansMultipleLines().Should().BeFalse();
             b.SpansMultipleLines().Should().BeTrue();
@@ -198,7 +198,7 @@ namespace Lsp.Tests.Models
         {
             var a = new Range(1, 1, 1, 3);
             var b = new Range(2, 1, 2, 2);
-            var c = new Range(1,2, 4, 0);
+            var c = new Range(1, 2, 4, 0);
 
             a.Intersection(b).Should().BeNull();
             b.Intersection(a).Should().BeNull();
@@ -206,8 +206,8 @@ namespace Lsp.Tests.Models
 
             c.Intersection(b).Should().Be(b);
             b.Intersection(c).Should().Be(b);
-            c.Intersection(a).Should().Be(new Range(1,2, 1, 3));
-            a.Intersection(c).Should().Be(new Range(1,2, 1, 3));
+            c.Intersection(a).Should().Be(new Range(1, 2, 1, 3));
+            a.Intersection(c).Should().Be(new Range(1, 2, 1, 3));
         }
 
         [Fact]

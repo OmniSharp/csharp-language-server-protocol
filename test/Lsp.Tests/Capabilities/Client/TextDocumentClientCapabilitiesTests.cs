@@ -48,7 +48,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
 
@@ -61,7 +61,7 @@ namespace Lsp.Tests.Capabilities.Client
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<TextDocumentClientCapabilities>(expected);
             deresult.Should().BeEquivalentTo(model, o => o.ConfigureForSupports(Logger));
         }
     }

@@ -19,7 +19,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -36,7 +36,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -55,7 +55,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(model);
         }
 
@@ -75,7 +75,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(
                 model, x => x
                    .ComparingByMembers<LocationOrLocationLink>()
@@ -104,7 +104,7 @@ namespace Lsp.Tests.Models
 
             result.Should().Be(expected);
 
-            var deresult = new Serializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
+            var deresult = new LspSerializer(ClientVersion.Lsp3).DeserializeObject<LocationOrLocationLinks>(expected);
             deresult.Should().BeEquivalentTo(
                 model, x => x
                            .ComparingByMembers<LocationOrLocationLink>()
