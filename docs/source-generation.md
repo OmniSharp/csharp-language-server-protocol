@@ -15,7 +15,7 @@ The following interfaces will automatically implement themselves so you don't ha
 
 The general JSON RPC Attributes have logic for LSP and DAP but that logic only kicks in in the correct types and/or attributes is in place.
 
-### `[GenerateHandler([["<namespace>"], Name = "<name>"])]`
+### `[GenerateHandler([[["<namespace>"], Name = "<name>"], AllowDerivedRequests = true])]`
 Generates an interface based on the given request object, within the optional namespace if provided.
 You may also provide a specific name that will be used for the interface and base class names.  The name format is `I<name>Handler` and `<name>HandlerBase`.
 
@@ -41,6 +41,7 @@ Example Request Object:
     }
 ```
 
+Example Output
 ```c#
 #nullable enable
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
@@ -57,6 +58,65 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Client
     }
 #nullable restore
 ```
+Given `AllowDerivedRequests` an additional generic handler will be created.
+
+Example Request Object:
+```c#
+    [Parallel]
+    [Method(RequestNames.Launch, Direction.ClientToServer)]
+    [
+        GenerateHandler(Name = "Launch", AllowDerivedRequests = true),
+        GenerateHandlerMethods,
+        GenerateRequestMethods
+    ]
+    public class LaunchRequestArguments : IRequest<LaunchResponse>
+    {
+        /// <summary>
+        /// If noDebug is true the launch request should launch the program without enabling debugging.
+        /// </summary>
+        [Optional]
+        public bool NoDebug { get; set; }
+
+        /// <summary>
+        /// Optional data from the previous, restarted session.
+        /// The data is sent as the 'restart' attribute of the 'terminated' event.
+        /// The client should leave the data intact.
+        /// </summary>
+        [Optional]
+        [JsonProperty(PropertyName = "__restart")]
+        public JToken? Restart { get; set; }
+
+        [JsonExtensionData] public IDictionary<string, object> ExtensionData { get; set; } = new Dictionary<string, object>();
+    }
+
+    public class LaunchResponse
+    {
+    }
+```
+
+Example Output:
+```c#
+    [Parallel, Method(RequestNames.Launch, Direction.ClientToServer)]
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute]
+    public interface ILaunchHandler<in T> : IJsonRpcRequestHandler<T, LaunchResponse> where T : LaunchRequestArguments
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public class LaunchHandlerBase<T> : AbstractHandlers.Request<T, LaunchResponse>, ILaunchHandler<T> where T : LaunchRequestArguments
+    {
+    }
+
+    public interface ILaunchHandler : ILaunchHandler<LaunchRequestArguments>
+    {
+    }
+
+    [System.Runtime.CompilerServices.CompilerGeneratedAttribute, System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute]
+    abstract public class LaunchHandlerBase : LaunchHandlerBase<LaunchRequestArguments>, ILaunchHandler
+    {
+    }
+```
+
 
 ### `[GenerateHandlerMethods([params Type[] registryTypes])]`
 Generates helper methods for registering this as a delegate.  This is useful in more functional scenarios and more importantly in unit testing scenarios.
