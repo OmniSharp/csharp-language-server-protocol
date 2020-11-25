@@ -38,9 +38,40 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        )
                                    )
                                   .WithModifiers(item.TypeDeclaration.Modifiers)
-                                  .AddBaseListTypes(
-                                       SimpleBaseType(GetBaseHandlerInterface(item))
+                                  .AddBaseListTypes(SimpleBaseType(GetBaseHandlerInterface(item)));
+            if (item.JsonRpcAttributes.AllowDerivedRequests)
+            {
+                handlerInterface = handlerInterface
+                                  .WithTypeParameterList(
+                                       TypeParameterList(
+                                           SingletonSeparatedList(
+                                               TypeParameter(Identifier("T")).WithVarianceKeyword(Token(SyntaxKind.InKeyword))
+                                           )
+                                       )
+                                   )
+                                  .WithConstraintClauses(
+                                       SingletonList(
+                                           TypeParameterConstraintClause(IdentifierName("T"))
+                                              .WithConstraints(
+                                                   SingletonSeparatedList<TypeParameterConstraintSyntax>(
+                                                       TypeConstraint(item.Request.Syntax)
+                                                   )
+                                               )
+                                       )
                                    );
+
+                members.Add(
+                    InterfaceDeclaration(handlerInterface.Identifier)
+                       .WithModifiers(handlerInterface.Modifiers)
+                       .WithBaseList(
+                            BaseList(
+                                SingletonSeparatedList<BaseTypeSyntax>(
+                                    SimpleBaseType(GenericName(handlerInterface.Identifier.Text).AddTypeArgumentListArguments(item.Request.Syntax))
+                                )
+                            )
+                        )
+                );
+            }
 
             if (GetRegistrationAndOrCapability(item) is { } registrationAndOrCapability)
             {
@@ -56,7 +87,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                             }.Concat(
                                 attributesToCopy.Attributes
-                                   .Where(z => z.Name.ToFullString().Contains("Obsolete"))
+                                                .Where(z => z.Name.ToFullString().Contains("Obsolete"))
                             ).ToArray()
                         )
                     )
@@ -68,13 +99,66 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .WithAttributeLists(classAttributes)
                                   .AddModifiers(Token(SyntaxKind.AbstractKeyword))
                                   .AddModifiers(item.TypeDeclaration.Modifiers.ToArray());
+                if (item.JsonRpcAttributes.AllowDerivedRequests)
+                {
+                    handlerClass = handlerClass
+                                  .WithTypeParameterList(
+                                       TypeParameterList(
+                                           SingletonSeparatedList(
+                                               TypeParameter(Identifier("T"))
+                                           )
+                                       )
+                                   )
+                                  .WithConstraintClauses(
+                                       SingletonList(
+                                           TypeParameterConstraintClause(IdentifierName("T"))
+                                              .WithConstraints(
+                                                   SingletonSeparatedList<TypeParameterConstraintSyntax>(
+                                                       TypeConstraint(item.Request.Syntax)
+                                                   )
+                                               )
+                                       )
+                                   );
+
+                    members.Add(
+                        ClassDeclaration(handlerClass.Identifier)
+                           .WithAttributeLists(handlerClass.AttributeLists)
+                           .AddModifiers(Token(SyntaxKind.AbstractKeyword))
+                           .AddModifiers(item.TypeDeclaration.Modifiers.ToArray())
+                           .WithBaseList(
+                                BaseList(
+                                    SingletonSeparatedList<BaseTypeSyntax>(
+                                        SimpleBaseType(GenericName(handlerClass.Identifier.Text).AddTypeArgumentListArguments(item.Request.Syntax))
+                                    )
+                                )
+                            )
+                    );
+                }
 
                 if (baseClass is { })
                 {
                     handlerClass = handlerClass.AddBaseListTypes(SimpleBaseType(baseClass));
                 }
 
-                handlerClass = handlerClass.AddBaseListTypes(SimpleBaseType(IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler")));
+                if (item.JsonRpcAttributes.AllowDerivedRequests)
+                {
+                    handlerClass = handlerClass.AddBaseListTypes(
+                        SimpleBaseType(
+                            GenericName($"I{item.JsonRpcAttributes.HandlerName}Handler")
+                               .WithTypeArgumentList(
+                                    TypeArgumentList(
+                                        SingletonSeparatedList<TypeSyntax>(
+                                            IdentifierName("T")
+                                        )
+                                    )
+                                )
+                        )
+                    );
+                }
+                else
+                {
+                    handlerClass = handlerClass.AddBaseListTypes(SimpleBaseType(IdentifierName($"I{item.JsonRpcAttributes.HandlerName}Handler")));
+                }
 
                 if (resolver is { })
                 {
@@ -97,8 +181,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                   .AddMembers(AddResolveMethod(resolver.Request.Syntax));
                 }
 
-                members.Add(handlerInterface);
-                members.Add(handlerClass);
+                members.Insert(0, handlerClass);
+                members.Insert(0, handlerInterface);
 
                 if (item is RequestItem r3)
                 {
@@ -220,22 +304,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
         private static GenericNameSyntax GetBaseHandlerInterface(GeneratorData item)
         {
+            var requestType = item.JsonRpcAttributes.AllowDerivedRequests ? IdentifierName("T") : item.Request.Syntax;
             if (item is NotificationItem notification)
             {
                 return GenericName("IJsonRpcNotificationHandler")
-                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(notification.Request.Syntax)));
+                   .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(requestType)));
             }
 
             if (item is RequestItem request)
             {
-//                if (request.IsUnit)
-//                {
-//                    return GenericName("IJsonRpcRequestHandler")
-//                       .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(request.Request.Syntax)));
-//                }
-
                 return GenericName("IJsonRpcRequestHandler")
-                   .WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { request.Request.Syntax, request.Response.Syntax })));
+                   .WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { requestType, request.Response.Syntax })));
             }
 
             throw new NotSupportedException();
@@ -244,7 +323,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
         private static TypeSyntax? GetBaseHandlerClass(GeneratorData item)
         {
             var onlyCapability = item is { Capability: { }, RegistrationOptions: null };
-            var types = new List<TypeSyntax>() { item.Request.Syntax };
+            var requestType = item.JsonRpcAttributes.AllowDerivedRequests ? IdentifierName("T") : item.Request.Syntax;
+            var types = new List<TypeSyntax>() { requestType };
             if (item.RegistrationOptions is { })
             {
                 types.Add(item.RegistrationOptions.Syntax);
@@ -273,6 +353,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                        .WithTypeArgumentList(TypeArgumentList(SeparatedList(types)))
                 );
             }
+
 
             return null;
         }
