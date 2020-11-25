@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {

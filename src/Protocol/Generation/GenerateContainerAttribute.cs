@@ -2,7 +2,7 @@ using System;
 using System.Diagnostics;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
 {
     /// <summary>
     /// Allows generating a typed container counterpart to any model that implements <see cref="ICanBeResolved" />

@@ -1,12 +1,13 @@
 using System;
+using System.Diagnostics;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
 {
     /// <summary>
     /// Defines a converter that is used for converting from dynamic to static
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-//    [Conditional("CodeGeneration")]
+    [Conditional("CodeGeneration")]
     public class GenerateRegistrationOptionsAttribute : Attribute
     {
         public string? ServerCapabilitiesKey { get; }

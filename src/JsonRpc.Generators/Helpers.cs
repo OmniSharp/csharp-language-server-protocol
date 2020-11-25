@@ -120,7 +120,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             var handlerInterface = symbol.AllInterfaces
                                          .FirstOrDefault(z => z.Name == "IRequestHandler" && z.TypeArguments.Length == 2);
-            var arg = handlerInterface?.TypeArguments[0] ?? ( symbol.AllInterfaces.Any(z => (z.Name == "IRequest" && z.Arity == 1) || z.Name == "IJsonRpcRequest") ? symbol as ITypeSymbol : null );
+            var arg = handlerInterface?.TypeArguments[0]
+                   ?? ( symbol.AllInterfaces.Any(z => ( z.Name == "IRequest" && z.Arity == 1 ) || z.Name == "IJsonRpcRequest") ? symbol as ITypeSymbol : null );
             if (arg is ITypeParameterSymbol typeParameterSymbol)
             {
                 return new SyntaxSymbol(
@@ -882,11 +883,24 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return name.Substring(name.LastIndexOf('.') + 1);
         }
 
-        public static TypeConstraintSyntax HandlerIdentityConstraint { get; } = TypeConstraint(NullableType(IdentifierName("HandlerIdentity")));
+        public static TypeParameterConstraintSyntax HandlerIdentityConstraint { get; } = TypeConstraint(NullableType(IdentifierName("HandlerIdentity")));
 
-        public static TypeParameterConstraintClauseSyntax HandlerIdentityConstraintClause(IdentifierNameSyntax? openGenericType = null) =>
-            TypeParameterConstraintClause(openGenericType ?? IdentifierName("T"))
-               .WithConstraints(SeparatedList(new TypeParameterConstraintSyntax[] { HandlerIdentityConstraint, ConstructorConstraint() }));
+        public static SyntaxList<TypeParameterConstraintClauseSyntax> HandlerIdentityConstraintClause(bool withHandlerIdentity, IdentifierNameSyntax? openGenericType = null)
+        {
+            if (!withHandlerIdentity)
+                return SingletonList(
+                    TypeParameterConstraintClause(openGenericType ?? IdentifierName("T")).WithConstraints(
+                        SingletonSeparatedList<TypeParameterConstraintSyntax>(
+                            ClassOrStructConstraint(SyntaxKind.ClassConstraint)
+                               .WithQuestionToken(Token(SyntaxKind.QuestionToken))
+                        )
+                    )
+                );
+            return SingletonList(
+                TypeParameterConstraintClause(openGenericType ?? IdentifierName("T"))
+                   .WithConstraints(SingletonSeparatedList(HandlerIdentityConstraint))
+            );
+        }
 
         public static LocalDeclarationStatementSyntax NewGuid { get; } = LocalDeclarationStatement(
             VariableDeclaration(IdentifierName("var"))
@@ -985,20 +999,24 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 );
         }
 
-        public static ClassDeclarationSyntax WithHandlerIdentityConstraint(this ClassDeclarationSyntax syntax, IdentifierNameSyntax? openGenericType = null)
+        public static ClassDeclarationSyntax WithHandlerIdentityConstraint(
+            this ClassDeclarationSyntax syntax, bool includeHandlerIdentity, IdentifierNameSyntax? openGenericType = null
+        )
         {
             openGenericType ??= IdentifierName("T");
             return syntax
                   .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(openGenericType.Identifier.Text))))
-                  .WithConstraintClauses(SingletonList(Helpers.HandlerIdentityConstraintClause(openGenericType)));
+                  .WithConstraintClauses(Helpers.HandlerIdentityConstraintClause(includeHandlerIdentity, openGenericType));
         }
 
-        public static MethodDeclarationSyntax WithHandlerIdentityConstraint(this MethodDeclarationSyntax syntax, IdentifierNameSyntax? openGenericType = null)
+        public static MethodDeclarationSyntax WithHandlerIdentityConstraint(
+            this MethodDeclarationSyntax syntax, bool includeHandlerIdentity, IdentifierNameSyntax? openGenericType = null
+        )
         {
             openGenericType ??= IdentifierName("T");
             return syntax
                   .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(openGenericType.Identifier.Text))))
-                  .WithConstraintClauses(SingletonList(Helpers.HandlerIdentityConstraintClause(openGenericType)));
+                  .WithConstraintClauses(Helpers.HandlerIdentityConstraintClause(includeHandlerIdentity, openGenericType));
         }
     }
 }

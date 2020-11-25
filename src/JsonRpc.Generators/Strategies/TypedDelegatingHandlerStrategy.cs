@@ -53,7 +53,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var handler = ClassDeclaration($"Delegating{item.JsonRpcAttributes.HandlerName}Handler")
                          .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.SealedKeyword)))
-                         .WithHandlerIdentityConstraint()
+                         .WithHandlerIdentityConstraint(true)
                          .WithBaseList(
                               BaseList(
                                   SingletonSeparatedList<BaseTypeSyntax>(
@@ -342,7 +342,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var handler = ClassDeclaration($"Delegating{item.JsonRpcAttributes.HandlerName}PartialHandler")
                          .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.SealedKeyword)))
-                         .WithHandlerIdentityConstraint()
+                         .WithHandlerIdentityConstraint(true)
                          .WithBaseList(
                               BaseList(
                                   SingletonSeparatedList<BaseTypeSyntax>(

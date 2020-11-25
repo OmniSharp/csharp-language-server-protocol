@@ -6,7 +6,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     /// Defines a converter that is used for converting from dynamic to static
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-//    [Conditional("CodeGeneration")]
     public class RegistrationOptionsConverterAttribute : Attribute
     {
         public Type ConverterType { get; }

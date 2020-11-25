@@ -18,9 +18,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
     {
         public static RegistrationOptionAttributes? Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            var prefix = "OmniSharp.Extensions.LanguageServer.Protocol";
-            var registrationOptionsAttributeSymbol = context.Compilation.GetTypeByMetadataName($"{prefix}.GenerateRegistrationOptionsAttribute");
-            var registrationOptionsConverterAttributeSymbol = context.Compilation.GetTypeByMetadataName($"{prefix}.RegistrationOptionsConverterAttribute");
+            var registrationOptionsAttributeSymbol = context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateRegistrationOptionsAttribute");
+            var registrationOptionsConverterAttributeSymbol = context.Compilation.GetTypeByMetadataName($"OmniSharp.Extensions.LanguageServer.Protocol.RegistrationOptionsConverterAttribute");
 //            var registrationOptionsInterfaceSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.IRegistrationOptions");
             var textDocumentRegistrationOptionsInterfaceSymbol =
                 context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ITextDocumentRegistrationOptions");

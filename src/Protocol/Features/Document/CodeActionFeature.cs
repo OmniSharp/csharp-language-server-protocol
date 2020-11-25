@@ -20,6 +20,7 @@ using OmniSharp.Extensions.JsonRpc.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
 using OmniSharp.Extensions.LanguageServer.Protocol.Progress;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
@@ -260,7 +261,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public static CommandOrCodeAction From(CodeAction value) => new(value);
             public static implicit operator CommandOrCodeAction(CodeAction value) => new(value);
-            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : HandlerIdentity?, new() => new(value);
+            public static CommandOrCodeAction From<T>(CodeAction<T> value) where T : HandlerIdentity? => new(value);
 
             private string DebuggerDisplay => $"{( IsCommand ? $"command: {Command}" : IsCodeAction ? $"code action: {CodeAction}" : "..." )}";
 

@@ -18,18 +18,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         string? RegistrationOptionsKey,
         SyntaxAttributeData? RegistrationOptionsAttribute,
         SyntaxSymbol? RegistrationOptions,
-        bool CanBeResolved
+        bool CanBeResolved,
+        bool CanHaveData
     )
     {
         public static LspAttributes? Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            var prefix = "OmniSharp.Extensions.LanguageServer.Protocol";
+            var prefix = "OmniSharp.Extensions.LanguageServer.Protocol.Generation";
 
-            var attributes = new LspAttributes(null, false, null, false, null, null,null, null, null, null, null, null, false);
+            var attributes = new LspAttributes(null, false, null, false, null, null,null, null, null, null, null, null, false, false);
 
             attributes = attributes with
                 {
                 CanBeResolved = syntax.BaseList?.Types.Any(z => z.ToFullString().Contains("ICanBeResolved")) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanBeResolved")) == true,
+                CanHaveData = syntax.BaseList?.Types.Any(z => z.ToFullString().Contains("ICanHaveData")) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanHaveData")) == true,
                 };
 
             {

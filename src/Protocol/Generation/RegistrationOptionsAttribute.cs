@@ -1,7 +1,7 @@
 using System;
 using System.Diagnostics;
 
-namespace OmniSharp.Extensions.LanguageServer.Protocol
+namespace OmniSharp.Extensions.LanguageServer.Protocol.Generation
 {
     /// <summary>
     /// Used by source generation to identify the registration options type to use

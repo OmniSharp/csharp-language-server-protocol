@@ -35,12 +35,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
-
-            var canBeResolvedSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ICanBeResolved");
-            var canHaveDataSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Models.ICanHaveData");
-            var generateTypedDataAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.GenerateTypedDataAttribute");
-            var generateContainerAttributeSymbol = compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.GenerateContainerAttribute");
-            var requestSymbol = compilation.GetTypeByMetadataName("MediatR.IRequest");
+            var generateTypedDataAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute");
+            var generateContainerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute");
 
             foreach (var classToContain in syntaxReceiver.CreateContainers)
             {
@@ -90,50 +86,67 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
             foreach (var canBeResolved in syntaxReceiver.CanBeResolved)
             {
-                var semanticModel = context.Compilation.GetSemanticModel(canBeResolved.SyntaxTree);
-                var typeSymbol = semanticModel.GetDeclaredSymbol(canBeResolved);
-                if (typeSymbol == null) continue;
-                var attribute = typeSymbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
-                if (attribute is null) continue;
-                var container = typeSymbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateContainerAttributeSymbol));
+                var dataInterfaceName = IdentifierName("ICanBeResolved");
+                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true);
+            }
 
-                if (!canBeResolved.Modifiers.Any(SyntaxKind.PartialKeyword))
+            foreach (var canBeResolved in syntaxReceiver.CanHaveData)
+            {
+                var dataInterfaceName = IdentifierName("ICanHaveData");
+                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false);
+            }
+
+            static void CreateTypedClass(
+                GeneratorExecutionContext context,
+                ClassDeclarationSyntax candidate,
+                IdentifierNameSyntax dataInterfaceName,
+                INamedTypeSymbol? generateTypedDataAttributeSymbol,
+                INamedTypeSymbol? generateContainerAttributeSymbol,
+                bool includeHandlerIdentity
+            )
+            {
+                var semanticModel = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
+                var typeSymbol = semanticModel.GetDeclaredSymbol(candidate);
+                var attribute = typeSymbol?.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateTypedDataAttributeSymbol));
+                if (typeSymbol == null || attribute is null) return;
+                var container = typeSymbol.GetAttributes().FirstOrDefault(z => SymbolEqualityComparer.Default.Equals(z.AttributeClass, generateContainerAttributeSymbol));
+
+                if (!candidate.Modifiers.Any(SyntaxKind.PartialKeyword))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.ClassMustBePartial, canBeResolved.Identifier.GetLocation()));
+                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.ClassMustBePartial, candidate.Identifier.GetLocation()));
                 }
 
-                var property = canBeResolved.Members.OfType<PropertyDeclarationSyntax>().Single(z => z.Identifier.Text == "Data");
-                var dataInterfaceName = IdentifierName("ICanBeResolved");
-                var partialClass = canBeResolved
+                var property = candidate.Members.OfType<PropertyDeclarationSyntax>().Single(z => z.Identifier.Text == "Data");
+                var partialClass = candidate
                                   .WithAttributeLists(List<AttributeListSyntax>())
                                   .WithBaseList(null)
                                   .WithMembers(List<MemberDeclarationSyntax>())
                                   .AddMembers(
-                                       GetWithDataMethod(canBeResolved, HandlerIdentityConstraintClause(IdentifierName("TData"))),
-                                       GetFromMethod(canBeResolved)
+                                       GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
+                                       GetFromMethod(candidate, includeHandlerIdentity)
                                    );
 
                 var compilationMembers = new List<MemberDeclarationSyntax>() {
                 };
 
 
-                var convertFromOperator = GetConvertFromOperator(canBeResolved, dataInterfaceName);
-                var convertToOperator = GetConvertToOperator(canBeResolved, dataInterfaceName);
+                var convertFromOperator = GetConvertFromOperator(candidate, dataInterfaceName);
+                var convertToOperator = GetConvertToOperator(candidate, dataInterfaceName);
                 // remove the data property
-                var typedClass = canBeResolved
-                                .WithHandlerIdentityConstraint()
-                                .WithMembers(canBeResolved.Members.Replace(property, GetPropertyImpl(property, dataInterfaceName).WithType(IdentifierName("T"))))
+                var typedClass = candidate
+                                .WithHandlerIdentityConstraint(includeHandlerIdentity)
+                                .WithMembers(candidate.Members.Replace(property, GetPropertyImpl(property, dataInterfaceName).WithType(IdentifierName("T"))))
                                 .AddMembers(
-                                     GetWithDataMethod(canBeResolved, HandlerIdentityConstraintClause(IdentifierName("TData"))),
+                                     GetWithDataMethod(candidate, HandlerIdentityConstraintClause(includeHandlerIdentity, IdentifierName("TData"))),
                                      GetExplicitProperty(property, dataInterfaceName),
-                                     GetJDataProperty(),
+                                     GetJDataProperty(dataInterfaceName),
                                      convertFromOperator,
                                      convertToOperator,
-                                     GetGenericFromMethod(canBeResolved)
+                                     GetGenericFromMethod(candidate)
                                  )
                                 .WithAttributeLists(
                                      List(
-                                         canBeResolved.AttributeLists
+                                         candidate.AttributeLists
                                                       .Where(z => !z.ToFullString().Contains("Method") && !z.ToFullString().Contains("GenerateTypedData"))
                                      )
                                  )
@@ -148,15 +161,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          )
                                      )
                                  )
-                                .WithLeadingTrivia(canBeResolved.GetLeadingTrivia().Where(z => !z.ToString().Contains("#nullable")))
-                                .WithTrailingTrivia(canBeResolved.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
+                                .WithLeadingTrivia(candidate.GetLeadingTrivia().Where(z => !z.ToString().Contains("#nullable")))
+                                .WithTrailingTrivia(candidate.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
                     ;
 
                 if (container is { })
                 {
                     var containerName = container is { ConstructorArguments: { Length: > 0 } arguments } ? arguments[0].Value as string : null;
                     var typedContainer = CreateContainerClass(typedClass, containerName)
-                       .WithHandlerIdentityConstraint();
+                       .WithHandlerIdentityConstraint(includeHandlerIdentity);
 
                     var typedArgumentList = TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T")));
                     typedContainer = typedContainer
@@ -192,7 +205,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                                                 SimpleLambdaExpression(Parameter(Identifier("value")))
                                                                                    .WithExpressionBody(
                                                                                         CastExpression(
-                                                                                            IdentifierName(canBeResolved.Identifier),
+                                                                                            IdentifierName(candidate.Identifier),
                                                                                             IdentifierName("value")
                                                                                         )
                                                                                     )
@@ -216,7 +229,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
 
                 var cu = CompilationUnit()
-                        .WithUsings(canBeResolved.SyntaxTree.GetCompilationUnitRoot().Usings)
+                        .WithUsings(candidate.SyntaxTree.GetCompilationUnitRoot().Usings)
                         .AddMembers(
                              NamespaceDeclaration(ParseName(typeSymbol.ContainingNamespace.ToDisplayString()))
                                 .AddMembers(partialClass, typedClass)
@@ -235,13 +248,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 }
 
                 context.AddSource(
-                    $"{canBeResolved.Identifier.Text}Typed.cs",
+                    $"{candidate.Identifier.Text}Typed.cs",
                     cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }
         }
 
-        private static MethodDeclarationSyntax GetWithDataMethod(ClassDeclarationSyntax syntax, TypeParameterConstraintClauseSyntax constraintSyntax)
+        private static MethodDeclarationSyntax GetWithDataMethod(ClassDeclarationSyntax syntax, SyntaxList<TypeParameterConstraintClauseSyntax> constraintSyntax)
         {
             return MethodDeclaration(
                        GenericName(Identifier(syntax.Identifier.Text))
@@ -251,7 +264,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
                   .WithTypeParameterList(TypeParameterList(SingletonSeparatedList(TypeParameter(Identifier("TData")))))
                   .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("data")).WithType(IdentifierName("TData")))))
-                  .WithConstraintClauses(SingletonList(constraintSyntax))
+                  .WithConstraintClauses(List(constraintSyntax))
                   .WithBody(
                        Block(
                            SingletonList<StatementSyntax>(
@@ -301,11 +314,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                   .WithSemicolonToken(Token(SyntaxKind.SemicolonToken));
         }
 
-        private static MethodDeclarationSyntax GetFromMethod(ClassDeclarationSyntax syntax)
+        private static MethodDeclarationSyntax GetFromMethod(ClassDeclarationSyntax syntax, bool includeHandlerIdentity)
         {
             return MethodDeclaration(IdentifierName(syntax.Identifier.Text), Identifier("From"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.StaticKeyword)))
-                  .WithHandlerIdentityConstraint()
+                  .WithHandlerIdentityConstraint(includeHandlerIdentity)
                   .WithParameterList(
                        ParameterList(
                            SingletonSeparatedList(
@@ -386,7 +399,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                        )
                                    )
                                )
-
                        )
                    )
                   .MakeMethodNullable(paramName)
@@ -467,7 +479,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    );
         }
 
-        private static PropertyDeclarationSyntax GetJDataProperty()
+        private static PropertyDeclarationSyntax GetJDataProperty(IdentifierNameSyntax interfaceName)
         {
             return PropertyDeclaration(NullableType(IdentifierName("JToken")), Identifier("JData"))
                   .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword)))
@@ -482,7 +494,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    SyntaxKind.SimpleMemberAccessExpression,
                                                    ParenthesizedExpression(
                                                        CastExpression(
-                                                           IdentifierName("ICanBeResolved"),
+                                                           interfaceName,
                                                            ThisExpression()
                                                        )
                                                    ),
@@ -500,7 +512,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                        SyntaxKind.SimpleMemberAccessExpression,
                                                        ParenthesizedExpression(
                                                            CastExpression(
-                                                               IdentifierName("ICanBeResolved"),
+                                                               interfaceName,
                                                                ThisExpression()
                                                            )
                                                        ),
@@ -521,7 +533,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         static PropertyDeclarationSyntax GetPropertyImpl(PropertyDeclarationSyntax syntax, IdentifierNameSyntax dataInterfaceName)
         {
-            var canBeResolvedAccess = MemberAccessExpression(
+            var memberAccess = MemberAccessExpression(
                 SyntaxKind.SimpleMemberAccessExpression,
                 ParenthesizedExpression(CastExpression(dataInterfaceName, ThisExpression())),
                 IdentifierName("Data")
@@ -536,7 +548,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                         PostfixUnaryExpression(
                                             SyntaxKind.SuppressNullableWarningExpression,
                                             ConditionalAccessExpression(
-                                                canBeResolvedAccess,
+                                                memberAccess,
                                                 InvocationExpression(
                                                     MemberBindingExpression(
                                                         GenericName(Identifier("ToObject"))
@@ -558,7 +570,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                     ArrowExpressionClause(
                                         AssignmentExpression(
                                             SyntaxKind.SimpleAssignmentExpression,
-                                            canBeResolvedAccess,
+                                            memberAccess,
                                             InvocationExpression(
                                                     MemberAccessExpression(
                                                         SyntaxKind.SimpleMemberAccessExpression,

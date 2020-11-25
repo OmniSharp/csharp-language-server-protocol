@@ -500,7 +500,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             return ClassDeclaration(classDeclarationSyntax.Identifier)
                   .WithModifiers(classDeclarationSyntax.Modifiers)
                   .WithAttributeLists(classDeclarationSyntax.AttributeLists)
-                  .WithHandlerIdentityConstraint()
+                  .WithHandlerIdentityConstraint(true)
                   .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(classDeclarationSyntax.Identifier.Text)))))
                   .AddMembers(
                        ConstructorDeclaration(classDeclarationSyntax.Identifier)
@@ -810,7 +810,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             return ClassDeclaration(classDeclarationSyntax.Identifier)
                   .WithModifiers(classDeclarationSyntax.Modifiers)
                   .WithAttributeLists(classDeclarationSyntax.AttributeLists)
-                  .WithHandlerIdentityConstraint()
+                  .WithHandlerIdentityConstraint(true)
                   .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(IdentifierName(classDeclarationSyntax.Identifier.Text)))))
                   .AddMembers(
                        ConstructorDeclaration(classDeclarationSyntax.Identifier)

@@ -44,7 +44,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             responseType = request.Response.Syntax is NullableTypeSyntax ? NullableType(responseType) : responseType;
 
             var method = MethodDeclaration(extensionMethodContext.Item, item.JsonRpcAttributes.HandlerMethodName)
-                        .WithHandlerIdentityConstraint()
+                        .WithHandlerIdentityConstraint(true)
                         .WithModifiers(
                              TokenList(
                                  Token(SyntaxKind.PublicKeyword),

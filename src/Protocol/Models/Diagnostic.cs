@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization;
 using OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters;
 
@@ -10,7 +11,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
     [DebuggerDisplay("{" + nameof(DebuggerDisplay) + ",nq}")]
     [GenerateTypedData]
-    public class Diagnostic : ICanHaveData
+    public partial class Diagnostic : ICanHaveData
     {
         /// <summary>
         /// The range at which the message applies.
