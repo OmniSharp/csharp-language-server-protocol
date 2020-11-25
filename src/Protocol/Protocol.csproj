@@ -21,9 +21,6 @@
     </PropertyGroup>
     <ItemGroup>
         <Compile Condition="'$(DesignTimeBuild)' == 'true' and '$(IDEA_INITIAL_DIRECTORY)' != ''" Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-        <Compile Remove="Client\Capabilities\WorkspaceFoldersClientCapabilities.cs" />
-        <Compile Remove="Client\Capabilities\ConfigurationClientCapabilities.cs" />
-        <Compile Remove="Client\Capabilities\ApplyEditClientCapabilities.cs" />
     </ItemGroup>
 
     <ItemGroup>

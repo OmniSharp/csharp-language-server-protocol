@@ -469,7 +469,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
                                .Select(
-                                    x => ( (TextDocumentChangeRegistrationOptions?) x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!) )?.SyncKind
+                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!) )?.SyncKind
                                       ?? TextDocumentSyncKind.None
                                 )
                                .Where(x => x != TextDocumentSyncKind.None)
