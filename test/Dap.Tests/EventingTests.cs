@@ -55,9 +55,9 @@ namespace Dap.Tests
         public async Task Initialize_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientInitialize =
-                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialize), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialize;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialize), typeof(RunInTerminalHandlerBase) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialize;
             var onDebugAdapterServerInitialize =
-                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandler) }, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialize), typeof(CompletionsHandlerBase) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialize;
             var (client, server) = await Initialize(
                 // ReSharper disable once SuspiciousTypeConversion.Global
@@ -102,9 +102,9 @@ namespace Dap.Tests
         public async Task Initialized_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientInitialized =
-                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialized), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialized;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientInitialized), typeof(RunInTerminalHandlerBase) }, Array.Empty<object>()) as IOnDebugAdapterClientInitialized;
             var onDebugAdapterServerInitialized =
-                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandler) }, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerInitialized), typeof(CompletionsHandlerBase) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerInitialized;
             var (client, server) = await Initialize(
                 // ReSharper disable once SuspiciousTypeConversion.Global
@@ -149,9 +149,9 @@ namespace Dap.Tests
         public async Task Started_Interface_Is_Supported_On_Handlers()
         {
             var onDebugAdapterClientStarted =
-                Substitute.For(new[] { typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandler) }, Array.Empty<object>()) as IOnDebugAdapterClientStarted;
+                Substitute.For(new[] { typeof(IOnDebugAdapterClientStarted), typeof(RunInTerminalHandlerBase) }, Array.Empty<object>()) as IOnDebugAdapterClientStarted;
             var onDebugAdapterServerStarted =
-                Substitute.For(new[] { typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandler) }, Array.Empty<object>()) as
+                Substitute.For(new[] { typeof(IOnDebugAdapterServerStarted), typeof(CompletionsHandlerBase) }, Array.Empty<object>()) as
                     IOnDebugAdapterServerStarted;
             var (client, server) = await Initialize(
                 // ReSharper disable once SuspiciousTypeConversion.Global

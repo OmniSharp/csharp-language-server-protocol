@@ -851,15 +851,23 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
             }
 
-            var substringIndex = symbol.Name.IndexOf("Handler", StringComparison.Ordinal);
+            var substringIndex = symbol.Name.LastIndexOf("Handler", StringComparison.Ordinal);
             if (substringIndex is -1)
             {
-                substringIndex = symbol.Name.IndexOf("Params", StringComparison.Ordinal);
+                substringIndex = symbol.Name.LastIndexOf("Params", StringComparison.Ordinal);
+            }
+            if (substringIndex is -1)
+            {
+                substringIndex = symbol.Name.LastIndexOf("Arguments", StringComparison.Ordinal);
+            }
+            if (substringIndex is -1)
+            {
+                substringIndex = symbol.Name.LastIndexOf("Event", StringComparison.Ordinal);
             }
 
             if (substringIndex is -1)
             {
-                substringIndex = symbol.Name.Length - 1;
+                substringIndex = symbol.Name.Length;
             }
 
             var start = 0;
