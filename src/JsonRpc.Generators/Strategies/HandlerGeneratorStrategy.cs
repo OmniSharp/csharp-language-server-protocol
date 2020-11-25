@@ -127,8 +127,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .AddModifiers(item.TypeDeclaration.Modifiers.ToArray())
                            .WithBaseList(
                                 BaseList(
-                                    SingletonSeparatedList<BaseTypeSyntax>(
-                                        SimpleBaseType(GenericName(handlerClass.Identifier.Text).AddTypeArgumentListArguments(item.Request.Syntax))
+                                    SeparatedList<BaseTypeSyntax>(
+                                        new[] {
+                                            SimpleBaseType(GenericName(handlerClass.Identifier.Text).AddTypeArgumentListArguments(item.Request.Syntax)),
+                                            SimpleBaseType(IdentifierName(handlerInterface.Identifier.Text)),
+                                        }
                                     )
                                 )
                             )

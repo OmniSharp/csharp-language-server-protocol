@@ -16,5 +16,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generation
         public GenerateHandlerAttribute(string? @namespace = null) { }
 
         public string? Name { get; init; }
+
+        /// <summary>
+        /// Allow the request to be derived and create methods that take a request type argument.
+        /// </summary>
+        public bool AllowDerivedRequests { get; set; }
     }
 }

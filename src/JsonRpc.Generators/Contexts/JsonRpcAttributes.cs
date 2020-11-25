@@ -50,6 +50,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             {
                 attributes = attributes with {
                     GenerateHandler = SyntaxAttributeData.Parse(generateHandlerData),
+                    AllowDerivedRequests = generateHandlerData
+                                          .NamedArguments
+                                          .Select(z => z is { Key: "AllowDerivedRequests", Value: { Value: true } })
+                                          .Count(z => z) is > 0,
                     HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string ?? attributes.HandlerNamespace : attributes.HandlerNamespace,
                     HandlerName = generateHandlerData is { NamedArguments: { Length: >= 1 } namedArguments } ?
                         namedArguments
@@ -69,10 +73,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var data = SyntaxAttributeData.Parse(generateHandlerMethodsData);
                 attributes = attributes with {
                     GenerateHandlerMethods = data,
-                    AllowDerivedRequests = generateHandlerMethodsData
-                                          .NamedArguments
-                                          .Select(z => z is { Key: "AllowDerivedRequests", Value: { Value: true } })
-                                          .Count(z => z) is > 0,
                     HandlerMethodName = generateHandlerMethodsData
                                        .NamedArguments
                                        .Select(z => z is { Key: "MethodName", Value: { Value: string value } } ? value : null)

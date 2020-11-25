@@ -16,8 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [Parallel]
         [Method(RequestNames.Launch, Direction.ClientToServer)]
         [
-            GenerateHandler(Name = "Launch"),
-            GenerateHandlerMethods(AllowDerivedRequests = true),
+            GenerateHandler(Name = "Launch", AllowDerivedRequests = true),
+            GenerateHandlerMethods,
             GenerateRequestMethods
         ]
         public class LaunchRequestArguments : IRequest<LaunchResponse>

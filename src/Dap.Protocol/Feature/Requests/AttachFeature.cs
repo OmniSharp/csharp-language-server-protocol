@@ -16,8 +16,8 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
         [Parallel]
         [Method(RequestNames.Attach, Direction.ClientToServer)]
         [
-            GenerateHandler(Name = "Attach"),
-            GenerateHandlerMethods(AllowDerivedRequests = true),
+            GenerateHandler(Name = "Attach", AllowDerivedRequests = true),
+            GenerateHandlerMethods,
             GenerateRequestMethods
         ]
         public class AttachRequestArguments : IRequest<AttachResponse>
