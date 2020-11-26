@@ -1,16 +1,39 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
+    public class SourceWriter
+    {
+        private readonly MemoryStream _stream = new();
+        public SourceWriter()
+        {
+        }
+
+        public SourceWriter Append(string value)
+        {
+            var array = Encoding.UTF8.GetBytes(value);
+            _stream.Write(array, 0, value.Length);
+            return this;
+        }
+
+        public SourceText GetText()
+        {
+            _stream.Position = 0;
+            return SourceText.From(_stream, Encoding.UTF8);
+        }
+    }
+
     [Generator]
     public class StronglyTypedGenerator : ISourceGenerator
     {
@@ -33,8 +56,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 return;
             }
 
-            var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
-            var compilation = context.Compilation;
             var generateTypedDataAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute");
             var generateContainerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute");
 
@@ -80,7 +101,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 context.AddSource(
                     $"{containerName ?? ( classToContain.Identifier.Text + "Container" )}.cs",
-                    cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
 
@@ -250,7 +271,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 context.AddSource(
                     $"{candidate.Identifier.Text}Typed.cs",
-                    cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
         }

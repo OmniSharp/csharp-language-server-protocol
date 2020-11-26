@@ -94,7 +94,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             else if (syntax.BaseList?.Types.Select(z => z.Type).OfType<SimpleNameSyntax>().Any(z => z.Identifier.Text == "IRequest" || z.Identifier.Text == "IJsonRpcRequest")
                   == true)
             {
-                type = ParseTypeName(syntax.Identifier.ToFullString());
+                type = IdentifierName(syntax.Identifier.Text);
             }
             else
             {
@@ -848,10 +848,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private static string SpecialCasedHandlerFullName(INamedTypeSymbol symbol)
         {
-            if (symbol.IsGenericType)
-            {
-            }
-
             var substringIndex = symbol.Name.LastIndexOf("Handler", StringComparison.Ordinal);
             if (substringIndex is -1)
             {
@@ -880,12 +876,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 substringIndex -= 1;
             }
 
-            return new Regex(@"(\w+(?:\<\w+\>)?)$")
-                   .Replace(
-                        symbol.ToDisplayString(),
-                        symbol.Name.Substring(start, substringIndex)
-                    )
-                ;
+            return symbol.Name.Substring(start, substringIndex);
         }
 
         public static string SpecialCasedHandlerName(INamedTypeSymbol symbol)
@@ -930,6 +921,54 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         );
     }
 
+    public static class LazyFactory
+    {
+        public static Lazy<T> Create<T>(Func<T> func) => new(func);
+    }
+
+    public static class CommonElements
+    {
+        public static AccessorListSyntax GetSetAccessor => GetSetAccessorLazy.Value;
+
+        private static readonly Lazy<AccessorListSyntax> GetSetAccessorLazy = LazyFactory.Create(
+            () => AccessorList(
+                List(
+                    new[] {
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                        AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    }
+                )
+            )
+        );
+
+        private static readonly Lazy<AccessorListSyntax> GetInitAccessorLazy = LazyFactory.Create(
+            () => AccessorList(
+                List(
+                    new[] {
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                           .WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
+                        AccessorDeclaration(SyntaxKind.InitAccessorDeclaration)
+                           .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    }
+                )
+            )
+        );
+
+        public static AccessorListSyntax GetInitAccessor => GetInitAccessorLazy.Value;
+
+        private static readonly Lazy<AccessorListSyntax> GetAccessorLazy = LazyFactory.Create(
+            () => AccessorList(
+                List(
+                    new[] {
+                        AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
+                    }
+                )
+            )
+        );
+
+        public static AccessorListSyntax GetAccessor => GetAccessorLazy.Value;
+    }
+
     public static class SyntaxExtensions
     {
         public static TypeSyntax EnsureNullable(this TypeSyntax typeSyntax) => typeSyntax is NullableTypeSyntax nts ? nts : NullableType(typeSyntax);
@@ -940,7 +979,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return typeSyntax switch {
                 SimpleNameSyntax sns    => sns.Identifier.Text,
                 QualifiedNameSyntax qns => qns.Right.Identifier.Text,
-                NullableTypeSyntax nts => nts.ElementType.GetSyntaxName(),
+                NullableTypeSyntax nts  => nts.ElementType.GetSyntaxName(),
                 _                       => throw new NotSupportedException(typeSyntax.GetType().FullName)
             };
         }
@@ -985,6 +1024,35 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             return false;
+        }
+
+        public static AttributeSyntax? GetAttribute(this AttributeListSyntax list, string attributePrefixes) // string is comma separated
+        {
+            if (list is { Attributes: { Count: 0 } }) return null;
+            var names = GetNames(attributePrefixes);
+
+            foreach (var item in list.Attributes)
+            {
+                if (item.Name.GetSyntaxName() is { } n && names.Contains(n)) return item;
+            }
+
+            return null;
+        }
+
+        public static AttributeSyntax? GetAttribute(this in SyntaxList<AttributeListSyntax> list, string attributePrefixes) // string is comma separated
+        {
+            if (list is { Count: 0 }) return null;
+            var names = GetNames(attributePrefixes);
+
+            foreach (var item in list)
+            {
+                foreach (var attribute in item.Attributes)
+                {
+                    if (attribute.Name.GetSyntaxName() is { } n && names.Contains(n)) return attribute;
+                }
+            }
+
+            return null;
         }
 
         public static bool IsAttribute(this AttributeSyntax attributeSyntax, string attributePrefixes) // string is comma separated

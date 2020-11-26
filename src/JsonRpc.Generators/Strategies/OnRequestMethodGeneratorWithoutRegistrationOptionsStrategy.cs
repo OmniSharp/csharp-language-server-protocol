@@ -235,8 +235,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        }
                                        : new ParameterSyntax[] { }
                                )
-                       )
-                      .NormalizeWhitespace();
+                       );
             }
 
             MethodDeclarationSyntax GenerateMethods(MethodDeclarationSyntax method, TypeSyntax syntax, TypeSyntax? resolveSyntax) => MethodFactory(method, syntax, resolveSyntax);

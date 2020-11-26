@@ -59,8 +59,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                            )
                                           .WithParameterList(parameterList)
                                           .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax))
-                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-                                          .NormalizeWhitespace();
+                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
                 yield break;
             }
 
@@ -92,8 +91,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                            )
                                           .WithParameterList(parameterList)
                                           .WithExpressionBody(Helpers.GetPartialInvokeExpression(request.Response.Syntax))
-                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-                                          .NormalizeWhitespace();
+                                          .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
                 ;
                 yield break;
             }
@@ -111,8 +109,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                        )
                                       .WithParameterList(parameterList)
                                       .WithExpressionBody(Helpers.GetRequestInvokeExpression())
-                                      .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-                                      .NormalizeWhitespace();
+                                      .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
         }
     }
 }

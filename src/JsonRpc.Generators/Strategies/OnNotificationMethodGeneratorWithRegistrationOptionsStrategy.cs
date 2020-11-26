@@ -79,8 +79,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                       .WithParameterList(
                            preParameterList.AddParameters(Parameter(Identifier("handler")).WithType(syntax))
                                            .AddParameters(registrationParameter)
-                       )
-                      .NormalizeWhitespace();
+                       );
             }
 
             MethodDeclarationSyntax GenerateMethods(MethodDeclarationSyntax method, TypeSyntax syntax)

@@ -17,8 +17,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                        .WithParameterList(
                             preParameterList.AddParameters(Parameter(Identifier("handler")).WithType(syntax))
                                             .AddParameters(postParameterList?.Parameters.ToArray() ?? Array.Empty<ParameterSyntax>())
-                        )
-                       .NormalizeWhitespace();
+                        );
 
         public static Func<TypeSyntax, MethodDeclarationSyntax> MakeGenericFactory(Func<TypeSyntax, MethodDeclarationSyntax> factory, TypeSyntax constraint)
         {
@@ -29,8 +28,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                      TypeParameterConstraintClause(IdentifierName("T"))
                                         .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
                                  )
-                             )
-                            .NormalizeWhitespace();
+                             );
         }
 
         public static Func<TypeSyntax, TypeSyntax?, MethodDeclarationSyntax> MakeGenericFactory(
@@ -44,8 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                       TypeParameterConstraintClause(IdentifierName("T"))
                                                          .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
                                                   )
-                                              )
-                                             .NormalizeWhitespace();
+                                              );
         }
 
         public static Func<TypeSyntax, TypeSyntax?, IEnumerable<MethodDeclarationSyntax>> MakeGenericFactory(
@@ -62,7 +59,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
                                   )
                               )
-                             .NormalizeWhitespace()
                 );
         }
 
@@ -80,7 +76,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          .WithConstraints(SingletonSeparatedList<TypeParameterConstraintSyntax>(TypeConstraint(constraint)))
                                   )
                               )
-                             .NormalizeWhitespace()
                 );
         }
 

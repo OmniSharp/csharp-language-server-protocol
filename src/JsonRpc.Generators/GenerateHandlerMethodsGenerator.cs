@@ -114,12 +114,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              List(members)
                          )
                         .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
-                        .WithTrailingTrivia(CarriageReturnLineFeed)
-                        .NormalizeWhitespace();
+                        .WithTrailingTrivia(CarriageReturnLineFeed);
 
                 context.AddSource(
                     $"{candidateClass.Identifier.Text}{( candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "" )}.cs",
-                    cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
         }

@@ -78,7 +78,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                             .WithMembers(List(methods))
                                                             .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
                                                             .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                                                            .NormalizeWhitespace()
                                            )
                                        );
         }

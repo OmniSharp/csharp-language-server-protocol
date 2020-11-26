@@ -307,8 +307,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             yield return NamespaceDeclaration(ParseName(item.JsonRpcAttributes.HandlerNamespace))
                         .WithMembers(List(members))
                         .WithLeadingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true))))
-                        .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))))
-                        .NormalizeWhitespace();
+                        .WithTrailingTrivia(TriviaList(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true))));
         }
 
         private static GenericNameSyntax GetBaseHandlerInterface(GeneratorData item)

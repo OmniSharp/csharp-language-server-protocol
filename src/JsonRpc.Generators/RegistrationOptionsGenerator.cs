@@ -187,7 +187,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     context.AddSource(
                         $"{registrationOptions.Identifier.Text}.cs",
-                        cu.NormalizeWhitespace().SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                        cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                     );
                 }
                 catch (Exception e)

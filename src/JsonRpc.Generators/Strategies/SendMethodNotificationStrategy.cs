@@ -37,8 +37,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                      }
                                  )
                              )
-                         )
-                        .NormalizeWhitespace();
+                         );
         }
     }
 }

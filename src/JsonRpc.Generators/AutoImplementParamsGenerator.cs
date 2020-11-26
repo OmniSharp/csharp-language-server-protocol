@@ -4,8 +4,10 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Text;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
+using static OmniSharp.Extensions.JsonRpc.Generators.CommonElements;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
@@ -59,19 +61,17 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              SingletonList<MemberDeclarationSyntax>(
                                  NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
                                     .WithMembers(List(members))
-                                    .NormalizeWhitespace()
                                  )
                          )
                         .AddUsings(UsingDirective(ParseName("OmniSharp.Extensions.LanguageServer.Protocol.Serialization")))
                         .WithLeadingTrivia()
                         .WithTrailingTrivia()
                         .WithLeadingTrivia(Comment(Preamble.GeneratedByATool), Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)))
-                        .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)), CarriageReturnLineFeed)
-                        .NormalizeWhitespace();
+                        .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)), CarriageReturnLineFeed);
 
                 context.AddSource(
                     $"{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs",
-                    cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
+                    cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
         }
@@ -84,16 +84,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 yield return PropertyDeclaration(NullableType(IdentifierName("ProgressToken")), Identifier("WorkDoneToken"))
                                           .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
                                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                          .WithAccessorList(
-                                               AccessorList(
-                                                   List(
-                                                       new[] {
-                                                           AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                                           AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                                       }
-                                                   )
-                                               )
-                                           );
+                                          .WithAccessorList(GetSetAccessor);
             }
 
             if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is  "IPartialItemsRequest" or "IPartialItemRequest") == true
@@ -102,16 +93,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 yield return PropertyDeclaration(NullableType(IdentifierName("ProgressToken")), Identifier("PartialResultToken"))
                                           .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
                                           .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                          .WithAccessorList(
-                                               AccessorList(
-                                                   List(
-                                                       new[] {
-                                                           AccessorDeclaration(SyntaxKind.GetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken)),
-                                                           AccessorDeclaration(SyntaxKind.SetAccessorDeclaration).WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
-                                                       }
-                                                   )
-                                               )
-                                           );
+                                          .WithAccessorList(GetSetAccessor);
             }
         }
 
