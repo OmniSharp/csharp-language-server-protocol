@@ -2,6 +2,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
@@ -22,7 +23,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         bool CanHaveData
     )
     {
-        public static LspAttributes? Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol)
+        public static LspAttributes? Parse(
+            GeneratorExecutionContext context,
+            AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic,
+            TypeDeclarationSyntax syntax,
+            INamedTypeSymbol symbol)
         {
             var prefix = "OmniSharp.Extensions.LanguageServer.Protocol.Generation";
 

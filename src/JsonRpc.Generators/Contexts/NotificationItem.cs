@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
@@ -17,7 +18,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         SemanticModel Model,
         GeneratorExecutionContext Context
     ) : GeneratorData(
-        TypeDeclaration, TypeSymbol, JsonRpcAttributes, LspAttributes, DapAttributes, Request, Capability, RegistrationOptions,
+        TypeDeclaration, TypeSymbol, JsonRpcAttributes, LspAttributes,
+        DapAttributes, Request, Capability, RegistrationOptions,
         AdditionalUsings, Model, Context
     );
 }

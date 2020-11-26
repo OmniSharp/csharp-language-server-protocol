@@ -1,7 +1,11 @@
+using System;
 using System.Threading.Tasks;
+using FluentAssertions;
 using OmniSharp.Extensions.JsonRpc.Generators;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using TestingUtils;
 using Xunit;
+using Xunit.Sdk;
 using static Generation.Tests.GenerationHelpers;
 
 namespace Generation.Tests
@@ -64,6 +68,36 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
 #nullable restore
 }";
             await AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, expected);
+        }
+
+        [FactWithSkipOn(SkipOnPlatform.Windows)]
+        public async Task Should_Report_Diagnostic_If_Missing_Information()
+        {
+            var source = @"
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using MediatR;
+using OmniSharp.Extensions.JsonRpc;
+using OmniSharp.Extensions.JsonRpc.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
+using OmniSharp.Extensions.LanguageServer.Protocol.Generation;
+using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
+
+namespace Test
+{
+    [Serial, Method(GeneralNames.Exit, Direction.ClientToServer), GenerateHandlerMethods, GenerateRequestMethods]
+    public interface IExitHandler : IJsonRpcNotificationHandler<ExitParams>
+    {
+    }
+}";
+
+            CacheKeyHasher.Cache = true;
+            Func<Task> a = () => AssertGeneratedAsExpected<GenerateHandlerMethodsGenerator>(source, "");
+            a.Should().Throw<EmptyException>().WithMessage("*Could not infer the request router(s)*");
+            a.Should().Throw<EmptyException>("cache").WithMessage("*Could not infer the request router(s)*");
         }
 
         [FactWithSkipOn(SkipOnPlatform.Windows)]

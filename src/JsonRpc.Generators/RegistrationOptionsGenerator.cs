@@ -6,6 +6,7 @@ using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
@@ -13,7 +14,7 @@ using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class RegistrationOptionsGenerator : ISourceGenerator
+    public class RegistrationOptionsGenerator : CachedSourceGenerator<RegistrationOptionsGenerator.SyntaxReceiver, ClassDeclarationSyntax>
     {
         private static string[] RequiredUsings = new[] {
             "OmniSharp.Extensions.LanguageServer.Protocol",
@@ -21,18 +22,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities",
         };
 
-        public void Initialize(GeneratorInitializationContext context)
+        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<ClassDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<ClassDeclarationSyntax> cacheDiagnostic)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-        }
-
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
-            {
-                return;
-            }
-
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
 
@@ -56,7 +47,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     if (!registrationOptions.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
                     {
-                        context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, registrationOptions.Identifier.GetLocation(), registrationOptions.Identifier.Text));
+                        cacheDiagnostic(registrationOptions, static r => Diagnostic.Create(GeneratorDiagnostics.MustBePartial, r.Identifier.GetLocation(), r.Identifier.Text));
                         continue;
                     }
 
@@ -185,8 +176,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         }
                     }
 
-                    context.AddSource(
+                    addCacheSource(
                         $"{registrationOptions.Identifier.Text}.cs",
+                        registrationOptions,
                         cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                     );
                 }
@@ -343,30 +335,42 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                    );
         }
 
-        /// <summary>
-        /// Created on demand before each generation pass
-        /// </summary>
-        internal class SyntaxReceiver : ISyntaxReceiver
+        public RegistrationOptionsGenerator() : base(() => new SyntaxReceiver(Cache))
+        {
+
+        }
+        public static CacheContainer<ClassDeclarationSyntax> Cache = new ();
+
+        public class SyntaxReceiver : SyntaxReceiverCache<ClassDeclarationSyntax>
         {
             public List<ClassDeclarationSyntax> RegistrationOptions { get; } = new();
+
+            public override string? GetKey(ClassDeclarationSyntax syntax)
+            {
+                var hasher = new CacheKeyHasher();
+                hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Identifier.Text);
+                hasher.Append(syntax.TypeParameterList);
+                hasher.Append(syntax.AttributeLists);
+                hasher.Append(syntax.BaseList);
+                return hasher;
+            }
 
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
             /// </summary>
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+            public override void OnVisitNode(ClassDeclarationSyntax syntaxNode)
             {
-                // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax)
+                if (syntaxNode.AttributeLists
+                              .SelectMany(z => z.Attributes)
+                              .Any(z => z.Name.ToFullString().Contains("GenerateRegistrationOptions"))
+                )
                 {
-                    if (classDeclarationSyntax.AttributeLists
-                                              .SelectMany(z => z.Attributes)
-                                              .Any(z => z.Name.ToFullString().Contains("GenerateRegistrationOptions"))
-                    )
-                    {
-                        RegistrationOptions.Add(classDeclarationSyntax);
-                    }
+                    RegistrationOptions.Add(syntaxNode);
                 }
             }
+
+            public SyntaxReceiver(CacheContainer<ClassDeclarationSyntax> cache) : base(cache) { }
         }
     }
 }

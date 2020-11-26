@@ -10,6 +10,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using OmniSharp.Extensions.JsonRpc.Generators.Strategies;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -18,23 +19,10 @@ using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class GenerateHandlerMethodsGenerator : ISourceGenerator
+    public class GenerateHandlerMethodsGenerator : CachedSourceGenerator<GenerateHandlerMethodsGenerator.SyntaxReceiver, TypeDeclarationSyntax>
     {
-        public void Initialize(GeneratorInitializationContext context)
+        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-        }
-
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
-            {
-                return;
-            }
-
-            var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
-            var compilation = context.Compilation;
-
             foreach (var candidateClass in syntaxReceiver.Candidates)
             {
 //                context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.Message, null, $"candidate: {candidateClass.Identifier.ToFullString()}"));
@@ -54,7 +42,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 try
                 {
-                    actionItem = GeneratorData.Create(context, candidateClass, additionalUsings);
+                    actionItem = GeneratorData.Create(context, candidateClass, addCacheSource, cacheDiagnostic, additionalUsings);
                 }
                 catch (Exception e)
                 {
@@ -116,8 +104,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .WithLeadingTrivia(Comment(Preamble.GeneratedByATool))
                         .WithTrailingTrivia(CarriageReturnLineFeed);
 
-                context.AddSource(
+                addCacheSource(
                     $"{candidateClass.Identifier.Text}{( candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "" )}.cs",
+                    candidateClass,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
@@ -153,28 +142,38 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             return compilationUnitStrategies;
         }
 
-        /// <summary>
-        /// Created on demand before each generation pass
-        /// </summary>
-        internal class SyntaxReceiver : ISyntaxReceiver
+        public GenerateHandlerMethodsGenerator() : base(() => new SyntaxReceiver(Cache)) { }
+        public static CacheContainer<TypeDeclarationSyntax> Cache = new ();
+        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
         {
             private string _attributes;
-            public List<TypeDeclarationSyntax> Candidates { get; } = new List<TypeDeclarationSyntax>();
+            public List<TypeDeclarationSyntax> Candidates { get; } = new();
 
-            public SyntaxReceiver()
+            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache)
             {
                 _attributes = "GenerateHandler,GenerateRequestMethods,GenerateHandlerMethods";
+            }
+
+            public override string? GetKey(TypeDeclarationSyntax syntax)
+            {
+                var hasher = new CacheKeyHasher();
+                hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Identifier.Text);
+                hasher.Append(syntax.TypeParameterList);
+                hasher.Append(syntax.AttributeLists);
+                hasher.Append(syntax.BaseList);
+                return hasher;
             }
 
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
             /// </summary>
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
             {
                 // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is TypeDeclarationSyntax tds and ( ClassDeclarationSyntax { } or InterfaceDeclarationSyntax { }) && tds.AttributeLists.ContainsAttribute(_attributes))
+                if (syntaxNode is ( ClassDeclarationSyntax { } or InterfaceDeclarationSyntax { }) && syntaxNode.AttributeLists.ContainsAttribute(_attributes))
                 {
-                    Candidates.Add(tds);
+                    Candidates.Add(syntaxNode);
                 }
             }
         }

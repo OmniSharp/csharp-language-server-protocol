@@ -6,6 +6,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 {
@@ -24,7 +25,14 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         string ModelNamespace
     )
     {
-        public static JsonRpcAttributes Parse(GeneratorExecutionContext context, TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, HashSet<string> additionalUsings)
+        public static JsonRpcAttributes Parse(
+            GeneratorExecutionContext context,
+            AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic,
+            TypeDeclarationSyntax syntax,
+            INamedTypeSymbol symbol,
+            HashSet<string> additionalUsings
+        )
         {
             var generateHandlerMethodsAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateHandlerMethodsAttribute");
             var generateRequestMethodsAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.JsonRpc.Generation.GenerateRequestMethodsAttribute");
@@ -54,18 +62,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                                           .NamedArguments
                                           .Select(z => z is { Key: "AllowDerivedRequests", Value: { Value: true } })
                                           .Count(z => z) is > 0,
-                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments } ? arguments[0].Value as string ?? attributes.HandlerNamespace : attributes.HandlerNamespace,
-                    HandlerName = generateHandlerData is { NamedArguments: { Length: >= 1 } namedArguments } ?
-                        namedArguments
-                           .Select(z => z is { Key: "Name", Value: { Value:  string str } } ? str : null)
-                           .FirstOrDefault(z => z is { Length: >0 }) ?? attributes.HandlerName : attributes.HandlerName
-                };
+                    HandlerNamespace = generateHandlerData is { ConstructorArguments: { Length: >=1 } arguments }
+                        ? arguments[0].Value as string ?? attributes.HandlerNamespace
+                        : attributes.HandlerNamespace,
+                    HandlerName = generateHandlerData is { NamedArguments: { Length: >= 1 } namedArguments }
+                        ? namedArguments
+                         .Select(z => z is { Key: "Name", Value: { Value: string str } } ? str : null)
+                         .FirstOrDefault(z => z is { Length: >0 }) ?? attributes.HandlerName
+                        : attributes.HandlerName
+                    };
 
                 attributes = attributes with {
                     HandlerMethodName = GetHandlerMethodName(symbol, attributes.HandlerName),
                     PartialHandlerMethodName = GetPartialHandlerMethodName(symbol, attributes.HandlerName),
                     RequestMethodName = GetRequestMethodName(syntax, symbol, attributes.HandlerName)
-                };
+                    };
             }
 
             if (symbol.GetAttribute(generateHandlerMethodsAttributeSymbol) is { } generateHandlerMethodsData)
@@ -79,6 +90,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                                        .FirstOrDefault(z => z is not null) ?? attributes.HandlerMethodName,
                     HandlerRegistries = GetHandlerRegistries(
                         context,
+                        a => cacheDiagnostic(syntax, a),
                         generateHandlerMethodsData,
                         symbol,
                         additionalUsings
@@ -94,9 +106,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     RequestMethodName = generateRequestMethodsData
                                        .NamedArguments
                                        .Select(z => z is { Key: "MethodName", Value: { Value: string value } } ? value : null)
-                                       .FirstOrDefault(z => z is not null)?? attributes.RequestMethodName,
+                                       .FirstOrDefault(z => z is not null) ?? attributes.RequestMethodName,
                     RequestProxies = GetRequestProxies(
                         context,
+                        (a) => cacheDiagnostic(syntax, a),
                         generateRequestMethodsData,
                         symbol,
                         additionalUsings
@@ -109,6 +122,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
         private static IEnumerable<TypeSyntax> GetHandlerRegistries(
             GeneratorExecutionContext context,
+            Action<CacheDiagnosticFactory<TypeDeclarationSyntax>> cacheDiagnostic,
             AttributeData attributeData,
             INamedTypeSymbol interfaceType,
             HashSet<string> additionalUsings
@@ -132,7 +146,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, attributeSyntax.GetLocation()));
+                    cacheDiagnostic( static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateHandlerMethods")?.GetLocation()));
                     yield break;
                 }
 
@@ -166,7 +180,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, attributeSyntax.GetLocation()));
+                    cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateHandlerMethods")?.GetLocation()));
                     yield break;
                 }
 
@@ -195,7 +209,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 yield break;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.CouldNotInferRequestRouter, attributeSyntax.GetLocation()));
+            cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.CouldNotInferRequestRouter, c.AttributeLists.GetAttribute("GenerateHandlerMethods")?.GetLocation()));
         }
 
         private static NameSyntax LanguageProtocolServerToClientRegistry { get; } =
@@ -213,6 +227,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
         private static IEnumerable<TypeSyntax> GetRequestProxies(
             GeneratorExecutionContext context,
+            Action<CacheDiagnosticFactory<TypeDeclarationSyntax>> cacheDiagnostic,
             AttributeData attributeData,
             INamedTypeSymbol interfaceType,
             HashSet<string> additionalUsings
@@ -236,7 +251,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, attributeSyntax.GetLocation()));
+                    cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateRequestMethods")?.GetLocation()));
                     yield break;
                 }
 
@@ -270,7 +285,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 var attribute = interfaceType.GetAttributes().First(z => z.AttributeClass?.Name == "MethodAttribute");
                 if (attribute.ConstructorArguments.Length < 2)
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MissingDirection, attributeSyntax.GetLocation()));
+                    cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.MissingDirection, c.AttributeLists.GetAttribute("GenerateRequestMethods")?.GetLocation()));
                     yield break;
                 }
 
@@ -298,7 +313,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                 yield break;
             }
 
-            context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.CouldNotInferRequestRouter, attributeSyntax.GetLocation()));
+            cacheDiagnostic(static c => Diagnostic.Create(GeneratorDiagnostics.CouldNotInferRequestRouter, c.AttributeLists.GetAttribute("GenerateRequestMethods")?.GetLocation()));
         }
 
         private static NameSyntax LanguageProtocolServerToClient { get; } =
@@ -315,12 +330,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
         public static string GetHandlerMethodName(INamedTypeSymbol symbol, string? handlerName)
         {
-            return "On" + (handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol));
+            return "On" + ( handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol) );
         }
 
         public static string GetPartialHandlerMethodName(INamedTypeSymbol symbol, string? handlerName)
         {
-            return "Observe" + (handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol));
+            return "Observe" + ( handlerName is { Length: > 0 } ? handlerName : Helpers.SpecialCasedHandlerName(symbol) );
         }
 
         public static string GetRequestMethodName(TypeDeclarationSyntax syntax, INamedTypeSymbol symbol, string? handlerName)

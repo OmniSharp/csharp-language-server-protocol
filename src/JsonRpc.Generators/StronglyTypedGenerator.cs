@@ -7,35 +7,15 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 using SyntaxTrivia = Microsoft.CodeAnalysis.SyntaxTrivia;
 
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
-    public class SourceWriter
-    {
-        private readonly MemoryStream _stream = new();
-        public SourceWriter()
-        {
-        }
-
-        public SourceWriter Append(string value)
-        {
-            var array = Encoding.UTF8.GetBytes(value);
-            _stream.Write(array, 0, value.Length);
-            return this;
-        }
-
-        public SourceText GetText()
-        {
-            _stream.Position = 0;
-            return SourceText.From(_stream, Encoding.UTF8);
-        }
-    }
-
     [Generator]
-    public class StronglyTypedGenerator : ISourceGenerator
+    public class StronglyTypedGenerator : CachedSourceGenerator<StronglyTypedGenerator.SyntaxReceiver, TypeDeclarationSyntax>
     {
         private static string[] RequiredUsings = new[] {
             "System.Collections.Generic",
@@ -44,18 +24,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             "System.Linq",
         };
 
-        public void Initialize(GeneratorInitializationContext context)
+        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<TypeDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-        }
-
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
-            {
-                return;
-            }
-
             var generateTypedDataAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateTypedDataAttribute");
             var generateContainerAttributeSymbol = context.Compilation.GetTypeByMetadataName("OmniSharp.Extensions.LanguageServer.Protocol.Generation.GenerateContainerAttribute");
 
@@ -99,8 +69,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
                 }
 
-                context.AddSource(
+                addCacheSource(
                     $"{containerName ?? ( classToContain.Identifier.Text + "Container" )}.cs",
+                    classToContain,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
@@ -108,13 +79,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             foreach (var canBeResolved in syntaxReceiver.CanBeResolved)
             {
                 var dataInterfaceName = IdentifierName("ICanBeResolved");
-                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true);
+                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, true, addCacheSource, cacheDiagnostic);
             }
 
             foreach (var canBeResolved in syntaxReceiver.CanHaveData)
             {
                 var dataInterfaceName = IdentifierName("ICanHaveData");
-                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false);
+                CreateTypedClass(context, canBeResolved, dataInterfaceName, generateTypedDataAttributeSymbol, generateContainerAttributeSymbol, false, addCacheSource, cacheDiagnostic);
             }
 
             static void CreateTypedClass(
@@ -123,7 +94,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 IdentifierNameSyntax dataInterfaceName,
                 INamedTypeSymbol? generateTypedDataAttributeSymbol,
                 INamedTypeSymbol? generateContainerAttributeSymbol,
-                bool includeHandlerIdentity
+                bool includeHandlerIdentity,
+                AddCacheSource<TypeDeclarationSyntax> cacheItem,
+                ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic
             )
             {
                 var semanticModel = context.Compilation.GetSemanticModel(candidate.SyntaxTree);
@@ -134,7 +107,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (!candidate.Modifiers.Any(SyntaxKind.PartialKeyword))
                 {
-                    context.ReportDiagnostic(Diagnostic.Create(GeneratorDiagnostics.MustBePartial, candidate.Identifier.GetLocation(), candidate.Identifier.Text));
+                    cacheDiagnostic(candidate, static c => Diagnostic.Create(GeneratorDiagnostics.MustBePartial, c.Identifier.GetLocation(), c.Identifier.Text));
                     return;
                 }
 
@@ -269,8 +242,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
                 }
 
-                context.AddSource(
+                cacheItem(
                     $"{candidate.Identifier.Text}Typed.cs",
+                    candidate,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
@@ -898,19 +872,32 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
         }
 
-        /// <summary>
-        /// Created on demand before each generation pass
-        /// </summary>
-        internal class SyntaxReceiver : ISyntaxReceiver
+        public StronglyTypedGenerator() : base(() => new SyntaxReceiver(Cache))
+        {
+
+        }
+        public static CacheContainer<TypeDeclarationSyntax> Cache = new ();
+        public class SyntaxReceiver : SyntaxReceiverCache<TypeDeclarationSyntax>
         {
             public List<ClassDeclarationSyntax> CanBeResolved { get; } = new();
             public List<ClassDeclarationSyntax> CanHaveData { get; } = new();
             public List<TypeDeclarationSyntax> CreateContainers { get; } = new();
 
+            public override string? GetKey(TypeDeclarationSyntax syntax)
+            {
+                var hasher = new CacheKeyHasher();
+                hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Identifier.Text);
+                hasher.Append(syntax.TypeParameterList);
+                hasher.Append(syntax.AttributeLists);
+                hasher.Append(syntax.BaseList);
+                return hasher;
+            }
+
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
             /// </summary>
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+            public override void OnVisitNode(TypeDeclarationSyntax syntaxNode)
             {
                 // any field with at least one attribute is a candidate for property generation
 
@@ -946,6 +933,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                     }
                 }
             }
+
+            public SyntaxReceiver(CacheContainer<TypeDeclarationSyntax> cache) : base(cache) { }
         }
     }
 }

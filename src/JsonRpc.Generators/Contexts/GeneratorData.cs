@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.Helpers;
 
@@ -23,16 +24,35 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
         GeneratorExecutionContext Context
     )
     {
-        public static GeneratorData? Create(GeneratorExecutionContext context, TypeDeclarationSyntax candidateClass, HashSet<string> additionalUsings)
+        private AddCacheSource<TypeDeclarationSyntax> AddCacheSourceDelegate { get; init; }
+        private ReportCacheDiagnostic<TypeDeclarationSyntax> CacheDiagnosticDelegate { get; init; }
+
+        public void AddSource(string hintName, SourceText sourceText)
+        {
+            AddCacheSourceDelegate(hintName, TypeDeclaration, sourceText);
+        }
+
+        public void ReportDiagnostic(CacheDiagnosticFactory<TypeDeclarationSyntax> diagnostic)
+        {
+            CacheDiagnosticDelegate(TypeDeclaration, diagnostic);
+        }
+
+        public static GeneratorData? Create(
+            GeneratorExecutionContext context,
+            TypeDeclarationSyntax candidateClass,
+            AddCacheSource<TypeDeclarationSyntax> addCacheSource,
+            ReportCacheDiagnostic<TypeDeclarationSyntax> cacheDiagnostic,
+            HashSet<string> additionalUsings
+        )
         {
             var model = context.Compilation.GetSemanticModel(candidateClass.SyntaxTree);
             var symbol = model.GetDeclaredSymbol(candidateClass);
             if (symbol == null) return null;
             var requestType = GetRequestType(candidateClass, symbol);
             if (requestType == null) return null;
-            var jsonRpcAttributes = JsonRpcAttributes.Parse(context, candidateClass, symbol, additionalUsings);
-            var lspAttributes = LspAttributes.Parse(context, candidateClass, symbol);
-            var dapAttributes = DapAttributes.Parse(context, candidateClass, symbol);
+            var jsonRpcAttributes = JsonRpcAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol, additionalUsings);
+            var lspAttributes = LspAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol);
+            var dapAttributes = DapAttributes.Parse(context, addCacheSource, cacheDiagnostic, candidateClass, symbol);
 
             additionalUsings.Add(jsonRpcAttributes.HandlerNamespace);
             additionalUsings.Add(jsonRpcAttributes.ModelNamespace);
@@ -56,7 +76,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     additionalUsings,
                     model,
                     context
-                );
+                ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };
             }
 
             if (IsNotification(candidateClass))
@@ -73,7 +93,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     additionalUsings,
                     model,
                     context
-                );
+                ) { CacheDiagnosticDelegate = cacheDiagnostic, AddCacheSourceDelegate = addCacheSource };
             }
 
             return null;
@@ -84,9 +104,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             if (parent.LspAttributes?.Resolver?.Symbol.DeclaringSyntaxReferences
                       .FirstOrDefault(
                            z => z.GetSyntax() is TypeDeclarationSyntax { AttributeLists: { Count: > 0 } } tds
-                             && tds.AttributeLists.ContainsAttribute("GenerateHandler"))?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
+                             && tds.AttributeLists.ContainsAttribute("GenerateHandler")
+                       )?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
             {
-                return Create(parent.Context, declarationSyntax, parent.AdditionalUsings) as RequestItem;
+                return Create(parent.Context, declarationSyntax, parent.AddCacheSourceDelegate, parent.CacheDiagnosticDelegate, parent.AdditionalUsings) as RequestItem;
             }
 
             return null;

@@ -21,12 +21,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                                    && generateRequestMethods.Data.ConstructorArguments[0].Values.Length == 0 )
                                                && !extensionMethodContext.TypeSymbol.ContainingNamespace.ToDisplayString().StartsWith("OmniSharp.Extensions.DebugAdapter.Protocol"))
             {
-                item.Context.ReportDiagnostic(
-                    Diagnostic.Create(
-                        GeneratorDiagnostics.NoResponseRouterProvided, extensionMethodContext.TypeDeclaration.Identifier.GetLocation(), extensionMethodContext.TypeSymbol.Name,
-                        string.Join(", ", item.JsonRpcAttributes.HandlerRegistries.Select(z => z.ToFullString()))
-                    )
-                );
+                item.ReportDiagnostic(static type => Diagnostic.Create(GeneratorDiagnostics.NoResponseRouterProvided, type.Identifier.GetLocation(), type.Identifier.Text));
             }
         }
     }

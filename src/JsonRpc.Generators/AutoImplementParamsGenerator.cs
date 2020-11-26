@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
+using OmniSharp.Extensions.JsonRpc.Generators.Cache;
 using OmniSharp.Extensions.JsonRpc.Generators.Contexts;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 using static OmniSharp.Extensions.JsonRpc.Generators.CommonElements;
@@ -12,21 +13,10 @@ using static OmniSharp.Extensions.JsonRpc.Generators.CommonElements;
 namespace OmniSharp.Extensions.JsonRpc.Generators
 {
     [Generator]
-    public class AutoImplementParamsGenerator : ISourceGenerator
+    public class AutoImplementParamsGenerator : CachedSourceGenerator<AutoImplementParamsGenerator.SyntaxReceiver, ClassDeclarationSyntax>
     {
-
-        public void Initialize(GeneratorInitializationContext context)
+        protected override void Execute(GeneratorExecutionContext context, SyntaxReceiver syntaxReceiver, AddCacheSource<ClassDeclarationSyntax> addCacheSource, ReportCacheDiagnostic<ClassDeclarationSyntax> cacheDiagnostic)
         {
-            context.RegisterForSyntaxNotifications(() => new SyntaxReceiver());
-        }
-
-        public void Execute(GeneratorExecutionContext context)
-        {
-            if (!( context.SyntaxReceiver is SyntaxReceiver syntaxReceiver ))
-            {
-                return;
-            }
-
             foreach (var candidate in syntaxReceiver.Candidates)
             {
                 var members = new List<MemberDeclarationSyntax>();
@@ -49,9 +39,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (!candidate.Modifiers.Any(z => z.IsKind(SyntaxKind.PartialKeyword)))
                 {
-                    context.ReportDiagnostic(
-                        Diagnostic.Create(GeneratorDiagnostics.MustBePartial, candidate.Identifier.GetLocation(), candidate.Identifier.Text)
-                    );
+                    cacheDiagnostic(candidate, static c => Diagnostic.Create(GeneratorDiagnostics.MustBePartial, c.Identifier.GetLocation(), c.Identifier.Text));
                 }
 
                 var cu = CompilationUnit(
@@ -61,7 +49,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                              SingletonList<MemberDeclarationSyntax>(
                                  NamespaceDeclaration(ParseName(symbol.ContainingNamespace.ToDisplayString()))
                                     .WithMembers(List(members))
-                                 )
+                             )
                          )
                         .AddUsings(UsingDirective(ParseName("OmniSharp.Extensions.LanguageServer.Protocol.Serialization")))
                         .WithLeadingTrivia()
@@ -69,8 +57,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .WithLeadingTrivia(Comment(Preamble.GeneratedByATool), Trivia(NullableDirectiveTrivia(Token(SyntaxKind.EnableKeyword), true)))
                         .WithTrailingTrivia(Trivia(NullableDirectiveTrivia(Token(SyntaxKind.RestoreKeyword), true)), CarriageReturnLineFeed);
 
-                context.AddSource(
+                addCacheSource(
                     $"{candidate.Identifier.Text}{( candidate.Arity > 0 ? candidate.Arity.ToString() : "" )}.cs",
+                    candidate,
                     cu.NormalizeWhitespace().GetText(Encoding.UTF8)
                 );
             }
@@ -78,47 +67,59 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
         private static IEnumerable<MemberDeclarationSyntax> AutoImplementInterfaces(ClassDeclarationSyntax syntax, INamedTypeSymbol symbol)
         {
-            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is "IWorkDoneProgressParams" ) == true
+            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is "IWorkDoneProgressParams") == true
              && symbol.GetMembers("WorkDoneToken").IsEmpty)
             {
                 yield return PropertyDeclaration(NullableType(IdentifierName("ProgressToken")), Identifier("WorkDoneToken"))
-                                          .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
-                                          .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                          .WithAccessorList(GetSetAccessor);
+                            .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
+                            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                            .WithAccessorList(GetSetAccessor);
             }
 
-            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is  "IPartialItemsRequest" or "IPartialItemRequest") == true
+            if (syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName() is "IPartialItemsRequest" or "IPartialItemRequest") == true
              && symbol.GetMembers("PartialResultToken").IsEmpty)
             {
                 yield return PropertyDeclaration(NullableType(IdentifierName("ProgressToken")), Identifier("PartialResultToken"))
-                                          .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
-                                          .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
-                                          .WithAccessorList(GetSetAccessor);
+                            .WithAttributeLists(SingletonList(AttributeList(SingletonSeparatedList(Attribute(IdentifierName("Optional"))))))
+                            .WithModifiers(TokenList(Token(SyntaxKind.PublicKeyword)))
+                            .WithAccessorList(GetSetAccessor);
             }
         }
 
-        /// <summary>
-        /// Created on demand before each generation pass
-        /// </summary>
-        internal class SyntaxReceiver : ISyntaxReceiver
+        public AutoImplementParamsGenerator() : base(() => new SyntaxReceiver(Cache)) { }
+
+        public static CacheContainer<ClassDeclarationSyntax> Cache = new();
+
+        public class SyntaxReceiver : SyntaxReceiverCache<ClassDeclarationSyntax>
         {
             private string _attributes;
-            public List<ClassDeclarationSyntax> Candidates { get; } = new ();
+            public List<ClassDeclarationSyntax> Candidates { get; } = new();
 
-            public SyntaxReceiver()
+            public SyntaxReceiver(CacheContainer<ClassDeclarationSyntax> cacheContainer) : base(cacheContainer)
             {
                 _attributes = "Method,RegistrationOptions";
+            }
+
+            public override string? GetKey(ClassDeclarationSyntax syntax)
+            {
+                var hasher = new CacheKeyHasher();
+                hasher.Append(syntax.SyntaxTree.FilePath);
+                hasher.Append(syntax.Identifier.Text);
+                hasher.Append(syntax.TypeParameterList);
+                hasher.Append(syntax.AttributeLists);
+                hasher.Append(syntax.BaseList);
+                return hasher;
             }
 
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
             /// </summary>
-            public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
+            public override void OnVisitNode(ClassDeclarationSyntax syntaxNode)
             {
                 // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is ClassDeclarationSyntax tds && tds.AttributeLists.ContainsAttribute(_attributes))
+                if (syntaxNode.AttributeLists.ContainsAttribute(_attributes))
                 {
-                    Candidates.Add(tds);
+                    Candidates.Add(syntaxNode);
                 }
             }
         }
