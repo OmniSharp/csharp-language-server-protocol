@@ -37,21 +37,21 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                                            z => SymbolEqualityComparer.Default.Equals(z, textDocumentRegistrationOptionsInterfaceSymbol)
                                        )
                                     || textDocumentRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
-                                           type => type.Type.ToFullString().Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name)
+                                           type => type.Type.GetSyntaxName()?.Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name) == true
                                        ) == true;
             var supportsWorkDoneProgress = data.NamedArguments.Any(z => z is { Key: nameof(SupportsWorkDoneProgress), Value: { Value: true } })
                                         || symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
                                                z => SymbolEqualityComparer.Default.Equals(z, workDoneProgressOptionsInterfaceSymbol)
                                            )
                                         || workDoneProgressOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
-                                               type => type.Type.ToFullString().Contains(workDoneProgressOptionsInterfaceSymbol.Name)
+                                               type => type.Type.GetSyntaxName()?.Contains(workDoneProgressOptionsInterfaceSymbol.Name) == true
                                            ) == true;
             var supportsStaticRegistrationOptions = data.NamedArguments.Any(z => z is { Key: nameof(SupportsStaticRegistrationOptions), Value: { Value: true } })
                                                  || symbol.AllInterfaces.Length > 0 && symbol.AllInterfaces.Any(
                                                         z => SymbolEqualityComparer.Default.Equals(z, staticRegistrationOptionsInterfaceSymbol)
                                                     )
                                                  || staticRegistrationOptionsInterfaceSymbol is { } && syntax.BaseList?.Types.Any(
-                                                        type => type.Type.ToFullString().Contains(staticRegistrationOptionsInterfaceSymbol.Name)
+                                                        type => type.Type.GetSyntaxName()?.Contains(staticRegistrationOptionsInterfaceSymbol.Name) == true
                                                     ) == true;
 
             if (attributeSyntax is { ArgumentList: { Arguments: { Count: >=1 } syntaxArguments } })

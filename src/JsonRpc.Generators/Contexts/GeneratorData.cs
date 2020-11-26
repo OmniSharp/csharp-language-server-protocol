@@ -48,7 +48,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
                     dapAttributes,
                     requestType,
                     responseType,
-                    responseType.Symbol.Name == "Unit",
+                    responseType.Syntax.GetSyntaxName() == "Unit",
                     GetCapability(candidateClass, symbol, lspAttributes),
                     GetRegistrationOptions(candidateClass, symbol, lspAttributes),
                     GetPartialItem(candidateClass, symbol, requestType),
@@ -84,8 +84,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
             if (parent.LspAttributes?.Resolver?.Symbol.DeclaringSyntaxReferences
                       .FirstOrDefault(
                            z => z.GetSyntax() is TypeDeclarationSyntax { AttributeLists: { Count: > 0 } } tds
-                             && tds.AttributeLists.SelectMany(z => z.Attributes).Any(z => z.Name.ToFullString().Contains("GenerateHandler"))
-                       )?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
+                             && tds.AttributeLists.ContainsAttribute("GenerateHandler"))?.GetSyntax() is TypeDeclarationSyntax declarationSyntax)
             {
                 return Create(parent.Context, declarationSyntax, parent.AdditionalUsings) as RequestItem;
             }

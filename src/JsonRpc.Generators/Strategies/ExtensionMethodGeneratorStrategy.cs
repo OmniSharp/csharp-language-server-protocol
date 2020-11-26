@@ -43,7 +43,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
 
             var obsoleteAttribute = item.TypeDeclaration.AttributeLists
                                         .SelectMany(z => z.Attributes)
-                                        .Where(z => z.Name.ToFullString() == nameof(ObsoleteAttribute) || z.Name.ToFullString() == "Obsolete")
+                                        .Where(z => z.IsAttribute("Obsolete"))
                                         .ToArray();
 
             var attributes = List(

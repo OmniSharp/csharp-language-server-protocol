@@ -1,5 +1,6 @@
 #nullable enable
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -54,7 +55,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 type = baseType.Type switch {
                     GenericNameSyntax gns => gns switch {
-                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 } => IdentifierName("MediatR.Unit"),
+                        { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 1 } => ParseName("MediatR.Unit"),
                         { Identifier: { Text: "IJsonRpcRequestHandler" }, Arity: 2 } => gns.TypeArgumentList.Arguments[1],
                         { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 }  => gns.TypeArgumentList.Arguments[0],
                         { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }    => gns.TypeArgumentList.Arguments[0],
@@ -62,8 +63,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         { Identifier: { Text: "IRequest" }, Arity: 1 }               => gns.TypeArgumentList.Arguments[0],
                         _                                                            => null
                     },
-                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } }        => IdentifierName("MediatR.Unit"),
-                    SimpleNameSyntax sns and { Identifier: { Text: "IJsonRpcRequest" } } => IdentifierName("MediatR.Unit"),
+                    SimpleNameSyntax sns and { Identifier: { Text: "IRequest" } }        => ParseName("MediatR.Unit"),
+                    SimpleNameSyntax sns and { Identifier: { Text: "IJsonRpcRequest" } } => ParseName("MediatR.Unit"),
                     _                                                                    => null
                 };
                 if (type != null) break;
@@ -104,10 +105,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                             { Identifier: { Text: "IJsonRpcRequestHandler" } }          => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "IJsonRpcNotificationHandler" } }     => gns.TypeArgumentList.Arguments[0],
                             { Identifier: { Text: "ICanBeResolvedHandler" }, Arity: 1 } => gns.TypeArgumentList.Arguments[0],
-                            { Identifier: { Text: "IRequest" } }                        => ParseTypeName(syntax.Identifier.ToFullString()),
-                            { Identifier: { Text: "IJsonRpcRequest" } }                 => ParseTypeName(syntax.Identifier.ToFullString()),
-                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }   => ParseTypeName(syntax.Identifier.ToFullString()),
-                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }  => ParseTypeName(syntax.Identifier.ToFullString()),
+                            { Identifier: { Text: "IRequest" } }                        => ParseTypeName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IJsonRpcRequest" } }                 => ParseTypeName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IPartialItemRequest" }, Arity: 2 }   => ParseTypeName(syntax.Identifier.Text),
+                            { Identifier: { Text: "IPartialItemsRequest" }, Arity: 2 }  => ParseTypeName(syntax.Identifier.Text),
                             _                                                           => null,
                         },
                         _ => null,
@@ -856,10 +857,12 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             {
                 substringIndex = symbol.Name.LastIndexOf("Params", StringComparison.Ordinal);
             }
+
             if (substringIndex is -1)
             {
                 substringIndex = symbol.Name.LastIndexOf("Arguments", StringComparison.Ordinal);
             }
+
             if (substringIndex is -1)
             {
                 substringIndex = symbol.Name.LastIndexOf("Event", StringComparison.Ordinal);
@@ -932,6 +935,63 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static TypeSyntax EnsureNullable(this TypeSyntax typeSyntax) => typeSyntax is NullableTypeSyntax nts ? nts : NullableType(typeSyntax);
         public static TypeSyntax EnsureNotNullable(this TypeSyntax typeSyntax) => typeSyntax is NullableTypeSyntax nts ? nts.ElementType : typeSyntax;
 
+        public static string? GetSyntaxName(this TypeSyntax typeSyntax)
+        {
+            return typeSyntax switch {
+                SimpleNameSyntax sns    => sns.Identifier.Text,
+                QualifiedNameSyntax qns => qns.Right.Identifier.Text,
+                NullableTypeSyntax nts => nts.ElementType.GetSyntaxName(),
+                _                       => throw new NotSupportedException(typeSyntax.GetType().FullName)
+            };
+        }
+
+        private static readonly ConcurrentDictionary<string, HashSet<string>> AttributeNames = new();
+
+        private static HashSet<string> GetNames(string attributePrefixes)
+        {
+            if (!AttributeNames.TryGetValue(attributePrefixes, out var names))
+            {
+                names = new HashSet<string>(attributePrefixes.Split(',').SelectMany(z => new[] { z, z + "Attribute" }));
+                AttributeNames.TryAdd(attributePrefixes, names);
+            }
+
+            return names;
+        }
+
+        public static bool ContainsAttribute(this AttributeListSyntax list, string attributePrefixes) // string is comma separated
+        {
+            if (list is { Attributes: { Count: 0 } }) return false;
+            var names = GetNames(attributePrefixes);
+
+            foreach (var item in list.Attributes)
+            {
+                if (item.Name.GetSyntaxName() is { } n && names.Contains(n)) return true;
+            }
+
+            return false;
+        }
+
+        public static bool ContainsAttribute(this in SyntaxList<AttributeListSyntax> list, string attributePrefixes) // string is comma separated
+        {
+            if (list is { Count: 0 }) return false;
+            var names = GetNames(attributePrefixes);
+
+            foreach (var item in list)
+            {
+                foreach (var attribute in item.Attributes)
+                {
+                    if (attribute.Name.GetSyntaxName() is { } n && names.Contains(n)) return true;
+                }
+            }
+
+            return false;
+        }
+
+        public static bool IsAttribute(this AttributeSyntax attributeSyntax, string attributePrefixes) // string is comma separated
+        {
+            var names = GetNames(attributePrefixes);
+            return attributeSyntax.Name.GetSyntaxName() is { } n && names.Contains(n);
+        }
 
         public static BaseMethodDeclarationSyntax MakeMethodNullable(this BaseMethodDeclarationSyntax syntax, IdentifierNameSyntax identifierNameSyntax)
         {

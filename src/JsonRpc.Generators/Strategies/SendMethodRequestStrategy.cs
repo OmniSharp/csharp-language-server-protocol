@@ -99,7 +99,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             }
 
 
-            var responseSyntax = request.Response!.Symbol.Name.EndsWith("Unit")
+            var responseSyntax = request.Response.Syntax.GetSyntaxName() == "Unit"
                 ? SyntaxFactory.IdentifierName("Task") as NameSyntax
                 : SyntaxFactory.GenericName("Task").WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList<TypeSyntax>(new[] { request.Response.Syntax })));
             yield return SyntaxFactory.MethodDeclaration(responseSyntax, item.JsonRpcAttributes.RequestMethodName)

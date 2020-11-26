@@ -78,7 +78,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                                    .WithAttributeLists(List<AttributeListSyntax>());
 
                     var staticBaseList =
-                        registrationOptions.BaseList?.Types.Where(z => !z.Type.ToFullString().Contains(textDocumentRegistrationOptionsInterfaceSymbol.Name)).ToArray()
+                        registrationOptions.BaseList?.Types.Where(z => z.Type.GetSyntaxName() != textDocumentRegistrationOptionsInterfaceSymbol.Name).ToArray()
                      ?? Array.Empty<BaseTypeSyntax>();
                     if (staticBaseList.Length > 0)
                     {
@@ -117,7 +117,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     if (data.SupportsWorkDoneProgress && !data.ImplementsWorkDoneProgress)
                     {
-                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(workDoneProgressOptionsInterfaceSymbol.Name)) != true)
+                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.GetSyntaxName() == workDoneProgressOptionsInterfaceSymbol.Name) != true)
                         {
                             extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, workDoneProgressOptionsInterfaceSymbol);
                             staticRegistrationOptions = ExtendAndImplementInterface(staticRegistrationOptions, workDoneProgressOptionsInterfaceSymbol);
@@ -129,7 +129,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                     if (data.SupportsStaticRegistrationOptions && !data.ImplementsStaticRegistrationOptions)
                     {
-                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.ToFullString().Contains(staticRegistrationOptionsInterfaceSymbol.Name)) != true)
+                        if (registrationOptions.BaseList?.Types.Any(z => z.Type.GetSyntaxName() == staticRegistrationOptionsInterfaceSymbol.Name) != true)
                         {
                             extendedRegistrationOptions = ExtendAndImplementInterface(extendedRegistrationOptions, staticRegistrationOptionsInterfaceSymbol);
                             staticRegistrationOptions = ExtendAndImplementInterface(staticRegistrationOptions, staticRegistrationOptionsInterfaceSymbol);
@@ -272,7 +272,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
             var attribute = syntax.AttributeLists
                                   .SelectMany(z => z.Attributes)
-                                  .FirstOrDefault(z => z.Name.ToFullString().Contains("RegistrationOptions") && !z.Name.ToFullString().Contains("RegistrationOptionsConverter"));
+                                  .FirstOrDefault(z => z.IsAttribute("GenerateRegistrationOptions") && !z.IsAttribute("RegistrationOptionsConverter"));
 
             var expression = attribute is { ArgumentList: { Arguments: { Count: > 0 } arguments } } ? arguments[0].Expression : null;
             if (expression is null) return null;

@@ -93,7 +93,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                                 Attribute(ParseName("System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute")),
                             }.Concat(
                                 attributesToCopy.Attributes
-                                                .Where(z => z.Name.ToFullString().Contains("Obsolete"))
+                                                .Where(z => z.IsAttribute("Obsolete"))
                             ).ToArray()
                         )
                     )
@@ -524,7 +524,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         ParameterList(
                             SingletonSeparatedList(
                                 Parameter(Identifier("id")).WithType(
-                                    IdentifierName("System.Guid")
+                                    ParseName("System.Guid")
                                 )
                             )
                         ).AddParameters(parameters.Parameters.ToArray()),
@@ -570,7 +570,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     ParameterList(
                         SingletonSeparatedList(
                             Parameter(Identifier("id")).WithType(
-                                IdentifierName("System.Guid")
+                                ParseName("System.Guid")
                             )
                         )
                     ).AddParameters(parameters.Parameters.ToArray()),

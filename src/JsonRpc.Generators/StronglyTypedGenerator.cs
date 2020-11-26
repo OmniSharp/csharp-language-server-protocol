@@ -148,7 +148,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                 .WithAttributeLists(
                                      List(
                                          candidate.AttributeLists
-                                                      .Where(z => !z.ToFullString().Contains("Method") && !z.ToFullString().Contains("GenerateTypedData"))
+                                                  .Where(z => !z.ContainsAttribute("Method") && !z.ContainsAttribute("GenerateTypedData"))
                                      )
                                  )
                                 .WithBaseList(BaseList(SingletonSeparatedList<BaseTypeSyntax>(SimpleBaseType(dataInterfaceName))))
@@ -162,8 +162,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                                          )
                                      )
                                  )
-                                .WithLeadingTrivia(candidate.GetLeadingTrivia().Where(z => !z.ToString().Contains("#nullable")))
-                                .WithTrailingTrivia(candidate.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
+//                                .WithLeadingTrivia(candidate.GetLeadingTrivia().Where(z => !z.ToString().Contains("#nullable")))
+//                                .WithTrailingTrivia(candidate.GetTrailingTrivia().Where(z => !z.ToString().Contains("#nullable")))
                     ;
 
                 if (container is { })
@@ -895,10 +895,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (syntaxNode is StructDeclarationSyntax structDeclarationSyntax)
                 {
-                    if (structDeclarationSyntax.AttributeLists
-                                               .SelectMany(z => z.Attributes)
-                                               .Any(z => z.Name.ToFullString().Contains("GenerateContainer"))
-                    )
+                    if (structDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer"))
                     {
                         CreateContainers.Add(structDeclarationSyntax);
                     }
@@ -906,10 +903,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax)
                 {
-                    if (classDeclarationSyntax.AttributeLists
-                                              .SelectMany(z => z.Attributes)
-                                              .Any(z => z.Name.ToFullString().Contains("GenerateContainer"))
-                    )
+                    if (classDeclarationSyntax.AttributeLists.ContainsAttribute("GenerateContainer"))
                     {
                         CreateContainers.Add(classDeclarationSyntax);
                     }
@@ -920,12 +914,11 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         classDeclarationSyntax.Members.OfType<PropertyDeclarationSyntax>().Any(z => z.Identifier.Text == "Data")
                     )
                     {
-                        if (classDeclarationSyntax.BaseList.Types.Any(z => z.ToString().EndsWith("ICanBeResolved")))
+                        if (classDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanBeResolved"))
                         {
                             CanBeResolved.Add(classDeclarationSyntax);
                         }
-
-                        if (classDeclarationSyntax.BaseList.Types.Any(z => z.ToString().EndsWith("ICanHaveData")))
+                        else if (classDeclarationSyntax.BaseList.Types.Any(z => z.Type.GetSyntaxName() == "ICanHaveData"))
                         {
                             CanHaveData.Add(classDeclarationSyntax);
                         }

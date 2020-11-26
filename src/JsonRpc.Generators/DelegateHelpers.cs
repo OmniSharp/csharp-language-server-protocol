@@ -110,7 +110,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 typeArguments.Add(IdentifierName("CancellationToken"));
             }
 
-            if (returnType == null || returnType.ToFullString().EndsWith("Unit"))
+            if (returnType == null || returnType.GetSyntaxName() == "Unit")
             {
                 typeArguments.Add(IdentifierName("Task"));
             }

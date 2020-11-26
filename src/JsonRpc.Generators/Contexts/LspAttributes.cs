@@ -30,8 +30,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Contexts
 
             attributes = attributes with
                 {
-                CanBeResolved = syntax.BaseList?.Types.Any(z => z.ToFullString().Contains("ICanBeResolved")) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanBeResolved")) == true,
-                CanHaveData = syntax.BaseList?.Types.Any(z => z.ToFullString().Contains("ICanHaveData")) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanHaveData")) == true,
+                CanBeResolved = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanBeResolved") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanBeResolved")) == true,
+                CanHaveData = syntax.BaseList?.Types.Any(z => z.Type.GetSyntaxName()?.Contains("ICanHaveData") == true) == true || symbol.AllInterfaces.Any(z => z.ToDisplayString().Contains("ICanHaveData")) == true,
                 };
 
             {

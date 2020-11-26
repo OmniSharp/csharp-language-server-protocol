@@ -32,8 +32,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 return;
             }
 
-            var compilationUnitStrategies = CreateCompilationUnitGeneratorStrategies();
-
             var options = ( context.Compilation as CSharpCompilation )?.SyntaxTrees[0].Options as CSharpParseOptions;
             var compilation = context.Compilation;
 
@@ -67,7 +65,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
 
                 if (actionItem is null) continue;
 
-                var members = compilationUnitStrategies.Aggregate(
+                var members = CompilationUnitGeneratorStrategies.Aggregate(
                     new List<MemberDeclarationSyntax>(), (m, strategy) => {
                         try
                         {
@@ -120,13 +118,15 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                         .NormalizeWhitespace();
 
                 context.AddSource(
-                    $"{candidateClass.Identifier.ToFullString().Trim()}{(candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "")}.cs",
+                    $"{candidateClass.Identifier.Text}{( candidateClass.Arity > 0 ? candidateClass.Arity.ToString() : "" )}.cs",
                     cu.SyntaxTree.GetRoot().GetText(Encoding.UTF8)
                 );
             }
         }
 
-        private static ImmutableArray<ICompilationUnitGeneratorStrategy> CreateCompilationUnitGeneratorStrategies()
+        private static readonly ImmutableArray<ICompilationUnitGeneratorStrategy> CompilationUnitGeneratorStrategies = GetCompilationUnitGeneratorStrategies();
+
+        private static ImmutableArray<ICompilationUnitGeneratorStrategy> GetCompilationUnitGeneratorStrategies()
         {
             var actionContextStrategies = ImmutableArray.Create<IExtensionMethodContextGeneratorStrategy>(
                 new WarnIfResponseRouterIsNotProvidedStrategy(),
@@ -148,7 +148,6 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 new TypedDelegatingHandlerStrategy()
             );
             var compilationUnitStrategies = ImmutableArray.Create<ICompilationUnitGeneratorStrategy>(
-                new AutoImplementParamsGeneratorStrategy(),
                 new HandlerGeneratorStrategy(),
                 new ExtensionMethodGeneratorStrategy(actionStrategies)
             );
@@ -160,7 +159,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         /// </summary>
         internal class SyntaxReceiver : ISyntaxReceiver
         {
+            private string _attributes;
             public List<TypeDeclarationSyntax> Candidates { get; } = new List<TypeDeclarationSyntax>();
+
+            public SyntaxReceiver()
+            {
+                _attributes = "GenerateHandler,GenerateRequestMethods,GenerateHandlerMethods";
+            }
 
             /// <summary>
             /// Called for every syntax node in the compilation, we can inspect the nodes and save any information useful for generation
@@ -168,19 +173,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             public void OnVisitSyntaxNode(SyntaxNode syntaxNode)
             {
                 // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is ClassDeclarationSyntax classDeclarationSyntax &&
-                    classDeclarationSyntax.AttributeLists.Count > 0
-                )
+                if (syntaxNode is TypeDeclarationSyntax tds and ( ClassDeclarationSyntax { } or InterfaceDeclarationSyntax { }) && tds.AttributeLists.ContainsAttribute(_attributes))
                 {
-                    Candidates.Add(classDeclarationSyntax);
-                }
-
-                // any field with at least one attribute is a candidate for property generation
-                if (syntaxNode is InterfaceDeclarationSyntax interfaceDeclarationSyntax &&
-                    interfaceDeclarationSyntax.AttributeLists.Count > 0
-                )
-                {
-                    Candidates.Add(interfaceDeclarationSyntax);
+                    Candidates.Add(tds);
                 }
             }
         }
