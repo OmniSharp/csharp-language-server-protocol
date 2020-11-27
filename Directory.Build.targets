@@ -1,12 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project>
     <PropertyGroup>
-        <EmitCompilerGeneratedFiles>$('$(IDEA_INITIAL_DIRECTORY)' != '')</EmitCompilerGeneratedFiles>
+        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-    <ItemGroup>
-        <Compile Condition="'$(DesignTimeBuild)' == 'true' and '$(IDEA_INITIAL_DIRECTORY)' != ''" Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-    </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
         <PackageReference Include="Rocket.Surgery.MSBuild.CI" Version="1.1.0" PrivateAssets="All" />

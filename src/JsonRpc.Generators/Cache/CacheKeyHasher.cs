@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.CodeAnalysis;
@@ -32,7 +34,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
 
         public void Append(TypeParameterListSyntax? typeParameterListSyntax)
         {
-            if (typeParameterListSyntax is null or { Parameters: { Count: 0} }) return;
+            if (typeParameterListSyntax is null or { Parameters: { Count: 0 } }) return;
             foreach (var item in typeParameterListSyntax.Parameters)
             {
                 Append(item.Identifier.Text);
@@ -57,10 +59,20 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
             }
         }
 
+        public void Append(IEnumerable<PropertyDeclarationSyntax> items)
+        {
+            foreach (var item in items.OrderBy(z => z.Identifier.Text))
+            {
+                Append(item.AttributeLists);
+                Append(item.Identifier.Text);
+                Append(item.Type);
+            }
+        }
+
         public void Append(AttributeListSyntax attributeList)
         {
             if (attributeList is { Attributes: { Count: 0 } }) return;
-            foreach (var item in attributeList.Attributes)
+            foreach (var item in attributeList.Attributes.OrderBy(z => z.Name.GetSyntaxName()))
             {
                 Append(item);
             }
@@ -80,9 +92,9 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
 
                     Append(
                         item switch {
-                            { Expression: TypeOfExpressionSyntax tyof }         => tyof.Type.GetSyntaxName() is { Length: >0 } name ? name : string.Empty,
+                            { Expression: TypeOfExpressionSyntax tyof } => tyof.Type.GetSyntaxName() is { Length: > 0 } name ? name : string.Empty,
                             { Expression: LiteralExpressionSyntax { } literal } => literal.Token.Text,
-                            _                                                   => string.Empty
+                            _ => string.Empty
                         }
                     );
                 }

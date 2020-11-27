@@ -25,7 +25,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 if (symbol is null) continue;
 
                 var autoImplementProperties = AutoImplementInterfaces(candidate, symbol).ToArray();
-                if (autoImplementProperties is { Length: >0 })
+                if (autoImplementProperties is { Length: > 0 })
                 {
                     var extendedParams = candidate
                                         .WithAttributeLists(List<AttributeListSyntax>())
@@ -108,6 +108,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
                 hasher.Append(syntax.BaseList);
+                // hasher.Append(syntax.Members.OfType<PropertyDeclarationSyntax>());
                 return hasher;
             }
 

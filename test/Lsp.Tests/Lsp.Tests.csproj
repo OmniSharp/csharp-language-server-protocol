@@ -5,12 +5,9 @@
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
     <PropertyGroup>
-        <EmitCompilerGeneratedFiles>$('$(IDEA_INITIAL_DIRECTORY)' != '')</EmitCompilerGeneratedFiles>
+        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
         <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
     </PropertyGroup>
-    <ItemGroup>
-        <Compile Condition="'$(DesignTimeBuild)' == 'true' and '$(IDEA_INITIAL_DIRECTORY)' != ''" Include="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
-    </ItemGroup>
     <ItemGroup>
         <None Remove="**\*.json" />
         <EmbeddedResource Include="**\*.json" />
