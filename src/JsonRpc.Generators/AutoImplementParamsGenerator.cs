@@ -108,7 +108,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
                 hasher.Append(syntax.BaseList);
-                // hasher.Append(syntax.Members.OfType<PropertyDeclarationSyntax>());
+                foreach (var item in syntax.Members.OfType<PropertyDeclarationSyntax>().Select(z => z.Identifier.Text))
+                {
+                    hasher.Append(item);
+                }
                 return hasher;
             }
 

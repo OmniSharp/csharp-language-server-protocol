@@ -18,11 +18,7 @@ namespace Lsp.Tests.Integration.Fixtures
         GenerateRequestMethods(typeof(ILanguageClient))
     ]
     [RegistrationOptions(typeof(UnitTestRegistrationOptions)), Capability(typeof(UnitTestCapability))]
-    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams
-    {
-        public ProgressToken? PartialResultToken { get; set; } = null!;
-        public ProgressToken? WorkDoneToken { get; set; } = null!;
-    }
+    public partial class DiscoverUnitTestsParams : IPartialItemsRequest<Container<UnitTest>, UnitTest>, IWorkDoneProgressParams { }
 
     [Parallel, Method("tests/run", Direction.ClientToServer)]
     [

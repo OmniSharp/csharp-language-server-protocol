@@ -339,7 +339,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         {
 
         }
-        public static CacheContainer<ClassDeclarationSyntax> Cache = new ();
+        public static CacheContainer<ClassDeclarationSyntax> Cache = new();
 
         public class SyntaxReceiver : SyntaxReceiverCache<ClassDeclarationSyntax>
         {
@@ -353,6 +353,10 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
                 hasher.Append(syntax.TypeParameterList);
                 hasher.Append(syntax.AttributeLists);
                 hasher.Append(syntax.BaseList);
+                foreach (var item in syntax.Members.OfType<PropertyDeclarationSyntax>().Select(z => z.Identifier.Text))
+                {
+                    hasher.Append(item);
+                }
                 return hasher;
             }
 

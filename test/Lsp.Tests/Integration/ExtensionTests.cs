@@ -48,7 +48,10 @@ namespace Lsp.Tests.Integration
                         }
                     ), options => {
                     options.OnDiscoverUnitTests(onDiscoverHandler, _ => new UnitTestRegistrationOptions());
-                    options.OnRunUnitTest(onRunUnitHandler, _ => new UnitTestRegistrationOptions());
+                    options.OnRunUnitTest(onRunUnitHandler, _ => new UnitTestRegistrationOptions() {
+                        SupportsDebugging = true,
+                        WorkDoneProgress = true
+                    });
                 }
             );
 
@@ -73,7 +76,10 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
             }
 
-            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
+            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams() {
+            PartialResultToken = new ProgressToken(1),
+            WorkDoneToken = new ProgressToken(1),
+            }, CancellationToken);
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
             onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());

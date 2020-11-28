@@ -977,10 +977,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
         public static string? GetSyntaxName(this TypeSyntax typeSyntax)
         {
             return typeSyntax switch {
-                SimpleNameSyntax sns    => sns.Identifier.Text,
-                QualifiedNameSyntax qns => qns.Right.Identifier.Text,
-                NullableTypeSyntax nts  => nts.ElementType.GetSyntaxName(),
-                _                       => throw new NotSupportedException(typeSyntax.GetType().FullName)
+                SimpleNameSyntax sns     => sns.Identifier.Text,
+                QualifiedNameSyntax qns  => qns.Right.Identifier.Text,
+                NullableTypeSyntax nts   => nts.ElementType.GetSyntaxName() + "?",
+                PredefinedTypeSyntax pts => pts.Keyword.Text,
+                ArrayTypeSyntax ats      => ats.ElementType.GetSyntaxName() + "[]",
+                TupleTypeSyntax tts      => "(" + tts.Elements.Select(z => $"{z.Type.GetSyntaxName()}{z.Identifier.Text}") + ")",
+                _                        => null// there might be more but for now... throw new NotSupportedException(typeSyntax.GetType().FullName)
             };
         }
 

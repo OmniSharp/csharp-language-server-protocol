@@ -59,20 +59,25 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Cache
             }
         }
 
-        public void Append(IEnumerable<PropertyDeclarationSyntax> items)
+        public void Append<T>(SyntaxList<MemberDeclarationSyntax> items)
+            where T : MemberDeclarationSyntax
         {
-            foreach (var item in items.OrderBy(z => z.Identifier.Text))
+            if (items is { Count: 0 }) return;
+            foreach (var item in items.OfType<T>())
             {
                 Append(item.AttributeLists);
-                Append(item.Identifier.Text);
-                Append(item.Type);
+                if (item is PropertyDeclarationSyntax p)
+                {
+                    Append(p.Identifier.Text);
+                    Append(p.Type);
+                }
             }
         }
 
         public void Append(AttributeListSyntax attributeList)
         {
             if (attributeList is { Attributes: { Count: 0 } }) return;
-            foreach (var item in attributeList.Attributes.OrderBy(z => z.Name.GetSyntaxName()))
+            foreach (var item in attributeList.Attributes)
             {
                 Append(item);
             }
