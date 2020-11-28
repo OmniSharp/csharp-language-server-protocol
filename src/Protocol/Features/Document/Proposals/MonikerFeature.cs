@@ -38,9 +38,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             GenerateRequestMethods(typeof(ITextDocumentLanguageClient), typeof(ILanguageClient))
         ]
         [RegistrationOptions(typeof(MonikerRegistrationOptions)), Capability(typeof(MonikerCapability))]
-        public partial class MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker>
-        {
-        }
+        public partial class MonikerParams : TextDocumentPositionParams, IWorkDoneProgressParams, IPartialItemsRequest<Container<Moniker>?, Moniker> { }
 
         /// <summary>
         /// Moniker definition to match LSIF 0.5 moniker definition.
