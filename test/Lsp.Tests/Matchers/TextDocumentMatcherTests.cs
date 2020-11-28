@@ -219,7 +219,7 @@ namespace Lsp.Tests.Matchers
             var handlerMatcher = AutoSubstitute.Resolve<TextDocumentMatcher>();
 
             var codeLensHandler = (ICodeLensHandler) Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            codeLensHandler.GetRegistrationOptions(Arg.Any<CodeLensCapability>())
+            codeLensHandler.GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                            .Returns(
                                 new CodeLensRegistrationOptions {
                                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cs" })
@@ -227,7 +227,7 @@ namespace Lsp.Tests.Matchers
                             );
 
             var codeLensHandler2 = (ICodeLensHandler) Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            codeLensHandler2.GetRegistrationOptions(Arg.Any<CodeLensCapability>())
+            codeLensHandler2.GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                             .Returns(
                                  new CodeLensRegistrationOptions {
                                      DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.cake" })
@@ -265,7 +265,7 @@ namespace Lsp.Tests.Matchers
             var textDocumentSyncHandler =
                 TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.ps*1"), "powershell");
             var handler = Substitute.For<IFoldingRangeHandler>();
-            handler.GetRegistrationOptions(Arg.Any<FoldingRangeCapability>()).Returns(
+            handler.GetRegistrationOptions(Arg.Any<FoldingRangeCapability>(), Arg.Any<ClientCapabilities>()).Returns(
                 new FoldingRangeRegistrationOptions {
                     DocumentSelector = new DocumentSelector(new DocumentFilter { Pattern = "**/*.ps*1" })
                 }

@@ -62,32 +62,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Workspace
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class WorkspaceSymbolsExtensions
     {
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, CancellationToken, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>?>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnWorkspaceSymbols(this ILanguageServerRegistry registry, Func<WorkspaceSymbolParams, WorkspaceSymbolCapability, CancellationToken, Task<Container<SymbolInformation>?>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, new LanguageProtocolDelegatingHandlers.Request<WorkspaceSymbolParams, Container<SymbolInformation>?, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(HandlerAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, Container<SymbolInformation>?>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
         }
 
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
         }
 
-        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, Func<WorkspaceSymbolCapability, WorkspaceSymbolRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveWorkspaceSymbols(this ILanguageServerRegistry registry, Action<WorkspaceSymbolParams, IObserver<IEnumerable<SymbolInformation>>, WorkspaceSymbolCapability, CancellationToken> handler, RegistrationOptionsDelegate<WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability> registrationOptions)
         {
             return registry.AddHandler(WorkspaceNames.WorkspaceSymbol, _ => new LanguageProtocolDelegatingHandlers.PartialResults<WorkspaceSymbolParams, Container<SymbolInformation>?, SymbolInformation, WorkspaceSymbolRegistrationOptions, WorkspaceSymbolCapability>(PartialAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolParams, SymbolInformation>(handler), RegistrationAdapter<WorkspaceSymbolCapability>.Adapt<WorkspaceSymbolRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<SymbolInformation>.From));
         }
@@ -322,32 +322,32 @@ namespace Lsp.Tests.Integration.Fixtures
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class DiscoverUnitTestsExtensions
     {
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, CancellationToken, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, CancellationToken, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDiscoverUnitTests(this ILanguageServerRegistry registry, Func<DiscoverUnitTestsParams, UnitTestCapability, CancellationToken, Task<Container<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", new LanguageProtocolDelegatingHandlers.Request<DiscoverUnitTestsParams, Container<UnitTest>, UnitTestRegistrationOptions, UnitTestCapability>(HandlerAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, Container<UnitTest>>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }
 
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, CancellationToken> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, CancellationToken> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }
 
-        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, UnitTestCapability, CancellationToken> handler, Func<UnitTestCapability, UnitTestRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDiscoverUnitTests(this ILanguageServerRegistry registry, Action<DiscoverUnitTestsParams, IObserver<IEnumerable<UnitTest>>, UnitTestCapability, CancellationToken> handler, RegistrationOptionsDelegate<UnitTestRegistrationOptions, UnitTestCapability> registrationOptions)
         {
             return registry.AddHandler(""tests/discover"", _ => new LanguageProtocolDelegatingHandlers.PartialResults<DiscoverUnitTestsParams, Container<UnitTest>, UnitTest, UnitTestRegistrationOptions, UnitTestCapability>(PartialAdapter<UnitTestCapability>.Adapt<DiscoverUnitTestsParams, UnitTest>(handler), RegistrationAdapter<UnitTestCapability>.Adapt<UnitTestRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<UnitTest>.From));
         }

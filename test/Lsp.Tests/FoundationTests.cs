@@ -587,7 +587,7 @@ namespace Lsp.Tests
                             )
                             {
                                 method.GetParameters()[2].ParameterType.Should().Be(
-                                    typeof(Func<,>).MakeGenericType(_descriptor.CapabilityType, _descriptor.RegistrationType),
+                                    typeof(RegistrationOptionsDelegate<,>).MakeGenericType(_descriptor.RegistrationType, _descriptor.CapabilityType),
                                     $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}"
                                 );
                                 method.GetParameters()[2].IsOptional.Should()
@@ -596,7 +596,7 @@ namespace Lsp.Tests
                             else if (_descriptor.HasRegistration && _descriptor.RegistrationType is { } && method.GetParameters().Length == 3)
                             {
                                 method.GetParameters()[2].ParameterType.Should().Be(
-                                    typeof(Func<>).MakeGenericType(_descriptor.RegistrationType),
+                                    typeof(RegistrationOptionsDelegate<>).MakeGenericType(_descriptor.RegistrationType),
                                     $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}"
                                 );
                                 method.GetParameters()[2].IsOptional.Should()

@@ -67,7 +67,7 @@ namespace SampleServer
 
         public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability) => new TextDocumentSyncRegistrationOptions() {
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
             DocumentSelector = _documentSelector,
             SyncKind = Change,
             IncludeText = true
@@ -126,7 +126,7 @@ namespace SampleServer
             return symbols;
         }
 
-        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability) => new DocumentSymbolRegistrationOptions {
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions {
             DocumentSelector = DocumentSelector.ForLanguage("csharp")
         };
     }
@@ -250,6 +250,6 @@ namespace SampleServer
             }
         }
 
-        public WorkspaceSymbolRegistrationOptions GetRegistrationOptions(WorkspaceSymbolCapability capability) => new WorkspaceSymbolRegistrationOptions();
+        public WorkspaceSymbolRegistrationOptions GetRegistrationOptions(WorkspaceSymbolCapability capability, ClientCapabilities clientCapabilities) => new WorkspaceSymbolRegistrationOptions();
     }
 }

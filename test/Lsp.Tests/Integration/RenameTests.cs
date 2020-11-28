@@ -210,12 +210,12 @@ namespace Lsp.Tests.Integration
         private void ServerOptionsAction(LanguageServerOptions obj)
         {
             obj.OnPrepareRename(
-                _prepareRename, _ => new RenameRegistrationOptions() {
+                _prepareRename, (_, _) => new RenameRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp")
                 }
             );
             obj.OnRename(
-                _rename, _ =>new RenameRegistrationOptions() {
+                _rename, (_, _) =>new RenameRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                     PrepareProvider = true,
                 }

@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
                             l.Command!.Name = "resolved-a";
                             return Task.FromResult(l);
                         },
-                        _ => new CodeLensRegistrationOptions {
+                        (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -85,7 +85,7 @@ namespace Lsp.Tests.Integration
                             l.Command!.Name = "resolved-b";
                             return Task.FromResult(l);
                         },
-                        _ => new CodeLensRegistrationOptions {
+                        (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -107,7 +107,7 @@ namespace Lsp.Tests.Integration
                             l.Command!.Name = "resolved-c";
                             return Task.FromResult(l);
                         },
-                        _ => new CodeLensRegistrationOptions {
+                        (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -129,7 +129,7 @@ namespace Lsp.Tests.Integration
                             l.Command!.Name = "resolved-d";
                             return Task.FromResult(l);
                         },
-                        _ => new CodeLensRegistrationOptions {
+                        (_, _) => new CodeLensRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -182,7 +182,7 @@ namespace Lsp.Tests.Integration
                             lens.Command!.Name = "resolved";
                             return Task.FromResult(lens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -228,7 +228,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -271,7 +271,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -317,7 +317,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -360,7 +360,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -406,7 +406,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -440,7 +440,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -476,7 +476,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -509,7 +509,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -545,7 +545,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -578,7 +578,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );
@@ -614,7 +614,7 @@ namespace Lsp.Tests.Integration
                             codeLens.Command!.Name = "resolved";
                             return Task.FromResult(codeLens);
                         },
-                        _ => new CodeLensRegistrationOptions()
+                        (_, _) => new CodeLensRegistrationOptions()
                     );
                 }
             );

@@ -70,7 +70,7 @@ namespace Lsp.Tests.Integration
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1 }.ToImmutableArray() });
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1, 2 }.ToImmutableArray() });
                         observer.OnCompleted();
-                    }, _ => new SemanticTokensRegistrationOptions()
+                    }, (_, _) => new SemanticTokensRegistrationOptions()
                 );
             }
         }

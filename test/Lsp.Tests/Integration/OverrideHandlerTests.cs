@@ -87,7 +87,7 @@ namespace Lsp.Tests.Integration
                 return Task.FromResult(JToken.FromObject(new { someValue = "custom" }));
             }
 
-            public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability)
+            public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities)
             {
                 _capability = capability;
                 return _executeCommandRegistrationOptions;

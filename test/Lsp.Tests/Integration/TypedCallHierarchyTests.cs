@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerA,
                         outgoingHandlerA,
-                        _ => new() {
+                        (_, _) => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -79,7 +79,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandlerB,
                         outgoingHandlerB,
-                        _ => new() {
+                        (_, _) => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -128,7 +128,7 @@ namespace Lsp.Tests.Integration
                         )!,
                         incomingHandler,
                         outgoingHandler,
-                        _ => new() {
+                        (_, _) => new() {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -187,7 +187,7 @@ namespace Lsp.Tests.Integration
                             b.OnNext(Enumerable.Empty<CallHierarchyOutgoingCall>());
                             b.OnCompleted();
                         },
-                        _ => new()
+                        (_, _) => new()
                     );
                 }
             );

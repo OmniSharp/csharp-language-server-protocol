@@ -12,5 +12,6 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Shared
         object? GetRegistrationOptions(ILspHandlerDescriptor handlerTypeDescriptor, IJsonRpcHandler handler);
         void Add(IEnumerable<ISupports> supports);
         void Add(ICapability capability);
+        void Initialize(ClientCapabilities clientCapabilities);
     }
 }

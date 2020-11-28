@@ -382,10 +382,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators
             }
 
             return InvocationExpression(
-                    QualifiedName(
-                        name
-                      , GenericName("Adapt").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { registrationType })))
-                    )
+                    QualifiedName(name, GenericName("Adapt").WithTypeArgumentList(TypeArgumentList(SeparatedList(new[] { registrationType }))))
                 )
                .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(registrationOptionsName))));
         }

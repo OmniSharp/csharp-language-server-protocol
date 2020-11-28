@@ -71,13 +71,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             {
                 if (item.Capability is { })
                 {
-                    var type = GenericName(Identifier("Func"))
+                    var type = GenericName(Identifier("RegistrationOptionsDelegate"))
                        .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList(
                                     new[] {
-                                        item.Capability.Syntax,
-                                        item.RegistrationOptions.Syntax
+                                        item.RegistrationOptions.Syntax,
+                                        item.Capability.Syntax
                                     }
                                 )
                             )
@@ -88,11 +88,29 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
-                           .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("capability")).WithType(item.Capability.Syntax))))
+                           .WithParameterList(
+                                ParameterList(
+                                    SeparatedList(
+                                        new[] {
+                                            Parameter(Identifier("capability")).WithType(item.Capability.Syntax),
+                                            Parameter(Identifier("clientCapabilities")).WithType(IdentifierName("ClientCapabilities"))
+                                        }
+                                    )
+                                )
+                            )
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))
-                                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("capability")))))
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList(
+                                                    new[] {
+                                                        Argument(IdentifierName("capability")),
+                                                        Argument(IdentifierName("clientCapabilities"))
+                                                    }
+                                                )
+                                            )
+                                        )
                                 )
                             )
                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
@@ -101,7 +119,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
                 else
                 {
-                    var type = GenericName(Identifier("Func"))
+                    var type = GenericName(Identifier("RegistrationOptionsDelegate"))
                        .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.RegistrationOptions.Syntax)));
 
                     handler = handler.AddMembers(
@@ -112,7 +130,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))
-                                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("capability")))))
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList(
+                                                    new[] {
+                                                        Argument(IdentifierName("capability")),
+                                                        Argument(IdentifierName("clientCapabilities"))
+                                                    }
+                                                )
+                                            )
+                                        )
                                 )
                             )
                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
@@ -318,6 +345,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 responseType = GenericName(Identifier("CodeActionContainer"))
                    .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList<TypeSyntax>(IdentifierName("T"))));
             }
+
             responseType = item.Response.Syntax is NullableTypeSyntax ? NullableType(responseType) : responseType;
 
             TypeSyntax observerType = null!;
@@ -360,13 +388,13 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
             {
                 if (item.Capability is { })
                 {
-                    var type = GenericName(Identifier("Func"))
+                    var type = GenericName(Identifier("RegistrationOptionsDelegate"))
                        .WithTypeArgumentList(
                             TypeArgumentList(
                                 SeparatedList(
                                     new[] {
-                                        item.Capability.Syntax,
-                                        item.RegistrationOptions.Syntax
+                                        item.RegistrationOptions.Syntax,
+                                        item.Capability.Syntax
                                     }
                                 )
                             )
@@ -377,11 +405,31 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithModifiers(TokenList(Token(SyntaxKind.PrivateKeyword), Token(SyntaxKind.ReadOnlyKeyword))),
                         MethodDeclaration(item.RegistrationOptions.Syntax, Identifier("CreateRegistrationOptions"))
                            .WithModifiers(TokenList(Token(SyntaxKind.ProtectedKeyword), Token(SyntaxKind.InternalKeyword), Token(SyntaxKind.OverrideKeyword)))
-                           .WithParameterList(ParameterList(SingletonSeparatedList(Parameter(Identifier("capability")).WithType(item.Capability.Syntax))))
+                           .WithParameterList(
+                                ParameterList(
+                                    SeparatedList(
+                                        new[] {
+                                            Parameter(Identifier("capability")).WithType(item.Capability.Syntax),
+                                            Parameter(Identifier("clientCapabilities")).WithType(IdentifierName("ClientCapabilities"))
+                                        }
+                                    )
+                                )
+                            )
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))
-                                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("capability")))))
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList(
+                                                    SeparatedList(
+                                                        new[] {
+                                                            Argument(IdentifierName("capability")),
+                                                            Argument(IdentifierName("clientCapabilities"))
+                                                        }
+                                                    )
+                                                )
+                                            )
+                                        )
                                 )
                             )
                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))
@@ -390,7 +438,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                 }
                 else
                 {
-                    var type = GenericName(Identifier("Func"))
+                    var type = GenericName(Identifier("RegistrationOptionsDelegate"))
                        .WithTypeArgumentList(TypeArgumentList(SingletonSeparatedList(item.RegistrationOptions.Syntax)));
 
                     handler = handler.AddMembers(
@@ -401,7 +449,16 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                            .WithExpressionBody(
                                 ArrowExpressionClause(
                                     InvocationExpression(IdentifierName("_registrationOptionsFactory"))
-                                       .WithArgumentList(ArgumentList(SingletonSeparatedList(Argument(IdentifierName("capability")))))
+                                       .WithArgumentList(
+                                            ArgumentList(
+                                                SeparatedList(
+                                                    new[] {
+                                                        Argument(IdentifierName("capability")),
+                                                        Argument(IdentifierName("clientCapabilities"))
+                                                    }
+                                                )
+                                            )
+                                        )
                                 )
                             )
                            .WithSemicolonToken(Token(SyntaxKind.SemicolonToken))

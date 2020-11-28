@@ -269,7 +269,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         {
             ConfigureServerLogging(request);
 
-            ReadClientCapabilities(request, out var textDocumentCapabilities, out _, out var windowCapabilities);
+            ReadClientCapabilities(request, out var clientCapabilities, out var textDocumentCapabilities, out _, out var windowCapabilities);
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
@@ -290,7 +290,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 )
             );
 
-            var result = ReadServerCapabilities(windowCapabilities, textDocumentCapabilities);
+            var result = ReadServerCapabilities( clientCapabilities, windowCapabilities, textDocumentCapabilities);
 
             await LanguageProtocolEventingHelper.Run(
                 _initializedDelegates,
@@ -348,12 +348,14 @@ namespace OmniSharp.Extensions.LanguageServer.Server
 
         private ClientCapabilities ReadClientCapabilities(
             InternalInitializeParams request,
+            out ClientCapabilities clientCapabilities,
             out TextDocumentClientCapabilities textDocumentCapabilities,
             out WorkspaceClientCapabilities workspaceCapabilities,
             out WindowClientCapabilities windowCapabilities
         )
         {
-            var clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+            clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+            _supportedCapabilities.Initialize(clientCapabilities);
             foreach (var group in _capabilityTypes)
             {
                 foreach (var capabilityType in @group)
@@ -406,7 +408,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             return clientCapabilities;
         }
 
-        private InitializeResult ReadServerCapabilities(WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities)
+        private InitializeResult ReadServerCapabilities(ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities)
         {
             var serverCapabilities = new ServerCapabilities();
 
@@ -469,7 +471,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
                                .Select(
-                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization!) )?.SyncKind
+                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization, clientCapabilities) )?.SyncKind
                                       ?? TextDocumentSyncKind.None
                                 )
                                .Where(x => x != TextDocumentSyncKind.None)

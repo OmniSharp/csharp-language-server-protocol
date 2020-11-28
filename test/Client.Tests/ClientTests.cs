@@ -75,7 +75,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                                     }
                                 }
                             )!;
-                        }, _ => new HoverRegistrationOptions()
+                        }, (_, _) => new HoverRegistrationOptions()
                     );
                 }
             );
@@ -162,7 +162,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                                     true
                                 )
                             );
-                        }, _ =>  new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -264,7 +264,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(column, request.Position.Character);
 
                             return Task.FromResult(expectedSignatureHelp)!;
-                        }, _ => new SignatureHelpRegistrationOptions()
+                        }, (_, _) => new SignatureHelpRegistrationOptions()
                     );
                 }
             );
@@ -343,7 +343,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(column, request.Position.Character);
 
                             return Task.FromResult(expectedDefinitions);
-                        }, _ => new DefinitionRegistrationOptions()
+                        }, (_, _) => new DefinitionRegistrationOptions()
                     );
                 }
             );
@@ -415,7 +415,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(column, request.Position.Character);
 
                             return Task.FromResult(expectedHighlights)!;
-                        }, _ => new DocumentHighlightRegistrationOptions()
+                        }, (_, _) => new DocumentHighlightRegistrationOptions()
                     );
                 }
             );
@@ -492,7 +492,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
 
                             return Task.FromResult(expectedSymbols);
-                        }, _ => new DocumentSymbolRegistrationOptions()
+                        }, (_, _) => new DocumentSymbolRegistrationOptions()
                     );
                 }
             );
@@ -564,7 +564,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client.Tests
                             Assert.NotNull(request.TextDocument);
                             Assert.Equal(expectedDocumentUri, request.TextDocument.Uri);
                             return Task.FromResult(expectedFoldingRanges)!;
-                        }, _ => new FoldingRangeRegistrationOptions()
+                        }, (_, _) => new FoldingRangeRegistrationOptions()
                     );
                 }
             );

@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-a";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -77,7 +77,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-b";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -96,7 +96,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-c";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -115,7 +115,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-d";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -165,7 +165,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -208,7 +208,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -248,7 +248,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -291,7 +291,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -331,7 +331,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -374,7 +374,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -405,7 +405,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -438,7 +438,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -468,7 +468,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -501,7 +501,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -531,7 +531,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -564,7 +564,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        _ => new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );

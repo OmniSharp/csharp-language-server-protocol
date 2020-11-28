@@ -23,14 +23,14 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         {
             protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
             protected TCapability Capability { get; private set; } = default!;
-            protected internal abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability);
+            protected internal abstract TRegistrationOptions CreateRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities);
 
-            TRegistrationOptions IRegistration<TRegistrationOptions, TCapability>.GetRegistrationOptions(TCapability capability)
+            TRegistrationOptions IRegistration<TRegistrationOptions, TCapability>.GetRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities)
             {
                 // ReSharper disable twice ConditionIsAlwaysTrueOrFalse
                 if (RegistrationOptions is not null && Capability is not null) return RegistrationOptions;
                 Capability = capability;
-                return RegistrationOptions = CreateRegistrationOptions(capability);
+                return RegistrationOptions = CreateRegistrationOptions(capability, clientCapabilities);
             }
         }
 
@@ -51,13 +51,13 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             where TRegistrationOptions : class, new()
         {
             protected TRegistrationOptions RegistrationOptions { get; private set; } = default!;
-            protected abstract TRegistrationOptions CreateRegistrationOptions();
+            protected abstract TRegistrationOptions CreateRegistrationOptions(ClientCapabilities clientCapabilities);
 
-            TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions()
+            TRegistrationOptions IRegistration<TRegistrationOptions>.GetRegistrationOptions(ClientCapabilities clientCapabilities)
             {
                 // ReSharper disable once ConditionIsAlwaysTrueOrFalse
                 if (RegistrationOptions is not null) return RegistrationOptions;
-                return RegistrationOptions = CreateRegistrationOptions();
+                return RegistrationOptions = CreateRegistrationOptions(clientCapabilities);
             }
         }
 

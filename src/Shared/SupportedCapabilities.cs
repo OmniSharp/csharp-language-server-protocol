@@ -39,6 +39,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
     {
         private readonly IDictionary<Type, object> _supports = new Dictionary<Type, object>();
 
+        public void Initialize(ClientCapabilities clientCapabilities)
+        {
+            _clientCapabilities = clientCapabilities;
+        }
+
         public void Add(IEnumerable<ISupports> supports)
         {
             foreach (var item in supports)
@@ -97,7 +102,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 {
                     var result = SetRegistrationCapabilityInnerMethod
                                 .MakeGenericMethod(registrationType, capabilityType)
-                                .Invoke(null, new[] { handler, capability });
+                                .Invoke(null, new[] { handler, capability, _clientCapabilities });
                     return result;
                 }
             }
@@ -105,7 +110,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             {
                 var result = GetRegistrationOptionsInnerMethod
                             .MakeGenericMethod(registrationType)
-                            .Invoke(null, new object[] { handler });
+                            .Invoke(null, new object[] { handler, _clientCapabilities });
                 return result;
             }
 
@@ -122,11 +127,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                                                                                  .GetTypeInfo()
                                                                                  .GetMethod(nameof(SetRegistrationCapabilityInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private static object SetRegistrationCapabilityInner<TR, TC>(IRegistration<TR, TC> capability, TC instance)
+        private static object SetRegistrationCapabilityInner<TR, TC>(IRegistration<TR, TC> capability, TC instance, ClientCapabilities clientCapabilities)
             where TR : class
             where TC : ICapability
         {
-            var registrationCapabilityInner = capability.GetRegistrationOptions(instance);
+            var registrationCapabilityInner = capability.GetRegistrationOptions(instance, clientCapabilities);
             return registrationCapabilityInner;
         }
 
@@ -134,9 +139,11 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                                                                               .GetTypeInfo()
                                                                               .GetMethod(nameof(GetRegistrationOptionsInner), BindingFlags.NonPublic | BindingFlags.Static)!;
 
-        private static object GetRegistrationOptionsInner<TR>(IRegistration<TR> capability) where TR : class
+        private ClientCapabilities _clientCapabilities;
+
+        private static object GetRegistrationOptionsInner<TR>(IRegistration<TR> capability, ClientCapabilities clientCapabilities) where TR : class
         {
-            var registrationOptionsInner = capability.GetRegistrationOptions();
+            var registrationOptionsInner = capability.GetRegistrationOptions(clientCapabilities);
             return registrationOptionsInner;
         }
     }

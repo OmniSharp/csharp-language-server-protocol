@@ -111,7 +111,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -138,7 +138,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -167,7 +167,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -198,7 +198,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -231,7 +231,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 
@@ -266,7 +266,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
             public abstract Task<Unit> Handle(T arg1, T2 arg2, T3 arg3, T4 arg4, T5 arg5, T6 arg6, CancellationToken cancellationToken);
 
-            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability) =>
+            protected internal override ExecuteCommandRegistrationOptions CreateRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities) =>
                 new ExecuteCommandRegistrationOptions { Commands = new Container<string>(_command) };
         }
 

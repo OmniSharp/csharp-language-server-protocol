@@ -13,7 +13,7 @@ namespace Lsp.Tests
 
         public static IExecuteCommandHandler With(this IExecuteCommandHandler handler, Container<string> commands)
         {
-            handler.GetRegistrationOptions(Arg.Any<ExecuteCommandCapability>()).Returns(new ExecuteCommandRegistrationOptions { Commands = commands });
+            handler.GetRegistrationOptions(Arg.Any<ExecuteCommandCapability>(), Arg.Any<ClientCapabilities>()).Returns(new ExecuteCommandRegistrationOptions { Commands = commands });
 
             handler.Handle(Arg.Any<ExecuteCommandParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 

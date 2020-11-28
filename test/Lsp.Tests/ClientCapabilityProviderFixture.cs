@@ -20,7 +20,7 @@ namespace Lsp.Tests
         public ClientCapabilityProviderFixture()
         {
             var handler = Substitute.For<IExecuteCommandHandler>();
-            handler.GetRegistrationOptions(Arg.Any<ExecuteCommandCapability>()).Returns(new ExecuteCommandRegistrationOptions());
+            handler.GetRegistrationOptions(Arg.Any<ExecuteCommandCapability>(), Arg.Any<ClientCapabilities>()).Returns(new ExecuteCommandRegistrationOptions());
 
             var handlerCollection = new SharedHandlerCollection(
                 SupportedCapabilitiesFixture.AlwaysTrue,

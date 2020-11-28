@@ -125,7 +125,7 @@ namespace Lsp.Tests.Integration
             public override Task<CodeLensContainer> Handle(CodeLensParams request, CancellationToken cancellationToken) => Task.FromResult(new CodeLensContainer());
 
             public override Task<CodeLens> Handle(CodeLens request, CancellationToken cancellationToken) => Task.FromResult(request);
-            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability) => new ();
+            protected internal override CodeLensRegistrationOptions CreateRegistrationOptions(CodeLensCapability capability, ClientCapabilities clientCapabilities) => new ();
         }
 
         private readonly List<string> _logs = new List<string>();

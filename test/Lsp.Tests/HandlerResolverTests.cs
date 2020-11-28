@@ -152,7 +152,7 @@ namespace Lsp.Tests
             handler.Initialize();
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
+                reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
                         new TextDocumentSyncRegistrationOptions() {
                             DocumentSelector = new DocumentSelector()
@@ -173,7 +173,7 @@ namespace Lsp.Tests
 handler.Initialize();
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
             if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
+                reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
                         new TextDocumentSyncRegistrationOptions {
                             DocumentSelector = new DocumentSelector()
@@ -181,7 +181,7 @@ handler.Initialize();
                     );
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
             if (sub2 is IRegistration<ITextDocumentRegistrationOptions> reg2)
-                reg2.GetRegistrationOptions()
+                reg2.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                     .Returns(
                          new TextDocumentSyncRegistrationOptions {
                              DocumentSelector = new DocumentSelector()
@@ -229,7 +229,7 @@ handler.Initialize();
         public void Should_DealWithClassesThatImplementMultipleHandlers_BySettingKeyAccordingly()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>())
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
@@ -248,7 +248,7 @@ handler.Initialize();
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>())
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector()
@@ -258,7 +258,7 @@ handler.Initialize();
             yield return new[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
             var documentLinkHandler = Substitute.For(new[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions(Arg.Any<DocumentLinkCapability>())
+            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions(Arg.Any<DocumentLinkCapability>(), Arg.Any<ClientCapabilities>())
                                                           .Returns(
                                                                new DocumentLinkRegistrationOptions {
                                                                    DocumentSelector = new DocumentSelector()
@@ -268,7 +268,7 @@ handler.Initialize();
             yield return new[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
             var completionHandler = Substitute.For(new[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions(Arg.Any<CompletionCapability>())
+            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions(Arg.Any<CompletionCapability>(), Arg.Any<ClientCapabilities>())
                                                       .Returns(
                                                            new CompletionRegistrationOptions {
                                                                DocumentSelector = new DocumentSelector()

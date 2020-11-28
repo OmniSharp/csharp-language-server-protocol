@@ -6,14 +6,20 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
         where TOptions : class
         where TCapability : ICapability
     {
-        TOptions GetRegistrationOptions(TCapability capability);
+        TOptions GetRegistrationOptions(TCapability capability, ClientCapabilities clientCapabilities);
     }
 
     public interface IRegistration<out TOptions>
         where TOptions : class
     {
-        TOptions GetRegistrationOptions();
+        TOptions GetRegistrationOptions(ClientCapabilities clientCapabilities);
     }
+
+    public delegate TOptions RegistrationOptionsDelegate<out TOptions>(ClientCapabilities clientCapabilities)
+        where TOptions : class;
+    public delegate TOptions RegistrationOptionsDelegate<out TOptions, in TCapability>(TCapability capability, ClientCapabilities clientCapabilities)
+        where TOptions : class
+        where TCapability : ICapability;
 
     /// <summary>
     /// Identifies a handler that does not participate in dynamic registration.

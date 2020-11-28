@@ -86,7 +86,7 @@ namespace SampleServer
             }
         }
 
-        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability) => new SemanticTokensRegistrationOptions {
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions {
             DocumentSelector = DocumentSelector.ForLanguage("csharp"),
             Legend = new SemanticTokensLegend() {
                 TokenModifiers = capability.TokenModifiers,

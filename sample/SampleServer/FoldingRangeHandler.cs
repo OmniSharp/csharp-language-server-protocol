@@ -29,7 +29,7 @@ namespace SampleServer
                 )
             );
 
-        public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability) => new FoldingRangeRegistrationOptions {
+        public FoldingRangeRegistrationOptions GetRegistrationOptions(FoldingRangeCapability capability, ClientCapabilities clientCapabilities) => new FoldingRangeRegistrationOptions {
             DocumentSelector = DocumentSelector.ForLanguage("csharp")
         };
     }

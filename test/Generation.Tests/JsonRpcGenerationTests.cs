@@ -253,32 +253,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class DidChangeTextDocumentExtensions
     {
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, Task> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, CancellationToken> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, CancellationToken> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, CancellationToken, Task> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Action<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler, Func<SynchronizationCapability, TextDocumentChangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDidChangeTextDocument(this ILanguageServerRegistry registry, Func<DidChangeTextDocumentParams, SynchronizationCapability, CancellationToken, Task> handler, RegistrationOptionsDelegate<TextDocumentChangeRegistrationOptions, SynchronizationCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.DidChange, new LanguageProtocolDelegatingHandlers.Notification<DidChangeTextDocumentParams, TextDocumentChangeRegistrationOptions, SynchronizationCapability>(HandlerAdapter<SynchronizationCapability>.Adapt<DidChangeTextDocumentParams>(handler), RegistrationAdapter<SynchronizationCapability>.Adapt<TextDocumentChangeRegistrationOptions>(registrationOptions)));
         }
@@ -342,32 +342,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class FoldingRangeExtensions
     {
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, Task<Container<FoldingRange>>> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, Task<Container<FoldingRange>>> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, new LanguageProtocolDelegatingHandlers.Request<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRangeRegistrationOptions, FoldingRangeCapability>(HandlerAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, Container<FoldingRange>>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, CancellationToken, Task<Container<FoldingRange>>> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, new LanguageProtocolDelegatingHandlers.Request<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRangeRegistrationOptions, FoldingRangeCapability>(HandlerAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, Container<FoldingRange>>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, FoldingRangeCapability, CancellationToken, Task<Container<FoldingRange>>> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnFoldingRange(this ILanguageServerRegistry registry, Func<FoldingRangeRequestParam, FoldingRangeCapability, CancellationToken, Task<Container<FoldingRange>>> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, new LanguageProtocolDelegatingHandlers.Request<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRangeRegistrationOptions, FoldingRangeCapability>(HandlerAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, Container<FoldingRange>>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions, FoldingRangeCapability>(PartialAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, FoldingRange>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<FoldingRange>.From));
         }
 
-        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, CancellationToken> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, CancellationToken> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions, FoldingRangeCapability>(PartialAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, FoldingRange>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<FoldingRange>.From));
         }
 
-        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability, CancellationToken> handler, Func<FoldingRangeCapability, FoldingRangeRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveFoldingRange(this ILanguageServerRegistry registry, Action<FoldingRangeRequestParam, IObserver<IEnumerable<FoldingRange>>, FoldingRangeCapability, CancellationToken> handler, RegistrationOptionsDelegate<FoldingRangeRegistrationOptions, FoldingRangeCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.FoldingRange, _ => new LanguageProtocolDelegatingHandlers.PartialResults<FoldingRangeRequestParam, Container<FoldingRange>, FoldingRange, FoldingRangeRegistrationOptions, FoldingRangeCapability>(PartialAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRequestParam, FoldingRange>(handler), RegistrationAdapter<FoldingRangeCapability>.Adapt<FoldingRangeRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), Container<FoldingRange>.From));
         }
@@ -428,32 +428,32 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Test
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute, Obsolete(""This is obsolete"")]
     public static partial class DefinitionExtensions
     {
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, DefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, DefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
@@ -513,32 +513,32 @@ namespace Test
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class DefinitionExtensions
     {
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, CancellationToken, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, DefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnDefinition(this ILanguageServerRegistry registry, Func<DefinitionParams, DefinitionCapability, CancellationToken, Task<LocationOrLocationLinks>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, new LanguageProtocolDelegatingHandlers.Request<DefinitionParams, LocationOrLocationLinks, DefinitionRegistrationOptions, DefinitionCapability>(HandlerAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLinks>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, CancellationToken> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
 
-        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, Func<DefinitionCapability, DefinitionRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry ObserveDefinition(this ILanguageServerRegistry registry, Action<DefinitionParams, IObserver<IEnumerable<LocationOrLocationLink>>, DefinitionCapability, CancellationToken> handler, RegistrationOptionsDelegate<DefinitionRegistrationOptions, DefinitionCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Definition, _ => new LanguageProtocolDelegatingHandlers.PartialResults<DefinitionParams, LocationOrLocationLinks, LocationOrLocationLink, DefinitionRegistrationOptions, DefinitionCapability>(PartialAdapter<DefinitionCapability>.Adapt<DefinitionParams, LocationOrLocationLink>(handler), RegistrationAdapter<DefinitionCapability>.Adapt<DefinitionRegistrationOptions>(registrationOptions), _.GetService<IProgressManager>(), LocationOrLocationLinks.From));
         }
@@ -906,17 +906,17 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Bogus.Handlers
     [System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute, System.Runtime.CompilerServices.CompilerGeneratedAttribute]
     public static partial class RenameExtensions
     {
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, Task<WorkspaceEdit?>> handler, RegistrationOptionsDelegate<RenameRegistrationOptions, RenameCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(HandlerAdapter<RenameCapability>.Adapt<RenameParams, WorkspaceEdit?>(handler), RegistrationAdapter<RenameCapability>.Adapt<RenameRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, CancellationToken, Task<WorkspaceEdit?>> handler, RegistrationOptionsDelegate<RenameRegistrationOptions, RenameCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(HandlerAdapter<RenameCapability>.Adapt<RenameParams, WorkspaceEdit?>(handler), RegistrationAdapter<RenameCapability>.Adapt<RenameRegistrationOptions>(registrationOptions)));
         }
 
-        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>> handler, Func<RenameCapability, RenameRegistrationOptions> registrationOptions)
+        public static ILanguageServerRegistry OnRename(this ILanguageServerRegistry registry, Func<RenameParams, RenameCapability, CancellationToken, Task<WorkspaceEdit?>> handler, RegistrationOptionsDelegate<RenameRegistrationOptions, RenameCapability> registrationOptions)
         {
             return registry.AddHandler(TextDocumentNames.Rename, new LanguageProtocolDelegatingHandlers.Request<RenameParams, WorkspaceEdit?, RenameRegistrationOptions, RenameCapability>(HandlerAdapter<RenameCapability>.Adapt<RenameParams, WorkspaceEdit?>(handler), RegistrationAdapter<RenameCapability>.Adapt<RenameRegistrationOptions>(registrationOptions)));
         }

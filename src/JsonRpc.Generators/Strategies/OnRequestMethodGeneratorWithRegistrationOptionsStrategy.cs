@@ -216,8 +216,8 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                         method, syntax, resolveSyntax,
                         Parameter(Identifier("registrationOptions"))
                            .WithType(
-                                GenericName(Identifier("Func")).WithTypeArgumentList(
-                                    TypeArgumentList(SeparatedList(new[] { capabilityName, registrationOptions }))
+                                GenericName(Identifier("RegistrationOptionsDelegate")).WithTypeArgumentList(
+                                    TypeArgumentList(SeparatedList(new[] { registrationOptions, capabilityName }))
                                 )
                             )
                     );
@@ -227,7 +227,7 @@ namespace OmniSharp.Extensions.JsonRpc.Generators.Strategies
                     method, syntax, resolveSyntax,
                     Parameter(Identifier("registrationOptions"))
                        .WithType(
-                            GenericName(Identifier("Func"))
+                            GenericName(Identifier("RegistrationOptionsDelegate"))
                                .WithTypeArgumentList(
                                     TypeArgumentList(SingletonSeparatedList(registrationOptions))
                                 )

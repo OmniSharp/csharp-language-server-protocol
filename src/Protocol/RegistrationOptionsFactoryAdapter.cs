@@ -11,23 +11,23 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
     public static class RegistrationAdapter<TCapability>
         where TCapability : ICapability
     {
-        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions>(Func<TCapability, TRegistrationOptions>? registrationOptionsFactory)
-            where TRegistrationOptions : class, new() => registrationOptionsFactory ?? ( _ => new TRegistrationOptions() );
+        public static RegistrationOptionsDelegate<TRegistrationOptions, TCapability> Adapt<TRegistrationOptions>(RegistrationOptionsDelegate<TRegistrationOptions, TCapability>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new() => registrationOptionsFactory ?? ( (_, _) => new TRegistrationOptions() );
 
-        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions>(Func<TRegistrationOptions>? registrationOptionsFactory)
-            where TRegistrationOptions : class, new() => _ => registrationOptionsFactory?.Invoke() ?? new TRegistrationOptions();
+        public static RegistrationOptionsDelegate<TRegistrationOptions, TCapability> Adapt<TRegistrationOptions>(RegistrationOptionsDelegate<TRegistrationOptions>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new() => (_, cc) => registrationOptionsFactory?.Invoke(cc) ?? new TRegistrationOptions();
 
-        public static Func<TCapability, TRegistrationOptions> Adapt<TRegistrationOptions>(TRegistrationOptions? registrationOptions)
-            where TRegistrationOptions : class, new() => _ => registrationOptions ?? new TRegistrationOptions();
+        public static RegistrationOptionsDelegate<TRegistrationOptions, TCapability> Adapt<TRegistrationOptions>(TRegistrationOptions? registrationOptions)
+            where TRegistrationOptions : class, new() => (_, _) => registrationOptions ?? new TRegistrationOptions();
     }
 
     public static class RegistrationAdapter
     {
-        public static Func<TRegistrationOptions> Adapt<TRegistrationOptions>(Func<TRegistrationOptions>? registrationOptionsFactory)
-            where TRegistrationOptions : class, new() => registrationOptionsFactory ?? ( () => new TRegistrationOptions() );
+        public static RegistrationOptionsDelegate<TRegistrationOptions> Adapt<TRegistrationOptions>(RegistrationOptionsDelegate<TRegistrationOptions>? registrationOptionsFactory)
+            where TRegistrationOptions : class, new() => registrationOptionsFactory ?? ( _ => new TRegistrationOptions() );
 
-        public static Func<TRegistrationOptions> Adapt<TRegistrationOptions>(TRegistrationOptions? registrationOptions)
-            where TRegistrationOptions : class, new() => () => registrationOptions ?? new TRegistrationOptions();
+        public static RegistrationOptionsDelegate<TRegistrationOptions> Adapt<TRegistrationOptions>(TRegistrationOptions? registrationOptions)
+            where TRegistrationOptions : class, new() => _ => registrationOptions ?? new TRegistrationOptions();
     }
 
     public static class PartialAdapter

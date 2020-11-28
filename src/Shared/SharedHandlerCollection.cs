@@ -348,9 +348,6 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                   || MethodAttribute.AllFrom(typeInfo).Any(x => x.Method == z.Method)
             );
 
-        private static object GetRegistration<T>(IRegistration<T> registration)
-            where T : class => registration.GetRegistrationOptions();
-
         internal void Initialize()
         {
             _initialized = true;

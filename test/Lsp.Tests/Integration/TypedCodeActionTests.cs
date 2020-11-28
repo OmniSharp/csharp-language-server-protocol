@@ -61,7 +61,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-a";
                             return Task.FromResult(action);
                         },
-                        _ => new CodeActionRegistrationOptions {
+                        (_, _) => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -88,7 +88,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-b";
                             return Task.FromResult(action);
                         },
-                        _ => new CodeActionRegistrationOptions {
+                        (_, _) => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -112,7 +112,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-c";
                             return Task.FromResult(action);
                         },
-                        _ => new CodeActionRegistrationOptions {
+                        (_, _) => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -136,7 +136,7 @@ namespace Lsp.Tests.Integration
                             action.Command!.Name = "resolved-d";
                             return Task.FromResult(action);
                         },
-                        _ => new CodeActionRegistrationOptions {
+                        (_, _) => new CodeActionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -191,7 +191,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -239,7 +239,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -284,7 +284,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -332,7 +332,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -377,7 +377,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -425,7 +425,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -461,7 +461,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -499,7 +499,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -534,7 +534,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -572,7 +572,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -607,7 +607,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
@@ -645,7 +645,7 @@ namespace Lsp.Tests.Integration
                             codeAction.Command!.Name = "resolved";
                             return Task.FromResult(codeAction);
                         },
-                        _ => new CodeActionRegistrationOptions()
+                        (_, _) => new CodeActionRegistrationOptions()
                     );
                 }
             );
