@@ -4,10 +4,6 @@
         <WarningsAsErrors>true</WarningsAsErrors>
         <PlatformTarget>AnyCPU</PlatformTarget>
     </PropertyGroup>
-    <PropertyGroup>
-        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
-    </PropertyGroup>
     <ItemGroup>
         <None Remove="**\*.json" />
         <EmbeddedResource Include="**\*.json" />

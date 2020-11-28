@@ -11,10 +11,6 @@
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Configuration" />
     </ItemGroup>
-    <PropertyGroup>
-        <EmitCompilerGeneratedFiles>false</EmitCompilerGeneratedFiles>
-        <CompilerGeneratedFilesOutputPath>$(BaseIntermediateOutputPath)\GeneratedFiles</CompilerGeneratedFilesOutputPath>
-    </PropertyGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\JsonRpc\JsonRpc.csproj" />
