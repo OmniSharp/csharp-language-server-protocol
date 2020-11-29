@@ -4,10 +4,10 @@
         "1",
         "2"
     ],
-    "workDoneProgress": false,
     "documentSelector": [
         {
             "language": "csharp"
         }
-    ]
+    ],
+    "workDoneProgress": false
 }

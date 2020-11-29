@@ -12,19 +12,19 @@ namespace OmniSharp.Extensions.JsonRpc
             {
                 switch (item)
                 {
-                    case JsonRpcHandlerFactoryDescription factory when !(factory.Method is null):
+                    case JsonRpcHandlerFactoryDescription { Method: { Length: > 0 } } factory:
                         handlersManager.Add(factory.Method, factory.HandlerFactory(resolverContext), factory.Options);
                         continue;
                     case JsonRpcHandlerFactoryDescription factory:
                         handlersManager.Add(factory.HandlerFactory(resolverContext), factory.Options);
                         continue;
-                    case JsonRpcHandlerTypeDescription type when !(type.Method is null):
-                        handlersManager.Add(type.Method, (resolverContext.Resolve(type.HandlerType) as IJsonRpcHandler)!, type.Options);
+                    case JsonRpcHandlerTypeDescription { Method: { Length: > 0 } } type:
+                        handlersManager.Add(type.Method, ( resolverContext.Resolve(type.HandlerType) as IJsonRpcHandler )!, type.Options);
                         continue;
                     case JsonRpcHandlerTypeDescription type:
-                        handlersManager.Add((resolverContext.Resolve(type.HandlerType) as IJsonRpcHandler)!, type.Options);
+                        handlersManager.Add(( resolverContext.Resolve(type.HandlerType) as IJsonRpcHandler )!, type.Options);
                         continue;
-                    case JsonRpcHandlerInstanceDescription instance when !(instance.Method is null):
+                    case JsonRpcHandlerInstanceDescription { Method: { Length: > 0 } } instance:
                         handlersManager.Add(instance.Method, instance.HandlerInstance, instance.Options);
                         continue;
                     case JsonRpcHandlerInstanceDescription instance:

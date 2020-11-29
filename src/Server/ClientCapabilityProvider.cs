@@ -24,9 +24,9 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         public bool HasStaticHandler<T>(Supports<T> capability)
             where T : ConnectedCapability<IJsonRpcHandler>?, IDynamicCapability?
         {
-            // Dynamic registration will cause us to double register things if we report our capabilities staticly.
+            // Dynamic registration will cause us to double register things if we report our capabilities statically.
             // However if the client does not tell us it's capabilities we should just assume that they do not support
-            // dynamic registraiton but we should report any capabilities statically
+            // dynamic registrations but we should report any capabilities statically
             if (capability.IsSupported && capability.Value != null && capability.Value.DynamicRegistration) return false;
 
             var handlerTypes = typeof(T).GetTypeInfo().ImplementedInterfaces

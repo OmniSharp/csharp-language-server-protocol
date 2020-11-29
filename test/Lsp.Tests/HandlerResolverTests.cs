@@ -8,6 +8,7 @@ using NSubstitute;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.General;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
@@ -15,6 +16,7 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 using OmniSharp.Extensions.LanguageServer.Server;
 using OmniSharp.Extensions.LanguageServer.Shared;
 using Xunit;
+using Arg = NSubstitute.Arg;
 
 namespace Lsp.Tests
 {
@@ -29,6 +31,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler }, new object[0]);
 
             handler.Add(sub);
@@ -41,6 +44,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
 
             handler.Add(
                 Substitute.For<IExitHandler>(),
@@ -63,6 +67,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             var sub = (IJsonRpcHandler) TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.something"), "csharp");
 
             handler.Add(sub);
@@ -79,6 +84,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             handler.Add(
                 Substitute.For<ILanguageProtocolInitializeHandler>(),
                 Substitute.For<ILanguageProtocolInitializedHandler>(),
@@ -98,6 +104,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             handler.Add(
                 Substitute.For<ILanguageProtocolInitializeHandler>(),
                 Substitute.For<ILanguageProtocolInitializedHandler>(),
@@ -125,6 +132,7 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             var sub = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cs"), "csharp");
 
             var sub2 = TextDocumentSyncHandlerExtensions.With(DocumentSelector.ForPattern("**/*.cake"), "csharp");
@@ -141,11 +149,12 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
+            if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
-                        new TextDocumentRegistrationOptions {
+                        new TextDocumentSyncRegistrationOptions() {
                             DocumentSelector = new DocumentSelector()
                         }
                     );
@@ -160,20 +169,21 @@ namespace Lsp.Tests
         public void Should_Contain_AllDefinedMethods_OnLanguageServer_WithDifferentKeys(Type requestHandler, Type type2, string key, string key2, int count)
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
-                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+                                                      new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));            handler.Initialize();
+handler.Initialize();
             var sub = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub is IRegistration<TextDocumentRegistrationOptions> reg)
-                reg.GetRegistrationOptions()
+            if (sub is IRegistration<ITextDocumentRegistrationOptions> reg)
+                reg.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                    .Returns(
-                        new TextDocumentRegistrationOptions {
+                        new TextDocumentSyncRegistrationOptions {
                             DocumentSelector = new DocumentSelector()
                         }
                     );
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { requestHandler, type2 }, new object[0]);
-            if (sub2 is IRegistration<TextDocumentRegistrationOptions> reg2)
-                reg2.GetRegistrationOptions()
+            if (sub2 is IRegistration<ITextDocumentRegistrationOptions> reg2)
+                reg2.GetRegistrationOptions(Arg.Any<ClientCapabilities>())
                     .Returns(
-                         new TextDocumentRegistrationOptions {
+                         new TextDocumentSyncRegistrationOptions {
                              DocumentSelector = new DocumentSelector()
                          }
                      );
@@ -190,6 +200,8 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
+
             var sub = (IJsonRpcHandler) Substitute.For(new[] { handlerType }, new object[0]);
             var sub2 = (IJsonRpcHandler) Substitute.For(new[] { handlerType }, new object[0]);
             handler.Add(method, sub, null);
@@ -205,17 +217,19 @@ namespace Lsp.Tests
         {
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             handler.Add(sub);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().First(x => x.Method == method);
             descriptor.Key.Should().Be("default");
+            handler.Initialize();
         }
 
         [Fact]
         public void Should_DealWithClassesThatImplementMultipleHandlers_BySettingKeyAccordingly()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions()
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector(DocumentFilter.ForLanguage("foo"))
@@ -224,6 +238,7 @@ namespace Lsp.Tests
 
             var handler = new SharedHandlerCollection(SupportedCapabilitiesFixture.AlwaysTrue, new TextDocumentIdentifiers(), Substitute.For<IResolverContext>(),
                                                       new LspHandlerTypeDescriptorProvider(new [] { typeof(FoundationTests).Assembly, typeof(LanguageServer).Assembly, typeof(LanguageClient).Assembly, typeof(IRegistrationManager).Assembly, typeof(LspRequestRouter).Assembly }));
+            handler.Initialize();
             handler.Add((codeLensHandler as IJsonRpcHandler)!);
 
             var descriptor = handler.OfType<LspHandlerDescriptor>().Select(x => x.Key);
@@ -233,7 +248,7 @@ namespace Lsp.Tests
         public static IEnumerable<object[]> Should_DealWithClassesThatImplementMultipleHandlers_WithoutConflictingRegistrations_Data()
         {
             var codeLensHandler = Substitute.For(new[] { typeof(ICodeLensHandler), typeof(ICodeLensResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions()
+            ( (ICodeLensHandler) codeLensHandler ).GetRegistrationOptions(Arg.Any<CodeLensCapability>(), Arg.Any<ClientCapabilities>())
                                                   .Returns(
                                                        new CodeLensRegistrationOptions {
                                                            DocumentSelector = new DocumentSelector()
@@ -243,7 +258,7 @@ namespace Lsp.Tests
             yield return new[] { TextDocumentNames.CodeLensResolve, codeLensHandler };
 
             var documentLinkHandler = Substitute.For(new[] { typeof(IDocumentLinkHandler), typeof(IDocumentLinkResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions()
+            ( (IDocumentLinkHandler) documentLinkHandler ).GetRegistrationOptions(Arg.Any<DocumentLinkCapability>(), Arg.Any<ClientCapabilities>())
                                                           .Returns(
                                                                new DocumentLinkRegistrationOptions {
                                                                    DocumentSelector = new DocumentSelector()
@@ -253,7 +268,7 @@ namespace Lsp.Tests
             yield return new[] { TextDocumentNames.DocumentLinkResolve, documentLinkHandler };
 
             var completionHandler = Substitute.For(new[] { typeof(ICompletionHandler), typeof(ICompletionResolveHandler), typeof(ICanBeIdentifiedHandler) }, new object[0]);
-            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions()
+            ( (ICompletionHandler) completionHandler ).GetRegistrationOptions(Arg.Any<CompletionCapability>(), Arg.Any<ClientCapabilities>())
                                                       .Returns(
                                                            new CompletionRegistrationOptions {
                                                                DocumentSelector = new DocumentSelector()

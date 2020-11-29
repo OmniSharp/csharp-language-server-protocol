@@ -1,6 +1,6 @@
 namespace OmniSharp.Extensions.LanguageServer.Protocol
 {
-    public interface ICapability<TCapability>
+    public interface ICapability<in TCapability>
     {
         void SetCapability(TCapability capability);
     }

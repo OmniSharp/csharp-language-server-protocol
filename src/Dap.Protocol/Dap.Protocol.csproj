@@ -27,24 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Update="Events\IProgressEndHandler.cs">
-        <Generator></Generator>
-      </Compile>
-      <Compile Update="Events\IProgressStartHandler.cs">
-        <Generator></Generator>
-      </Compile>
-      <Compile Update="Events\IProgressUpdateHandler.cs">
-        <Generator></Generator>
-      </Compile>
-      <Compile Update="Events\ProgressEndEvent.cs">
-        <Generator></Generator>
-      </Compile>
-      <Compile Update="Events\ProgressStartEvent.cs">
-        <Generator></Generator>
-      </Compile>
-      <Compile Update="Events\ProgressUpdateEvent.cs">
-        <Generator></Generator>
-      </Compile>
       <Compile Update="Client\IDebugAdapterClient.cs">
         <Generator>MSBuild:GenerateCodeFromAttributes</Generator>
       </Compile>

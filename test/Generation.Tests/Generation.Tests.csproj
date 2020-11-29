@@ -11,6 +11,7 @@
         <ProjectReference Include="..\..\src\Protocol\Protocol.csproj" />
         <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" />
         <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />
+        <EmbeddedResource Include="..\..\src\Protocol\**\*Feature.cs" Visible="false" />
 <!--        <ProjectReference Include="..\TestingUtils\TestingUtils.csproj" />-->
     </ItemGroup>
 </Project>

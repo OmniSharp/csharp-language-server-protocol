@@ -19,13 +19,14 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
+    [BuiltIn]
     internal class LanguageClientRegistrationManager : IRegisterCapabilityHandler, IUnregisterCapabilityHandler, IRegistrationManager, IDisposable
     {
         private readonly ISerializer _serializer;
         private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
         private readonly ILogger<LanguageClientRegistrationManager> _logger;
         private readonly ConcurrentDictionary<string, Registration> _registrations;
-        private ReplaySubject<IEnumerable<Registration>> _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1);
+        private readonly ReplaySubject<IEnumerable<Registration>> _registrationSubject = new ReplaySubject<IEnumerable<Registration>>(1);
 
         public LanguageClientRegistrationManager(
             ISerializer serializer,

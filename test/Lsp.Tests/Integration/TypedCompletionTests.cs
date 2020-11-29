@@ -60,7 +60,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Command!.Name = "resolved-a";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions {
+                        (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -85,7 +85,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Command!.Name = "resolved-b";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions {
+                        (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -107,7 +107,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Command!.Name = "resolved-c";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions {
+                        (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -129,7 +129,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Command!.Name = "resolved-d";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions {
+                        (_, _) => new CompletionRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -182,7 +182,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -200,7 +200,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion<Data>(
+                    options.ObserveCompletion<Data>(
                         (completionParams, observer, capability, token) => {
                             var a = new CompletionList<Data>(
                                 new CompletionItem<Data> {
@@ -228,7 +228,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -271,7 +271,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -289,7 +289,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion<Data>(
+                    options.ObserveCompletion<Data>(
                         (completionParams, observer, token) => {
                             var a = new CompletionList<Data>(
                                 new CompletionItem<Data> {
@@ -317,7 +317,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -360,7 +360,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -378,7 +378,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion<Data>(
+                    options.ObserveCompletion<Data>(
                         (completionParams, observer) => {
                             var a = new CompletionList<Data>(
                                 new CompletionItem<Data> {
@@ -406,7 +406,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -440,7 +440,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -458,7 +458,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(
+                    options.ObserveCompletion(
                         (completionParams, observer, capability, token) => {
                             var a = new CompletionList(
                                 new CompletionItem {
@@ -476,7 +476,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -509,7 +509,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -527,7 +527,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(
+                    options.ObserveCompletion(
                         (completionParams, observer, token) => {
                             var a = new CompletionList(
                                 new CompletionItem {
@@ -545,7 +545,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -578,7 +578,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -596,7 +596,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnCompletion(
+                    options.ObserveCompletion(
                         (completionParams, observer) => {
                             var a = new CompletionList(
                                 new CompletionItem {
@@ -614,7 +614,7 @@ namespace Lsp.Tests.Integration
                             completionItem.Detail = "resolved";
                             return Task.FromResult(completionItem);
                         },
-                        new CompletionRegistrationOptions()
+                        (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );

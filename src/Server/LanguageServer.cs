@@ -35,6 +35,7 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Server
 {
+    [BuiltIn]
     public partial class LanguageServer : JsonRpcServerBase, ILanguageServer, ILanguageProtocolInitializeHandler, ILanguageProtocolInitializedHandler, IAwaitableTermination
     {
         private readonly Connection _connection;
@@ -43,7 +44,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
         private readonly ILspServerReceiver _serverReceiver;
         private readonly LspSerializer _serializer;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
-        private readonly IHandlerCollection _collection;
+        private readonly SharedHandlerCollection _collection;
         private readonly IEnumerable<OnLanguageServerInitializeDelegate> _initializeDelegates;
         private readonly IEnumerable<IOnLanguageServerInitialize> _initializeHandlers;
         private readonly IEnumerable<OnLanguageServerInitializedDelegate> _initializedDelegates;
@@ -266,21 +267,67 @@ namespace OmniSharp.Extensions.LanguageServer.Server
             InternalInitializeParams request, CancellationToken token
         )
         {
-            var clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+            ConfigureServerLogging(request);
 
-            foreach (var group in _capabilityTypes)
+            ReadClientCapabilities(request, out var clientCapabilities, out var textDocumentCapabilities, out _, out var windowCapabilities);
+
+            await LanguageProtocolEventingHelper.Run(
+                _initializeDelegates,
+                (handler, ct) => handler(this, ClientSettings, ct),
+                _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
+                (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
+                _concurrency,
+                token
+            ).ConfigureAwait(false);
+
+            _disposable.Add(
+                LanguageServerHelpers.RegisterHandlers(
+                    _initializeComplete.Select(z => System.Reactive.Unit.Default),
+                    Client,
+                    WorkDoneManager,
+                    _supportedCapabilities,
+                    _collection
+                )
+            );
+
+            var result = ReadServerCapabilities( clientCapabilities, windowCapabilities, textDocumentCapabilities);
+
+            await LanguageProtocolEventingHelper.Run(
+                _initializedDelegates,
+                (handler, ct) => handler(this, ClientSettings, result, ct),
+                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
+                (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
+                _concurrency,
+                token
+            ).ConfigureAwait(false);
+
+
+            // TODO:
+            if (_clientVersion == ClientVersion.Lsp2)
             {
-                foreach (var capabilityType in group)
-                {
-                    if (request.Capabilities.SelectToken(group.Key) is JObject capabilityData)
-                    {
-                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
-                        _supportedCapabilities.Add(capability!);
-                    }
-                }
+                _serverReceiver.Initialized();
+                _initializeComplete.OnNext(result);
+                _initializeComplete.OnCompleted();
             }
 
-            if (request.Trace == InitializeTrace.Verbose)
+            return result;
+        }
+
+        public Task<Unit> Handle(InitializedParams @params, CancellationToken token)
+        {
+            if (_clientVersion == ClientVersion.Lsp3)
+            {
+                _serverReceiver.Initialized();
+                _initializeComplete.OnNext(ServerSettings);
+                _initializeComplete.OnCompleted();
+            }
+
+            return Unit.Task;
+        }
+
+        private void ConfigureServerLogging(InternalInitializeParams internalInitializeParams)
+        {
+            if (internalInitializeParams.Trace == InitializeTrace.Verbose)
             {
                 var loggerSettings = Services.GetService<LanguageServerLoggerSettings>();
 
@@ -295,6 +342,29 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 {
                     optionsMonitor.CurrentValue.MinLevel = LogLevel.Trace;
                     optionsMonitor.Set(optionsMonitor.CurrentValue);
+                }
+            }
+        }
+
+        private ClientCapabilities ReadClientCapabilities(
+            InternalInitializeParams request,
+            out ClientCapabilities clientCapabilities,
+            out TextDocumentClientCapabilities textDocumentCapabilities,
+            out WorkspaceClientCapabilities workspaceCapabilities,
+            out WindowClientCapabilities windowCapabilities
+        )
+        {
+            clientCapabilities = request.Capabilities.ToObject<ClientCapabilities>(_serializer.JsonSerializer);
+            _supportedCapabilities.Initialize(clientCapabilities);
+            foreach (var group in _capabilityTypes)
+            {
+                foreach (var capabilityType in @group)
+                {
+                    if (request.Capabilities.SelectToken(@group.Key) is JObject capabilityData)
+                    {
+                        var capability = capabilityData.ToObject(capabilityType) as ICapability;
+                        _supportedCapabilities.Add(capability!);
+                    }
                 }
             }
 
@@ -317,40 +387,29 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                         LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.Workspace)
                     );
                 }
-            }
 
-            ClientSettings = new InitializeParams(request, clientCapabilities);
+                if (clientCapabilities.Window != null)
+                {
+                    supportedCapabilities.AddRange(
+                        LspHandlerDescriptorHelpers.GetSupportedCapabilities(clientCapabilities.Window)
+                    );
+                }
+            }
 
             _supportedCapabilities.Add(supportedCapabilities);
 
-            ClientSettings.Capabilities = clientCapabilities;
-            var textDocumentCapabilities =
-                ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
-            ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
-            var windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
+            ClientSettings = new InitializeParams(request, clientCapabilities) { Capabilities = clientCapabilities };
+            textDocumentCapabilities = ClientSettings.Capabilities.TextDocument ??= new TextDocumentClientCapabilities();
+            workspaceCapabilities = ClientSettings.Capabilities.Workspace ??= new WorkspaceClientCapabilities();
+            windowCapabilities = ClientSettings.Capabilities.Window ??= new WindowClientCapabilities();
             WorkDoneManager.Initialized(windowCapabilities);
+            _collection.Initialize();
 
-            _disposable.Add(
-                LanguageServerHelpers.RegisterHandlers(
-                    _initializeComplete.Select(z => System.Reactive.Unit.Default),
-                    Client,
-                    WorkDoneManager,
-                    _supportedCapabilities,
-                    _collection
-                )
-            );
+            return clientCapabilities;
+        }
 
-            await LanguageProtocolEventingHelper.Run(
-                _initializeDelegates,
-                (handler, ct) => handler(this, ClientSettings, ct),
-                _initializeHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialize>()),
-                (handler, ct) => handler.OnInitialize(this, ClientSettings, ct),
-                _concurrency,
-                token
-            ).ConfigureAwait(false);
-
-            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
-
+        private InitializeResult ReadServerCapabilities(ClientCapabilities clientCapabilities, WindowClientCapabilities windowCapabilities, TextDocumentClientCapabilities textDocumentCapabilities)
+        {
             var serverCapabilities = new ServerCapabilities();
 
             var serverCapabilitiesObject = new JObject();
@@ -389,6 +448,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 _serializer.JsonSerializer.Populate(reader, serverCapabilities);
             }
 
+            var ccp = new ClientCapabilityProvider(_collection, windowCapabilities.WorkDoneProgress.IsSupported);
             serverCapabilities.TextDocumentSync = ccp.GetStaticOptions(textDocumentCapabilities.Synchronization)
                                                      .Reduce<ITextDocumentSyncOptions, TextDocumentSyncOptions>(TextDocumentSyncOptions.Of)!;
 
@@ -410,7 +470,10 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                     var kinds = _collection
                                .Select(x => x.Handler)
                                .OfType<IDidChangeTextDocumentHandler>()
-                               .Select(x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions() )?.SyncKind ?? TextDocumentSyncKind.None)
+                               .Select(
+                                    x => ( (TextDocumentChangeRegistrationOptions?)x.GetRegistrationOptions(textDocumentCapabilities.Synchronization, clientCapabilities) )?.SyncKind
+                                      ?? TextDocumentSyncKind.None
+                                )
                                .Where(x => x != TextDocumentSyncKind.None)
                                .ToArray();
                     if (kinds.Any())
@@ -445,43 +508,7 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 Capabilities = serverCapabilities,
                 ServerInfo = _serverInfo
             };
-
-            foreach (var item in _collection)
-            {
-                LspHandlerDescriptorHelpers.InitializeHandler(item, _supportedCapabilities, item.Handler);
-            }
-
-            await LanguageProtocolEventingHelper.Run(
-                _initializedDelegates,
-                (handler, ct) => handler(this, ClientSettings, result, ct),
-                _initializedHandlers.Union(_collection.Select(z => z.Handler).OfType<IOnLanguageServerInitialized>()),
-                (handler, ct) => handler.OnInitialized(this, ClientSettings, result, ct),
-                _concurrency,
-                token
-            ).ConfigureAwait(false);
-
-
-            // TODO:
-            if (_clientVersion == ClientVersion.Lsp2)
-            {
-                _serverReceiver.Initialized();
-                _initializeComplete.OnNext(result);
-                _initializeComplete.OnCompleted();
-            }
-
             return result;
-        }
-
-        public Task<Unit> Handle(InitializedParams @params, CancellationToken token)
-        {
-            if (_clientVersion == ClientVersion.Lsp3)
-            {
-                _serverReceiver.Initialized();
-                _initializeComplete.OnNext(ServerSettings);
-                _initializeComplete.OnCompleted();
-            }
-
-            return Unit.Task;
         }
 
         public IObservable<InitializeResult> Start => _initializeComplete.AsObservable();

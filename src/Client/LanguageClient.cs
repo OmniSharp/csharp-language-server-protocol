@@ -28,6 +28,7 @@ using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Client
 {
+    [BuiltIn]
     public class LanguageClient : JsonRpcServerBase, ILanguageClient
     {
         private readonly Connection _connection;
@@ -35,7 +36,7 @@ namespace OmniSharp.Extensions.LanguageServer.Client
         private readonly ILspClientReceiver _receiver;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
 
-        private readonly IHandlerCollection _collection;
+        private readonly SharedHandlerCollection _collection;
 
         // private readonly IEnumerable<InitializeDelegate> _initializeDelegates;
         // private readonly IEnumerable<InitializedDelegate> _initializedDelegates;
@@ -143,8 +144,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
             IProgressManager progressManager,
             IClientWorkDoneManager clientWorkDoneManager,
             IRegistrationManager registrationManager,
-            ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager, IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
-            IEnumerable<IOnLanguageClientInitialize> initializeHandlers, IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
+            ILanguageClientWorkspaceFoldersManager languageClientWorkspaceFoldersManager,
+            IEnumerable<OnLanguageClientInitializeDelegate> initializeDelegates,
+            IEnumerable<IOnLanguageClientInitialize> initializeHandlers,
+            IEnumerable<OnLanguageClientInitializedDelegate> initializedDelegates,
             IEnumerable<IOnLanguageClientInitialized> initializedHandlers,
             LspSerializer serializer,
             InstanceHasStarted instanceHasStarted
@@ -250,11 +253,8 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _serializer.JsonSerializer.Populate(reader, _clientCapabilities);
             }
 
+            _collection.Initialize();
             RegisterCapabilities(_clientCapabilities);
-
-            WorkDoneManager.Initialize(@params.Capabilities.Window);
-
-            ClientSettings = @params;
 
             await LanguageProtocolEventingHelper.Run(
                 _initializeDelegates,
@@ -264,6 +264,10 @@ namespace OmniSharp.Extensions.LanguageServer.Client
                 _concurrency,
                 token
             ).ConfigureAwait(false);
+
+            WorkDoneManager.Initialize(@params.Capabilities.Window);
+
+            ClientSettings = @params;
 
             _connection.Open();
             var serverParams = await SendRequest(ClientSettings, token).ConfigureAwait(false);

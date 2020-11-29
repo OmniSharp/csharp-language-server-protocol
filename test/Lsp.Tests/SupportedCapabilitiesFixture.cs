@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
 using OmniSharp.Extensions.LanguageServer.Protocol.Client.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
+using OmniSharp.Extensions.LanguageServer.Shared;
 
 namespace Lsp.Tests
 {
@@ -12,7 +14,7 @@ namespace Lsp.Tests
         public static readonly ISupportedCapabilities AlwaysTrue = new AlwaysTrueSupportedCapabilities();
         public static readonly ISupportedCapabilities AlwaysFalse = new AlwaysFalseSupportedCapabilities();
 
-        private class AlwaysTrueSupportedCapabilities : ISupportedCapabilities
+        private class AlwaysTrueSupportedCapabilities : SupportedCapabilitiesBase, ISupportedCapabilities
         {
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once UnusedMember.Local
@@ -20,18 +22,14 @@ namespace Lsp.Tests
 
             public bool AllowsDynamicRegistration(Type capabilityType) => true;
 
-            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
             {
+                capability = Activator.CreateInstance(capabilityType);
+                return true;
             }
-
-            public void Add(IEnumerable<ISupports> supports)
-            {
-            }
-
-            public void Add(ICapability capability) {}
         }
 
-        private class AlwaysFalseSupportedCapabilities : ISupportedCapabilities
+        private class AlwaysFalseSupportedCapabilities : SupportedCapabilitiesBase, ISupportedCapabilities
         {
             // ReSharper disable once UnusedParameter.Local
             // ReSharper disable once UnusedMember.Local
@@ -39,15 +37,11 @@ namespace Lsp.Tests
 
             public bool AllowsDynamicRegistration(Type capabilityType) => false;
 
-            public void SetCapability(ILspHandlerDescriptor descriptor, IJsonRpcHandler handler)
+            protected override bool TryGetCapability(Type capabilityType, [NotNullWhen(true)] out object? capability)
             {
+                capability = null;
+                return false;
             }
-
-            public void Add(IEnumerable<ISupports> supports)
-            {
-            }
-
-            public void Add(ICapability capability) {}
         }
     }
 }

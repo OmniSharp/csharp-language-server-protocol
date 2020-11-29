@@ -44,7 +44,7 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Should_Support_Custom_Attach_Request_Receiving_Regular_Request_Using_Base_Class()
         {
-            var fake = Substitute.For<AttachHandler>();
+            var fake = Substitute.For<AttachHandlerBase>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.RequestAttach(
@@ -108,7 +108,7 @@ namespace Dap.Tests.Integration
         [Fact]
         public async Task Should_Support_Custom_Launch_Request_Receiving_Regular_Request_Using_Base_Class()
         {
-            var fake = Substitute.For<LaunchHandler>();
+            var fake = Substitute.For<LaunchHandlerBase>();
             var (client, _) = await Initialize(options => { }, options => { options.AddHandler(fake); });
 
             await client.RequestLaunch(

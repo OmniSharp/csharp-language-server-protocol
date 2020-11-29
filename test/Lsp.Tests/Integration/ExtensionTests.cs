@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reactive.Linq;
 using System.Reactive.Threading.Tasks;
 using System.Threading;
@@ -47,8 +47,11 @@ namespace Lsp.Tests.Integration
                             Property = "Abcd"
                         }
                     ), options => {
-                    options.OnDiscoverUnitTests(onDiscoverHandler, new UnitTestRegistrationOptions());
-                    options.OnRunUnitTest(onRunUnitHandler, new UnitTestRegistrationOptions());
+                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions());
+                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() {
+                        SupportsDebugging = true,
+                        WorkDoneProgress = true
+                    });
                 }
             );
 
@@ -73,7 +76,10 @@ namespace Lsp.Tests.Integration
                 client.RegistrationManager.CurrentRegistrations.Should().Contain(z => z.Method == "tests/run");
             }
 
-            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams(), CancellationToken);
+            await client.RequestDiscoverUnitTests(new DiscoverUnitTestsParams() {
+            PartialResultToken = new ProgressToken(1),
+            WorkDoneToken = new ProgressToken(1),
+            }, CancellationToken);
             await client.RunUnitTest(new UnitTest(), CancellationToken);
 
             onDiscoverHandler.Received(1).Invoke(Arg.Any<DiscoverUnitTestsParams>(), Arg.Is<UnitTestCapability>(x => x.Property == "Abcd"), Arg.Any<CancellationToken>());
@@ -94,8 +100,8 @@ namespace Lsp.Tests.Integration
             var (client, server) = await Initialize(
                 options => { options.ClientCapabilities.Workspace!.ExtensionData["unitTests"] = JToken.FromObject(new { property = "Abcd", dynamicRegistration = true }); },
                 options => {
-                    options.OnDiscoverUnitTests(onDiscoverHandler, new UnitTestRegistrationOptions());
-                    options.OnRunUnitTest(onRunUnitHandler, new UnitTestRegistrationOptions());
+                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions());
+                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions());
                 }
             );
 
@@ -135,8 +141,8 @@ namespace Lsp.Tests.Integration
                             Property = "Abcd"
                         }
                     ), options => {
-                    options.OnDiscoverUnitTests(onDiscoverHandler, new UnitTestRegistrationOptions() { SupportsDebugging = true });
-                    options.OnRunUnitTest(onRunUnitHandler, new UnitTestRegistrationOptions() { SupportsDebugging = true });
+                    options.OnDiscoverUnitTests(onDiscoverHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
+                    options.OnRunUnitTest(onRunUnitHandler, (_, _) => new UnitTestRegistrationOptions() { SupportsDebugging = true });
                 }
             );
 
@@ -146,8 +152,8 @@ namespace Lsp.Tests.Integration
             }
 
             {
-                server.ServerSettings.Capabilities.ExtensionData["unitTests"].Should().NotBeNull();
-                server.ServerSettings.Capabilities.ExtensionData["unitTests"]
+                server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"].Should().NotBeNull();
+                server.ServerSettings.Capabilities.ExtensionData["unitTestDiscovery"]
                       .ToObject<UnitTestRegistrationOptions.StaticOptions>().SupportsDebugging.Should().BeTrue();
             }
 
@@ -186,7 +192,7 @@ namespace Lsp.Tests.Integration
                 options => {
                     options.OnCodeAction(
                         (@params, capability, token) => Task.FromResult(new CommandOrCodeActionContainer()),
-                        new CodeActionRegistrationOptions() {
+                        (_, _) => new CodeActionRegistrationOptions() {
                             CodeActionKinds = new Container<CodeActionKind>(
                                 CodeActionKind.RefactorExtract,
                                 CodeActionKind.RefactorInline,

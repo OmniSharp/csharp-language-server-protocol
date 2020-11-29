@@ -64,13 +64,13 @@ namespace Lsp.Tests.Integration
 
             public class DelegateServer : IConfigureLanguageServerOptions
             {
-                public void Configure(LanguageServerOptions options) => options.OnSemanticTokens(
+                public void Configure(LanguageServerOptions options) => options.ObserveSemanticTokensFull(
                     (@params, observer, arg3) => {
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0 }.ToImmutableArray() });
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1 }.ToImmutableArray() });
                         observer.OnNext(new SemanticTokensPartialResult() { Data = new[] { 0, 1, 2 }.ToImmutableArray() });
                         observer.OnCompleted();
-                    }, new SemanticTokensRegistrationOptions()
+                    }, (_, _) => new SemanticTokensRegistrationOptions()
                 );
             }
         }

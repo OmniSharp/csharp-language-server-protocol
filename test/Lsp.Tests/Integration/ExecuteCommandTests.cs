@@ -42,11 +42,11 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand(
-                        command, new ExecuteCommandRegistrationOptions {
+                        command, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -86,17 +86,17 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand(
-                        commanda, new ExecuteCommandRegistrationOptions {
+                        commanda, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandb, new ExecuteCommandRegistrationOptions {
+                        commandb, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-b")
                         }
                     );
@@ -131,7 +131,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
                 }
             );
@@ -163,11 +163,11 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand(
-                        command, new ExecuteCommandRegistrationOptions {
+                        command, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-a")
                         }
                     );
@@ -202,17 +202,17 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand(
-                        commandb, new ExecuteCommandRegistrationOptions {
+                        commandb, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-b")
                         }
                     );
 
                     options.OnExecuteCommand(
-                        commandc, new ExecuteCommandRegistrationOptions {
+                        commandc, (_, _) => new ExecuteCommandRegistrationOptions {
                             Commands = new Container<string>("execute-c")
                         }
                     );
@@ -246,7 +246,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int>(
@@ -283,7 +283,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string>(
@@ -321,7 +321,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool>(
@@ -360,7 +360,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range>(
@@ -402,7 +402,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
@@ -446,7 +446,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(
@@ -488,7 +488,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int>(
@@ -525,7 +525,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string>(
@@ -563,7 +563,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool>(
@@ -602,7 +602,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range>(
@@ -642,7 +642,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
@@ -683,7 +683,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(
@@ -725,7 +725,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int>(
@@ -762,7 +762,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string>(
@@ -800,7 +800,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool>(
@@ -839,7 +839,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range>(
@@ -879,7 +879,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>>(
@@ -920,7 +920,7 @@ namespace Lsp.Tests.Integration
                                     }
                                 )
                             );
-                        }, new CompletionRegistrationOptions()
+                        }, (_, _) => new CompletionRegistrationOptions()
                     );
 
                     options.OnExecuteCommand<int, string, bool, Range, Dictionary<string, string>, Guid>(

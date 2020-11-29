@@ -162,9 +162,9 @@ namespace Lsp.Tests.Integration
                 async (x, ct) => {
                     await Task.Delay(50000, ct);
                     return new CompletionList();
-                }, new CompletionRegistrationOptions()
+                }, (_, _) => new CompletionRegistrationOptions()
             );
-            options.OnDidChangeTextDocument(async x => { await Task.Delay(20); }, new TextDocumentChangeRegistrationOptions());
+            options.OnDidChangeTextDocument(async x => { await Task.Delay(20); }, (_, _) =>new TextDocumentChangeRegistrationOptions());
         }
     }
 }

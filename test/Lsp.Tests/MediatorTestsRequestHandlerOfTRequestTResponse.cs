@@ -39,7 +39,7 @@ namespace Lsp.Tests
             textDocumentSyncHandler.Handle(Arg.Any<DidSaveTextDocumentParams>(), Arg.Any<CancellationToken>()).Returns(Unit.Value);
 
             var codeActionHandler = Substitute.For<ICodeActionHandler>();
-            codeActionHandler.GetRegistrationOptions().Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
+            codeActionHandler.GetRegistrationOptions(Arg.Any<CodeActionCapability>(), Arg.Any<ClientCapabilities>()).Returns(new CodeActionRegistrationOptions { DocumentSelector = DocumentSelector.ForPattern("**/*.cs") });
             codeActionHandler
                .Handle(Arg.Any<CodeActionParams>(), Arg.Any<CancellationToken>())
                .Returns(

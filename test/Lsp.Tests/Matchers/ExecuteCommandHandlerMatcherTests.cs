@@ -61,6 +61,7 @@ namespace Lsp.Tests.Matchers
                 new ExecuteCommandParams { Command = "Command" },
                 new List<LspHandlerDescriptor> {
                     new LspHandlerDescriptor(
+                        0,
                         "workspace/executeCommand",
                         "Key",
                         executeCommandHandler,
@@ -68,7 +69,6 @@ namespace Lsp.Tests.Matchers
                         typeof(ExecuteCommandParams),
                         typeof(ExecuteCommandRegistrationOptions),
                         registrationsOptions,
-                        () => true,
                         typeof(ExecuteCommandCapability),
                         null,
                         () => { },

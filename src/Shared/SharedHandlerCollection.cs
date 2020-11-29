@@ -6,38 +6,44 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using DryIoc;
 using Microsoft.Extensions.DependencyInjection;
 using OmniSharp.Extensions.JsonRpc;
 using OmniSharp.Extensions.LanguageServer.Protocol;
+using OmniSharp.Extensions.LanguageServer.Protocol.Client;
 using OmniSharp.Extensions.LanguageServer.Protocol.Document;
 using OmniSharp.Extensions.LanguageServer.Protocol.Models;
+using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Shared;
 
 namespace OmniSharp.Extensions.LanguageServer.Shared
 {
     internal class SharedHandlerCollection : IHandlerCollection
     {
-        private static readonly MethodInfo GetRegistrationMethod = typeof(SharedHandlerCollection)
-                                                                  .GetTypeInfo()
-                                                                  .GetMethod(nameof(GetRegistration), BindingFlags.NonPublic | BindingFlags.Static)!;
-
         private readonly ISupportedCapabilities _supportedCapabilities;
         private readonly TextDocumentIdentifiers _textDocumentIdentifiers;
-        private ImmutableHashSet<LspHandlerDescriptor> _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
+
+        private ImmutableHashSet<LspHandlerDescriptor>
+            _descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty;
+
         private readonly IResolverContext _resolverContext;
         private readonly ILspHandlerTypeDescriptorProvider _handlerTypeDescriptorProvider;
+        private bool _initialized;
+        private int _index;
 
         public SharedHandlerCollection(
             ISupportedCapabilities supportedCapabilities,
             TextDocumentIdentifiers textDocumentIdentifiers,
             IResolverContext resolverContext,
-            ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider)
+            ILspHandlerTypeDescriptorProvider handlerTypeDescriptorProvider
+        )
         {
             _supportedCapabilities = supportedCapabilities;
             _textDocumentIdentifiers = textDocumentIdentifiers;
             _resolverContext = resolverContext;
             _handlerTypeDescriptorProvider = handlerTypeDescriptorProvider;
+            _index = 0;
         }
 
         public IEnumerator<ILspHandlerDescriptor> GetEnumerator() => _descriptors.GetEnumerator();
@@ -52,21 +58,23 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         IDisposable IHandlersManager.Add(JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions? options) => Add(handlerFactory(_resolverContext), options);
 
-        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions? options) => Add(method, handlerFactory(_resolverContext), options);
+        IDisposable IHandlersManager.Add(string method, JsonRpcHandlerFactory handlerFactory, JsonRpcHandlerOptions? options) =>
+            Add(method, handlerFactory(_resolverContext), options);
 
-        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions? options) => Add((_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+        IDisposable IHandlersManager.Add(Type handlerType, JsonRpcHandlerOptions? options) => Add(( _resolverContext.Resolve(handlerType) as IJsonRpcHandler )!, options);
 
-        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions? options) => Add(method, (_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+        IDisposable IHandlersManager.Add(string method, Type handlerType, JsonRpcHandlerOptions? options) =>
+            Add(method, ( _resolverContext.Resolve(handlerType) as IJsonRpcHandler )!, options);
 
         IDisposable IHandlersManager.AddLink(string fromMethod, string toMethod)
         {
-            var source = _descriptors.FirstOrDefault(z => z.Method == fromMethod);
-            if (source is null)
+            if (_descriptors.FirstOrDefault(z => z.Method == fromMethod) is not { } source)
             {
                 if (_descriptors.Any(z => z.Method == toMethod))
                 {
                     throw new ArgumentException(
-                        $"Could not find descriptor for '{fromMethod}', but I did find one for '{toMethod}'.  Did you mean to link '{toMethod}' to '{fromMethod}' instead?", fromMethod
+                        $"Could not find descriptor for '{fromMethod}', but I did find one for '{toMethod}'.  Did you mean to link '{toMethod}' to '{fromMethod}' instead?",
+                        fromMethod
                     );
                 }
 
@@ -155,7 +163,7 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
             var cd = new CompositeDisposable();
             foreach (var handlerType in handlerTypes)
             {
-                var (innerDescriptors, innerCompositeDisposable) = AddHandler((ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler)!, null);
+                var (innerDescriptors, innerCompositeDisposable) = AddHandler(( ActivatorUtilities.CreateInstance(_resolverContext, handlerType) as IJsonRpcHandler )!, null);
                 descriptors.UnionWith(innerDescriptors);
                 cd.Add(innerCompositeDisposable);
             }
@@ -165,13 +173,13 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
 
         public LspHandlerDescriptorDisposable Add(Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler((_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+            var (descriptors, cd) = AddHandler(( _resolverContext.Resolve(handlerType) as IJsonRpcHandler )!, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
         public LspHandlerDescriptorDisposable Add(string method, Type handlerType, JsonRpcHandlerOptions options)
         {
-            var (descriptors, cd) = AddHandler(method, (_resolverContext.Resolve(handlerType) as IJsonRpcHandler)!, options);
+            var (descriptors, cd) = AddHandler(method, ( _resolverContext.Resolve(handlerType) as IJsonRpcHandler )!, options);
             return new LspHandlerDescriptorDisposable(descriptors, cd);
         }
 
@@ -238,46 +246,9 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
         )
         {
             Type? @params = null;
-            object? registrationOptions = null;
             if (@interface.GetTypeInfo().IsGenericType)
             {
                 @params = @interface.GetTypeInfo().GetGenericArguments()[0];
-            }
-
-            if (registrationType != null)
-            {
-                registrationOptions = GetRegistrationMethod
-                                     .MakeGenericMethod(registrationType)
-                                     .Invoke(null, new object[] { handler });
-            }
-
-            var key = "default";
-            if (handler is IRegistration<TextDocumentRegistrationOptions?> handlerRegistration)
-            {
-                // Ensure we only do this check for the specific registartion type that was found
-                if (typeof(TextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(registrationType))
-                {
-                    key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
-                }
-
-                // In some scenarios, users will implement both the main handler and the resolve handler to the same class
-                // This allows us to get a key for those interfaces so we can register many resolve handlers
-                // and then route those resolve requests to the correct handler
-                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x)))
-                {
-                    key = handlerRegistration.GetRegistrationOptions()?.DocumentSelector ?? key;
-                }
-            }
-            else if (handler is IRegistration<ExecuteCommandRegistrationOptions?> commandRegistration)
-            {
-                key = string.Join("|", commandRegistration.GetRegistrationOptions()?.Commands ?? Array.Empty<string>());
-            }
-
-            if (string.IsNullOrWhiteSpace(key)) key = "default";
-
-            if (handler is ICanBeIdentifiedHandler identifiedHandler && identifiedHandler.Id != Guid.Empty)
-            {
-                key += ":" + identifiedHandler.Id.ToString("N");
             }
 
             var requestProcessType =
@@ -288,15 +259,25 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                            .OfType<ProcessAttribute>()
                            .FirstOrDefault()?.Type;
 
+            string key = "default";
+            if (!_initialized &&
+                ( typeDescriptor?.RegistrationType is not null
+               || typeDescriptor?.CapabilityType is not null
+               || registrationType is not null
+               || capabilityType is not null ))
+            {
+                key = Guid.NewGuid().ToString();
+            }
+
             var descriptor = new LspHandlerDescriptor(
+                Interlocked.Increment(ref _index),
                 method,
                 key,
                 handler,
                 @interface,
                 @params,
                 registrationType,
-                registrationOptions,
-                registrationType == null ? (Func<bool>) ( () => false ) : () => capabilityType != null && _supportedCapabilities.AllowsDynamicRegistration(capabilityType),
+                null,
                 capabilityType,
                 requestProcessType,
                 () => {
@@ -312,16 +293,75 @@ namespace OmniSharp.Extensions.LanguageServer.Shared
                 id
             );
 
+            // TODO: Come back and fix this...
+            if (descriptor.RegistrationType is not null && _initialized)
+            {
+                var (key1, registrationOptions) = InferKey(descriptor, descriptor.Handler);
+                descriptor = new LspHandlerDescriptor(descriptor, key1, registrationOptions);
+            }
+
             return descriptor;
+        }
+
+        private (string key, object? registrationOptions) InferKey(ILspHandlerDescriptor typeDescriptor, IJsonRpcHandler handler)
+        {
+            var key = "default";
+            var registrationOptions = _supportedCapabilities.GetRegistrationOptions(typeDescriptor, handler);
+
+            if (registrationOptions is ITextDocumentRegistrationOptions textDocumentRegistrationOptions)
+            {
+                // Ensure we only do this check for the specific registration type that was found
+                if (typeof(ITextDocumentRegistrationOptions).GetTypeInfo().IsAssignableFrom(typeDescriptor.RegistrationType))
+                {
+                    key = textDocumentRegistrationOptions.DocumentSelector ?? key;
+                }
+
+                // In some scenarios, users will implement both the main handler and the resolve handler to the same class
+                // This allows us to get a key for those interfaces so we can register many resolve handlers
+                // and then route those resolve requests to the correct handler
+                if (handler.GetType().GetTypeInfo().ImplementedInterfaces.Any(x => typeof(ICanBeResolvedHandler).IsAssignableFrom(x)))
+                {
+                    key = textDocumentRegistrationOptions.DocumentSelector ?? key;
+                }
+            }
+            else if (registrationOptions is ExecuteCommandRegistrationOptions commandRegistrationOptions)
+            {
+                key = string.Join("|", commandRegistrationOptions.Commands);
+            }
+
+            if (string.IsNullOrWhiteSpace(key)) key = "default";
+
+            if (handler is ICanBeIdentifiedHandler identifiedHandler && identifiedHandler.Id != Guid.Empty)
+            {
+                key += ":" + identifiedHandler.Id.ToString("N");
+            }
+
+            return ( key, registrationOptions );
         }
 
         public bool ContainsHandler(Type type) => ContainsHandler(type.GetTypeInfo());
 
         public bool ContainsHandler(TypeInfo typeInfo) =>
-            _descriptors.Any(z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo) || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo));
+            _descriptors.Any(
+                z => z.HandlerType.GetTypeInfo().IsAssignableFrom(typeInfo)
+                  || z.ImplementationType.GetTypeInfo().IsAssignableFrom(typeInfo)
+                  || MethodAttribute.AllFrom(typeInfo).Any(x => x.Method == z.Method)
+            );
 
-        private static object? GetRegistration<T>(IRegistration<T> registration)
-            where T : class?, new() =>
-            registration.GetRegistrationOptions() ?? new T();
+        internal void Initialize()
+        {
+            _initialized = true;
+            var descriptors = ImmutableHashSet<LspHandlerDescriptor>.Empty.ToBuilder();
+            var orderedList = _descriptors
+                             .OrderBy(z => z.IsBuiltIn)
+                             .ToArray();
+            foreach (var descriptor in orderedList)
+            {
+                var (key, options) = InferKey(descriptor, descriptor.Handler);
+                descriptors.Add(new LspHandlerDescriptor(descriptor, key, options));
+            }
+
+            Interlocked.Exchange(ref _descriptors, descriptors.ToImmutable().WithComparer(EqualityComparer<LspHandlerDescriptor>.Default));
+        }
     }
 }

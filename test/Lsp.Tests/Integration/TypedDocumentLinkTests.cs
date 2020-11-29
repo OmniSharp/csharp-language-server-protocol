@@ -55,7 +55,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-a";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -77,7 +77,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-b";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -96,7 +96,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-c";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForPattern("**/*.cs")
                         }
                     );
@@ -115,7 +115,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved-d";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions {
+                        (_, _) => new DocumentLinkRegistrationOptions {
                             DocumentSelector = DocumentSelector.ForLanguage("vb")
                         }
                     );
@@ -165,7 +165,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -183,7 +183,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink<Data>(
+                    options.ObserveDocumentLink<Data>(
                         (documentLinkParams, observer, capability, token) => {
                             var a = new DocumentLinkContainer<Data>(
                                 new DocumentLink<Data> {
@@ -208,7 +208,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -248,7 +248,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -266,7 +266,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink<Data>(
+                    options.ObserveDocumentLink<Data>(
                         (documentLinkParams, observer, token) => {
                             var a = new DocumentLinkContainer<Data>(
                                 new DocumentLink<Data> {
@@ -291,7 +291,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -331,7 +331,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -349,7 +349,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink<Data>(
+                    options.ObserveDocumentLink<Data>(
                         (documentLinkParams, observer) => {
                             var a = new DocumentLinkContainer<Data>(
                                 new DocumentLink<Data> {
@@ -374,7 +374,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -405,7 +405,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -423,7 +423,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink(
+                    options.ObserveDocumentLink(
                         (documentLinkParams, observer, capability, token) => {
                             var a = new DocumentLinkContainer(
                                 new DocumentLink {
@@ -438,7 +438,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -468,7 +468,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -486,7 +486,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink(
+                    options.ObserveDocumentLink(
                         (documentLinkParams, observer, token) => {
                             var a = new DocumentLinkContainer(
                                 new DocumentLink {
@@ -501,7 +501,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -531,7 +531,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );
@@ -549,7 +549,7 @@ namespace Lsp.Tests.Integration
         {
             var (client, _) = await Initialize(
                 options => { }, options => {
-                    options.OnDocumentLink(
+                    options.ObserveDocumentLink(
                         (documentLinkParams, observer) => {
                             var a = new DocumentLinkContainer(
                                 new DocumentLink {
@@ -564,7 +564,7 @@ namespace Lsp.Tests.Integration
                             documentLink.Tooltip = "resolved";
                             return Task.FromResult(documentLink);
                         },
-                        new DocumentLinkRegistrationOptions()
+                        (_, _) => new DocumentLinkRegistrationOptions()
                     );
                 }
             );

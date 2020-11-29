@@ -26,7 +26,7 @@ namespace OmniSharp.Extensions.JsonRpc.Testing
         public ILoggerFactory ServerLoggerFactory { get; internal set; } = NullLoggerFactory.Instance;
         public TimeSpan WaitTime { get; internal set; } = TimeSpan.FromMilliseconds(50);
         public TimeSpan Timeout { get; internal set; } = TimeSpan.FromMilliseconds(500);
-        public TimeSpan CancellationTimeout { get; internal set; } = TimeSpan.FromMinutes(5);
+        public TimeSpan CancellationTimeout { get; internal set; } = TimeSpan.FromSeconds(50);
         public PipeOptions DefaultPipeOptions { get; internal set; } = new PipeOptions();
         public IEnumerable<Assembly> Assemblies { get; set; } = Enumerable.Empty<Assembly>();
     }

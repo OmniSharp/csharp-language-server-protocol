@@ -11,6 +11,7 @@ using ISerializer = OmniSharp.Extensions.LanguageServer.Protocol.Serialization.I
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone
 {
+    [BuiltIn]
     internal class LanguageServerWorkDoneManager : IServerWorkDoneManager
     {
         private readonly IResponseRouter _router;

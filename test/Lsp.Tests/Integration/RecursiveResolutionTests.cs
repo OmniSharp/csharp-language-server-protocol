@@ -329,7 +329,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(ClassRequest))]
-        public class ClassRequest : IRequest<Unit>
+        public class ClassRequest : IRequest
         {
         }
 
@@ -348,7 +348,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(InterfaceRequest))]
-        public class InterfaceRequest : IRequest<Unit>
+        public class InterfaceRequest : IRequest
         {
         }
 
@@ -367,7 +367,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(nameof(NestedRequest))]
-        public class NestedRequest : IRequest<Unit>
+        public class NestedRequest : IRequest
         {
         }
 

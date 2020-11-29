@@ -13,11 +13,12 @@ using OmniSharp.Extensions.LanguageServer.Protocol.Server;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.Capabilities;
 using OmniSharp.Extensions.LanguageServer.Protocol.Server.WorkDone;
 using OmniSharp.Extensions.LanguageServer.Protocol.Workspace;
+
 #pragma warning disable CS0618
 
 namespace SampleServer
 {
-    internal class TextDocumentHandler : ITextDocumentSyncHandler
+    internal class TextDocumentHandler : TextDocumentSyncHandlerBase
     {
         private readonly ILogger<TextDocumentHandler> _logger;
         private readonly ILanguageServerConfiguration _configuration;
@@ -28,12 +29,7 @@ namespace SampleServer
             }
         );
 
-        private SynchronizationCapability _capability;
-
-        public TextDocumentHandler(
-            ILogger<TextDocumentHandler> logger, Foo foo,
-            ILanguageServerConfiguration configuration
-        )
+        public TextDocumentHandler(ILogger<TextDocumentHandler> logger, Foo foo, ILanguageServerConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
@@ -42,7 +38,7 @@ namespace SampleServer
 
         public TextDocumentSyncKind Change { get; } = TextDocumentSyncKind.Full;
 
-        public Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
+        public override Task<Unit> Handle(DidChangeTextDocumentParams notification, CancellationToken token)
         {
             _logger.LogCritical("Critical");
             _logger.LogDebug("Debug");
@@ -51,16 +47,7 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        TextDocumentChangeRegistrationOptions IRegistration<TextDocumentChangeRegistrationOptions>.
-            GetRegistrationOptions() =>
-            new TextDocumentChangeRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                SyncKind = Change
-            };
-
-        public void SetCapability(SynchronizationCapability capability) => _capability = capability;
-
-        public async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
+        public override async Task<Unit> Handle(DidOpenTextDocumentParams notification, CancellationToken token)
         {
             await Task.Yield();
             _logger.LogInformation("Hello world!");
@@ -68,12 +55,7 @@ namespace SampleServer
             return Unit.Value;
         }
 
-        TextDocumentRegistrationOptions IRegistration<TextDocumentRegistrationOptions>.GetRegistrationOptions() =>
-            new TextDocumentRegistrationOptions {
-                DocumentSelector = _documentSelector,
-            };
-
-        public Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
+        public override Task<Unit> Handle(DidCloseTextDocumentParams notification, CancellationToken token)
         {
             if (_configuration.TryGetScopedConfiguration(notification.TextDocument.Uri, out var disposable))
             {
@@ -83,28 +65,20 @@ namespace SampleServer
             return Unit.Task;
         }
 
-        public Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
+        public override Task<Unit> Handle(DidSaveTextDocumentParams notification, CancellationToken token) => Unit.Task;
 
-        TextDocumentSaveRegistrationOptions IRegistration<TextDocumentSaveRegistrationOptions>.GetRegistrationOptions() =>
-            new TextDocumentSaveRegistrationOptions {
-                DocumentSelector = _documentSelector,
-                IncludeText = true
-            };
+        protected override TextDocumentSyncRegistrationOptions CreateRegistrationOptions(SynchronizationCapability capability, ClientCapabilities clientCapabilities) => new TextDocumentSyncRegistrationOptions() {
+            DocumentSelector = _documentSelector,
+            SyncKind = Change,
+            IncludeText = true
+        };
 
-        public TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
+        public override TextDocumentAttributes GetTextDocumentAttributes(DocumentUri uri) => new TextDocumentAttributes(uri, "csharp");
     }
 
-    internal class MyDocumentSymbolHandler : DocumentSymbolHandler
+    internal class MyDocumentSymbolHandler : IDocumentSymbolHandler
     {
-        public MyDocumentSymbolHandler() : base(
-            new DocumentSymbolRegistrationOptions {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp")
-            }
-        )
-        {
-        }
-
-        public override async Task<SymbolInformationOrDocumentSymbolContainer> Handle(
+        public async Task<SymbolInformationOrDocumentSymbolContainer> Handle(
             DocumentSymbolParams request,
             CancellationToken cancellationToken
         )
@@ -151,23 +125,26 @@ namespace SampleServer
             // await Task.Delay(2000, cancellationToken);
             return symbols;
         }
+
+        public DocumentSymbolRegistrationOptions GetRegistrationOptions(DocumentSymbolCapability capability, ClientCapabilities clientCapabilities) => new DocumentSymbolRegistrationOptions {
+            DocumentSelector = DocumentSelector.ForLanguage("csharp")
+        };
     }
 
-    internal class MyWorkspaceSymbolsHandler : WorkspaceSymbolsHandler
+    internal class MyWorkspaceSymbolsHandler : IWorkspaceSymbolsHandler
     {
         private readonly IServerWorkDoneManager _serverWorkDoneManager;
         private readonly IProgressManager _progressManager;
         private readonly ILogger<MyWorkspaceSymbolsHandler> _logger;
 
-        public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger) :
-            base(new WorkspaceSymbolRegistrationOptions())
+        public MyWorkspaceSymbolsHandler(IServerWorkDoneManager serverWorkDoneManager, IProgressManager progressManager, ILogger<MyWorkspaceSymbolsHandler> logger)
         {
             _serverWorkDoneManager = serverWorkDoneManager;
             _progressManager = progressManager;
             _logger = logger;
         }
 
-        public override async Task<Container<SymbolInformation>> Handle(
+        public async Task<Container<SymbolInformation>> Handle(
             WorkspaceSymbolParams request,
             CancellationToken cancellationToken
         )
@@ -272,5 +249,7 @@ namespace SampleServer
                 );
             }
         }
+
+        public WorkspaceSymbolRegistrationOptions GetRegistrationOptions(WorkspaceSymbolCapability capability, ClientCapabilities clientCapabilities) => new WorkspaceSymbolRegistrationOptions();
     }
 }

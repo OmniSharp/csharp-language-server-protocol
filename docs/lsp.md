@@ -4,7 +4,19 @@ The goal of this library is to implement [Language Server Protocol](https://micr
 
 Included in this library is a full-fidelity `LanguageServer` but also full `LanguageClient` implementation that could be implemented in an editor, but mainly it is used to help make Unit Testing easier, more consistent (and maybe even fun!).
 
-# Creating a JsonRpcServer
+# Concepts
+The language server is built oin a few concepts.  At it's core is the [MediatR](https://github.com/jbogard/MediatR) library that you will build language specific handlers around. Around that core is a bunch of knowledge of the LSP protocol
+with the goal of making it more ".NET" like and less protocol centric.
+
+LSP revolves around features ( eg Completion, Hover, etc ) that define the inputs (request object) the outputs (response object) as well as Client Capabilities and Server Registration Options.
+
+## Client Capabilities
+These determine what features are supported by the client, and each has a different set of capabilities. The [specification](https://microsoft.github.io/language-server-protocol/) explains each feature and the requirements of each.
+
+## Server Registration Options
+The protocol defines two kinds of registration, static and dynamic.  Dynamic registration, when it's supported, allows you to register features with the client on demand.  Static registration is returned to the client during the initialization phase that explains what features the server supports.  Dynamic and Static registration cannot be mixed.  If you register something statically, you cannot register the same thing dynamically, otherwise the client will register both features twice.
+
+# Creating a Language Server or Client
 `LanguageServer` or `LanguageClient` can be created through two methods.
 
 ## Standalone

@@ -21,6 +21,7 @@ using Unit = MediatR.Unit;
 
 namespace OmniSharp.Extensions.LanguageServer.Server.Configuration
 {
+    [BuiltIn]
     internal class DidChangeConfigurationProvider : ConfigurationProvider, IDidChangeConfigurationHandler, IOnLanguageServerStarted, ILanguageServerConfiguration, IDisposable
     {
         private readonly HashSet<ConfigurationItem> _configurationItems = new HashSet<ConfigurationItem>();

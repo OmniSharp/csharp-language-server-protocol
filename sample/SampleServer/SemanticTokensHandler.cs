@@ -18,16 +18,7 @@ namespace SampleServer
     {
         private readonly ILogger _logger;
 
-        public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger) : base(
-            new SemanticTokensRegistrationOptions {
-                DocumentSelector = DocumentSelector.ForLanguage("csharp"),
-                Legend = new SemanticTokensLegend(),
-                Full = new SemanticTokensCapabilityRequestFull {
-                    Delta = true
-                },
-                Range = true
-            }
-        ) =>
+        public SemanticTokensHandler(ILogger<SemanticTokensHandler> logger) =>
             _logger = logger;
 
         public override async Task<SemanticTokens?> Handle(
@@ -83,7 +74,7 @@ namespace SampleServer
 
         protected override Task<SemanticTokensDocument>
             GetSemanticTokensDocument(ITextDocumentIdentifierParams @params, CancellationToken cancellationToken) =>
-            Task.FromResult(new SemanticTokensDocument(GetRegistrationOptions().Legend));
+            Task.FromResult(new SemanticTokensDocument(RegistrationOptions.Legend));
 
 
         private IEnumerable<T> RotateEnum<T>(IEnumerable<T> values)
@@ -94,6 +85,18 @@ namespace SampleServer
                     yield return item;
             }
         }
+
+        protected override SemanticTokensRegistrationOptions CreateRegistrationOptions(SemanticTokensCapability capability, ClientCapabilities clientCapabilities) => new SemanticTokensRegistrationOptions {
+            DocumentSelector = DocumentSelector.ForLanguage("csharp"),
+            Legend = new SemanticTokensLegend() {
+                TokenModifiers = capability.TokenModifiers,
+                TokenTypes = capability.TokenTypes
+            },
+            Full = new SemanticTokensCapabilityRequestFull {
+                Delta = true
+            },
+            Range = true
+        };
     }
 #pragma warning restore 618
 }

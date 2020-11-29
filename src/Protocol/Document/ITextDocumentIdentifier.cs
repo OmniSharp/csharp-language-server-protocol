@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Reactive.Disposables;
 
+// ReSharper disable once CheckNamespace
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Document
 {
     public interface ITextDocumentIdentifier

@@ -51,10 +51,6 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                 GetUniqueHandlers<IOnLanguageServerInitialize>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialize(client, client.ClientSettings, ct)))
                    .Merge(),
-                GetAllDescriptors(result)
-                   .Select(item => LspHandlerDescriptorHelpers.InitializeHandler(item, supportedCapabilities, item.Handler))
-                   .ToObservable()
-                   .Select(z => Unit.Default),
                 GetUniqueHandlers<IOnLanguageServerInitialized>(result)
                    .Select(handler => Observable.FromAsync(ct => handler.OnInitialized(client, client.ClientSettings, client.ServerSettings, ct)))
                    .Merge(),
@@ -128,11 +124,12 @@ namespace OmniSharp.Extensions.LanguageServer.Server
                                  return registrations.Distinct(new Registration.TextDocumentComparer()).ToArray();
                              }
                          )
+                        .Where(z => z.Any())
                         .SelectMany(
                              registrations => Observable.FromAsync(ct => client.RegisterCapability(new RegistrationParams { Registrations = registrations.ToArray() }, ct)),
                              (a, b) => a
                          )
-                        .Aggregate((z, b) => z)
+                        .Aggregate(Array.Empty<Registration>(), (z, _) => z)
                         .Subscribe(
                              registrations => {
                                  disposable.Add(

@@ -52,7 +52,7 @@ namespace Lsp.Tests.Integration
         private void ServerOptionsAction(LanguageServerOptions obj)
         {
             obj.OnMoniker(
-                _request, new MonikerRegistrationOptions() {
+                _request, (_, _) => new MonikerRegistrationOptions() {
                     DocumentSelector = DocumentSelector.ForLanguage("csharp"),
                 }
             );

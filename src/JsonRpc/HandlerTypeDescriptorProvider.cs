@@ -64,12 +64,12 @@ namespace OmniSharp.Extensions.JsonRpc
             }
         }
 
-        internal static Type? UnwrapGenericType(Type genericType, Type type) =>
+        internal static Type? UnwrapGenericType(Type genericType, Type type, int arity = 0) =>
             type.GetTypeInfo()
                  .ImplementedInterfaces
                  .FirstOrDefault(x => x.GetTypeInfo().IsGenericType && x.GetTypeInfo().GetGenericTypeDefinition() == genericType)
                 ?.GetTypeInfo()
-                ?.GetGenericArguments()[0];
+                ?.GetGenericArguments()[arity];
     }
 
     class HandlerTypeDescriptorProvider : IHandlerTypeDescriptorProvider<IHandlerTypeDescriptor?>

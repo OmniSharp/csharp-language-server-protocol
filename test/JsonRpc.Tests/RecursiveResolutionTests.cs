@@ -109,7 +109,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(ClassRequest))]
-        public class ClassRequest : IRequest<Unit>
+        public class ClassRequest : IRequest
         {
         }
 
@@ -128,7 +128,7 @@ namespace JsonRpc.Tests
         }
 
         [Method(nameof(InterfaceRequest))]
-        public class InterfaceRequest : IRequest<Unit>
+        public class InterfaceRequest : IRequest
         {
         }
 

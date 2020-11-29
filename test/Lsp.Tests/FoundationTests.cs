@@ -129,7 +129,7 @@ namespace Lsp.Tests
         {
             var instance = Activator.CreateInstance(type);
             var property = type.GetProperty("DebuggerDisplay", BindingFlags.NonPublic | BindingFlags.Instance)!;
-            Func<string> a1 = () => (property.GetValue(instance) as string)!;
+            Func<string> a1 = () => ( property.GetValue(instance) as string )!;
             Func<string> a2 = () => instance!.ToString()!;
 
             a1.Should().NotThrow().And.NotBeNull();
@@ -181,7 +181,7 @@ namespace Lsp.Tests
         {
             var types = type.BaseType?.GetGenericArguments() ?? Array.Empty<Type>();
             var source = types[0].GetProperties().Select(z => z.Name);
-            var destination = types[1].GetProperties().Select(z => z.Name).Except(new [] { "Id" });
+            var destination = types[1].GetProperties().Select(z => z.Name).Except(new[] { "Id" });
             source.Should().Contain(destination);
         }
 
@@ -212,7 +212,7 @@ namespace Lsp.Tests
                 _logger.LogInformation("Delegating Handler: {Type}", delegatingHandler);
                 delegatingHandler.DeclaringType.Should().NotBeNull();
                 delegatingHandler.DeclaringType!.GetMethods(BindingFlags.Public | BindingFlags.Static).Any(z => z.Name.StartsWith("On")).Should()
-                                 .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
+                                                .BeTrue($"{descriptor.HandlerType.FullName} is missing delegating extension method");
             }
         }
 
@@ -578,10 +578,25 @@ namespace Lsp.Tests
                                         )
                                        .Should().BeTrue($"{_descriptor.HandlerType.Name} {description} should have the correct method.");
 
-                            if (_descriptor.HasRegistration && method.GetParameters().Length == 3)
+                            if (
+                                _descriptor.HasRegistration
+                             && _descriptor.RegistrationType is { }
+                             && _descriptor.HasCapability
+                             && _descriptor.CapabilityType is { }
+                             && method.GetParameters().Length == 3
+                            )
                             {
                                 method.GetParameters()[2].ParameterType.Should().Be(
-                                    _descriptor.RegistrationType,
+                                    typeof(RegistrationOptionsDelegate<,>).MakeGenericType(_descriptor.RegistrationType, _descriptor.CapabilityType),
+                                    $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}"
+                                );
+                                method.GetParameters()[2].IsOptional.Should()
+                                      .BeFalse($"{_descriptor.HandlerType.FullName} {description} Registration types should not be optional");
+                            }
+                            else if (_descriptor.HasRegistration && _descriptor.RegistrationType is { } && method.GetParameters().Length == 3)
+                            {
+                                method.GetParameters()[2].ParameterType.Should().Be(
+                                    typeof(RegistrationOptionsDelegate<>).MakeGenericType(_descriptor.RegistrationType),
                                     $"{_descriptor.HandlerType.FullName} {description} is has incorrect registration type {method.GetParameters()[2].ParameterType.FullName}"
                                 );
                                 method.GetParameters()[2].IsOptional.Should()
@@ -653,14 +668,16 @@ namespace Lsp.Tests
             public TypeHandlerData()
             {
                 var handlerTypeDescriptorProvider =
-                    new LspHandlerTypeDescriptorProvider(new[] {
-                        typeof(HandlerTypeDescriptorProvider).Assembly,
-                        typeof(LspHandlerTypeDescriptorProvider).Assembly,
-                        typeof(LanguageServer).Assembly,
-                        typeof(LanguageClient).Assembly,
-                        typeof(ISupports).Assembly,
-                        typeof(HandlerResolverTests).Assembly
-                    });
+                    new LspHandlerTypeDescriptorProvider(
+                        new[] {
+                            typeof(HandlerTypeDescriptorProvider).Assembly,
+                            typeof(LspHandlerTypeDescriptorProvider).Assembly,
+                            typeof(LanguageServer).Assembly,
+                            typeof(LanguageClient).Assembly,
+                            typeof(ISupports).Assembly,
+                            typeof(HandlerResolverTests).Assembly
+                        }
+                    );
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes.Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
                                                              .Except(new[] { typeof(ITextDocumentSyncHandler) })
@@ -675,7 +692,7 @@ namespace Lsp.Tests
         public class TypeHandlerExtensionData : TheoryData<ILspHandlerTypeDescriptor, string, string, Type, string>
         {
             public static Type[] HandlersToSkip = {
-                typeof(ISemanticTokensHandler),
+                typeof(ISemanticTokensFullHandler),
                 typeof(ISemanticTokensDeltaHandler),
                 typeof(ISemanticTokensRangeHandler),
                 typeof(ICodeActionHandler),
@@ -684,14 +701,16 @@ namespace Lsp.Tests
             public TypeHandlerExtensionData()
             {
                 var handlerTypeDescriptorProvider =
-                    new LspHandlerTypeDescriptorProvider(new[] {
-                        typeof(HandlerTypeDescriptorProvider).Assembly,
-                        typeof(LspHandlerTypeDescriptorProvider).Assembly,
-                        typeof(LanguageServer).Assembly,
-                        typeof(LanguageClient).Assembly,
-                        typeof(ISupports).Assembly,
-                        typeof(HandlerResolverTests).Assembly
-                    });
+                    new LspHandlerTypeDescriptorProvider(
+                        new[] {
+                            typeof(HandlerTypeDescriptorProvider).Assembly,
+                            typeof(LspHandlerTypeDescriptorProvider).Assembly,
+                            typeof(LanguageServer).Assembly,
+                            typeof(LanguageClient).Assembly,
+                            typeof(ISupports).Assembly,
+                            typeof(HandlerResolverTests).Assembly
+                        }
+                    );
                 foreach (var type in typeof(CompletionParams).Assembly.ExportedTypes
                                                              .Where(z => z.IsInterface && typeof(IJsonRpcHandler).IsAssignableFrom(z))
                                                              .Where(z => !z.Name.EndsWith("Manager"))
@@ -700,8 +719,9 @@ namespace Lsp.Tests
                 {
                     if (type.IsGenericTypeDefinition && !MethodAttribute.AllFrom(type).Any()) continue;
                     if (type.Name.EndsWith("Manager")) continue;
-                    if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler) || type == typeof(ICodeActionResolveHandler)) continue;
-                    if (type == typeof(ISemanticTokensHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
+                    if (type == typeof(ICompletionResolveHandler) || type == typeof(ICodeLensResolveHandler) || type == typeof(IDocumentLinkResolveHandler)
+                     || type == typeof(ICodeActionResolveHandler)) continue;
+                    if (type == typeof(ISemanticTokensFullHandler) || type == typeof(ISemanticTokensDeltaHandler) || type == typeof(ISemanticTokensRangeHandler)) continue;
                     var descriptor = handlerTypeDescriptorProvider.GetHandlerTypeDescriptor(type);
 
                     if (descriptor == null)

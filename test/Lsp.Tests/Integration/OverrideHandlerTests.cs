@@ -73,7 +73,7 @@ namespace Lsp.Tests.Integration
         }
 
         [Method(WorkspaceNames.ExecuteCommand)]
-        public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions>, ICapability<ExecuteCommandCapability>
+        public class CustomExecuteCommandHandler : IJsonRpcRequestHandler<CustomExecuteCommandParams, JToken>, IRegistration<ExecuteCommandRegistrationOptions, ExecuteCommandCapability>
         {
             // ReSharper disable once NotAccessedField.Local
             private ExecuteCommandCapability? _capability;
@@ -87,8 +87,11 @@ namespace Lsp.Tests.Integration
                 return Task.FromResult(JToken.FromObject(new { someValue = "custom" }));
             }
 
-            public ExecuteCommandRegistrationOptions GetRegistrationOptions() { return _executeCommandRegistrationOptions; }
-            public void SetCapability(ExecuteCommandCapability capability) => _capability = capability;
+            public ExecuteCommandRegistrationOptions GetRegistrationOptions(ExecuteCommandCapability capability, ClientCapabilities clientCapabilities)
+            {
+                _capability = capability;
+                return _executeCommandRegistrationOptions;
+            }
         }
 
         [Method(WorkspaceNames.ExecuteCommand, Direction.ClientToServer)]
