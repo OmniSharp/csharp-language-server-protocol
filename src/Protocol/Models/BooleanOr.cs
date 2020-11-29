@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
 {
-    public class BooleanOr<T>
+    public record BooleanOr<T>
+        where T : class?
     {
-        private T _value;
+        private readonly T? _value;
         private bool? _bool;
 
         public BooleanOr(T value)
@@ -24,10 +26,11 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         // https://stackoverflow.com/a/864860
         public bool IsValue => !EqualityComparer<T>.Default.Equals(_value, default!);
 
+        [MaybeNull]
         public T Value
         {
             get => _value;
-            set {
+            init {
                 _value = value;
                 _bool = null;
             }
@@ -38,8 +41,8 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Models
         public bool Bool
         {
             get => _bool.HasValue && _bool.Value;
-            set {
-                _value = default!;
+            init {
+                _value = default;
                 _bool = value;
             }
         }

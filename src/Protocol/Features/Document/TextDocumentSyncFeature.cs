@@ -191,7 +191,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             /// Save notifications are sent to the server.
             /// </summary>
             [Optional]
-            public SaveOptions? Save { get; set; } = new();
+            public BooleanOr<SaveOptions>? Save { get; set; }
 
             /// <summary>
             /// How documents are synced to the server. See TextDocumentSyncKind.Full
@@ -217,7 +217,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
                         Change = source.Change,
                         WillSave = _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWillSaveTextDocumentHandler)),
                         WillSaveWaitUntil = _handlersManager.Descriptors.Any(z => z.HandlerType == typeof(IWillSaveWaitUntilTextDocumentHandler)),
-                        Save = new SaveOptions { IncludeText = source.Save?.IncludeText == true }
+                        Save = new SaveOptions { IncludeText = source.Save?.Value?.IncludeText == true }
                     };
                 }
             }
@@ -247,7 +247,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
             {
                 return new() {
                     DocumentSelector = options.DocumentSelector,
-                    IncludeText = options.Save?.IncludeText == true
+                    IncludeText = options.Save?.Value?.IncludeText == true
                 };
             }
 

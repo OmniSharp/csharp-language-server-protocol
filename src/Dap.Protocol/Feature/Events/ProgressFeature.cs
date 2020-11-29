@@ -38,7 +38,7 @@ namespace OmniSharp.Extensions.DebugAdapter.Protocol
             /// <summary>
             /// Mandatory (short) title of the progress reporting. Shown in the UI to describe the long running operation.
             /// </summary>
-            public string Title { get; init; } = null!;
+            public string Title { get; init; }
 
             /// <summary>
             /// The request ID that this progress report is related to. If specified a debug adapter is expected to emit

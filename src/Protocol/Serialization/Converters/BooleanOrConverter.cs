@@ -24,6 +24,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         private static void WriteJsonGeneric<T>(JsonWriter writer, BooleanOr<T> value, JsonSerializer serializer)
+            where T : class?
         {
             if (value.IsBool)
             {
@@ -48,6 +49,7 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol.Serialization.Converters
         }
 
         private static BooleanOr<T> ReadJsonGeneric<T>(JsonReader reader, JsonSerializer serializer)
+            where T : class?
         {
             if (reader.TokenType == JsonToken.Boolean)
             {

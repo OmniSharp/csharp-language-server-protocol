@@ -13,7 +13,7 @@
     <ItemGroup>
         <PackageReference Update="GitVersion.Tool" Version="5.5.1" />
         <PackageReference Update="JetBrains.ReSharper.CommandLineTools" Version="2020.2.4" />
-        <PackageReference Update="ReportGenerator" Version="4.8.0" />
+        <PackageReference Update="ReportGenerator" Version="4.8.1" />
         <PackageReference Update="Rocket.Surgery.Nuke" Version="0.14.2" />
     </ItemGroup>
     <ItemGroup>

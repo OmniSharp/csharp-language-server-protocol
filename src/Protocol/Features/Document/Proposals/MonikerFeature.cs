@@ -184,9 +184,5 @@ namespace OmniSharp.Extensions.LanguageServer.Protocol
 
     namespace Document.Proposals
     {
-        class A<T> where T : IHandlerIdentity?
-        {
-            public T? B { get; set; }
-        }
     }
 }
